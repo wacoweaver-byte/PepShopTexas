@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pep Shop Texas</title>
+<style>
+:root {
+  --pst-blue:#0b3d91;
+  --pst-blue-soft:#e8efff;
+  --pst-black:#111111;
+  --pst-white:#ffffff;
+  --bg:#f6f5f2;
+  --card:#ffffff;
+  --text:#242424;
+  --muted:#666666;
+  --line:#dedbd4;
+  --soft:#f0eee8;
+  --warning:#b36b00;
+  --danger:#b00020;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.announcement{background:var(--pst-white);border-bottom:1px solid var(--line);padding:10px 18px;text-align:center;font-size:14px}
+header{background:var(--pst-white);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.nav{max-width:1180px;margin:auto;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.logo{font-size:25px;font-weight:900;letter-spacing:-.5px;color:var(--pst-black)}
+.logo span{color:var(--pst-blue)}
+.menu{display:flex;gap:16px;font-size:14px;align-items:center;flex-wrap:wrap}
+.menu a{color:#333;text-decoration:none;font-weight:700}
+.account{padding:9px 14px;border:1px solid var(--line);border-radius:999px}
+.cart-link{background:var(--pst-blue);color:white!important;padding:9px 14px;border-radius:999px}
+.wrap{max-width:1180px;margin:auto;padding:42px 20px}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:stretch}
+.card,.hero-copy,.product-card,.dose-card,.nav-card,.promo-box{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 4px 18px rgba(0,0,0,.035)}
+.tag{display:inline-block;background:var(--pst-blue-soft);border-radius:999px;padding:7px 12px;font-size:13px;margin-bottom:14px;color:var(--pst-blue);font-weight:800}
+h1{font-size:52px;line-height:1.05;margin:0 0 16px;letter-spacing:-1.4px;color:var(--pst-black)}
+h2{margin:0 0 14px;font-size:30px;color:var(--pst-black)}
+h3{margin:0 0 10px;color:var(--pst-black)}
+p{color:var(--muted);line-height:1.55}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.btn{display:inline-block;padding:14px 18px;border-radius:12px;text-decoration:none;font-weight:900;border:none;cursor:pointer;font-size:15px}
+.btn-dark{background:var(--pst-black);color:#fff}
+.btn-blue{background:var(--pst-blue);color:#fff}
+.btn-light{background:#fff;color:#222;border:1px solid var(--line)}
+.notice{background:#f8f8f6;border:1px solid var(--line);border-radius:16px;padding:16px;color:#555;font-size:14px;line-height:1.5;margin-top:14px}
+.section{margin-top:34px}
+.section-title{margin-bottom:18px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.nav-board{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:20px}
+.nav-card{padding:22px;text-decoration:none;color:var(--text)}
+.nav-card:hover,.peptide-button:hover{border-color:var(--pst-blue)}
+.nav-card strong{display:block;margin-bottom:8px;font-size:18px}
+.nav-card span{color:var(--muted);font-size:14px;line-height:1.4}
+.home-promo{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.promo-box strong{display:block;margin-bottom:8px;color:var(--pst-black)}
+.az-box{background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px}
+.letters{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:20px}
+.letters a{min-width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:#fafafa;font-weight:900;color:#222;text-decoration:none}
+.search{width:100%;padding:15px;border:1px solid var(--line);border-radius:12px;font-size:15px;margin-bottom:18px}
+.letter-group{margin-top:22px}
+.letter-group h3{font-size:26px;border-bottom:1px solid var(--line);padding-bottom:8px;color:var(--pst-blue)}
+.peptide-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.peptide-button{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;text-align:left;font-weight:900;cursor:pointer;font-size:15px;color:#222}
+.product-detail{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px;align-items:start}
+.vial-stage{display:flex;align-items:center;justify-content:center;min-height:420px;background:linear-gradient(#fff,#f8f8f6);border:1px solid var(--line);border-radius:24px;padding:30px}
+.vial{width:175px;height:315px;border:2px solid #cfd3d8;border-radius:22px;background:rgba(255,255,255,.72);position:relative;box-shadow:0 24px 48px rgba(0,0,0,.13)}
+.vial:before{content:"";position:absolute;top:-34px;left:43px;width:86px;height:40px;background:#1f5ca8;border-radius:9px 9px 4px 4px;border:2px solid #cfd3d8}
+.vial:after{content:"";position:absolute;top:7px;left:23px;right:23px;height:54px;border-radius:0 0 45px 45px;background:rgba(255,255,255,.35)}
+.vial-label{position:absolute;left:18px;right:18px;top:92px;background:#fff;border:1px solid #d7d7d7;border-radius:9px;padding:14px 9px;text-align:center;min-height:150px;overflow:hidden}
+.pst{font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1;color:var(--pst-black)}
+.pst span{color:var(--pst-blue)}
+.subtitle{font-size:11px;font-weight:800;margin-top:3px}
+.label-line{border-top:2px solid var(--pst-blue);margin:10px 0}
+.vial-name{font-size:18px;font-weight:900;margin-top:8px;word-break:break-word;color:var(--pst-black)}
+.vial-strength{font-size:16px;font-weight:800;margin-top:4px}
+.purity{font-size:11px;color:var(--pst-blue);font-weight:900;margin-top:8px;background:var(--pst-blue-soft);border-radius:999px;padding:5px 8px;display:inline-block}
+.recon{font-size:10px;margin-top:9px;color:#333}
+.product-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.info-item{background:#f8f8f6;border:1px solid var(--line);border-radius:14px;padding:14px}
+.info-item strong{display:block;margin-bottom:4px}
+.price{font-size:24px;font-weight:900;margin-top:18px;color:var(--pst-black)}
+.stock{margin-top:12px;font-weight:900;font-size:14px}
+.stock.low{color:var(--warning)} .stock.critical{color:var(--danger)}
+.dose-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.dose-card.blue h3{color:var(--pst-blue)} .dose-card.green h3{color:#176b2c}
+.unit-box{background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:16px;margin:16px 0}
+.unit-box strong{display:block;font-size:20px;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{border-bottom:1px solid var(--line);padding:13px 8px;text-align:left;vertical-align:top}
+th{color:#555;font-size:14px}
+.units{font-weight:900;white-space:nowrap}
+.formula{background:var(--soft);border-radius:12px;padding:12px;margin:10px 0;font-weight:800;line-height:1.45}
+.cart-panel{position:fixed;right:20px;top:90px;width:380px;max-width:calc(100vw - 40px);background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.18);padding:20px;z-index:30;display:none}
+.cart-panel.open{display:block}
+.cart-item{border-bottom:1px solid var(--line);padding:12px 0}
+.cart-item strong{display:block}
+.qty-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.qty-btn{width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font-weight:900}
+.remove-btn{border:none;background:none;color:var(--danger);font-weight:800;cursor:pointer;margin-left:auto}
+.cart-total{font-size:20px;font-weight:900;margin:16px 0}
+.cart-actions{display:flex;gap:10px;flex-wrap:wrap}
+.faq-list{display:grid;gap:12px}
+.faq-item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}
+.faq-item strong{display:block;margin-bottom:7px}
+footer{margin-top:40px;background:#fff;border-top:1px solid var(--line)}
+.footer-inner{max-width:1180px;margin:auto;padding:34px 20px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:24px;font-size:14px;color:#555}
+footer h4{margin:0 0 10px;color:#222}
+footer a{color:#555;text-decoration:none}
+.admin-link{font-size:12px;color:#999}
+@media(max-width:900px){
+.hero,.grid-3,.grid-4,.dose-grid,.footer-inner,.home-promo,.product-detail{grid-template-columns:1fr}
+.nav-board{grid-template-columns:1fr 1fr}
+.peptide-list{grid-template-columns:1fr 1fr}
+.menu{display:none}
+h1{font-size:38px}
+th,td{font-size:14px}
+}
+@media(max-width:560px){
+.nav-board,.peptide-list,.product-info-grid{grid-template-columns:1fr}
+.cart-panel{right:10px;top:80px;max-width:calc(100vw - 20px)}
+}
+</style>
+</head>
+<body>
+<div class="announcement">Fast shipping from Central Texas • Standard, 3-Day, 2-Day & Express shipping options available</div>
+
+<header>
+<nav class="nav">
+<div class="logo">P<span>S</span>T</div>
+<div class="menu">
+<a href="#home">Home</a>
+<a href="#shop">Shop</a>
+<a href="#az">A–Z Peptides</a>
+<a href="#product-detail">Product Details</a>
+<a href="#dose">Dose Reference</a>
+<a href="#research">Research Library</a>
+<a href="#contact">Contact</a>
+<a class="account" href="#account">Login / Register</a>
+<a class="cart-link" href="#" onclick="toggleCart(event)">Cart (<span id="cartCount">0</span>)</a>
+</div>
+</nav>
+</header>
+
+<div class="cart-panel" id="cartPanel">
+<h2>Cart</h2>
+<div id="cartItems"><p>Your cart is empty.</p></div>
+<div class="cart-total" id="cartTotal">Subtotal: $0</div>
+<div class="cart-actions">
+<button class="btn btn-light" onclick="toggleCart(event)">Continue Shopping</button>
+<button class="btn btn-blue">Checkout</button>
+</div>
+</div>
+
+<main class="wrap">
+<section id="home" class="hero">
+<div class="hero-copy">
+<div class="tag">Research Use Only • 18+ Required</div>
+<h1>A clean research product platform built for easy navigation.</h1>
+<p>The homepage functions as a manager-controlled communication board for promotions, stacks, discounts, low-stock products, shipping updates, and research highlights.</p>
+<div class="cta-row">
+<a class="btn btn-dark" href="#az">Browse A–Z Peptides</a>
+<a class="btn btn-light" href="#shop">Shop Categories</a>
+<a class="btn btn-light" href="#dose">View Dose Reference</a>
+</div>
+</div>
+
+<div class="card">
+<h2>Current Notices</h2>
+<p>Use this area for owner-managed announcements, promotions, and important customer communication.</p>
+<div class="notice"><strong>Fast Shipping From Central Texas</strong><br>Standard, 3-Day, 2-Day, and Express shipping options available.</div>
+<div class="notice"><strong>Featured Stack Promotion</strong><br>Manager can feature Wolverine, Glow, Recovery, or other stack promotions here.</div>
+<div class="notice"><strong>Limited Supply Alerts</strong><br>Low-stock products can automatically appear here when inventory falls below threshold.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-title"><h2>Navigation Board</h2><p>Homepage navigation without cluttering the page with every individual peptide.</p></div>
+<div class="nav-board">
+<a class="nav-card" href="#az"><strong>A–Z Peptides</strong><span>Find peptides alphabetically and open the matching PST vial/product detail view.</span></a>
+<a class="nav-card" href="#shop"><strong>Shop Categories</strong><span>Browse recovery, longevity, cognitive, metabolic, immune, and skin research products.</span></a>
+<a class="nav-card" href="#dose"><strong>Dose Reference</strong><span>View product-driven 1 mL and 2 mL reference tables.</span></a>
+<a class="nav-card" href="#research"><strong>Research Library</strong><span>Review COAs, research references, and educational resources.</span></a>
+</div>
+</section>
+
+<section id="shop" class="section">
+<div class="section-title"><h2>Shop Categories</h2><p>Individual peptides live in the A–Z index and product pages.</p></div>
+<div class="grid-4">
+<div class="product-card"><div class="tag">Recovery</div><h3>Recovery</h3><p>BPC-157, TB-500, TB4, KPV, LL-37, and related research products.</p></div>
+<div class="product-card"><div class="tag">Longevity</div><h3>Longevity</h3><p>NAD+, MOTS-C, Epitalon, GHK-Cu, and mitochondrial-focused research products.</p></div>
+<div class="product-card"><div class="tag">Cognitive</div><h3>Cognitive</h3><p>Selank, Semax, DSIP, and neuro-focused research products.</p></div>
+<div class="product-card"><div class="tag">Metabolic</div><h3>Metabolic</h3><p>AOD-9604, Tesamorelin, Survodutide, and body-composition research products.</p></div>
+</div>
+</section>
+
+<section id="az" class="section">
+<div class="section-title">
+<h2>A–Z Peptide Index</h2>
+<p>Select a peptide name. The PST vial and product details update with the selected product.</p>
+</div>
+<div class="az-box">
+<div class="letters">
+<a href="#letter-A">A</a><a href="#letter-B">B</a><a href="#letter-C">C</a><a href="#letter-D">D</a><a href="#letter-E">E</a><a href="#letter-G">G</a><a href="#letter-I">I</a><a href="#letter-K">K</a><a href="#letter-L">L</a><a href="#letter-M">M</a><a href="#letter-N">N</a><a href="#letter-O">O</a><a href="#letter-P">P</a><a href="#letter-S">S</a><a href="#letter-T">T</a><a href="#letter-V">V</a>
+</div>
+<input class="search" id="peptideSearch" oninput="filterPeptides()" placeholder="Search peptide name..." />
+<div class="letter-group" id="letter-A"><h3>A</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "AOD-9604", "strength": "5 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Metabolic", "price": 89, "inventory": 22})'>AOD-9604</button>
+<button class='peptide-button' onclick='selectProduct({"name": "ARA-290", "strength": "16 mg", "purity": "99.3%", "reconstitution": "2 mL", "category": "Recovery", "price": 119, "inventory": 18})'>ARA-290</button>
+</div></div>
+<div class="letter-group" id="letter-B"><h3>B</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "BPC-157", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Recovery", "price": 89, "inventory": 12})'>BPC-157</button>
+</div></div>
+<div class="letter-group" id="letter-C"><h3>C</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "CJC-1295", "strength": "5 mg", "purity": "99.4%", "reconstitution": "2 mL", "category": "GH Secretagogue", "price": 79, "inventory": 20})'>CJC-1295</button>
+<button class='peptide-button' onclick='selectProduct({"name": "CJC-No DAC / Ipamorelin Blend", "strength": "10 mg", "purity": "99.2%", "reconstitution": "2 mL", "category": "GH Secretagogue", "price": 129, "inventory": 9})'>CJC-No DAC / Ipamorelin Blend</button>
+</div></div>
+<div class="letter-group" id="letter-D"><h3>D</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "DSIP", "strength": "5 mg", "purity": "99.1%", "reconstitution": "2 mL", "category": "Sleep / Neuro", "price": 69, "inventory": 14})'>DSIP</button>
+</div></div>
+<div class="letter-group" id="letter-E"><h3>E</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "Epitalon", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Longevity", "price": 85, "inventory": 15})'>Epitalon</button>
+</div></div>
+<div class="letter-group" id="letter-G"><h3>G</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "GHK-Cu", "strength": "50 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Skin / Hair", "price": 99, "inventory": 8})'>GHK-Cu</button>
+</div></div>
+<div class="letter-group" id="letter-I"><h3>I</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "Ipamorelin", "strength": "5 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "GH Secretagogue", "price": 69, "inventory": 24})'>Ipamorelin</button>
+</div></div>
+<div class="letter-group" id="letter-K"><h3>K</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "Kisspeptin", "strength": "10 mg", "purity": "99.2%", "reconstitution": "2 mL", "category": "Hormone Research", "price": 89, "inventory": 13})'>Kisspeptin</button>
+<button class='peptide-button' onclick='selectProduct({"name": "KPV", "strength": "10 mg", "purity": "99.4%", "reconstitution": "2 mL", "category": "Immune / Inflammation", "price": 89, "inventory": 10})'>KPV</button>
+</div></div>
+<div class="letter-group" id="letter-L"><h3>L</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "L-Carnitine", "strength": "500 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Metabolic", "price": 59, "inventory": 30})'>L-Carnitine</button>
+<button class='peptide-button' onclick='selectProduct({"name": "LIPO-C w/B12", "strength": "10 mL", "purity": "99.5%", "reconstitution": "Ready to use", "category": "Metabolic", "price": 65, "inventory": 16})'>LIPO-C w/B12</button>
+<button class='peptide-button' onclick='selectProduct({"name": "LL-37", "strength": "5 mg", "purity": "99.1%", "reconstitution": "2 mL", "category": "Immune / Inflammation", "price": 99, "inventory": 7})'>LL-37</button>
+</div></div>
+<div class="letter-group" id="letter-M"><h3>M</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "MOTS-C", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Mitochondrial", "price": 109, "inventory": 18})'>MOTS-C</button>
+</div></div>
+<div class="letter-group" id="letter-N"><h3>N</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "NAD+", "strength": "500 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Longevity", "price": 129, "inventory": 36})'>NAD+</button>
+</div></div>
+<div class="letter-group" id="letter-O"><h3>O</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "Oxytocin", "strength": "10 mg", "purity": "99.3%", "reconstitution": "2 mL", "category": "Neuro / Wellness", "price": 79, "inventory": 11})'>Oxytocin</button>
+</div></div>
+<div class="letter-group" id="letter-P"><h3>P</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "PDA", "strength": "10 mg", "purity": "99.2%", "reconstitution": "2 mL", "category": "Research", "price": 95, "inventory": 6})'>PDA</button>
+<button class='peptide-button' onclick='selectProduct({"name": "PT-141", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Sexual Wellness Research", "price": 79, "inventory": 21})'>PT-141</button>
+</div></div>
+<div class="letter-group" id="letter-S"><h3>S</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "Selank", "strength": "10 mg", "purity": "99.4%", "reconstitution": "2 mL", "category": "Cognitive / Neuro", "price": 75, "inventory": 19})'>Selank</button>
+<button class='peptide-button' onclick='selectProduct({"name": "Semax", "strength": "10 mg", "purity": "99.4%", "reconstitution": "2 mL", "category": "Cognitive / Neuro", "price": 75, "inventory": 17})'>Semax</button>
+<button class='peptide-button' onclick='selectProduct({"name": "SNAP-8", "strength": "10 mg", "purity": "99.1%", "reconstitution": "2 mL", "category": "Skin / Cosmetic", "price": 69, "inventory": 9})'>SNAP-8</button>
+<button class='peptide-button' onclick='selectProduct({"name": "Survodutide", "strength": "5 mg", "purity": "99.2%", "reconstitution": "2 mL", "category": "Metabolic", "price": 189, "inventory": 5})'>Survodutide</button>
+</div></div>
+<div class="letter-group" id="letter-T"><h3>T</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "TB4", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Recovery", "price": 92, "inventory": 12})'>TB4</button>
+<button class='peptide-button' onclick='selectProduct({"name": "TB-500", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Recovery", "price": 94, "inventory": 12})'>TB-500</button>
+<button class='peptide-button' onclick='selectProduct({"name": "Tesamorelin", "strength": "5 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Metabolic / GH", "price": 115, "inventory": 8})'>Tesamorelin</button>
+<button class='peptide-button' onclick='selectProduct({"name": "Thymosin Alpha 1", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Immune", "price": 99, "inventory": 15})'>Thymosin Alpha 1</button>
+</div></div>
+<div class="letter-group" id="letter-V"><h3>V</h3><div class="peptide-list">
+<button class='peptide-button' onclick='selectProduct({"name": "VIP", "strength": "5 mg", "purity": "99.1%", "reconstitution": "2 mL", "category": "Immune / Neuro", "price": 105, "inventory": 4})'>VIP</button>
+</div></div>
+</div>
+</section>
+
+<section id="product-detail" class="section">
+<div class="section-title">
+<h2>Selected Product Detail</h2>
+<p>Click any peptide in the A–Z Index. The vial render updates to the selected product.</p>
+</div>
+
+<div class="product-detail">
+<div class="vial-stage">
+<div class="vial">
+<div class="vial-label">
+<div class="pst">P<span>S</span>T</div>
+<div class="subtitle">Pep Shop Texas</div>
+<div class="label-line"></div>
+<div class="vial-name" id="vialName">AOD-9604</div>
+<div class="vial-strength" id="vialStrength">5 mg</div>
+<div class="purity" id="vialPurity">Purity: 99.5%</div>
+<div class="recon" id="vialRecon">Recommended Reconstitution: 2 mL</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="tag" id="productCategory">Metabolic</div>
+<h2 id="productName">AOD-9604</h2>
+<p id="productSummary">Product detail template for the selected peptide. This area will later include tabs for Overview, COA, Common Research Protocol Examples, Dose Reference, References, Videos, Shipping, and FAQ.</p>
+<div class="product-info-grid">
+<div class="info-item"><strong>Strength</strong><span id="detailStrength">5 mg</span></div>
+<div class="info-item"><strong>Purity</strong><span id="detailPurity">99.5%</span></div>
+<div class="info-item"><strong>Reconstitution</strong><span id="detailRecon">2 mL</span></div>
+<div class="info-item"><strong>Inventory</strong><span id="detailInventory">22 vials</span></div>
+</div>
+<div class="price" id="detailPrice">$89</div>
+<div class="stock" id="detailStock">In Stock — 22 vials remaining</div>
+<div class="cta-row">
+<button class="btn btn-blue" onclick="addSelectedToCart()">Add to Cart</button>
+<button class="btn btn-light" onclick="toggleCart(event)">View Cart</button>
+<a class="btn btn-light" href="#az">Continue Shopping</a>
+</div>
+<div class="notice">
+<strong>Required product-page display:</strong> PST vial render, product name, strength, purity percentage, recommended reconstitution, COA tab, inventory status, common research protocol examples, dose reference tables, and research references.
+</div>
+</div>
+</div>
+</section>
+
+<section id="dose" class="section">
+<div class="section-title"><h2>Dose Reference Example</h2><p>Generated from product strength: 5 milligrams (5 mg) / 5,000 micrograms (5,000 µg).</p></div>
+<div class="notice"><strong>Formula used:</strong> Dose wanted ÷ vial strength × reconstitution units = units to draw.</div>
+<div class="dose-grid" style="margin-top:20px;">
+<div class="dose-card blue">
+<h3>Reconstituted with 1 mL</h3><p>1 mL = 100 syringe units</p>
+<div class="unit-box"><strong>1 Unit Strength</strong>50 micrograms (50 µg)<br>0.05 milligrams (0.05 mg)</div>
+<table>
+<tr><th>Desired Dose</th><th>Units</th></tr>
+<tr><td>250 micrograms (250 µg) / 0.25 milligrams (0.25 mg)</td><td class="units">5 units</td></tr>
+<tr><td>500 micrograms (500 µg) / 0.5 milligrams (0.5 mg)</td><td class="units">10 units</td></tr>
+<tr><td>750 micrograms (750 µg) / 0.75 milligrams (0.75 mg)</td><td class="units">15 units</td></tr>
+<tr><td>1,000 micrograms (1,000 µg) / 1 milligram (1 mg)</td><td class="units">20 units</td></tr>
+</table>
+<div class="formula">200 micrograms (200 µg) ÷ 5,000 micrograms (5,000 µg) × 100 units = 4 units</div>
+</div>
+
+<div class="dose-card green">
+<h3>Reconstituted with 2 mL</h3><p>2 mL = 200 syringe units</p>
+<div class="unit-box"><strong>1 Unit Strength</strong>25 micrograms (25 µg)<br>0.025 milligrams (0.025 mg)</div>
+<table>
+<tr><th>Desired Dose</th><th>Units</th></tr>
+<tr><td>250 micrograms (250 µg) / 0.25 milligrams (0.25 mg)</td><td class="units">10 units</td></tr>
+<tr><td>500 micrograms (500 µg) / 0.5 milligrams (0.5 mg)</td><td class="units">20 units</td></tr>
+<tr><td>750 micrograms (750 µg) / 0.75 milligrams (0.75 mg)</td><td class="units">30 units</td></tr>
+<tr><td>1,000 micrograms (1,000 µg) / 1 milligram (1 mg)</td><td class="units">40 units</td></tr>
+</table>
+<div class="formula">200 micrograms (200 µg) ÷ 5,000 micrograms (5,000 µg) × 200 units = 8 units</div>
+</div>
+</div>
+
+<div class="card" style="margin-top:22px;">
+<h2>Common Research Protocol Examples</h2>
+<p>These examples are generated from product strength and are informational reference only.</p>
+<div class="notice"><strong>Formula used:</strong><br>Vial strength ÷ dose amount = total doses per vial<br>Total doses ÷ frequency = estimated vial duration</div>
+<table>
+<tr><th>Common Research Amount</th><th>Common Research Frequency</th><th>Total Doses Per Vial</th><th>Estimated Vial Duration</th></tr>
+<tr><td>250 micrograms (250 µg) / 0.25 milligrams (0.25 mg)</td><td>1x weekly</td><td class="units">20 doses</td><td class="units">About 20 weeks</td></tr>
+<tr><td>500 micrograms (500 µg) / 0.5 milligrams (0.5 mg)</td><td>1x weekly</td><td class="units">10 doses</td><td class="units">About 10 weeks</td></tr>
+<tr><td>1,000 micrograms (1,000 µg) / 1 milligram (1 mg)</td><td>1x weekly</td><td class="units">5 doses</td><td class="units">About 5 weeks</td></tr>
+<tr><td>500 micrograms (500 µg) / 0.5 milligrams (0.5 mg)</td><td>2x weekly</td><td class="units">10 doses</td><td class="units">About 5 weeks</td></tr>
+<tr><td>1,000 micrograms (1,000 µg) / 1 milligram (1 mg)</td><td>2x weekly</td><td class="units">5 doses</td><td class="units">About 2.5 weeks</td></tr>
+</table>
+<div class="notice"><strong>Reference disclaimer:</strong> These are common research protocol examples for informational reference only. They are not medical advice, dosing instructions, or treatment recommendations. All calculations should be independently verified.</div>
+</div>
+</section>
+
+<section id="research" class="section">
+<div class="section-title"><h2>Research Library</h2><p>Published literature, study summaries, COAs, and product-specific reference articles.</p></div>
+<div class="grid-3">
+<div class="card"><h3>Common Research Protocol Examples</h3><p>Product pages can include commonly referenced research protocol examples without framing them as medical dosing advice.</p></div>
+<div class="card"><h3>COA Access</h3><p>Product pages include a COA tab with batch number, purity, testing date, and downloadable documentation.</p></div>
+<div class="card"><h3>Instructional Videos</h3><p>Educational videos can cover storage, handling, reconstitution basics, and product education.</p></div>
+</div>
+</section>
+
+<section id="contact" class="section">
+<div class="section-title"><h2>Support & Contact</h2><p>FAQ should open only when clicked; homepage should stay focused on promotions and navigation.</p></div>
+<div class="grid-3">
+<div class="card"><h3>Chat Support</h3><p>Use chat for quick order, account, shipping, COA, or general support questions.</p></div>
+<div class="card"><h3>Email Support</h3><p>Email inquiries are typically returned within 24–48 business hours, Monday through Friday, excluding holidays.</p></div>
+<div class="card"><h3>Payments</h3><p>Credit card, ACH, Apple Pay, Google Pay, Venmo, and Cash App options can be displayed at checkout.</p></div>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="footer-inner">
+<div><h4>Pep Shop Texas</h4><p>Products are sold for research purposes only. Not intended to diagnose, treat, cure, or prevent any disease. Customers must be 18 years of age or older.</p></div>
+<div><h4>Shop</h4><p><a href="#shop">Categories</a><br><a href="#az">A–Z Peptides</a><br><a href="#dose">Dose Reference</a></p></div>
+<div><h4>Resources</h4><p><a href="#research">Research Library</a><br><a href="#faq">FAQ</a><br><a href="#contact">Contact</a></p></div>
+<div><h4>Owner</h4><p><a class="admin-link" href="#admin-login">Admin Login</a></p></div>
+</div>
+</footer>
+
+<script>
+const products = [{"name": "AOD-9604", "strength": "5 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Metabolic", "price": 89, "inventory": 22}, {"name": "ARA-290", "strength": "16 mg", "purity": "99.3%", "reconstitution": "2 mL", "category": "Recovery", "price": 119, "inventory": 18}, {"name": "BPC-157", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Recovery", "price": 89, "inventory": 12}, {"name": "CJC-1295", "strength": "5 mg", "purity": "99.4%", "reconstitution": "2 mL", "category": "GH Secretagogue", "price": 79, "inventory": 20}, {"name": "CJC-No DAC / Ipamorelin Blend", "strength": "10 mg", "purity": "99.2%", "reconstitution": "2 mL", "category": "GH Secretagogue", "price": 129, "inventory": 9}, {"name": "DSIP", "strength": "5 mg", "purity": "99.1%", "reconstitution": "2 mL", "category": "Sleep / Neuro", "price": 69, "inventory": 14}, {"name": "Epitalon", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Longevity", "price": 85, "inventory": 15}, {"name": "GHK-Cu", "strength": "50 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Skin / Hair", "price": 99, "inventory": 8}, {"name": "Ipamorelin", "strength": "5 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "GH Secretagogue", "price": 69, "inventory": 24}, {"name": "Kisspeptin", "strength": "10 mg", "purity": "99.2%", "reconstitution": "2 mL", "category": "Hormone Research", "price": 89, "inventory": 13}, {"name": "KPV", "strength": "10 mg", "purity": "99.4%", "reconstitution": "2 mL", "category": "Immune / Inflammation", "price": 89, "inventory": 10}, {"name": "L-Carnitine", "strength": "500 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Metabolic", "price": 59, "inventory": 30}, {"name": "LIPO-C w/B12", "strength": "10 mL", "purity": "99.5%", "reconstitution": "Ready to use", "category": "Metabolic", "price": 65, "inventory": 16}, {"name": "LL-37", "strength": "5 mg", "purity": "99.1%", "reconstitution": "2 mL", "category": "Immune / Inflammation", "price": 99, "inventory": 7}, {"name": "MOTS-C", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Mitochondrial", "price": 109, "inventory": 18}, {"name": "NAD+", "strength": "500 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Longevity", "price": 129, "inventory": 36}, {"name": "Oxytocin", "strength": "10 mg", "purity": "99.3%", "reconstitution": "2 mL", "category": "Neuro / Wellness", "price": 79, "inventory": 11}, {"name": "PDA", "strength": "10 mg", "purity": "99.2%", "reconstitution": "2 mL", "category": "Research", "price": 95, "inventory": 6}, {"name": "PT-141", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Sexual Wellness Research", "price": 79, "inventory": 21}, {"name": "Selank", "strength": "10 mg", "purity": "99.4%", "reconstitution": "2 mL", "category": "Cognitive / Neuro", "price": 75, "inventory": 19}, {"name": "Semax", "strength": "10 mg", "purity": "99.4%", "reconstitution": "2 mL", "category": "Cognitive / Neuro", "price": 75, "inventory": 17}, {"name": "SNAP-8", "strength": "10 mg", "purity": "99.1%", "reconstitution": "2 mL", "category": "Skin / Cosmetic", "price": 69, "inventory": 9}, {"name": "Survodutide", "strength": "5 mg", "purity": "99.2%", "reconstitution": "2 mL", "category": "Metabolic", "price": 189, "inventory": 5}, {"name": "TB4", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Recovery", "price": 92, "inventory": 12}, {"name": "TB-500", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Recovery", "price": 94, "inventory": 12}, {"name": "Tesamorelin", "strength": "5 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Metabolic / GH", "price": 115, "inventory": 8}, {"name": "Thymosin Alpha 1", "strength": "10 mg", "purity": "99.5%", "reconstitution": "2 mL", "category": "Immune", "price": 99, "inventory": 15}, {"name": "VIP", "strength": "5 mg", "purity": "99.1%", "reconstitution": "2 mL", "category": "Immune / Neuro", "price": 105, "inventory": 4}];
+let selectedProduct = products[0];
+let cart = [];
+
+function stockText(product) {
+  if (product.inventory === 0) return "Out of Stock";
+  if (product.inventory <= 5) return "Almost Out of Stock — Only " + product.inventory + " vials remaining";
+  if (product.inventory <= 19) return "Limited Supply — " + product.inventory + " vials remaining";
+  return "In Stock — " + product.inventory + " vials remaining";
+}
+
+function stockClass(product) {
+  if (product.inventory <= 5) return "stock critical";
+  if (product.inventory <= 19) return "stock low";
+  return "stock";
+}
+
+function selectProduct(product) {
+  selectedProduct = product;
+  document.getElementById("vialName").textContent = product.name;
+  document.getElementById("vialStrength").textContent = product.strength;
+  document.getElementById("vialPurity").textContent = "Purity: " + product.purity;
+  document.getElementById("vialRecon").textContent = "Recommended Reconstitution: " + product.reconstitution;
+  document.getElementById("productName").textContent = product.name;
+  document.getElementById("productCategory").textContent = product.category;
+  document.getElementById("detailStrength").textContent = product.strength;
+  document.getElementById("detailPurity").textContent = product.purity;
+  document.getElementById("detailRecon").textContent = product.reconstitution;
+  document.getElementById("detailInventory").textContent = product.inventory + " vials";
+  document.getElementById("detailPrice").textContent = "$" + product.price;
+  const stock = document.getElementById("detailStock");
+  stock.textContent = stockText(product);
+  stock.className = stockClass(product);
+  document.getElementById("productSummary").textContent =
+    product.name + " product detail template. This selected product displays the PST-branded vial, COA, inventory in vials, common research protocol examples, dose reference tables, references, shipping, and FAQ tabs.";
+  document.getElementById("product-detail").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function filterPeptides() {
+  const query = document.getElementById("peptideSearch").value.toLowerCase();
+  const buttons = document.querySelectorAll(".peptide-button");
+  buttons.forEach(btn => {
+    const match = btn.textContent.toLowerCase().includes(query);
+    btn.style.display = match ? "block" : "none";
+  });
+}
+
+function addSelectedToCart() {
+  const existing = cart.find(item => item.name === selectedProduct.name);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({...selectedProduct, quantity:1});
+  }
+  renderCart();
+  document.getElementById("cartPanel").classList.add("open");
+}
+
+function changeQuantity(name, change) {
+  const item = cart.find(i => i.name === name);
+  if (!item) return;
+  item.quantity += change;
+  if (item.quantity <= 0) {
+    cart = cart.filter(i => i.name !== name);
+  }
+  renderCart();
+}
+
+function removeItem(name) {
+  cart = cart.filter(i => i.name !== name);
+  renderCart();
+}
+
+function renderCart() {
+  const cartItems = document.getElementById("cartItems");
+  const cartCount = document.getElementById("cartCount");
+  const cartTotal = document.getElementById("cartTotal");
+  const count = cart.reduce((sum,item) => sum + item.quantity, 0);
+  const total = cart.reduce((sum,item) => sum + item.price * item.quantity, 0);
+  cartCount.textContent = count;
+  cartTotal.textContent = "Subtotal: $" + total.toFixed(2);
+
+  if (cart.length === 0) {
+    cartItems.innerHTML = "<p>Your cart is empty.</p>";
+    return;
+  }
+
+  cartItems.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <strong>${item.name}</strong>
+      <div>${item.strength} • $${item.price}</div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changeQuantity('${item.name}', -1)">−</button>
+        <span>${item.quantity}</span>
+        <button class="qty-btn" onclick="changeQuantity('${item.name}', 1)">+</button>
+        <button class="remove-btn" onclick="removeItem('${item.name}')">Remove</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function toggleCart(event) {
+  if (event) event.preventDefault();
+  document.getElementById("cartPanel").classList.toggle("open");
+}
+
+renderCart();
+</script>
+</body>
+</html>
