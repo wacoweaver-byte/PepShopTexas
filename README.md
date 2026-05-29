@@ -1,2 +1,2 @@
-# PepShotTexas
+# PepShopTexas
 Peptide 
