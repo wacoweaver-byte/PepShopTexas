@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pep Shop Texas</title>
+  <style>
+    :root {
+      --bg: #f6f5f2;
+      --card: #ffffff;
+      --text: #242424;
+      --muted: #666666;
+      --line: #dedbd4;
+      --soft: #f0eee8;
+      --dark: #202020;
+      --blue: #0b3d91;
+      --green: #176b2c;
+      --danger: #b00020;
+      --warning: #b36b00;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .announcement {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 18px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav {
+      max-width: 1180px;
+      margin: auto;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .menu {
+      display: flex;
+      gap: 18px;
+      font-size: 14px;
+      align-items: center;
+    }
+
+    .menu a {
+      color: #333;
+      text-decoration: none;
+    }
+
+    .account {
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: auto;
+      padding: 42px 20px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .hero-copy,
+    .card,
+    .product-card,
+    .dose-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.035);
+    }
+
+    .tag {
+      display: inline-block;
+      background: var(--soft);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      color: #444;
+    }
+
+    h1 {
+      font-size: 52px;
+      line-height: 1.05;
+      margin: 0 0 16px;
+      letter-spacing: -1.4px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 30px;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .btn-dark {
+      background: var(--dark);
+      color: #ffffff;
+    }
+
+    .btn-light {
+      background: #ffffff;
+      color: #222222;
+      border: 1px solid var(--line);
+    }
+
+    .notice {
+      background: #f8f8f6;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      color: #555;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 14px;
+    }
+
+    .section {
+      margin-top: 34px;
+    }
+
+    .section-title {
+      margin-bottom: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .az-box {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .letters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .letters span {
+      min-width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fafafa;
+      font-weight: 800;
+    }
+
+    .search {
+      margin-top: 14px;
+      width: 100%;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-size: 15px;
+    }
+
+    .price {
+      font-size: 22px;
+      font-weight: 900;
+      margin-top: 12px;
+    }
+
+    .stock {
+      margin-top: 12px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .stock.low { color: var(--warning); }
+    .stock.critical { color: var(--danger); }
+
+    .dose-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .dose-card.blue h3 { color: var(--blue); }
+    .dose-card.green h3 { color: var(--green); }
+
+    .unit-box {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .unit-box strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 13px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #555;
+      font-size: 14px;
+    }
+
+    .units {
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .formula {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 10px 0;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .label-preview {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #ffffff;
+      padding: 22px;
+      text-align: center;
+      max-width: 340px;
+      margin: 0 auto;
+    }
+
+    .pst-logo {
+      font-size: 46px;
+      font-weight: 900;
+      letter-spacing: -2px;
+    }
+
+    .pst-logo span {
+      color: var(--blue);
+    }
+
+    .label-line {
+      border-top: 2px solid var(--blue);
+      margin: 12px 0;
+    }
+
+    .purity {
+      background: #e9f0ff;
+      color: var(--blue);
+      padding: 8px 12px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-top: 10px;
+      font-weight: 800;
+    }
+
+    .faq-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .faq-item {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .faq-item strong {
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    footer {
+      margin-top: 40px;
+      background: #ffffff;
+      border-top: 1px solid var(--line);
+    }
+
+    .footer-inner {
+      max-width: 1180px;
+      margin: auto;
+      padding: 34px 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 24px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    footer h4 {
+      margin: 0 0 10px;
+      color: #222;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .grid-3,
+      .grid-4,
+      .dose-grid,
+      .footer-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .menu {
+        display: none;
+      }
+
+      h1 {
+        font-size: 38px;
+      }
+
+      th, td {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="announcement">
+    Fast shipping from Central Texas • Standard, 3-Day, 2-Day & Express shipping options available
+  </div>
+
+  <header>
+    <nav class="nav">
+      <div class="logo">Pep Shop Texas</div>
+      <div class="menu">
+        <a href="#shop">Shop</a>
+        <a href="#stacks">Stacks</a>
+        <a href="#az">A–Z Index</a>
+        <a href="#dose">Dose Reference</a>
+        <a href="#research">Research Library</a>
+        <a href="#admin">Admin</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+        <a class="account" href="#account">Login / Register</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="tag">Research Use Only • 18+ Required</div>
+        <h1>Clean peptide research products, organized for easy lookup.</h1>
+        <p>
+          Pep Shop Texas is a mobile-friendly research-product platform with PST branding,
+          COAs, research references, instructional videos, product-driven dose reference tables,
+          inventory visibility, and fast shipping from Central Texas.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-dark" href="#shop">Shop Products</a>
+          <a class="btn btn-light" href="#az">Browse A–Z Index</a>
+          <a class="btn btn-light" href="#dose">View Dose Reference</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Customer Requirements</h2>
+        <p>Create an account, confirm age eligibility, review medical advisories, and access COAs, shipping updates, and support.</p>
+        <div class="notice">
+          Customers must confirm they are at least 18 years old and understand products are sold for research purposes only.
+        </div>
+        <div class="notice">
+          All customers are encouraged to consult a licensed healthcare professional prior to purchasing, handling, researching, or using peptide compounds.
+        </div>
+        <div class="notice">
+          Individuals with cancer, prior cancer history, tumors, active malignancy, unexplained masses, or remission history should seek medical guidance prior to purchasing peptide research compounds.
+        </div>
+      </div>
+    </section>
+
+    <section id="shop" class="section">
+      <div class="section-title">
+        <h2>Featured Collections</h2>
+        <p>Simple categories for fast browsing.</p>
+      </div>
+
+      <div class="grid-4">
+        <div class="product-card">
+          <div class="tag">Metabolic</div>
+          <h3>TX-Series</h3>
+          <p>Branded TX-1, TX-2, and TX-3 metabolic research products.</p>
+        </div>
+        <div class="product-card">
+          <div class="tag">Recovery</div>
+          <h3>Recovery</h3>
+          <p>Research compounds organized around recovery-focused literature.</p>
+        </div>
+        <div class="product-card">
+          <div class="tag">Longevity</div>
+          <h3>Longevity</h3>
+          <p>Compounds grouped by published research areas and pathways.</p>
+        </div>
+        <div class="product-card">
+          <div class="tag">Bundles</div>
+          <h3>Stacks</h3>
+          <p>Clean bundled product systems with clear contents.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="az" class="section">
+      <div class="section-title">
+        <h2>A–Z Peptide Lookup</h2>
+        <p>Fast alphabetical lookup by peptide or branded product name.</p>
+      </div>
+
+      <div class="az-box">
+        <div class="letters">
+          <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span>
+          <span>H</span><span>I</span><span>J</span><span>K</span><span>L</span><span>M</span><span>N</span>
+          <span>O</span><span>P</span><span>Q</span><span>R</span><span>S</span><span>T</span><span>U</span>
+          <span>V</span><span>W</span><span>X</span><span>Y</span><span>Z</span>
+        </div>
+        <input class="search" placeholder="Search by compound, TX-Series product, category, or research topic..." />
+      </div>
+    </section>
+
+    <section id="stacks" class="section">
+      <div class="section-title">
+        <h2>Product Examples</h2>
+        <p>Inventory is tracked in vials, not units.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="product-card">
+          <div class="tag">Metabolic Research</div>
+          <h3>TX-1</h3>
+          <p>Product page includes Overview, COA, Common Research Protocol Examples, Dose Reference, References, Videos, Shipping, and FAQ.</p>
+          <div class="price">$249</div>
+          <div class="stock critical">Almost Out of Stock — Only 4 vials remaining</div>
+        </div>
+
+        <div class="product-card">
+          <div class="tag">Recovery</div>
+          <h3>BPC-157</h3>
+          <p>Recovery research compound with PST label, COA tab, dose reference table, and research article section.</p>
+          <div class="price">$89</div>
+          <div class="stock low">Limited Supply — 12 vials remaining</div>
+        </div>
+
+        <div class="product-card">
+          <div class="tag">Longevity</div>
+          <h3>NAD+</h3>
+          <p>Longevity research product with strength, purity percentage, and recommended reconstitution displayed.</p>
+          <div class="price">$129</div>
+          <div class="stock">In Stock — 36 vials remaining</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dose" class="section">
+      <div class="section-title">
+        <h2>TX-1 Dose Reference Example</h2>
+        <p>Generated from product strength: 5 milligrams (5 mg) / 5,000 micrograms (5,000 µg).</p>
+      </div>
+
+      <div class="notice">
+        <strong>Formula used:</strong> Dose wanted ÷ vial strength × reconstitution units = units to draw.
+      </div>
+
+      <div class="dose-grid" style="margin-top:20px;">
+        <div class="dose-card blue">
+          <h3>Reconstituted with 1 mL</h3>
+          <p>1 mL = 100 syringe units</p>
+
+          <div class="unit-box">
+            <strong>1 Unit Strength</strong>
+            50 micrograms (50 µg)<br>
+            0.05 milligrams (0.05 mg)
+          </div>
+
+          <table>
+            <tr><th>Desired Dose</th><th>Units</th></tr>
+            <tr><td>250 micrograms (250 µg) / 0.25 milligrams (0.25 mg)</td><td class="units">5 units</td></tr>
+            <tr><td>500 micrograms (500 µg) / 0.5 milligrams (0.5 mg)</td><td class="units">10 units</td></tr>
+            <tr><td>750 micrograms (750 µg) / 0.75 milligrams (0.75 mg)</td><td class="units">15 units</td></tr>
+            <tr><td>1,000 micrograms (1,000 µg) / 1 milligram (1 mg)</td><td class="units">20 units</td></tr>
+          </table>
+
+          <div class="formula">
+            200 micrograms (200 µg) ÷ 5,000 micrograms (5,000 µg) × 100 units = 4 units
+          </div>
+        </div>
+
+        <div class="dose-card green">
+          <h3>Reconstituted with 2 mL</h3>
+          <p>2 mL = 200 syringe units</p>
+
+          <div class="unit-box">
+            <strong>1 Unit Strength</strong>
+            25 micrograms (25 µg)<br>
+            0.025 milligrams (0.025 mg)
+          </div>
+
+          <table>
+            <tr><th>Desired Dose</th><th>Units</th></tr>
+            <tr><td>250 micrograms (250 µg) / 0.25 milligrams (0.25 mg)</td><td class="units">10 units</td></tr>
+            <tr><td>500 micrograms (500 µg) / 0.5 milligrams (0.5 mg)</td><td class="units">20 units</td></tr>
+            <tr><td>750 micrograms (750 µg) / 0.75 milligrams (0.75 mg)</td><td class="units">30 units</td></tr>
+            <tr><td>1,000 micrograms (1,000 µg) / 1 milligram (1 mg)</td><td class="units">40 units</td></tr>
+          </table>
+
+          <div class="formula">
+            200 micrograms (200 µg) ÷ 5,000 micrograms (5,000 µg) × 200 units = 8 units
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:22px;">
+        <h2>Common Research Protocol Examples</h2>
+        <p>These examples are generated from the product strength of 5 milligrams (5 mg) / 5,000 micrograms (5,000 µg) total vial content.</p>
+
+        <div class="notice">
+          <strong>Formula used:</strong><br>
+          Vial strength ÷ dose amount = total doses per vial<br>
+          Total doses ÷ frequency = estimated vial duration
+        </div>
+
+        <table>
+          <tr>
+            <th>Common Research Amount</th>
+            <th>Common Research Frequency</th>
+            <th>Total Doses Per Vial</th>
+            <th>Estimated Vial Duration</th>
+          </tr>
+          <tr>
+            <td>250 micrograms (250 µg) / 0.25 milligrams (0.25 mg)</td>
+            <td>1x weekly</td>
+            <td class="units">20 doses</td>
+            <td class="units">About 20 weeks</td>
+          </tr>
+          <tr>
+            <td>500 micrograms (500 µg) / 0.5 milligrams (0.5 mg)</td>
+            <td>1x weekly</td>
+            <td class="units">10 doses</td>
+            <td class="units">About 10 weeks</td>
+          </tr>
+          <tr>
+            <td>1,000 micrograms (1,000 µg) / 1 milligram (1 mg)</td>
+            <td>1x weekly</td>
+            <td class="units">5 doses</td>
+            <td class="units">About 5 weeks</td>
+          </tr>
+          <tr>
+            <td>500 micrograms (500 µg) / 0.5 milligrams (0.5 mg)</td>
+            <td>2x weekly</td>
+            <td class="units">10 doses</td>
+            <td class="units">About 5 weeks</td>
+          </tr>
+          <tr>
+            <td>1,000 micrograms (1,000 µg) / 1 milligram (1 mg)</td>
+            <td>2x weekly</td>
+            <td class="units">5 doses</td>
+            <td class="units">About 2.5 weeks</td>
+          </tr>
+        </table>
+
+        <div class="notice">
+          <strong>Reference disclaimer:</strong> These are common research protocol examples for informational reference only.
+          They are not medical advice, dosing instructions, or treatment recommendations. All calculations should be independently verified.
+        </div>
+      </div>
+    </section>
+
+    <section id="label" class="section">
+      <div class="section-title">
+        <h2>PST Label Standard</h2>
+        <p>Same font style. Same black, blue, and white palette. No alternate label styles.</p>
+      </div>
+
+      <div class="card">
+        <div class="label-preview">
+          <div class="pst-logo">P<span>S</span>T</div>
+          <div style="font-weight:700;">Pep Shop Texas</div>
+          <div class="label-line"></div>
+          <h2 style="margin:12px 0 4px;">NAD+</h2>
+          <h3>500 mg</h3>
+          <div class="purity">Purity: 99.5%</div>
+          <p style="font-size:13px;margin-top:14px;">Recommended Reconstitution: 2 mL</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin" class="section">
+      <div class="section-title">
+        <h2>Admin Dashboard Requirements</h2>
+        <p>The production site must be owner-manageable without editing code.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3>Product Management</h3>
+          <p>Add/edit products, pricing, vial strength, purity percentage, product images, categories, stacks, and descriptions.</p>
+        </div>
+        <div class="card">
+          <h3>Inventory in Vials</h3>
+          <p>Track inventory as vials. Show “Limited Supply,” “Almost Out of Stock,” and “Only X vials remaining.”</p>
+        </div>
+        <div class="card">
+          <h3>Marketing Controls</h3>
+          <p>Manage homepage banners, specials, featured products, low-stock auto-promotion, sale pricing, and discount codes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="research" class="section">
+      <div class="section-title">
+        <h2>Research Library</h2>
+        <p>Published literature, study summaries, and product-specific reference articles.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3>Common Research Protocol Examples</h3>
+          <p>Product pages can include commonly referenced research protocol examples without framing them as medical dosing advice.</p>
+        </div>
+        <div class="card">
+          <h3>COA Access</h3>
+          <p>Product pages include a COA tab with batch number, purity, testing date, and downloadable documentation.</p>
+        </div>
+        <div class="card">
+          <h3>Instructional Videos</h3>
+          <p>Educational videos can cover storage, handling, reconstitution basics, and product education.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="section-title">
+        <h2>Support & Contact</h2>
+        <p>Designed to reduce unnecessary contact while still offering help when needed.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3>Chat Support</h3>
+          <p>Use chat for quick order, account, shipping, COA, or general support questions.</p>
+        </div>
+        <div class="card">
+          <h3>Email Support</h3>
+          <p>Email inquiries are typically returned within 24–48 business hours, Monday through Friday, excluding holidays.</p>
+        </div>
+        <div class="card">
+          <h3>Payments</h3>
+          <p>Credit card, ACH, Apple Pay, Google Pay, Venmo, and Cash App options can be displayed at checkout.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="section">
+      <div class="section-title">
+        <h2>Frequently Asked Questions</h2>
+        <p>Common answers before customers contact support.</p>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <strong>Where do orders ship from?</strong>
+          Orders ship from Central Texas with Standard, 3-Day, 2-Day, and Express options available.
+        </div>
+        <div class="faq-item">
+          <strong>Are these products intended for human consumption?</strong>
+          No. Products sold by Pep Shop Texas are intended for research purposes only.
+        </div>
+        <div class="faq-item">
+          <strong>Do I need to be 18 years or older?</strong>
+          Yes. Customers must confirm they are at least 18 years old before purchasing.
+        </div>
+        <div class="faq-item">
+          <strong>Are COAs available?</strong>
+          Supported product pages include a COA tab with batch details, purity information, testing date, and downloadable documentation.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <h4>Pep Shop Texas</h4>
+        <p>
+          Products are sold for research purposes only. Not intended to diagnose, treat, cure, or prevent any disease.
+          Customers must be 18 years of age or older.
+        </p>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <p>Products<br>Stacks<br>A–Z Index<br>TX-Series</p>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <p>Dose Reference<br>Videos<br>Research Library<br>FAQ</p>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <p>Contact<br>Chat<br>Email<br>Shipping</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
