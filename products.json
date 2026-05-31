@@ -14,7 +14,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 5,
       "file": "AOD-9604_2mg.png",
       "imageData": "assets/products/AOD-9604_2mg.png",
       "description": "AOD-9604 is a targeted fat-loss peptide derived from human growth hormone that may help support the breakdown of stored body fat while helping preserve lean muscle mass. Designed to promote lipolysis without affecting appetite, blood sugar, or IGF-1 levels, AOD-9604 is often used as part of a comprehensive weight-management and body-composition program."
@@ -31,7 +31,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 10,
       "file": "AOD-9604_5mg.png",
       "imageData": "assets/products/AOD-9604_5mg.png",
       "description": "AOD-9604 is a targeted fat-loss peptide derived from human growth hormone that may help support the breakdown of stored body fat while helping preserve lean muscle mass. Designed to promote lipolysis without affecting appetite, blood sugar, or IGF-1 levels, AOD-9604 is often used as part of a comprehensive weight-management and body-composition program."
@@ -48,7 +48,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 4,
       "file": "ARA-290_10mg.png",
       "imageData": "assets/products/ARA-290_10mg.png",
       "description": "ARA-290 (Cibinetide) is a tissue-protective and anti-inflammatory peptide derived from erythropoietin (EPO) that was specifically engineered to provide healing benefits without stimulating red blood cell production. Research suggests ARA-290 may help reduce chronic inflammation, support nerve regeneration, improve neuropathic pain, and promote tissue repair by activating the body's innate repair receptor (IRR). It has been studied in conditions involving small-fiber neuropathy, diabetic neuropathy, sarcoidosis-associated nerve pain, and inflammatory tissue injury."
@@ -65,7 +65,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 26,
       "file": "BPC-157_10mg.png",
       "imageData": "assets/products/BPC-157_10mg.png",
       "description": "BPC-157 is a research peptide studied for its potential to support recovery, tissue repair, and healing of muscles, tendons, ligaments, and the gastrointestinal tract. It is commonly investigated for its regenerative and recovery-supporting properties."
@@ -82,7 +82,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 7,
       "file": "CJC-1295_No_DAC_5mg.png",
       "imageData": "assets/products/CJC-1295_No_DAC_5mg.png",
       "description": "CJC-1295 (No DAC) is a growth hormone–releasing peptide (GHRH) analog studied for its potential to support natural growth hormone release, recovery, lean muscle development, fat metabolism, and overall performance optimization. It is commonly paired with peptides such as Ipamorelin in research applications."
@@ -99,7 +99,7 @@
       "reconstitution": "2 mL",
       "category": "Blend",
       "series": "",
-      "inventory": 0,
+      "inventory": 15,
       "file": "CJC-No_DAC_Ipamorelin_Blend_5mg_5mg.png",
       "imageData": "assets/products/CJC-No_DAC_Ipamorelin_Blend_5mg_5mg.png",
       "description": "CJC-1295 No DAC / Ipamorelin Blend is a research peptide combination studied for its potential to support natural growth hormone release, recovery, lean muscle development, fat metabolism, sleep quality, and healthy aging. The two peptides work synergistically to stimulate growth hormone production while minimizing unwanted side effects."
@@ -116,7 +116,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 7,
       "file": "Ipamorelin_10mg.png",
       "imageData": "assets/products/Ipamorelin_10mg.png",
       "description": "Ipamorelin is a research peptide studied for its potential to stimulate natural growth hormone release, supporting recovery, lean muscle development, fat metabolism, sleep quality, and overall wellness. It is valued for its selective action and favorable tolerability profile in research settings."
@@ -133,7 +133,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 9,
       "file": "DSIP_10mg.png",
       "imageData": "assets/products/DSIP_10mg.png",
       "description": "DSIP is a research peptide studied for its potential to support healthy sleep patterns, relaxation, stress management, and recovery. It is commonly investigated for its role in promoting restorative sleep and overall well-being."
@@ -150,7 +150,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 30,
       "file": "Epitalon_10mg.png",
       "imageData": "assets/products/Epitalon_10mg.png",
       "description": "Epitalon is a research peptide studied for its potential to support healthy aging, cellular health, sleep regulation, and overall longevity. It is commonly investigated for its effects on telomere maintenance and age-related wellness."
@@ -167,7 +167,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 30,
       "file": "GHK-Cu_50mg.png",
       "imageData": "assets/products/GHK-Cu_50mg.png",
       "description": "GHK-Cu is a copper-binding research peptide studied for its potential to support skin health, tissue repair, hair growth, collagen production, and overall regenerative processes. It is widely investigated for its rejuvenating and recovery-supporting properties."
@@ -184,7 +184,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 4,
       "file": "GHK-Cu_100mg.png",
       "imageData": "assets/products/GHK-Cu_100mg.png",
       "description": "GHK-Cu is a copper-binding research peptide studied for its potential to support skin health, tissue repair, hair growth, collagen production, and overall regenerative processes. It is widely investigated for its rejuvenating and recovery-supporting properties."
@@ -201,7 +201,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 24,
       "file": "Kisspeptin_10mg.png",
       "imageData": "assets/products/Kisspeptin_10mg.png",
       "description": "Kisspeptin is a research peptide studied for its potential to support reproductive hormone signaling, natural testosterone production, fertility, and overall endocrine health. It is commonly investigated for its role in regulating the body's hormonal axis."
@@ -218,7 +218,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 25,
       "file": "KPV_10mg.png",
       "imageData": "assets/products/KPV_10mg.png",
       "description": "KPV is a research peptide studied for its potential to support healthy inflammatory responses, gut health, skin health, and tissue recovery. It is commonly investigated for its anti-inflammatory and healing-supportive properties."
@@ -235,7 +235,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 21,
       "file": "L-Carnitine_10mg.png",
       "imageData": "assets/products/L-Carnitine_10mg.png",
       "description": "L-Carnitine is a naturally occurring amino acid derivative studied for its role in transporting fatty acids into cells for energy production. It is commonly used to support fat metabolism, exercise performance, recovery, and overall energy levels."
@@ -252,7 +252,7 @@
       "reconstitution": "2 mL",
       "category": "Peptide",
       "series": "",
-      "inventory": 0,
+      "inventory": 11,
       "file": "LIPO-C w_B12_10mg.png",
       "imageData": "assets/products/LIPO-C w_B12_10mg.png",
       "description": "Lipo-C with B12 is a lipotropic blend commonly used to support fat metabolism, energy production, and overall wellness. Combining lipotropic nutrients with vitamin B12, it is often utilized as part of weight-management, fitness, and healthy lifestyle programs."
