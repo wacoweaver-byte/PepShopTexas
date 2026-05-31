@@ -51,7 +51,7 @@
       "inventory": 0,
       "file": "ARA-290_10mg.png",
       "imageData": "assets/products/ARA-290_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "ARA-290 (Cibinetide) is a tissue-protective and anti-inflammatory peptide derived from erythropoietin (EPO) that was specifically engineered to provide healing benefits without stimulating red blood cell production. Research suggests ARA-290 may help reduce chronic inflammation, support nerve regeneration, improve neuropathic pain, and promote tissue repair by activating the body's innate repair receptor (IRR). It has been studied in conditions involving small-fiber neuropathy, diabetic neuropathy, sarcoidosis-associated nerve pain, and inflammatory tissue injury."
     },
     {
       "key": "BPC 157 10 MG",
@@ -68,7 +68,7 @@
       "inventory": 0,
       "file": "BPC-157_10mg.png",
       "imageData": "assets/products/BPC-157_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "BPC-157 is a research peptide studied for its potential to support recovery, tissue repair, and healing of muscles, tendons, ligaments, and the gastrointestinal tract. It is commonly investigated for its regenerative and recovery-supporting properties."
     },
     {
       "key": "CJC 1295 NO DAC 5 MG",
@@ -85,7 +85,7 @@
       "inventory": 0,
       "file": "CJC-1295_No_DAC_5mg.png",
       "imageData": "assets/products/CJC-1295_No_DAC_5mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "CJC-1295 (No DAC) is a growth hormone–releasing peptide (GHRH) analog studied for its potential to support natural growth hormone release, recovery, lean muscle development, fat metabolism, and overall performance optimization. It is commonly paired with peptides such as Ipamorelin in research applications."
     },
     {
       "key": "CJC NO DAC IPAMORELIN BLEND 5 MG 5 MG",
@@ -102,7 +102,7 @@
       "inventory": 0,
       "file": "CJC-No_DAC_Ipamorelin_Blend_5mg_5mg.png",
       "imageData": "assets/products/CJC-No_DAC_Ipamorelin_Blend_5mg_5mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "CJC-1295 No DAC / Ipamorelin Blend is a research peptide combination studied for its potential to support natural growth hormone release, recovery, lean muscle development, fat metabolism, sleep quality, and healthy aging. The two peptides work synergistically to stimulate growth hormone production while minimizing unwanted side effects."
     },
     {
       "key": "IPAMORELIN 10 MG",
@@ -119,7 +119,7 @@
       "inventory": 0,
       "file": "Ipamorelin_10mg.png",
       "imageData": "assets/products/Ipamorelin_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Ipamorelin is a research peptide studied for its potential to stimulate natural growth hormone release, supporting recovery, lean muscle development, fat metabolism, sleep quality, and overall wellness. It is valued for its selective action and favorable tolerability profile in research settings."
     },
     {
       "key": "DSIP 10 MG",
@@ -136,7 +136,7 @@
       "inventory": 0,
       "file": "DSIP_10mg.png",
       "imageData": "assets/products/DSIP_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "DSIP is a research peptide studied for its potential to support healthy sleep patterns, relaxation, stress management, and recovery. It is commonly investigated for its role in promoting restorative sleep and overall well-being."
     },
     {
       "key": "EPITALON 10 MG",
@@ -153,7 +153,7 @@
       "inventory": 0,
       "file": "Epitalon_10mg.png",
       "imageData": "assets/products/Epitalon_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Epitalon is a research peptide studied for its potential to support healthy aging, cellular health, sleep regulation, and overall longevity. It is commonly investigated for its effects on telomere maintenance and age-related wellness."
     },
     {
       "key": "GHK CU 50 MG",
@@ -170,7 +170,7 @@
       "inventory": 0,
       "file": "GHK-Cu_50mg.png",
       "imageData": "assets/products/GHK-Cu_50mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "GHK-Cu is a copper-binding research peptide studied for its potential to support skin health, tissue repair, hair growth, collagen production, and overall regenerative processes. It is widely investigated for its rejuvenating and recovery-supporting properties."
     },
     {
       "key": "GHK CU 100 MG",
@@ -187,7 +187,7 @@
       "inventory": 0,
       "file": "GHK-Cu_100mg.png",
       "imageData": "assets/products/GHK-Cu_100mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "GHK-Cu is a copper-binding research peptide studied for its potential to support skin health, tissue repair, hair growth, collagen production, and overall regenerative processes. It is widely investigated for its rejuvenating and recovery-supporting properties."
     },
     {
       "key": "KISSPEPTIN 10 MG",
@@ -204,7 +204,7 @@
       "inventory": 0,
       "file": "Kisspeptin_10mg.png",
       "imageData": "assets/products/Kisspeptin_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Kisspeptin is a research peptide studied for its potential to support reproductive hormone signaling, natural testosterone production, fertility, and overall endocrine health. It is commonly investigated for its role in regulating the body's hormonal axis."
     },
     {
       "key": "KPV 10 MG",
@@ -221,7 +221,7 @@
       "inventory": 0,
       "file": "KPV_10mg.png",
       "imageData": "assets/products/KPV_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "KPV is a research peptide studied for its potential to support healthy inflammatory responses, gut health, skin health, and tissue recovery. It is commonly investigated for its anti-inflammatory and healing-supportive properties."
     },
     {
       "key": "L CARNITINE 500 MG ML 10 ML",
@@ -238,7 +238,7 @@
       "inventory": 0,
       "file": "L-Carnitine_10mg.png",
       "imageData": "assets/products/L-Carnitine_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "L-Carnitine is a naturally occurring amino acid derivative studied for its role in transporting fatty acids into cells for energy production. It is commonly used to support fat metabolism, exercise performance, recovery, and overall energy levels."
     },
     {
       "key": "LIPO C W B12 10 ML",
@@ -255,7 +255,7 @@
       "inventory": 0,
       "file": "LIPO-C w_B12_10mg.png",
       "imageData": "assets/products/LIPO-C w_B12_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Lipo-C with B12 is a lipotropic blend commonly used to support fat metabolism, energy production, and overall wellness. Combining lipotropic nutrients with vitamin B12, it is often utilized as part of weight-management, fitness, and healthy lifestyle programs."
     },
     {
       "key": "LL 37 10 MG",
@@ -272,7 +272,7 @@
       "inventory": 0,
       "file": "LL-37_10mg.png",
       "imageData": "assets/products/LL-37_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "LL-37 is a research peptide studied for its potential to support immune function, tissue repair, wound healing, and antimicrobial defense. It is commonly investigated for its role in recovery, inflammation management, and overall cellular health."
     },
     {
       "key": "MOTS C 10 MG",
@@ -289,7 +289,7 @@
       "inventory": 0,
       "file": "MOTS-C_10mg.png",
       "imageData": "assets/products/MOTS-C_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "MOTS-C 10 mg is a mitochondrial-derived research peptide studied for its potential to support cellular energy production, metabolic health, fat metabolism, exercise performance, and healthy aging. It is commonly investigated for its role in optimizing metabolic function and overall vitality."
     },
     {
       "key": "NAD 250 MG",
@@ -306,7 +306,7 @@
       "inventory": 0,
       "file": "NAD_250mg.png",
       "imageData": "assets/products/NAD_250mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "NAD+ is a research compound studied for its potential to support cellular energy production, healthy aging, cognitive function, and metabolic health. It plays a key role in mitochondrial function and is commonly investigated for its effects on vitality, recovery, and overall wellness."
     },
     {
       "key": "NAD 500 MG",
@@ -323,7 +323,7 @@
       "inventory": 0,
       "file": "NAD_500mg.png",
       "imageData": "assets/products/NAD_500mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "NAD+ is a research compound studied for its potential to support cellular energy production, healthy aging, cognitive function, and metabolic health. It plays a key role in mitochondrial function and is commonly investigated for its effects on vitality, recovery, and overall wellness."
     },
     {
       "key": "OXYTOCIN 10 MG",
@@ -340,7 +340,7 @@
       "inventory": 0,
       "file": "Oxytocin_10mg.png",
       "imageData": "assets/products/Oxytocin_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Oxytocin is a research peptide studied for its potential to support social bonding, mood, stress management, emotional well-being, and interpersonal connection. It is commonly investigated for its role in regulating behavior, trust, and overall psychological wellness."
     },
     {
       "key": "PDA 10 MG",
@@ -357,7 +357,7 @@
       "inventory": 0,
       "file": "PDA_10mg.png",
       "imageData": "assets/products/PDA_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "PDA (Pentadeca Arginate) is a research peptide studied for its potential to support tissue repair, injury recovery, gut health, and healthy inflammatory responses. It is commonly investigated for its regenerative and recovery-supporting properties."
     },
     {
       "key": "PT 141 10 MG",
@@ -374,7 +374,7 @@
       "inventory": 0,
       "file": "PT-141_10MG.png",
       "imageData": "assets/products/PT-141_10MG.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "PT-141 is a research peptide studied for its potential to support sexual wellness, libido, arousal, and sexual function in both men and women. It is commonly investigated for its effects on desire and performance through central nervous system pathways."
     },
     {
       "key": "SELANK 10 MG",
@@ -391,7 +391,7 @@
       "inventory": 0,
       "file": "Selank_10mg.png",
       "imageData": "assets/products/Selank_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Selank is a research peptide studied for its potential to support mood, stress management, cognitive function, focus, and overall emotional well-being. It is commonly investigated for its calming effects without significant sedation."
     },
     {
       "key": "SEMAX 10 MG",
@@ -408,7 +408,7 @@
       "inventory": 0,
       "file": "Semax_10mg.png",
       "imageData": "assets/products/Semax_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Semax is a research peptide studied for its potential to support cognitive function, focus, memory, mental clarity, and neuroprotection. It is commonly investigated for its effects on learning, concentration, and overall brain health."
     },
     {
       "key": "SNAP 8 10 MG",
@@ -425,7 +425,7 @@
       "inventory": 0,
       "file": "SNAP-8_10mg.png",
       "imageData": "assets/products/SNAP-8_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "SNAP-8 is a research peptide studied for its potential to support skin rejuvenation and the appearance of smoother skin. It is commonly investigated for its ability to help reduce the appearance of expression lines and wrinkles by influencing facial muscle contractions."
     },
     {
       "key": "SURVODUTIDE 10 MG",
@@ -442,7 +442,7 @@
       "inventory": 0,
       "file": "Survodutide_10mg.png",
       "imageData": "assets/products/Survodutide_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Survodutide is a dual glucagon and GLP-1 receptor agonist studied for its potential to support weight management, fat loss, metabolic health, and appetite regulation. It is commonly investigated for its effects on body composition, energy balance, and overall metabolic optimization."
     },
     {
       "key": "TB4 10 MG",
@@ -459,7 +459,7 @@
       "inventory": 0,
       "file": "TB4_10mg.png",
       "imageData": "assets/products/TB4_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "TB-4 (Thymosin Beta-4) is a research peptide studied for its potential to support tissue repair, recovery, wound healing, and regenerative processes throughout the body. It is commonly investigated for its effects on muscle, tendon, ligament, and connective tissue recovery."
     },
     {
       "key": "TB 500 FRAG 17 23 10 MG",
@@ -476,7 +476,7 @@
       "inventory": 0,
       "file": "TB-500 Frag 17-23 10mg.png",
       "imageData": "assets/products/TB-500 Frag 17-23 10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "TB-500 Frag 17 10 mg is a research peptide fragment studied for its potential to support tissue repair, recovery, wound healing, and cellular regeneration. It is commonly investigated for its role in promoting recovery of muscles, tendons, ligaments, and connective tissues."
     },
     {
       "key": "TESAMORELIN 10 MG",
@@ -493,7 +493,7 @@
       "inventory": 0,
       "file": "Tesamorelin_10mg.png",
       "imageData": "assets/products/Tesamorelin_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Tesamorelin is a growth hormone–releasing hormone (GHRH) analog studied for its potential to support fat metabolism, body composition, lean muscle preservation, and healthy growth hormone production. It is commonly investigated for its effects on reducing visceral fat and promoting metabolic health."
     },
     {
       "key": "TESAMORELIN IPAMORELIN BLEND 10 MG 3 MG",
@@ -510,7 +510,7 @@
       "inventory": 0,
       "file": "Tesamorelin_Ipamorelin Blend 10mg_3mg.png",
       "imageData": "assets/products/Tesamorelin_Ipamorelin Blend 10mg_3mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Tesamorelin 10 mg / Ipamorelin 3 mg Blend is a research peptide combination studied for its potential to support natural growth hormone release, fat metabolism, lean muscle preservation, recovery, sleep quality, and overall body composition. The synergistic blend is commonly investigated for metabolic optimization and healthy aging applications."
     },
     {
       "key": "THYMOSIN ALPHA 1 10 MG",
@@ -527,7 +527,7 @@
       "inventory": 0,
       "file": "Thymosin Alpha 1_10mg.png",
       "imageData": "assets/products/Thymosin Alpha 1_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Thymosin Alpha-1 is a research peptide studied for its potential to support immune system function, cellular defense mechanisms, and overall wellness. It is commonly investigated for its role in immune modulation, recovery, and maintaining healthy immune responses."
     },
     {
       "key": "VIP 10 MG",
@@ -544,7 +544,7 @@
       "inventory": 0,
       "file": "VIP_10mg.png",
       "imageData": "assets/products/VIP_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "VIP (Vasoactive Intestinal Peptide) is a research peptide studied for its potential to support respiratory health, healthy inflammatory responses, immune function, and vascular health. It is commonly investigated for its role in promoting cellular communication, circulation, and overall wellness."
     },
     {
       "key": "GLOW BLEND BPC 157 TB4 GHK CU 70 MG",
@@ -561,7 +561,7 @@
       "inventory": 0,
       "file": "Glow Blend BPC-157 TB4 GHK-Cu_70mg.png",
       "imageData": "assets/products/Glow Blend BPC-157 TB4 GHK-Cu_70mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Glow Blend (GHK-Cu + NAD+) is a research peptide blend studied for its potential to support skin health, cellular energy production, healthy aging, tissue repair, and overall rejuvenation. It is commonly investigated for promoting a youthful appearance, recovery, and cellular wellness."
     },
     {
       "key": "KLOW BLEND KPV BPC 157 TB 500 80 MG",
@@ -578,7 +578,7 @@
       "inventory": 0,
       "file": "Klow Blend KPV_BPC-157_TB-500_80mg.png",
       "imageData": "assets/products/Klow Blend KPV_BPC-157_TB-500_80mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Klow Blend (KPV + LL-37) is a research peptide blend studied for its potential to support healthy inflammatory responses, immune function, tissue repair, gut health, and recovery. It is commonly investigated for its synergistic effects on healing, wellness, and overall cellular health."
     },
     {
       "key": "WOLVERINE BPC 157 TB 500 10 MG 10 MG",
@@ -595,7 +595,7 @@
       "inventory": 0,
       "file": "Wolverine BPC-157_TB-500 10mg_10mg.png",
       "imageData": "assets/products/Wolverine BPC-157_TB-500 10mg_10mg.png",
-      "description": "Product detail page structure with matching PST master artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options."
+      "description": "Wolverine Blend (BPC-157 + TB-500) is a research peptide blend studied for its potential to support tissue repair, recovery, wound healing, and regenerative processes throughout the body. It is commonly investigated for promoting recovery of muscles, tendons, ligaments, and connective tissues."
     },
     {
       "key": "PST TX1 10 MG",
@@ -612,7 +612,7 @@
       "inventory": 0,
       "file": "PST-TX1 10mg.png",
       "imageData": "assets/products/PST-TX1 10mg.png",
-      "description": "PST-TX Metabolic & Weight Management Series product. For compound verification, reference the product COA."
+      "description": "GLP-1 receptor agonist studied for its potential to support weight management, appetite control, blood sugar regulation, and metabolic health. It is commonly investigated for its effects on reducing hunger, improving satiety, and promoting sustainable body composition changes."
     },
     {
       "key": "PST TX2 10 MG",
@@ -629,7 +629,7 @@
       "inventory": 0,
       "file": "PST-TX2 10mg.png",
       "imageData": "assets/products/PST-TX2 10mg.png",
-      "description": "PST-TX Metabolic & Weight Management Series product. For compound verification, reference the product COA."
+      "description": "A dual GIP and GLP-1 receptor agonist studied for its potential to support weight management, appetite control, blood sugar regulation, and metabolic health. It is commonly investigated for its ability to promote significant fat loss, improve satiety, and support healthy body composition."
     },
     {
       "key": "PST TX3 10 MG",
@@ -646,7 +646,7 @@
       "inventory": 0,
       "file": "PST-TX3 10mg.png",
       "imageData": "assets/products/PST-TX3 10mg.png",
-      "description": "PST-TX Metabolic & Weight Management Series product. For compound verification, reference the product COA."
+      "description": "A triple receptor agonist that targets GLP-1, GIP, and glucagon pathways and is studied for its potential to support weight management, fat loss, appetite control, and metabolic health. It is commonly investigated for its effects on body composition, energy expenditure, and advanced metabolic optimization."
     }
   ]
 }
