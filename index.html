@@ -2408,6 +2408,30 @@ async function placePSTOrder() {
 
     if (itemError) throw itemError;
 
+    try {
+  await fetch("https://ucejjztsbmrogiteivxl.supabase.co/functions/v1/send-order-email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${PST_SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify({
+      type: "order_received",
+      to: session.user.email,
+      customerName: firstName || "Customer",
+      orderNumber: order.order_number,
+      orderDate: new Date().toLocaleDateString(),
+      items: orderItems.map(item => ({
+        name: item.product_name,
+        quantity: item.quantity
+      })),
+      total: `$${Number(order.total || 0).toFixed(2)}`
+    })
+  });
+} catch (emailError) {
+  console.warn("Order confirmation email failed:", emailError);
+}
+
     cart = [];
     renderCart();
 
