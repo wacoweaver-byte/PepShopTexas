@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Account | Pep Shop Texas</title>
+<style>
+:root{--blue:#003f9e;--black:#050505;--line:#e6e6e6;--soft:#f7f7f7;--muted:#555}
+*{box-sizing:border-box}body{margin:0;background:#fff;color:#050505;font-family:Arial,Helvetica,sans-serif}.top-strip{background:#050505;color:#fff;font-size:13px;font-weight:800;text-transform:uppercase;display:flex;justify-content:space-between;gap:20px;padding:9px 36px}header{background:#fff;border-bottom:1px solid var(--line)}.nav{max-width:1280px;margin:auto;padding:14px 34px;display:flex;justify-content:space-between;align-items:center;gap:24px}.brand{font-family:Impact,'Arial Black',Arial,sans-serif;font-size:34px;text-decoration:none;color:#111;letter-spacing:.5px}.brand span{color:var(--blue)}.menu{display:flex;gap:22px;align-items:center;text-transform:uppercase;font-weight:900;font-size:14px}.menu a{color:#111;text-decoration:none}.menu a.active{color:var(--blue);border-bottom:2px solid var(--blue);padding-bottom:6px}.wrap{max-width:980px;margin:auto;padding:34px}.auth-card{border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 12px 35px rgba(0,0,0,.08);padding:30px}.section-title{font-family:Impact,'Arial Black',Arial,sans-serif;text-transform:uppercase;font-size:38px;margin:0}.underline{width:42px;height:4px;background:var(--blue);margin:8px 0 22px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.full{grid-column:1 / -1}.field{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:14px}.field strong{display:block;text-transform:uppercase;font-size:12px;color:#333;margin-bottom:5px}.btn{display:inline-block;border:2px solid var(--blue);border-radius:4px;padding:13px 26px;font-weight:900;text-transform:uppercase;cursor:pointer;text-decoration:none}.btn.primary{background:var(--blue);color:#fff}.btn.secondary{background:#fff;color:var(--blue)}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}.notice{margin:18px 0 0;padding:12px;border-radius:6px;font-weight:800;line-height:1.45}.notice.ok{background:#edf8f0;color:#147a32;border:1px solid #bfe8c8}.notice.err{background:#fff0f0;color:#b00020;border:1px solid #ffb8c0}.small{font-size:13px;color:#555;line-height:1.5}.status-pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f4f8ff;color:#003f9e;font-weight:900;font-size:12px;text-transform:uppercase}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.menu{display:none}.wrap,.nav{padding-left:18px;padding-right:18px}.top-strip{display:none}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="top-strip"><span>Research purposes only — not for human consumption</span><span>Support: support@pepshoptexas.com</span></div>
+<header><nav class="nav"><a class="brand" href="index.html">P<span>S</span>T</a><div class="menu"><a href="index.html">Home</a><a href="register.html">Create Account</a><a href="login.html">Login</a><a class="active" href="account.html">My Account</a><a href="admin.html">Admin</a></div></nav></header>
+<main class="wrap">
+<section class="auth-card">
+<h1 class="section-title">My Account</h1><div class="underline"></div>
+<p id="loadingText" class="small">Loading account...</p>
+<div id="accountContent" class="grid" style="display:none"></div>
+<div id="notice" class="notice err" style="display:none"></div>
+<div class="actions"><button id="logoutBtn" class="btn secondary" type="button" style="display:none">Logout</button><a class="btn secondary" href="login.html">Back to Login</a></div>
+</section>
+</main>
+<script>
+const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+const pstClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+function showError(message){
+  document.getElementById('loadingText').style.display='none';
+  const notice=document.getElementById('notice');
+  notice.textContent=message;
+  notice.style.display='block';
+}
+function valueOrBlank(v){ return v ? v : '—'; }
+function field(label, value){ return `<div class="field"><strong>${label}</strong><span>${valueOrBlank(value)}</span></div>`; }
+
+async function loadAccount(){
+  try {
+    const { data: sessionData, error: sessionError } = await pstClient.auth.getSession();
+    if (sessionError) throw sessionError;
+    const user = sessionData && sessionData.session && sessionData.session.user;
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const { data: profile, error: profileError } = await pstClient
+      .from('customer_profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    const content = document.getElementById('accountContent');
+    const source = profile || { email: user.email, account_status: 'active' };
+    content.innerHTML =
+      field('Account Status', `<span class="status-pill">${valueOrBlank(source.account_status)}</span>`) +
+      field('First Name', source.first_name) +
+      field('Last Name', source.last_name) +
+      field('Email', source.email || user.email) +
+      field('Username', source.username) +
+      field('Phone', source.phone) +
+      field('Billing Address', [source.billing_address, source.billing_city, source.billing_state, source.billing_zip].filter(Boolean).join(', ')) +
+      field('Shipping Address', [source.shipping_address, source.shipping_city, source.shipping_state, source.shipping_zip].filter(Boolean).join(', '));
+
+    document.getElementById('loadingText').style.display='none';
+    content.style.display='grid';
+    document.getElementById('logoutBtn').style.display='inline-block';
+  } catch (err) {
+    showError('Account page error: ' + (err.message || err));
+  }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+  await pstClient.auth.signOut();
+  window.location.href='login.html';
+});
+
+loadAccount();
+</script>
+</body>
+</html>
