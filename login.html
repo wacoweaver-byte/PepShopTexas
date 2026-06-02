@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Pep Shop Texas</title>
+<style>
+:root{--blue:#003f9e;--black:#050505;--line:#e6e6e6;--soft:#f7f7f7;--muted:#555}*{box-sizing:border-box}body{margin:0;background:#fff;color:#050505;font-family:Arial,Helvetica,sans-serif}.top-strip{background:#050505;color:#fff;font-size:13px;font-weight:800;text-transform:uppercase;display:flex;justify-content:space-between;gap:20px;padding:9px 36px}header{background:#fff;border-bottom:1px solid var(--line)}.nav{max-width:1280px;margin:auto;padding:14px 34px;display:flex;justify-content:space-between;align-items:center;gap:24px}.brand{font-family:Impact,'Arial Black',Arial,sans-serif;font-size:34px;text-decoration:none;color:#111;letter-spacing:.5px}.brand span{color:var(--blue)}.menu{display:flex;gap:22px;align-items:center;text-transform:uppercase;font-weight:900;font-size:14px}.menu a{color:#111;text-decoration:none}.menu a.active{color:var(--blue);border-bottom:2px solid var(--blue);padding-bottom:6px}.wrap{max-width:760px;margin:auto;padding:34px}.auth-card{border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 12px 35px rgba(0,0,0,.08);padding:30px}.section-title{font-family:Impact,'Arial Black',Arial,sans-serif;text-transform:uppercase;font-size:38px;margin:0}.underline{width:42px;height:4px;background:var(--blue);margin:8px 0 22px}label{font-size:12px;font-weight:900;text-transform:uppercase;color:#333;display:block;margin:0 0 6px}input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6px;font-size:15px;margin-bottom:16px}.btn{display:inline-block;border:2px solid var(--blue);border-radius:4px;padding:13px 26px;font-weight:900;text-transform:uppercase;cursor:pointer;text-decoration:none}.btn.primary{background:var(--blue);color:#fff}.btn.secondary{background:#fff;color:var(--blue)}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}.notice{display:none;margin:18px 0 0;padding:12px;border-radius:6px;font-weight:800;line-height:1.45}.notice.ok{display:block;background:#edf8f0;color:#147a32;border:1px solid #bfe8c8}.notice.err{display:block;background:#fff0f0;color:#b00020;border:1px solid #ffb8c0}.small{font-size:13px;color:#555;line-height:1.5}.post-login-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}.post-login-links a{pointer-events:auto!important}@media(max-width:720px){.menu{display:none}.wrap,.nav{padding-left:18px;padding-right:18px}.top-strip{display:none}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="top-strip"><span>Research purposes only — not for human consumption</span><span>Support: support@pepshoptexas.com</span></div>
+<header><nav class="nav"><a class="brand" href="https://www.pepshoptexas.com/index.html">P<span>S</span>T</a><div class="menu"><a href="https://www.pepshoptexas.com/index.html">Home</a><a href="https://www.pepshoptexas.com/register.html">Create Account</a><a class="active" href="https://www.pepshoptexas.com/login.html">Login</a><a href="https://www.pepshoptexas.com/account.html?v=6">My Account</a><a href="https://www.pepshoptexas.com/admin.html">Admin</a></div></nav></header>
+<main class="wrap"><section class="auth-card"><h1 class="section-title">Login</h1><div class="underline"></div><p class="small">Log in to your Pep Shop Texas customer account.</p><form id="loginForm"><label>Email Address</label><input id="email" name="email" type="email" autocomplete="email" required><label>Password</label><input id="password" name="password" type="password" autocomplete="current-password" required><div class="actions"><button id="loginButton" class="btn primary" type="submit">Login</button><a class="btn secondary" href="https://www.pepshoptexas.com/register.html">Create Account</a></div></form><div id="notice" class="notice"></div></section></main>
+<script>
+const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const HOME_URL = "https://www.pepshoptexas.com/index.html?login=success&v=6";
+const ACCOUNT_URL = "https://www.pepshoptexas.com/account.html?v=6";
+function showLoginNotice(message, type){
+  const notice = document.getElementById('notice');
+  notice.className = 'notice ' + (type === 'ok' ? 'ok' : 'err');
+  notice.innerHTML = message;
+}
+document.getElementById('loginForm').addEventListener('submit', async function(event){
+  event.preventDefault();
+  const button = document.getElementById('loginButton');
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  button.textContent = 'Logging In...';
+  button.disabled = true;
+  try {
+    const result = await pstSupabaseClient.auth.signInWithPassword({ email: email, password: password });
+    if (result.error) {
+      showLoginNotice(result.error.message, 'err');
+      button.textContent = 'Login';
+      button.disabled = false;
+      return;
+    }
+    showLoginNotice('Login successful. Redirecting to homepage...<div class="post-login-links"><a class="btn primary" href="' + HOME_URL + '">Go to Home</a><a class="btn secondary" href="' + ACCOUNT_URL + '">My Account</a></div>', 'ok');
+    setTimeout(function(){ window.location.assign(HOME_URL); }, 1200);
+  } catch (error) {
+    showLoginNotice('Login failed: ' + error.message, 'err');
+    button.textContent = 'Login';
+    button.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
