@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Account | Pep Shop Texas</title>
+<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root { --blue:#003f9e; --black:#050505; --white:#ffffff; --line:#e6e6e6; --soft:#f7f7f7; --muted:#555; --red:#b00020; }
+* { box-sizing:border-box; }
+body { margin:0; background:#fff; color:var(--black); font-family:Arial, Helvetica, sans-serif; }
+a { color:var(--blue); font-weight:900; text-decoration:none; }
+.top-strip { background:#050505; color:#fff; font-size:13px; font-weight:800; text-transform:uppercase; display:flex; justify-content:space-between; gap:20px; padding:9px 36px; }
+header { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20; }
+.nav { max-width:1180px; margin:auto; padding:18px 28px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
+.brand { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; font-size:30px; color:#111; text-transform:uppercase; letter-spacing:.5px; }
+.brand span { color:var(--blue); }
+.menu { display:flex; gap:18px; align-items:center; text-transform:uppercase; font-weight:900; font-size:14px; }
+.wrap { max-width:1180px; margin:auto; padding:30px 28px; }
+.page-title { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:48px; margin:0 0 10px; }
+.subtitle { margin:0 0 28px; color:#444; font-size:17px; line-height:1.45; }
+.grid { display:grid; grid-template-columns:360px 1fr; gap:24px; align-items:start; }
+.card { border:1px solid var(--line); border-radius:12px; background:#fff; box-shadow:0 10px 26px rgba(0,0,0,.06); padding:22px; }
+.card h2 { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:28px; margin:0 0 14px; }
+.status { border-radius:8px; padding:12px 14px; margin:12px 0; font-weight:900; line-height:1.4; display:none; }
+.status.active { display:block; }
+.status.info { background:#f4f8ff; border:1px solid #d9e7ff; color:#153f76; }
+.status.success { background:#edf8f0; border:1px solid #bfe8c8; color:#147a32; }
+.status.error { background:#fff0f0; border:1px solid #ffb8c0; color:#b00020; }
+.profile-row { border-top:1px solid var(--line); padding:12px 0; }
+.profile-row:first-of-type { border-top:0; }
+.profile-row strong { display:block; text-transform:uppercase; font-size:12px; color:#555; margin-bottom:4px; }
+.btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.btn { border:2px solid var(--blue); border-radius:4px; background:#fff; color:var(--blue); padding:11px 15px; font-weight:900; text-transform:uppercase; cursor:pointer; display:inline-block; text-align:center; }
+.btn.primary { background:var(--blue); color:#fff; }
+.btn.danger { border-color:var(--red); color:var(--red); }
+.order-card { border:1px solid var(--line); border-radius:10px; background:#fff; margin:0 0 14px; overflow:hidden; }
+.order-head { display:grid; grid-template-columns:1.1fr .85fr .75fr .75fr; gap:12px; align-items:center; padding:16px; background:#fafafa; border-bottom:1px solid var(--line); }
+.order-number { font-weight:900; color:var(--blue); }
+.order-meta strong { display:block; text-transform:uppercase; color:#555; font-size:11px; margin-bottom:3px; }
+.badge { display:inline-block; border-radius:999px; padding:6px 9px; font-size:12px; font-weight:900; text-transform:uppercase; background:#f4f8ff; color:var(--blue); border:1px solid #d9e7ff; }
+.order-actions { padding:14px 16px; display:flex; gap:10px; flex-wrap:wrap; }
+.order-items { display:none; padding:0 16px 16px; }
+.order-items.active { display:block; }
+.item-line { display:grid; grid-template-columns:1fr 80px 90px 90px; gap:10px; padding:11px 0; border-top:1px solid var(--line); align-items:center; }
+.item-name strong { display:block; }
+.item-name span { color:#555; font-size:13px; }
+.empty-state { background:#f7f7f7; border:1px dashed #ccc; padding:24px; border-radius:10px; color:#555; font-weight:800; }
+@media(max-width:900px) {
+  .top-strip { display:none; }
+  .nav { flex-direction:column; align-items:flex-start; }
+  .grid { grid-template-columns:1fr; }
+  .order-head { grid-template-columns:1fr 1fr; }
+  .item-line { grid-template-columns:1fr 55px 70px 70px; font-size:14px; }
+}
+@media(max-width:560px) {
+  .wrap { padding:22px 16px; }
+  .page-title { font-size:38px; }
+  .order-head { grid-template-columns:1fr; }
+  .item-line { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="top-strip">
+  <span>🚚 Free shipping on orders over $250</span>
+  <span>Research purposes only — not for human consumption</span>
+  <span>⚗ Lab tested &nbsp; | &nbsp; Premium quality &nbsp; | &nbsp; USA based</span>
+</div>
+<header>
+  <nav class="nav">
+    <a class="brand" href="index.html">Pep Shop <span>Texas</span></a>
+    <div class="menu">
+      <a href="index.html">Home</a>
+      <a href="index.html#az">Shop Peptides</a>
+      <a href="index.html#featured">Featured Stacks</a>
+      <button class="btn danger" type="button" id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+</header>
+
+<main class="wrap">
+  <h1 class="page-title">My Account</h1>
+  <p class="subtitle">View your customer profile, recent orders, order status, and reload a previous order into your cart.</p>
+
+  <div id="pageStatus" class="status info active">Loading your account...</div>
+
+  <div class="grid" id="accountGrid" style="display:none;">
+    <aside class="card">
+      <h2>Profile</h2>
+      <div class="profile-row"><strong>Name</strong><span id="profileName">—</span></div>
+      <div class="profile-row"><strong>Email</strong><span id="profileEmail">—</span></div>
+      <div class="profile-row"><strong>Phone</strong><span id="profilePhone">—</span></div>
+      <div class="profile-row"><strong>Shipping Address</strong><span id="profileAddress">—</span></div>
+      <div class="btn-row">
+        <a class="btn primary" href="index.html#az">Shop Peptides</a>
+        <button class="btn" type="button" onclick="loadAccount()">Refresh</button>
+      </div>
+    </aside>
+
+    <section class="card">
+      <h2>Recent Orders</h2>
+      <div id="ordersList" class="empty-state">Loading orders...</div>
+    </section>
+  </div>
+</main>
+
+<script>
+const PST_SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+const PST_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+const pstAccountSupabase = window.supabase.createClient(PST_SUPABASE_URL, PST_SUPABASE_PUBLISHABLE_KEY);
+let pstAccountOrders = [];
+let pstAccountItemsByOrder = {};
+
+function pstEsc(value) {
+  return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+}
+
+function pstMoney(value) {
+  return "$" + Number(value || 0).toFixed(2);
+}
+
+function formatDate(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
+}
+
+function setStatus(message, type = "info") {
+  const el = document.getElementById("pageStatus");
+  if (!el) return;
+  el.className = "status active " + type;
+  el.innerHTML = message;
+}
+
+function addressFromProfile(profile) {
+  if (!profile) return "—";
+  const line1 = profile.address_line1 || "";
+  const line2 = profile.address_line2 || "";
+  const cityStateZip = [profile.city, profile.state, profile.zip].filter(Boolean).join(" ");
+  return [line1, line2, cityStateZip].filter(Boolean).join("<br>") || "—";
+}
+
+async function loadAccount() {
+  setStatus("Loading your account...", "info");
+  const grid = document.getElementById("accountGrid");
+  if (grid) grid.style.display = "none";
+
+  const { data: sessionData, error: sessionError } = await pstAccountSupabase.auth.getSession();
+  const session = sessionData && sessionData.session;
+
+  if (sessionError || !session || !session.user) {
+    setStatus('Please <a href="login.html">login</a> to view your account and previous orders.', "error");
+    setTimeout(() => { window.location.href = "login.html?return=account.html"; }, 900);
+    return;
+  }
+
+  const user = session.user;
+
+  const { data: profile } = await pstAccountSupabase
+    .from("customer_profiles")
+    .select("first_name,last_name,email,phone,address_line1,address_line2,city,state,zip")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const name = profile ? [profile.first_name, profile.last_name].filter(Boolean).join(" ") : "";
+  document.getElementById("profileName").textContent = name || "Customer";
+  document.getElementById("profileEmail").textContent = (profile && profile.email) || user.email || "—";
+  document.getElementById("profilePhone").textContent = (profile && profile.phone) || "—";
+  document.getElementById("profileAddress").innerHTML = addressFromProfile(profile);
+
+  const { data: orders, error: ordersError } = await pstAccountSupabase
+    .from("orders")
+    .select("id,order_number,status,total,subtotal,shipping,tax,payment_status,tracking_number,tracking_carrier,created_at")
+    .order("created_at", { ascending:false });
+
+  if (ordersError) {
+    setStatus("Could not load orders. " + pstEsc(ordersError.message), "error");
+    if (grid) grid.style.display = "grid";
+    return;
+  }
+
+  pstAccountOrders = orders || [];
+  const orderIds = pstAccountOrders.map(order => order.id);
+  pstAccountItemsByOrder = {};
+
+  if (orderIds.length) {
+    const { data: items, error: itemsError } = await pstAccountSupabase
+      .from("order_items")
+      .select("id,order_id,product_id,product_name,product_strength,product_category,quantity,unit_price,line_total")
+      .in("order_id", orderIds);
+
+    if (itemsError) {
+      setStatus("Orders loaded, but order items could not be loaded. " + pstEsc(itemsError.message), "error");
+    } else {
+      (items || []).forEach(item => {
+        if (!pstAccountItemsByOrder[item.order_id]) pstAccountItemsByOrder[item.order_id] = [];
+        pstAccountItemsByOrder[item.order_id].push(item);
+      });
+    }
+  }
+
+  renderOrders();
+  if (grid) grid.style.display = "grid";
+  setStatus("Account loaded successfully.", "success");
+}
+
+function renderOrders() {
+  const list = document.getElementById("ordersList");
+  if (!list) return;
+
+  if (!pstAccountOrders.length) {
+    list.className = "empty-state";
+    list.innerHTML = "No previous orders yet. When you checkout, your orders will appear here.";
+    return;
+  }
+
+  list.className = "";
+  list.innerHTML = pstAccountOrders.map(order => {
+    const items = pstAccountItemsByOrder[order.id] || [];
+    const tracking = order.tracking_number
+      ? `${pstEsc(order.tracking_carrier || "Tracking")}: ${pstEsc(order.tracking_number)}`
+      : "Not added yet";
+
+    return `
+      <article class="order-card">
+        <div class="order-head">
+          <div class="order-meta"><strong>Order</strong><span class="order-number">${pstEsc(order.order_number || order.id)}</span></div>
+          <div class="order-meta"><strong>Date</strong><span>${formatDate(order.created_at)}</span></div>
+          <div class="order-meta"><strong>Status</strong><span class="badge">${pstEsc(order.status || "Pending")}</span></div>
+          <div class="order-meta"><strong>Total</strong><span>${pstMoney(order.total)}</span></div>
+        </div>
+        <div class="order-actions">
+          <button class="btn" type="button" onclick="toggleOrderDetails('${order.id}')">View Order</button>
+          <button class="btn primary" type="button" onclick="reorder('${order.id}')">Reorder</button>
+          <span class="badge">Payment: ${pstEsc(order.payment_status || "Pending")}</span>
+          <span class="badge">Tracking: ${tracking}</span>
+        </div>
+        <div id="items-${order.id}" class="order-items">
+          ${items.length ? items.map(item => `
+            <div class="item-line">
+              <div class="item-name"><strong>${pstEsc(item.product_name)}</strong><span>${pstEsc(item.product_strength || item.product_category || "")}</span></div>
+              <div>Qty ${Number(item.quantity || 0)}</div>
+              <div>${pstMoney(item.unit_price)}</div>
+              <div><strong>${pstMoney(item.line_total)}</strong></div>
+            </div>
+          `).join("") : `<div class="item-line"><div>No item details found for this order.</div></div>`}
+          <div class="item-line">
+            <div><strong>Subtotal</strong></div><div></div><div></div><div>${pstMoney(order.subtotal)}</div>
+          </div>
+          <div class="item-line">
+            <div><strong>Shipping</strong></div><div></div><div></div><div>${pstMoney(order.shipping)}</div>
+          </div>
+          <div class="item-line">
+            <div><strong>Tax</strong></div><div></div><div></div><div>${pstMoney(order.tax)}</div>
+          </div>
+          <div class="item-line">
+            <div><strong>Total</strong></div><div></div><div></div><div><strong>${pstMoney(order.total)}</strong></div>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function toggleOrderDetails(orderId) {
+  const el = document.getElementById("items-" + orderId);
+  if (el) el.classList.toggle("active");
+}
+
+function reorder(orderId) {
+  const items = pstAccountItemsByOrder[orderId] || [];
+  if (!items.length) {
+    setStatus("This order has no items available to reorder.", "error");
+    return;
+  }
+
+  const cartItems = items.map(item => {
+    const productId = item.product_id || "";
+    const isStack = String(productId).startsWith("stack:") || item.product_category === "Stack / Blend";
+    return {
+      id: String(productId).startsWith("product:") || String(productId).startsWith("stack:") ? productId : "product:" + productId,
+      key: isStack ? undefined : productId,
+      type: isStack ? "stack" : "product",
+      display: item.product_name,
+      strength: item.product_strength || "",
+      price: Number(item.unit_price || 0),
+      quantity: Number(item.quantity || 1),
+      product_id: productId,
+      product_name: item.product_name,
+      product_strength: item.product_strength,
+      product_category: item.product_category,
+      unit_price: Number(item.unit_price || 0)
+    };
+  });
+
+  localStorage.setItem("pstPendingReorderCart", JSON.stringify(cartItems));
+  window.location.href = "index.html?reorder=1";
+}
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  await pstAccountSupabase.auth.signOut();
+  window.location.href = "index.html?loggedout=1";
+});
+
+document.addEventListener("DOMContentLoaded", loadAccount);
+</script>
+</body>
+</html>
