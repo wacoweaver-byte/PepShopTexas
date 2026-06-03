@@ -540,6 +540,7 @@
           <div class="bulk-actions">
             <button class="btn warning" id="bulkPaymentPendingBtn" type="button">Payment Pending</button>
             <button class="btn success" id="bulkPaidBtn" type="button">Paid</button>
+            <button class="btn danger" id="bulkPaymentFailedBtn" type="button">Payment Failed</button>
             <button class="btn warning" id="bulkOrderPendingBtn" type="button">Order Pending</button>
             <button class="btn secondary" id="bulkProcessingBtn" type="button">Processing</button>
             <button class="btn success" id="bulkShippedBtn" type="button">Shipped</button>
@@ -1113,7 +1114,10 @@
 
       $("bulkPaymentPendingBtn").addEventListener("click", () => bulkUpdate({ payment_status: "pending" }, "Selected orders marked payment pending."));
       $("bulkPaidBtn").addEventListener("click", () => bulkUpdate({ payment_status: "paid" }, "Selected orders marked paid."));
-      $("bulkPaymentFailedBtn").addEventListener("click", () => bulkUpdate({ payment_status: "failed" }, "Selected orders marked payment failed and inventory restored when applicable."));
+      const bulkPaymentFailedBtn = $("bulkPaymentFailedBtn");
+      if (bulkPaymentFailedBtn) {
+        bulkPaymentFailedBtn.addEventListener("click", () => bulkUpdate({ payment_status: "failed" }, "Selected orders marked payment failed and inventory restored when applicable."));
+      }
       $("bulkOrderPendingBtn").addEventListener("click", () => bulkUpdate({ order_status: "pending" }, "Selected orders marked pending."));
       $("bulkProcessingBtn").addEventListener("click", () => bulkUpdate({ order_status: "processing" }, "Selected orders marked processing."));
       $("bulkShippedBtn").addEventListener("click", () => bulkUpdate({ order_status: "shipped" }, "Selected orders marked shipped."));
