@@ -1205,8 +1205,8 @@ button.disabled-cart,
     <div class="tx-series-panel">
       <div class="tx-series-copy">
         <span class="tx-eyebrow">Featured Product Line</span>
-        <h2>PST-TX Metabolic &amp; Research Categorization Series</h2>
-        <p>A branded progression of single-, dual-, and triple-agonist metabolic research formulations. Product composition may be verified through the corresponding COA.</p>
+        <h2>PST-TX Research Series</h2>
+        <p>A branded research series for catalog organization and product verification. Product composition may be reviewed through batch-specific third-party testing documentation when listed.</p>
         <div class="tx-series-steps">
           <span>PST-TX1</span>
           <span>PST-TX2</span>
@@ -1317,8 +1317,8 @@ button.disabled-cart,
   <h2 class="section-title">Terms of Service</h2>
   <div class="underline"></div>
   <ul class="terms-list">
-    <li><strong>Research Use Only:</strong> Products listed on this website are sold for research purposes only and are not intended for human consumption.</li>
-    <li><strong>Product Images:</strong> Product images are for illustrative and marketing purposes only. Actual vial appearance, label layout, cap color, and packaging may vary.</li>
+    <li><strong>Research Use Only:</strong> Products listed on this website are sold for research purposes only and are not for human or veterinary use.</li>
+    <li><strong>Product Images:</strong> Product images are for representative product display purposes only. Actual vial appearance, label layout, cap color, and packaging may vary.</li>
     <li><strong>Packaging:</strong> Pep Shop Texas may modify packaging, labeling, vial style, cap color, and product presentation without notice. Product specifications, identity, purity, and strength remain as described in the product listing and order details.</li>
     <li><strong>Standardized Labels:</strong> Actual products may utilize standardized Pep Shop Texas production labels and packaging even when website images show digital product renderings.</li>
   </ul>
@@ -1962,9 +1962,9 @@ function rebuildTXSeries() {
     <article class="tx-card">
       <div class="tx-image-wrap"><img src="${pstEsc(p.imageData)}" alt="${pstEsc(p.display)} ${pstEsc(p.strength)}"></div>
       <div class="tx-card-body">
-        <span class="tx-badge">${pstEsc(formula[p.display] || "Metabolic Formula")}</span>
+        <span class="tx-badge">${pstEsc(formula[p.display] || "Research Formula")}</span>
         <h3>${pstEsc(p.display)}</h3>
-        <p>${pstEsc(support[p.display] || "Metabolic & Research Categorization Support")}</p>
+        <p>${pstEsc(support[p.display] || "Research & Research Categorization Support")}</p>
         <div class="tx-meta"><span>${pstEsc(p.strength)}</span><strong>${pstMoney(p.price)}</strong></div>
         <div class="tx-actions">
           <button onclick='selectProduct(${JSON.stringify(p.key)})'>View Product</button>
@@ -2265,9 +2265,9 @@ function rebuildTXSeries() {
     <article class="tx-card">
       <div class="tx-image-wrap"><img src="${pstEsc(p.imageData)}" alt="${pstEsc(p.display)} ${pstEsc(p.strength)}"></div>
       <div class="tx-card-body">
-        <span class="tx-badge">${pstEsc(formula[p.display] || "Metabolic Formula")}</span>
+        <span class="tx-badge">${pstEsc(formula[p.display] || "Research Formula")}</span>
         <h3>${pstEsc(p.display)}</h3>
-        <p>${pstEsc(support[p.display] || "Metabolic & Research Categorization Support")}</p>
+        <p>${pstEsc(support[p.display] || "Research & Research Categorization Support")}</p>
         ${inventoryBadgeHTML(p.inventory)}
         <div class="tx-meta"><span>${pstEsc(p.strength)}</span><strong>${pstMoney(p.price)}</strong></div>
         <div class="tx-actions">
