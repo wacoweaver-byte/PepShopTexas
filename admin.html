@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pep Shop Texas | Admin Orders</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --pst-blue: #0077c8;
+      --pst-dark: #101820;
+      --pst-light: #f5f8fb;
+      --pst-border: #d9e2ec;
+      --pst-muted: #667085;
+      --pst-success: #0f8a3b;
+      --pst-warning: #b7791f;
+      --pst-danger: #b42318;
+      --white: #ffffff;
+      --shadow: 0 10px 30px rgba(16, 24, 32, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--pst-light);
+      color: var(--pst-dark);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--white);
+      border-bottom: 1px solid var(--pst-border);
+      box-shadow: 0 3px 18px rgba(16, 24, 32, 0.04);
+    }
+
+    .topbar {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--pst-blue), #004a7c);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .brand small {
+      display: block;
+      font-weight: 600;
+      color: var(--pst-muted);
+      letter-spacing: 0;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    a, button, input, select, textarea { font-family: inherit; }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 13px;
+      background: var(--pst-blue);
+      color: var(--white);
+      cursor: pointer;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 40px;
+    }
+
+    .btn:hover { filter: brightness(0.95); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn.secondary {
+      background: var(--white);
+      color: var(--pst-dark);
+      border: 1px solid var(--pst-border);
+    }
+
+    .btn.success { background: var(--pst-success); }
+    .btn.warning { background: var(--pst-warning); }
+    .btn.danger { background: var(--pst-danger); }
+
+    main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 22px 18px 50px;
+    }
+
+    .page-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 3vw, 36px);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--pst-muted);
+      line-height: 1.4;
+    }
+
+    .status-line {
+      margin-top: 12px;
+      padding: 11px 13px;
+      border-radius: 12px;
+      border: 1px solid var(--pst-border);
+      background: var(--white);
+      color: var(--pst-muted);
+      min-height: 42px;
+    }
+
+    .status-line.good {
+      color: var(--pst-success);
+      border-color: rgba(15, 138, 59, 0.25);
+      background: rgba(15, 138, 59, 0.06);
+    }
+
+    .status-line.bad {
+      color: var(--pst-danger);
+      border-color: rgba(180, 35, 24, 0.25);
+      background: rgba(180, 35, 24, 0.06);
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--pst-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--pst-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .card-body { padding: 16px; }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1.1fr 0.72fr 0.72fr auto;
+      gap: 10px;
+      width: 100%;
+      align-items: end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+      color: var(--pst-muted);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--pst-border);
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-size: 14px;
+      background: var(--white);
+      color: var(--pst-dark);
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .bulk-bar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--pst-border);
+      background: #f9fbfd;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .bulk-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      color: var(--pst-dark);
+    }
+
+    .bulk-left input,
+    .row-check {
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      cursor: pointer;
+    }
+
+    .bulk-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .bulk-actions .btn {
+      padding: 9px 11px;
+      min-height: 36px;
+      font-size: 13px;
+    }
+
+    .orders-table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--pst-border);
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    th {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--pst-muted);
+      background: #fbfcfe;
+    }
+
+    tr.order-row { cursor: pointer; }
+    tr.order-row:hover { background: #f7fbff; }
+    tr.order-row.selected-detail { background: rgba(0, 119, 200, 0.08); }
+
+    .muted {
+      color: var(--pst-muted);
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      text-transform: capitalize;
+    }
+
+    .pill.pending {
+      color: var(--pst-warning);
+      background: rgba(183, 121, 31, 0.10);
+      border-color: rgba(183, 121, 31, 0.18);
+    }
+
+    .pill.paid,
+    .pill.shipped,
+    .pill.delivered {
+      color: var(--pst-success);
+      background: rgba(15, 138, 59, 0.10);
+      border-color: rgba(15, 138, 59, 0.18);
+    }
+
+    .pill.processing {
+      color: var(--pst-blue);
+      background: rgba(0, 119, 200, 0.10);
+      border-color: rgba(0, 119, 200, 0.18);
+    }
+
+    .pill.cancelled,
+    .pill.rejected,
+    .pill.out_of_stock,
+    .pill.refunded,
+    .pill.failed {
+      color: var(--pst-danger);
+      background: rgba(180, 35, 24, 0.10);
+      border-color: rgba(180, 35, 24, 0.18);
+    }
+
+    .detail-empty {
+      padding: 34px 20px;
+      text-align: center;
+      color: var(--pst-muted);
+      line-height: 1.5;
+    }
+
+    .detail-section {
+      border-bottom: 1px solid var(--pst-border);
+      padding: 16px;
+    }
+
+    .detail-section:last-child { border-bottom: 0; }
+
+    .detail-section h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .kv-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .kv {
+      padding: 10px;
+      border: 1px solid var(--pst-border);
+      border-radius: 12px;
+      background: #fbfcfe;
+      word-break: break-word;
+    }
+
+    .kv strong {
+      display: block;
+      font-size: 12px;
+      color: var(--pst-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item {
+      border: 1px solid var(--pst-border);
+      border-radius: 12px;
+      padding: 11px;
+      background: #fbfcfe;
+    }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 800;
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .edit-grid .full { grid-column: 1 / -1; }
+
+    .note-box {
+      background: #fff8e6;
+      border: 1px solid rgba(183, 121, 31, 0.24);
+      color: #7a4a00;
+      border-radius: 12px;
+      padding: 11px;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .admin-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: 1fr 1fr; }
+      .page-title { flex-direction: column; }
+    }
+
+    @media (max-width: 680px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .header-actions { justify-content: flex-start; }
+
+      .filters,
+      .edit-grid,
+      .kv-grid,
+      .bulk-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .bulk-actions { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">PST</div>
+        <div>
+          Pep Shop Texas
+          <small>Admin Order Management</small>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a class="btn secondary" href="index.html">← Back to Website</a>
+        <a class="btn secondary" href="inventory.html">Inventory</a>
+        <button class="btn secondary" id="refreshBtn" type="button">Refresh Orders</button>
+        <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-title">
+      <div>
+        <h1>Orders</h1>
+        <p class="subtitle">Simple owner dashboard for reviewing orders, bulk-updating status, adding tracking, and rejecting out-of-stock orders.</p>
+      </div>
+    </section>
+
+    <div id="statusLine" class="status-line">Checking admin access...</div>
+
+    <section class="admin-grid" style="margin-top:18px;">
+      <div class="card">
+        <div class="card-header">
+          <h2>Order List</h2>
+          <div class="filters">
+            <div class="field">
+              <label for="searchInput">Search</label>
+              <input id="searchInput" type="search" placeholder="Customer, email, order ID, tracking..." />
+            </div>
+            <div class="field">
+              <label for="statusFilter">Order Status</label>
+              <select id="statusFilter">
+                <option value="">All statuses</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="rejected">Rejected / Out of Stock</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="paymentFilter">Payment</label>
+              <select id="paymentFilter">
+                <option value="">All payments</option>
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="failed">Failed</option>
+                <option value="refunded">Refunded</option>
+              </select>
+            </div>
+            <button class="btn secondary" id="clearFiltersBtn" type="button">Clear</button>
+          </div>
+        </div>
+
+        <div class="bulk-bar">
+          <label class="bulk-left">
+            <input id="selectAllOrders" type="checkbox" />
+            <span><span id="selectedCount">0</span> selected</span>
+          </label>
+
+          <div class="bulk-actions">
+            <button class="btn warning" id="bulkPaymentPendingBtn" type="button">Payment Pending</button>
+            <button class="btn success" id="bulkPaidBtn" type="button">Paid</button>
+            <button class="btn warning" id="bulkOrderPendingBtn" type="button">Order Pending</button>
+            <button class="btn secondary" id="bulkProcessingBtn" type="button">Processing</button>
+            <button class="btn success" id="bulkShippedBtn" type="button">Shipped</button>
+            <button class="btn secondary" id="bulkDeliveredBtn" type="button">Delivered</button>
+            <button class="btn danger" id="bulkRejectedBtn" type="button">Reject / Out of Stock</button>
+            <button class="btn secondary" id="bulkClearBtn" type="button">Clear Selection</button>
+          </div>
+        </div>
+
+        <div class="orders-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:44px;"></th>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Tracking</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody">
+              <tr>
+                <td colspan="8" class="muted" style="padding:20px;">Loading orders...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="card" id="detailCard">
+        <div class="card-header">
+          <h2>Order Details</h2>
+        </div>
+        <div id="orderDetail" class="detail-empty">
+          Select an order to review customer info, ordered items, payment status, shipping, and rejection options.
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    /************************************************************
+     * IMPORTANT:
+     * Replace these two values with the same Supabase values
+     * already used in your working index.html file.
+     ************************************************************/
+    const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let allOrders = [];
+    let filteredOrders = [];
+    let selectedOrderIds = new Set();
+    let activeOrderId = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    const statusLine = $("statusLine");
+    const ordersBody = $("ordersBody");
+    const orderDetail = $("orderDetail");
+
+    function setStatus(message, type = "") {
+      statusLine.textContent = message;
+      statusLine.className = "status-line";
+      if (type === "good") statusLine.classList.add("good");
+      if (type === "bad") statusLine.classList.add("bad");
+    }
+
+    function money(value) {
+      const amount = Number(value || 0);
+      return amount.toLocaleString("en-US", { style: "currency", currency: "USD" });
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "—";
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function pill(value) {
+      const clean = (value || "pending").toString();
+      const label = clean === "rejected" ? "Rejected / Out of Stock" : clean.replaceAll("_", " ");
+      return `<span class="pill ${clean}">${label}</span>`;
+    }
+
+    function safe(value) {
+      return value === null || value === undefined || value === "" ? "—" : String(value);
+    }
+
+    function orderDisplayId(order) {
+      return order.order_number || order.order_id || order.id || "—";
+    }
+
+    function customerName(order) {
+      const profile = order.profile || {};
+      const directName = order.customer_name || order.name;
+      const profileName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
+      return directName || profileName || "Customer";
+    }
+
+    function customerEmail(order) {
+      const profile = order.profile || {};
+      return order.customer_email || order.email || profile.email || "—";
+    }
+
+    function selectedOrdersArray() {
+      return Array.from(selectedOrderIds);
+    }
+
+    async function checkAdminAccess() {
+      setStatus("Checking admin access...");
+
+      const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+      if (sessionError) throw sessionError;
+
+      const session = sessionData?.session;
+      if (!session?.user) {
+        setStatus("You are not logged in. Please log in from the website first, then return to admin.html.", "bad");
+        return false;
+      }
+
+      currentUser = session.user;
+
+      const checks = [
+        supabaseClient.from("admin_users").select("*").eq("user_id", currentUser.id).maybeSingle(),
+        supabaseClient.from("admin_users").select("*").eq("email", currentUser.email).maybeSingle()
+      ];
+
+      const results = await Promise.allSettled(checks);
+      const adminRows = results
+        .filter(result => result.status === "fulfilled" && result.value?.data)
+        .map(result => result.value.data);
+
+      const admin = adminRows.find(row => row && (row.is_active === true || row.active === true || row.is_admin === true || row.email === currentUser.email));
+
+      if (!admin) {
+        setStatus("Access denied. This login is not listed as an active Pep Shop Texas admin.", "bad");
+        return false;
+      }
+
+      setStatus(`Admin access confirmed for ${currentUser.email}.`, "good");
+      return true;
+    }
+
+    async function loadOrders() {
+      setStatus("Loading orders...");
+
+      const { data: orders, error: ordersError } = await supabaseClient
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (ordersError) throw ordersError;
+
+      const orderIds = (orders || []).map(order => order.id).filter(Boolean);
+      const userIds = [...new Set((orders || []).map(order => order.user_id).filter(Boolean))];
+
+      let itemsByOrder = {};
+      if (orderIds.length) {
+        const { data: items, error: itemsError } = await supabaseClient
+          .from("order_items")
+          .select("*")
+          .in("order_id", orderIds);
+
+        if (!itemsError && Array.isArray(items)) {
+          itemsByOrder = items.reduce((acc, item) => {
+            const key = item.order_id;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(item);
+            return acc;
+          }, {});
+        }
+      }
+
+      let profilesByUser = {};
+      if (userIds.length) {
+        const { data: profiles, error: profilesError } = await supabaseClient
+          .from("customer_profiles")
+          .select("*")
+          .in("user_id", userIds);
+
+        if (!profilesError && Array.isArray(profiles)) {
+          profilesByUser = profiles.reduce((acc, profile) => {
+            acc[profile.user_id] = profile;
+            return acc;
+          }, {});
+        }
+      }
+
+      allOrders = (orders || []).map(order => ({
+        ...order,
+        order_items: itemsByOrder[order.id] || [],
+        profile: profilesByUser[order.user_id] || null,
+        order_status: order.order_status || order.status || "pending",
+        payment_status: order.payment_status || "pending"
+      }));
+
+      applyFilters();
+      setStatus(`Loaded ${allOrders.length} order${allOrders.length === 1 ? "" : "s"}.`, "good");
+    }
+
+    function applyFilters() {
+      const search = $("searchInput").value.trim().toLowerCase();
+      const statusFilter = $("statusFilter").value;
+      const paymentFilter = $("paymentFilter").value;
+
+      filteredOrders = allOrders.filter(order => {
+        const searchable = [
+          order.id,
+          order.order_number,
+          customerName(order),
+          customerEmail(order),
+          order.tracking_number,
+          order.shipping_carrier,
+          order.order_status,
+          order.payment_status
+        ].filter(Boolean).join(" ").toLowerCase();
+
+        const matchesSearch = !search || searchable.includes(search);
+        const matchesStatus = !statusFilter || (order.order_status || "pending") === statusFilter;
+        const matchesPayment = !paymentFilter || (order.payment_status || "pending") === paymentFilter;
+
+        return matchesSearch && matchesStatus && matchesPayment;
+      });
+
+      renderOrders();
+      renderSelectedCount();
+
+      if (activeOrderId) {
+        const active = allOrders.find(order => order.id === activeOrderId);
+        if (active) renderOrderDetail(active);
+      }
+    }
+
+    function renderOrders() {
+      if (!filteredOrders.length) {
+        ordersBody.innerHTML = `<tr><td colspan="8" class="muted" style="padding:20px;">No orders match the current filters.</td></tr>`;
+        return;
+      }
+
+      ordersBody.innerHTML = filteredOrders.map(order => {
+        const checked = selectedOrderIds.has(order.id) ? "checked" : "";
+        const selectedClass = activeOrderId === order.id ? "selected-detail" : "";
+        return `
+          <tr class="order-row ${selectedClass}" data-order-id="${order.id}">
+            <td>
+              <input class="row-check" type="checkbox" data-check-id="${order.id}" ${checked} onclick="event.stopPropagation();" />
+            </td>
+            <td>
+              <strong>${safe(orderDisplayId(order))}</strong>
+              <div class="muted">${safe(order.id)}</div>
+            </td>
+            <td>
+              <strong>${safe(customerName(order))}</strong>
+              <div class="muted">${safe(customerEmail(order))}</div>
+            </td>
+            <td>${formatDate(order.created_at)}</td>
+            <td>${money(order.total || order.total_amount || order.order_total)}</td>
+            <td>${pill(order.payment_status)}</td>
+            <td>${pill(order.order_status)}</td>
+            <td>
+              <strong>${safe(order.shipping_carrier)}</strong>
+              <div class="muted">${safe(order.tracking_number)}</div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".order-row").forEach(row => {
+        row.addEventListener("click", () => {
+          const orderId = row.dataset.orderId;
+          const order = allOrders.find(item => item.id === orderId);
+          if (order) {
+            activeOrderId = orderId;
+            renderOrders();
+            renderOrderDetail(order);
+          }
+        });
+      });
+
+      document.querySelectorAll(".row-check").forEach(check => {
+        check.addEventListener("change", () => {
+          const orderId = check.dataset.checkId;
+          if (check.checked) selectedOrderIds.add(orderId);
+          else selectedOrderIds.delete(orderId);
+          renderSelectedCount();
+        });
+      });
+    }
+
+    function renderSelectedCount() {
+      $("selectedCount").textContent = selectedOrderIds.size;
+      const visibleIds = filteredOrders.map(order => order.id);
+      const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selectedOrderIds.has(id));
+      $("selectAllOrders").checked = allVisibleSelected;
+    }
+
+    function renderOrderDetail(order) {
+      const items = order.order_items || [];
+      const rejected = order.order_status === "rejected";
+
+      orderDetail.className = "";
+      orderDetail.innerHTML = `
+        <div class="detail-section">
+          <h3>Order Summary</h3>
+          ${rejected ? `<div class="note-box" style="margin-bottom:12px;"><strong>Rejected / Out of Stock:</strong> ${safe(order.rejection_reason || "No reason saved.")}</div>` : ""}
+          <div class="kv-grid">
+            <div class="kv"><strong>Order</strong>${safe(orderDisplayId(order))}</div>
+            <div class="kv"><strong>Total</strong>${money(order.total || order.total_amount || order.order_total)}</div>
+            <div class="kv"><strong>Date</strong>${formatDate(order.created_at)}</div>
+            <div class="kv"><strong>Updated</strong>${formatDate(order.updated_at)}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Customer</h3>
+          <div class="kv-grid">
+            <div class="kv"><strong>Name</strong>${safe(customerName(order))}</div>
+            <div class="kv"><strong>Email</strong>${safe(customerEmail(order))}</div>
+            <div class="kv"><strong>Phone</strong>${safe(order.customer_phone || order.profile?.phone)}</div>
+            <div class="kv"><strong>User ID</strong>${safe(order.user_id)}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Items Ordered</h3>
+          <div class="item-list">
+            ${items.length ? items.map(item => `
+              <div class="item">
+                <div class="item-top">
+                  <span>${safe(item.product_name || item.name || item.product_id)}</span>
+                  <span>Qty ${safe(item.quantity || item.qty || 1)}</span>
+                </div>
+                <div class="muted">${safe(item.strength || item.variant || item.sku || "")}</div>
+                <div class="muted">${money(item.price || item.unit_price || item.line_total)}</div>
+              </div>
+            `).join("") : `<div class="muted">No order_items rows found for this order.</div>`}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Manage This Order</h3>
+          <div class="edit-grid">
+            <div class="field">
+              <label for="detailPaymentStatus">Payment Status</label>
+              <select id="detailPaymentStatus">
+                <option value="pending" ${order.payment_status === "pending" ? "selected" : ""}>Pending</option>
+                <option value="paid" ${order.payment_status === "paid" ? "selected" : ""}>Paid</option>
+                <option value="failed" ${order.payment_status === "failed" ? "selected" : ""}>Failed</option>
+                <option value="refunded" ${order.payment_status === "refunded" ? "selected" : ""}>Refunded</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="detailOrderStatus">Order Status</label>
+              <select id="detailOrderStatus">
+                <option value="pending" ${order.order_status === "pending" ? "selected" : ""}>Pending</option>
+                <option value="processing" ${order.order_status === "processing" ? "selected" : ""}>Processing</option>
+                <option value="shipped" ${order.order_status === "shipped" ? "selected" : ""}>Shipped</option>
+                <option value="delivered" ${order.order_status === "delivered" ? "selected" : ""}>Delivered</option>
+                <option value="cancelled" ${order.order_status === "cancelled" ? "selected" : ""}>Cancelled</option>
+                <option value="rejected" ${order.order_status === "rejected" ? "selected" : ""}>Rejected / Out of Stock</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="detailCarrier">Carrier</label>
+              <input id="detailCarrier" type="text" placeholder="USPS, UPS, FedEx..." value="${safe(order.shipping_carrier) === "—" ? "" : safe(order.shipping_carrier)}" />
+            </div>
+
+            <div class="field">
+              <label for="detailTracking">Tracking Number</label>
+              <input id="detailTracking" type="text" placeholder="Tracking number" value="${safe(order.tracking_number) === "—" ? "" : safe(order.tracking_number)}" />
+            </div>
+
+            <div class="field full">
+              <label for="detailRejectionReason">Rejection / Out of Stock Reason</label>
+              <textarea id="detailRejectionReason" placeholder="Required only if rejecting order. Example: Product ordered was unavailable due to inventory mismatch. Customer notified.">${safe(order.rejection_reason) === "—" ? "" : safe(order.rejection_reason)}</textarea>
+            </div>
+
+            <div class="field full">
+              <label for="detailAdminNote">Internal Admin Note</label>
+              <textarea id="detailAdminNote" placeholder="Optional internal note.">${safe(order.admin_note) === "—" ? "" : safe(order.admin_note)}</textarea>
+            </div>
+
+            <button class="btn success full" id="saveOrderBtn" type="button">Save Order Updates</button>
+            <button class="btn danger full" id="rejectOrderBtn" type="button">Reject This Order / Out of Stock</button>
+          </div>
+        </div>
+      `;
+
+      $("saveOrderBtn").addEventListener("click", () => saveSingleOrder(order.id));
+      $("rejectOrderBtn").addEventListener("click", () => rejectSingleOrder(order.id));
+    }
+
+    async function saveSingleOrder(orderId) {
+      const orderStatus = $("detailOrderStatus").value;
+      const paymentStatus = $("detailPaymentStatus").value;
+      const rejectionReason = $("detailRejectionReason").value.trim();
+
+      if (orderStatus === "rejected" && !rejectionReason) {
+        alert("Please enter a rejection / out-of-stock reason before rejecting this order.");
+        return;
+      }
+
+      const updates = {
+        order_status: orderStatus,
+        payment_status: paymentStatus,
+        shipping_carrier: $("detailCarrier").value.trim() || null,
+        tracking_number: $("detailTracking").value.trim() || null,
+        admin_note: $("detailAdminNote").value.trim() || null,
+        rejection_reason: rejectionReason || null,
+        updated_at: new Date().toISOString()
+      };
+
+      if (orderStatus === "shipped") updates.shipped_at = new Date().toISOString();
+      if (orderStatus === "rejected") updates.rejected_at = new Date().toISOString();
+
+      await updateOrders([orderId], updates, "Order updated.");
+    }
+
+    async function rejectSingleOrder(orderId) {
+      const reason = $("detailRejectionReason").value.trim() || prompt("Enter the reason this order is being rejected / out of stock:");
+      if (!reason) {
+        alert("A rejection reason is required.");
+        return;
+      }
+
+      await updateOrders([orderId], {
+        order_status: "rejected",
+        payment_status: "refunded",
+        rejection_reason: reason,
+        rejected_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }, "Order rejected / marked out of stock.");
+    }
+
+    async function bulkUpdate(updates, message) {
+      const ids = selectedOrdersArray();
+      if (!ids.length) {
+        alert("Select one or more orders first.");
+        return;
+      }
+
+      updates.updated_at = new Date().toISOString();
+
+      if (updates.order_status === "shipped") updates.shipped_at = new Date().toISOString();
+      if (updates.order_status === "rejected") updates.rejected_at = new Date().toISOString();
+
+      await updateOrders(ids, updates, message);
+    }
+
+    async function bulkReject() {
+      const ids = selectedOrdersArray();
+      if (!ids.length) {
+        alert("Select one or more orders first.");
+        return;
+      }
+
+      const reason = prompt("Reason for rejecting selected order(s) / out-of-stock issue:");
+      if (!reason || !reason.trim()) {
+        alert("A rejection reason is required.");
+        return;
+      }
+
+      await bulkUpdate({
+        order_status: "rejected",
+        payment_status: "refunded",
+        rejection_reason: reason.trim()
+      }, "Selected orders rejected / marked out of stock.");
+    }
+
+    async function updateOrders(ids, updates, message) {
+      setStatus("Saving order updates...");
+
+      const { error } = await supabaseClient
+        .from("orders")
+        .update(updates)
+        .in("id", ids);
+
+      if (error) {
+        setStatus(error.message, "bad");
+        throw error;
+      }
+
+      setStatus(message, "good");
+      await loadOrders();
+
+      if (activeOrderId) {
+        const active = allOrders.find(order => order.id === activeOrderId);
+        if (active) renderOrderDetail(active);
+      }
+    }
+
+    function wireEvents() {
+      $("refreshBtn").addEventListener("click", loadOrders);
+
+      $("signOutBtn").addEventListener("click", async () => {
+        await supabaseClient.auth.signOut();
+        window.location.href = "index.html";
+      });
+
+      $("searchInput").addEventListener("input", applyFilters);
+      $("statusFilter").addEventListener("change", applyFilters);
+      $("paymentFilter").addEventListener("change", applyFilters);
+
+      $("clearFiltersBtn").addEventListener("click", () => {
+        $("searchInput").value = "";
+        $("statusFilter").value = "";
+        $("paymentFilter").value = "";
+        applyFilters();
+      });
+
+      $("selectAllOrders").addEventListener("change", (event) => {
+        if (event.target.checked) {
+          filteredOrders.forEach(order => selectedOrderIds.add(order.id));
+        } else {
+          filteredOrders.forEach(order => selectedOrderIds.delete(order.id));
+        }
+        renderOrders();
+        renderSelectedCount();
+      });
+
+      $("bulkPaymentPendingBtn").addEventListener("click", () => bulkUpdate({ payment_status: "pending" }, "Selected orders marked payment pending."));
+      $("bulkPaidBtn").addEventListener("click", () => bulkUpdate({ payment_status: "paid" }, "Selected orders marked paid."));
+      $("bulkOrderPendingBtn").addEventListener("click", () => bulkUpdate({ order_status: "pending" }, "Selected orders marked pending."));
+      $("bulkProcessingBtn").addEventListener("click", () => bulkUpdate({ order_status: "processing" }, "Selected orders marked processing."));
+      $("bulkShippedBtn").addEventListener("click", () => bulkUpdate({ order_status: "shipped" }, "Selected orders marked shipped."));
+      $("bulkDeliveredBtn").addEventListener("click", () => bulkUpdate({ order_status: "delivered" }, "Selected orders marked delivered."));
+      $("bulkRejectedBtn").addEventListener("click", bulkReject);
+
+      $("bulkClearBtn").addEventListener("click", () => {
+        selectedOrderIds.clear();
+        renderOrders();
+        renderSelectedCount();
+      });
+    }
+
+    async function init() {
+      try {
+        wireEvents();
+
+        if (SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")) {
+          setStatus("Before uploading: paste your Supabase URL and anon key into admin.html using the same values from index.html.", "bad");
+          return;
+        }
+
+        const isAdmin = await checkAdminAccess();
+        if (!isAdmin) return;
+
+        await loadOrders();
+      } catch (error) {
+        console.error(error);
+        setStatus(error.message || "Something went wrong loading the admin dashboard.", "bad");
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
