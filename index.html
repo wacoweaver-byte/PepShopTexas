@@ -947,6 +947,84 @@ button.disabled-cart,
   border: 1px solid #d9e7ff;
 }
 
+
+/* Checkout compliance confirmation modal */
+.checkout-compliance-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.62);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.checkout-compliance-overlay.active {
+  display: flex;
+}
+.checkout-compliance-modal {
+  width: min(560px, 100%);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 70px rgba(0,0,0,.35);
+  padding: 24px;
+}
+.checkout-compliance-modal h2 {
+  font-family: Impact,'Arial Black','Arial Narrow',Arial,sans-serif;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+  font-size: 30px;
+}
+.checkout-compliance-modal p {
+  margin: 0 0 14px;
+  color: #333;
+  line-height: 1.45;
+}
+.checkout-compliance-checks {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 18px;
+}
+.checkout-compliance-checks label {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  align-items: start;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #111;
+}
+.checkout-compliance-checks input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+.checkout-compliance-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.checkout-compliance-actions button {
+  flex: 1 1 180px;
+}
+.checkout-compliance-warning {
+  background: #fff0f0;
+  border: 1px solid #ffb8c0;
+  color: #b00020;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 13px;
+  display: none;
+}
+.checkout-compliance-warning.active {
+  display: block;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2431,8 +2509,85 @@ function validatePSTInventoryForCheckout() {
   return true;
 }
 
+
+let pstCheckoutComplianceConfirmed = false;
+
+function resetCheckoutComplianceChecks() {
+  ["confirmAge18", "confirmResearchOnly", "confirmNotHumanVet"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
+  const warning = document.getElementById("checkoutComplianceWarning");
+  if (warning) warning.classList.remove("active");
+}
+
+function openCheckoutComplianceModal() {
+  const overlay = document.getElementById("checkoutComplianceOverlay");
+  if (overlay) {
+    resetCheckoutComplianceChecks();
+    overlay.classList.add("active");
+  }
+}
+
+function closeCheckoutComplianceModal() {
+  const overlay = document.getElementById("checkoutComplianceOverlay");
+  if (overlay) overlay.classList.remove("active");
+}
+
+function checkoutComplianceIsChecked() {
+  return ["confirmAge18", "confirmResearchOnly", "confirmNotHumanVet"].every(id => {
+    const el = document.getElementById(id);
+    return el && el.checked;
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const cancelBtn = document.getElementById("cancelComplianceCheckout");
+  const confirmBtn = document.getElementById("confirmComplianceCheckout");
+  const overlay = document.getElementById("checkoutComplianceOverlay");
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      pstCheckoutComplianceConfirmed = false;
+      closeCheckoutComplianceModal();
+      setCheckoutStatus("Checkout cancelled before required acknowledgments were completed.", "info");
+    });
+  }
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", () => {
+      if (!checkoutComplianceIsChecked()) {
+        const warning = document.getElementById("checkoutComplianceWarning");
+        if (warning) warning.classList.add("active");
+        return;
+      }
+
+      pstCheckoutComplianceConfirmed = true;
+      closeCheckoutComplianceModal();
+      placePSTOrder();
+    });
+  }
+
+  if (overlay) {
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) {
+        pstCheckoutComplianceConfirmed = false;
+        closeCheckoutComplianceModal();
+      }
+    });
+  }
+});
+
+
 async function placePSTOrder() {
   const checkoutButton = document.getElementById("checkoutButton");
+
+  if (!pstCheckoutComplianceConfirmed) {
+    openCheckoutComplianceModal();
+    return;
+  }
+
+  pstCheckoutComplianceConfirmed = false;
 
   if (!Array.isArray(cart) || cart.length === 0) {
     setCheckoutStatus("Your cart is empty. Add a product before checking out.", "error");
@@ -2684,6 +2839,38 @@ async function renderPstAuthStatus() {
 
 document.addEventListener("DOMContentLoaded", renderPstAuthStatus);
 </script>
+
+
+<div id="checkoutComplianceOverlay" class="checkout-compliance-overlay" role="dialog" aria-modal="true" aria-labelledby="checkoutComplianceTitle">
+  <div class="checkout-compliance-modal">
+    <h2 id="checkoutComplianceTitle">Before Checkout</h2>
+    <p>Please confirm the following before continuing. Checkout cannot proceed unless all acknowledgments are selected.</p>
+
+    <div class="checkout-compliance-checks">
+      <label>
+        <input type="checkbox" id="confirmAge18">
+        <span>I confirm that I am at least 18 years old.</span>
+      </label>
+      <label>
+        <input type="checkbox" id="confirmResearchOnly">
+        <span>I understand these products are offered for research use only.</span>
+      </label>
+      <label>
+        <input type="checkbox" id="confirmNotHumanVet">
+        <span>I understand these products are not for human or veterinary use and are not medical advice.</span>
+      </label>
+    </div>
+
+    <div id="checkoutComplianceWarning" class="checkout-compliance-warning">
+      Please check all three acknowledgments before continuing.
+    </div>
+
+    <div class="checkout-compliance-actions">
+      <button class="btn secondary" type="button" id="cancelComplianceCheckout">Cancel</button>
+      <button class="btn primary" type="button" id="confirmComplianceCheckout">I Understand — Continue Checkout</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
