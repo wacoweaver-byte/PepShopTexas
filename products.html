@@ -57,19 +57,26 @@ tr.dirty { background:#fffaf0; }
 .inactive-pill { background:#fff0f0; color:var(--red); }
 .preview-cell { min-width:230px; }
 .dynamic-label {
-  width:220px;
-  min-height:160px;
+  width:230px;
+  min-height:300px;
   border:1px solid #d8e0ea;
-  border-radius:12px;
-  background:#fff;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  border-radius:16px;
+  background:linear-gradient(180deg,#f6f6f6 0%,#ffffff 45%,#e8eef5 100%);
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
   display:flex;
+  align-items:center;
+  justify-content:center;
   overflow:hidden;
+  padding:16px 8px;
 }
 .dynamic-label-main {
-  flex:1;
-  padding:14px 11px;
+  width:175px;
+  min-height:220px;
+  padding:14px 9px 0;
   text-align:center;
+  background:#fff;
+  position:relative;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
 }
 .dynamic-label-logo {
   font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif;
@@ -79,46 +86,43 @@ tr.dirty { background:#fffaf0; }
 }
 .dynamic-label-logo span { color:var(--blue); }
 .dynamic-label-sub {
-  font-size:10px;
+  font-size:9px;
   font-weight:900;
   text-transform:uppercase;
-  margin:5px 0 14px;
+  letter-spacing:1px;
+  margin:7px 0 12px;
   color:#101820;
+  border-top:2px solid var(--blue);
+  padding-top:5px;
 }
 .dynamic-label-name {
   font-weight:900;
   text-transform:uppercase;
-  font-size:17px;
+  font-size:21px;
   line-height:1.05;
-  margin-bottom:7px;
-  color:#101820;
+  margin:0 auto 9px;
+  color:#fff;
+  background:var(--blue);
+  padding:8px 4px;
+  border-radius:4px;
 }
 .dynamic-label-strength {
-  color:var(--blue);
+  color:#fff;
+  background:var(--blue);
   font-weight:900;
-  font-size:16px;
+  font-size:18px;
+  padding:6px 10px;
+  border-radius:4px;
+  display:inline-block;
 }
 .dynamic-label-foot {
-  margin-top:15px;
-  padding-top:8px;
-  border-top:1px solid #d8e0ea;
+  margin-top:11px;
   font-size:9px;
-  color:#333;
-  font-weight:800;
+  color:#111;
+  font-weight:900;
 }
 .dynamic-label-stripe {
-  width:26px;
-  background:var(--blue);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  writing-mode:vertical-rl;
-  transform:rotate(180deg);
-  font-size:9px;
-  font-weight:900;
-  letter-spacing:.4px;
-  text-transform:uppercase;
+  display:none;
 }
 .note { font-size:12px; color:var(--muted); line-height:1.35; }
 @media(max-width:1150px) {
@@ -195,7 +199,7 @@ tr.dirty { background:#fffaf0; }
         <span class="note">New products save into Supabase and can appear alphabetically on the public site once active.</span>
       </div>
       <div class="toolbar-right">
-        <span class="note"><strong>Dynamic Label:</strong> Generated from product name, strength, reconstitution, and testing statement.</span>
+        <span class="note"><strong>Dynamic Label:</strong> Temporary PST vial-style render generated from product name, strength, and reconstitution. Upload a final product PNG when available.</span>
       </div>
     </div>
 
