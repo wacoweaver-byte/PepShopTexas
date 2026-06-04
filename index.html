@@ -21,7 +21,7 @@
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; scroll-padding-top: 145px; }
 #home, #featured, #az, #product-detail, .letter-group {
-  scroll-margin-top: 145px;
+  scroll-margin-top: 90px;
 }
 body { margin:0; background:#fff; color:var(--black); font-family:Arial, Helvetica, sans-serif; }
 .top-strip {
@@ -1150,11 +1150,11 @@ button.disabled-cart,
 }
 
 .letter-group {
-  scroll-margin-top: 165px;
+  scroll-margin-top: 90px;
 }
 
 .letter-group h3 {
-  scroll-margin-top: 165px;
+  scroll-margin-top: 90px;
 }
 
 </style>
@@ -2220,11 +2220,21 @@ function buildAZLetterJump(precomputedLetters) {
   jump.querySelectorAll("a[data-letter]").forEach(link => {
     link.addEventListener("click", event => {
       event.preventDefault();
+
       const letter = link.dataset.letter;
       const target = document.getElementById(`letter-${letter}`);
-      if (target) {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      if (!target) return;
+
+      const header = document.querySelector("header");
+      const headerHeight = header ? header.getBoundingClientRect().height : 0;
+      const extraOffset = 18;
+
+      const y = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
+
+      window.scrollTo({
+        top: Math.max(y, 0),
+        behavior: "smooth"
+      });
     });
   });
 }
@@ -2394,7 +2404,7 @@ function rebuildAZ() {
   box.innerHTML = letters.map(letter => {
     const items = groups[letter].sort((a,b) => (a.display + a.strength).localeCompare(b.display + b.strength));
     return `<section id="letter-${pstEsc(letter)}" class="letter-group az-letter-anchor">
-      <h3>${pstEsc(letter)}</h3>
+      <h3 id="letter-heading-${pstEsc(letter)}">${pstEsc(letter)}</h3>
       <div class="peptide-list">` +
       items.map(p => `<a href="#product-detail" onclick='selectProduct(${JSON.stringify(p.key)})'>${pstEsc(p.display)} — ${pstEsc(p.strength)}</a>`).join("") +
       `</div>
