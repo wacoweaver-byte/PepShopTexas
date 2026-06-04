@@ -1287,6 +1287,24 @@ button.disabled-cart,
   }
 }
 
+
+/* Product detail top placement override */
+#product-detail-scroll-anchor {
+  scroll-margin-top: 0 !important;
+}
+
+#product-detail,
+.product-detail,
+.product-detail-section {
+  scroll-margin-top: 80px !important;
+  margin-top: 0 !important;
+}
+
+#product-detail.active {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1839,28 +1857,49 @@ function equalizeProductDetailHeights() {
 }
 
 
+
 function scrollProductDetailIntoView() {
-  equalizeProductDetailHeights();
-  const target =
+  const detail =
     document.getElementById("product-detail") ||
     document.querySelector(".product-detail") ||
     document.querySelector(".product-detail-section");
 
-  if (!target) return;
+  if (!detail) return;
+
+  equalizeProductDetailHeights();
+
+  let anchor = document.getElementById("product-detail-scroll-anchor");
+  if (!anchor) {
+    anchor = document.createElement("div");
+    anchor.id = "product-detail-scroll-anchor";
+    anchor.style.height = "0";
+    anchor.style.margin = "0";
+    anchor.style.padding = "0";
+    detail.parentNode.insertBefore(anchor, detail);
+  }
 
   const header = document.querySelector("header");
   const headerHeight = header ? header.getBoundingClientRect().height : 0;
-  const extraOffset = 6;
 
-  const y = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
-
-  equalizeProductDetailHeights();
+  // Tight placement directly under sticky header/banner.
+  const extraOffset = 2;
+  const y = anchor.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
 
   window.scrollTo({
     top: Math.max(y, 0),
     behavior: "smooth"
   });
+
+  setTimeout(() => {
+    equalizeProductDetailHeights();
+    const y2 = anchor.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
+    window.scrollTo({
+      top: Math.max(y2, 0),
+      behavior: "smooth"
+    });
+  }, 120);
 }
+
 
 
 function selectProduct(key) {
@@ -1899,7 +1938,7 @@ function selectProduct(key) {
   setTimeout(equalizeProductDetailHeights, 120);
 
   equalizeProductDetailHeights();
-  setTimeout(scrollProductDetailIntoView, 50);
+  setTimeout(scrollProductDetailIntoView, 20);
   setTimeout(equalizeProductDetailHeights, 120);
 }
 
