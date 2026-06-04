@@ -1099,32 +1099,57 @@ button.disabled-cart,
   margin-top: auto;
 }
 
-.az-quick-link-wrap {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin: 0 0 14px;
+
+/* PST A-Z letter jump bar */
+.az-letter-jump-wrap {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid #e6e6e6;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.05);
 }
 
-.az-quick-link {
-  display: inline-flex;
+.az-letter-jump-title {
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #596579;
+  margin-bottom: 10px;
+}
+
+.az-letter-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
   align-items: center;
-  justify-content: center;
-  border: 2px solid #003f9e;
-  background: #003f9e;
-  color: #fff;
-  border-radius: 999px;
-  padding: 10px 16px;
+}
+
+.az-letter-jump a {
+  color: #003f9e;
   text-decoration: none;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: .03em;
-  box-shadow: 0 6px 18px rgba(0,63,158,.18);
+  min-width: 28px;
+  min-height: 28px;
+  padding: 5px 8px;
+  border: 1px solid #d9e7ff;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f8ff;
 }
 
-.az-quick-link:hover {
-  background: #002f76;
-  border-color: #002f76;
+.az-letter-jump a:hover {
+  background: #003f9e;
+  color: #ffffff;
+  border-color: #003f9e;
+}
+
+.az-letter-anchor {
+  scroll-margin-top: 150px;
 }
 
 </style>
@@ -1457,7 +1482,10 @@ button.disabled-cart,
 
 
   <section id="az" class="section wrap">
-    <div class="az-quick-link-wrap"><a class="az-quick-link" href="#az-index">A-Z Quick Link</a></div>
+    <div class="az-letter-jump-wrap">
+      <div class="az-letter-jump-title">Jump to Letter</div>
+      <div id="azLetterJump" class="az-letter-jump"></div>
+    </div>
     <div id="az-index"></div>
     <h2 class="section-title">A-Z Peptide Index</h2>
     <div class="underline"></div>
@@ -1917,7 +1945,9 @@ function renderHero() {
 function changeHero(direction) {
   pstHeroIndex = (pstHeroIndex + direction + pstHeroSlides.length) % pstHeroSlides.length;
   renderHero();
-  restartHeroTimer();
+    buildAZLetterJump();
+  addAZLetterAnchors();
+restartHeroTimer();
 }
 
 function setHero(index) {
@@ -2161,6 +2191,65 @@ async function loadSupabaseProductCatalog() {
   }
 }
 
+
+
+
+function buildAZLetterJump() {
+  const jump = document.getElementById("azLetterJump");
+  if (!jump || !productData) return;
+
+  const letters = [...new Set(
+    Object.values(productData)
+      .filter(product => product && product.isActive !== false && product.active !== false)
+      .map(product => String(product.display || product.key || "").trim().charAt(0).toUpperCase())
+      .filter(letter => /^[A-Z]$/.test(letter))
+  )].sort();
+
+  jump.innerHTML = letters.map(letter =>
+    `<a href="#letter-${letter}" aria-label="Jump to ${letter} products">${letter}</a>`
+  ).join("");
+}
+
+function addAZLetterAnchors() {
+  if (!productData) return;
+
+  const letters = [...new Set(
+    Object.values(productData)
+      .filter(product => product && product.isActive !== false && product.active !== false)
+      .map(product => String(product.display || product.key || "").trim().charAt(0).toUpperCase())
+      .filter(letter => /^[A-Z]$/.test(letter))
+  )].sort();
+
+  letters.forEach(letter => {
+    if (document.getElementById(`letter-${letter}`)) return;
+
+    const headings = Array.from(document.querySelectorAll("h2,h3,h4,.letter-heading,.az-letter,.az-heading"));
+    const heading = headings.find(el => el.textContent.trim().toUpperCase() === letter);
+
+    if (heading) {
+      heading.id = `letter-${letter}`;
+      heading.classList.add("az-letter-anchor");
+      return;
+    }
+
+    const firstProduct = Object.values(productData)
+      .filter(product => product && product.isActive !== false && product.active !== false)
+      .sort((a, b) => String(a.display || a.key || "").localeCompare(String(b.display || b.key || "")))
+      .find(product => String(product.display || product.key || "").trim().toUpperCase().startsWith(letter));
+
+    if (!firstProduct) return;
+
+    const productKey = firstProduct.key;
+    const possible = Array.from(document.querySelectorAll(`[data-key="${CSS.escape(productKey)}"], [data-product-key="${CSS.escape(productKey)}"], [data-id="${CSS.escape(productKey)}"]`))[0];
+
+    if (possible) {
+      const anchor = document.createElement("div");
+      anchor.id = `letter-${letter}`;
+      anchor.className = "az-letter-anchor";
+      possible.parentNode.insertBefore(anchor, possible);
+    }
+  });
+}
 
 
 async function loadProducts() {
