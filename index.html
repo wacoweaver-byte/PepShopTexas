@@ -20,7 +20,7 @@
 }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; scroll-padding-top: 145px; }
-#home, #featured, #az, #product-detail, .letter-group {
+#home, #featured, #az, #product-detail, #faq, .letter-group {
   scroll-margin-top: 90px;
 }
 body { margin:0; background:#fff; color:var(--black); font-family:Arial, Helvetica, sans-serif; }
@@ -1319,6 +1319,30 @@ button.disabled-cart,
   padding-top: 0 !important;
 }
 
+
+
+/* FAQ anchor and homepage FAQ section */
+#faq {
+  scroll-margin-top: 120px !important;
+}
+.faq-list {
+  display: grid;
+  gap: 12px;
+}
+.faq-item {
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:16px 18px;
+  line-height:1.5;
+}
+.faq-item strong {
+  display:block;
+  margin-bottom:6px;
+  color:var(--blue);
+  text-transform:uppercase;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1740,6 +1764,35 @@ button.disabled-cart,
         Products and information are provided for research-use context only. Not for human or veterinary use.
         Not medical advice. Batch-specific third-party testing is available only when listed for a specific product or lot.
       </p>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="faq" class="section wrap">
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <div class="underline"></div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <strong>Are products intended for human or veterinary use?</strong>
+      No. Products are provided for research-use context only and are not for human or veterinary use.
+    </div>
+    <div class="faq-item">
+      <strong>Is this medical advice?</strong>
+      No. Website content is not medical advice, diagnostic guidance, treatment guidance, dosing advice, or a recommendation for human or animal use.
+    </div>
+    <div class="faq-item">
+      <strong>Are COAs available?</strong>
+      Batch-specific third-party testing is available only when listed for a specific product or lot.
+    </div>
+    <div class="faq-item">
+      <strong>What if a product image shows a vial or label?</strong>
+      Product images are representative visual references. Actual packaging, labeling, cap color, batch, lot, and documentation may vary.
+    </div>
+    <div class="faq-item">
+      <strong>Where do orders ship from?</strong>
+      Orders ship from Central Texas with available shipping options listed during checkout.
     </div>
   </div>
 </section>
