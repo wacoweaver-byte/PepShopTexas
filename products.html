@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pep Shop Texas | Product Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --blue:#003f9e; --dark:#101820; --line:#e6e6e6; --soft:#f7f9fc; --muted:#596579;
+  --green:#0f8a3b; --yellow:#b7791f; --red:#b42318; --white:#fff;
+}
+* { box-sizing:border-box; }
+body { margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--soft); color:var(--dark); }
+header { position:sticky; top:0; z-index:50; background:#fff; border-bottom:1px solid var(--line); box-shadow:0 4px 20px rgba(0,0,0,.05); }
+.topbar { max-width:1540px; margin:auto; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; gap:14px; }
+.brand { display:flex; align-items:center; gap:14px; font-weight:900; text-transform:uppercase; }
+.pst-admin-logo { height:54px; width:auto; max-width:250px; display:block; object-fit:contain; }
+.brand small { display:block; color:var(--muted); font-size:12px; text-transform:none; margin-top:2px; }
+.actions { display:flex; gap:8px; flex-wrap:wrap; }
+button,a,input,select,textarea { font-family:inherit; }
+.btn { border:0; border-radius:8px; padding:10px 13px; background:var(--blue); color:#fff; font-weight:900; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:38px; }
+.btn.secondary { background:#fff; color:var(--dark); border:1px solid var(--line); }
+.btn.success { background:var(--green); }
+.btn.warning { background:var(--yellow); }
+.btn.danger { background:var(--red); }
+.btn:disabled { opacity:.55; cursor:not-allowed; }
+main { max-width:1540px; margin:auto; padding:22px 18px 60px; }
+h1 { margin:0 0 6px; font-size:clamp(26px,3vw,38px); }
+.subtitle { margin:0; color:var(--muted); line-height:1.4; }
+.status { margin:16px 0; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--muted); font-weight:700; }
+.status.good { background:#edf8f0; color:var(--green); border-color:#bfe8c8; }
+.status.bad { background:#fff0f0; color:var(--red); border-color:#ffb8c0; }
+.card { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.06); overflow:hidden; }
+.card-head { padding:14px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end; }
+.filters { display:grid; grid-template-columns:1.2fr .7fr .7fr .7fr; gap:10px; }
+.field { display:flex; flex-direction:column; gap:5px; }
+label { font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-weight:900; color:var(--muted); }
+input,select,textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:8px 9px; font-size:14px; background:#fff; }
+textarea { min-height:68px; resize:vertical; }
+input[type="checkbox"] { width:18px; height:18px; min-height:18px; cursor:pointer; }
+.toolbar { padding:12px 14px; background:#fbfcff; border-bottom:1px solid var(--line); display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; align-items:center; }
+.toolbar-left, .toolbar-right { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.table-wrap { overflow:auto; max-height:calc(100vh - 310px); }
+table { width:100%; border-collapse:collapse; min-width:1900px; }
+th,td { border-bottom:1px solid var(--line); padding:9px 7px; text-align:left; vertical-align:top; font-size:13px; }
+th { position:sticky; top:0; background:#fff; z-index:3; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+tr:hover { background:#f7fbff; }
+tr.dirty { background:#fffaf0; }
+.num { width:88px; }
+.price { width:96px; }
+.short { width:130px; }
+.med { width:170px; }
+.long { width:260px; }
+.status-pill { display:inline-block; padding:5px 8px; border-radius:999px; font-size:11px; font-weight:900; text-transform:uppercase; white-space:nowrap; }
+.active-pill { background:#edf8f0; color:var(--green); }
+.inactive-pill { background:#fff0f0; color:var(--red); }
+.preview-cell { min-width:230px; }
+.dynamic-label {
+  width:210px;
+  min-height:132px;
+  border:1px solid #d8e2ef;
+  border-radius:12px;
+  background:linear-gradient(180deg,#ffffff 0%,#f7f9fb 100%);
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  display:flex;
+  overflow:hidden;
+}
+.dynamic-label-main { flex:1; padding:11px; text-align:center; }
+.dynamic-label-logo { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; font-size:32px; letter-spacing:.5px; line-height:.9; }
+.dynamic-label-logo span { color:var(--blue); }
+.dynamic-label-sub { font-size:10px; font-weight:900; text-transform:uppercase; margin:3px 0 10px; }
+.dynamic-label-name { font-weight:900; text-transform:uppercase; font-size:15px; line-height:1.05; margin-bottom:5px; }
+.dynamic-label-strength { color:var(--blue); font-weight:900; font-size:13px; }
+.dynamic-label-foot { margin-top:8px; font-size:9px; color:#444; font-weight:800; }
+.dynamic-label-stripe { width:24px; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; writing-mode:vertical-rl; transform:rotate(180deg); font-size:9px; font-weight:900; letter-spacing:.4px; text-transform:uppercase; }
+.note { font-size:12px; color:var(--muted); line-height:1.35; }
+@media(max-width:1150px) {
+  .card-head { grid-template-columns:1fr; }
+  .filters { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:640px) {
+  .topbar { align-items:flex-start; flex-direction:column; }
+  .filters { grid-template-columns:1fr; }
+  .pst-admin-logo { height:46px; max-width:220px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <img class="pst-admin-logo" src="assets/icons/apple-touch-icon.png" alt="Pep Shop Texas logo">
+      <div><small>Spreadsheet-Style Product Admin</small></div>
+    </div>
+    <div class="actions">
+      <a class="btn secondary" href="admin.html">Orders</a>
+      <a class="btn secondary" href="inventory.html">Inventory</a>
+      <a class="btn secondary" href="index.html">Website</a>
+      <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>Products</h1>
+  <p class="subtitle">Spreadsheet-style product catalog management. Edit product details, add new products, control featured status, and preview dynamic PST label cards.</p>
+  <div id="status" class="status">Checking admin access...</div>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="filters">
+        <div class="field">
+          <label>Search products</label>
+          <input id="searchInput" type="search" placeholder="Search product, strength, category, series..." />
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select id="categoryFilter"><option value="">All categories</option></select>
+        </div>
+        <div class="field">
+          <label>Active</label>
+          <select id="activeFilter">
+            <option value="">All products</option>
+            <option value="true">Active / visible</option>
+            <option value="false">Inactive / hidden</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Featured</label>
+          <select id="featuredFilter">
+            <option value="">All</option>
+            <option value="true">Featured only</option>
+            <option value="false">Not featured</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="clearFiltersBtn" type="button">Clear Filters</button>
+        <button class="btn warning" id="importJsonBtn" type="button">Import products.json</button>
+        <button class="btn success" id="saveDirtyBtn" type="button">Save Edited Rows</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="btn success" id="addProductBtn" type="button">+ Add Product</button>
+        <span class="note">New products save into Supabase and can appear alphabetically on the public site once active.</span>
+      </div>
+      <div class="toolbar-right">
+        <span class="note"><strong>Dynamic Label:</strong> Generated from product name, strength, reconstitution, and testing statement.</span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dynamic Label Preview</th>
+            <th>Product Key / SKU</th>
+            <th>Display Name</th>
+            <th>Strength</th>
+            <th>Category</th>
+            <th>Series</th>
+            <th>Price</th>
+            <th>Inventory</th>
+            <th>Reconstitution</th>
+            <th>Active</th>
+            <th>Featured</th>
+            <th>Stack / Blend</th>
+            <th>Description</th>
+            <th>Research Notes</th>
+            <th>COA File/Link</th>
+            <th>Image Path</th>
+            <th>Testing Statement</th>
+            <th>Save</th>
+          </tr>
+        </thead>
+        <tbody id="productsBody">
+          <tr><td colspan="18" class="note">Loading products...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+const PST_SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+const PST_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+const db = window.supabase.createClient(PST_SUPABASE_URL, PST_SUPABASE_PUBLISHABLE_KEY);
+
+let currentUser = null;
+let allProducts = [];
+let filteredProducts = [];
+let dirtyIds = new Set();
+
+const $ = id => document.getElementById(id);
+
+function setStatus(msg, type="") {
+  const el = $("status");
+  el.textContent = msg;
+  el.className = "status";
+  if (type) el.classList.add(type);
+}
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[ch]);
+}
+
+function money(v) { return Number(v || 0).toFixed(2); }
+
+function makeProductKey(name, strength) {
+  return String((name || "NEW PRODUCT") + " " + (strength || ""))
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function dynamicLabel(product) {
+  const name = product.display_name || "New Product";
+  const strength = product.strength || "";
+  const recon = product.reconstitution || "2 mL";
+  const testing = product.testing_statement || "Testing Available When Listed";
+  return `
+    <div class="dynamic-label">
+      <div class="dynamic-label-main">
+        <div class="dynamic-label-logo">P<span>S</span>T</div>
+        <div class="dynamic-label-sub">Pep Shop Texas</div>
+        <div class="dynamic-label-name">${esc(name)}</div>
+        <div class="dynamic-label-strength">${esc(strength)}</div>
+        <div class="dynamic-label-foot">Recommended Reconstitution of ${esc(recon)}</div>
+      </div>
+      <div class="dynamic-label-stripe">${esc(testing.replace("Batch-specific ", "").slice(0, 34))}</div>
+    </div>
+  `;
+}
+
+async function checkAdmin() {
+  const { data, error } = await db.auth.getSession();
+  if (error) throw error;
+  const session = data?.session;
+  if (!session?.user) {
+    setStatus("You are not logged in. Log in from the website first, then return here.", "bad");
+    return false;
+  }
+  currentUser = session.user;
+
+  const byUser = await db.from("admin_users").select("*").eq("user_id", currentUser.id).maybeSingle();
+  const byEmail = await db.from("admin_users").select("*").eq("email", currentUser.email).maybeSingle();
+  const admin = byUser.data || byEmail.data;
+
+  if (!admin || !(admin.is_active === true || admin.email === currentUser.email)) {
+    setStatus("Access denied. This account is not listed as an active admin.", "bad");
+    return false;
+  }
+
+  setStatus("Admin access confirmed. Loading products...", "good");
+  return true;
+}
+
+async function loadProducts() {
+  setStatus("Loading product catalog...");
+  const { data, error } = await db
+    .from("product_catalog")
+    .select("*")
+    .order("sort_name", { ascending: true });
+
+  if (error) throw error;
+
+  allProducts = (data || []).map(p => ({ ...p, sort_name: p.sort_name || String(p.display_name || "").toLowerCase() }));
+  populateCategoryFilter();
+  applyFilters();
+  setStatus(`Loaded ${allProducts.length} product${allProducts.length === 1 ? "" : "s"}.`, "good");
+}
+
+function populateCategoryFilter() {
+  const select = $("categoryFilter");
+  const current = select.value;
+  const cats = [...new Set(allProducts.map(p => p.category).filter(Boolean))].sort();
+  select.innerHTML = `<option value="">All categories</option>` + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  select.value = current;
+}
+
+function applyFilters() {
+  const search = $("searchInput").value.trim().toLowerCase();
+  const category = $("categoryFilter").value;
+  const active = $("activeFilter").value;
+  const featured = $("featuredFilter").value;
+
+  filteredProducts = allProducts.filter(product => {
+    const text = [
+      product.product_key, product.display_name, product.strength, product.category,
+      product.series, product.description, product.research_notes
+    ].filter(Boolean).join(" ").toLowerCase();
+
+    return (!search || text.includes(search))
+      && (!category || product.category === category)
+      && (!active || String(product.is_active) === active)
+      && (!featured || String(product.featured) === featured);
+  });
+
+  renderTable();
+}
+
+function renderTable() {
+  const body = $("productsBody");
+  if (!filteredProducts.length) {
+    body.innerHTML = `<tr><td colspan="18" class="note">No products match current filters. Click “Import products.json” or “Add Product.”</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filteredProducts.map(product => {
+    const dirty = dirtyIds.has(product.id) ? "dirty" : "";
+    return `
+      <tr data-id="${product.id}" class="${dirty}">
+        <td class="preview-cell">${dynamicLabel(product)}</td>
+        <td><input class="med" data-field="product_key" value="${esc(product.product_key || "")}"></td>
+        <td><input class="med" data-field="display_name" value="${esc(product.display_name || "")}"></td>
+        <td><input class="short" data-field="strength" value="${esc(product.strength || "")}"></td>
+        <td><input class="short" data-field="category" value="${esc(product.category || "")}"></td>
+        <td><input class="short" data-field="series" value="${esc(product.series || "")}"></td>
+        <td><input class="price" data-field="price" type="number" step="0.01" value="${money(product.price)}"></td>
+        <td><input class="num" data-field="current_inventory" type="number" step="1" min="0" value="${Number(product.current_inventory || 0)}"></td>
+        <td><input class="short" data-field="reconstitution" value="${esc(product.reconstitution || "2 mL")}"></td>
+        <td>
+          <span class="status-pill ${product.is_active !== false ? "active-pill" : "inactive-pill"}">${product.is_active !== false ? "Visible" : "Hidden"}</span>
+          <select data-field="is_active">
+            <option value="true" ${product.is_active !== false ? "selected" : ""}>Yes</option>
+            <option value="false" ${product.is_active === false ? "selected" : ""}>No</option>
+          </select>
+        </td>
+        <td>
+          <select data-field="featured">
+            <option value="false" ${!product.featured ? "selected" : ""}>No</option>
+            <option value="true" ${product.featured ? "selected" : ""}>Yes</option>
+          </select>
+        </td>
+        <td>
+          <select data-field="blend_stack">
+            <option value="false" ${!product.blend_stack ? "selected" : ""}>No</option>
+            <option value="true" ${product.blend_stack ? "selected" : ""}>Yes</option>
+          </select>
+        </td>
+        <td><textarea class="long" data-field="description">${esc(product.description || "")}</textarea></td>
+        <td><textarea class="long" data-field="research_notes">${esc(product.research_notes || "")}</textarea></td>
+        <td><input class="med" data-field="coa_file" value="${esc(product.coa_file || "")}"></td>
+        <td><input class="med" data-field="image_data" value="${esc(product.image_data || product.image_file || "")}"></td>
+        <td><input class="long" data-field="testing_statement" value="${esc(product.testing_statement || "Batch-specific third-party testing available when listed")}"></td>
+        <td><button class="btn success row-save" data-id="${product.id}" type="button">Save</button></td>
+      </tr>
+    `;
+  }).join("");
+
+  document.querySelectorAll("tbody input[data-field], tbody select[data-field], tbody textarea[data-field]").forEach(input => {
+    input.addEventListener("change", e => {
+      const id = e.target.closest("tr").dataset.id;
+      dirtyIds.add(id);
+      e.target.closest("tr").classList.add("dirty");
+    });
+  });
+
+  document.querySelectorAll(".row-save").forEach(btn => {
+    btn.addEventListener("click", () => saveRow(btn.dataset.id));
+  });
+}
+
+function getRowData(id) {
+  const row = document.querySelector(`tr[data-id="${id}"]`);
+  const original = allProducts.find(p => p.id === id);
+  if (!row || !original) return null;
+
+  const data = { ...original };
+  row.querySelectorAll("[data-field]").forEach(input => {
+    const field = input.dataset.field;
+    let value = input.value;
+    if (["price"].includes(field)) value = Number(value || 0);
+    if (["current_inventory"].includes(field)) value = Number(value || 0);
+    if (["is_active","featured","blend_stack"].includes(field)) value = value === "true";
+    data[field] = value;
+  });
+
+  data.sort_name = String(data.display_name || data.product_key || "").toLowerCase();
+  data.updated_at = new Date().toISOString();
+  return data;
+}
+
+async function saveRow(id) {
+  const data = getRowData(id);
+  if (!data) return;
+
+  if (!data.product_key) data.product_key = makeProductKey(data.display_name, data.strength);
+  if (!data.display_name) {
+    alert("Display Name is required.");
+    return;
+  }
+
+  const updates = {
+    product_key: data.product_key,
+    display_name: data.display_name,
+    strength: data.strength || null,
+    category: data.category || "Peptide",
+    series: data.series || null,
+    description: data.description || null,
+    research_notes: data.research_notes || null,
+    reconstitution: data.reconstitution || "2 mL",
+    price: Number(data.price || 0),
+    current_inventory: Number(data.current_inventory || 0),
+    is_active: data.is_active !== false,
+    featured: data.featured === true,
+    blend_stack: data.blend_stack === true,
+    image_data: data.image_data || null,
+    image_file: data.image_data || null,
+    coa_file: data.coa_file || null,
+    testing_statement: data.testing_statement || "Batch-specific third-party testing available when listed",
+    sort_name: data.sort_name,
+    updated_at: data.updated_at
+  };
+
+  const { error } = await db.from("product_catalog").update(updates).eq("id", id);
+  if (error) throw error;
+
+  dirtyIds.delete(id);
+  setStatus(`${updates.display_name} saved.`, "good");
+  await loadProducts();
+}
+
+async function saveDirtyRows() {
+  const ids = Array.from(dirtyIds);
+  if (!ids.length) {
+    alert("No edited rows to save.");
+    return;
+  }
+  for (const id of ids) await saveRow(id);
+  setStatus(`Saved ${ids.length} edited row${ids.length === 1 ? "" : "s"}.`, "good");
+}
+
+async function addProduct() {
+  const displayName = prompt("Product display name:");
+  if (!displayName) return;
+  const strength = prompt("Strength, example: 10 mg") || "";
+  const key = makeProductKey(displayName, strength);
+
+  const row = {
+    product_key: key,
+    display_name: displayName,
+    strength,
+    category: "Peptide",
+    series: null,
+    description: "Research-use product detail page. For research use only. Not for human or veterinary use. Not medical advice.",
+    research_notes: null,
+    reconstitution: "2 mL",
+    price: 0,
+    current_inventory: 0,
+    low_stock_threshold: 5,
+    limited_stock_threshold: 10,
+    is_active: true,
+    featured: false,
+    blend_stack: false,
+    testing_statement: "Batch-specific third-party testing available when listed",
+    sort_name: String(displayName).toLowerCase(),
+    updated_at: new Date().toISOString()
+  };
+
+  const { error } = await db.from("product_catalog").insert(row);
+  if (error) throw error;
+
+  setStatus(`${displayName} added.`, "good");
+  await loadProducts();
+}
+
+async function importProductsJson() {
+  setStatus("Importing products.json into product catalog...");
+  const res = await fetch("./products.json?ts=" + Date.now(), { cache:"no-store" });
+  if (!res.ok) throw new Error("Could not load products.json: " + res.status);
+  const catalog = await res.json();
+  const products = Array.isArray(catalog.products) ? catalog.products : [];
+
+  if (!products.length) {
+    alert("No products found in products.json.");
+    return;
+  }
+
+  const rows = products.map(p => ({
+    product_key: p.key,
+    display_name: p.display || p.key,
+    strength: p.strength || null,
+    category: p.category || (p.blendStack ? "Stack / Blend" : "Peptide"),
+    series: p.series || null,
+    description: p.description || "Research-use product detail page. For research use only. Not for human or veterinary use. Not medical advice.",
+    research_notes: p.research_notes || null,
+    reconstitution: p.reconstitution || "2 mL",
+    price: Number(p.price || 0),
+    current_inventory: Number(p.inventory || 0),
+    is_active: p.active !== false,
+    featured: p.featured === true,
+    blend_stack: p.blendStack === true,
+    image_file: p.file || null,
+    image_data: p.imageData || p.file || null,
+    coa_file: p.coaFile || "",
+    coa_image: p.coaImage || "",
+    testing_statement: p.purity || "Batch-specific third-party testing available when listed",
+    sort_name: String(p.display || p.key || "").toLowerCase(),
+    updated_at: new Date().toISOString()
+  })).filter(p => p.product_key);
+
+  const { error } = await db
+    .from("product_catalog")
+    .upsert(rows, { onConflict:"product_key" });
+
+  if (error) throw error;
+
+  setStatus(`Imported/updated ${rows.length} products.`, "good");
+  await loadProducts();
+}
+
+function wireEvents() {
+  $("refreshBtn").addEventListener("click", loadProducts);
+  $("signOutBtn").addEventListener("click", async () => {
+    await db.auth.signOut();
+    window.location.href = "index.html";
+  });
+
+  $("searchInput").addEventListener("input", applyFilters);
+  $("categoryFilter").addEventListener("change", applyFilters);
+  $("activeFilter").addEventListener("change", applyFilters);
+  $("featuredFilter").addEventListener("change", applyFilters);
+
+  $("clearFiltersBtn").addEventListener("click", () => {
+    $("searchInput").value = "";
+    $("categoryFilter").value = "";
+    $("activeFilter").value = "";
+    $("featuredFilter").value = "";
+    applyFilters();
+  });
+
+  $("saveDirtyBtn").addEventListener("click", saveDirtyRows);
+  $("importJsonBtn").addEventListener("click", importProductsJson);
+  $("addProductBtn").addEventListener("click", addProduct);
+}
+
+async function init() {
+  try {
+    wireEvents();
+    const ok = await checkAdmin();
+    if (!ok) return;
+    await loadProducts();
+  } catch (err) {
+    console.error(err);
+    setStatus(err.message || "Product admin failed to load.", "bad");
+  }
+}
+
+init();
+</script>
+</body>
+</html>

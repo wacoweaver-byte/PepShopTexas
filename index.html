@@ -1934,11 +1934,100 @@ async function loadInventoryOverlay() {
   }
 }
 
+
+async function loadSupabaseProductCatalog() {
+  try {
+    if (typeof window.supabase === "undefined" || typeof PST_SUPABASE_URL === "undefined" || typeof PST_SUPABASE_PUBLISHABLE_KEY === "undefined") {
+      return null;
+    }
+
+    const client = window.pstHomeSupabase || window.supabase.createClient(PST_SUPABASE_URL, PST_SUPABASE_PUBLISHABLE_KEY);
+
+    const { data, error } = await client
+      .from("product_catalog")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_name", { ascending: true });
+
+    if (error) {
+      console.warn("Product catalog unavailable; using products.json.", error.message);
+      return null;
+    }
+
+    if (!Array.isArray(data) || !data.length) {
+      return null;
+    }
+
+    return data.map(p => ({
+      key: p.product_key,
+      display: p.display_name,
+      strength: p.strength || "",
+      category: p.category || "Peptide",
+      series: p.series || "",
+      description: p.description || "Research-use product detail page. For research use only. Not for human or veterinary use. Not medical advice.",
+      research_notes: p.research_notes || "",
+      reconstitution: p.reconstitution || "2 mL",
+      price: Number(p.price || 0),
+      inventory: Number(p.current_inventory || 0),
+      featured: p.featured === true,
+      blendStack: p.blend_stack === true,
+      imageData: p.image_data || p.image_file || "",
+      file: p.image_file || p.image_data || "",
+      coaFile: p.coa_file || "",
+      coaImage: p.coa_image || "",
+      purity: p.testing_statement || "Batch-specific third-party testing available when listed",
+      active: p.is_active !== false,
+      useDynamicLabel: !(p.image_data || p.image_file)
+    }));
+  } catch (err) {
+    console.warn("Product catalog failed; using products.json.", err.message);
+    return null;
+  }
+}
+
+function makeDynamicPSTLabelDataUrl(product) {
+  const name = String(product.display || product.key || "Product").replace(/[&<>]/g, "");
+  const strength = String(product.strength || "").replace(/[&<>]/g, "");
+  const recon = String(product.reconstitution || "2 mL").replace(/[&<>]/g, "");
+  const svg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700">
+    <defs>
+      <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#ffffff"/>
+        <stop offset="100%" stop-color="#f4f7fb"/>
+      </linearGradient>
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.22"/>
+      </filter>
+    </defs>
+    <rect width="900" height="700" fill="url(#bg)"/>
+    <g filter="url(#shadow)">
+      <rect x="250" y="50" width="400" height="600" rx="62" fill="#e9eef4"/>
+      <rect x="282" y="90" width="336" height="520" rx="28" fill="#ffffff" stroke="#d4dce8" stroke-width="4"/>
+      <rect x="585" y="90" width="33" height="520" rx="16" fill="#003f9e"/>
+      <text x="601" y="350" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle" transform="rotate(90 601 350)">Testing When Listed</text>
+      <text x="450" y="180" font-family="Impact, Arial Black, sans-serif" font-size="86" fill="#111111" text-anchor="middle">P<tspan fill="#003f9e">S</tspan>T</text>
+      <text x="450" y="218" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#111111" text-anchor="middle">Pep Shop Texas</text>
+      <foreignObject x="315" y="255" width="250" height="135">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Arial,sans-serif;font-weight:900;font-size:34px;text-align:center;text-transform:uppercase;line-height:1.05;color:#111;">${name}</div>
+      </foreignObject>
+      <text x="450" y="430" font-family="Arial, sans-serif" font-size="34" font-weight="900" fill="#003f9e" text-anchor="middle">${strength}</text>
+      <text x="450" y="535" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#333333" text-anchor="middle">Recommended Reconstitution of ${recon}</text>
+    </g>
+  </svg>`;
+  return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+}
+
 async function loadProducts() {
-  const res = await fetch("./products.json?ts=" + Date.now(), { cache:"no-store" });
-  if (!res.ok) throw new Error("products.json failed to load: " + res.status);
-  const catalog = await res.json();
-  const products = Array.isArray(catalog.products) ? catalog.products : [];
+  let products = await loadSupabaseProductCatalog();
+
+  if (!products) {
+    const res = await fetch("./products.json?ts=" + Date.now(), { cache:"no-store" });
+    if (!res.ok) throw new Error("products.json failed to load: " + res.status);
+    const catalog = await res.json();
+    products = Array.isArray(catalog.products) ? catalog.products : [];
+  }
+
   const inventoryOverlay = await loadInventoryOverlay();
 
   productData = {};
@@ -1957,6 +2046,11 @@ async function loadProducts() {
     p.lowStockThreshold = inv ? Number(inv.low_stock_threshold || 5) : 5;
     p.limitedStockThreshold = inv ? Number(inv.limited_stock_threshold || 10) : 25;
     p.isActive = true;
+
+    if (p.useDynamicLabel && !p.imageData) {
+      p.imageData = makeDynamicPSTLabelDataUrl(p);
+      p.file = p.imageData;
+    }
 
     productData[p.key] = p;
 
