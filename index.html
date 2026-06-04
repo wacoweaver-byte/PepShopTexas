@@ -1157,6 +1157,47 @@ button.disabled-cart,
   scroll-margin-top: 90px;
 }
 
+
+/* Floating Back to A-Z Index button */
+.back-to-az-floating {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #003f9e;
+  color: #ffffff;
+  border: 2px solid #003f9e;
+  border-radius: 999px;
+  padding: 12px 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 0 12px 30px rgba(0, 63, 158, .28);
+  cursor: pointer;
+}
+
+.back-to-az-floating.visible {
+  display: inline-flex;
+}
+
+.back-to-az-floating:hover {
+  background: #002f76;
+  border-color: #002f76;
+}
+
+@media(max-width: 680px) {
+  .back-to-az-floating {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: auto;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3259,6 +3300,67 @@ document.addEventListener("DOMContentLoaded", renderPstAuthStatus);
     </div>
   </div>
 </div>
+
+
+<button id="backToAZFloating" class="back-to-az-floating" type="button">
+  ↑ Back to A-Z Index
+</button>
+
+
+<script>
+(function setupBackToAZFloatingButton() {
+  function getHeaderOffset() {
+    const header = document.querySelector("header");
+    return (header ? header.getBoundingClientRect().height : 0) + 18;
+  }
+
+  function scrollToAZIndex() {
+    const target =
+      document.getElementById("azLetterJump") ||
+      document.getElementById("az-index") ||
+      document.querySelector("#az");
+
+    if (!target) return;
+
+    const y = target.getBoundingClientRect().top + window.pageYOffset - getHeaderOffset();
+
+    window.scrollTo({
+      top: Math.max(y, 0),
+      behavior: "smooth"
+    });
+  }
+
+  function updateBackToAZVisibility() {
+    const button = document.getElementById("backToAZFloating");
+    const azSection = document.getElementById("az");
+    const letterJump = document.getElementById("azLetterJump");
+
+    if (!button || !azSection) return;
+
+    const azTop = azSection.getBoundingClientRect().top + window.pageYOffset;
+    const letterBottom = letterJump
+      ? letterJump.getBoundingClientRect().bottom + window.pageYOffset
+      : azTop;
+
+    const current = window.pageYOffset;
+    const shouldShow = current > (letterBottom + 250);
+
+    button.classList.toggle("visible", shouldShow);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const button = document.getElementById("backToAZFloating");
+    if (button) {
+      button.addEventListener("click", scrollToAZIndex);
+    }
+
+    updateBackToAZVisibility();
+  });
+
+  window.addEventListener("scroll", updateBackToAZVisibility, { passive: true });
+  window.addEventListener("resize", updateBackToAZVisibility);
+})();
+</script>
 
 </body>
 </html>
