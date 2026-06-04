@@ -1206,6 +1206,87 @@ button.disabled-cart,
   scroll-margin-top: 130px;
 }
 
+
+/* Product detail image/details equal-height layout */
+#product-detail {
+  scroll-margin-top: 110px;
+}
+
+#product-detail.active {
+  margin-top: 0;
+}
+
+#product-detail .detail-grid,
+.product-detail .detail-grid,
+.product-detail-grid,
+.detail-grid {
+  align-items: stretch;
+}
+
+#product-detail .detail-image,
+#product-detail .product-detail-image,
+#product-detail .selected-image-wrap,
+#product-detail .vial-display,
+#product-detail .image-panel,
+.product-detail .detail-image,
+.product-detail .product-detail-image,
+.product-detail .selected-image-wrap,
+.product-detail .vial-display,
+.product-detail .image-panel {
+  height: 100%;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#product-detail .detail-card,
+#product-detail .product-detail-card,
+#product-detail .details-panel,
+#product-detail .selected-details,
+.product-detail .detail-card,
+.product-detail .product-detail-card,
+.product-detail .details-panel,
+.product-detail .selected-details {
+  height: 100%;
+}
+
+#selectedImage,
+#selectedLabel,
+#selectedVial,
+#product-detail img {
+  max-height: 100%;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+}
+
+@media(max-width: 900px) {
+  #product-detail .detail-image,
+  #product-detail .product-detail-image,
+  #product-detail .selected-image-wrap,
+  #product-detail .vial-display,
+  #product-detail .image-panel,
+  .product-detail .detail-image,
+  .product-detail .product-detail-image,
+  .product-detail .selected-image-wrap,
+  .product-detail .vial-display,
+  .product-detail .image-panel {
+    min-height: 360px;
+  }
+
+  #selectedImage,
+  #selectedLabel,
+  #selectedVial,
+  #product-detail img {
+    height: auto;
+    max-height: 420px;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1704,7 +1785,62 @@ function scrollToElementWithHeaderOffset(element) {
 }
 
 
+
+function equalizeProductDetailHeights() {
+  const detail =
+    document.getElementById("product-detail") ||
+    document.querySelector(".product-detail") ||
+    document.querySelector(".product-detail-section");
+
+  if (!detail) return;
+
+  const imagePanel =
+    detail.querySelector(".detail-image") ||
+    detail.querySelector(".product-detail-image") ||
+    detail.querySelector(".selected-image-wrap") ||
+    detail.querySelector(".vial-display") ||
+    detail.querySelector(".image-panel") ||
+    detail.querySelector("img")?.parentElement;
+
+  const detailsPanel =
+    detail.querySelector(".detail-card") ||
+    detail.querySelector(".product-detail-card") ||
+    detail.querySelector(".details-panel") ||
+    detail.querySelector(".selected-details") ||
+    detail.querySelector(".details") ||
+    Array.from(detail.children).find(child => child !== imagePanel && child.getBoundingClientRect().height > 200);
+
+  const img =
+    detail.querySelector("#selectedImage") ||
+    detail.querySelector("#selectedLabel") ||
+    detail.querySelector("#selectedVial") ||
+    detail.querySelector("img");
+
+  if (!imagePanel || !detailsPanel) return;
+
+  // Reset first so the measurement is natural.
+  imagePanel.style.minHeight = "";
+  imagePanel.style.height = "";
+  if (img) {
+    img.style.maxHeight = "";
+  }
+
+  const detailHeight = Math.max(detailsPanel.getBoundingClientRect().height, 420);
+
+  imagePanel.style.minHeight = `${detailHeight}px`;
+  imagePanel.style.height = `${detailHeight}px`;
+
+  if (img) {
+    img.style.maxHeight = `${detailHeight}px`;
+    img.style.height = "100%";
+    img.style.width = "auto";
+    img.style.objectFit = "contain";
+  }
+}
+
+
 function scrollProductDetailIntoView() {
+  equalizeProductDetailHeights();
   const target =
     document.getElementById("product-detail") ||
     document.querySelector(".product-detail") ||
@@ -1714,9 +1850,11 @@ function scrollProductDetailIntoView() {
 
   const header = document.querySelector("header");
   const headerHeight = header ? header.getBoundingClientRect().height : 0;
-  const extraOffset = 14;
+  const extraOffset = 6;
 
   const y = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
+
+  equalizeProductDetailHeights();
 
   window.scrollTo({
     top: Math.max(y, 0),
@@ -1756,9 +1894,13 @@ function selectProduct(key) {
   const addBtn = document.getElementById("selectedAddButton");
   if (addBtn) addBtn.onclick = function() { addProductToCart(key); };
 
-  if (detail) scrollToElementWithHeaderOffset(detail);
+  equalizeProductDetailHeights();
+  if (detail) scrollProductDetailIntoView();
+  setTimeout(equalizeProductDetailHeights, 120);
 
+  equalizeProductDetailHeights();
   setTimeout(scrollProductDetailIntoView, 50);
+  setTimeout(equalizeProductDetailHeights, 120);
 }
 
 
@@ -2300,7 +2442,7 @@ function buildAZLetterJump(precomputedLetters) {
 
       const header = document.querySelector("header");
       const headerHeight = header ? header.getBoundingClientRect().height : 0;
-      const extraOffset = 18;
+      const extraOffset = 6;
 
       const y = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
 
@@ -3392,6 +3534,15 @@ document.addEventListener("DOMContentLoaded", renderPstAuthStatus);
   window.addEventListener("scroll", updateBackToAZVisibility, { passive: true });
   window.addEventListener("resize", updateBackToAZVisibility);
 })();
+</script>
+
+
+<script>
+window.addEventListener("resize", () => {
+  if (document.getElementById("product-detail")?.classList.contains("active")) {
+    equalizeProductDetailHeights();
+  }
+});
 </script>
 
 </body>
