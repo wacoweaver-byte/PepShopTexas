@@ -1343,6 +1343,104 @@ button.disabled-cart,
   text-transform:uppercase;
 }
 
+
+/* PST FINAL FIX: Featured Stacks / Featured Products locked row alignment */
+.stack-grid {
+  align-items: stretch !important;
+}
+.stack-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+.stack-card > img {
+  flex: 0 0 210px !important;
+  height: 210px !important;
+  width: 100% !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  padding: 8px !important;
+  background: linear-gradient(180deg,#ffffff 0%,#f7f9fb 100%) !important;
+}
+.stack-card-body {
+  display: grid !important;
+  grid-template-rows: 22px 48px 42px 34px 28px 46px !important;
+  gap: 6px !important;
+  min-height: 226px !important;
+  padding: 14px !important;
+  text-align: center !important;
+  align-items: center !important;
+}
+.stack-card .badge {
+  height: 22px !important;
+  min-height: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--blue) !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .6px !important;
+  overflow: hidden !important;
+}
+.stack-card h3 {
+  height: 48px !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  line-height: 1.08 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+.stack-card p {
+  height: 42px !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+  line-height: 1.25 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+.stack-inventory-row {
+  height: 34px !important;
+  min-height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.stack-inventory-row .inventory-status {
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+.stack-price {
+  height: 28px !important;
+  min-height: 28px !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.stack-actions {
+  align-self: stretch !important;
+  margin-top: 0 !important;
+}
+.stack-actions button,
+.stack-actions .disabled-cart {
+  min-height: 44px !important;
+}
+@media(max-width:560px) {
+  .stack-card > img {
+    flex-basis: 190px !important;
+    height: 190px !important;
+  }
+  .stack-card-body {
+    grid-template-rows: 22px 48px 42px 34px 28px 46px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2646,6 +2744,7 @@ function productCard(p, badge) {
         <span class="badge">${pstEsc(badge)}</span>
         <h3>${pstEsc(p.display)}</h3>
         <p>${pstEsc(subtitle)}</p>
+        <div class="stack-inventory-row">${inventoryBadgeHTML(p.inventory)}</div>
         <div class="stack-price">${pstMoney(p.price)}</div>
         <div class="stack-actions">
           <button onclick='selectProduct(${JSON.stringify(p.key)})'>View Product</button>
@@ -2688,6 +2787,7 @@ function rebuildFeaturedStacks() {
         <span class="badge">Stack / Blend</span>
         <h3>${pstEsc(s.display)}</h3>
         <p>${pstEsc(s.contents || s.strength || "")}</p>
+        <div class="stack-inventory-row">${inventoryBadgeHTML(s.inventory)}</div>
         <div class="stack-price">${pstMoney(s.price)}</div>
         <div class="stack-actions">
           <button onclick='selectProduct(${JSON.stringify(key)})'>View Product</button>
@@ -2974,7 +3074,7 @@ function productCard(p, badge) {
         <span class="badge">${pstEsc(badge)}</span>
         <h3>${pstEsc(p.display)}</h3>
         <p>${pstEsc(subtitle)}</p>
-        ${inventoryBadgeHTML(p.inventory)}
+        <div class="stack-inventory-row">${inventoryBadgeHTML(p.inventory)}</div>
         <div class="stack-price">${pstMoney(p.price)}</div>
         <div class="stack-actions">
           <button onclick='selectProduct(${JSON.stringify(p.key)})'>View Product</button>
@@ -3018,7 +3118,7 @@ function rebuildFeaturedStacks() {
         <span class="badge">Stack / Blend</span>
         <h3>${pstEsc(s.display)}</h3>
         <p>${pstEsc(s.contents || s.strength || "")}</p>
-        ${inventoryBadgeHTML(s.inventory)}
+        <div class="stack-inventory-row">${inventoryBadgeHTML(s.inventory)}</div>
         <div class="stack-price">${pstMoney(s.price)}</div>
         <div class="stack-actions">
           <button onclick='selectProduct(${JSON.stringify(key)})'>View Product</button>
