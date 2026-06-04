@@ -1198,6 +1198,14 @@ button.disabled-cart,
   }
 }
 
+
+/* Product detail scroll offset fix */
+#product-detail,
+.product-detail,
+.product-detail-section {
+  scroll-margin-top: 130px;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1536,7 +1544,7 @@ button.disabled-cart,
       <div id="azLetterJump" class="az-letter-jump"></div>
     </div>
     <div class="az-box">
-      <section class="letter-group"><h3>A</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("AOD 9604 2 MG")'>AOD-9604 — 2 mg</a><a href="#product-detail" onclick='selectProduct("AOD 9604 5 MG")'>AOD-9604 — 5 mg</a><a href="#product-detail" onclick='selectProduct("ARA 290 10 MG")'>ARA-290 — 10 mg</a></div></section><section class="letter-group"><h3>B</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("BPC 157 10 MG")'>BPC-157 — 10 mg</a></div></section><section class="letter-group"><h3>C</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("CJC 1295 NO DAC 5 MG")'>CJC-1295 No DAC — 5 mg</a><a href="#product-detail" onclick='selectProduct("CJC NO DAC IPAMORELIN BLEND 5 MG 5 MG")'>CJC-No DAC / Ipamorelin Blend — 5 mg/5 mg</a></div></section><section class="letter-group"><h3>D</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("DSIP 10 MG")'>DSIP — 10 mg</a></div></section><section class="letter-group"><h3>E</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("EPITALON 10 MG")'>Epitalon — 10 mg</a></div></section><section class="letter-group"><h3>G</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("GHK CU 100 MG")'>GHK-Cu — 100 mg</a><a href="#product-detail" onclick='selectProduct("GHK CU 50 MG")'>GHK-Cu — 50 mg</a><a href="#product-detail" onclick='selectProduct("GLOW BLEND BPC 157 TB4 GHK CU 70 MG")'>Glow Blend (BPC-157/TB4/GHK-Cu) — 70 mg</a></div></section><section class="letter-group"><h3>I</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("IPAMORELIN 10 MG")'>Ipamorelin — 10 mg</a></div></section><section class="letter-group"><h3>K</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("KISSPEPTIN 10 MG")'>Kisspeptin — 10 mg</a><a href="#product-detail" onclick='selectProduct("KLOW BLEND KPV BPC 157 TB 500 80 MG")'>Klow Blend (KPV/BPC-157/TB-500) — 80 mg</a><a href="#product-detail" onclick='selectProduct("KPV 10 MG")'>KPV — 10 mg</a></div></section><section class="letter-group"><h3>L</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("L CARNITINE 500 MG ML 10 ML")'>L-Carnitine — 500 mg/ml (10 ml)</a><a href="#product-detail" onclick='selectProduct("LIPO C W B12 10 ML")'>LIPO-C w/B12 — 10 ml</a><a href="#product-detail" onclick='selectProduct("LL 37 10 MG")'>LL-37 — 10 mg</a></div></section><section class="letter-group"><h3>M</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("MOTS C 10 MG")'>MOTS-C — 10 mg</a></div></section><section class="letter-group"><h3>N</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("NAD 250 MG")'>NAD+ — 250 mg</a><a href="#product-detail" onclick='selectProduct("NAD 500 MG")'>NAD+ — 500 mg</a></div></section><section class="letter-group"><h3>O</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("OXYTOCIN 10 MG")'>Oxytocin — 10 mg</a></div></section><section class="letter-group"><h3>P</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("PDA 10 MG")'>PDA — 10 mg</a><a href="#product-detail" onclick='selectProduct("PST TX1 10 MG")'>PST-TX1 — 10 mg</a><a href="#product-detail" onclick='selectProduct("PST TX2 10 MG")'>PST-TX2 — 10 mg</a><a href="#product-detail" onclick='selectProduct("PST TX3 10 MG")'>PST-TX3 — 10 mg</a><a href="#product-detail" onclick='selectProduct("PT 141 10 MG")'>PT-141 — 10 mg</a></div></section><section class="letter-group"><h3>S</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("SELANK 10 MG")'>Selank — 10 mg</a><a href="#product-detail" onclick='selectProduct("SEMAX 10 MG")'>Semax — 10 mg</a><a href="#product-detail" onclick='selectProduct("SNAP 8 10 MG")'>SNAP-8 — 10 mg</a><a href="#product-detail" onclick='selectProduct("SURVODUTIDE 10 MG")'>Survodutide — 10 mg</a></div></section><section class="letter-group"><h3>T</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("TB 500 FRAG 17 23 10 MG")'>TB-500 Frag 17-23 — 10 mg</a><a href="#product-detail" onclick='selectProduct("TB4 10 MG")'>TB4 — 10 mg</a><a href="#product-detail" onclick='selectProduct("TESAMORELIN 10 MG")'>Tesamorelin — 10 mg</a><a href="#product-detail" onclick='selectProduct("TESAMORELIN IPAMORELIN BLEND 10 MG 3 MG")'>Tesamorelin / Ipamorelin Blend — 10 mg/3 mg</a><a href="#product-detail" onclick='selectProduct("THYMOSIN ALPHA 1 10 MG")'>Thymosin Alpha 1 — 10 mg</a></div></section><section class="letter-group"><h3>V</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("VIP 10 MG")'>VIP — 10 mg</a></div></section><section class="letter-group"><h3>W</h3><div class="peptide-list"><a href="#product-detail" onclick='selectProduct("WOLVERINE BPC 157 TB 500 10 MG 10 MG")'>Wolverine (BPC-157/TB-500) — 10 mg/10 mg</a></div></section>
+      <section class="letter-group"><h3>A</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("AOD 9604 2 MG")'>AOD-9604 — 2 mg</a><a href="javascript:void(0)" onclick='selectProduct("AOD 9604 5 MG")'>AOD-9604 — 5 mg</a><a href="javascript:void(0)" onclick='selectProduct("ARA 290 10 MG")'>ARA-290 — 10 mg</a></div></section><section class="letter-group"><h3>B</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("BPC 157 10 MG")'>BPC-157 — 10 mg</a></div></section><section class="letter-group"><h3>C</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("CJC 1295 NO DAC 5 MG")'>CJC-1295 No DAC — 5 mg</a><a href="javascript:void(0)" onclick='selectProduct("CJC NO DAC IPAMORELIN BLEND 5 MG 5 MG")'>CJC-No DAC / Ipamorelin Blend — 5 mg/5 mg</a></div></section><section class="letter-group"><h3>D</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("DSIP 10 MG")'>DSIP — 10 mg</a></div></section><section class="letter-group"><h3>E</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("EPITALON 10 MG")'>Epitalon — 10 mg</a></div></section><section class="letter-group"><h3>G</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("GHK CU 100 MG")'>GHK-Cu — 100 mg</a><a href="javascript:void(0)" onclick='selectProduct("GHK CU 50 MG")'>GHK-Cu — 50 mg</a><a href="javascript:void(0)" onclick='selectProduct("GLOW BLEND BPC 157 TB4 GHK CU 70 MG")'>Glow Blend (BPC-157/TB4/GHK-Cu) — 70 mg</a></div></section><section class="letter-group"><h3>I</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("IPAMORELIN 10 MG")'>Ipamorelin — 10 mg</a></div></section><section class="letter-group"><h3>K</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("KISSPEPTIN 10 MG")'>Kisspeptin — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("KLOW BLEND KPV BPC 157 TB 500 80 MG")'>Klow Blend (KPV/BPC-157/TB-500) — 80 mg</a><a href="javascript:void(0)" onclick='selectProduct("KPV 10 MG")'>KPV — 10 mg</a></div></section><section class="letter-group"><h3>L</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("L CARNITINE 500 MG ML 10 ML")'>L-Carnitine — 500 mg/ml (10 ml)</a><a href="javascript:void(0)" onclick='selectProduct("LIPO C W B12 10 ML")'>LIPO-C w/B12 — 10 ml</a><a href="javascript:void(0)" onclick='selectProduct("LL 37 10 MG")'>LL-37 — 10 mg</a></div></section><section class="letter-group"><h3>M</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("MOTS C 10 MG")'>MOTS-C — 10 mg</a></div></section><section class="letter-group"><h3>N</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("NAD 250 MG")'>NAD+ — 250 mg</a><a href="javascript:void(0)" onclick='selectProduct("NAD 500 MG")'>NAD+ — 500 mg</a></div></section><section class="letter-group"><h3>O</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("OXYTOCIN 10 MG")'>Oxytocin — 10 mg</a></div></section><section class="letter-group"><h3>P</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("PDA 10 MG")'>PDA — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("PST TX1 10 MG")'>PST-TX1 — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("PST TX2 10 MG")'>PST-TX2 — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("PST TX3 10 MG")'>PST-TX3 — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("PT 141 10 MG")'>PT-141 — 10 mg</a></div></section><section class="letter-group"><h3>S</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("SELANK 10 MG")'>Selank — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("SEMAX 10 MG")'>Semax — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("SNAP 8 10 MG")'>SNAP-8 — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("SURVODUTIDE 10 MG")'>Survodutide — 10 mg</a></div></section><section class="letter-group"><h3>T</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("TB 500 FRAG 17 23 10 MG")'>TB-500 Frag 17-23 — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("TB4 10 MG")'>TB4 — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("TESAMORELIN 10 MG")'>Tesamorelin — 10 mg</a><a href="javascript:void(0)" onclick='selectProduct("TESAMORELIN IPAMORELIN BLEND 10 MG 3 MG")'>Tesamorelin / Ipamorelin Blend — 10 mg/3 mg</a><a href="javascript:void(0)" onclick='selectProduct("THYMOSIN ALPHA 1 10 MG")'>Thymosin Alpha 1 — 10 mg</a></div></section><section class="letter-group"><h3>V</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("VIP 10 MG")'>VIP — 10 mg</a></div></section><section class="letter-group"><h3>W</h3><div class="peptide-list"><a href="javascript:void(0)" onclick='selectProduct("WOLVERINE BPC 157 TB 500 10 MG 10 MG")'>Wolverine (BPC-157/TB-500) — 10 mg/10 mg</a></div></section>
     </div>
   </section>
 
@@ -1681,7 +1689,7 @@ function showDetail(data, type, key) {
   document.getElementById("selectedRecon").textContent = data.reconstitution || "N/A";
   document.getElementById("selectedInventory").textContent = data.inventory + " vials";
   document.getElementById("selectedAddButton").onclick = () => addCurrentToCart();
-  document.getElementById("product-detail").scrollIntoView({behavior:"smooth"});
+  scrollProductDetailIntoView();
 }
 
 
@@ -1694,6 +1702,28 @@ function scrollToElementWithHeaderOffset(element) {
   const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
   window.scrollTo({ top: elementTop - headerOffset, behavior: "smooth" });
 }
+
+
+function scrollProductDetailIntoView() {
+  const target =
+    document.getElementById("product-detail") ||
+    document.querySelector(".product-detail") ||
+    document.querySelector(".product-detail-section");
+
+  if (!target) return;
+
+  const header = document.querySelector("header");
+  const headerHeight = header ? header.getBoundingClientRect().height : 0;
+  const extraOffset = 14;
+
+  const y = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
+
+  window.scrollTo({
+    top: Math.max(y, 0),
+    behavior: "smooth"
+  });
+}
+
 
 function selectProduct(key) {
   const p = productData[key];
@@ -1727,6 +1757,8 @@ function selectProduct(key) {
   if (addBtn) addBtn.onclick = function() { addProductToCart(key); };
 
   if (detail) scrollToElementWithHeaderOffset(detail);
+
+  setTimeout(scrollProductDetailIntoView, 50);
 }
 
 
@@ -2447,7 +2479,7 @@ function rebuildAZ() {
     return `<section id="letter-${pstEsc(letter)}" class="letter-group az-letter-anchor">
       <h3 id="letter-heading-${pstEsc(letter)}">${pstEsc(letter)}</h3>
       <div class="peptide-list">` +
-      items.map(p => `<a href="#product-detail" onclick='selectProduct(${JSON.stringify(p.key)})'>${pstEsc(p.display)} — ${pstEsc(p.strength)}</a>`).join("") +
+      items.map(p => `<a href="javascript:void(0)" onclick='selectProduct(${JSON.stringify(p.key)})'>${pstEsc(p.display)} — ${pstEsc(p.strength)}</a>`).join("") +
       `</div>
     </section>`;
   }).join("");
