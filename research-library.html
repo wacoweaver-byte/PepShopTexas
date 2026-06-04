@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pep Shop Texas | Research Library</title>
+<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --blue:#003f9e;
+  --black:#050505;
+  --white:#ffffff;
+  --line:#e6e6e6;
+  --soft:#f7f9fc;
+  --muted:#555;
+  --dark:#0b2340;
+  --danger:#b00020;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#fff;
+  color:#111;
+}
+.top-strip {
+  background:#050505;
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+  text-transform:uppercase;
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  padding:9px 36px;
+}
+header {
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+.nav {
+  max-width:1280px;
+  margin:auto;
+  padding:14px 34px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:24px;
+}
+.logo-mark {
+  font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif;
+  text-decoration:none;
+  color:#111;
+  font-size:36px;
+  letter-spacing:1px;
+}
+.logo-mark span { color:var(--blue); }
+.menu {
+  display:flex;
+  gap:22px;
+  align-items:center;
+  text-transform:uppercase;
+  font-weight:900;
+  font-size:14px;
+}
+.menu a {
+  color:#111;
+  text-decoration:none;
+}
+.menu a.active {
+  color:var(--blue);
+  border-bottom:2px solid var(--blue);
+  padding-bottom:6px;
+}
+.wrap {
+  max-width:1180px;
+  margin:auto;
+  padding:0 34px;
+}
+.hero {
+  background:linear-gradient(135deg,#06111f 0%,#0f2748 50%,#003f9e 100%);
+  color:#fff;
+  padding:70px 0;
+}
+.kicker {
+  display:inline-block;
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.22);
+  padding:8px 12px;
+  border-radius:999px;
+  text-transform:uppercase;
+  font-weight:900;
+  font-size:12px;
+  letter-spacing:1.2px;
+}
+.hero h1 {
+  font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif;
+  text-transform:uppercase;
+  font-size:clamp(42px,7vw,86px);
+  line-height:.92;
+  margin:18px 0 14px;
+}
+.hero p {
+  max-width:860px;
+  color:rgba(255,255,255,.88);
+  font-size:18px;
+  line-height:1.55;
+}
+.notice {
+  margin-top:24px;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:14px;
+  padding:16px 18px;
+  max-width:900px;
+  line-height:1.5;
+  font-weight:800;
+}
+.section {
+  padding:42px 0;
+}
+.section-title {
+  font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif;
+  text-transform:uppercase;
+  font-size:38px;
+  margin:0 0 8px;
+}
+.underline {
+  width:46px;
+  height:4px;
+  background:var(--blue);
+  margin:8px 0 22px;
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+.card {
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  padding:22px;
+}
+.card h3 {
+  margin:0 0 10px;
+  text-transform:uppercase;
+  color:var(--blue);
+}
+.card p, .card li {
+  color:#333;
+  line-height:1.55;
+}
+.card ul {
+  margin:10px 0 0;
+  padding-left:20px;
+}
+.lookup-panel {
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--soft);
+  padding:22px;
+}
+.lookup-row {
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  margin:14px 0;
+}
+input {
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:13px 14px;
+  font-size:15px;
+}
+button, .btn {
+  border:2px solid var(--blue);
+  background:var(--blue);
+  color:#fff;
+  border-radius:8px;
+  padding:12px 18px;
+  font-weight:900;
+  text-transform:uppercase;
+  cursor:pointer;
+  text-decoration:none;
+}
+.result {
+  display:none;
+  margin-top:14px;
+  border-radius:10px;
+  padding:14px;
+  line-height:1.5;
+  font-weight:800;
+}
+.result.active { display:block; }
+.result.info {
+  background:#f4f8ff;
+  border:1px solid #d9e7ff;
+  color:#153f76;
+}
+.result.warn {
+  background:#fff7e6;
+  border:1px solid #ffd58a;
+  color:#7a4a00;
+}
+.sample-coa {
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:#fff;
+}
+.sample-coa-head {
+  background:#111;
+  color:#fff;
+  padding:16px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  font-weight:900;
+}
+.sample-table {
+  width:100%;
+  border-collapse:collapse;
+}
+.sample-table th,
+.sample-table td {
+  text-align:left;
+  padding:13px;
+  border-bottom:1px solid var(--line);
+  vertical-align:top;
+}
+.sample-table th {
+  width:240px;
+  color:var(--muted);
+  text-transform:uppercase;
+  font-size:12px;
+  letter-spacing:.05em;
+}
+.faq {
+  display:grid;
+  gap:12px;
+}
+details {
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  padding:14px 16px;
+}
+summary {
+  cursor:pointer;
+  font-weight:900;
+  text-transform:uppercase;
+  color:#111;
+}
+details p {
+  color:#333;
+  line-height:1.55;
+}
+.warning-box {
+  background:#fff0f0;
+  border:1px solid #ffb8c0;
+  color:var(--danger);
+  border-radius:14px;
+  padding:18px;
+  line-height:1.5;
+  font-weight:800;
+}
+footer {
+  background:#fff;
+  border-top:1px solid var(--line);
+  margin-top:30px;
+}
+.footer-inner {
+  max-width:1180px;
+  margin:auto;
+  padding:34px;
+  display:grid;
+  grid-template-columns:1.5fr 1fr 1fr;
+  gap:30px;
+}
+footer h4 {
+  text-transform:uppercase;
+  color:var(--blue);
+  margin:0 0 12px;
+}
+footer a {
+  display:block;
+  color:#222;
+  text-decoration:none;
+  margin:8px 0;
+}
+.bottom {
+  background:var(--blue);
+  color:#fff;
+  text-align:center;
+  padding:14px;
+  font-weight:800;
+}
+@media(max-width:900px) {
+  .top-strip { display:none; }
+  .nav { flex-direction:column; align-items:flex-start; }
+  .menu { flex-wrap:wrap; }
+  .grid, .footer-inner { grid-template-columns:1fr; }
+  .lookup-row { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="top-strip">
+  <span>Research use only</span>
+  <span>Not for human or veterinary use</span>
+  <span>Batch-specific testing available when listed</span>
+</div>
+
+<header>
+  <nav class="nav">
+    <a class="logo-mark" href="index.html">P<span>S</span>T</a>
+    <div class="menu">
+      <a href="index.html">Home</a>
+      <a href="index.html#az">Shop Peptides</a>
+      <a href="research-library.html" class="active">Research Library</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="kicker">Pep Shop Texas Research Library</span>
+    <h1>Research Library & COA Lookup</h1>
+    <p>
+      This page explains testing documentation, batch-specific COAs when available,
+      product image limitations, and research-use-only expectations for the Pep Shop Texas catalog.
+    </p>
+    <div class="notice">
+      Products and information are provided for research-use context only. Not for human or veterinary use.
+      Not medical advice. Batch-specific third-party testing is available only when listed for a specific product or lot.
+    </div>
+  </div>
+</section>
+
+<main>
+  <section class="section">
+    <div class="wrap">
+      <h2 class="section-title">COA Lookup</h2>
+      <div class="underline"></div>
+      <div class="lookup-panel">
+        <p>
+          Enter a product name, lot number, or batch number to check whether testing documentation is currently listed.
+          This lookup area is ready for future COA records. Until lot-specific documents are uploaded, a product should not be represented as having a verified batch COA.
+        </p>
+        <div class="lookup-row">
+          <input id="coaSearch" type="search" placeholder="Example: BPC-157, NAD+, LOT-0001, TX-1..." />
+          <button type="button" onclick="runCoaLookup()">Search</button>
+        </div>
+        <div id="coaResult" class="result"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:#f7f9fc;">
+    <div class="wrap">
+      <h2 class="section-title">Testing Documentation</h2>
+      <div class="underline"></div>
+      <div class="grid">
+        <div class="card">
+          <h3>Batch-Specific Testing</h3>
+          <p>
+            Testing documentation should correspond to a specific batch or lot. A general product name alone is not the same as a lot-specific COA.
+          </p>
+        </div>
+        <div class="card">
+          <h3>No Blanket Purity Guarantee</h3>
+          <p>
+            Pep Shop Texas should use the phrase “Batch-specific third-party testing available when listed” unless every active product has matching lot-specific documentation.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Document Review</h3>
+          <p>
+            COA records may include identity, purity, appearance, method, date, batch number, and laboratory information when supplied.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2 class="section-title">Sample COA Format</h2>
+      <div class="underline"></div>
+      <div class="sample-coa">
+        <div class="sample-coa-head">
+          <span>Sample COA Layout</span>
+          <span>For format demonstration only</span>
+        </div>
+        <table class="sample-table">
+          <tr>
+            <th>Product Name</th>
+            <td>Example Peptide Name</td>
+          </tr>
+          <tr>
+            <th>Batch / Lot Number</th>
+            <td>LOT-EXAMPLE-0001</td>
+          </tr>
+          <tr>
+            <th>Testing Laboratory</th>
+            <td>Third-party laboratory name, when available</td>
+          </tr>
+          <tr>
+            <th>Testing Date</th>
+            <td>Date listed on batch-specific report</td>
+          </tr>
+          <tr>
+            <th>Testing Method</th>
+            <td>Example: HPLC, LC-MS, or other method listed by the laboratory</td>
+          </tr>
+          <tr>
+            <th>Reported Result</th>
+            <td>Result as reported on the batch-specific testing document</td>
+          </tr>
+          <tr>
+            <th>Important Note</th>
+            <td>This sample is not a COA and does not verify any product. It only shows the type of information a COA may contain.</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:#f7f9fc;">
+    <div class="wrap">
+      <h2 class="section-title">Research-Only FAQ</h2>
+      <div class="underline"></div>
+      <div class="faq">
+        <details>
+          <summary>Are products intended for human or veterinary use?</summary>
+          <p>No. Products are provided for research-use context only and are not for human or veterinary use.</p>
+        </details>
+        <details>
+          <summary>Is this medical advice?</summary>
+          <p>No. Website content is not medical advice, diagnostic guidance, treatment guidance, dosing advice, or a recommendation for human or animal use.</p>
+        </details>
+        <details>
+          <summary>Does every product have a COA?</summary>
+          <p>No blanket claim should be made. Batch-specific third-party testing is available only when listed for a specific product or lot.</p>
+        </details>
+        <details>
+          <summary>What if a product image shows a vial or label?</summary>
+          <p>Product images are representative visual references. Actual packaging, labeling, cap color, batch, lot, and documentation may vary.</p>
+        </details>
+        <details>
+          <summary>Can product composition be verified?</summary>
+          <p>Composition should be reviewed through batch-specific testing documentation when listed. If no lot-specific document is listed, do not assume verification.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2 class="section-title">Product Image Disclaimer</h2>
+      <div class="underline"></div>
+      <div class="warning-box">
+        Product images, vial renderings, label designs, and package visuals are representative only. They may not reflect the final product,
+        actual lot, actual batch, final label, cap color, or available testing documentation. Always refer to listed batch-specific documentation when available.
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <h4>Pep Shop Texas</h4>
+      <p style="color:#555;line-height:1.5;">
+        Research-use catalog and product information. Not for human or veterinary use. Not medical advice.
+      </p>
+    </div>
+    <div>
+      <h4>Resources</h4>
+      <a href="research-library.html">Research Library</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+    <div>
+      <h4>Policies</h4>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="shipping.html">Shipping</a>
+      <a href="returns.html">Returns</a>
+    </div>
+  </div>
+  <div class="bottom">© Pep Shop Texas. Research use only. Not for human or veterinary use.</div>
+</footer>
+
+<script>
+const sampleCoaRecords = [
+  {
+    product: "Sample Product",
+    lot: "LOT-EXAMPLE-0001",
+    status: "sample",
+    message: "This is a sample COA format only. It does not verify any product."
+  }
+];
+
+function runCoaLookup() {
+  const input = document.getElementById("coaSearch");
+  const result = document.getElementById("coaResult");
+  const query = (input.value || "").trim().toLowerCase();
+
+  result.className = "result active";
+
+  if (!query) {
+    result.classList.add("warn");
+    result.innerHTML = "Enter a product name, batch number, or lot number to search.";
+    return;
+  }
+
+  const match = sampleCoaRecords.find(record =>
+    record.product.toLowerCase().includes(query) ||
+    record.lot.toLowerCase().includes(query)
+  );
+
+  if (match) {
+    result.classList.add("info");
+    result.innerHTML = `<strong>${match.product}</strong><br>Lot: ${match.lot}<br>${match.message}`;
+    return;
+  }
+
+  result.classList.add("warn");
+  result.innerHTML =
+    "No batch-specific COA is currently listed for this search. Do not represent this product or lot as COA-verified unless a matching batch-specific document is uploaded and listed.";
+}
+</script>
+</body>
+</html>
