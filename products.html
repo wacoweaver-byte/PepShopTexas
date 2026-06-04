@@ -57,23 +57,69 @@ tr.dirty { background:#fffaf0; }
 .inactive-pill { background:#fff0f0; color:var(--red); }
 .preview-cell { min-width:230px; }
 .dynamic-label {
-  width:210px;
-  min-height:132px;
-  border:1px solid #d8e2ef;
+  width:220px;
+  min-height:160px;
+  border:1px solid #d8e0ea;
   border-radius:12px;
-  background:linear-gradient(180deg,#ffffff 0%,#f7f9fb 100%);
+  background:#fff;
   box-shadow:0 8px 20px rgba(0,0,0,.08);
   display:flex;
   overflow:hidden;
 }
-.dynamic-label-main { flex:1; padding:11px; text-align:center; }
-.dynamic-label-logo { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; font-size:32px; letter-spacing:.5px; line-height:.9; }
+.dynamic-label-main {
+  flex:1;
+  padding:14px 11px;
+  text-align:center;
+}
+.dynamic-label-logo {
+  font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif;
+  font-size:42px;
+  letter-spacing:.5px;
+  line-height:.85;
+}
 .dynamic-label-logo span { color:var(--blue); }
-.dynamic-label-sub { font-size:10px; font-weight:900; text-transform:uppercase; margin:3px 0 10px; }
-.dynamic-label-name { font-weight:900; text-transform:uppercase; font-size:15px; line-height:1.05; margin-bottom:5px; }
-.dynamic-label-strength { color:var(--blue); font-weight:900; font-size:13px; }
-.dynamic-label-foot { margin-top:8px; font-size:9px; color:#444; font-weight:800; }
-.dynamic-label-stripe { width:24px; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; writing-mode:vertical-rl; transform:rotate(180deg); font-size:9px; font-weight:900; letter-spacing:.4px; text-transform:uppercase; }
+.dynamic-label-sub {
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+  margin:5px 0 14px;
+  color:#101820;
+}
+.dynamic-label-name {
+  font-weight:900;
+  text-transform:uppercase;
+  font-size:17px;
+  line-height:1.05;
+  margin-bottom:7px;
+  color:#101820;
+}
+.dynamic-label-strength {
+  color:var(--blue);
+  font-weight:900;
+  font-size:16px;
+}
+.dynamic-label-foot {
+  margin-top:15px;
+  padding-top:8px;
+  border-top:1px solid #d8e0ea;
+  font-size:9px;
+  color:#333;
+  font-weight:800;
+}
+.dynamic-label-stripe {
+  width:26px;
+  background:var(--blue);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+}
 .note { font-size:12px; color:var(--muted); line-height:1.35; }
 @media(max-width:1150px) {
   .card-head { grid-template-columns:1fr; }
@@ -223,7 +269,7 @@ function dynamicLabel(product) {
   const name = product.display_name || "New Product";
   const strength = product.strength || "";
   const recon = product.reconstitution || "2 mL";
-  const testing = product.testing_statement || "Testing Available When Listed";
+  const testing = product.testing_statement || "Testing When Listed";
   return `
     <div class="dynamic-label">
       <div class="dynamic-label-main">
@@ -233,7 +279,7 @@ function dynamicLabel(product) {
         <div class="dynamic-label-strength">${esc(strength)}</div>
         <div class="dynamic-label-foot">Recommended Reconstitution of ${esc(recon)}</div>
       </div>
-      <div class="dynamic-label-stripe">${esc(testing.replace("Batch-specific ", "").slice(0, 34))}</div>
+      <div class="dynamic-label-stripe">${esc(testing.replace("Batch-specific third-party ", "").slice(0, 32))}</div>
     </div>
   `;
 }
