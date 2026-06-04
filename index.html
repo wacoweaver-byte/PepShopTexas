@@ -1305,6 +1305,20 @@ button.disabled-cart,
   padding-top: 0 !important;
 }
 
+
+/* Product detail final top placement */
+#product-detail,
+.product-detail,
+.product-detail-section {
+  scroll-margin-top: 72px !important;
+  margin-top: 0 !important;
+}
+
+#product-detail.active {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1858,6 +1872,7 @@ function equalizeProductDetailHeights() {
 
 
 
+
 function scrollProductDetailIntoView() {
   const detail =
     document.getElementById("product-detail") ||
@@ -1868,22 +1883,12 @@ function scrollProductDetailIntoView() {
 
   equalizeProductDetailHeights();
 
-  let anchor = document.getElementById("product-detail-scroll-anchor");
-  if (!anchor) {
-    anchor = document.createElement("div");
-    anchor.id = "product-detail-scroll-anchor";
-    anchor.style.height = "0";
-    anchor.style.margin = "0";
-    anchor.style.padding = "0";
-    detail.parentNode.insertBefore(anchor, detail);
-  }
-
   const header = document.querySelector("header");
   const headerHeight = header ? header.getBoundingClientRect().height : 0;
 
-  // Tight placement directly under sticky header/banner.
-  const extraOffset = 2;
-  const y = anchor.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
+  // Place product detail row directly under sticky header/banner.
+  const extraOffset = 4;
+  const y = detail.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
 
   window.scrollTo({
     top: Math.max(y, 0),
@@ -1892,13 +1897,14 @@ function scrollProductDetailIntoView() {
 
   setTimeout(() => {
     equalizeProductDetailHeights();
-    const y2 = anchor.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
+    const y2 = detail.getBoundingClientRect().top + window.pageYOffset - headerHeight - extraOffset;
     window.scrollTo({
       top: Math.max(y2, 0),
       behavior: "smooth"
     });
   }, 120);
 }
+
 
 
 
