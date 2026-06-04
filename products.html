@@ -279,54 +279,49 @@ function pstOverlayClean(value) {
 function pstOverlayNameLines(name) {
   const cleaned = pstOverlayClean(name || "Product");
   const words = cleaned.split(/\s+/).filter(Boolean);
-
-  if (cleaned.length <= 14) return [cleaned];
+  if (cleaned.length <= 11) return [cleaned];
 
   if (words.length === 1) {
-    return [cleaned.length > 18 ? cleaned.slice(0, 16) + "…" : cleaned];
+    return [cleaned.length > 14 ? cleaned.slice(0, 12) + "…" : cleaned];
   }
 
   const lines = [];
   let current = "";
-
   words.forEach(word => {
     const test = current ? current + " " + word : word;
-    if (test.length <= 14) {
-      current = test;
-    } else {
+    if (test.length <= 11) current = test;
+    else {
       if (current) lines.push(current);
       current = word;
     }
   });
-
   if (current) lines.push(current);
 
   if (lines.length > 2) {
     const second = lines.slice(1).join(" ");
-    return [lines[0], second.length > 18 ? second.slice(0, 16) + "…" : second];
+    return [lines[0], second.length > 14 ? second.slice(0, 12) + "…" : second];
   }
-
   return lines.slice(0, 2);
 }
 
 function pstOverlayNameFontSize(lines) {
   const longest = Math.max(...lines.map(line => line.length), 1);
   if (lines.length > 1) {
-    if (longest > 16) return 46;
-    if (longest > 12) return 52;
-    return 56;
+    if (longest > 12) return 36;
+    if (longest > 9) return 43;
+    return 47;
   }
-  if (longest > 18) return 47;
-  if (longest > 14) return 55;
-  if (longest > 10) return 64;
-  return 72;
+  if (longest > 14) return 39;
+  if (longest > 11) return 47;
+  if (longest > 8) return 55;
+  return 62;
 }
 
 function pstOverlayStrengthFontSize(strength) {
   const s = pstOverlayClean(strength);
-  if (s.length > 12) return 39;
-  if (s.length > 8) return 46;
-  return 52;
+  if (s.length > 10) return 32;
+  if (s.length > 7) return 38;
+  return 44;
 }
 
 function makePSTTemplateOverlayDataUrlForAdmin(product) {
@@ -335,9 +330,8 @@ function makePSTTemplateOverlayDataUrlForAdmin(product) {
   const lines = pstOverlayNameLines(name);
   const nameFontSize = pstOverlayNameFontSize(lines);
   const strengthFontSize = pstOverlayStrengthFontSize(strength);
-
-  const lineHeight = Math.round(nameFontSize * 1.08);
-  const firstLineY = lines.length === 1 ? 829 : 817;
+  const lineHeight = Math.round(nameFontSize * 1.05);
+  const firstLineY = lines.length === 1 ? 837 : 828;
 
   const nameText = lines.map((line, index) =>
     `<text x="512" y="${firstLineY + (index * lineHeight)}" font-family="Arial, sans-serif" font-size="${nameFontSize}" font-weight="900" fill="#ffffff" text-anchor="middle">${line}</text>`
@@ -346,10 +340,10 @@ function makePSTTemplateOverlayDataUrlForAdmin(product) {
   const svg = `
   <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1536" viewBox="0 0 1024 1536">
     <image href="${PST_BLANK_VIAL_TEMPLATE_DATA_URL}" x="0" y="0" width="1024" height="1536"/>
-    <rect x="250" y="748" width="522" height="127" rx="10" fill="#003f9e"/>
+    <rect x="322" y="768" width="378" height="107" rx="9" fill="#003f9e"/>
     ${nameText}
-    <rect x="358" y="967" width="307" height="99" rx="9" fill="#003f9e"/>
-    <text x="512" y="1032" font-family="Arial, sans-serif" font-size="${strengthFontSize}" font-weight="900" fill="#ffffff" text-anchor="middle">${strength}</text>
+    <rect x="404" y="1006" width="215" height="82" rx="8" fill="#003f9e"/>
+    <text x="512" y="1060" font-family="Arial, sans-serif" font-size="${strengthFontSize}" font-weight="900" fill="#ffffff" text-anchor="middle">${strength}</text>
   </svg>`;
 
   return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
