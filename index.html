@@ -1319,13 +1319,6 @@ button.disabled-cart,
   padding-top: 0 !important;
 }
 
-
-.research-highlight{
-  margin:8px 0 14px;
-  color:#003f9e;
-  font-weight:900;
-  font-size:16px;
-}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1677,6 +1670,7 @@ button.disabled-cart,
     </div>
     <div class="detail-card">
       <h2 id="selectedName"></h2>
+      <p id="selectedResearchHighlight" class="research-highlight" style="display:none;"></p>
       <p id="selectedDescription">Product detail page structure with matching PST artwork, COA, inventory in vials, dose reference, common research protocol examples, references, and checkout options.</p>
       <div class="detail-grid">
         <div><strong>Strength</strong><br><span id="selectedStrength"></span></div>
@@ -2442,7 +2436,7 @@ async function loadSupabaseProductCatalog() {
       strength: p.strength || "",
       category: p.category || "Peptide",
       series: p.series || "",
-      description: p.description || "Research-use product detail page. For research use only. Not for human or veterinary use. Not medical advice.<div class="research-highlight" id="researchHighlight">Research focus information</div>",
+      description: p.description || "Research-use product detail page. For research use only. Not for human or veterinary use. Not medical advice.",
       research_notes: p.research_notes || "",
       reconstitution: p.reconstitution || "2 mL",
       price: Number(p.price || 0),
@@ -3595,6 +3589,255 @@ window.addEventListener("resize", () => {
     equalizeProductDetailHeights();
   }
 });
+</script>
+
+
+<style>
+/* PST product detail research highlight + final compact sizing */
+.research-highlight {
+  display: none;
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border-left: 4px solid var(--blue);
+  background: #f4f8ff;
+  color: var(--blue);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+.research-highlight.active { display: block !important; }
+.product-detail.active {
+  grid-template-columns: minmax(280px, .68fr) minmax(420px, 1.32fr) !important;
+  gap: 24px !important;
+  align-items: start !important;
+}
+.detail-vial {
+  min-height: 360px !important;
+  padding: 18px !important;
+}
+#selectedImage,
+.detail-vial img,
+#product-detail img {
+  max-height: 340px !important;
+  height: auto !important;
+  width: auto !important;
+  object-fit: contain !important;
+}
+.detail-card { padding: 28px !important; }
+.detail-card h2 { font-size: 40px !important; margin-bottom: 10px !important; }
+.detail-grid { gap: 10px !important; margin: 18px 0 !important; }
+.detail-grid div { padding: 13px !important; }
+.tx-series-panel { padding: 22px !important; border-radius: 18px !important; }
+.tx-series-copy h2 { font-size: clamp(28px, 4vw, 42px) !important; }
+.tx-image-wrap { min-height: 190px !important; padding: 10px !important; }
+.tx-image-wrap img { max-height: 175px !important; }
+.tx-card h3 { font-size: 26px !important; }
+.tx-card-body { padding: 14px !important; }
+.tx-card p { min-height: 34px !important; }
+.stack-card-body { min-height: 230px !important; }
+.stack-card .inventory-status,
+.stack-card-body .inventory-status {
+  min-height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 6px auto 8px !important;
+}
+.stack-price { min-height: 24px !important; }
+.stack-actions { min-height: 44px !important; }
+@media(max-width:980px) {
+  .product-detail.active { grid-template-columns: 1fr !important; }
+  .detail-vial { min-height: 280px !important; }
+  #selectedImage, .detail-vial img, #product-detail img { max-height: 260px !important; }
+  .detail-card h2 { font-size: 34px !important; }
+}
+</style>
+
+<script>
+/* PST FIX: research highlight line, product key matching, compact product detail */
+(function () {
+  function normalizeProductKey(value) {
+    return String(value || "")
+      .toUpperCase()
+      .replace(/\+/g, " PLUS ")
+      .replace(/[^A-Z0-9]+/g, " ")
+      .replace(/\bNO\s*DAC\b/g, "NO DAC")
+      .replace(/\bCJC\s*1295\s*NO\s*DAC\b/g, "CJC NO DAC")
+      .replace(/\bMG\b/g, " MG")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function resolveProduct(inputKey) {
+    if (!window.productData) return null;
+    if (window.productData[inputKey]) return { key: inputKey, product: window.productData[inputKey] };
+
+    const wanted = normalizeProductKey(inputKey);
+    const entries = Object.entries(window.productData);
+
+    for (const [key, product] of entries) {
+      const candidates = [
+        key,
+        product && product.key,
+        product && product.display,
+        product && ((product.display || "") + " " + (product.strength || ""))
+      ].map(normalizeProductKey);
+
+      if (candidates.includes(wanted)) return { key, product };
+    }
+
+    const looseWanted = wanted.replace(/\bMG\b/g, "").replace(/\s+/g, " ").trim();
+    for (const [key, product] of entries) {
+      const combined = normalizeProductKey((product && product.display || key) + " " + (product && product.strength || ""));
+      const looseCombined = combined.replace(/\bMG\b/g, "").replace(/\s+/g, " ").trim();
+      if (looseCombined === looseWanted || looseCombined.includes(looseWanted) || looseWanted.includes(looseCombined)) {
+        return { key, product };
+      }
+    }
+
+    return null;
+  }
+
+  function pstProductHighlight(product) {
+    const rawNotes = String((product && (product.research_notes || product.highlight || product.benefit_highlight)) || "").trim();
+    if (rawNotes) return rawNotes.replace(/^Commonly studied for:?\s*/i, "").slice(0, 110);
+
+    const key = normalizeProductKey((product && ((product.display || "") + " " + (product.strength || "") + " " + (product.key || ""))) || "");
+    const map = [
+      [/CJC.*IPAMORELIN|IPAMORELIN.*CJC/, "Growth hormone signaling, recovery, and sleep-related research"],
+      [/GHK/, "Skin, hair, and tissue research"],
+      [/BPC/, "Tendon, ligament, and GI research"],
+      [/TB\s*500|TB500/, "Recovery and cellular migration research"],
+      [/TB4/, "Cellular migration and tissue research"],
+      [/NAD/, "Cellular energy and mitochondrial research"],
+      [/MOTS/, "Metabolic and mitochondrial research"],
+      [/KPV/, "Inflammation and GI research"],
+      [/LL\s*37|LL37/, "Immune and antimicrobial peptide research"],
+      [/PT\s*141|PT141/, "Melanocortin and libido research"],
+      [/SELANK/, "Stress and neuropeptide research"],
+      [/SEMAX/, "Cognitive and neuropeptide research"],
+      [/DSIP/, "Sleep peptide research"],
+      [/EPITALON/, "Aging and telomere research"],
+      [/IPAMORELIN/, "Growth hormone secretagogue research"],
+      [/TESAMORELIN/, "GHRH analog research"],
+      [/CJC/, "GHRH and secretagogue research"],
+      [/AOD/, "Metabolic peptide research"],
+      [/ARA/, "Neuropathy and inflammatory research"],
+      [/KISSPEPTIN/, "Reproductive hormone signaling research"],
+      [/L\s*CARNITINE|LCARNITINE/, "Cellular energy transport research"],
+      [/LIPO/, "Lipotropic compound research"],
+      [/OXYTOCIN/, "Social signaling peptide research"],
+      [/PDA/, "Tissue and repair pathway research"],
+      [/SNAP/, "Expression-line and cosmetic peptide research"],
+      [/SURVODUTIDE/, "Glucagon/GLP-1 receptor research"],
+      [/THYMOSIN\s*ALPHA/, "Immune signaling peptide research"],
+      [/VIP/, "Vasoactive intestinal peptide research"],
+      [/PST\s*TX1|SEMAGLUTIDE|TX\s*1/, "GLP-1 receptor research"],
+      [/PST\s*TX2|TIRZEPATIDE|TX\s*2/, "GIP/GLP-1 receptor research"],
+      [/PST\s*TX3|RETATRUTIDE|TX\s*3/, "Triple-agonist receptor research"],
+      [/WOLVERINE/, "BPC-157 + TB-500 research stack"],
+      [/GLOW/, "Skin, tissue, and peptide blend research"],
+      [/KLOW/, "KPV, BPC-157, and TB-500 blend research"]
+    ];
+
+    for (const [pattern, text] of map) {
+      if (pattern.test(key)) return text;
+    }
+    return "Peptide research reference product";
+  }
+
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value || "";
+  }
+
+  function updateResearchHighlight(product) {
+    let el = document.getElementById("selectedResearchHighlight");
+    const nameEl = document.getElementById("selectedName");
+    if (!el && nameEl) {
+      el = document.createElement("p");
+      el.id = "selectedResearchHighlight";
+      el.className = "research-highlight";
+      nameEl.insertAdjacentElement("afterend", el);
+    }
+    if (!el) return;
+
+    const text = pstProductHighlight(product);
+    el.textContent = text ? "Commonly studied for: " + text + "." : "";
+    el.classList.toggle("active", Boolean(text));
+    el.style.display = text ? "block" : "none";
+  }
+
+  function money(value) {
+    if (typeof window.pstMoney === "function") return window.pstMoney(value);
+    return "$" + Number(value || 0).toFixed(2);
+  }
+
+  function inventoryText(value) {
+    if (typeof window.getInventoryStatusText === "function") return window.getInventoryStatusText(value);
+    const n = Number(value || 0);
+    if (n <= 0) return "Out of stock";
+    if (n <= 5) return "Only " + n + " vials remaining";
+    if (n <= 10) return "Only " + n + " vials remaining";
+    return n + " vials";
+  }
+
+  function inventoryClass(value) {
+    if (typeof window.getInventoryStatusClass === "function") return window.getInventoryStatusClass(value);
+    const n = Number(value || 0);
+    if (n <= 0) return "inventory-out";
+    if (n <= 5) return "inventory-low";
+    if (n <= 10) return "inventory-limited";
+    return "inventory-in-stock";
+  }
+
+  window.selectProduct = function (inputKey) {
+    const resolved = resolveProduct(inputKey);
+    if (!resolved) {
+      console.warn("Product not found:", inputKey);
+      return;
+    }
+
+    const key = resolved.key;
+    const p = resolved.product;
+    const detail = document.getElementById("product-detail");
+    if (detail) detail.classList.add("active");
+
+    setText("selectedName", p.display || key || "");
+    updateResearchHighlight(p);
+    setText("selectedDescription", p.description || "Research-use product detail page. For research use only. Not for human or veterinary use. Not medical advice.");
+    setText("selectedStrength", p.strength || "");
+    setText("selectedPurity", p.purity || "Batch-specific third-party testing available when listed");
+    setText("selectedRecon", p.reconstitution || "2 mL");
+    setText("selectedPrice", money(p.price));
+    setText("selectedInventory", inventoryText(p.inventory));
+
+    const invEl = document.getElementById("selectedInventory");
+    if (invEl) invEl.className = "inventory-status " + inventoryClass(p.inventory);
+
+    const img = document.getElementById("selectedImage") || document.querySelector("#product-detail img");
+    if (img) {
+      const src = (typeof window.resolveImagePath === "function") ? window.resolveImagePath(p) : (p.imageData || (p.file ? "assets/products/" + p.file : ""));
+      if (src) img.src = src;
+      img.alt = (p.display || key || "Selected product") + " " + (p.strength || "");
+    }
+
+    const btn = document.getElementById("selectedAddButton");
+    if (btn) btn.onclick = function () {
+      if (typeof window.addProductToCart === "function") return window.addProductToCart(key);
+      if (typeof window.addCurrentToCart === "function") return window.addCurrentToCart();
+    };
+
+    if (detail) {
+      const header = document.querySelector("header");
+      const offset = (header ? header.getBoundingClientRect().height : 0) + 18;
+      const y = detail.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top: Math.max(y, 0), behavior: "smooth" });
+    }
+  };
+
+  window.pstProductHighlight = pstProductHighlight;
+})();
 </script>
 
 </body>
