@@ -3582,6 +3582,345 @@ document.addEventListener("DOMContentLoaded", renderPstAuthStatus);
 </script>
 
 
+
+
+<style>
+/* PST FINAL UI POLISH: locked card rows, smaller detail section, tighter TX series */
+.stack-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+.stack-card > img {
+  height: 205px !important;
+  min-height: 205px !important;
+  max-height: 205px !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  padding: 8px !important;
+  background: linear-gradient(180deg,#ffffff 0%,#f7f9fb 100%) !important;
+}
+.stack-card-body {
+  display: grid !important;
+  grid-template-rows: 24px 48px 38px 34px 30px 46px !important;
+  gap: 6px !important;
+  min-height: 226px !important;
+  padding: 12px !important;
+  align-items: center !important;
+}
+.stack-card .badge,
+.tx-badge {
+  align-self: center !important;
+  justify-self: center !important;
+  min-height: 20px !important;
+}
+.stack-card h3 {
+  margin: 0 !important;
+  min-height: 0 !important;
+  line-height: 1.08 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+.stack-card p,
+.stack-highlight {
+  margin: 0 !important;
+  min-height: 0 !important;
+  line-height: 1.25 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #444 !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  overflow: hidden !important;
+}
+.inventory-status-row {
+  min-height: 30px !important;
+  height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.inventory-status {
+  margin: 0 !important;
+  padding: 6px 9px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+.stack-price {
+  margin: 0 !important;
+  align-self: center !important;
+}
+.stack-actions {
+  margin: 0 !important;
+  align-self: end !important;
+}
+
+.product-detail.active {
+  display: grid !important;
+  grid-template-columns: 0.78fr 1.22fr !important;
+  gap: 22px !important;
+  align-items: start !important;
+  padding-top: 18px !important;
+  padding-bottom: 24px !important;
+}
+.detail-vial {
+  min-height: 320px !important;
+  height: auto !important;
+  padding: 16px !important;
+  align-items: center !important;
+}
+#selectedImage,
+.detail-vial img,
+#product-detail img {
+  height: auto !important;
+  width: auto !important;
+  max-height: 300px !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+}
+.detail-card {
+  padding: 24px !important;
+  height: auto !important;
+}
+.detail-card h2 {
+  font-size: clamp(30px, 3.3vw, 40px) !important;
+  margin-bottom: 10px !important;
+}
+#selectedDescription {
+  margin: 0 0 14px !important;
+  line-height: 1.45 !important;
+}
+.detail-grid {
+  margin: 16px 0 !important;
+  gap: 10px !important;
+}
+.detail-grid div {
+  padding: 12px !important;
+}
+.image-disclaimer {
+  margin-top: 8px !important;
+  font-size: 11px !important;
+}
+
+.tx-series-section {
+  padding-top: 18px !important;
+}
+.tx-series-panel {
+  padding: 20px !important;
+  border-radius: 18px !important;
+}
+.tx-series-copy {
+  margin-bottom: 16px !important;
+}
+.tx-series-copy h2 {
+  font-size: clamp(30px, 3.6vw, 44px) !important;
+  margin: 12px 0 8px !important;
+}
+.tx-series-copy p {
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  margin: 0 !important;
+}
+.tx-series-steps {
+  margin-top: 12px !important;
+}
+.tx-series-steps span {
+  padding: 7px 10px !important;
+  font-size: 12px !important;
+}
+.tx-series-grid {
+  gap: 14px !important;
+}
+.tx-image-wrap {
+  min-height: 175px !important;
+  padding: 10px !important;
+}
+.tx-image-wrap img {
+  max-height: 165px !important;
+}
+.tx-card-body {
+  display: grid !important;
+  grid-template-rows: 22px 30px 40px 30px 42px 44px !important;
+  gap: 6px !important;
+  padding: 14px !important;
+}
+.tx-card h3 {
+  font-size: 25px !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+.tx-card p,
+.tx-highlight {
+  min-height: 0 !important;
+  margin: 0 !important;
+  font-size: 12.5px !important;
+  line-height: 1.25 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.tx-meta {
+  margin: 0 !important;
+  padding-top: 8px !important;
+}
+.tx-actions {
+  align-self: end !important;
+}
+
+@media(max-width:980px) {
+  .product-detail.active {
+    grid-template-columns: 1fr !important;
+  }
+  .detail-vial {
+    min-height: 280px !important;
+  }
+  #selectedImage,
+  .detail-vial img,
+  #product-detail img {
+    max-height: 260px !important;
+  }
+}
+</style>
+
+<script>
+/* PST FINAL UI POLISH OVERRIDES */
+function pstProductHighlight(p) {
+  const key = String((p && (p.key || p.display)) || "").toUpperCase();
+  const notes = String((p && (p.research_notes || p.highlight || p.benefit_highlight)) || "").trim();
+  if (notes) return notes.replace(/^Commonly studied for:?\s*/i, "").slice(0, 92);
+  const map = [
+    [/GHK/, "Skin, hair, and tissue research"],
+    [/BPC/, "Tendon, ligament, and GI research"],
+    [/TB\s*500|TB-500/, "Recovery and cellular migration research"],
+    [/TB4/, "Cellular migration and repair research"],
+    [/NAD/, "Cellular energy and mitochondrial research"],
+    [/MOTS/, "Metabolic and mitochondrial research"],
+    [/KPV/, "Inflammation and GI research"],
+    [/LL\s*37|LL-37/, "Immune and antimicrobial peptide research"],
+    [/PT\s*141|PT-141/, "Melanocortin and libido research"],
+    [/SELANK/, "Stress and neuropeptide research"],
+    [/SEMAX/, "Cognitive and neuropeptide research"],
+    [/DSIP/, "Sleep peptide research"],
+    [/EPITALON/, "Aging and telomere research"],
+    [/IPAMORELIN/, "Growth hormone secretagogue research"],
+    [/TESAMORELIN/, "GHRH analog research"],
+    [/CJC/, "GHRH and secretagogue research"],
+    [/AOD/, "Metabolic peptide research"],
+    [/ARA/, "Neuropathy and inflammatory research"],
+    [/KISSPEPTIN/, "Reproductive hormone signaling research"],
+    [/L\s*CARNITINE|L-CARNITINE/, "Cellular energy transport research"],
+    [/LIPO/, "Lipotropic compound research"],
+    [/OXYTOCIN/, "Social signaling peptide research"],
+    [/PDA/, "Tissue and repair pathway research"],
+    [/SNAP/, "Expression-line and cosmetic peptide research"],
+    [/SURVODUTIDE/, "Glucagon/GLP-1 receptor research"],
+    [/THYMOSIN\s*ALPHA/, "Immune signaling peptide research"],
+    [/VIP/, "Vasoactive intestinal peptide research"],
+    [/PST\s*TX1|SEMAGLUTIDE|TX-1/, "GLP-1 receptor research"],
+    [/PST\s*TX2|TIRZEPATIDE|TX-2/, "GIP/GLP-1 receptor research"],
+    [/PST\s*TX3|RETATRUTIDE|TX-3/, "Triple-agonist receptor research"],
+    [/WOLVERINE/, "BPC-157 + TB-500 research stack"],
+    [/GLOW/, "Skin, tissue, and peptide blend research"],
+    [/KLOW/, "KPV, BPC-157, and TB-500 blend research"]
+  ];
+  for (const [rx, text] of map) if (rx.test(key)) return text;
+  return "Research-use peptide reference";
+}
+
+function inventoryBadgeHTML(inventory) {
+  return `<div class="inventory-status-row"><div class="inventory-status ${getInventoryStatusClass(inventory)}">${getInventoryStatusText(inventory)}</div></div>`;
+}
+
+function productCard(p, badge) {
+  const highlight = pstProductHighlight(p);
+  const disabled = Number(p.inventory || 0) <= 0;
+  return `
+    <article class="stack-card">
+      <img src="${pstEsc(p.imageData)}" alt="${pstEsc(p.display)}">
+      <div class="stack-card-body">
+        <span class="badge">${pstEsc(badge)}</span>
+        <h3>${pstEsc(p.display)}</h3>
+        <p class="stack-highlight">${pstEsc(highlight)}</p>
+        ${inventoryBadgeHTML(p.inventory)}
+        <div class="stack-price">${pstMoney(p.price)}</div>
+        <div class="stack-actions">
+          <button onclick='selectProduct(${JSON.stringify(p.key)})'>View Product</button>
+          <button class="${disabled ? "disabled-cart" : ""}" ${disabled ? "disabled" : ""} onclick='addProductToCart(${JSON.stringify(p.key)})'>${disabled ? "Out of Stock" : "Add to Cart"}</button>
+        </div>
+      </div>
+    </article>`;
+}
+
+function rebuildFeaturedStacks() {
+  let section = document.querySelector("#featured-stacks .stack-grid");
+  if (!section) return;
+  section.innerHTML = Object.values(stackData).map(s => {
+    const key = s.productKey;
+    const linked = productData && productData[key] ? productData[key] : s;
+    const disabled = Number(s.inventory || linked.inventory || 0) <= 0;
+    return `
+    <article class="stack-card">
+      <img src="${pstEsc(s.imageData)}" alt="${pstEsc(s.display)}">
+      <div class="stack-card-body">
+        <span class="badge">Stack / Blend</span>
+        <h3>${pstEsc(s.display)}</h3>
+        <p class="stack-highlight">${pstEsc(pstProductHighlight(linked))}</p>
+        ${inventoryBadgeHTML(s.inventory || linked.inventory)}
+        <div class="stack-price">${pstMoney(s.price)}</div>
+        <div class="stack-actions">
+          <button onclick='selectProduct(${JSON.stringify(key)})'>View Product</button>
+          <button class="${disabled ? "disabled-cart" : ""}" ${disabled ? "disabled" : ""} onclick='addProductToCart(${JSON.stringify(key)})'>${disabled ? "Out of Stock" : "Add to Cart"}</button>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+function rebuildTXSeries() {
+  const grid = document.querySelector("#tx-series .tx-series-grid");
+  if (!grid) return;
+  const formula = { "PST-TX1":"Single Agonist Formula", "PST-TX2":"Dual Agonist Formula", "PST-TX3":"Triple Agonist Formula" };
+  const tx = Object.values(productData).filter(p => (p.display || "").startsWith("PST-TX")).sort((a,b) => a.display.localeCompare(b.display));
+  grid.innerHTML = tx.map(p => {
+    const disabled = Number(p.inventory || 0) <= 0;
+    return `
+    <article class="tx-card">
+      <div class="tx-image-wrap"><img src="${pstEsc(p.imageData)}" alt="${pstEsc(p.display)} ${pstEsc(p.strength)}"></div>
+      <div class="tx-card-body">
+        <span class="tx-badge">${pstEsc(formula[p.display] || "Research Formula")}</span>
+        <h3>${pstEsc(p.display)}</h3>
+        <p class="tx-highlight">${pstEsc(pstProductHighlight(p))}</p>
+        ${inventoryBadgeHTML(p.inventory)}
+        <div class="tx-meta"><span>${pstEsc(p.strength)}</span><strong>${pstMoney(p.price)}</strong></div>
+        <div class="tx-actions">
+          <button onclick='selectProduct(${JSON.stringify(p.key)})'>View Product</button>
+          <button class="${disabled ? "disabled-cart" : ""}" ${disabled ? "disabled" : ""} onclick='addProductToCart(${JSON.stringify(p.key)})'>${disabled ? "Out of Stock" : "Add to Cart"}</button>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+function equalizeProductDetailHeights() {
+  const detail = document.getElementById("product-detail");
+  if (!detail) return;
+  const imagePanel = detail.querySelector(".detail-vial");
+  const img = detail.querySelector("#selectedImage") || detail.querySelector("img");
+  if (imagePanel) {
+    imagePanel.style.minHeight = "320px";
+    imagePanel.style.height = "auto";
+  }
+  if (img) {
+    img.style.height = "auto";
+    img.style.maxHeight = "300px";
+    img.style.width = "auto";
+    img.style.objectFit = "contain";
+  }
+}
+</script>
+
 <script>
 window.addEventListener("resize", () => {
   if (document.getElementById("product-detail")?.classList.contains("active")) {
