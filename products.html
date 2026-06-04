@@ -226,10 +226,11 @@ tr.dirty { background:#fffaf0; }
             <th>Image Status</th>
             <th>Testing Statement</th>
             <th>Save</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody id="productsBody">
-          <tr><td colspan="19" class="note">Loading products...</td></tr>
+          <tr><td colspan="20" class="note">Loading products...</td></tr>
         </tbody>
       </table>
     </div>
@@ -437,7 +438,7 @@ function applyFilters() {
 function renderTable() {
   const body = $("productsBody");
   if (!filteredProducts.length) {
-    body.innerHTML = `<tr><td colspan="19" class="note">No products match current filters. Click “Import products.json” or “Add Product.”</td></tr>`;
+    body.innerHTML = `<tr><td colspan="20" class="note">No products match current filters. Click “Import products.json” or “Add Product.”</td></tr>`;
     return;
   }
 
@@ -486,6 +487,7 @@ function renderTable() {
         </td>
         <td><input class="long" data-field="testing_statement" value="${esc(product.testing_statement || "Batch-specific third-party testing available when listed")}"></td>
         <td><button class="btn success row-save" data-id="${product.id}" type="button">Save</button></td>
+        <td><button class="btn danger row-delete" data-id="${product.id}" type="button">Delete</button></td>
       </tr>
     `;
   }).join("");
@@ -500,6 +502,10 @@ function renderTable() {
 
   document.querySelectorAll(".row-save").forEach(btn => {
     btn.addEventListener("click", () => saveRow(btn.dataset.id));
+  });
+
+  document.querySelectorAll(".row-delete").forEach(btn => {
+    btn.addEventListener("click", () => deleteProduct(btn.dataset.id));
   });
 }
 
@@ -563,6 +569,56 @@ async function saveRow(id) {
   setStatus(`${updates.display_name} saved.`, "good");
   await loadProducts();
 }
+
+
+async function deleteProduct(id) {
+  const product = allProducts.find(p => p.id === id);
+  if (!product) return;
+
+  const productName = product.display_name || product.product_key || "this product";
+  const productKey = product.product_key;
+
+  const firstConfirm = confirm(
+    `Delete ${productName}?\n\nThis will remove the product from Product Admin and the public website.\n\nIf you only want to hide it, use Active = No instead.`
+  );
+
+  if (!firstConfirm) return;
+
+  const typed = prompt(`Type DELETE to permanently remove ${productName}:`);
+  if (typed !== "DELETE") {
+    setStatus("Delete cancelled. Product was not removed.", "bad");
+    return;
+  }
+
+  setStatus(`Deleting ${productName}...`);
+
+  const { error: catalogError } = await db
+    .from("product_catalog")
+    .delete()
+    .eq("id", id);
+
+  if (catalogError) {
+    setStatus(catalogError.message, "bad");
+    throw catalogError;
+  }
+
+  if (productKey) {
+    const { error: inventoryError } = await db
+      .from("product_inventory")
+      .delete()
+      .eq("product_key", productKey);
+
+    if (inventoryError) {
+      setStatus(`Product deleted from catalog, but inventory row could not be deleted: ${inventoryError.message}`, "bad");
+      throw inventoryError;
+    }
+  }
+
+  dirtyIds.delete(id);
+  setStatus(`${productName} deleted.`, "good");
+  await loadProducts();
+}
+
 
 async function saveDirtyRows() {
   const ids = Array.from(dirtyIds);
