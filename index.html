@@ -2194,6 +2194,7 @@ async function loadSupabaseProductCatalog() {
 
 
 
+
 function buildAZLetterJump() {
   const jump = document.getElementById("azLetterJump");
   if (!jump || !productData) return;
@@ -2205,50 +2206,41 @@ function buildAZLetterJump() {
       .filter(letter => /^[A-Z]$/.test(letter))
   )].sort();
 
-  jump.innerHTML = letters.map(letter =>
-    `<a href="#letter-${letter}" aria-label="Jump to ${letter} products">${letter}</a>`
-  ).join("");
+  jump.innerHTML = letters.length
+    ? letters.map(letter => `<a href="#letter-${letter}" aria-label="Jump to ${letter} products">${letter}</a>`).join("")
+    : "<span class='az-letter-empty'>No active products loaded yet.</span>";
 }
 
 function addAZLetterAnchors() {
   if (!productData) return;
 
+  const activeProducts = Object.values(productData)
+    .filter(product => product && product.isActive !== false && product.active !== false)
+    .sort((a, b) => String(a.display || a.key || "").localeCompare(String(b.display || b.key || "")));
+
   const letters = [...new Set(
-    Object.values(productData)
-      .filter(product => product && product.isActive !== false && product.active !== false)
+    activeProducts
       .map(product => String(product.display || product.key || "").trim().charAt(0).toUpperCase())
       .filter(letter => /^[A-Z]$/.test(letter))
   )].sort();
 
   letters.forEach(letter => {
-    if (document.getElementById(`letter-${letter}`)) return;
-
-    const headings = Array.from(document.querySelectorAll("h2,h3,h4,.letter-heading,.az-letter,.az-heading"));
-    const heading = headings.find(el => el.textContent.trim().toUpperCase() === letter);
-
-    if (heading) {
-      heading.id = `letter-${letter}`;
-      heading.classList.add("az-letter-anchor");
-      return;
-    }
-
-    const firstProduct = Object.values(productData)
-      .filter(product => product && product.isActive !== false && product.active !== false)
-      .sort((a, b) => String(a.display || a.key || "").localeCompare(String(b.display || b.key || "")))
-      .find(product => String(product.display || product.key || "").trim().toUpperCase().startsWith(letter));
-
-    if (!firstProduct) return;
-
-    const productKey = firstProduct.key;
-    const possible = Array.from(document.querySelectorAll(`[data-key="${CSS.escape(productKey)}"], [data-product-key="${CSS.escape(productKey)}"], [data-id="${CSS.escape(productKey)}"]`))[0];
-
-    if (possible) {
-      const anchor = document.createElement("div");
+    let anchor = document.getElementById(`letter-${letter}`);
+    if (!anchor) {
+      anchor = document.createElement("div");
       anchor.id = `letter-${letter}`;
       anchor.className = "az-letter-anchor";
-      possible.parentNode.insertBefore(anchor, possible);
+      const azSection = document.getElementById("az") || document.getElementById("az-index") || document.querySelector(".az-grid, .az-list, .product-grid");
+      if (azSection) {
+        azSection.appendChild(anchor);
+      }
     }
   });
+}
+
+function refreshAZLetterJump() {
+  buildAZLetterJump();
+  addAZLetterAnchors();
 }
 
 
@@ -2314,6 +2306,8 @@ async function loadProducts() {
   });
 
   rebuildAllProductSections();
+  refreshAZLetterJump();
+  setTimeout(refreshAZLetterJump, 100);
   renderCart();
 
   console.log("✅ Products loaded with inventory, atomic checkout, and pre-launch safety overlay:", Object.keys(productData).length, "visible products");
