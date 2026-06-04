@@ -1046,6 +1046,87 @@ button.disabled-cart,
   }
 }
 
+
+/* PST stack image alignment + A-Z quick link polish */
+.stack-card,
+.feature-card,
+.product-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.stack-card .product-img,
+.stack-card img,
+.feature-card .product-img,
+.feature-card img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stack-card .product-img,
+.feature-card .product-img {
+  height: 230px;
+  min-height: 230px;
+  max-height: 230px;
+  width: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.stack-card .product-image,
+.feature-card .product-image,
+.product-card .product-image {
+  height: 245px;
+  min-height: 245px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.stack-card .product-info,
+.feature-card .product-info,
+.product-card .product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.stack-card .card-actions,
+.feature-card .card-actions,
+.product-card .card-actions {
+  margin-top: auto;
+}
+
+.az-quick-link-wrap {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 0 0 14px;
+}
+
+.az-quick-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #003f9e;
+  background: #003f9e;
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 16px;
+  text-decoration: none;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  box-shadow: 0 6px 18px rgba(0,63,158,.18);
+}
+
+.az-quick-link:hover {
+  background: #002f76;
+  border-color: #002f76;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1376,6 +1457,8 @@ button.disabled-cart,
 
 
   <section id="az" class="section wrap">
+    <div class="az-quick-link-wrap"><a class="az-quick-link" href="#az-index">A-Z Quick Link</a></div>
+    <div id="az-index"></div>
     <h2 class="section-title">A-Z Peptide Index</h2>
     <div class="underline"></div>
     <div class="az-box">
