@@ -1385,6 +1385,7 @@
         shipping_carrier: carrier,
         tracking_number: trackingNumber,
         order_status: "shipped",
+        status: "shipped",
         shipped_at: order.shipped_at || timestamp,
         admin_note: appendAdminNote(order.admin_note, adminNote && adminNote !== (order.admin_note || "").trim() ? adminNote : "", trackingEntry),
         updated_at: timestamp
@@ -1415,13 +1416,16 @@
         const { error: sentError } = await supabaseClient
           .from("orders")
           .update({
-            shipping_email_sent_at: sentAt,
             admin_note: appendAdminNote(updates.admin_note, sentEntry),
             updated_at: sentAt
           })
           .eq("id", orderId);
-        if (sentError) throw sentError;
-        setStatus(`Tracking saved and shipping email sent to ${emailResult?.to || recipientEmail}. Resend ID: ${resendId}`, "good");
+        if (sentError) {
+          console.warn("Shipping email was sent, but audit note update failed:", sentError);
+          setStatus(`Shipping email sent to ${emailResult?.to || recipientEmail}, but the audit note failed to save: ${sentError.message}`, "bad");
+        } else {
+          setStatus(`Tracking saved and shipping email sent to ${emailResult?.to || recipientEmail}. Resend ID: ${resendId}`, "good");
+        }
       } catch (emailError) {
         console.error(emailError);
         const failEntry = auditLine("SHIPPING EMAIL FAILED", [
@@ -1458,6 +1462,11 @@
       const oldPaymentStatus = normalizeStatus(order.payment_status);
       let orderStatus = hardLocked ? oldOrderStatus : $("detailOrderStatus").value;
       let paymentStatus = locked ? oldPaymentStatus : $("detailPaymentStatus").value;
+
+      if (!hardLocked && orderStatus === "shipped") {
+        alert("Orders cannot be manually marked as Shipped. Enter carrier/tracking and use 'Save Tracking & Send Shipping Email' instead.");
+        return;
+      }
       const rejectionReason = $("detailRejectionReason").value.trim();
       const carrierValue = $("detailCarrier").value.trim();
       const trackingValue = $("detailTracking").value.trim();
@@ -1524,6 +1533,7 @@
 
       if (!hardLocked) {
         updates.order_status = orderStatus;
+        updates.status = orderStatus;
         updates.rejection_reason = rejectionReason || null;
         if (orderStatus === "shipped" && oldOrderStatus !== "shipped") updates.shipped_at = timestamp;
         if (orderStatus === "rejected") updates.rejected_at = timestamp;
@@ -1601,15 +1611,17 @@
       }
 
       if (emailEntries.length) {
-        await supabaseClient
+        const { error: emailAuditError } = await supabaseClient
           .from("orders")
           .update({
             admin_note: appendAdminNote(updates.admin_note, ...emailEntries),
-            payment_accepted_email_sent_at: paymentAcceptedNow ? new Date().toISOString() : order.payment_accepted_email_sent_at || null,
-            shipping_email_sent_at: shippingNow ? new Date().toISOString() : order.shipping_email_sent_at || null,
             updated_at: new Date().toISOString()
           })
           .eq("id", orderId);
+        if (emailAuditError) {
+          console.warn("Workflow email audit note failed to save:", emailAuditError);
+          setStatus("Workflow email was attempted, but the audit note failed to save: " + emailAuditError.message, "bad");
+        }
       }
 
       if (!paymentAcceptedNow && !shippingNow) {
