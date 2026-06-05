@@ -323,6 +323,7 @@
     }
 
     .pill.paid,
+    .pill.complete,
     .pill.shipped,
     .pill.delivered {
       color: var(--pst-success);
@@ -645,7 +646,7 @@
                 <option value="">All statuses</option>
                 <option value="pending">Pending</option>
                 <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
+                <option value="complete">Complete</option>
                 <option value="delivered">Delivered</option>
                 <option value="cancelled">Cancelled</option>
                 <option value="rejected">Rejected / Out of Stock</option>
@@ -782,26 +783,11 @@
     }
 
     const LOCK_PAYMENT_STATUSES = ["paid", "refunded"];
-    const HARD_LOCK_ORDER_STATUSES = ["shipped", "delivered", "cancelled", "rejected"];
+    const HARD_LOCK_ORDER_STATUSES = ["complete", "shipped", "delivered", "cancelled", "rejected"];
     const HARD_LOCK_PAYMENT_STATUSES = ["refunded"];
 
     function normalizeStatus(value, fallback = "pending") {
       return (value || fallback).toString().toLowerCase();
-    }
-
-    function effectiveOrderStatus(order) {
-      const orderStatus = normalizeStatus(order?.order_status || order?.status || "pending");
-      const legacyStatus = normalizeStatus(order?.status || "");
-
-      // Terminal / exception statuses should remain explicit.
-      if (["delivered", "cancelled", "rejected"].includes(orderStatus)) return orderStatus;
-      if (["delivered", "cancelled", "rejected"].includes(legacyStatus)) return legacyStatus;
-
-      // If either column or shipping evidence says Shipped, use Shipped as the source of truth.
-      if (orderStatus === "shipped" || legacyStatus === "shipped") return "shipped";
-      if (order?.shipped_at && order?.shipping_carrier && order?.tracking_number) return "shipped";
-
-      return orderStatus || legacyStatus || "pending";
     }
 
     function isOrderLocked(order) {
@@ -884,7 +870,7 @@
 
     function inventoryReviewWarning(order) {
       const status = normalizeStatus(order.order_status);
-      if ((status === "delivered" || status === "shipped") && order.inventory_restored === true) {
+      if ((status === "complete" || status === "delivered" || status === "shipped") && order.inventory_restored === true) {
         return `<div class="note-box" style="margin-bottom:12px;"><strong>Inventory Review:</strong> This shipped/delivered order shows inventory restored. If this was not a cancelled, refunded, or test order, review inventory history before relying on this record.</div>`;
       }
       return "";
@@ -1008,19 +994,13 @@
         }
       }
 
-      allOrders = (orders || []).map(order => {
-        const profile = profilesByUser[order.user_id] || profilesByUser[order.customer_id] || profilesById[order.profile_id] || profilesById[order.customer_profile_id] || profilesById[order.customer_id] || null;
-        const mergedOrder = {
-          ...order,
-          order_items: itemsByOrder[order.id] || [],
-          profile,
-          payment_status: order.payment_status || "pending"
-        };
-        return {
-          ...mergedOrder,
-          order_status: effectiveOrderStatus(mergedOrder)
-        };
-      });
+      allOrders = (orders || []).map(order => ({
+        ...order,
+        order_items: itemsByOrder[order.id] || [],
+        profile: profilesByUser[order.user_id] || profilesByUser[order.customer_id] || profilesById[order.profile_id] || profilesById[order.customer_profile_id] || profilesById[order.customer_id] || null,
+        order_status: order.order_status || order.status || "pending",
+        payment_status: order.payment_status || "pending"
+      }));
 
       applyFilters();
       setStatus(`Loaded ${allOrders.length} order${allOrders.length === 1 ? "" : "s"}.`, "good");
@@ -1105,9 +1085,7 @@
 
     function renderOrderDetail(order) {
       const items = order.order_items || [];
-      const displayOrderStatus = effectiveOrderStatus(order);
-      order.order_status = displayOrderStatus;
-      const rejected = displayOrderStatus === "rejected";
+      const rejected = order.order_status === "rejected";
       const locked = isOrderLocked(order);
       const hardLocked = isOrderHardLocked(order);
       const paymentDisabled = locked ? "disabled" : "";
@@ -1180,11 +1158,12 @@
             <div class="field${hardLockedControlClass}">
               <label for="detailOrderStatus">Order Status</label>
               <select id="detailOrderStatus" ${orderStatusDisabled}>
-                <option value="pending" ${displayOrderStatus === "pending" ? "selected" : ""}>Pending</option>
-                <option value="processing" ${displayOrderStatus === "processing" ? "selected" : ""}>Processing</option>
-                <option value="delivered" ${displayOrderStatus === "delivered" ? "selected" : ""}>Delivered</option>
-                <option value="cancelled" ${displayOrderStatus === "cancelled" ? "selected" : ""}>Cancelled</option>
-                <option value="rejected" ${displayOrderStatus === "rejected" ? "selected" : ""}>Rejected / Out of Stock</option>
+                <option value="pending" ${order.order_status === "pending" ? "selected" : ""}>Pending</option>
+                <option value="processing" ${order.order_status === "processing" ? "selected" : ""}>Processing</option>
+                <option value="complete" ${order.order_status === "complete" ? "selected" : ""}>Complete</option>
+                <option value="delivered" ${order.order_status === "delivered" ? "selected" : ""}>Delivered</option>
+                <option value="cancelled" ${order.order_status === "cancelled" ? "selected" : ""}>Cancelled</option>
+                <option value="rejected" ${order.order_status === "rejected" ? "selected" : ""}>Rejected / Out of Stock</option>
               </select>
             </div>
 
@@ -1349,7 +1328,7 @@
     function canSendShippingEmail(order) {
       const status = normalizeStatus(order.order_status);
       const payment = normalizeStatus(order.payment_status);
-      return payment === "paid" && !["cancelled", "rejected", "refunded", "failed"].includes(status);
+      return payment === "paid" && !["complete", "shipped", "delivered", "cancelled", "rejected", "refunded", "failed"].includes(status);
     }
 
     async function callShippingEmailFunction(order, carrier, trackingNumber, link, explicitRecipient) {
@@ -1392,13 +1371,13 @@
       }
 
       const link = trackingUrl(carrier, trackingNumber);
-      const confirmMessage = `Send shipping email for ${orderDisplayId(order)}?\n\nTo: ${recipientEmail}\nCarrier: ${carrier}\nTracking: ${trackingNumber}\n\nThis will save tracking, mark the order Shipped, add audit history, and email the customer.`;
+      const confirmMessage = `Send shipping email for ${orderDisplayId(order)}?\n\nTo: ${recipientEmail}\nCarrier: ${carrier}\nTracking: ${trackingNumber}\n\nThis will save tracking, mark the order Complete, add audit history, and email the customer.`;
       if (!confirm(confirmMessage)) return;
 
       const timestamp = new Date().toISOString();
-      const previousStatus = effectiveOrderStatus(order);
+      const previousStatus = normalizeStatus(order.order_status);
       const trackingEntry = auditLine("TRACKING ADDED / STATUS UPDATED", [
-        previousStatus !== "shipped" ? `Order status: ${statusLabel(previousStatus)} → shipped` : "Order status: shipped",
+        previousStatus !== "complete" ? `Order status: ${statusLabel(previousStatus)} → complete` : "Order status: complete",
         `Carrier: ${carrier}`,
         `Tracking: ${trackingNumber}`,
         `Recipient: ${recipientEmail}`
@@ -1407,8 +1386,8 @@
       const updates = {
         shipping_carrier: carrier,
         tracking_number: trackingNumber,
-        order_status: "shipped",
-        status: "shipped",
+        order_status: "complete",
+        status: "complete",
         shipped_at: order.shipped_at || timestamp,
         admin_note: appendAdminNote(order.admin_note, adminNote && adminNote !== (order.admin_note || "").trim() ? adminNote : "", trackingEntry),
         updated_at: timestamp
@@ -1443,12 +1422,8 @@
             updated_at: sentAt
           })
           .eq("id", orderId);
-        if (sentError) {
-          console.warn("Shipping email was sent, but audit note update failed:", sentError);
-          setStatus(`Shipping email sent to ${emailResult?.to || recipientEmail}, but the audit note failed to save: ${sentError.message}`, "bad");
-        } else {
-          setStatus(`Tracking saved and shipping email sent to ${emailResult?.to || recipientEmail}. Resend ID: ${resendId}`, "good");
-        }
+        if (sentError) throw sentError;
+        setStatus(`Tracking saved and shipping email sent to ${emailResult?.to || recipientEmail}. Resend ID: ${resendId}`, "good");
       } catch (emailError) {
         console.error(emailError);
         const failEntry = auditLine("SHIPPING EMAIL FAILED", [
@@ -1481,15 +1456,10 @@
 
       const hardLocked = isOrderHardLocked(order);
       const locked = isOrderLocked(order);
-      const oldOrderStatus = effectiveOrderStatus(order);
+      const oldOrderStatus = normalizeStatus(order.order_status);
       const oldPaymentStatus = normalizeStatus(order.payment_status);
       let orderStatus = hardLocked ? oldOrderStatus : $("detailOrderStatus").value;
       let paymentStatus = locked ? oldPaymentStatus : $("detailPaymentStatus").value;
-
-      if (!hardLocked && orderStatus === "shipped") {
-        alert("Orders cannot be manually marked as Shipped. Enter carrier/tracking and use 'Save Tracking & Send Shipping Email' instead.");
-        return;
-      }
       const rejectionReason = $("detailRejectionReason").value.trim();
       const carrierValue = $("detailCarrier").value.trim();
       const trackingValue = $("detailTracking").value.trim();
@@ -1516,7 +1486,7 @@
       }
 
       // If tracking is entered while saving a non-hard-locked order, move it to Shipped.
-      const shippingNow = !hardLocked && trackingValue && carrierValue && orderStatus === "shipped";
+      const shippingNow = !hardLocked && trackingValue && carrierValue && orderStatus === "complete";
 
       if (shippingNow && !recipientEmail) {
         alert("Enter the customer email address before marking this order shipped and sending the shipping email.");
@@ -1556,9 +1526,8 @@
 
       if (!hardLocked) {
         updates.order_status = orderStatus;
-        updates.status = orderStatus;
         updates.rejection_reason = rejectionReason || null;
-        if (orderStatus === "shipped" && oldOrderStatus !== "shipped") updates.shipped_at = timestamp;
+        if (orderStatus === "complete" && oldOrderStatus !== "complete") updates.shipped_at = timestamp;
         if (orderStatus === "rejected") updates.rejected_at = timestamp;
       }
 
@@ -1634,17 +1603,15 @@
       }
 
       if (emailEntries.length) {
-        const { error: emailAuditError } = await supabaseClient
+        await supabaseClient
           .from("orders")
           .update({
             admin_note: appendAdminNote(updates.admin_note, ...emailEntries),
+            payment_accepted_email_sent_at: paymentAcceptedNow ? new Date().toISOString() : order.payment_accepted_email_sent_at || null,
+            shipping_email_sent_at: shippingNow ? new Date().toISOString() : order.shipping_email_sent_at || null,
             updated_at: new Date().toISOString()
           })
           .eq("id", orderId);
-        if (emailAuditError) {
-          console.warn("Workflow email audit note failed to save:", emailAuditError);
-          setStatus("Workflow email was attempted, but the audit note failed to save: " + emailAuditError.message, "bad");
-        }
       }
 
       if (!paymentAcceptedNow && !shippingNow) {
