@@ -1385,7 +1385,6 @@
       const updates = {
         shipping_carrier: carrier,
         tracking_number: trackingNumber,
-        customer_email: recipientEmail,
         order_status: "shipped",
         shipped_at: order.shipped_at || timestamp,
         admin_note: appendAdminNote(order.admin_note, adminNote && adminNote !== (order.admin_note || "").trim() ? adminNote : "", trackingEntry),
@@ -1520,7 +1519,6 @@
       const updates = {
         shipping_carrier: carrierValue || null,
         tracking_number: trackingValue || null,
-        customer_email: recipientEmail || customerEmail(order) || null,
         admin_note: appendAdminNote(order.admin_note, typedAdminNote && typedAdminNote !== (order.admin_note || "").trim() ? typedAdminNote : "", ...auditEntries),
         updated_at: timestamp
       };
