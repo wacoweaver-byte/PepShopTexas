@@ -491,7 +491,7 @@
     <section class="page-title">
       <div>
         <h1>Orders</h1>
-        <p class="subtitle">Simple owner dashboard for reviewing orders, bulk-updating status, adding tracking, and rejecting out-of-stock orders.</p>
+        <p class="subtitle">Simple owner dashboard for reviewing orders one at a time, adding tracking, and protecting order history.</p>
       </div>
     </section>
 
@@ -532,30 +532,10 @@
           </div>
         </div>
 
-        <div class="bulk-bar">
-          <label class="bulk-left">
-            <input id="selectAllOrders" type="checkbox" />
-            <span><span id="selectedCount">0</span> selected</span>
-          </label>
-
-          <div class="bulk-actions">
-            <button class="btn warning" id="bulkPaymentPendingBtn" type="button">Payment Pending</button>
-            <button class="btn success" id="bulkPaidBtn" type="button">Paid</button>
-            <button class="btn danger" id="bulkPaymentFailedBtn" type="button">Payment Failed</button>
-            <button class="btn warning" id="bulkOrderPendingBtn" type="button">Order Pending</button>
-            <button class="btn secondary" id="bulkProcessingBtn" type="button">Processing</button>
-            <button class="btn success" id="bulkShippedBtn" type="button">Shipped</button>
-            <button class="btn secondary" id="bulkDeliveredBtn" type="button">Delivered</button>
-            <button class="btn danger" id="bulkRejectedBtn" type="button">Reject / Out of Stock</button>
-            <button class="btn secondary" id="bulkClearBtn" type="button">Clear Selection</button>
-          </div>
-        </div>
-
         <div class="orders-table-wrap">
           <table>
             <thead>
               <tr>
-                <th style="width:44px;"></th>
                 <th>Order</th>
                 <th>Customer</th>
                 <th>Date</th>
@@ -567,7 +547,7 @@
             </thead>
             <tbody id="ordersBody">
               <tr>
-                <td colspan="8" class="muted" style="padding:20px;">Loading orders...</td>
+                <td colspan="7" class="muted" style="padding:20px;">Loading orders...</td>
               </tr>
             </tbody>
           </table>
@@ -599,7 +579,6 @@
     let currentUser = null;
     let allOrders = [];
     let filteredOrders = [];
-    let selectedOrderIds = new Set();
     let activeOrderId = null;
 
     const $ = (id) => document.getElementById(id);
@@ -659,9 +638,6 @@
       return order.customer_email || order.email || profile.email || "—";
     }
 
-    function selectedOrdersArray() {
-      return Array.from(selectedOrderIds);
-    }
 
     async function checkAdminAccess() {
       setStatus("Checking admin access...");
@@ -780,7 +756,6 @@
       });
 
       renderOrders();
-      renderSelectedCount();
 
       if (activeOrderId) {
         const active = allOrders.find(order => order.id === activeOrderId);
@@ -790,18 +765,14 @@
 
     function renderOrders() {
       if (!filteredOrders.length) {
-        ordersBody.innerHTML = `<tr><td colspan="8" class="muted" style="padding:20px;">No orders match the current filters.</td></tr>`;
+        ordersBody.innerHTML = `<tr><td colspan="7" class="muted" style="padding:20px;">No orders match the current filters.</td></tr>`;
         return;
       }
 
       ordersBody.innerHTML = filteredOrders.map(order => {
-        const checked = selectedOrderIds.has(order.id) ? "checked" : "";
         const selectedClass = activeOrderId === order.id ? "selected-detail" : "";
         return `
           <tr class="order-row ${selectedClass}" data-order-id="${order.id}">
-            <td>
-              <input class="row-check" type="checkbox" data-check-id="${order.id}" ${checked} onclick="event.stopPropagation();" />
-            </td>
             <td>
               <strong>${safe(orderDisplayId(order))}</strong>
               <div class="muted">${safe(order.id)}</div>
@@ -834,22 +805,8 @@
         });
       });
 
-      document.querySelectorAll(".row-check").forEach(check => {
-        check.addEventListener("change", () => {
-          const orderId = check.dataset.checkId;
-          if (check.checked) selectedOrderIds.add(orderId);
-          else selectedOrderIds.delete(orderId);
-          renderSelectedCount();
-        });
-      });
     }
 
-    function renderSelectedCount() {
-      $("selectedCount").textContent = selectedOrderIds.size;
-      const visibleIds = filteredOrders.map(order => order.id);
-      const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selectedOrderIds.has(id));
-      $("selectAllOrders").checked = allVisibleSelected;
-    }
 
     function renderOrderDetail(order) {
       const items = order.order_items || [];
@@ -1019,41 +976,6 @@
       }, "Order rejected / marked out of stock.");
     }
 
-    async function bulkUpdate(updates, message) {
-      const ids = selectedOrdersArray();
-      if (!ids.length) {
-        alert("Select one or more orders first.");
-        return;
-      }
-
-      updates.updated_at = new Date().toISOString();
-
-      if (updates.order_status === "shipped") updates.shipped_at = new Date().toISOString();
-      if (updates.order_status === "rejected") updates.rejected_at = new Date().toISOString();
-
-      await updateOrders(ids, updates, message);
-    }
-
-    async function bulkReject() {
-      const ids = selectedOrdersArray();
-      if (!ids.length) {
-        alert("Select one or more orders first.");
-        return;
-      }
-
-      const reason = prompt("Reason for rejecting selected order(s) / out-of-stock issue:");
-      if (!reason || !reason.trim()) {
-        alert("A rejection reason is required.");
-        return;
-      }
-
-      await bulkUpdate({
-        order_status: "rejected",
-        payment_status: "refunded",
-        rejection_reason: reason.trim()
-      }, "Selected orders rejected / marked out of stock.");
-    }
-
     async function updateOrders(ids, updates, message) {
       setStatus("Saving order updates...");
 
@@ -1103,33 +1025,6 @@
         applyFilters();
       });
 
-      $("selectAllOrders").addEventListener("change", (event) => {
-        if (event.target.checked) {
-          filteredOrders.forEach(order => selectedOrderIds.add(order.id));
-        } else {
-          filteredOrders.forEach(order => selectedOrderIds.delete(order.id));
-        }
-        renderOrders();
-        renderSelectedCount();
-      });
-
-      $("bulkPaymentPendingBtn").addEventListener("click", () => bulkUpdate({ payment_status: "pending" }, "Selected orders marked payment pending."));
-      $("bulkPaidBtn").addEventListener("click", () => bulkUpdate({ payment_status: "paid" }, "Selected orders marked paid."));
-      const bulkPaymentFailedBtn = $("bulkPaymentFailedBtn");
-      if (bulkPaymentFailedBtn) {
-        bulkPaymentFailedBtn.addEventListener("click", () => bulkUpdate({ payment_status: "failed" }, "Selected orders marked payment failed and inventory restored when applicable."));
-      }
-      $("bulkOrderPendingBtn").addEventListener("click", () => bulkUpdate({ order_status: "pending" }, "Selected orders marked pending."));
-      $("bulkProcessingBtn").addEventListener("click", () => bulkUpdate({ order_status: "processing" }, "Selected orders marked processing."));
-      $("bulkShippedBtn").addEventListener("click", () => bulkUpdate({ order_status: "shipped" }, "Selected orders marked shipped."));
-      $("bulkDeliveredBtn").addEventListener("click", () => bulkUpdate({ order_status: "delivered" }, "Selected orders marked delivered."));
-      $("bulkRejectedBtn").addEventListener("click", bulkReject);
-
-      $("bulkClearBtn").addEventListener("click", () => {
-        selectedOrderIds.clear();
-        renderOrders();
-        renderSelectedCount();
-      });
     }
 
     async function init() {
