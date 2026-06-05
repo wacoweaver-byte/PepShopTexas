@@ -338,6 +338,12 @@ header .actions .btn:hover {
         <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /></div>
         <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /></div>
         <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+        <div class="field"><label for="promoTitleAdmin">Promotion Title</label><input id="promoTitleAdmin" type="text" placeholder="New Customer Special" /></div>
+        <div class="field"><label for="promoBannerActiveAdmin">Show On Homepage</label><select id="promoBannerActiveAdmin"><option value="false">No</option><option value="true">Yes</option></select></div>
+        <div class="field full"><label for="promoDescriptionAdmin">Promotion Description</label><input id="promoDescriptionAdmin" type="text" placeholder="Optional internal/customer-facing description" /></div>
+        <div class="field full"><label for="heroBannerTextAdmin">Homepage Hero Banner Text</label><input id="heroBannerTextAdmin" type="text" placeholder="🎉 New Customer Special — Save 10% with code WELCOME10" /></div>
+        <div class="field"><label for="promoStartsAdmin">Promotion Start Date</label><input id="promoStartsAdmin" type="date" /></div>
+        <div class="field"><label for="promoEndsAdmin">Promotion End Date</label><input id="promoEndsAdmin" type="date" /></div>
         <button class="btn success full" id="createDiscountBtn" type="button">Create / Save Discount</button>
       </div>
 
@@ -346,9 +352,9 @@ header .actions .btn:hover {
       <div class="orders-table-wrap" style="margin-top:14px;">
         <table>
           <thead>
-            <tr><th>Code</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Status</th></tr>
+            <tr><th>Code</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
           </thead>
-          <tbody id="discountCodesBody"><tr><td colspan="7" class="muted">Loading discount codes...</td></tr></tbody>
+          <tbody id="discountCodesBody"><tr><td colspan="8" class="muted">Loading discount codes...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -437,12 +443,12 @@ async function loadDiscountCodes() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    body.innerHTML = `<tr><td colspan="7" class="muted">${safe(error.message)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="8" class="muted">${safe(error.message)}</td></tr>`;
     return;
   }
 
   if (!data || !data.length) {
-    body.innerHTML = `<tr><td colspan="7" class="muted">No discount codes yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="8" class="muted">No discount codes yet.</td></tr>`;
     return;
   }
 
@@ -458,8 +464,7 @@ async function loadDiscountCodes() {
       <td>${safe(row.assigned_email || "Any customer")}</td>
       <td>${uses}</td>
       <td>${row.expires_at ? formatDate(row.expires_at) : "No expiration"}</td>
-      <td>${row.active ? "Active" : "Inactive"}</td>
-    </tr>`;
+      <td>${row.hero_banner_active ? "Homepage" : "Off"}</td>\n      <td>${row.active ? "Active" : "Inactive"}</td>\n    </tr>`;
   }).join("");
 }
 
@@ -472,6 +477,12 @@ async function createDiscountCode() {
   const expiresValue = $("discountExpiresAdmin")?.value || "";
   const maxUsesRaw = Number($("discountMaxUsesAdmin")?.value || 0);
   const active = ($("discountActiveAdmin")?.value || "true") === "true";
+  const promotionTitle = ($("promoTitleAdmin")?.value || "").trim() || null;
+  const promotionDescription = ($("promoDescriptionAdmin")?.value || "").trim() || null;
+  const heroBannerText = ($("heroBannerTextAdmin")?.value || "").trim() || null;
+  const heroBannerActive = ($("promoBannerActiveAdmin")?.value || "false") === "true";
+  const promoStartsValue = $("promoStartsAdmin")?.value || "";
+  const promoEndsValue = $("promoEndsAdmin")?.value || "";
 
   if (!code) return setDiscountAdminStatus("Enter a discount code.", "bad");
   if (percentOff <= 0 && amountOff <= 0) return setDiscountAdminStatus("Enter either a percent off or dollar off amount.", "bad");
@@ -487,6 +498,12 @@ async function createDiscountCode() {
     max_uses: maxUsesRaw || (discountType === "one_time" ? 1 : null),
     active,
     expires_at: expiresValue ? new Date(expiresValue + "T23:59:59").toISOString() : null,
+    promotion_title: promotionTitle,
+    promotion_description: promotionDescription,
+    hero_banner_text: heroBannerText,
+    hero_banner_active: heroBannerActive,
+    promotion_starts_at: promoStartsValue ? new Date(promoStartsValue + "T00:00:00").toISOString() : null,
+    promotion_ends_at: promoEndsValue ? new Date(promoEndsValue + "T23:59:59").toISOString() : null,
     created_by: currentUser?.email || null
   };
 
@@ -496,10 +513,12 @@ async function createDiscountCode() {
   if (error) return setDiscountAdminStatus(error.message, "bad");
 
   setDiscountAdminStatus(`Discount code ${code} saved.`, "good");
-  ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","discountEmailAdmin","discountExpiresAdmin","discountMaxUsesAdmin"].forEach(id => {
+  ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","discountEmailAdmin","discountExpiresAdmin","discountMaxUsesAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin","promoStartsAdmin","promoEndsAdmin"].forEach(id => {
     const el = $(id);
     if (el) el.value = "";
   });
+  const promoActiveEl = $("promoBannerActiveAdmin");
+  if (promoActiveEl) promoActiveEl.value = "false";
   await loadDiscountCodes();
 }
 
