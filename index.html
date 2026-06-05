@@ -3704,17 +3704,23 @@ document.addEventListener("DOMContentLoaded", renderPstAuthStatus);
 
 <script>
 (function setupBackToAZFloatingButton() {
+  let azVisibilityObserver = null;
+
   function getHeaderOffset() {
     const header = document.querySelector("header");
-    return (header ? header.getBoundingClientRect().height : 0) + 18;
+    return (header ? header.getBoundingClientRect().height : 0) + 12;
+  }
+
+  function getAZShortcutTarget() {
+    return (
+      document.querySelector(".az-letter-jump-wrap") ||
+      document.getElementById("azLetterJump") ||
+      document.getElementById("az")
+    );
   }
 
   function scrollToAZIndex() {
-    const target =
-      document.getElementById("azLetterJump") ||
-      document.getElementById("az-index") ||
-      document.querySelector("#az");
-
+    const target = getAZShortcutTarget();
     if (!target) return;
 
     const y = target.getBoundingClientRect().top + window.pageYOffset - getHeaderOffset();
@@ -3727,33 +3733,58 @@ document.addEventListener("DOMContentLoaded", renderPstAuthStatus);
 
   function updateBackToAZVisibility() {
     const button = document.getElementById("backToAZFloating");
-    const azSection = document.getElementById("az");
-    const letterJump = document.getElementById("azLetterJump");
+    const target = getAZShortcutTarget();
+    if (!button || !target) return;
 
-    if (!button || !azSection) return;
+    const headerOffset = getHeaderOffset();
+    const rect = target.getBoundingClientRect();
 
-    const azTop = azSection.getBoundingClientRect().top + window.pageYOffset;
-    const letterBottom = letterJump
-      ? letterJump.getBoundingClientRect().bottom + window.pageYOffset
-      : azTop;
+    /*
+      Show the floating button the moment the A-Z shortcut bar has scrolled
+      above the sticky header and is no longer visible. Keep it hidden before
+      the customer reaches the A-Z area, and hide it again when the shortcuts
+      come back into view.
+    */
+    const shortcutsScrolledPastTop = rect.bottom <= headerOffset;
+    button.classList.toggle("visible", shortcutsScrolledPastTop);
+  }
 
-    const current = window.pageYOffset;
-    const shouldShow = current > (letterBottom + 250);
+  function setupAZVisibilityObserver() {
+    const target = getAZShortcutTarget();
+    if (!target || typeof IntersectionObserver === "undefined") return;
 
-    button.classList.toggle("visible", shouldShow);
+    if (azVisibilityObserver) azVisibilityObserver.disconnect();
+
+    azVisibilityObserver = new IntersectionObserver(() => {
+      updateBackToAZVisibility();
+    }, {
+      root: null,
+      threshold: [0, 0.01, 1]
+    });
+
+    azVisibilityObserver.observe(target);
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     const button = document.getElementById("backToAZFloating");
-    if (button) {
-      button.addEventListener("click", scrollToAZIndex);
-    }
+    if (button) button.addEventListener("click", scrollToAZIndex);
 
+    setupAZVisibilityObserver();
     updateBackToAZVisibility();
+
+    /* The A-Z shortcut row is rendered after products load, so run this again
+       shortly after page initialization in case it was not present yet. */
+    setTimeout(() => {
+      setupAZVisibilityObserver();
+      updateBackToAZVisibility();
+    }, 700);
   });
 
   window.addEventListener("scroll", updateBackToAZVisibility, { passive: true });
-  window.addEventListener("resize", updateBackToAZVisibility);
+  window.addEventListener("resize", () => {
+    setupAZVisibilityObserver();
+    updateBackToAZVisibility();
+  });
 })();
 </script>
 
