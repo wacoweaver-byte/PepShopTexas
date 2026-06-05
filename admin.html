@@ -697,6 +697,25 @@
         </div>
       </aside>
     </section>
+
+    <section class="card" style="margin-top:18px;">
+      <div class="card-header"><h2>Discount Management</h2></div>
+      <div class="card-body">
+        <div class="edit-grid">
+          <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /></div>
+          <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select></div>
+          <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /></div>
+          <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /></div>
+          <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /></div>
+          <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /></div>
+          <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /></div>
+          <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+          <button class="btn success full" id="createDiscountBtn" type="button">Create / Save Discount</button>
+        </div>
+        <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
+        <div class="orders-table-wrap" style="margin-top:14px;"><table><thead><tr><th>Code</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Status</th></tr></thead><tbody id="discountCodesBody"><tr><td colspan="7" class="muted">Loading discount codes...</td></tr></tbody></table></div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -1103,6 +1122,7 @@
           <div class="kv-grid">
             <div class="kv"><strong>Order</strong>${safe(orderDisplayId(order))}</div>
             <div class="kv"><strong>Total</strong>${money(order.total || order.total_amount || order.order_total)}</div>
+            ${discountSummaryMarkup(order)}
             <div class="kv"><strong>Date</strong>${formatDate(order.created_at)}</div>
             <div class="kv"><strong>Updated</strong>${formatDate(order.updated_at)}</div>
             <div class="kv"><strong>Inventory Deducted</strong>${order.inventory_deducted ? "Yes" : "No"}</div>
@@ -1257,6 +1277,23 @@
     function statusLabel(value) {
       return (value || "pending").toString().replace(/_/g, " ");
     }
+
+    function discountSummaryMarkup(order) {
+      const code = order.discount_code || order.coupon_code || "";
+      const discountAmount = Number(order.discount_amount || order.discount_code_amount || 0);
+      const vialDiscount = Number(order.vial_discount_amount || 0);
+      const subtotalBefore = Number(order.subtotal_before_discount || order.subtotal || 0);
+      const percent = Number(order.discount_percent || 0);
+      if (!code && !discountAmount && !vialDiscount) return "";
+      const parts = [];
+      if (subtotalBefore) parts.push(`Subtotal before discount: ${money(subtotalBefore)}`);
+      if (code) parts.push(`Code: ${safe(code)}`);
+      if (percent) parts.push(`Code percent: ${percent}%`);
+      if (vialDiscount) parts.push(`Vial discount: -${money(vialDiscount)}`);
+      if (discountAmount) parts.push(`Total discount: -${money(discountAmount)}`);
+      return `<div class="kv"><strong>Discount</strong>${parts.join("<br>")}</div>`;
+    }
+
 
     function buildOrderEmailPayload(type, order, extra = {}) {
       const to = (extra.to || customerEmail(order) || "").trim();
@@ -1607,8 +1644,6 @@
           .from("orders")
           .update({
             admin_note: appendAdminNote(updates.admin_note, ...emailEntries),
-            payment_accepted_email_sent_at: paymentAcceptedNow ? new Date().toISOString() : order.payment_accepted_email_sent_at || null,
-            shipping_email_sent_at: shippingNow ? new Date().toISOString() : order.shipping_email_sent_at || null,
             updated_at: new Date().toISOString()
           })
           .eq("id", orderId);
@@ -1779,6 +1814,54 @@
     }
 
     init();
+  
+
+    function setDiscountAdminStatus(message, type = "info") {
+      const el = $("discountAdminStatus");
+      if (!el) return;
+      el.className = "status-line " + (type === "good" ? "good" : type === "bad" ? "bad" : "");
+      el.textContent = message;
+    }
+    async function loadDiscountCodes() {
+      const body = $("discountCodesBody");
+      if (!body) return;
+      const { data, error } = await supabaseClient.from("discount_codes").select("*").order("created_at", { ascending: false });
+      if (error) { body.innerHTML = `<tr><td colspan="7" class="muted">${safe(error.message)}</td></tr>`; return; }
+      if (!data || !data.length) { body.innerHTML = `<tr><td colspan="7" class="muted">No discount codes yet.</td></tr>`; return; }
+      body.innerHTML = data.map(row => {
+        const pct = Number(row.percent_off || row.discount_percent || 0);
+        const amt = Number(row.amount_off || row.discount_amount || 0);
+        const discountText = pct ? `${pct}%` : amt ? money(amt) : "—";
+        const uses = `${Number(row.times_used || row.uses || 0)} / ${Number(row.max_uses || 0) || "∞"}`;
+        return `<tr><td><strong>${safe(row.code)}</strong></td><td>${safe(row.discount_type || "standard")}</td><td>${discountText}</td><td>${safe(row.assigned_email || "Any customer")}</td><td>${uses}</td><td>${row.expires_at ? formatDate(row.expires_at) : "No expiration"}</td><td>${row.active ? "Active" : "Inactive"}</td></tr>`;
+      }).join("");
+    }
+    async function createDiscountCode() {
+      const code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase();
+      const discountType = $("discountTypeAdmin")?.value || "standard";
+      const percentOff = Number($("discountPercentAdmin")?.value || 0);
+      const amountOff = Number($("discountAmountAdmin")?.value || 0);
+      const assignedEmail = ($("discountEmailAdmin")?.value || "").trim().toLowerCase() || null;
+      const expiresValue = $("discountExpiresAdmin")?.value || "";
+      const maxUsesRaw = Number($("discountMaxUsesAdmin")?.value || 0);
+      const active = ($("discountActiveAdmin")?.value || "true") === "true";
+      if (!code) return setDiscountAdminStatus("Enter a discount code.", "bad");
+      if (percentOff <= 0 && amountOff <= 0) return setDiscountAdminStatus("Enter either a percent off or dollar off amount.", "bad");
+      if (percentOff > 100) return setDiscountAdminStatus("Percent off cannot be more than 100%.", "bad");
+      const payload = { code, discount_type: discountType, percent_off: percentOff || 0, amount_off: amountOff || 0, assigned_email: assignedEmail, one_time_use: discountType === "one_time", max_uses: maxUsesRaw || (discountType === "one_time" ? 1 : null), active, expires_at: expiresValue ? new Date(expiresValue + "T23:59:59").toISOString() : null, created_by: currentUser?.email || null };
+      setDiscountAdminStatus("Saving discount code...");
+      const { error } = await supabaseClient.from("discount_codes").upsert(payload, { onConflict: "code" });
+      if (error) return setDiscountAdminStatus(error.message, "bad");
+      setDiscountAdminStatus(`Discount code ${code} saved.`, "good");
+      ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","discountEmailAdmin","discountExpiresAdmin","discountMaxUsesAdmin"].forEach(id => { const el = $(id); if (el) el.value = ""; });
+      await loadDiscountCodes();
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const btn = $("createDiscountBtn");
+      if (btn) btn.addEventListener("click", createDiscountCode);
+      setTimeout(() => { if (currentUser) loadDiscountCodes().catch(console.error); }, 1400);
+    });
+
   </script>
 </body>
 </html>
