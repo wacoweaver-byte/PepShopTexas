@@ -789,6 +789,21 @@
       return (value || fallback).toString().toLowerCase();
     }
 
+    function effectiveOrderStatus(order) {
+      const orderStatus = normalizeStatus(order?.order_status || order?.status || "pending");
+      const legacyStatus = normalizeStatus(order?.status || "");
+
+      // Terminal / exception statuses should remain explicit.
+      if (["delivered", "cancelled", "rejected"].includes(orderStatus)) return orderStatus;
+      if (["delivered", "cancelled", "rejected"].includes(legacyStatus)) return legacyStatus;
+
+      // If either column or shipping evidence says Shipped, use Shipped as the source of truth.
+      if (orderStatus === "shipped" || legacyStatus === "shipped") return "shipped";
+      if (order?.shipped_at && order?.shipping_carrier && order?.tracking_number) return "shipped";
+
+      return orderStatus || legacyStatus || "pending";
+    }
+
     function isOrderLocked(order) {
       const payment = normalizeStatus(order.payment_status);
       const status = normalizeStatus(order.order_status);
@@ -993,13 +1008,19 @@
         }
       }
 
-      allOrders = (orders || []).map(order => ({
-        ...order,
-        order_items: itemsByOrder[order.id] || [],
-        profile: profilesByUser[order.user_id] || profilesByUser[order.customer_id] || profilesById[order.profile_id] || profilesById[order.customer_profile_id] || profilesById[order.customer_id] || null,
-        order_status: order.order_status || order.status || "pending",
-        payment_status: order.payment_status || "pending"
-      }));
+      allOrders = (orders || []).map(order => {
+        const profile = profilesByUser[order.user_id] || profilesByUser[order.customer_id] || profilesById[order.profile_id] || profilesById[order.customer_profile_id] || profilesById[order.customer_id] || null;
+        const mergedOrder = {
+          ...order,
+          order_items: itemsByOrder[order.id] || [],
+          profile,
+          payment_status: order.payment_status || "pending"
+        };
+        return {
+          ...mergedOrder,
+          order_status: effectiveOrderStatus(mergedOrder)
+        };
+      });
 
       applyFilters();
       setStatus(`Loaded ${allOrders.length} order${allOrders.length === 1 ? "" : "s"}.`, "good");
@@ -1084,7 +1105,9 @@
 
     function renderOrderDetail(order) {
       const items = order.order_items || [];
-      const rejected = order.order_status === "rejected";
+      const displayOrderStatus = effectiveOrderStatus(order);
+      order.order_status = displayOrderStatus;
+      const rejected = displayOrderStatus === "rejected";
       const locked = isOrderLocked(order);
       const hardLocked = isOrderHardLocked(order);
       const paymentDisabled = locked ? "disabled" : "";
@@ -1157,11 +1180,11 @@
             <div class="field${hardLockedControlClass}">
               <label for="detailOrderStatus">Order Status</label>
               <select id="detailOrderStatus" ${orderStatusDisabled}>
-                <option value="pending" ${order.order_status === "pending" ? "selected" : ""}>Pending</option>
-                <option value="processing" ${order.order_status === "processing" ? "selected" : ""}>Processing</option>
-                <option value="delivered" ${order.order_status === "delivered" ? "selected" : ""}>Delivered</option>
-                <option value="cancelled" ${order.order_status === "cancelled" ? "selected" : ""}>Cancelled</option>
-                <option value="rejected" ${order.order_status === "rejected" ? "selected" : ""}>Rejected / Out of Stock</option>
+                <option value="pending" ${displayOrderStatus === "pending" ? "selected" : ""}>Pending</option>
+                <option value="processing" ${displayOrderStatus === "processing" ? "selected" : ""}>Processing</option>
+                <option value="delivered" ${displayOrderStatus === "delivered" ? "selected" : ""}>Delivered</option>
+                <option value="cancelled" ${displayOrderStatus === "cancelled" ? "selected" : ""}>Cancelled</option>
+                <option value="rejected" ${displayOrderStatus === "rejected" ? "selected" : ""}>Rejected / Out of Stock</option>
               </select>
             </div>
 
@@ -1373,7 +1396,7 @@
       if (!confirm(confirmMessage)) return;
 
       const timestamp = new Date().toISOString();
-      const previousStatus = normalizeStatus(order.order_status);
+      const previousStatus = effectiveOrderStatus(order);
       const trackingEntry = auditLine("TRACKING ADDED / STATUS UPDATED", [
         previousStatus !== "shipped" ? `Order status: ${statusLabel(previousStatus)} → shipped` : "Order status: shipped",
         `Carrier: ${carrier}`,
@@ -1458,7 +1481,7 @@
 
       const hardLocked = isOrderHardLocked(order);
       const locked = isOrderLocked(order);
-      const oldOrderStatus = normalizeStatus(order.order_status);
+      const oldOrderStatus = effectiveOrderStatus(order);
       const oldPaymentStatus = normalizeStatus(order.payment_status);
       let orderStatus = hardLocked ? oldOrderStatus : $("detailOrderStatus").value;
       let paymentStatus = locked ? oldPaymentStatus : $("detailPaymentStatus").value;
