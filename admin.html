@@ -1222,34 +1222,52 @@
       const to = customerEmail(order);
       if (!to || to === "—") throw new Error("This order does not have a customer email address.");
 
-      const items = (order.items || []).map(item => ({
+      const items = (order.order_items || order.items || []).map(item => ({
         name: item.product_name || item.name || item.product_id || "Product",
         quantity: item.quantity || item.qty || 1
       }));
+
+      const payload = {
+        type: "order_shipped",
+        to,
+        customerName: customerName(order),
+        orderNumber: orderDisplayId(order),
+        orderDate: order.created_at || order.order_date || "",
+        carrier,
+        trackingNumber,
+        trackingUrl: link,
+        items,
+        total: money(order.total || order.order_total || order.grand_total || 0)
+      };
+
+      console.log("Sending shipping email payload:", payload);
 
       const response = await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "apikey": SUPABASE_ANON_KEY
         },
-        body: JSON.stringify({
-          type: "order_shipped",
-          to,
-          customerName: customerName(order),
-          orderNumber: orderDisplayId(order),
-          carrier,
-          trackingNumber,
-          trackingUrl: link,
-          items,
-          total: money(order.total || order.order_total || order.grand_total || 0)
-        })
+        body: JSON.stringify(payload)
       });
 
-      if (!response.ok) {
-        const text = await response.text().catch(() => "");
-        throw new Error(text || `Shipping email failed with status ${response.status}.`);
+      const responseText = await response.text().catch(() => "");
+      let responseData = null;
+      try {
+        responseData = responseText ? JSON.parse(responseText) : null;
+      } catch (_err) {
+        responseData = { raw: responseText };
       }
+
+      console.log("Shipping email function response:", response.status, responseData);
+
+      if (!response.ok) {
+        const details = responseData?.error || responseData?.message || responseText || `Shipping email failed with status ${response.status}.`;
+        throw new Error(details);
+      }
+
+      return { to, responseData };
     }
 
     async function saveTrackingAndSendShippingEmail(orderId) {
@@ -1312,12 +1330,15 @@
       }
 
       try {
-        await callShippingEmailFunction({ ...order, ...updates }, carrier, trackingNumber, link);
+        const emailResult = await callShippingEmailFunction({ ...order, ...updates }, carrier, trackingNumber, link);
         const sentAt = new Date().toISOString();
+        const resendId = emailResult?.responseData?.id || emailResult?.responseData?.data?.id || "not returned";
         const sentEntry = [
           `Shipping email sent: ${new Date(sentAt).toLocaleString()}`,
+          `To: ${emailResult?.to || customerEmail(order)}`,
           `Carrier: ${carrier}`,
           `Tracking: ${trackingNumber}`,
+          `Resend ID: ${resendId}`,
           `Admin account: ${currentUser?.email || "unknown"}`
         ].join(" | ");
         const { error: sentError } = await supabaseClient
@@ -1329,10 +1350,10 @@
           })
           .eq("id", orderId);
         if (sentError) throw sentError;
-        setStatus("Tracking saved and shipping email sent.", "good");
+        setStatus(`Tracking saved and shipping email sent to ${emailResult?.to || customerEmail(order)}. Resend ID: ${resendId}`, "good");
       } catch (emailError) {
         console.error(emailError);
-        setStatus("Tracking was saved, but the shipping email failed. Your Supabase Edge Function may not support type=order_shipped yet: " + (emailError.message || emailError), "bad");
+        setStatus("Tracking was saved, but the shipping email failed: " + (emailError.message || emailError), "bad");
       }
 
       await loadOrders();
