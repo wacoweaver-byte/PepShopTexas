@@ -1477,8 +1477,73 @@ button.disabled-cart,
 .discount-code-status.info { color:#153f76; }
 @media(max-width:560px) { .discount-code-row { flex-direction:column; align-items:stretch; } }
 
+/* PST dynamic promotion banner from Discount Management */
+.promo-hero-banner {
+  display: none;
+  background: linear-gradient(90deg, #003f9e 0%, #0077c8 100%);
+  color: #ffffff;
+  border-bottom: 2px solid #002f76;
+  padding: 12px 18px;
+  text-align: center;
+  font-weight: 900;
+  line-height: 1.35;
+}
+.promo-hero-banner.active {
+  display: block;
+}
+.promo-hero-banner strong {
+  text-transform: uppercase;
+}
+.promo-hero-banner span {
+  display: inline-block;
+}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">/* PST dynamic homepage promotion banner */
+async function loadPromoHeroBanner() {
+  const banner = document.getElementById("promoHeroBanner");
+  if (!banner || !window.supabase) return;
+
+  try {
+    const client =
+      window.pstSupabase ||
+      window.supabaseClient ||
+      window.db ||
+      (typeof PST_SUPABASE_URL !== "undefined" && typeof PST_SUPABASE_PUBLISHABLE_KEY !== "undefined"
+        ? window.supabase.createClient(PST_SUPABASE_URL, PST_SUPABASE_PUBLISHABLE_KEY)
+        : null);
+
+    if (!client) return;
+
+    const nowIso = new Date().toISOString();
+
+    const { data, error } = await client
+      .from("discount_codes")
+      .select("code, promotion_title, promotion_description, hero_banner_text, promotion_starts_at, promotion_ends_at, active, hero_banner_active")
+      .eq("active", true)
+      .eq("hero_banner_active", true)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (error || !data || !data.length) return;
+
+    const promo = data.find(row => {
+      const startsOk = !row.promotion_starts_at || row.promotion_starts_at <= nowIso;
+      const endsOk = !row.promotion_ends_at || row.promotion_ends_at >= nowIso;
+      return startsOk && endsOk;
+    });
+
+    if (!promo) return;
+
+    const text = promo.hero_banner_text || promo.promotion_description || promo.promotion_title || `Use code ${promo.code} at checkout.`;
+    banner.innerHTML = `<span>${String(text).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]))}</span>`;
+    banner.classList.add("active");
+  } catch (error) {
+    console.warn("Promotion banner could not load:", error);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadPromoHeroBanner);
+</script>
 </head>
 <body>
 <div class="construction-banner" aria-label="Under construction notice">
@@ -1489,6 +1554,7 @@ button.disabled-cart,
     <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
   </div>
 </div>
+<div id="promoHeroBanner" class="promo-hero-banner" aria-label="Current promotion"></div>
 <div class="top-strip">
   <span>🚚 Shipping options available</span>
   <span>Research use only — not for human or veterinary use — not medical advice</span>
