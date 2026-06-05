@@ -768,7 +768,17 @@
 
     function customerEmail(order) {
       const profile = order.profile || {};
-      return order.customer_email || order.email || profile.email || "—";
+      const customer = order.customer || {};
+      return order.customer_email
+        || order.email
+        || order.contact_email
+        || order.billing_email
+        || order.shipping_email
+        || customer.email
+        || profile.email
+        || profile.customer_email
+        || profile.contact_email
+        || "—";
     }
 
     const LOCK_PAYMENT_STATUSES = ["paid", "refunded"];
@@ -1150,6 +1160,12 @@
             </div>
 
             <div class="field full">
+              <label for="detailShippingEmail">Shipping Email Recipient</label>
+              <input id="detailShippingEmail" type="email" placeholder="customer@email.com" value="${safe(customerEmail(order)) === "—" ? "" : safe(customerEmail(order))}" />
+              <div class="muted" style="margin-top:6px;">If this is blank, enter the customer's email before sending the shipping notification.</div>
+            </div>
+
+            <div class="field full">
               <label for="detailRejectionReason">Rejection / Out of Stock Reason</label>
               <textarea id="detailRejectionReason" placeholder="Required only if rejecting order. Example: Product ordered was unavailable due to inventory mismatch. Customer notified.">${safe(order.rejection_reason) === "—" ? "" : safe(order.rejection_reason)}</textarea>
             </div>
@@ -1218,9 +1234,9 @@
       return payment === "paid" && !["cancelled", "rejected", "refunded", "failed"].includes(status);
     }
 
-    async function callShippingEmailFunction(order, carrier, trackingNumber, link) {
-      const to = customerEmail(order);
-      if (!to || to === "—") throw new Error("This order does not have a customer email address.");
+    async function callShippingEmailFunction(order, carrier, trackingNumber, link, explicitRecipient) {
+      const to = (explicitRecipient || customerEmail(order) || "").trim();
+      if (!to || to === "—") throw new Error("This order does not have a customer email address. Enter the recipient email in the Shipping Email Recipient field and try again.");
 
       const items = (order.order_items || order.items || []).map(item => ({
         name: item.product_name || item.name || item.product_id || "Product",
@@ -1284,6 +1300,7 @@
 
       const carrier = $("detailCarrier").value.trim();
       const trackingNumber = $("detailTracking").value.trim();
+      const recipientEmail = ($("detailShippingEmail")?.value || "").trim();
       const adminNote = $("detailAdminNote").value.trim();
 
       if (!carrier) {
@@ -1294,9 +1311,13 @@
         alert("Enter the tracking number before sending a shipping email.");
         return;
       }
+      if (!recipientEmail) {
+        alert("Enter the customer email address before sending a shipping email.");
+        return;
+      }
 
       const link = trackingUrl(carrier, trackingNumber);
-      const confirmMessage = `Send shipping email for ${orderDisplayId(order)}?\n\nCarrier: ${carrier}\nTracking: ${trackingNumber}\n\nThis will save tracking, mark the order Shipped if needed, and email the customer.`;
+      const confirmMessage = `Send shipping email for ${orderDisplayId(order)}?\n\nTo: ${recipientEmail}\nCarrier: ${carrier}\nTracking: ${trackingNumber}\n\nThis will save tracking, mark the order Shipped if needed, and email the customer.`;
       if (!confirm(confirmMessage)) return;
 
       const timestamp = new Date().toISOString();
@@ -1330,7 +1351,7 @@
       }
 
       try {
-        const emailResult = await callShippingEmailFunction({ ...order, ...updates }, carrier, trackingNumber, link);
+        const emailResult = await callShippingEmailFunction({ ...order, ...updates }, carrier, trackingNumber, link, recipientEmail);
         const sentAt = new Date().toISOString();
         const resendId = emailResult?.responseData?.id || emailResult?.responseData?.data?.id || "not returned";
         const sentEntry = [
