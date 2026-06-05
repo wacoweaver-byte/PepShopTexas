@@ -1295,7 +1295,6 @@
         tracking_number: trackingNumber,
         order_status: "shipped",
         shipped_at: order.shipped_at || timestamp,
-        shipping_email_sent_at: timestamp,
         admin_note: [existingNote, adminNote && adminNote !== existingNote ? adminNote : "", trackingEntry].filter(Boolean).join("\n\n"),
         updated_at: timestamp
       };
@@ -1314,10 +1313,26 @@
 
       try {
         await callShippingEmailFunction({ ...order, ...updates }, carrier, trackingNumber, link);
+        const sentAt = new Date().toISOString();
+        const sentEntry = [
+          `Shipping email sent: ${new Date(sentAt).toLocaleString()}`,
+          `Carrier: ${carrier}`,
+          `Tracking: ${trackingNumber}`,
+          `Admin account: ${currentUser?.email || "unknown"}`
+        ].join(" | ");
+        const { error: sentError } = await supabaseClient
+          .from("orders")
+          .update({
+            shipping_email_sent_at: sentAt,
+            admin_note: [updates.admin_note, sentEntry].filter(Boolean).join("\n\n"),
+            updated_at: sentAt
+          })
+          .eq("id", orderId);
+        if (sentError) throw sentError;
         setStatus("Tracking saved and shipping email sent.", "good");
       } catch (emailError) {
         console.error(emailError);
-        setStatus("Tracking was saved, but the shipping email failed: " + (emailError.message || emailError), "bad");
+        setStatus("Tracking was saved, but the shipping email failed. Your Supabase Edge Function may not support type=order_shipped yet: " + (emailError.message || emailError), "bad");
       }
 
       await loadOrders();
