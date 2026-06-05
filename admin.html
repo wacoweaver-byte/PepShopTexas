@@ -642,8 +642,8 @@
       <div class="header-actions">
         <a class="btn secondary" href="index.html">← Back to Website</a>
         <button class="btn secondary admin-nav-btn active" type="button" data-admin-section="orders-section">Orders</button>
-        <button class="btn secondary admin-nav-btn" type="button" data-admin-section="inventory-section">Inventory</button>
-        <button class="btn secondary admin-nav-btn" type="button" data-admin-section="products-section">Products</button>
+        <a class="btn secondary" href="inventory.html">Inventory</a>
+        <a class="btn secondary" href="products.html">Products</a>
         <button class="btn secondary admin-nav-btn" type="button" data-admin-section="discount-management">Discounts</button>
         <button class="btn secondary" id="refreshBtn" type="button">Refresh Orders</button>
         <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
@@ -660,27 +660,6 @@
     </section>
 
     <div id="statusLine" class="status-line">Checking admin access...</div>
-
-
-    <section class="card admin-module" id="inventory-section" style="margin-top:18px;">
-      <div class="card-header">
-        <h2>Inventory Management</h2>
-        <span class="muted">Inventory controls will live here.</span>
-      </div>
-      <div class="placeholder-card">
-        Inventory Management will be separated from Orders and Discounts. This section is reserved for stock counts, inventory adjustments, low-stock alerts, and inventory history.
-      </div>
-    </section>
-
-    <section class="card admin-module" id="products-section" style="margin-top:18px;">
-      <div class="card-header">
-        <h2>Product Management</h2>
-        <span class="muted">Product catalog controls will live here.</span>
-      </div>
-      <div class="placeholder-card">
-        Product Management will be separated from Orders and Discounts. This section is reserved for product names, pricing, descriptions, visibility, featured products, and product images.
-      </div>
-    </section>
 
     <section class="card admin-module" id="discount-management" style="margin-top:18px;">
       <div class="card-header"><h2>Discount Management</h2><span class="muted">Create and manage promo codes, one-time offers, and Friends & Family discounts.</span></div>
@@ -1838,8 +1817,6 @@
 
       const titles = {
         "orders-section": "Orders Management",
-        "inventory-section": "Inventory Management",
-        "products-section": "Product Management",
         "discount-management": "Discount Management"
       };
       const titleEl = $("adminPageTitle");
