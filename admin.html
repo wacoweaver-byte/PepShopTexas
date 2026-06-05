@@ -568,6 +568,42 @@
       cursor: not-allowed;
     }
 
+
+    /* Shipping and tracking email automation */
+    .shipping-box {
+      margin-top: 12px;
+      padding: 13px;
+      border: 1px solid rgba(0, 119, 200, 0.22);
+      background: rgba(0, 119, 200, 0.055);
+      border-radius: 12px;
+    }
+
+    .shipping-box h4 {
+      margin: 0 0 8px;
+      color: var(--pst-blue);
+      font-size: 15px;
+    }
+
+    .shipping-box p {
+      margin: 0 0 12px;
+      color: #24445c;
+      line-height: 1.45;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tracking-link {
+      display: inline-flex;
+      margin-top: 7px;
+      color: var(--pst-blue);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .tracking-link:hover {
+      text-decoration: underline;
+    }
+
 </style>
 </head>
 <body>
@@ -834,6 +870,7 @@
       if (order.created_at) events.push(["Order created", order.created_at]);
       if (order.paid_at) events.push(["Payment received", order.paid_at]);
       if (order.shipped_at) events.push(["Marked shipped", order.shipped_at]);
+      if (order.shipping_email_sent_at) events.push(["Shipping email sent", order.shipping_email_sent_at]);
       if (order.delivered_at) events.push(["Marked delivered", order.delivered_at]);
       if (order.rejected_at) events.push(["Rejected / out of stock", order.rejected_at]);
       if (order.updated_at) events.push(["Last updated", order.updated_at]);
@@ -1123,6 +1160,7 @@
             </div>
 
             <button class="btn success full" id="saveOrderBtn" type="button">${hardLocked ? "Save Tracking / Notes" : "Save Order Updates"}</button>
+            <button class="btn full" id="sendShippingEmailBtn" type="button">Save Tracking & Send Shipping Email</button>
             <button class="btn danger full" id="rejectOrderBtn" type="button" ${locked ? "disabled" : ""}>Reject This Order / Out of Stock</button>
             ${lockedCancelOverrideMarkup(order)}
             ${hardLocked ? `<div class="note-box full"><strong>Protected Record:</strong> To resend a lost or damaged shipment later, use the future Replacement Shipment workflow instead of editing this original order.</div>` : ""}
@@ -1131,6 +1169,7 @@
       `;
 
       $("saveOrderBtn").addEventListener("click", () => saveSingleOrder(order.id));
+      $("sendShippingEmailBtn").addEventListener("click", () => saveTrackingAndSendShippingEmail(order.id));
       $("rejectOrderBtn").addEventListener("click", () => rejectSingleOrder(order.id));
       const overrideCancelBtn = $("overrideCancelBtn");
       if (overrideCancelBtn) overrideCancelBtn.addEventListener("click", () => approveCancelLockedOrder(order.id));
@@ -1161,6 +1200,131 @@
       }
     }
 
+
+    function trackingUrl(carrier, trackingNumber) {
+      const c = normalizeStatus(carrier, "");
+      const t = encodeURIComponent((trackingNumber || "").trim());
+      if (!t) return "";
+      if (c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${t}`;
+      if (c.includes("ups")) return `https://www.ups.com/track?tracknum=${t}`;
+      if (c.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${t}`;
+      if (c.includes("dhl")) return `https://www.dhl.com/us-en/home/tracking/tracking-express.html?submit=1&tracking-id=${t}`;
+      return `https://www.google.com/search?q=${encodeURIComponent((carrier || "") + " tracking " + (trackingNumber || ""))}`;
+    }
+
+    function canSendShippingEmail(order) {
+      const status = normalizeStatus(order.order_status);
+      const payment = normalizeStatus(order.payment_status);
+      return payment === "paid" && !["cancelled", "rejected", "refunded", "failed"].includes(status);
+    }
+
+    async function callShippingEmailFunction(order, carrier, trackingNumber, link) {
+      const to = customerEmail(order);
+      if (!to || to === "—") throw new Error("This order does not have a customer email address.");
+
+      const items = (order.items || []).map(item => ({
+        name: item.product_name || item.name || item.product_id || "Product",
+        quantity: item.quantity || item.qty || 1
+      }));
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+          type: "order_shipped",
+          to,
+          customerName: customerName(order),
+          orderNumber: orderDisplayId(order),
+          carrier,
+          trackingNumber,
+          trackingUrl: link,
+          items,
+          total: money(order.total || order.order_total || order.grand_total || 0)
+        })
+      });
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => "");
+        throw new Error(text || `Shipping email failed with status ${response.status}.`);
+      }
+    }
+
+    async function saveTrackingAndSendShippingEmail(orderId) {
+      const order = allOrders.find(item => item.id === orderId);
+      if (!order) {
+        alert("Order not found. Refresh and try again.");
+        return;
+      }
+
+      if (!canSendShippingEmail(order)) {
+        alert("Shipping emails are only available for paid orders that have not been cancelled, rejected, failed, or refunded.");
+        return;
+      }
+
+      const carrier = $("detailCarrier").value.trim();
+      const trackingNumber = $("detailTracking").value.trim();
+      const adminNote = $("detailAdminNote").value.trim();
+
+      if (!carrier) {
+        alert("Enter the shipping carrier before sending a shipping email.");
+        return;
+      }
+      if (!trackingNumber) {
+        alert("Enter the tracking number before sending a shipping email.");
+        return;
+      }
+
+      const link = trackingUrl(carrier, trackingNumber);
+      const confirmMessage = `Send shipping email for ${orderDisplayId(order)}?\n\nCarrier: ${carrier}\nTracking: ${trackingNumber}\n\nThis will save tracking, mark the order Shipped if needed, and email the customer.`;
+      if (!confirm(confirmMessage)) return;
+
+      const timestamp = new Date().toISOString();
+      const existingNote = (order.admin_note || "").trim();
+      const trackingEntry = [
+        `[${new Date(timestamp).toLocaleString()}] SHIPPING EMAIL SENT`,
+        `Carrier: ${carrier}`,
+        `Tracking: ${trackingNumber}`,
+        `Admin account: ${currentUser?.email || "unknown"}`
+      ].join(" | ");
+
+      const updates = {
+        shipping_carrier: carrier,
+        tracking_number: trackingNumber,
+        order_status: "shipped",
+        shipped_at: order.shipped_at || timestamp,
+        shipping_email_sent_at: timestamp,
+        admin_note: [existingNote, adminNote && adminNote !== existingNote ? adminNote : "", trackingEntry].filter(Boolean).join("\n\n"),
+        updated_at: timestamp
+      };
+
+      setStatus("Saving tracking and sending shipping email...");
+
+      const { error } = await supabaseClient
+        .from("orders")
+        .update(updates)
+        .eq("id", orderId);
+
+      if (error) {
+        setStatus(error.message, "bad");
+        throw error;
+      }
+
+      try {
+        await callShippingEmailFunction({ ...order, ...updates }, carrier, trackingNumber, link);
+        setStatus("Tracking saved and shipping email sent.", "good");
+      } catch (emailError) {
+        console.error(emailError);
+        setStatus("Tracking was saved, but the shipping email failed: " + (emailError.message || emailError), "bad");
+      }
+
+      await loadOrders();
+      const active = allOrders.find(item => item.id === orderId);
+      if (active) renderOrderDetail(active);
+    }
+
     async function saveSingleOrder(orderId) {
       const order = allOrders.find(item => item.id === orderId);
       if (!order) {
@@ -1188,9 +1352,12 @@
         }
       }
 
+      const carrierValue = $("detailCarrier").value.trim();
+      const trackingValue = $("detailTracking").value.trim();
+
       const updates = {
-        shipping_carrier: $("detailCarrier").value.trim() || null,
-        tracking_number: $("detailTracking").value.trim() || null,
+        shipping_carrier: carrierValue || null,
+        tracking_number: trackingValue || null,
         admin_note: $("detailAdminNote").value.trim() || null,
         updated_at: new Date().toISOString()
       };
@@ -1200,6 +1367,11 @@
         updates.rejection_reason = rejectionReason || null;
         if (orderStatus === "shipped" && normalizeStatus(order.order_status) !== "shipped") updates.shipped_at = new Date().toISOString();
         if (orderStatus === "rejected") updates.rejected_at = new Date().toISOString();
+      }
+
+      if (!hardLocked && trackingValue && carrierValue && ["pending", "processing", "paid"].includes(normalizeStatus(updates.order_status || order.order_status))) {
+        updates.order_status = "shipped";
+        updates.shipped_at = order.shipped_at || new Date().toISOString();
       }
 
       if (!locked) {
