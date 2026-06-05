@@ -1441,6 +1441,28 @@ button.disabled-cart,
   }
 }
 
+
+
+/* Mobile/iOS hero carousel arrow containment fix */
+.hero-banner {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  contain: paint;
+}
+.hero-control {
+  position: absolute !important;
+  z-index: 3 !important;
+}
+.hero-control.hero-control-hidden {
+  display: none !important;
+}
+@media(max-width: 980px) {
+  .hero-control {
+    top: 50% !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3990,6 +4012,31 @@ window.addEventListener("resize", () => {
   };
 
   window.pstProductHighlight = pstProductHighlight;
+})();
+</script>
+
+
+<script>
+/* Prevent hero carousel arrows from lingering over the page on mobile/iOS after scrolling past the hero section. */
+(function() {
+  function updateHeroArrowVisibility() {
+    const banner = document.getElementById('heroBanner');
+    const controls = document.querySelectorAll('.hero-control');
+    if (!banner || !controls.length) return;
+
+    const rect = banner.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const visible = rect.bottom > 0 && rect.top < viewportHeight;
+
+    controls.forEach(function(control) {
+      control.classList.toggle('hero-control-hidden', !visible);
+    });
+  }
+
+  window.addEventListener('scroll', updateHeroArrowVisibility, { passive: true });
+  window.addEventListener('resize', updateHeroArrowVisibility);
+  document.addEventListener('DOMContentLoaded', updateHeroArrowVisibility);
+  window.addEventListener('load', updateHeroArrowVisibility);
 })();
 </script>
 
