@@ -1192,7 +1192,7 @@
               <textarea id="detailAdminNote" placeholder="Optional internal note.">${safe(order.admin_note) === "—" ? "" : safe(order.admin_note)}</textarea>
             </div>
 
-            <button class="btn success full" id="saveOrderBtn" type="button">${hardLocked ? "Save Tracking / Notes" : "Save Order Updates"}</button>
+            <button class="btn success full" id="saveOrderBtn" type="button">${hardLocked ? "Save Tracking / Notes" : "Save Order Updates / Workflow"}</button>
             <button class="btn full" id="sendShippingEmailBtn" type="button">Save Tracking & Send Shipping Email</button>
             <button class="btn danger full" id="rejectOrderBtn" type="button" ${locked ? "disabled" : ""}>Reject This Order / Out of Stock</button>
             ${lockedCancelOverrideMarkup(order)}
@@ -1234,46 +1234,56 @@
     }
 
 
-    function trackingUrl(carrier, trackingNumber) {
-      const c = normalizeStatus(carrier, "");
-      const t = encodeURIComponent((trackingNumber || "").trim());
-      if (!t) return "";
-      if (c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${t}`;
-      if (c.includes("ups")) return `https://www.ups.com/track?tracknum=${t}`;
-      if (c.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${t}`;
-      if (c.includes("dhl")) return `https://www.dhl.com/us-en/home/tracking/tracking-express.html?submit=1&tracking-id=${t}`;
-      return `https://www.google.com/search?q=${encodeURIComponent((carrier || "") + " tracking " + (trackingNumber || ""))}`;
+
+    function auditLine(title, details = []) {
+      const timestamp = new Date();
+      const admin = currentUser?.email || "unknown admin";
+      const cleanDetails = (details || []).filter(Boolean);
+      return [
+        `[${timestamp.toLocaleString()}] ${title}`,
+        ...cleanDetails,
+        `Admin account: ${admin}`
+      ].join(" | ");
     }
 
-    function canSendShippingEmail(order) {
-      const status = normalizeStatus(order.order_status);
-      const payment = normalizeStatus(order.payment_status);
-      return payment === "paid" && !["cancelled", "rejected", "refunded", "failed"].includes(status);
+    function appendAdminNote(existingNote, ...entries) {
+      return [
+        (existingNote || "").trim(),
+        ...entries.map(entry => (entry || "").trim()).filter(Boolean)
+      ].filter(Boolean).join("\n\n") || null;
     }
 
-    async function callShippingEmailFunction(order, carrier, trackingNumber, link, explicitRecipient) {
-      const to = (explicitRecipient || customerEmail(order) || "").trim();
-      if (!to || to === "—") throw new Error("This order does not have a customer email address. Enter the recipient email in the Shipping Email Recipient field and try again.");
+    function statusLabel(value) {
+      return (value || "pending").toString().replace(/_/g, " ");
+    }
+
+    function buildOrderEmailPayload(type, order, extra = {}) {
+      const to = (extra.to || customerEmail(order) || "").trim();
+      if (!to || to === "—") throw new Error("This order does not have a customer email address. Enter the recipient email and try again.");
 
       const items = (order.order_items || order.items || []).map(item => ({
         name: item.product_name || item.name || item.product_id || "Product",
         quantity: item.quantity || item.qty || 1
       }));
 
-      const payload = {
-        type: "order_shipped",
+      return {
+        type,
         to,
         customerName: customerName(order),
         orderNumber: orderDisplayId(order),
         orderDate: order.created_at || order.order_date || "",
-        carrier,
-        trackingNumber,
-        trackingUrl: link,
         items,
-        total: money(order.total || order.order_total || order.grand_total || 0)
+        total: money(order.total || order.order_total || order.grand_total || 0),
+        carrier: extra.carrier || order.shipping_carrier || "",
+        trackingNumber: extra.trackingNumber || order.tracking_number || "",
+        trackingUrl: extra.trackingUrl || "",
+        paymentNote: extra.paymentNote || ""
       };
+    }
 
-      console.log("Sending shipping email payload:", payload);
+    async function callOrderEmailFunction(type, order, extra = {}) {
+      const payload = buildOrderEmailPayload(type, order, extra);
+      console.log("Sending order email payload:", payload);
 
       const response = await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
         method: "POST",
@@ -1293,14 +1303,40 @@
         responseData = { raw: responseText };
       }
 
-      console.log("Shipping email function response:", response.status, responseData);
+      console.log("Order email function response:", response.status, responseData);
 
       if (!response.ok) {
-        const details = responseData?.error || responseData?.message || responseText || `Shipping email failed with status ${response.status}.`;
+        const details = responseData?.error || responseData?.message || responseText || `Email failed with status ${response.status}.`;
         throw new Error(details);
       }
 
-      return { to, responseData };
+      return { to: payload.to, responseData };
+    }
+
+    function trackingUrl(carrier, trackingNumber) {
+      const c = normalizeStatus(carrier, "");
+      const t = encodeURIComponent((trackingNumber || "").trim());
+      if (!t) return "";
+      if (c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${t}`;
+      if (c.includes("ups")) return `https://www.ups.com/track?tracknum=${t}`;
+      if (c.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${t}`;
+      if (c.includes("dhl")) return `https://www.dhl.com/us-en/home/tracking/tracking-express.html?submit=1&tracking-id=${t}`;
+      return `https://www.google.com/search?q=${encodeURIComponent((carrier || "") + " tracking " + (trackingNumber || ""))}`;
+    }
+
+    function canSendShippingEmail(order) {
+      const status = normalizeStatus(order.order_status);
+      const payment = normalizeStatus(order.payment_status);
+      return payment === "paid" && !["cancelled", "rejected", "refunded", "failed"].includes(status);
+    }
+
+    async function callShippingEmailFunction(order, carrier, trackingNumber, link, explicitRecipient) {
+      return callOrderEmailFunction("order_shipped", order, {
+        to: explicitRecipient,
+        carrier,
+        trackingNumber,
+        trackingUrl: link
+      });
     }
 
     async function saveTrackingAndSendShippingEmail(orderId) {
@@ -1334,17 +1370,17 @@
       }
 
       const link = trackingUrl(carrier, trackingNumber);
-      const confirmMessage = `Send shipping email for ${orderDisplayId(order)}?\n\nTo: ${recipientEmail}\nCarrier: ${carrier}\nTracking: ${trackingNumber}\n\nThis will save tracking, mark the order Shipped if needed, and email the customer.`;
+      const confirmMessage = `Send shipping email for ${orderDisplayId(order)}?\n\nTo: ${recipientEmail}\nCarrier: ${carrier}\nTracking: ${trackingNumber}\n\nThis will save tracking, mark the order Shipped, add audit history, and email the customer.`;
       if (!confirm(confirmMessage)) return;
 
       const timestamp = new Date().toISOString();
-      const existingNote = (order.admin_note || "").trim();
-      const trackingEntry = [
-        `[${new Date(timestamp).toLocaleString()}] SHIPPING EMAIL SENT`,
+      const previousStatus = normalizeStatus(order.order_status);
+      const trackingEntry = auditLine("TRACKING ADDED / STATUS UPDATED", [
+        previousStatus !== "shipped" ? `Order status: ${statusLabel(previousStatus)} → shipped` : "Order status: shipped",
         `Carrier: ${carrier}`,
         `Tracking: ${trackingNumber}`,
-        `Admin account: ${currentUser?.email || "unknown"}`
-      ].join(" | ");
+        `Recipient: ${recipientEmail}`
+      ]);
 
       const updates = {
         shipping_carrier: carrier,
@@ -1352,7 +1388,7 @@
         customer_email: recipientEmail,
         order_status: "shipped",
         shipped_at: order.shipped_at || timestamp,
-        admin_note: [existingNote, adminNote && adminNote !== existingNote ? adminNote : "", trackingEntry].filter(Boolean).join("\n\n"),
+        admin_note: appendAdminNote(order.admin_note, adminNote && adminNote !== (order.admin_note || "").trim() ? adminNote : "", trackingEntry),
         updated_at: timestamp
       };
 
@@ -1372,26 +1408,37 @@
         const emailResult = await callShippingEmailFunction({ ...order, ...updates }, carrier, trackingNumber, link, recipientEmail);
         const sentAt = new Date().toISOString();
         const resendId = emailResult?.responseData?.id || emailResult?.responseData?.data?.id || "not returned";
-        const sentEntry = [
-          `Shipping email sent: ${new Date(sentAt).toLocaleString()}`,
-          `To: ${emailResult?.to || customerEmail(order)}`,
+        const sentEntry = auditLine("SHIPPING EMAIL SENT", [
+          `To: ${emailResult?.to || recipientEmail}`,
           `Carrier: ${carrier}`,
           `Tracking: ${trackingNumber}`,
-          `Resend ID: ${resendId}`,
-          `Admin account: ${currentUser?.email || "unknown"}`
-        ].join(" | ");
+          `Resend ID: ${resendId}`
+        ]);
         const { error: sentError } = await supabaseClient
           .from("orders")
           .update({
             shipping_email_sent_at: sentAt,
-            admin_note: [updates.admin_note, sentEntry].filter(Boolean).join("\n\n"),
+            admin_note: appendAdminNote(updates.admin_note, sentEntry),
             updated_at: sentAt
           })
           .eq("id", orderId);
         if (sentError) throw sentError;
-        setStatus(`Tracking saved and shipping email sent to ${emailResult?.to || customerEmail(order)}. Resend ID: ${resendId}`, "good");
+        setStatus(`Tracking saved and shipping email sent to ${emailResult?.to || recipientEmail}. Resend ID: ${resendId}`, "good");
       } catch (emailError) {
         console.error(emailError);
+        const failEntry = auditLine("SHIPPING EMAIL FAILED", [
+          `To: ${recipientEmail}`,
+          `Carrier: ${carrier}`,
+          `Tracking: ${trackingNumber}`,
+          `Error: ${emailError.message || emailError}`
+        ]);
+        await supabaseClient
+          .from("orders")
+          .update({
+            admin_note: appendAdminNote(updates.admin_note, failEntry),
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", orderId);
         setStatus("Tracking was saved, but the shipping email failed: " + (emailError.message || emailError), "bad");
       }
 
@@ -1409,9 +1456,15 @@
 
       const hardLocked = isOrderHardLocked(order);
       const locked = isOrderLocked(order);
-      const orderStatus = hardLocked ? normalizeStatus(order.order_status) : $("detailOrderStatus").value;
-      const paymentStatus = locked ? normalizeStatus(order.payment_status) : $("detailPaymentStatus").value;
+      const oldOrderStatus = normalizeStatus(order.order_status);
+      const oldPaymentStatus = normalizeStatus(order.payment_status);
+      let orderStatus = hardLocked ? oldOrderStatus : $("detailOrderStatus").value;
+      let paymentStatus = locked ? oldPaymentStatus : $("detailPaymentStatus").value;
       const rejectionReason = $("detailRejectionReason").value.trim();
+      const carrierValue = $("detailCarrier").value.trim();
+      const trackingValue = $("detailTracking").value.trim();
+      const recipientEmail = ($("detailShippingEmail")?.value || "").trim();
+      const typedAdminNote = $("detailAdminNote").value.trim();
 
       if (!hardLocked && orderStatus === "rejected" && !rejectionReason) {
         alert("Please enter a rejection / out-of-stock reason before rejecting this order.");
@@ -1419,41 +1472,158 @@
       }
 
       if (locked && !hardLocked) {
-        const currentStatus = normalizeStatus(order.order_status);
         const prohibitedLockedMoves = ["pending", "cancelled", "rejected"];
-        if (orderStatus !== currentStatus && prohibitedLockedMoves.includes(orderStatus)) {
+        if (orderStatus !== oldOrderStatus && prohibitedLockedMoves.includes(orderStatus)) {
           alert("This is a paid/locked order. Cancellation or rejection requires the Admin Override section below.");
           return;
         }
       }
 
-      const carrierValue = $("detailCarrier").value.trim();
-      const trackingValue = $("detailTracking").value.trim();
+      // Natural workflow: when payment is accepted, move the order into Processing automatically.
+      const paymentAcceptedNow = oldPaymentStatus !== "paid" && paymentStatus === "paid";
+      if (paymentAcceptedNow && ["pending", "paid"].includes(orderStatus)) {
+        orderStatus = "processing";
+      }
 
+      // If tracking is entered while saving a non-hard-locked order, move it to Shipped.
+      const shippingNow = !hardLocked && trackingValue && carrierValue && orderStatus === "shipped";
+
+      if (shippingNow && !recipientEmail) {
+        alert("Enter the customer email address before marking this order shipped and sending the shipping email.");
+        return;
+      }
+
+      const auditEntries = [];
+      if (!locked && paymentStatus !== oldPaymentStatus) {
+        auditEntries.push(auditLine("PAYMENT STATUS CHANGED", [
+          `Payment status: ${statusLabel(oldPaymentStatus)} → ${statusLabel(paymentStatus)}`
+        ]));
+      }
+      if (!hardLocked && orderStatus !== oldOrderStatus) {
+        auditEntries.push(auditLine("ORDER STATUS CHANGED", [
+          `Order status: ${statusLabel(oldOrderStatus)} → ${statusLabel(orderStatus)}`
+        ]));
+      }
+      if (carrierValue || trackingValue) {
+        const oldCarrier = order.shipping_carrier || "";
+        const oldTracking = order.tracking_number || "";
+        if (carrierValue !== oldCarrier || trackingValue !== oldTracking) {
+          auditEntries.push(auditLine("TRACKING INFORMATION UPDATED", [
+            `Carrier: ${carrierValue || "not provided"}`,
+            `Tracking: ${trackingValue || "not provided"}`,
+            recipientEmail ? `Recipient: ${recipientEmail}` : ""
+          ]));
+        }
+      }
+
+      const timestamp = new Date().toISOString();
       const updates = {
         shipping_carrier: carrierValue || null,
         tracking_number: trackingValue || null,
-        admin_note: $("detailAdminNote").value.trim() || null,
-        updated_at: new Date().toISOString()
+        customer_email: recipientEmail || customerEmail(order) || null,
+        admin_note: appendAdminNote(order.admin_note, typedAdminNote && typedAdminNote !== (order.admin_note || "").trim() ? typedAdminNote : "", ...auditEntries),
+        updated_at: timestamp
       };
 
       if (!hardLocked) {
         updates.order_status = orderStatus;
         updates.rejection_reason = rejectionReason || null;
-        if (orderStatus === "shipped" && normalizeStatus(order.order_status) !== "shipped") updates.shipped_at = new Date().toISOString();
-        if (orderStatus === "rejected") updates.rejected_at = new Date().toISOString();
-      }
-
-      if (!hardLocked && trackingValue && carrierValue && ["pending", "processing", "paid"].includes(normalizeStatus(updates.order_status || order.order_status))) {
-        updates.order_status = "shipped";
-        updates.shipped_at = order.shipped_at || new Date().toISOString();
+        if (orderStatus === "shipped" && oldOrderStatus !== "shipped") updates.shipped_at = timestamp;
+        if (orderStatus === "rejected") updates.rejected_at = timestamp;
       }
 
       if (!locked) {
         updates.payment_status = paymentStatus;
       }
 
-      await updateOrders([orderId], updates, hardLocked ? "Tracking / notes updated. Protected order record remains locked." : "Order updated.");
+      setStatus("Saving order updates...");
+      const { error } = await supabaseClient
+        .from("orders")
+        .update(updates)
+        .eq("id", orderId);
+
+      if (error) {
+        setStatus(error.message, "bad");
+        throw error;
+      }
+
+      if (shouldRestoreInventoryFromUpdates(updates)) {
+        setStatus("Restoring inventory for cancelled/rejected/payment-failed order...");
+        await restoreInventoryForOrders(
+          [orderId],
+          updates.rejection_reason || updates.admin_note || "Inventory restored due to order/payment status update."
+        );
+      }
+
+      const emailEntries = [];
+      const updatedOrder = { ...order, ...updates };
+
+      // Payment accepted email + processing status notification.
+      if (paymentAcceptedNow) {
+        try {
+          const emailResult = await callOrderEmailFunction("payment_accepted", updatedOrder, { to: recipientEmail || undefined });
+          const resendId = emailResult?.responseData?.id || emailResult?.responseData?.data?.id || "not returned";
+          emailEntries.push(auditLine("PAYMENT ACCEPTED EMAIL SENT", [
+            `To: ${emailResult.to}`,
+            `Resend ID: ${resendId}`
+          ]));
+        } catch (err) {
+          emailEntries.push(auditLine("PAYMENT ACCEPTED EMAIL FAILED", [
+            `Error: ${err.message || err}`
+          ]));
+          setStatus("Order saved, but payment accepted email failed: " + (err.message || err), "bad");
+        }
+      }
+
+      // If admin uses Save Order Updates to mark shipped with tracking, send the shipping email too.
+      if (shippingNow) {
+        try {
+          const link = trackingUrl(carrierValue, trackingValue);
+          const emailResult = await callOrderEmailFunction("order_shipped", updatedOrder, {
+            to: recipientEmail,
+            carrier: carrierValue,
+            trackingNumber: trackingValue,
+            trackingUrl: link
+          });
+          const resendId = emailResult?.responseData?.id || emailResult?.responseData?.data?.id || "not returned";
+          emailEntries.push(auditLine("SHIPPING EMAIL SENT", [
+            `To: ${emailResult.to}`,
+            `Carrier: ${carrierValue}`,
+            `Tracking: ${trackingValue}`,
+            `Resend ID: ${resendId}`
+          ]));
+        } catch (err) {
+          emailEntries.push(auditLine("SHIPPING EMAIL FAILED", [
+            `To: ${recipientEmail}`,
+            `Carrier: ${carrierValue}`,
+            `Tracking: ${trackingValue}`,
+            `Error: ${err.message || err}`
+          ]));
+          setStatus("Order saved, but shipping email failed: " + (err.message || err), "bad");
+        }
+      }
+
+      if (emailEntries.length) {
+        await supabaseClient
+          .from("orders")
+          .update({
+            admin_note: appendAdminNote(updates.admin_note, ...emailEntries),
+            payment_accepted_email_sent_at: paymentAcceptedNow ? new Date().toISOString() : order.payment_accepted_email_sent_at || null,
+            shipping_email_sent_at: shippingNow ? new Date().toISOString() : order.shipping_email_sent_at || null,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", orderId);
+      }
+
+      if (!paymentAcceptedNow && !shippingNow) {
+        setStatus(hardLocked ? "Tracking / notes updated. Protected order record remains locked." : "Order updated.", "good");
+      } else if (!document.querySelector(".status-line.bad")) {
+        setStatus("Order updated and workflow email/action history recorded.", "good");
+      }
+
+      await loadOrders();
+      const active = allOrders.find(item => item.id === orderId);
+      if (active) renderOrderDetail(active);
     }
 
     async function rejectSingleOrder(orderId) {
