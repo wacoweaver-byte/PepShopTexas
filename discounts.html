@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pep Shop Texas | Discount Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --pst-blue: #0077c8;
+  --pst-dark: #101820;
+  --pst-light: #f5f8fb;
+  --pst-border: #d9e2ec;
+  --pst-muted: #667085;
+  --pst-success: #0f8a3b;
+  --pst-warning: #b7791f;
+  --pst-danger: #b42318;
+  --white: #ffffff;
+  --shadow: 0 10px 30px rgba(16, 24, 32, 0.08);
+  --radius: 16px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--pst-light);
+  color: var(--pst-dark);
+}
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--white);
+  border-bottom: 1px solid var(--pst-border);
+  box-shadow: 0 3px 18px rgba(16, 24, 32, 0.04);
+}
+a, button, input, select, textarea { font-family: inherit; }
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 13px;
+  background: var(--pst-blue);
+  color: var(--white);
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+}
+.btn:hover { filter: brightness(0.95); }
+.btn.secondary {
+  background: var(--white);
+  color: var(--pst-dark);
+  border: 1px solid var(--pst-border);
+}
+.btn.success { background: var(--pst-success); }
+.btn.danger { background: var(--pst-danger); }
+main {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 22px 18px 50px;
+}
+.page-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+h1 {
+  margin: 0 0 6px;
+  font-size: clamp(24px, 3vw, 36px);
+}
+.subtitle {
+  margin: 0;
+  color: var(--pst-muted);
+  line-height: 1.4;
+}
+.status-line {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  border: 1px solid var(--pst-border);
+  background: var(--white);
+  color: var(--pst-muted);
+  min-height: 42px;
+}
+.status-line.good {
+  color: var(--pst-success);
+  border-color: rgba(15, 138, 59, 0.25);
+  background: rgba(15, 138, 59, 0.06);
+}
+.status-line.bad {
+  color: var(--pst-danger);
+  border-color: rgba(180, 35, 24, 0.25);
+  background: rgba(180, 35, 24, 0.06);
+}
+.card {
+  background: var(--white);
+  border: 1px solid var(--pst-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--pst-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.card-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.card-body { padding: 16px; }
+.edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.edit-grid .full { grid-column: 1 / -1; }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  color: var(--pst-muted);
+}
+input, select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--pst-border);
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 14px;
+  background: var(--white);
+  color: var(--pst-dark);
+}
+.orders-table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+th, td {
+  text-align: left;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--pst-border);
+  vertical-align: middle;
+  font-size: 14px;
+}
+th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pst-muted);
+  background: #fbfcfe;
+}
+.muted {
+  color: var(--pst-muted);
+  font-size: 13px;
+}
+@media (max-width: 680px) {
+  .edit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* PST MASTER ADMIN HEADER - KEEP IDENTICAL ON ALL ADMIN PAGES */
+header .topbar {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+
+header .brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+header .brand small {
+  display: block !important;
+  color: #596579 !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin-top: 2px !important;
+}
+
+header .pst-admin-logo {
+  height: 54px !important;
+  width: auto !important;
+  max-width: 250px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+
+header .header-actions,
+header .actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+header .header-actions .btn,
+header .actions .btn,
+header .header-actions a.btn,
+header .actions a.btn,
+header .header-actions button.btn,
+header .actions button.btn {
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 10px 13px !important;
+  border-radius: 10px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+}
+
+header .header-actions .btn.secondary,
+header .actions .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+
+header .header-actions .btn.secondary.active,
+header .actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
+header .header-actions .btn.danger,
+header .actions .btn.danger {
+  background: #b42318 !important;
+  color: #ffffff !important;
+  border: 1px solid #b42318 !important;
+}
+
+header .header-actions .btn:hover,
+header .actions .btn:hover {
+  filter: brightness(0.95) !important;
+}
+
+@media (max-width: 640px) {
+  header .topbar {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+  header .header-actions,
+  header .actions {
+    justify-content: flex-start !important;
+  }
+  header .pst-admin-logo {
+    height: 46px !important;
+    max-width: 220px !important;
+  }
+}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <img class="pst-admin-logo" src="assets/icons/apple-touch-icon.png" alt="Pep Shop Texas logo">
+      <div><small>Discount Management</small></div>
+    </div>
+    <div class="actions">
+      <a class="btn secondary" href="admin.html">Orders</a>
+      <a class="btn secondary" href="inventory.html">Inventory</a>
+      <a class="btn secondary" href="products.html">Products</a>
+      <a class="btn secondary active" href="discounts.html">Discounts</a>
+      <a class="btn secondary" href="index.html">Website</a>
+      <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="page-title">
+    <div>
+      <h1>Discount Management</h1>
+      <p class="subtitle">Create and manage promo codes, one-time offers, customer-specific codes, and Friends & Family discounts.</p>
+    </div>
+  </section>
+
+  <div id="statusLine" class="status-line">Checking admin access...</div>
+
+  <section class="card" style="margin-top:18px;">
+    <div class="card-header">
+      <h2>Create / Manage Discount</h2>
+      <span class="muted">Codes save to Supabase and can be used during checkout.</span>
+    </div>
+    <div class="card-body">
+      <div class="edit-grid">
+        <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /></div>
+        <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select></div>
+        <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /></div>
+        <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /></div>
+        <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /></div>
+        <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /></div>
+        <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /></div>
+        <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+        <button class="btn success full" id="createDiscountBtn" type="button">Create / Save Discount</button>
+      </div>
+
+      <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
+
+      <div class="orders-table-wrap" style="margin-top:14px;">
+        <table>
+          <thead>
+            <tr><th>Code</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Status</th></tr>
+          </thead>
+          <tbody id="discountCodesBody"><tr><td colspan="7" class="muted">Loading discount codes...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+const $ = (id) => document.getElementById(id);
+
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);
+}
+
+function money(value) {
+  return "$" + Number(value || 0).toFixed(2);
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString();
+}
+
+function setStatus(message, type = "") {
+  const el = $("statusLine");
+  el.textContent = message;
+  el.className = "status-line";
+  if (type) el.classList.add(type);
+}
+
+function setDiscountAdminStatus(message, type = "info") {
+  const el = $("discountAdminStatus");
+  if (!el) return;
+  el.className = "status-line " + (type === "good" ? "good" : type === "bad" ? "bad" : "");
+  el.textContent = message;
+}
+
+async function checkAdminAccess() {
+  setStatus("Checking admin access...");
+
+  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+  if (sessionError) throw sessionError;
+
+  const session = sessionData?.session;
+  if (!session?.user) {
+    setStatus("You are not logged in. Please log in from the website first, then return to discounts.html.", "bad");
+    return false;
+  }
+
+  currentUser = session.user;
+
+  const checks = [
+    supabaseClient.from("admin_users").select("*").eq("user_id", currentUser.id).maybeSingle(),
+    supabaseClient.from("admin_users").select("*").eq("email", currentUser.email).maybeSingle()
+  ];
+
+  const results = await Promise.allSettled(checks);
+  const adminRows = results
+    .filter(result => result.status === "fulfilled" && result.value?.data)
+    .map(result => result.value.data);
+
+  const admin = adminRows.find(row => row && (row.is_active === true || row.active === true || row.is_admin === true || row.email === currentUser.email));
+
+  if (!admin) {
+    setStatus("Access denied. This login is not listed as an active Pep Shop Texas admin.", "bad");
+    return false;
+  }
+
+  setStatus(`Admin access confirmed for ${currentUser.email}.`, "good");
+  return true;
+}
+
+async function loadDiscountCodes() {
+  const body = $("discountCodesBody");
+  if (!body) return;
+
+  const { data, error } = await supabaseClient
+    .from("discount_codes")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    body.innerHTML = `<tr><td colspan="7" class="muted">${safe(error.message)}</td></tr>`;
+    return;
+  }
+
+  if (!data || !data.length) {
+    body.innerHTML = `<tr><td colspan="7" class="muted">No discount codes yet.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = data.map(row => {
+    const pct = Number(row.percent_off || row.discount_percent || 0);
+    const amt = Number(row.amount_off || row.discount_amount || 0);
+    const discountText = pct ? `${pct}%` : amt ? money(amt) : "—";
+    const uses = `${Number(row.times_used || row.uses || 0)} / ${Number(row.max_uses || 0) || "∞"}`;
+    return `<tr>
+      <td><strong>${safe(row.code)}</strong></td>
+      <td>${safe(row.discount_type || "standard")}</td>
+      <td>${discountText}</td>
+      <td>${safe(row.assigned_email || "Any customer")}</td>
+      <td>${uses}</td>
+      <td>${row.expires_at ? formatDate(row.expires_at) : "No expiration"}</td>
+      <td>${row.active ? "Active" : "Inactive"}</td>
+    </tr>`;
+  }).join("");
+}
+
+async function createDiscountCode() {
+  const code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase();
+  const discountType = $("discountTypeAdmin")?.value || "standard";
+  const percentOff = Number($("discountPercentAdmin")?.value || 0);
+  const amountOff = Number($("discountAmountAdmin")?.value || 0);
+  const assignedEmail = ($("discountEmailAdmin")?.value || "").trim().toLowerCase() || null;
+  const expiresValue = $("discountExpiresAdmin")?.value || "";
+  const maxUsesRaw = Number($("discountMaxUsesAdmin")?.value || 0);
+  const active = ($("discountActiveAdmin")?.value || "true") === "true";
+
+  if (!code) return setDiscountAdminStatus("Enter a discount code.", "bad");
+  if (percentOff <= 0 && amountOff <= 0) return setDiscountAdminStatus("Enter either a percent off or dollar off amount.", "bad");
+  if (percentOff > 100) return setDiscountAdminStatus("Percent off cannot be more than 100%.", "bad");
+
+  const payload = {
+    code,
+    discount_type: discountType,
+    percent_off: percentOff || 0,
+    amount_off: amountOff || 0,
+    assigned_email: assignedEmail,
+    one_time_use: discountType === "one_time",
+    max_uses: maxUsesRaw || (discountType === "one_time" ? 1 : null),
+    active,
+    expires_at: expiresValue ? new Date(expiresValue + "T23:59:59").toISOString() : null,
+    created_by: currentUser?.email || null
+  };
+
+  setDiscountAdminStatus("Saving discount code...");
+  const { error } = await supabaseClient.from("discount_codes").upsert(payload, { onConflict: "code" });
+
+  if (error) return setDiscountAdminStatus(error.message, "bad");
+
+  setDiscountAdminStatus(`Discount code ${code} saved.`, "good");
+  ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","discountEmailAdmin","discountExpiresAdmin","discountMaxUsesAdmin"].forEach(id => {
+    const el = $(id);
+    if (el) el.value = "";
+  });
+  await loadDiscountCodes();
+}
+
+async function init() {
+  try {
+    $("refreshBtn").addEventListener("click", loadDiscountCodes);
+    $("createDiscountBtn").addEventListener("click", createDiscountCode);
+    $("signOutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = "index.html";
+    });
+
+    const isAdmin = await checkAdminAccess();
+    if (!isAdmin) return;
+
+    await loadDiscountCodes();
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "Something went wrong loading Discount Management.", "bad");
+  }
+}
+
+init();
+</script>
+</body>
+</html>
