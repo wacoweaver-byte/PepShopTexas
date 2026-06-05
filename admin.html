@@ -942,7 +942,8 @@
       if (ordersError) throw ordersError;
 
       const orderIds = (orders || []).map(order => order.id).filter(Boolean);
-      const userIds = [...new Set((orders || []).map(order => order.user_id).filter(Boolean))];
+      const userIds = [...new Set((orders || []).flatMap(order => [order.user_id, order.customer_id]).filter(Boolean))];
+      const profileIds = [...new Set((orders || []).flatMap(order => [order.profile_id, order.customer_profile_id, order.customer_id]).filter(Boolean))];
 
       let itemsByOrder = {};
       if (orderIds.length) {
@@ -962,6 +963,7 @@
       }
 
       let profilesByUser = {};
+      let profilesById = {};
       if (userIds.length) {
         const { data: profiles, error: profilesError } = await supabaseClient
           .from("customer_profiles")
@@ -970,16 +972,31 @@
 
         if (!profilesError && Array.isArray(profiles)) {
           profilesByUser = profiles.reduce((acc, profile) => {
-            acc[profile.user_id] = profile;
+            if (profile.user_id) acc[profile.user_id] = profile;
+            if (profile.id) profilesById[profile.id] = profile;
             return acc;
           }, {});
+        }
+      }
+
+      if (profileIds.length) {
+        const { data: profilesByPk, error: profilesByPkError } = await supabaseClient
+          .from("customer_profiles")
+          .select("*")
+          .in("id", profileIds);
+
+        if (!profilesByPkError && Array.isArray(profilesByPk)) {
+          profilesByPk.forEach(profile => {
+            if (profile.id) profilesById[profile.id] = profile;
+            if (profile.user_id) profilesByUser[profile.user_id] = profile;
+          });
         }
       }
 
       allOrders = (orders || []).map(order => ({
         ...order,
         order_items: itemsByOrder[order.id] || [],
-        profile: profilesByUser[order.user_id] || null,
+        profile: profilesByUser[order.user_id] || profilesByUser[order.customer_id] || profilesById[order.profile_id] || profilesById[order.customer_profile_id] || profilesById[order.customer_id] || null,
         order_status: order.order_status || order.status || "pending",
         payment_status: order.payment_status || "pending"
       }));
@@ -1162,7 +1179,7 @@
             <div class="field full">
               <label for="detailShippingEmail">Shipping Email Recipient</label>
               <input id="detailShippingEmail" type="email" placeholder="customer@email.com" value="${safe(customerEmail(order)) === "—" ? "" : safe(customerEmail(order))}" />
-              <div class="muted" style="margin-top:6px;">If this is blank, enter the customer's email before sending the shipping notification.</div>
+              <div class="muted" style="margin-top:6px;">Auto-filled from the order or customer profile when available. If blank, enter the customer's email before sending.</div>
             </div>
 
             <div class="field full">
@@ -1332,6 +1349,7 @@
       const updates = {
         shipping_carrier: carrier,
         tracking_number: trackingNumber,
+        customer_email: recipientEmail,
         order_status: "shipped",
         shipped_at: order.shipped_at || timestamp,
         admin_note: [existingNote, adminNote && adminNote !== existingNote ? adminNote : "", trackingEntry].filter(Boolean).join("\n\n"),
