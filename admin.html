@@ -531,6 +531,35 @@
       margin-bottom: 3px;
     }
 
+
+
+    .override-box {
+      margin-top: 12px;
+      padding: 13px;
+      border: 1px solid rgba(180, 35, 24, 0.22);
+      background: rgba(180, 35, 24, 0.055);
+      border-radius: 12px;
+    }
+
+    .override-box h4 {
+      margin: 0 0 8px;
+      color: var(--pst-danger);
+      font-size: 15px;
+    }
+
+    .override-box p {
+      margin: 0 0 12px;
+      color: #5f2a24;
+      line-height: 1.45;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .override-box .btn {
+      width: 100%;
+      margin-top: 10px;
+    }
+
     .field.locked-control select,
     .field.locked-control input,
     .field.locked-control textarea {
@@ -740,6 +769,54 @@
             ? "This order is a protected business record. Status/payment edits are disabled. Tracking and internal notes may still be updated."
             : "Payment has been recorded. Financial details are protected. You may continue fulfillment by adding tracking or moving the order forward."
           }
+        </div>
+      `;
+    }
+
+
+
+    function canRequestCancelOverride(order) {
+      const payment = normalizeStatus(order.payment_status);
+      const status = normalizeStatus(order.order_status);
+      return payment === "paid" && ["pending", "processing"].includes(status);
+    }
+
+    function lockedCancelOverrideMarkup(order) {
+      if (!canRequestCancelOverride(order)) return "";
+      return `
+        <div class="override-box full">
+          <h4>Admin Override Required: Cancel Paid Order</h4>
+          <p>
+            This order is paid but has not shipped. Cancelling requires admin approval and a documented reason.
+            Use this only for customer-requested cancellation before shipment, inventory stock-level error, duplicate order,
+            payment/customer-service correction, or owner-approved exception.
+          </p>
+          <div class="edit-grid">
+            <div class="field">
+              <label for="overrideReason">Override Reason</label>
+              <select id="overrideReason">
+                <option value="">Select reason...</option>
+                <option value="Customer requested cancellation before shipment">Customer request before shipment</option>
+                <option value="Inventory stock-level error">Inventory stock-level error</option>
+                <option value="Duplicate order">Duplicate order</option>
+                <option value="Payment or customer-service correction">Payment / customer-service correction</option>
+                <option value="Owner-approved exception">Owner-approved exception</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="overrideApproval">Approval Initials / Name</label>
+              <input id="overrideApproval" type="text" placeholder="Example: Jimmie Weaver" />
+            </div>
+            <div class="field full">
+              <label for="overrideNote">Override Note</label>
+              <textarea id="overrideNote" placeholder="Document what happened, who approved it, and how the customer was notified."></textarea>
+            </div>
+            <label class="field full" style="display:grid;grid-template-columns:22px 1fr;align-items:start;gap:10px;text-transform:none;letter-spacing:0;color:#111;font-size:13px;">
+              <input id="overrideRefundConfirmed" type="checkbox" style="width:18px;height:18px;min-height:18px;margin-top:1px;" />
+              <span>I confirm refund, store credit, or other payment remedy has been handled or approved outside this admin page.</span>
+            </label>
+          </div>
+          <button class="btn danger" id="overrideCancelBtn" type="button">Approve Override & Cancel Order</button>
         </div>
       `;
     }
@@ -1046,7 +1123,8 @@
             </div>
 
             <button class="btn success full" id="saveOrderBtn" type="button">${hardLocked ? "Save Tracking / Notes" : "Save Order Updates"}</button>
-            <button class="btn danger full" id="rejectOrderBtn" type="button" ${hardLocked ? "disabled" : ""}>Reject This Order / Out of Stock</button>
+            <button class="btn danger full" id="rejectOrderBtn" type="button" ${locked ? "disabled" : ""}>Reject This Order / Out of Stock</button>
+            ${lockedCancelOverrideMarkup(order)}
             ${hardLocked ? `<div class="note-box full"><strong>Protected Record:</strong> To resend a lost or damaged shipment later, use the future Replacement Shipment workflow instead of editing this original order.</div>` : ""}
           </div>
         </div>
@@ -1054,6 +1132,8 @@
 
       $("saveOrderBtn").addEventListener("click", () => saveSingleOrder(order.id));
       $("rejectOrderBtn").addEventListener("click", () => rejectSingleOrder(order.id));
+      const overrideCancelBtn = $("overrideCancelBtn");
+      if (overrideCancelBtn) overrideCancelBtn.addEventListener("click", () => approveCancelLockedOrder(order.id));
     }
 
 
@@ -1099,6 +1179,15 @@
         return;
       }
 
+      if (locked && !hardLocked) {
+        const currentStatus = normalizeStatus(order.order_status);
+        const prohibitedLockedMoves = ["pending", "cancelled", "rejected"];
+        if (orderStatus !== currentStatus && prohibitedLockedMoves.includes(orderStatus)) {
+          alert("This is a paid/locked order. Cancellation or rejection requires the Admin Override section below.");
+          return;
+        }
+      }
+
       const updates = {
         shipping_carrier: $("detailCarrier").value.trim() || null,
         tracking_number: $("detailTracking").value.trim() || null,
@@ -1122,8 +1211,8 @@
 
     async function rejectSingleOrder(orderId) {
       const order = allOrders.find(item => item.id === orderId);
-      if (order && isOrderHardLocked(order)) {
-        alert("This order is locked. Use a refund, store credit, or replacement shipment workflow instead of rejecting the original order.");
+      if (order && isOrderLocked(order)) {
+        alert("This order is locked. Paid/shipped/delivered orders require an admin override, refund, store credit, or replacement shipment workflow instead of rejecting the original order.");
         return;
       }
       const reason = $("detailRejectionReason").value.trim() || prompt("Enter the reason this order is being rejected / out of stock:");
@@ -1139,6 +1228,68 @@
         rejected_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }, "Order rejected / marked out of stock.");
+    }
+
+
+
+    async function approveCancelLockedOrder(orderId) {
+      const order = allOrders.find(item => item.id === orderId);
+      if (!order) {
+        alert("Order not found. Refresh and try again.");
+        return;
+      }
+
+      if (!canRequestCancelOverride(order)) {
+        alert("Override cancellation is only available for paid orders that have not shipped yet.");
+        return;
+      }
+
+      const reason = $("overrideReason")?.value || "";
+      const approval = $("overrideApproval")?.value.trim() || "";
+      const note = $("overrideNote")?.value.trim() || "";
+      const refundConfirmed = $("overrideRefundConfirmed")?.checked;
+
+      if (!reason) {
+        alert("Select an override reason.");
+        return;
+      }
+      if (!approval) {
+        alert("Enter the approving admin name or initials.");
+        return;
+      }
+      if (!note) {
+        alert("Enter an override note explaining what happened and how the customer was handled.");
+        return;
+      }
+      if (!refundConfirmed) {
+        alert("Confirm that the refund, store credit, or payment remedy has been handled or approved.");
+        return;
+      }
+
+      const confirmText = `Approve override and cancel ${orderDisplayId(order)}?\n\nReason: ${reason}\nApproved by: ${approval}\n\nThis will mark the order Cancelled, mark payment Refunded, restore inventory, and preserve the original order record.`;
+      if (!confirm(confirmText)) return;
+
+      const timestamp = new Date().toISOString();
+      const existingNote = (order.admin_note || "").trim();
+      const overrideEntry = [
+        `[${new Date(timestamp).toLocaleString()}] ADMIN OVERRIDE APPROVED`,
+        `Reason: ${reason}`,
+        `Approved by: ${approval}`,
+        `Admin account: ${currentUser?.email || "unknown"}`,
+        `Note: ${note}`
+      ].join(" | ");
+
+      await updateOrders([orderId], {
+        order_status: "cancelled",
+        payment_status: "refunded",
+        rejection_reason: reason,
+        admin_note: existingNote ? `${existingNote}\n\n${overrideEntry}` : overrideEntry,
+        override_reason: reason,
+        override_approved_by: approval,
+        override_approved_at: timestamp,
+        cancelled_at: timestamp,
+        updated_at: timestamp
+      }, "Admin override approved. Paid order cancelled and inventory restoration requested.");
     }
 
     async function updateOrders(ids, updates, message) {
