@@ -605,6 +605,12 @@
       text-decoration: underline;
     }
 
+
+    #discount-management {
+      scroll-margin-top: 92px;
+    }
+
+
 </style>
 </head>
 <body>
@@ -615,6 +621,7 @@
         <a class="btn secondary" href="index.html">← Back to Website</a>
         <a class="btn secondary" href="inventory.html">Inventory</a>
         <a class="btn secondary" href="products.html">Products</a>
+        <a class="btn secondary" href="#discount-management">Discounts</a>
         <button class="btn secondary" id="refreshBtn" type="button">Refresh Orders</button>
         <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
       </div>
@@ -630,6 +637,25 @@
     </section>
 
     <div id="statusLine" class="status-line">Checking admin access...</div>
+
+    <section class="card" id="discount-management" style="margin-top:18px;">
+      <div class="card-header"><h2>Discount Management</h2><span class="muted">Create and manage promo codes, one-time offers, and Friends & Family discounts.</span></div>
+      <div class="card-body">
+        <div class="edit-grid">
+          <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /></div>
+          <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select></div>
+          <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /></div>
+          <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /></div>
+          <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /></div>
+          <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /></div>
+          <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /></div>
+          <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+          <button class="btn success full" id="createDiscountBtn" type="button">Create / Save Discount</button>
+        </div>
+        <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
+        <div class="orders-table-wrap" style="margin-top:14px;"><table><thead><tr><th>Code</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Status</th></tr></thead><tbody id="discountCodesBody"><tr><td colspan="7" class="muted">Loading discount codes...</td></tr></tbody></table></div>
+      </div>
+    </section>
 
     <section class="admin-grid" style="margin-top:18px;">
       <div class="card">
@@ -698,24 +724,7 @@
       </aside>
     </section>
 
-    <section class="card" style="margin-top:18px;">
-      <div class="card-header"><h2>Discount Management</h2></div>
-      <div class="card-body">
-        <div class="edit-grid">
-          <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /></div>
-          <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select></div>
-          <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /></div>
-          <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /></div>
-          <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /></div>
-          <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /></div>
-          <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /></div>
-          <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select></div>
-          <button class="btn success full" id="createDiscountBtn" type="button">Create / Save Discount</button>
-        </div>
-        <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
-        <div class="orders-table-wrap" style="margin-top:14px;"><table><thead><tr><th>Code</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Status</th></tr></thead><tbody id="discountCodesBody"><tr><td colspan="7" class="muted">Loading discount codes...</td></tr></tbody></table></div>
-      </div>
-    </section>
+
   </main>
 
   <script>
