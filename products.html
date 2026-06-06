@@ -33,7 +33,7 @@ h1 { margin:0 0 6px; font-size:clamp(26px,3vw,38px); }
 .status.bad { background:#fff0f0; color:var(--red); border-color:#ffb8c0; }
 .card { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.06); overflow:hidden; }
 .card-head { padding:14px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end; }
-.filters { display:grid; grid-template-columns:1.2fr .7fr .7fr .7fr; gap:10px; }
+.filters { display:grid; grid-template-columns:1.2fr .7fr .7fr .7fr .7fr; gap:10px; }
 .field { display:flex; flex-direction:column; gap:5px; }
 label { font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-weight:900; color:var(--muted); }
 input,select,textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:8px 9px; font-size:14px; background:#fff; }
@@ -268,7 +268,7 @@ header .actions .btn:hover {
 
 <main>
   <h1>Products</h1>
-  <p class="subtitle">Spreadsheet-style product catalog management. Edit product details, add new products, control featured status, and preview dynamic PST label cards.</p>
+  <p class="subtitle">Spreadsheet-style product catalog management. Edit product details, add new products, control featured status, and preview dynamic PST label cards. <strong>Hot Peptide = Yes controls the homepage Hot Peptides carousel.</strong></p>
   <div id="status" class="status">Checking admin access...</div>
 
   <section class="card">
@@ -302,8 +302,8 @@ header .actions .btn:hover {
           <label>Hot Peptide</label>
           <select id="hotFilter">
             <option value="">All</option>
-            <option value="true">Hot Peptides Only</option>
-            <option value="false">Not Hot</option>
+            <option value="true">Hot Peptides only</option>
+            <option value="false">Not hot</option>
           </select>
         </div>
       </div>
@@ -335,7 +335,6 @@ header .actions .btn:hover {
             <th>Category</th>
             <th>Series</th>
             <th>Price</th>
-            
             <th>Reconstitution</th>
             <th>Active</th>
             <th>Featured</th>
@@ -357,14 +356,6 @@ header .actions .btn:hover {
       </table>
     </div>
   </section>
-
-<!-- PST UPDATE:
-Inventory column removed.
-Added Hot Peptide Yes/No field.
-Intended for homepage Hot Peptides hero card/carousel integration.
-Database field expected: hot_peptide (boolean).
--->
-
 </main>
 
 <script>
@@ -549,6 +540,7 @@ function applyFilters() {
   const category = $("categoryFilter").value;
   const active = $("activeFilter").value;
   const featured = $("featuredFilter").value;
+  const hot = $("hotFilter") ? $("hotFilter").value : "";
 
   filteredProducts = allProducts.filter(product => {
     const text = [
@@ -559,7 +551,8 @@ function applyFilters() {
     return (!search || text.includes(search))
       && (!category || product.category === category)
       && (!active || String(product.is_active) === active)
-      && (!featured || String(product.featured) === featured);
+      && (!featured || String(product.featured) === featured)
+      && (!hot || String(product.hot_peptide === true) === hot);
   });
 
   renderTable();
@@ -583,7 +576,6 @@ function renderTable() {
         <td><input class="short" data-field="category" value="${esc(product.category || "")}"></td>
         <td><input class="short" data-field="series" value="${esc(product.series || "")}"></td>
         <td><input class="price" data-field="price" type="number" step="0.01" value="${money(product.price)}"></td>
-        <td><input class="num" data-field="current_inventory" type="number" step="1" min="0" value="${Number(product.current_inventory || 0)}"></td>
         <td><input class="short" data-field="reconstitution" value="${esc(product.reconstitution || "2 mL")}"></td>
         <td>
           <span class="status-pill ${product.is_active !== false ? "active-pill" : "inactive-pill"}">${product.is_active !== false ? "Visible" : "Hidden"}</span>
@@ -596,6 +588,12 @@ function renderTable() {
           <select data-field="featured">
             <option value="false" ${!product.featured ? "selected" : ""}>No</option>
             <option value="true" ${product.featured ? "selected" : ""}>Yes</option>
+          </select>
+        </td>
+        <td>
+          <select data-field="hot_peptide">
+            <option value="false" ${!product.hot_peptide ? "selected" : ""}>No</option>
+            <option value="true" ${product.hot_peptide ? "selected" : ""}>Yes</option>
           </select>
         </td>
         <td>
@@ -650,7 +648,7 @@ function getRowData(id) {
     let value = input.value;
     if (["price"].includes(field)) value = Number(value || 0);
     if (["current_inventory"].includes(field)) value = Number(value || 0);
-    if (["is_active","featured","blend_stack"].includes(field)) value = value === "true";
+    if (["is_active","featured","hot_peptide","blend_stack"].includes(field)) value = value === "true";
     data[field] = value;
   });
 
@@ -679,9 +677,9 @@ async function saveRow(id) {
     research_notes: data.research_notes || null,
     reconstitution: data.reconstitution || "2 mL",
     price: Number(data.price || 0),
-    current_inventory: Number(data.current_inventory || 0),
     is_active: data.is_active !== false,
     featured: data.featured === true,
+    hot_peptide: data.hot_peptide === true,
     blend_stack: data.blend_stack === true,
     image_data: data.image_data || null,
     image_file: data.image_data || null,
