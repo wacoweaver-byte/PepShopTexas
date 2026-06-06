@@ -33,7 +33,7 @@ h1 { margin:0 0 6px; font-size:clamp(26px,3vw,38px); }
 .status.bad { background:#fff0f0; color:var(--red); border-color:#ffb8c0; }
 .card { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.06); overflow:hidden; }
 .card-head { padding:14px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end; }
-.filters { display:grid; grid-template-columns:1.2fr .7fr .7fr .7fr .7fr; gap:10px; }
+.filters { display:grid; grid-template-columns:1.2fr .7fr .7fr; gap:10px; }
 .field { display:flex; flex-direction:column; gap:5px; }
 label { font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-weight:900; color:var(--muted); }
 input,select,textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:8px 9px; font-size:14px; background:#fff; }
@@ -305,7 +305,7 @@ header .actions .btn:hover {
 
 <main>
   <h1>Products</h1>
-  <p class="subtitle">Spreadsheet-style product catalog management. Edit product details, add new products, control featured status, and preview dynamic PST label cards. <strong>Hot Peptide = Yes controls the homepage Hot Peptides carousel.</strong></p>
+  <p class="subtitle">Spreadsheet-style product catalog management. Edit product details, active status, Hot Peptide status, Stack/Blend status, research notes, COA links, and product images. Inventory, pricing, and stock thresholds are handled on the Inventory page.</p>
   <div id="status" class="status">Checking admin access...</div>
   <p class="note"><strong>Note:</strong> Save errors now display exact Supabase messages. Hot Peptide requires a boolean column named <code>hot_peptide</code> in the <code>product_catalog</code> table.</p>
 
@@ -350,7 +350,7 @@ header .actions .btn:hover {
         <span class="note">New products save into Supabase and can appear alphabetically on the public site once active.</span>
       </div>
       <div class="toolbar-right">
-        <span class="note"><strong>Dynamic Label:</strong> Hybrid image system: approved PNGs display first; products without approved artwork can use the approved PST blank vial template overlay; products marked Needs Image are hidden publicly.</span>
+        <span class="note"><strong>Products Admin:</strong> Use this page for catalog content and homepage display flags. Use Inventory Admin for prices, inventory counts, and stock thresholds.</span>
       </div>
     </div>
 
@@ -383,8 +383,7 @@ header .actions .btn:hover {
             <th>Strength</th>
             <th>Category</th>
             <th>Series</th>
-            <th>Price</th>
-            <th>Reconstitution</th>
+<th>Reconstitution</th>
             <th>Active</th>
                         <th>Hot Peptide</th>
             <th>Stack / Blend</th>
@@ -632,8 +631,7 @@ function renderTable() {
         <td><input class="short" data-field="strength" value="${esc(product.strength || "")}"></td>
         <td><input class="short" data-field="category" value="${esc(product.category || "")}"></td>
         <td><input class="short" data-field="series" value="${esc(product.series || "")}"></td>
-        <td><input class="price" data-field="price" type="number" step="0.01" value="${money(product.price)}"></td>
-        <td><input class="short" data-field="reconstitution" value="${esc(product.reconstitution || "2 mL")}"></td>
+<td><input class="short" data-field="reconstitution" value="${esc(product.reconstitution || "2 mL")}"></td>
         <td>
           <span class="status-pill ${product.is_active !== false ? "active-pill" : "inactive-pill"}">${product.is_active !== false ? "Visible" : "Hidden"}</span>
           <select data-field="is_active">
@@ -697,8 +695,6 @@ function getRowData(id) {
   row.querySelectorAll("[data-field]").forEach(input => {
     const field = input.dataset.field;
     let value = input.value;
-    if (["price"].includes(field)) value = Number(value || 0);
-    if (["current_inventory"].includes(field)) value = Number(value || 0);
     if (["is_active","hot_peptide","blend_stack"].includes(field)) value = value === "true";
     data[field] = value;
   });
@@ -731,7 +727,6 @@ async function saveRow(id) {
       description: data.description || null,
       research_notes: data.research_notes || null,
       reconstitution: data.reconstitution || "2 mL",
-      price: Number(data.price || 0),
       is_active: data.is_active !== false,
       hot_peptide: data.hot_peptide === true,
       blend_stack: data.blend_stack === true,
@@ -909,10 +904,6 @@ async function addProduct() {
     description: "Research-use product detail page. For research use only. Not for human or veterinary use. Not medical advice.",
     research_notes: null,
     reconstitution: "2 mL",
-    price: 0,
-    current_inventory: 0,
-    low_stock_threshold: 5,
-    limited_stock_threshold: 10,
     is_active: true,
     featured: false,
     blend_stack: false,
@@ -950,8 +941,6 @@ async function importProductsJson() {
     description: p.description || "Research-use product detail page. For research use only. Not for human or veterinary use. Not medical advice.",
     research_notes: p.research_notes || null,
     reconstitution: p.reconstitution || "2 mL",
-    price: Number(p.price || 0),
-    current_inventory: Number(p.inventory || 0),
     is_active: p.active !== false,
     featured: p.featured === true,
     blend_stack: p.blendStack === true,
