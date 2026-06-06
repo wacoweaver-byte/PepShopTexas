@@ -1650,18 +1650,198 @@ button.disabled-cart,
   .home-promo-card-body { grid-template-rows: 18px 42px 38px auto !important; }
 }
 
+
+/* PST 2026-06: clean three-card homepage showcase */
+.construction-banner { display: none !important; }
+
+.home-showcase {
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr 1fr;
+  gap: 18px;
+  align-items: stretch;
+  padding-top: 30px !important;
+  padding-bottom: 30px !important;
+}
+
+.home-showcase-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(0,0,0,.07);
+  padding: 16px;
+  min-height: 310px;
+  overflow: hidden;
+}
+
+.home-showcase-title {
+  margin: 0 0 14px !important;
+  text-align: center !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 22px !important;
+  line-height: 1.2 !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: .02em !important;
+  color: #111 !important;
+}
+
+.home-static-promotion {
+  height: calc(100% - 42px);
+  min-height: 235px;
+  border: 1px solid #d9e7ff;
+  border-radius: 14px;
+  background: linear-gradient(180deg,#ffffff 0%,#f4f8ff 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 22px 18px;
+}
+
+.home-promo-eyebrow {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: .04em;
+  margin-bottom: 10px;
+}
+
+.home-static-promotion h3 {
+  margin: 0 0 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 400;
+  text-align: center;
+  color: #111;
+}
+
+.home-static-promotion p {
+  margin: 0 0 16px;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 400;
+  text-align: center;
+  color: #333;
+}
+
+.home-promo-code-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--blue);
+  color: var(--blue);
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 9px 15px;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.home-mini-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 12px;
+}
+
+.home-mini-carousel::-webkit-scrollbar { height: 8px; }
+.home-mini-carousel::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 999px; }
+.home-mini-carousel::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 999px; }
+
+.home-mini-product {
+  flex: 0 0 210px;
+  max-width: 210px;
+  min-height: 235px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  scroll-snap-align: start;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.home-mini-product-image {
+  height: 135px;
+  background: linear-gradient(180deg,#ffffff 0%,#f7f9fb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px;
+}
+
+.home-mini-product-image img {
+  max-width: 100%;
+  max-height: 118px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.home-mini-product-body { padding: 12px; text-align: center; }
+
+.home-mini-product-body h3 {
+  margin: 0 0 7px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.15;
+  font-weight: 400;
+  text-align: center;
+  color: #111;
+}
+
+.home-mini-product-body p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 400;
+  text-align: center;
+  color: #555;
+}
+
+.home-mini-empty {
+  flex: 1 0 230px;
+  min-height: 235px;
+  border: 1px dashed #c9d7ea;
+  border-radius: 14px;
+  background: #fbfcfe;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+@media(max-width: 980px) {
+  .home-showcase { grid-template-columns: 1fr; }
+  .home-showcase-card { min-height: auto; }
+}
+
+@media(max-width: 560px) {
+  .home-showcase { padding-left: 18px !important; padding-right: 18px !important; }
+  .home-mini-product { flex-basis: 185px; max-width: 185px; }
+  .home-mini-product-image { height: 120px; }
+  .home-mini-product-image img { max-height: 104px; }
+  .home-showcase-title { font-size: 20px !important; }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="construction-banner" aria-label="Under construction notice">
-  <div class="construction-track">
-    <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
-    <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
-    <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
-    <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
-  </div>
-</div>
 <div class="top-strip">
   <span>🚚 Shipping options available</span>
   <span>Research use only — not for human or veterinary use — not medical advice</span>
@@ -1715,24 +1895,27 @@ button.disabled-cart,
 
 <main>
   
-  <section id="home" class="hero wrap">
-    <div class="hero-copy">
-      <h1>Premium Peptides <span>For Advanced Research</span></h1>
-      <p>High purity. Third-party tested.<br>Trusted by researchers nationwide.</p>
-      <div class="hero-actions">
-        <a class="btn primary" href="#az">Shop Peptides A-Z</a>
-        <a class="btn secondary" href="#featured">Shop Featured Stacks</a>
-      </div>
+  <section id="home" class="home-showcase wrap">
+  <article class="home-showcase-card home-showcase-promotion">
+    <h2 class="home-showcase-title">Promotions</h2>
+    <div id="homeStaticPromotion" class="home-static-promotion">
+      <div class="home-promo-eyebrow">Current Offer</div>
+      <h3>America 250</h3>
+      <p>15% off your order</p>
+      <div class="home-promo-code-pill">Code: AMERICA250</div>
     </div>
+  </article>
 
-    <div class="home-promo-strip" id="homePromoStrip">
-      <div class="home-promo-strip-head">
-        <h2 class="home-promo-strip-title">Promotions & Featured Picks</h2>
-        <span class="home-promo-strip-note">Swipe or scroll sideways</span>
-      </div>
-      <div class="home-promo-cards" id="homePromoCards" aria-label="Promotions and featured picks"></div>
-    </div>
-  </section>
+  <article class="home-showcase-card">
+    <h2 class="home-showcase-title">Blends &amp; Stacks</h2>
+    <div id="homeBlendsCards" class="home-mini-carousel" aria-label="Blends and stacks"></div>
+  </article>
+
+  <article class="home-showcase-card">
+    <h2 class="home-showcase-title">Hot Peptides</h2>
+    <div id="homeHotPeptideCards" class="home-mini-carousel" aria-label="Hot peptides"></div>
+  </article>
+</section>
 
 <section class="trust-row">
     <div class="trust-item"><div class="trust-icon">☑</div><div><strong>Lab Tested</strong><span>Every batch 3rd party tested</span></div></div>
@@ -2527,7 +2710,12 @@ if (document.readyState === "loading") {
 </script>
 
 <script>
-const pstHomePromoCards = [{"title":"Wolverine Stack","subtitle":"BPC-157 + TB-500","tagline":"10mg / 10mg research context stack","image":"assets/products/Wolverine BPC-157_TB-500 10mg_10mg.png","target":"Wolverine Stack","type":"stack","kicker":"Featured Stack"},{"title":"Glow Blend","subtitle":"BPC-157 + TB4 + GHK-Cu","tagline":"70mg skin health research blend","image":"assets/products/Glow Blend BPC-157 TB4 GHK-Cu_70mg.png","target":"Glow Stack","type":"stack","kicker":"Featured Stack"},{"title":"Klow Blend","subtitle":"KPV + BPC-157 + TB-500","tagline":"80mg research context blend","image":"assets/products/Klow Blend KPV_BPC-157_TB-500_80mg.png","target":"Klow Stack","type":"stack","kicker":"Featured Stack"},{"title":"Hot Peptides","subtitle":"NAD+ • Ipamorelin • Tesamorelin","tagline":"Explore current customer favorites","image":"","target":"#az","type":"anchor","kicker":"Hot Peptides"},{"title":"New Arrivals","subtitle":"Fresh products added to the catalog","tagline":"Browse the A-Z index for new peptide options","image":"","target":"#az","type":"anchor","kicker":"New Arrivals"}];
+let pstCurrentHomepagePromotion = {
+  title: "America 250",
+  subtitle: "15% off your order",
+  promoCode: "AMERICA250",
+  kicker: "Current Offer"
+};
 
 function pstEscapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, function(char) {
@@ -2535,58 +2723,21 @@ function pstEscapeHtml(value) {
   });
 }
 
-function openHomePromoCard(index) {
-  const card = pstHomePromoCards[index];
-  if (!card) return;
-  if (card.type === "stack" && typeof viewStack === "function") {
-    viewStack(card.target);
-    return;
-  }
-  if (card.type === "product" && typeof selectProduct === "function") {
-    selectProduct(card.target);
-    return;
-  }
-  if (card.type === "anchor") {
-    const el = document.querySelector(card.target);
-    if (el) el.scrollIntoView({behavior:"smooth"});
-  }
+function renderHomeStaticPromotion() {
+  const box = document.getElementById("homeStaticPromotion");
+  if (!box) return;
+
+  const promo = pstCurrentHomepagePromotion || {};
+  const title = promo.title || "Current Promotion";
+  const subtitle = promo.subtitle || promo.tagline || "15% off your order";
+  const code = promo.promoCode || promo.code || "";
+
+  box.innerHTML =
+    '<div class="home-promo-eyebrow">' + pstEscapeHtml(promo.kicker || "Current Offer") + '</div>' +
+    '<h3>' + pstEscapeHtml(title) + '</h3>' +
+    '<p>' + pstEscapeHtml(subtitle) + '</p>' +
+    (code ? '<div class="home-promo-code-pill">Code: ' + pstEscapeHtml(code) + '</div>' : '');
 }
-
-function renderHomePromoCards() {
-  const row = document.getElementById("homePromoCards");
-  if (!row) return;
-  row.innerHTML = "";
-
-  pstHomePromoCards.forEach(function(card, index) {
-    const article = document.createElement("article");
-    article.className = "home-promo-card";
-
-    const media = card.image
-      ? '<div class="home-promo-card-media"><img src="' + pstEscapeHtml(card.image) + '" alt="' + pstEscapeHtml(card.title) + '"></div>'
-      : '<div class="home-promo-card-textonly"><strong>' + pstEscapeHtml(card.title) + '</strong></div>';
-
-    const code = card.promoCode ? '<div class="home-promo-code">Code: ' + pstEscapeHtml(card.promoCode) + '</div>' : '';
-
-    article.innerHTML = media +
-      '<div class="home-promo-card-body">' +
-        '<div class="home-promo-card-kicker">' + pstEscapeHtml(card.kicker || "Featured") + '</div>' +
-        '<h3>' + pstEscapeHtml(card.title) + '</h3>' +
-        '<p>' + pstEscapeHtml(card.subtitle || card.tagline || "") + '</p>' +
-        '<div>' + code + '<button type="button" class="btn primary">View</button></div>' +
-      '</div>';
-
-    const button = article.querySelector("button");
-    if (button) button.addEventListener("click", function() { openHomePromoCard(index); });
-    row.appendChild(article);
-  });
-}
-
-/* Backward-compatible no-op functions in case any older inline carousel handlers remain cached */
-function changeHero() { renderHomePromoCards(); }
-function setHero() { renderHomePromoCards(); }
-function restartHeroTimer() {}
-function openHeroItem() { openHomePromoCard(0); }
-function renderHero() { renderHomePromoCards(); }
 
 async function loadHomepagePromotionSlides() {
   try {
@@ -2608,38 +2759,39 @@ async function loadHomepagePromotionSlides() {
       .eq("active", true)
       .eq("hero_banner_active", true)
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(5);
 
     if (error || !data || !data.length) return;
 
-    const promotions = data.filter(row => {
+    const promo = data.find(row => {
       const startsOk = !row.promotion_starts_at || row.promotion_starts_at <= nowIso;
       const endsOk = !row.promotion_ends_at || row.promotion_ends_at >= nowIso;
       return startsOk && endsOk;
     });
 
-    if (!promotions.length) return;
+    if (!promo) return;
 
-    const dynamicPromoCards = promotions.map(row => ({
-      title: row.promotion_title || "Current Promotion",
-      subtitle: row.hero_banner_text || row.promotion_description || `Use code ${row.code} at checkout`,
-      tagline: row.promotion_description || `Use code ${row.code} at checkout`,
-      image: "",
-      target: "#featured",
-      type: "anchor",
-      kicker: "Promotion",
-      promoCode: row.code
-    }));
-
-    pstHomePromoCards.unshift(...dynamicPromoCards);
+    pstCurrentHomepagePromotion = {
+      title: promo.promotion_title || "Current Promotion",
+      subtitle: promo.hero_banner_text || promo.promotion_description || "15% off your order",
+      promoCode: promo.code || "",
+      kicker: "Promotion"
+    };
   } catch (error) {
-    console.warn("Homepage promotions could not load:", error);
+    console.warn("Homepage promotion could not load:", error);
   }
 }
 
+/* Backward-compatible no-op functions in case older inline carousel handlers remain cached */
+function changeHero() { renderHomeStaticPromotion(); }
+function setHero() { renderHomeStaticPromotion(); }
+function restartHeroTimer() {}
+function openHeroItem() {}
+function renderHero() { renderHomeStaticPromotion(); }
+
 document.addEventListener("DOMContentLoaded", async function() {
   await loadHomepagePromotionSlides();
-  renderHomePromoCards();
+  renderHomeStaticPromotion();
 });
 </script>
 
@@ -2830,6 +2982,8 @@ async function loadSupabaseProductCatalog() {
       price: Number(p.price || 0),
       inventory: Number(p.current_inventory || 0),
       featured: p.featured === true,
+      hotPeptide: p.hot_peptide === true || p.hot_peptides === true || p.show_hot_peptide === true || p.home_hot === true,
+      displayOrder: Number(p.display_order || p.home_display_order || 999),
       blendStack: p.blend_stack === true,
       imageData: p.image_data || p.image_file || "",
       file: p.image_file || p.image_data || "",
@@ -2965,7 +3119,62 @@ async function loadProducts() {
   console.log("✅ Products loaded with inventory, atomic checkout, and pre-launch safety overlay:", Object.keys(productData).length, "visible products");
 }
 
+
+function homeMiniProductCard(product) {
+  const image = product.imageData || product.file || "";
+  const subtitle = product.strength || product.series || "";
+  const key = product.productKey || product.key || "";
+  return `
+    <article class="home-mini-product" onclick='selectProduct(${JSON.stringify(key)})'>
+      <div class="home-mini-product-image">
+        ${image ? `<img src="${pstEsc(image)}" alt="${pstEsc(product.display || product.key || "Product")}">` : ""}
+      </div>
+      <div class="home-mini-product-body">
+        <h3>${pstEsc(product.display || product.key || "Product")}</h3>
+        <p>${pstEsc(subtitle)}</p>
+      </div>
+    </article>`;
+}
+
+function homeMiniStackCard(stack) {
+  const key = stack.productKey || "";
+  return `
+    <article class="home-mini-product" onclick='selectProduct(${JSON.stringify(key)})'>
+      <div class="home-mini-product-image">
+        ${stack.imageData ? `<img src="${pstEsc(stack.imageData)}" alt="${pstEsc(stack.display || "Blend / Stack")}">` : ""}
+      </div>
+      <div class="home-mini-product-body">
+        <h3>${pstEsc(stack.display || "Blend / Stack")}</h3>
+        <p>${pstEsc(stack.contents || stack.strength || "")}</p>
+      </div>
+    </article>`;
+}
+
+function rebuildHomepageShowcase() {
+  const blendsRow = document.getElementById("homeBlendsCards");
+  const hotRow = document.getElementById("homeHotPeptideCards");
+
+  if (blendsRow) {
+    const stacks = Object.values(stackData || {});
+    blendsRow.innerHTML = stacks.length
+      ? stacks.map(homeMiniStackCard).join("")
+      : '<div class="home-mini-empty">Blends and stacks will appear here when active in inventory.</div>';
+  }
+
+  if (hotRow) {
+    const hot = Object.values(productData || {})
+      .filter(p => p && (p.hotPeptide === true || p.hot_peptide === true || p.showHotPeptide === true || p.show_hot_peptide === true))
+      .sort((a, b) => Number(a.displayOrder || a.display_order || 999) - Number(b.displayOrder || b.display_order || 999));
+
+    hotRow.innerHTML = hot.length
+      ? hot.map(homeMiniProductCard).join("")
+      : '<div class="home-mini-empty">Hot Peptides will appear here after you select them in Product Admin.</div>';
+  }
+}
+
+
 function rebuildAllProductSections() {
+  rebuildHomepageShowcase();
   rebuildFeaturedProducts();
   rebuildFeaturedStacks();
   rebuildAZ();
