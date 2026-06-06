@@ -298,6 +298,14 @@ header .actions .btn:hover {
             <option value="false">Not featured</option>
           </select>
         </div>
+        <div class="field">
+          <label>Hot Peptide</label>
+          <select id="hotFilter">
+            <option value="">All</option>
+            <option value="true">Hot Peptides Only</option>
+            <option value="false">Not Hot</option>
+          </select>
+        </div>
       </div>
       <div class="actions">
         <button class="btn secondary" id="clearFiltersBtn" type="button">Clear Filters</button>
@@ -327,10 +335,11 @@ header .actions .btn:hover {
             <th>Category</th>
             <th>Series</th>
             <th>Price</th>
-            <th>Inventory</th>
+            
             <th>Reconstitution</th>
             <th>Active</th>
             <th>Featured</th>
+            <th>Hot Peptide</th>
             <th>Stack / Blend</th>
             <th>Description</th>
             <th>Research Notes</th>
@@ -348,6 +357,14 @@ header .actions .btn:hover {
       </table>
     </div>
   </section>
+
+<!-- PST UPDATE:
+Inventory column removed.
+Added Hot Peptide Yes/No field.
+Intended for homepage Hot Peptides hero card/carousel integration.
+Database field expected: hot_peptide (boolean).
+-->
+
 </main>
 
 <script>
