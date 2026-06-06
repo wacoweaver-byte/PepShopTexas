@@ -824,36 +824,6 @@ button.disabled-cart,
 
 
 
-/* Under construction scrolling banner */
-.construction-banner {
-  width: 100%;
-  overflow: hidden;
-  background: #ffd400;
-  color: #111;
-  border-bottom: 2px solid #111;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  white-space: nowrap;
-}
-.construction-track {
-  display: inline-flex;
-  min-width: max-content;
-  animation: construction-scroll 22s linear infinite;
-}
-.construction-track span {
-  display: inline-block;
-  padding: 10px 42px;
-}
-@keyframes construction-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .construction-track { animation: none; }
-}
-
-
 /* Product image and packaging disclaimer */
 .image-disclaimer {
   margin: 12px 0 0;
