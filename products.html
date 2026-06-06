@@ -425,6 +425,11 @@ function setStatus(msg, type="") {
   if (type) el.classList.add(type);
 }
 
+function pstCssEscape(value) {
+  if (window.CSS && typeof window.CSS.escape === "function") return CSS.escape(String(value));
+  return String(value).replace(/["\\]/g, "\\$&");
+}
+
 function esc(v) {
   return String(v ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[ch]);
 }
@@ -684,7 +689,7 @@ function renderTable() {
 }
 
 function getRowData(id) {
-  const row = document.querySelector(`tr[data-id="${CSS.escape(String(id))}"]`);
+  const row = document.querySelector(`tr[data-id="${pstCssEscape(id)}"]`);
   const original = allProducts.find(p => String(p.id) === String(id));
   if (!row || !original) return null;
 
@@ -694,7 +699,7 @@ function getRowData(id) {
     let value = input.value;
     if (["price"].includes(field)) value = Number(value || 0);
     if (["current_inventory"].includes(field)) value = Number(value || 0);
-    if (["is_active","featured","hot_peptide","blend_stack"].includes(field)) value = value === "true";
+    if (["is_active","hot_peptide","blend_stack"].includes(field)) value = value === "true";
     data[field] = value;
   });
 
@@ -728,7 +733,6 @@ async function saveRow(id) {
       reconstitution: data.reconstitution || "2 mL",
       price: Number(data.price || 0),
       is_active: data.is_active !== false,
-      featured: data.featured === true,
       hot_peptide: data.hot_peptide === true,
       blend_stack: data.blend_stack === true,
       image_data: data.image_data || null,
@@ -742,65 +746,87 @@ async function saveRow(id) {
 
     setStatus(`Saving ${updates.display_name}...`);
 
+    let rowId = id;
     let result = await db
       .from("product_catalog")
       .update(updates)
-      .eq("id", id)
-      .select("id, product_key, display_name, description, hot_peptide")
-      .maybeSingle();
+      .eq("id", rowId)
+      .select("*");
 
-    if (result.error && String(result.error.message || "").toLowerCase().includes("hot_peptide")) {
-      const retryUpdates = { ...updates };
-      delete retryUpdates.hot_peptide;
+    if (result.error) {
+      const msg = String(result.error.message || "").toLowerCase();
 
-      result = await db
-        .from("product_catalog")
-        .update(retryUpdates)
-        .eq("id", id)
-        .select("id, product_key, display_name, description")
-        .maybeSingle();
+      // If Supabase column hot_peptide does not exist, retry without it and tell the user.
+      if (msg.includes("hot_peptide")) {
+        const retryUpdates = { ...updates };
+        delete retryUpdates.hot_peptide;
 
-      if (result.error) throw result.error;
-
-      if (!result.data && data.product_key) {
         result = await db
           .from("product_catalog")
           .update(retryUpdates)
-          .eq("product_key", data.product_key)
-          .select("id, product_key, display_name, description")
-          .maybeSingle();
+          .eq("id", rowId)
+          .select("*");
+
+        if (result.error) throw result.error;
+
+        if (!result.data || !result.data.length) {
+          result = await db
+            .from("product_catalog")
+            .update(retryUpdates)
+            .eq("product_key", data.product_key)
+            .select("*");
+        }
+
+        if (result.error) throw result.error;
+        if (!result.data || !result.data.length) throw new Error("No matching product row was updated.");
+
+        const saved = result.data[0];
+        allProducts = allProducts.map(p => String(p.id) === String(id) || p.product_key === data.product_key ? saved : p);
+        dirtyIds.delete(String(id));
+        setStatus(`${updates.display_name} saved, but Hot Peptide was NOT saved because Supabase is missing the hot_peptide column.`, "bad");
+        applyFilters();
+        return;
       }
 
-      if (!result.data) {
-        throw new Error("No matching product row was updated. The row ID may not match Supabase.");
-      }
-
-      dirtyIds.delete(String(id));
-      setStatus(`${updates.display_name} saved, but Hot Peptide was NOT saved because Supabase is missing the hot_peptide column. Add a boolean column named hot_peptide to product_catalog.`, "bad");
-      await loadProducts();
-      return;
+      throw result.error;
     }
 
-    if (result.error) throw result.error;
-
-    if (!result.data && data.product_key) {
+    // If no rows came back, try product_key fallback.
+    if (!result.data || !result.data.length) {
       result = await db
         .from("product_catalog")
         .update(updates)
         .eq("product_key", data.product_key)
-        .select("id, product_key, display_name, description, hot_peptide")
-        .maybeSingle();
+        .select("*");
 
       if (result.error) throw result.error;
     }
 
-    if (!result.data) {
+    if (!result.data || !result.data.length) {
       throw new Error("No matching product row was updated. The save did not reach Supabase.");
     }
 
+    const saved = result.data[0];
+
+    // Verify important values came back as expected.
+    const expectedDescription = String(updates.description || "");
+    const savedDescription = String(saved.description || "");
+    const expectedHot = updates.hot_peptide === true;
+    const savedHot = saved.hot_peptide === true || String(saved.hot_peptide).toLowerCase() === "true" || String(saved.hot_peptide).toLowerCase() === "yes";
+
+    if (savedDescription !== expectedDescription) {
+      throw new Error("Supabase updated the row, but the description did not verify after saving.");
+    }
+
+    if (expectedHot !== savedHot) {
+      throw new Error("Supabase updated the row, but Hot Peptide did not verify after saving.");
+    }
+
+    allProducts = allProducts.map(p => String(p.id) === String(id) || p.product_key === data.product_key ? saved : p);
     dirtyIds.delete(String(id));
     setStatus(`${updates.display_name} saved and verified.`, "good");
-    await loadProducts();
+    populateCategoryFilter();
+    applyFilters();
   } catch (err) {
     console.error("Product save error:", err);
     const msg = err && err.message ? err.message : String(err);
