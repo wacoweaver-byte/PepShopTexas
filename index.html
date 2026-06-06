@@ -1484,6 +1484,172 @@ button.disabled-cart,
   font-weight: 800;
   text-transform: none;
 }
+
+
+/* PST 2026-06: compact side-by-side homepage promotion row */
+.hero {
+  min-height: auto !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 24px !important;
+  padding-top: 34px !important;
+  padding-bottom: 34px !important;
+  background: linear-gradient(180deg,#fff 0%,#f7f9fb 100%) !important;
+}
+.hero-copy {
+  max-width: 980px !important;
+}
+.hero-copy h1 {
+  max-width: 900px !important;
+}
+.home-promo-strip {
+  width: 100% !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  box-shadow: 0 12px 34px rgba(0,0,0,.08) !important;
+  padding: 18px !important;
+  overflow: hidden !important;
+}
+.home-promo-strip-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  margin-bottom: 12px !important;
+}
+.home-promo-strip-title {
+  margin: 0 !important;
+  font-family: Impact,'Arial Black','Arial Narrow',Arial,sans-serif !important;
+  text-transform: uppercase !important;
+  font-size: 28px !important;
+  letter-spacing: .2px !important;
+}
+.home-promo-strip-note {
+  color: var(--muted) !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+}
+.home-promo-cards {
+  display: flex !important;
+  gap: 14px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: 4px 2px 12px !important;
+}
+.home-promo-cards::-webkit-scrollbar { height: 9px !important; }
+.home-promo-cards::-webkit-scrollbar-track { background: #f0f0f0 !important; border-radius: 999px !important; }
+.home-promo-cards::-webkit-scrollbar-thumb { background: var(--blue) !important; border-radius: 999px !important; }
+.home-promo-card {
+  flex: 0 0 275px !important;
+  max-width: 275px !important;
+  min-height: 245px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,.07) !important;
+  scroll-snap-align: start !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.home-promo-card-media {
+  height: 132px !important;
+  background: linear-gradient(180deg,#ffffff 0%,#f3f6fa 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px !important;
+}
+.home-promo-card-media img {
+  max-width: 100% !important;
+  max-height: 118px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,.14)) !important;
+}
+.home-promo-card-textonly {
+  min-height: 132px !important;
+  background: #f4f8ff !important;
+  border-bottom: 1px solid #d9e7ff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 14px !important;
+}
+.home-promo-card-textonly strong {
+  color: var(--blue) !important;
+  font-family: Impact,'Arial Black','Arial Narrow',Arial,sans-serif !important;
+  font-size: 28px !important;
+  line-height: .98 !important;
+  text-transform: uppercase !important;
+}
+.home-promo-card-body {
+  padding: 13px !important;
+  display: grid !important;
+  grid-template-rows: 18px 44px 38px auto !important;
+  gap: 5px !important;
+  flex: 1 !important;
+}
+.home-promo-card-kicker {
+  color: var(--blue) !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .7px !important;
+  overflow: hidden !important;
+}
+.home-promo-card h3 {
+  margin: 0 !important;
+  font-size: 18px !important;
+  line-height: 1.08 !important;
+  text-transform: uppercase !important;
+  font-weight: 900 !important;
+  overflow: hidden !important;
+}
+.home-promo-card p {
+  margin: 0 !important;
+  color: #444 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  overflow: hidden !important;
+}
+.home-promo-code {
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border: 2px dashed var(--blue) !important;
+  color: var(--blue) !important;
+  background: #f4f8ff !important;
+  border-radius: 999px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  margin-bottom: 8px !important;
+}
+.home-promo-card .btn {
+  width: 100% !important;
+  text-align: center !important;
+  padding: 10px 12px !important;
+  font-size: 12px !important;
+  align-self: end !important;
+}
+@media(max-width: 680px) {
+  .hero { padding-top: 24px !important; padding-bottom: 24px !important; }
+  .home-promo-strip { padding: 14px !important; }
+  .home-promo-strip-head { align-items: flex-start !important; flex-direction: column !important; }
+  .home-promo-card { flex-basis: 235px !important; max-width: 235px !important; }
+  .home-promo-card-media, .home-promo-card-textonly { height: 112px !important; min-height: 112px !important; }
+  .home-promo-card-media img { max-height: 98px !important; }
+  .home-promo-card-body { grid-template-rows: 18px 42px 38px auto !important; }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1559,20 +1725,12 @@ button.disabled-cart,
       </div>
     </div>
 
-    <div class="hero-banner" id="heroBanner">
-      <button type="button" class="hero-control hero-control-left" onclick="changeHero(-1)">‹</button>
-      <div class="hero-banner-content">
-        <div class="hero-banner-text">
-          <div class="hero-banner-kicker">Featured</div>
-          <h2 id="heroTitle">Wolverine Stack</h2>
-          <p id="heroSubtitle">BPC-157 + TB-500</p>
-          <span id="heroTagline">Research Context & Research Context Stack</span>
-          <button type="button" class="btn primary" onclick="openHeroItem()">Shop Now</button>
-        </div>
-        <div class="hero-banner-image" id="heroImageBox"></div>
+    <div class="home-promo-strip" id="homePromoStrip">
+      <div class="home-promo-strip-head">
+        <h2 class="home-promo-strip-title">Promotions & Featured Picks</h2>
+        <span class="home-promo-strip-note">Swipe or scroll sideways</span>
       </div>
-      <button type="button" class="hero-control hero-control-right" onclick="changeHero(1)">›</button>
-      <div class="hero-dots" id="heroDots"></div>
+      <div class="home-promo-cards" id="homePromoCards" aria-label="Promotions and featured picks"></div>
     </div>
   </section>
 
@@ -2369,87 +2527,66 @@ if (document.readyState === "loading") {
 </script>
 
 <script>
-const pstHeroSlides = [{"title":"Wolverine Stack","subtitle":"BPC-157 + TB-500","tagline":"10mg / 10mg research context & research context stack","image":"assets/products/Wolverine BPC-157_TB-500 10mg_10mg.png","target":"Wolverine Stack","type":"stack"},{"title":"Glow Blend","subtitle":"BPC-157 + TB4 + GHK-Cu","tagline":"70mg skin health & research context blend","image":"assets/products/Glow Blend BPC-157 TB4 GHK-Cu_70mg.png","target":"Glow Stack","type":"stack"},{"title":"Klow Blend","subtitle":"KPV + BPC-157 + TB-500","tagline":"80mg research context & balance blend","image":"assets/products/Klow Blend KPV_BPC-157_TB-500_80mg.png","target":"Klow Stack","type":"stack"},{"title":"Hot Peptides","subtitle":"NAD+ • Ipamorelin • Tesamorelin","tagline":"Explore current customer favorites","image":"","target":"#az","type":"anchor"},{"title":"Current Promotions","subtitle":"Bundle savings and featured specials","tagline":"Check back often for updated offers","image":"","target":"#featured","type":"anchor"},{"title":"New Arrivals","subtitle":"Fresh products added to the catalog","tagline":"Browse the A-Z index for new peptide options","image":"","target":"#az","type":"anchor"}];
-let pstHeroIndex = 0;
-let pstHeroTimer = null;
+const pstHomePromoCards = [{"title":"Wolverine Stack","subtitle":"BPC-157 + TB-500","tagline":"10mg / 10mg research context stack","image":"assets/products/Wolverine BPC-157_TB-500 10mg_10mg.png","target":"Wolverine Stack","type":"stack","kicker":"Featured Stack"},{"title":"Glow Blend","subtitle":"BPC-157 + TB4 + GHK-Cu","tagline":"70mg skin health research blend","image":"assets/products/Glow Blend BPC-157 TB4 GHK-Cu_70mg.png","target":"Glow Stack","type":"stack","kicker":"Featured Stack"},{"title":"Klow Blend","subtitle":"KPV + BPC-157 + TB-500","tagline":"80mg research context blend","image":"assets/products/Klow Blend KPV_BPC-157_TB-500_80mg.png","target":"Klow Stack","type":"stack","kicker":"Featured Stack"},{"title":"Hot Peptides","subtitle":"NAD+ • Ipamorelin • Tesamorelin","tagline":"Explore current customer favorites","image":"","target":"#az","type":"anchor","kicker":"Hot Peptides"},{"title":"New Arrivals","subtitle":"Fresh products added to the catalog","tagline":"Browse the A-Z index for new peptide options","image":"","target":"#az","type":"anchor","kicker":"New Arrivals"}];
 
-function renderHero() {
-  const slide = pstHeroSlides[pstHeroIndex];
-  const title = document.getElementById("heroTitle");
-  const subtitle = document.getElementById("heroSubtitle");
-  const tagline = document.getElementById("heroTagline");
-  const imageBox = document.getElementById("heroImageBox");
-  const dots = document.getElementById("heroDots");
-  if (!slide || !title || !subtitle || !tagline || !imageBox || !dots) return;
-
-  title.textContent = slide.title;
-  subtitle.textContent = slide.subtitle;
-  tagline.textContent = slide.tagline;
-
-  if (slide.image) {
-    imageBox.innerHTML = '<img src="' + slide.image + '" alt="' + slide.title + '">';
-  } else {
-    let promoExtra = "";
-    if (slide.promoCode) {
-      promoExtra = '<div class="promo-code">Code: ' + slide.promoCode + '</div>';
-    }
-    if (slide.promoMini) {
-      promoExtra += '<div class="promo-mini">' + slide.promoMini + '</div>';
-    }
-    imageBox.innerHTML = '<div class="hero-text-promo"><strong>' + slide.title + '</strong><span>' + slide.subtitle + '</span>' + promoExtra + '</div>';
-  }
-
-  dots.innerHTML = "";
-  for (let i = 0; i < pstHeroSlides.length; i++) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "hero-dot" + (i === pstHeroIndex ? " active" : "");
-    btn.onclick = function() { setHero(i); };
-    dots.appendChild(btn);
-  }
+function pstEscapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, function(char) {
+    return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[char];
+  });
 }
 
-function changeHero(direction) {
-  pstHeroIndex = (pstHeroIndex + direction + pstHeroSlides.length) % pstHeroSlides.length;
-  renderHero();
-    buildAZLetterJump();
-  addAZLetterAnchors();
-restartHeroTimer();
-}
-
-function setHero(index) {
-  pstHeroIndex = index;
-  renderHero();
-  restartHeroTimer();
-}
-
-function restartHeroTimer() {
-  if (pstHeroTimer) clearInterval(pstHeroTimer);
-  pstHeroTimer = setInterval(function() {
-    pstHeroIndex = (pstHeroIndex + 1) % pstHeroSlides.length;
-    renderHero();
-  }, 5000);
-}
-
-function openHeroItem() {
-  const slide = pstHeroSlides[pstHeroIndex];
-  if (!slide) return;
-  if (slide.type === "stack" && typeof viewStack === "function") {
-    viewStack(slide.target);
+function openHomePromoCard(index) {
+  const card = pstHomePromoCards[index];
+  if (!card) return;
+  if (card.type === "stack" && typeof viewStack === "function") {
+    viewStack(card.target);
     return;
   }
-  if (slide.type === "anchor") {
-    const el = document.querySelector(slide.target);
+  if (card.type === "product" && typeof selectProduct === "function") {
+    selectProduct(card.target);
+    return;
+  }
+  if (card.type === "anchor") {
+    const el = document.querySelector(card.target);
     if (el) el.scrollIntoView({behavior:"smooth"});
   }
 }
 
-document.addEventListener("click", function(event) {
-  const search = document.querySelector(".site-search");
-  const box = document.getElementById("searchResults");
-  if (search && box && !search.contains(event.target)) box.classList.remove("active");
-});
+function renderHomePromoCards() {
+  const row = document.getElementById("homePromoCards");
+  if (!row) return;
+  row.innerHTML = "";
 
+  pstHomePromoCards.forEach(function(card, index) {
+    const article = document.createElement("article");
+    article.className = "home-promo-card";
+
+    const media = card.image
+      ? '<div class="home-promo-card-media"><img src="' + pstEscapeHtml(card.image) + '" alt="' + pstEscapeHtml(card.title) + '"></div>'
+      : '<div class="home-promo-card-textonly"><strong>' + pstEscapeHtml(card.title) + '</strong></div>';
+
+    const code = card.promoCode ? '<div class="home-promo-code">Code: ' + pstEscapeHtml(card.promoCode) + '</div>' : '';
+
+    article.innerHTML = media +
+      '<div class="home-promo-card-body">' +
+        '<div class="home-promo-card-kicker">' + pstEscapeHtml(card.kicker || "Featured") + '</div>' +
+        '<h3>' + pstEscapeHtml(card.title) + '</h3>' +
+        '<p>' + pstEscapeHtml(card.subtitle || card.tagline || "") + '</p>' +
+        '<div>' + code + '<button type="button" class="btn primary">View</button></div>' +
+      '</div>';
+
+    const button = article.querySelector("button");
+    if (button) button.addEventListener("click", function() { openHomePromoCard(index); });
+    row.appendChild(article);
+  });
+}
+
+/* Backward-compatible no-op functions in case any older inline carousel handlers remain cached */
+function changeHero() { renderHomePromoCards(); }
+function setHero() { renderHomePromoCards(); }
+function restartHeroTimer() {}
+function openHeroItem() { openHomePromoCard(0); }
+function renderHero() { renderHomePromoCards(); }
 
 async function loadHomepagePromotionSlides() {
   try {
@@ -2483,28 +2620,18 @@ async function loadHomepagePromotionSlides() {
 
     if (!promotions.length) return;
 
-    const dynamicPromoSlides = promotions.map(row => ({
-      title: row.promotion_title || "Current Promotions",
+    const dynamicPromoCards = promotions.map(row => ({
+      title: row.promotion_title || "Current Promotion",
       subtitle: row.hero_banner_text || row.promotion_description || `Use code ${row.code} at checkout`,
       tagline: row.promotion_description || `Use code ${row.code} at checkout`,
       image: "",
       target: "#featured",
       type: "anchor",
-      promoCode: row.code,
-      promoMini: "Applied at checkout"
+      kicker: "Promotion",
+      promoCode: row.code
     }));
 
-    const firstStaticPromoIndex = pstHeroSlides.findIndex(slide =>
-      String(slide.title || "").toLowerCase().includes("current promotions")
-    );
-
-    if (firstStaticPromoIndex >= 0) {
-      pstHeroSlides.splice(firstStaticPromoIndex, 1, ...dynamicPromoSlides);
-    } else {
-      pstHeroSlides.push(...dynamicPromoSlides);
-    }
-
-    if (pstHeroIndex >= pstHeroSlides.length) pstHeroIndex = 0;
+    pstHomePromoCards.unshift(...dynamicPromoCards);
   } catch (error) {
     console.warn("Homepage promotions could not load:", error);
   }
@@ -2512,8 +2639,7 @@ async function loadHomepagePromotionSlides() {
 
 document.addEventListener("DOMContentLoaded", async function() {
   await loadHomepagePromotionSlides();
-  renderHero();
-  restartHeroTimer();
+  renderHomePromoCards();
 });
 </script>
 
