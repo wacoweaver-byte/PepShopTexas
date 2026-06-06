@@ -1899,6 +1899,8 @@ button.disabled-cart,
 
   
   
+  <!-- Featured Stacks & Blends lower homepage section removed; top Blends & Stacks carousel remains. -->
+
 
   <section id="tx-series" class="section wrap tx-series-section">
     <div class="tx-series-panel">
@@ -3033,38 +3035,10 @@ function rebuildFeaturedProducts() {
 }
 
 function rebuildFeaturedStacks() {
-  let section = document.querySelector("#featured-stacks .stack-grid");
-  if (!section) {
-    const az = document.querySelector("#az");
-    if (!az) return;
-    const wrapper = document.createElement("section");
-    wrapper.id = "featured-stacks";
-    wrapper.className = "section wrap";
-    wrapper.innerHTML = `
-      <div class="section-head"><div><h2 class="section-title">Featured Stacks &amp; Blends</h2><div class="underline"></div></div></div>
-      <div class="stack-grid"></div>`;
-    az.parentNode.insertBefore(wrapper, az);
-    section = wrapper.querySelector(".stack-grid");
-  }
-  section.innerHTML = Object.values(stackData).map(s => {
-    const key = s.productKey;
-    return `
-    <article class="stack-card">
-      <img src="${pstEsc(s.imageData)}" alt="${pstEsc(s.display)}">
-      <div class="stack-card-body">
-        <span class="badge">Stack / Blend</span>
-        <h3>${pstEsc(s.display)}</h3>
-        <p>${pstEsc(s.contents || s.strength || "")}</p>
-        <div class="stack-inventory-row">${inventoryBadgeHTML(s.inventory)}</div>
-        <div class="stack-price">${pstMoney(s.price)}</div>
-        <div class="stack-actions">
-          <button onclick='selectProduct(${JSON.stringify(key)})'>View Product</button>
-          <button onclick='addProductToCart(${JSON.stringify(key)})'>Add to Cart</button>
-        </div>
-      </div>
-    </article>`;
-  }).join("");
+  const oldSection = document.querySelector("#featured-stacks");
+  if (oldSection) oldSection.remove();
 }
+
 
 function rebuildAZ() {
   const box = document.querySelector("#az .az-box");
@@ -3363,39 +3337,10 @@ function rebuildFeaturedProducts() {
 }
 
 function rebuildFeaturedStacks() {
-  let section = document.querySelector("#featured-stacks .stack-grid");
-  if (!section) {
-    const az = document.querySelector("#az");
-    if (!az) return;
-    const wrapper = document.createElement("section");
-    wrapper.id = "featured-stacks";
-    wrapper.className = "section wrap";
-    wrapper.innerHTML = `
-      <div class="section-head"><div><h2 class="section-title">Featured Stacks &amp; Blends</h2><div class="underline"></div></div></div>
-      <div class="stack-grid"></div>`;
-    az.parentNode.insertBefore(wrapper, az);
-    section = wrapper.querySelector(".stack-grid");
-  }
-  section.innerHTML = Object.values(stackData).map(s => {
-    const key = s.productKey;
-    const disabled = Number(s.inventory || 0) <= 0;
-    return `
-    <article class="stack-card">
-      <img src="${pstEsc(s.imageData)}" alt="${pstEsc(s.display)}">
-      <div class="stack-card-body">
-        <span class="badge">Stack / Blend</span>
-        <h3>${pstEsc(s.display)}</h3>
-        <p>${pstEsc(s.contents || s.strength || "")}</p>
-        <div class="stack-inventory-row">${inventoryBadgeHTML(s.inventory)}</div>
-        <div class="stack-price">${pstMoney(s.price)}</div>
-        <div class="stack-actions">
-          <button onclick='selectProduct(${JSON.stringify(key)})'>View Product</button>
-          <button class="${disabled ? "disabled-cart" : ""}" ${disabled ? "disabled" : ""} onclick='addProductToCart(${JSON.stringify(key)})'>${disabled ? "Out of Stock" : "Add to Cart"}</button>
-        </div>
-      </div>
-    </article>`;
-  }).join("");
+  const oldSection = document.querySelector("#featured-stacks");
+  if (oldSection) oldSection.remove();
 }
+
 
 function rebuildTXSeries() {
   const grid = document.querySelector("#tx-series .tx-series-grid");
