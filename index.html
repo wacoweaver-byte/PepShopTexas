@@ -1815,17 +1815,10 @@ button.disabled-cart,
   justify-content: center !important;
   align-items: stretch !important;
 }
-#homeHotPeptideCards .home-mini-product {
-  text-align: center !important;
-}
+#homeHotPeptideCards .home-mini-product,
 #homeHotPeptideCards .home-mini-product-image,
 #homeHotPeptideCards .home-mini-product-body {
   text-align: center !important;
-}
-@media(max-width: 980px) {
-  #homeHotPeptideCards {
-    justify-content: center !important;
-  }
 }
 
 </style>
@@ -1903,7 +1896,7 @@ button.disabled-cart,
 
   <article class="home-showcase-card">
     <h2 class="home-showcase-title">Hot Peptides</h2>
-    <div id="homeHotPeptideCards" class="home-mini-carousel hot-peptides-centered" aria-label="Hot peptides"></div>
+    <div id="homeHotPeptideCards" class="home-mini-carousel" aria-label="Hot peptides"></div>
   </article>
 </section>
 
@@ -3007,14 +3000,27 @@ function rebuildHomepageShowcase() {
   }
 
   if (hotRow) {
-    const hot = Object.values(productData || {})
-      .filter(p => p && (
+    const hotMap = new Map();
+
+    Object.values(productData || {}).forEach(p => {
+      if (!p) return;
+
+      const isHot =
         pstFlagTrue(p.hotPeptide) ||
         pstFlagTrue(p.hot_peptide) ||
         pstFlagTrue(p.showHotPeptide) ||
         pstFlagTrue(p.show_hot_peptide) ||
-        pstFlagTrue(p.home_hot)
-      ))
+        pstFlagTrue(p.home_hot);
+
+      if (!isHot) return;
+
+      const key = String(p.productKey || p.key || p.product_key || p.display || "").trim().toUpperCase();
+      if (!key) return;
+
+      hotMap.set(key, p);
+    });
+
+    const hot = Array.from(hotMap.values())
       .sort((a, b) => Number(a.displayOrder || a.display_order || 999) - Number(b.displayOrder || b.display_order || 999));
 
     console.log("🔥 Hot Peptides loaded:", hot.map(p => p.display || p.key));
@@ -4082,17 +4088,10 @@ window.addEventListener("resize", () => {
   justify-content: center !important;
   align-items: stretch !important;
 }
-#homeHotPeptideCards .home-mini-product {
-  text-align: center !important;
-}
+#homeHotPeptideCards .home-mini-product,
 #homeHotPeptideCards .home-mini-product-image,
 #homeHotPeptideCards .home-mini-product-body {
   text-align: center !important;
-}
-@media(max-width: 980px) {
-  #homeHotPeptideCards {
-    justify-content: center !important;
-  }
 }
 
 </style>

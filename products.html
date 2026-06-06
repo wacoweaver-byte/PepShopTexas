@@ -247,8 +247,8 @@ header .actions .btn:hover {
 /* PST Product Admin horizontal floating column nav */
 .product-admin-scroll-nav {
   position: sticky;
-  top: 68px;
-  z-index: 49;
+  top: 82px;
+  z-index: 20;
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -256,9 +256,8 @@ header .actions .btn:hover {
   -webkit-overflow-scrolling: touch;
   padding: 10px 14px;
   background: #ffffff;
-  border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  box-shadow: 0 8px 18px rgba(0,0,0,.10);
+  box-shadow: 0 8px 18px rgba(0,0,0,.06);
 }
 .product-admin-scroll-nav button {
   flex: 0 0 auto;
@@ -434,6 +433,16 @@ function esc(v) {
 
 function money(v) { return Number(v || 0).toFixed(2); }
 
+function pstFlagTrue(value) {
+  return value === true ||
+    value === 1 ||
+    value === "1" ||
+    String(value || "").toLowerCase() === "true" ||
+    String(value || "").toLowerCase() === "yes" ||
+    String(value || "").toLowerCase() === "y";
+}
+
+
 function addSafeListener(id, eventName, handler) {
   const el = $(id);
   if (el) el.addEventListener(eventName, handler);
@@ -607,7 +616,7 @@ function applyFilters() {
     return (!search || text.includes(search))
       && (!category || product.category === category)
       && (!active || String(product.is_active) === active)
-      && (!hot || String(product.hot_peptide === true) === hot);
+      && (!hot || String(pstFlagTrue(product.hot_peptide)) === hot);
   });
 
   renderTable();
@@ -640,8 +649,8 @@ function renderTable() {
         </td>
         <td>
           <select data-field="hot_peptide">
-            <option value="false" ${!product.hot_peptide ? "selected" : ""}>No</option>
-            <option value="true" ${product.hot_peptide ? "selected" : ""}>Yes</option>
+            <option value="false" ${!pstFlagTrue(product.hot_peptide) ? "selected" : ""}>No</option>
+            <option value="true" ${pstFlagTrue(product.hot_peptide) ? "selected" : ""}>Yes</option>
           </select>
         </td>
         <td>
@@ -774,7 +783,7 @@ async function saveRow(id) {
         if (result.error) throw result.error;
         if (!result.data || !result.data.length) throw new Error("No matching product row was updated.");
 
-        const saved = result.data[0];
+        const saved = { ...result.data[0], hot_peptide: pstFlagTrue(result.data[0].hot_peptide) };
         allProducts = allProducts.map(p => String(p.id) === String(id) || p.product_key === data.product_key ? saved : p);
         dirtyIds.delete(String(id));
         setStatus(`${updates.display_name} saved, but Hot Peptide was NOT saved because Supabase is missing the hot_peptide column.`, "bad");
@@ -800,7 +809,7 @@ async function saveRow(id) {
       throw new Error("No matching product row was updated. The save did not reach Supabase.");
     }
 
-    const saved = result.data[0];
+    const saved = { ...result.data[0], hot_peptide: pstFlagTrue(result.data[0].hot_peptide) };
 
     // Verify important values came back as expected.
     const expectedDescription = String(updates.description || "");
