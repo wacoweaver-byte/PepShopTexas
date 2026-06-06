@@ -243,6 +243,43 @@ header .actions .btn:hover {
   }
 }
 
+
+/* PST Product Admin horizontal floating column nav */
+.product-admin-scroll-nav {
+  position: sticky;
+  top: 82px;
+  z-index: 20;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 8px 18px rgba(0,0,0,.06);
+}
+.product-admin-scroll-nav button {
+  flex: 0 0 auto;
+  border: 1px solid #d9e2ec;
+  background: #f7f9fc;
+  color: #101820;
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.product-admin-scroll-nav button:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: #f4f8ff;
+}
+.table-wrap {
+  scroll-behavior: smooth;
+}
+
 </style>
 </head>
 <body>
@@ -324,7 +361,26 @@ header .actions .btn:hover {
       </div>
     </div>
 
-    <div class="table-wrap">
+
+    <div class="product-admin-scroll-nav" aria-label="Product admin quick navigation">
+      <button type="button" data-scroll-col="preview">Label</button>
+      <button type="button" data-scroll-col="product_key">SKU</button>
+      <button type="button" data-scroll-col="display_name">Name</button>
+      <button type="button" data-scroll-col="strength">Strength</button>
+      <button type="button" data-scroll-col="category">Category</button>
+      <button type="button" data-scroll-col="price">Price</button>
+      <button type="button" data-scroll-col="reconstitution">Recon</button>
+      <button type="button" data-scroll-col="is_active">Active</button>
+      <button type="button" data-scroll-col="featured">Featured</button>
+      <button type="button" data-scroll-col="hot_peptide">Hot Peptide</button>
+      <button type="button" data-scroll-col="blend_stack">Stack/Blend</button>
+      <button type="button" data-scroll-col="description">Description</button>
+      <button type="button" data-scroll-col="coa_file">COA</button>
+      <button type="button" data-scroll-col="image_data">Image</button>
+      <button type="button" data-scroll-col="save">Save</button>
+    </div>
+
+    <div class="table-wrap" id="productsTableWrap">
       <table>
         <thead>
           <tr>
@@ -690,7 +746,21 @@ async function saveRow(id) {
     updated_at: data.updated_at
   };
 
-  const { error } = await db.from("product_catalog").update(updates).eq("id", id);
+  let { error } = await db.from("product_catalog").update(updates).eq("id", id);
+
+  if (error && String(error.message || "").toLowerCase().includes("hot_peptide")) {
+    const retryUpdates = { ...updates };
+    delete retryUpdates.hot_peptide;
+
+    const retry = await db.from("product_catalog").update(retryUpdates).eq("id", id);
+    if (retry.error) throw retry.error;
+
+    dirtyIds.delete(id);
+    setStatus(`${updates.display_name} saved, but Hot Peptide could not be saved because the Supabase column hot_peptide is missing. Add a boolean column named hot_peptide to product_catalog.`, "bad");
+    await loadProducts();
+    return;
+  }
+
   if (error) throw error;
 
   dirtyIds.delete(id);
@@ -877,6 +947,40 @@ async function init() {
 }
 
 init();
+
+function setupProductAdminScrollNav() {
+  const wrap = document.getElementById("productsTableWrap") || document.querySelector(".table-wrap");
+  if (!wrap) return;
+
+  document.querySelectorAll(".product-admin-scroll-nav button[data-scroll-col]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const field = btn.dataset.scrollCol;
+      let target = null;
+
+      if (field === "preview") {
+        target = document.querySelector(".preview-cell");
+      } else if (field === "save") {
+        target = document.querySelector(".row-save");
+      } else {
+        target = document.querySelector(`[data-field="${field}"]`);
+      }
+
+      if (!target) return;
+
+      const wrapRect = wrap.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const left = wrap.scrollLeft + (targetRect.left - wrapRect.left) - 24;
+      wrap.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+    });
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", setupProductAdminScrollNav);
+} else {
+  setupProductAdminScrollNav();
+}
+
 </script>
 </body>
 </html>
