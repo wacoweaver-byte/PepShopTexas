@@ -1486,182 +1486,103 @@ button.disabled-cart,
 }
 
 
-/* PST 2026-06: compact side-by-side homepage promotion row */
-.hero {
-  min-height: auto !important;
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: 24px !important;
-  padding-top: 34px !important;
-  padding-bottom: 34px !important;
-  background: linear-gradient(180deg,#fff 0%,#f7f9fb 100%) !important;
+/* PST 2026 Homepage Merchandising Update */
+.hero-banner.promo-only {
+  background: linear-gradient(135deg, #ffffff 0%, #f7faff 52%, #eef4ff 100%);
+  border: 2px solid rgba(0,63,158,.18);
 }
-.hero-copy {
-  max-width: 980px !important;
+.hero-banner.promo-only .hero-banner-content {
+  grid-template-columns: 1fr;
+  min-height: 300px;
 }
-.hero-copy h1 {
-  max-width: 900px !important;
+.hero-banner.promo-only .hero-banner-text {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
 }
-.home-promo-strip {
-  width: 100% !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 14px !important;
-  background: #fff !important;
-  box-shadow: 0 12px 34px rgba(0,0,0,.08) !important;
-  padding: 18px !important;
-  overflow: hidden !important;
+.hero-banner.promo-only .hero-banner-kicker {
+  color: #bf0a30;
+  font-size: 15px;
 }
-.home-promo-strip-head {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 14px !important;
-  margin-bottom: 12px !important;
+.hero-banner.promo-only .hero-banner-text h2 {
+  color: #003f9e;
+  font-size: clamp(38px, 6vw, 76px);
+  letter-spacing: .02em;
 }
-.home-promo-strip-title {
-  margin: 0 !important;
-  font-family: Impact,'Arial Black','Arial Narrow',Arial,sans-serif !important;
-  text-transform: uppercase !important;
-  font-size: 28px !important;
-  letter-spacing: .2px !important;
+.hero-banner.promo-only .hero-banner-text p {
+  font-size: clamp(20px, 3vw, 34px);
+  color: #111;
+  text-transform: uppercase;
 }
-.home-promo-strip-note {
-  color: var(--muted) !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  text-transform: uppercase !important;
+.promo-flag-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 4vw, 42px);
+  margin: 0 0 8px;
+  font-size: clamp(26px, 4vw, 48px);
 }
-.home-promo-cards {
-  display: flex !important;
-  gap: 14px !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  scroll-snap-type: x mandatory !important;
-  -webkit-overflow-scrolling: touch !important;
-  padding: 4px 2px 12px !important;
+.promo-discount-card {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 18px;
+  margin: 10px auto 18px;
+  padding: 14px 22px;
+  background: #fff;
+  border: 2px solid #bf0a30;
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.08);
 }
-.home-promo-cards::-webkit-scrollbar { height: 9px !important; }
-.home-promo-cards::-webkit-scrollbar-track { background: #f0f0f0 !important; border-radius: 999px !important; }
-.home-promo-cards::-webkit-scrollbar-thumb { background: var(--blue) !important; border-radius: 999px !important; }
-.home-promo-card {
-  flex: 0 0 275px !important;
-  max-width: 275px !important;
-  min-height: 245px !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 12px !important;
-  background: #fff !important;
-  box-shadow: 0 8px 22px rgba(0,0,0,.07) !important;
-  scroll-snap-align: start !important;
-  overflow: hidden !important;
-  display: flex !important;
-  flex-direction: column !important;
+.promo-discount-amount {
+  font-family: Impact,'Arial Black','Arial Narrow',Arial,sans-serif;
+  font-size: clamp(34px, 5vw, 58px);
+  color: #111;
+  line-height: .9;
+  text-transform: uppercase;
 }
-.home-promo-card-media {
-  height: 132px !important;
-  background: linear-gradient(180deg,#ffffff 0%,#f3f6fa 100%) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 8px !important;
+.promo-discount-code {
+  border-left: 1px solid #d7d7d7;
+  padding-left: 18px;
+  font-weight: 900;
+  color: #111;
+  text-transform: uppercase;
 }
-.home-promo-card-media img {
-  max-width: 100% !important;
-  max-height: 118px !important;
-  width: auto !important;
-  height: auto !important;
-  object-fit: contain !important;
-  filter: drop-shadow(0 10px 18px rgba(0,0,0,.14)) !important;
+.promo-discount-code strong {
+  display: block;
+  margin-top: 6px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  background: #003f9e;
+  color: #fff;
+  letter-spacing: .04em;
 }
-.home-promo-card-textonly {
-  min-height: 132px !important;
-  background: #f4f8ff !important;
-  border-bottom: 1px solid #d9e7ff !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  text-align: center !important;
-  padding: 14px !important;
+.hero-control.promo-hidden,
+.hero-dots.promo-hidden { display: none !important; }
+.home-section-note {
+  color: #555;
+  font-size: 14px;
+  margin: -12px 0 18px;
+  font-weight: 700;
 }
-.home-promo-card-textonly strong {
-  color: var(--blue) !important;
-  font-family: Impact,'Arial Black','Arial Narrow',Arial,sans-serif !important;
-  font-size: 28px !important;
-  line-height: .98 !important;
-  text-transform: uppercase !important;
+.empty-home-row {
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: #555;
+  font-weight: 800;
+  background: #fff;
 }
-.home-promo-card-body {
-  padding: 13px !important;
-  display: grid !important;
-  grid-template-rows: 18px 44px 38px auto !important;
-  gap: 5px !important;
-  flex: 1 !important;
-}
-.home-promo-card-kicker {
-  color: var(--blue) !important;
-  font-size: 11px !important;
-  font-weight: 900 !important;
-  text-transform: uppercase !important;
-  letter-spacing: .7px !important;
-  overflow: hidden !important;
-}
-.home-promo-card h3 {
-  margin: 0 !important;
-  font-size: 18px !important;
-  line-height: 1.08 !important;
-  text-transform: uppercase !important;
-  font-weight: 900 !important;
-  overflow: hidden !important;
-}
-.home-promo-card p {
-  margin: 0 !important;
-  color: #444 !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  line-height: 1.25 !important;
-  overflow: hidden !important;
-}
-.home-promo-code {
-  display: inline-flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  border: 2px dashed var(--blue) !important;
-  color: var(--blue) !important;
-  background: #f4f8ff !important;
-  border-radius: 999px !important;
-  padding: 6px 10px !important;
-  font-size: 12px !important;
-  font-weight: 900 !important;
-  margin-bottom: 8px !important;
-}
-.home-promo-card .btn {
-  width: 100% !important;
-  text-align: center !important;
-  padding: 10px 12px !important;
-  font-size: 12px !important;
-  align-self: end !important;
-}
-@media(max-width: 680px) {
-  .hero { padding-top: 24px !important; padding-bottom: 24px !important; }
-  .home-promo-strip { padding: 14px !important; }
-  .home-promo-strip-head { align-items: flex-start !important; flex-direction: column !important; }
-  .home-promo-card { flex-basis: 235px !important; max-width: 235px !important; }
-  .home-promo-card-media, .home-promo-card-textonly { height: 112px !important; min-height: 112px !important; }
-  .home-promo-card-media img { max-height: 98px !important; }
-  .home-promo-card-body { grid-template-rows: 18px 42px 38px auto !important; }
+@media(max-width:680px) {
+  .promo-discount-card { grid-template-columns: 1fr; gap: 10px; width: 100%; }
+  .promo-discount-code { border-left: 0; border-top: 1px solid #d7d7d7; padding-left: 0; padding-top: 10px; }
+  .promo-flag-row { gap: 12px; }
 }
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="construction-banner" aria-label="Under construction notice">
-  <div class="construction-track">
-    <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
-    <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
-    <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
-    <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
-  </div>
-</div>
 <div class="top-strip">
   <span>🚚 Shipping options available</span>
   <span>Research use only — not for human or veterinary use — not medical advice</span>
@@ -1725,12 +1646,21 @@ button.disabled-cart,
       </div>
     </div>
 
-    <div class="home-promo-strip" id="homePromoStrip">
-      <div class="home-promo-strip-head">
-        <h2 class="home-promo-strip-title">Promotions & Featured Picks</h2>
-        <span class="home-promo-strip-note">Swipe or scroll sideways</span>
+    <div class="hero-banner promo-only" id="heroBanner">
+      <button type="button" class="hero-control hero-control-left" onclick="changeHero(-1)">‹</button>
+      <div class="hero-banner-content">
+        <div class="hero-banner-text">
+          <div class="promo-flag-row"><span>🇺🇸</span><span>🎆</span><span>🎇</span><span>🇺🇸</span></div>
+          <div class="hero-banner-kicker">Promotion</div>
+          <h2 id="heroTitle">America 250!</h2>
+          <p id="heroSubtitle">15% Off Your Order</p>
+          <span id="heroTagline">Use code AMERICA250 at checkout</span>
+          <button type="button" class="btn primary" onclick="openHeroItem()">Shop Now</button>
+        </div>
+        <div class="hero-banner-image" id="heroImageBox"></div>
       </div>
-      <div class="home-promo-cards" id="homePromoCards" aria-label="Promotions and featured picks"></div>
+      <button type="button" class="hero-control hero-control-right" onclick="changeHero(1)">›</button>
+      <div class="hero-dots" id="heroDots"></div>
     </div>
   </section>
 
@@ -1741,11 +1671,24 @@ button.disabled-cart,
     <div class="trust-item"><div class="trust-icon">◎</div><div><strong>USA Based</strong><span>Proudly based in Texas</span></div></div>
   </section>
 
+
+  <section id="hot-peptides" class="section wrap">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Hot Peptides</h2>
+        <div class="underline"></div>
+      </div>
+      <a class="view-all" href="#az">View All</a>
+    </div>
+    <p class="home-section-note">Products in this row are controlled by the Product/Admin hot-peptide flag. Nothing is randomly selected.</p>
+    <div class="stack-grid"></div>
+  </section>
+
   <!-- Featured section is generated from spreadsheet rows where Featured = Yes -->
   <section id="featured" class="section wrap">
     <div class="section-head">
       <div>
-        <h2 class="section-title">Featured Products</h2>
+        <h2 class="section-title">Featured Peptides</h2>
         <div class="underline"></div>
       </div>
     </div>
@@ -1822,7 +1765,7 @@ button.disabled-cart,
   <section id="featured-stacks" class="section wrap">
     <div class="section-head">
       <div>
-        <h2 class="section-title">Featured Stacks &amp; Blends</h2>
+        <h2 class="section-title">Blends &amp; Stacks</h2>
         <div class="underline"></div>
       </div>
     </div>
@@ -2527,66 +2470,96 @@ if (document.readyState === "loading") {
 </script>
 
 <script>
-const pstHomePromoCards = [{"title":"Wolverine Stack","subtitle":"BPC-157 + TB-500","tagline":"10mg / 10mg research context stack","image":"assets/products/Wolverine BPC-157_TB-500 10mg_10mg.png","target":"Wolverine Stack","type":"stack","kicker":"Featured Stack"},{"title":"Glow Blend","subtitle":"BPC-157 + TB4 + GHK-Cu","tagline":"70mg skin health research blend","image":"assets/products/Glow Blend BPC-157 TB4 GHK-Cu_70mg.png","target":"Glow Stack","type":"stack","kicker":"Featured Stack"},{"title":"Klow Blend","subtitle":"KPV + BPC-157 + TB-500","tagline":"80mg research context blend","image":"assets/products/Klow Blend KPV_BPC-157_TB-500_80mg.png","target":"Klow Stack","type":"stack","kicker":"Featured Stack"},{"title":"Hot Peptides","subtitle":"NAD+ • Ipamorelin • Tesamorelin","tagline":"Explore current customer favorites","image":"","target":"#az","type":"anchor","kicker":"Hot Peptides"},{"title":"New Arrivals","subtitle":"Fresh products added to the catalog","tagline":"Browse the A-Z index for new peptide options","image":"","target":"#az","type":"anchor","kicker":"New Arrivals"}];
+const pstHeroSlides = [{"title":"America 250!","subtitle":"15% Off Your Order","tagline":"Use code AMERICA250 at checkout","image":"","target":"#az","type":"promo","promoCode":"AMERICA250","promoMini":"Limited time only"}];
+let pstHeroIndex = 0;
+let pstHeroTimer = null;
 
-function pstEscapeHtml(value) {
-  return String(value || "").replace(/[&<>"']/g, function(char) {
-    return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[char];
-  });
+function renderHero() {
+  const slide = pstHeroSlides[pstHeroIndex];
+  const title = document.getElementById("heroTitle");
+  const subtitle = document.getElementById("heroSubtitle");
+  const tagline = document.getElementById("heroTagline");
+  const imageBox = document.getElementById("heroImageBox");
+  const dots = document.getElementById("heroDots");
+  const banner = document.getElementById("heroBanner");
+  const controls = document.querySelectorAll(".hero-control");
+  if (!slide || !title || !subtitle || !tagline || !imageBox || !dots) return;
+
+  const promoCode = slide.promoCode || "AMERICA250";
+  const isPromo = slide.type === "promo" || !!slide.promoCode;
+
+  if (banner) banner.classList.toggle("promo-only", isPromo);
+  controls.forEach(control => control.classList.toggle("promo-hidden", pstHeroSlides.length <= 1));
+  dots.classList.toggle("promo-hidden", pstHeroSlides.length <= 1);
+
+  title.textContent = slide.title || "America 250!";
+  subtitle.textContent = slide.subtitle || "15% Off Your Order";
+  tagline.textContent = slide.tagline || (promoCode ? "Use code " + promoCode + " at checkout" : "Limited time promotion");
+
+  if (isPromo) {
+    imageBox.innerHTML = `
+      <div class="promo-discount-card" aria-label="Promotion discount code">
+        <div class="promo-discount-amount">15% OFF<br><small style="font-size:42%;font-family:Arial,Helvetica,sans-serif;letter-spacing:.03em;">Your Order</small></div>
+        <div class="promo-discount-code">Use Code:<strong>${pstEsc(promoCode)}</strong></div>
+      </div>`;
+  } else if (slide.image) {
+    imageBox.innerHTML = '<img src="' + slide.image + '" alt="' + slide.title + '">';
+  } else {
+    imageBox.innerHTML = '<div class="hero-text-promo"><strong>' + (slide.title || "Promotion") + '</strong><span>' + (slide.subtitle || "") + '</span></div>';
+  }
+
+  dots.innerHTML = "";
+  for (let i = 0; i < pstHeroSlides.length; i++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "hero-dot" + (i === pstHeroIndex ? " active" : "");
+    btn.onclick = function() { setHero(i); };
+    dots.appendChild(btn);
+  }
 }
 
-function openHomePromoCard(index) {
-  const card = pstHomePromoCards[index];
-  if (!card) return;
-  if (card.type === "stack" && typeof viewStack === "function") {
-    viewStack(card.target);
+function changeHero(direction) {
+  pstHeroIndex = (pstHeroIndex + direction + pstHeroSlides.length) % pstHeroSlides.length;
+  renderHero();
+    buildAZLetterJump();
+  addAZLetterAnchors();
+restartHeroTimer();
+}
+
+function setHero(index) {
+  pstHeroIndex = index;
+  renderHero();
+  restartHeroTimer();
+}
+
+function restartHeroTimer() {
+  if (pstHeroTimer) clearInterval(pstHeroTimer);
+  if (!pstHeroSlides || pstHeroSlides.length <= 1) return;
+  pstHeroTimer = setInterval(function() {
+    pstHeroIndex = (pstHeroIndex + 1) % pstHeroSlides.length;
+    renderHero();
+  }, 5000);
+}
+
+function openHeroItem() {
+  const slide = pstHeroSlides[pstHeroIndex];
+  if (!slide) return;
+  if (slide.type === "stack" && typeof viewStack === "function") {
+    viewStack(slide.target);
     return;
   }
-  if (card.type === "product" && typeof selectProduct === "function") {
-    selectProduct(card.target);
-    return;
-  }
-  if (card.type === "anchor") {
-    const el = document.querySelector(card.target);
+  if (slide.type === "anchor" || slide.type === "promo") {
+    const el = document.querySelector(slide.target || "#az");
     if (el) el.scrollIntoView({behavior:"smooth"});
   }
 }
 
-function renderHomePromoCards() {
-  const row = document.getElementById("homePromoCards");
-  if (!row) return;
-  row.innerHTML = "";
+document.addEventListener("click", function(event) {
+  const search = document.querySelector(".site-search");
+  const box = document.getElementById("searchResults");
+  if (search && box && !search.contains(event.target)) box.classList.remove("active");
+});
 
-  pstHomePromoCards.forEach(function(card, index) {
-    const article = document.createElement("article");
-    article.className = "home-promo-card";
-
-    const media = card.image
-      ? '<div class="home-promo-card-media"><img src="' + pstEscapeHtml(card.image) + '" alt="' + pstEscapeHtml(card.title) + '"></div>'
-      : '<div class="home-promo-card-textonly"><strong>' + pstEscapeHtml(card.title) + '</strong></div>';
-
-    const code = card.promoCode ? '<div class="home-promo-code">Code: ' + pstEscapeHtml(card.promoCode) + '</div>' : '';
-
-    article.innerHTML = media +
-      '<div class="home-promo-card-body">' +
-        '<div class="home-promo-card-kicker">' + pstEscapeHtml(card.kicker || "Featured") + '</div>' +
-        '<h3>' + pstEscapeHtml(card.title) + '</h3>' +
-        '<p>' + pstEscapeHtml(card.subtitle || card.tagline || "") + '</p>' +
-        '<div>' + code + '<button type="button" class="btn primary">View</button></div>' +
-      '</div>';
-
-    const button = article.querySelector("button");
-    if (button) button.addEventListener("click", function() { openHomePromoCard(index); });
-    row.appendChild(article);
-  });
-}
-
-/* Backward-compatible no-op functions in case any older inline carousel handlers remain cached */
-function changeHero() { renderHomePromoCards(); }
-function setHero() { renderHomePromoCards(); }
-function restartHeroTimer() {}
-function openHeroItem() { openHomePromoCard(0); }
-function renderHero() { renderHomePromoCards(); }
 
 async function loadHomepagePromotionSlides() {
   try {
@@ -2620,18 +2593,19 @@ async function loadHomepagePromotionSlides() {
 
     if (!promotions.length) return;
 
-    const dynamicPromoCards = promotions.map(row => ({
-      title: row.promotion_title || "Current Promotion",
-      subtitle: row.hero_banner_text || row.promotion_description || `Use code ${row.code} at checkout`,
-      tagline: row.promotion_description || `Use code ${row.code} at checkout`,
+    const dynamicPromoSlides = promotions.map(row => ({
+      title: row.promotion_title || "America 250!",
+      subtitle: "15% Off Your Order",
+      tagline: row.hero_banner_text || row.promotion_description || `Use code ${row.code} at checkout`,
       image: "",
-      target: "#featured",
-      type: "anchor",
-      kicker: "Promotion",
-      promoCode: row.code
+      target: "#az",
+      type: "promo",
+      promoCode: row.code || "AMERICA250",
+      promoMini: "Limited time only"
     }));
 
-    pstHomePromoCards.unshift(...dynamicPromoCards);
+    pstHeroSlides.splice(0, pstHeroSlides.length, ...dynamicPromoSlides);
+    pstHeroIndex = 0;
   } catch (error) {
     console.warn("Homepage promotions could not load:", error);
   }
@@ -2639,7 +2613,8 @@ async function loadHomepagePromotionSlides() {
 
 document.addEventListener("DOMContentLoaded", async function() {
   await loadHomepagePromotionSlides();
-  renderHomePromoCards();
+  renderHero();
+  restartHeroTimer();
 });
 </script>
 
@@ -2830,6 +2805,7 @@ async function loadSupabaseProductCatalog() {
       price: Number(p.price || 0),
       inventory: Number(p.current_inventory || 0),
       featured: p.featured === true,
+      hotPeptide: p.hot_peptide === true || p.show_hot_peptide === true || p.hot_peptides === true,
       blendStack: p.blend_stack === true,
       imageData: p.image_data || p.image_file || "",
       file: p.image_file || p.image_data || "",
@@ -2924,6 +2900,7 @@ async function loadProducts() {
     p.lowStockThreshold = inv ? Number(inv.low_stock_threshold || 5) : 5;
     p.limitedStockThreshold = inv ? Number(inv.limited_stock_threshold || 10) : 25;
     p.isActive = true;
+    p.hotPeptide = p.hotPeptide === true || p.hot_peptide === true || p.showHotPeptide === true || p.show_hot_peptide === true;
 
     if (p.useDynamicLabel && !p.imageData) {
       p.imageData = makeDynamicPSTLabelDataUrl(p);
@@ -2966,6 +2943,7 @@ async function loadProducts() {
 }
 
 function rebuildAllProductSections() {
+  rebuildHotPeptides();
   rebuildFeaturedProducts();
   rebuildFeaturedStacks();
   rebuildAZ();
@@ -2991,6 +2969,24 @@ function productCard(p, badge) {
     </article>`;
 }
 
+
+function rebuildHotPeptides() {
+  const section = document.querySelector("#hot-peptides .stack-grid");
+  const wrapper = document.getElementById("hot-peptides");
+  if (!section || !wrapper) return;
+
+  const hot = Object.values(productData)
+    .filter(p => p && p.hotPeptide === true && p.active !== false && p.isActive !== false && p.blendStack !== true)
+    .sort((a, b) => Number(a.displayOrder || a.display_order || 999) - Number(b.displayOrder || b.display_order || 999));
+
+  if (!hot.length) {
+    section.innerHTML = '<div class="empty-home-row">No Hot Peptides selected yet. Turn on the Hot Peptide flag in Product/Admin when ready.</div>';
+    return;
+  }
+
+  section.innerHTML = hot.map(p => productCard(p, "Hot Peptide")).join("");
+}
+
 function rebuildFeaturedProducts() {
   const section = document.querySelector("#featured .stack-grid");
   if (!section) return;
@@ -3010,7 +3006,7 @@ function rebuildFeaturedStacks() {
     wrapper.id = "featured-stacks";
     wrapper.className = "section wrap";
     wrapper.innerHTML = `
-      <div class="section-head"><div><h2 class="section-title">Featured Stacks &amp; Blends</h2><div class="underline"></div></div></div>
+      <div class="section-head"><div><h2 class="section-title">Blends &amp; Stacks</h2><div class="underline"></div></div></div>
       <div class="stack-grid"></div>`;
     az.parentNode.insertBefore(wrapper, az);
     section = wrapper.querySelector(".stack-grid");
@@ -3340,7 +3336,7 @@ function rebuildFeaturedStacks() {
     wrapper.id = "featured-stacks";
     wrapper.className = "section wrap";
     wrapper.innerHTML = `
-      <div class="section-head"><div><h2 class="section-title">Featured Stacks &amp; Blends</h2><div class="underline"></div></div></div>
+      <div class="section-head"><div><h2 class="section-title">Blends &amp; Stacks</h2><div class="underline"></div></div></div>
       <div class="stack-grid"></div>`;
     az.parentNode.insertBefore(wrapper, az);
     section = wrapper.querySelector(".stack-grid");
