@@ -431,6 +431,12 @@ function esc(v) {
 
 function money(v) { return Number(v || 0).toFixed(2); }
 
+function addSafeListener(id, eventName, handler) {
+  const el = $(id);
+  if (el) el.addEventListener(eventName, handler);
+}
+
+
 function makeProductKey(name, strength) {
   return String((name || "NEW PRODUCT") + " " + (strength || ""))
     .trim()
@@ -944,28 +950,28 @@ async function importProductsJson() {
 }
 
 function wireEvents() {
-  $("refreshBtn").addEventListener("click", loadProducts);
-  $("signOutBtn").addEventListener("click", async () => {
+  addSafeListener("refreshBtn", "click", loadProducts);
+  addSafeListener("signOutBtn", "click", async () => {
     await db.auth.signOut();
     window.location.href = "index.html";
   });
 
-  $("searchInput").addEventListener("input", applyFilters);
-  $("categoryFilter").addEventListener("change", applyFilters);
-  $("activeFilter").addEventListener("change", applyFilters);
-  $("featuredFilter").addEventListener("change", applyFilters);
+  addSafeListener("searchInput", "input", applyFilters);
+  addSafeListener("categoryFilter", "change", applyFilters);
+  addSafeListener("activeFilter", "change", applyFilters);
+  
 
-  $("clearFiltersBtn").addEventListener("click", () => {
+  addSafeListener("clearFiltersBtn", "click", () => {
     $("searchInput").value = "";
     $("categoryFilter").value = "";
     $("activeFilter").value = "";
-    $("featuredFilter").value = "";
+    
     applyFilters();
   });
 
-  $("saveDirtyBtn").addEventListener("click", saveDirtyRows);
-  $("importJsonBtn").addEventListener("click", importProductsJson);
-  $("addProductBtn").addEventListener("click", addProduct);
+  addSafeListener("saveDirtyBtn", "click", saveDirtyRows);
+  addSafeListener("importJsonBtn", "click", importProductsJson);
+  addSafeListener("addProductBtn", "click", addProduct);
 }
 
 async function init() {
