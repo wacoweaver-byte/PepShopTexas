@@ -247,8 +247,8 @@ header .actions .btn:hover {
 /* PST Product Admin horizontal floating column nav */
 .product-admin-scroll-nav {
   position: sticky;
-  top: 82px;
-  z-index: 20;
+  top: 68px;
+  z-index: 49;
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -256,8 +256,9 @@ header .actions .btn:hover {
   -webkit-overflow-scrolling: touch;
   padding: 10px 14px;
   background: #ffffff;
+  border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  box-shadow: 0 8px 18px rgba(0,0,0,.06);
+  box-shadow: 0 8px 18px rgba(0,0,0,.10);
 }
 .product-admin-scroll-nav button {
   flex: 0 0 auto;
@@ -361,10 +362,8 @@ header .actions .btn:hover {
       <button type="button" data-scroll-col="display_name">Name</button>
       <button type="button" data-scroll-col="strength">Strength</button>
       <button type="button" data-scroll-col="category">Category</button>
-      <button type="button" data-scroll-col="price">Price</button>
       <button type="button" data-scroll-col="reconstitution">Recon</button>
       <button type="button" data-scroll-col="is_active">Active</button>
-      <button type="button" data-scroll-col="featured">Featured</button>
       <button type="button" data-scroll-col="hot_peptide">Hot Peptide</button>
       <button type="button" data-scroll-col="blend_stack">Stack/Blend</button>
       <button type="button" data-scroll-col="description">Description</button>

@@ -1809,6 +1809,25 @@ button.disabled-cart,
   .home-showcase-title { font-size: 20px !important; }
 }
 
+
+/* PST Hot Peptides card centering */
+#homeHotPeptideCards {
+  justify-content: center !important;
+  align-items: stretch !important;
+}
+#homeHotPeptideCards .home-mini-product {
+  text-align: center !important;
+}
+#homeHotPeptideCards .home-mini-product-image,
+#homeHotPeptideCards .home-mini-product-body {
+  text-align: center !important;
+}
+@media(max-width: 980px) {
+  #homeHotPeptideCards {
+    justify-content: center !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1884,7 +1903,7 @@ button.disabled-cart,
 
   <article class="home-showcase-card">
     <h2 class="home-showcase-title">Hot Peptides</h2>
-    <div id="homeHotPeptideCards" class="home-mini-carousel" aria-label="Hot peptides"></div>
+    <div id="homeHotPeptideCards" class="home-mini-carousel hot-peptides-centered" aria-label="Hot peptides"></div>
   </article>
 </section>
 
@@ -4057,6 +4076,25 @@ window.addEventListener("resize", () => {
   #selectedImage, .detail-vial img, #product-detail img { max-height: 260px !important; }
   .detail-card h2 { font-size: 34px !important; }
 }
+
+/* PST Hot Peptides card centering */
+#homeHotPeptideCards {
+  justify-content: center !important;
+  align-items: stretch !important;
+}
+#homeHotPeptideCards .home-mini-product {
+  text-align: center !important;
+}
+#homeHotPeptideCards .home-mini-product-image,
+#homeHotPeptideCards .home-mini-product-body {
+  text-align: center !important;
+}
+@media(max-width: 980px) {
+  #homeHotPeptideCards {
+    justify-content: center !important;
+  }
+}
+
 </style>
 
 <script>
