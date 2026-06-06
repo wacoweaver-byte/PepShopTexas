@@ -329,14 +329,6 @@ header .actions .btn:hover {
           </select>
         </div>
         <div class="field">
-          <label>Featured</label>
-          <select id="featuredFilter">
-            <option value="">All</option>
-            <option value="true">Featured only</option>
-            <option value="false">Not featured</option>
-          </select>
-        </div>
-        <div class="field">
           <label>Hot Peptide</label>
           <select id="hotFilter">
             <option value="">All</option>
@@ -394,8 +386,7 @@ header .actions .btn:hover {
             <th>Price</th>
             <th>Reconstitution</th>
             <th>Active</th>
-            <th>Featured</th>
-            <th>Hot Peptide</th>
+                        <th>Hot Peptide</th>
             <th>Stack / Blend</th>
             <th>Description</th>
             <th>Research Notes</th>
@@ -596,7 +587,6 @@ function applyFilters() {
   const search = $("searchInput").value.trim().toLowerCase();
   const category = $("categoryFilter").value;
   const active = $("activeFilter").value;
-  const featured = $("featuredFilter").value;
   const hot = $("hotFilter") ? $("hotFilter").value : "";
 
   filteredProducts = allProducts.filter(product => {
@@ -608,7 +598,6 @@ function applyFilters() {
     return (!search || text.includes(search))
       && (!category || product.category === category)
       && (!active || String(product.is_active) === active)
-      && (!featured || String(product.featured) === featured)
       && (!hot || String(product.hot_peptide === true) === hot);
   });
 
@@ -639,12 +628,6 @@ function renderTable() {
           <select data-field="is_active">
             <option value="true" ${product.is_active !== false ? "selected" : ""}>Yes</option>
             <option value="false" ${product.is_active === false ? "selected" : ""}>No</option>
-          </select>
-        </td>
-        <td>
-          <select data-field="featured">
-            <option value="false" ${!product.featured ? "selected" : ""}>No</option>
-            <option value="true" ${product.featured ? "selected" : ""}>Yes</option>
           </select>
         </td>
         <td>
