@@ -307,6 +307,7 @@ header .actions .btn:hover {
   <h1>Products</h1>
   <p class="subtitle">Spreadsheet-style product catalog management. Edit product details, add new products, control featured status, and preview dynamic PST label cards. <strong>Hot Peptide = Yes controls the homepage Hot Peptides carousel.</strong></p>
   <div id="status" class="status">Checking admin access...</div>
+  <p class="note"><strong>Note:</strong> Save errors now display exact Supabase messages. Hot Peptide requires a boolean column named <code>hot_peptide</code> in the <code>product_catalog</code> table.</p>
 
   <section class="card">
     <div class="card-head">
@@ -714,6 +715,7 @@ function getRowData(id) {
 }
 
 async function saveRow(id) {
+  try {
   const data = getRowData(id);
   if (!data) return;
 
@@ -766,6 +768,11 @@ async function saveRow(id) {
   dirtyIds.delete(id);
   setStatus(`${updates.display_name} saved.`, "good");
   await loadProducts();
+  } catch (err) {
+    console.error("Product save error:", err);
+    setStatus("Save failed: " + (err && err.message ? err.message : String(err)), "bad");
+    alert("Save failed: " + (err && err.message ? err.message : String(err)));
+  }
 }
 
 
@@ -980,6 +987,21 @@ if (document.readyState === "loading") {
 } else {
   setupProductAdminScrollNav();
 }
+
+
+document.addEventListener("click", function(event) {
+  const saveBtn = event.target.closest(".row-save");
+  if (saveBtn && saveBtn.dataset.id) {
+    event.preventDefault();
+    saveRow(saveBtn.dataset.id);
+  }
+
+  const deleteBtn = event.target.closest(".row-delete");
+  if (deleteBtn && deleteBtn.dataset.id) {
+    event.preventDefault();
+    deleteProduct(deleteBtn.dataset.id);
+  }
+});
 
 </script>
 </body>
