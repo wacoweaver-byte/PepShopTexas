@@ -1463,87 +1463,29 @@ button.disabled-cart,
   }
 }
 
-
-
-/* Discount code checkout */
-.discount-code-box { margin: 14px 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcff; }
-.discount-code-box label { display:block; font-size:12px; font-weight:900; text-transform:uppercase; color:#555; margin-bottom:7px; }
-.discount-code-row { display:flex; gap:8px; align-items:center; }
-.discount-code-row input { flex:1; min-width:0; padding:11px 12px; border:1px solid var(--line); border-radius:6px; font-weight:800; text-transform:uppercase; }
-.discount-code-row .btn { padding: 10px 13px; }
-.discount-code-status { margin-top:8px; font-size:13px; font-weight:800; line-height:1.35; }
-.discount-code-status.good { color:#147a32; }
-.discount-code-status.bad { color:#b00020; }
-.discount-code-status.info { color:#153f76; }
-@media(max-width:560px) { .discount-code-row { flex-direction:column; align-items:stretch; } }
-
-/* PST dynamic promotion banner from Discount Management */
-.promo-hero-banner {
-  display: none;
-  background: linear-gradient(90deg, #003f9e 0%, #0077c8 100%);
-  color: #ffffff;
-  border-bottom: 2px solid #002f76;
-  padding: 12px 18px;
-  text-align: center;
+/* PST database-driven Current Promotions carousel slides */
+.hero-text-promo .promo-code {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--blue);
+  color: var(--blue);
+  background: #f4f8ff;
+  border-radius: 999px;
+  padding: 8px 14px;
   font-weight: 900;
-  line-height: 1.35;
+  letter-spacing: .6px;
 }
-.promo-hero-banner.active {
-  display: block;
-}
-.promo-hero-banner strong {
-  text-transform: uppercase;
-}
-.promo-hero-banner span {
-  display: inline-block;
+.hero-text-promo .promo-mini {
+  margin-top: 8px;
+  color: #555;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: none;
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">/* PST dynamic homepage promotion banner */
-async function loadPromoHeroBanner() {
-  const banner = document.getElementById("promoHeroBanner");
-  if (!banner || !window.supabase) return;
-
-  try {
-    const client =
-      window.pstSupabase ||
-      window.supabaseClient ||
-      window.db ||
-      (typeof PST_SUPABASE_URL !== "undefined" && typeof PST_SUPABASE_PUBLISHABLE_KEY !== "undefined"
-        ? window.supabase.createClient(PST_SUPABASE_URL, PST_SUPABASE_PUBLISHABLE_KEY)
-        : null);
-
-    if (!client) return;
-
-    const nowIso = new Date().toISOString();
-
-    const { data, error } = await client
-      .from("discount_codes")
-      .select("code, promotion_title, promotion_description, hero_banner_text, promotion_starts_at, promotion_ends_at, active, hero_banner_active")
-      .eq("active", true)
-      .eq("hero_banner_active", true)
-      .order("created_at", { ascending: false })
-      .limit(10);
-
-    if (error || !data || !data.length) return;
-
-    const promo = data.find(row => {
-      const startsOk = !row.promotion_starts_at || row.promotion_starts_at <= nowIso;
-      const endsOk = !row.promotion_ends_at || row.promotion_ends_at >= nowIso;
-      return startsOk && endsOk;
-    });
-
-    if (!promo) return;
-
-    const text = promo.hero_banner_text || promo.promotion_description || promo.promotion_title || `Use code ${promo.code} at checkout.`;
-    banner.innerHTML = `<span>${String(text).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]))}</span>`;
-    banner.classList.add("active");
-  } catch (error) {
-    console.warn("Promotion banner could not load:", error);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", loadPromoHeroBanner);
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="construction-banner" aria-label="Under construction notice">
@@ -1554,7 +1496,6 @@ document.addEventListener("DOMContentLoaded", loadPromoHeroBanner);
     <span>Under Construction 🚧: site will go live soon, thank you for your interest</span>
   </div>
 </div>
-<div id="promoHeroBanner" class="promo-hero-banner" aria-label="Current promotion"></div>
 <div class="top-strip">
   <span>🚚 Shipping options available</span>
   <span>Research use only — not for human or veterinary use — not medical advice</span>
@@ -1599,15 +1540,6 @@ document.addEventListener("DOMContentLoaded", loadPromoHeroBanner);
   <h2>Cart</h2>
   <div id="cartItems"><p>Your cart is empty.</p></div>
   <div class="cart-total" id="cartTotal">Subtotal: $0.00</div>
-  <div class="discount-code-box">
-    <label for="discountCodeInput">Discount Code</label>
-    <div class="discount-code-row">
-      <input id="discountCodeInput" type="text" placeholder="Enter code" autocomplete="off" />
-      <button class="btn secondary" id="applyDiscountButton" type="button" onclick="applyPSTDiscountCode()">Apply</button>
-      <button class="btn secondary" id="removeDiscountButton" type="button" onclick="removePSTDiscountCode()" style="display:none;">Remove</button>
-    </div>
-    <div id="discountCodeStatus" class="discount-code-status"></div>
-  </div>
   <div class="cart-actions">
     <button class="btn secondary" onclick="toggleCart()">Continue Shopping</button>
     <button class="btn primary" id="checkoutButton" type="button" onclick="placePSTOrder()">Checkout</button>
@@ -2457,7 +2389,14 @@ function renderHero() {
   if (slide.image) {
     imageBox.innerHTML = '<img src="' + slide.image + '" alt="' + slide.title + '">';
   } else {
-    imageBox.innerHTML = '<div class="hero-text-promo"><strong>' + slide.title + '</strong><span>' + slide.subtitle + '</span></div>';
+    let promoExtra = "";
+    if (slide.promoCode) {
+      promoExtra = '<div class="promo-code">Code: ' + slide.promoCode + '</div>';
+    }
+    if (slide.promoMini) {
+      promoExtra += '<div class="promo-mini">' + slide.promoMini + '</div>';
+    }
+    imageBox.innerHTML = '<div class="hero-text-promo"><strong>' + slide.title + '</strong><span>' + slide.subtitle + '</span>' + promoExtra + '</div>';
   }
 
   dots.innerHTML = "";
@@ -2511,7 +2450,68 @@ document.addEventListener("click", function(event) {
   if (search && box && !search.contains(event.target)) box.classList.remove("active");
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+
+async function loadHomepagePromotionSlides() {
+  try {
+    if (typeof window.supabase === "undefined") return;
+
+    const client =
+      window.pstHomeSupabase ||
+      (typeof PST_SUPABASE_URL !== "undefined" && typeof PST_SUPABASE_PUBLISHABLE_KEY !== "undefined"
+        ? window.supabase.createClient(PST_SUPABASE_URL, PST_SUPABASE_PUBLISHABLE_KEY)
+        : null);
+
+    if (!client) return;
+
+    const nowIso = new Date().toISOString();
+
+    const { data, error } = await client
+      .from("discount_codes")
+      .select("code, promotion_title, promotion_description, hero_banner_text, promotion_starts_at, promotion_ends_at, active, hero_banner_active")
+      .eq("active", true)
+      .eq("hero_banner_active", true)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (error || !data || !data.length) return;
+
+    const promotions = data.filter(row => {
+      const startsOk = !row.promotion_starts_at || row.promotion_starts_at <= nowIso;
+      const endsOk = !row.promotion_ends_at || row.promotion_ends_at >= nowIso;
+      return startsOk && endsOk;
+    });
+
+    if (!promotions.length) return;
+
+    const dynamicPromoSlides = promotions.map(row => ({
+      title: row.promotion_title || "Current Promotions",
+      subtitle: row.hero_banner_text || row.promotion_description || `Use code ${row.code} at checkout`,
+      tagline: row.promotion_description || `Use code ${row.code} at checkout`,
+      image: "",
+      target: "#featured",
+      type: "anchor",
+      promoCode: row.code,
+      promoMini: "Applied at checkout"
+    }));
+
+    const firstStaticPromoIndex = pstHeroSlides.findIndex(slide =>
+      String(slide.title || "").toLowerCase().includes("current promotions")
+    );
+
+    if (firstStaticPromoIndex >= 0) {
+      pstHeroSlides.splice(firstStaticPromoIndex, 1, ...dynamicPromoSlides);
+    } else {
+      pstHeroSlides.push(...dynamicPromoSlides);
+    }
+
+    if (pstHeroIndex >= pstHeroSlides.length) pstHeroIndex = 0;
+  } catch (error) {
+    console.warn("Homepage promotions could not load:", error);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async function() {
+  await loadHomepagePromotionSlides();
   renderHero();
   restartHeroTimer();
 });
@@ -3151,126 +3151,8 @@ function renderCart() {
     }</div>
   `;
 }
-
 </script>
 
-<script>
-/* PST DISCOUNT CODE SYSTEM */
-let pstAppliedDiscount = null;
-
-function setDiscountCodeStatus(message, type = "info") {
-  const el = document.getElementById("discountCodeStatus");
-  if (!el) return;
-  el.className = "discount-code-status " + type;
-  el.textContent = message || "";
-}
-function normalizeDiscountCode(code) { return String(code || "").trim().toUpperCase(); }
-function computeCodeDiscountAmount(discount, subtotal) {
-  const base = Number(subtotal || 0);
-  if (!discount || base <= 0) return 0;
-  const pct = Number(discount.percent_off || discount.discount_percent || 0);
-  const amt = Number(discount.amount_off || discount.discount_amount || 0);
-  let calculated = 0;
-  if (pct > 0) calculated = base * (pct / 100);
-  if (amt > 0) calculated = Math.max(calculated, amt);
-  return Number(Math.min(base, calculated).toFixed(2));
-}
-function describeAppliedDiscount(discount) {
-  if (!discount) return "";
-  const pct = Number(discount.percent_off || discount.discount_percent || 0);
-  const amt = Number(discount.amount_off || discount.discount_amount || 0);
-  if (pct > 0) return `${normalizeDiscountCode(discount.code)} (${pct}% off)`;
-  if (amt > 0) return `${normalizeDiscountCode(discount.code)} (${pstMoney(amt)} off)`;
-  return normalizeDiscountCode(discount.code);
-}
-async function getCurrentCustomerEmailForDiscount() {
-  if (typeof pstHomeSupabase === "undefined") return "";
-  const { data } = await pstHomeSupabase.auth.getSession();
-  const user = data?.session?.user;
-  if (!user) return "";
-  const { data: profile } = await pstHomeSupabase.from("customer_profiles").select("email").eq("user_id", user.id).maybeSingle();
-  return (profile?.email || user.email || "").trim().toLowerCase();
-}
-async function applyPSTDiscountCode() {
-  const input = document.getElementById("discountCodeInput");
-  const code = normalizeDiscountCode(input?.value);
-  if (!code) return setDiscountCodeStatus("Enter a discount code first.", "bad");
-  if (typeof pstHomeSupabase === "undefined") return setDiscountCodeStatus("Discount system is not connected yet.", "bad");
-  try {
-    setDiscountCodeStatus("Checking discount code...", "info");
-    const { data: discount, error } = await pstHomeSupabase.from("discount_codes").select("*").eq("code", code).eq("active", true).maybeSingle();
-    if (error) throw error;
-    if (!discount) { pstAppliedDiscount = null; renderCart(); return setDiscountCodeStatus("Invalid or inactive discount code.", "bad"); }
-    if (discount.expires_at && new Date(discount.expires_at) < new Date()) { pstAppliedDiscount = null; renderCart(); return setDiscountCodeStatus("This discount code has expired.", "bad"); }
-    const assignedEmail = String(discount.assigned_email || "").trim().toLowerCase();
-    const customerEmail = await getCurrentCustomerEmailForDiscount();
-    if (assignedEmail && assignedEmail !== customerEmail) { pstAppliedDiscount = null; renderCart(); return setDiscountCodeStatus("This discount code is assigned to a different customer email.", "bad"); }
-    const maxUses = Number(discount.max_uses || 0);
-    const timesUsed = Number(discount.times_used || discount.uses || 0);
-    if (maxUses > 0 && timesUsed >= maxUses) { pstAppliedDiscount = null; renderCart(); return setDiscountCodeStatus("This discount code has already reached its use limit.", "bad"); }
-    const oneTime = discount.one_time_use === true || String(discount.discount_type || "").toLowerCase().includes("one");
-    if (oneTime && customerEmail) {
-      const { data: priorUse, error: usageError } = await pstHomeSupabase.from("discount_usage").select("id").eq("discount_id", discount.id).eq("customer_email", customerEmail).limit(1);
-      if (usageError) throw usageError;
-      if (priorUse && priorUse.length) { pstAppliedDiscount = null; renderCart(); return setDiscountCodeStatus("This one-time discount code has already been used for this email.", "bad"); }
-    }
-    pstAppliedDiscount = discount;
-    renderCart();
-    setDiscountCodeStatus(`Applied: ${describeAppliedDiscount(discount)}`, "good");
-  } catch (err) { console.error(err); setDiscountCodeStatus("Discount check failed: " + (err.message || err), "bad"); }
-}
-function removePSTDiscountCode() {
-  pstAppliedDiscount = null;
-  const input = document.getElementById("discountCodeInput");
-  if (input) input.value = "";
-  const removeBtn = document.getElementById("removeDiscountButton");
-  if (removeBtn) removeBtn.style.display = "none";
-  renderCart();
-  setDiscountCodeStatus("Discount removed.", "info");
-}
-
-renderCart = function renderCartWithCodeDiscount() {
-  cart = cart.map(item => {
-    const key = item.key || item.id.replace("product:", "");
-    const p = productData[key];
-    return p ? { ...item, display:p.display, strength:p.strength, price:Number(p.price || 0) } : item;
-  });
-  const count = cart.reduce((s,i) => s + Number(i.quantity || 0), 0);
-  const subtotal = cart.reduce((s,i) => s + Number(i.quantity || 0) * Number(i.price || 0), 0);
-  const vialDiscountRate = getPSTDiscountRate(count);
-  const vialDiscountAmount = Number((subtotal * vialDiscountRate).toFixed(2));
-  const afterVialDiscount = Math.max(0, subtotal - vialDiscountAmount);
-  const codeDiscountAmount = computeCodeDiscountAmount(pstAppliedDiscount, afterVialDiscount);
-  const total = Math.max(0, afterVialDiscount - codeDiscountAmount);
-  const countEl = document.getElementById("cartCount");
-  if (countEl) countEl.textContent = count;
-  const totalEl = document.getElementById("cartTotal");
-  if (totalEl) totalEl.textContent = pstMoney(total);
-  const removeBtn = document.getElementById("removeDiscountButton");
-  if (removeBtn) removeBtn.style.display = pstAppliedDiscount ? "inline-block" : "none";
-  const itemsEl = document.getElementById("cartItems");
-  if (!itemsEl) return;
-  if (!cart.length) { itemsEl.innerHTML = "<p>Your cart is empty.</p>"; return; }
-  itemsEl.innerHTML = cart.map(item => `
-    <div class="cart-item">
-      <strong>${pstEsc(item.display)}</strong>
-      <span>${pstEsc(item.strength || "")}</span>
-      <div class="qty-row">
-        <button class="qty-btn" onclick='changeQuantity(${JSON.stringify(item.id)}, -1)'>-</button>
-        <span>${item.quantity}</span>
-        <button class="qty-btn" onclick='changeQuantity(${JSON.stringify(item.id)}, 1)'>+</button>
-        <span style="margin-left:auto;font-weight:900;">${pstMoney(Number(item.price || 0) * Number(item.quantity || 0))}</span>
-        <button class="remove-btn" onclick='removeItem(${JSON.stringify(item.id)})'>Remove</button>
-      </div>
-    </div>
-  `).join("") + `
-    <div class="subtotal-line"><span>Subtotal</span><span>${pstMoney(subtotal)}</span></div>
-    <div class="discount-line"><span>Vial Discount ${vialDiscountRate ? "(" + Math.round(vialDiscountRate * 100) + "%)" : ""}</span><span>-${pstMoney(vialDiscountAmount)}</span></div>
-    ${pstAppliedDiscount ? `<div class="discount-line"><span>Discount Code ${pstEsc(describeAppliedDiscount(pstAppliedDiscount))}</span><span>-${pstMoney(codeDiscountAmount)}</span></div>` : ""}
-    <div class="discount-note">${Number(total || 0) <= 0 ? "Checkout is disabled while products are listed at $0.00 during testing." : (pstAppliedDiscount ? "Discount code will be saved to your order record." : getNextPSTDiscountMessage(count))}</div>
-  `;
-}
-</script>
 
 <script>
 function getInventoryStatusClass(inventory) {
@@ -3465,27 +3347,17 @@ function addProductToCart(key) {
 function getPSTCartTotals() {
   const count = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const subtotal = cart.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.price || 0), 0);
-  const vialDiscountRate = typeof getPSTDiscountRate === "function" ? getPSTDiscountRate(count) : 0;
-  const vialDiscountAmount = Number((subtotal * vialDiscountRate).toFixed(2));
-  const afterVialDiscount = Math.max(0, subtotal - vialDiscountAmount);
-  const codeDiscountAmount = computeCodeDiscountAmount(typeof pstAppliedDiscount !== "undefined" ? pstAppliedDiscount : null, afterVialDiscount);
+  const discountRate = typeof getPSTDiscountRate === "function" ? getPSTDiscountRate(count) : 0;
+  const discountAmount = subtotal * discountRate;
   const shipping = 0;
   const tax = 0;
-  const total = afterVialDiscount - codeDiscountAmount + shipping + tax;
-  const totalDiscountAmount = vialDiscountAmount + codeDiscountAmount;
+  const total = subtotal - discountAmount + shipping + tax;
+
   return {
     count,
     subtotal: Number(subtotal.toFixed(2)),
-    subtotalBeforeDiscount: Number(subtotal.toFixed(2)),
-    discountRate: vialDiscountRate,
-    discountAmount: Number(totalDiscountAmount.toFixed(2)),
-    vialDiscountAmount: Number(vialDiscountAmount.toFixed(2)),
-    codeDiscountAmount: Number(codeDiscountAmount.toFixed(2)),
-    discountCode: pstAppliedDiscount ? normalizeDiscountCode(pstAppliedDiscount.code) : null,
-    discountId: pstAppliedDiscount ? pstAppliedDiscount.id : null,
-    discountType: pstAppliedDiscount ? (pstAppliedDiscount.discount_type || (pstAppliedDiscount.one_time_use ? "one_time" : "standard")) : null,
-    discountPercent: pstAppliedDiscount ? Number(pstAppliedDiscount.percent_off || pstAppliedDiscount.discount_percent || 0) : 0,
-    discountFixedAmount: pstAppliedDiscount ? Number(pstAppliedDiscount.amount_off || pstAppliedDiscount.discount_amount || 0) : 0,
+    discountRate,
+    discountAmount: Number(discountAmount.toFixed(2)),
     shipping,
     tax,
     total: Number(total.toFixed(2))
@@ -3694,14 +3566,6 @@ async function placePSTOrder() {
       shipping: totals.shipping,
       tax: totals.tax,
       total: totals.total,
-      subtotal_before_discount: totals.subtotalBeforeDiscount,
-      discount_code: totals.discountCode,
-      discount_id: totals.discountId,
-      discount_type: totals.discountType,
-      discount_percent: totals.discountPercent,
-      discount_amount: totals.discountAmount,
-      discount_code_amount: totals.codeDiscountAmount,
-      vial_discount_amount: totals.vialDiscountAmount,
       shipping_name: shippingName || null,
       shipping_email: (profile && profile.email) || session.user.email || null,
       shipping_phone: (profile && profile.phone) || null,
@@ -3713,10 +3577,7 @@ async function placePSTOrder() {
       payment_method: "Pending Manual Payment",
       payment_status: "Pending",
       customer_notes: totals.discountAmount > 0
-        ? [
-            totals.vialDiscountAmount > 0 ? `Automatic vial discount applied: ${Math.round(totals.discountRate * 100)}% / $${totals.vialDiscountAmount.toFixed(2)}` : "",
-            totals.codeDiscountAmount > 0 ? `Discount code applied: ${totals.discountCode} / $${totals.codeDiscountAmount.toFixed(2)}` : ""
-          ].filter(Boolean).join(" | ")
+        ? `Automatic vial discount applied: ${Math.round(totals.discountRate * 100)}% / $${totals.discountAmount.toFixed(2)}`
         : null
     };
 
@@ -3744,19 +3605,6 @@ async function placePSTOrder() {
       .insert(itemPayload);
 
     if (itemError) throw itemError;
-
-    if (totals.discountId && totals.codeDiscountAmount > 0) {
-      await pstHomeSupabase.from("discount_usage").insert({
-        discount_id: totals.discountId,
-        order_id: order.id,
-        customer_email: ((profile && profile.email) || session.user.email || "").toLowerCase(),
-        amount_saved: totals.codeDiscountAmount
-      });
-      const { data: currentDiscount } = await pstHomeSupabase.from("discount_codes").select("times_used,uses").eq("id", totals.discountId).maybeSingle();
-      if (currentDiscount) {
-        await pstHomeSupabase.from("discount_codes").update({ times_used: Number(currentDiscount.times_used || 0) + 1, uses: Number(currentDiscount.uses || 0) + 1 }).eq("id", totals.discountId);
-      }
-    }
 
 
     const { data: inventoryResult, error: inventoryError } = await pstHomeSupabase
