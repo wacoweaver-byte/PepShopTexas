@@ -695,8 +695,8 @@ function renderTable() {
 }
 
 function getRowData(id) {
-  const row = document.querySelector(`tr[data-id="${id}"]`);
-  const original = allProducts.find(p => p.id === id);
+  const row = document.querySelector(`tr[data-id="${CSS.escape(String(id))}"]`);
+  const original = allProducts.find(p => String(p.id) === String(id));
   if (!row || !original) return null;
 
   const data = { ...original };
@@ -716,65 +716,109 @@ function getRowData(id) {
 
 async function saveRow(id) {
   try {
-  const data = getRowData(id);
-  if (!data) return;
+    const data = getRowData(id);
+    if (!data) {
+      setStatus("Save failed: row data could not be found.", "bad");
+      return;
+    }
 
-  if (!data.product_key) data.product_key = makeProductKey(data.display_name, data.strength);
-  if (!data.display_name) {
-    alert("Display Name is required.");
-    return;
-  }
+    if (!data.product_key) data.product_key = makeProductKey(data.display_name, data.strength);
+    if (!data.display_name) {
+      alert("Display Name is required.");
+      return;
+    }
 
-  const updates = {
-    product_key: data.product_key,
-    display_name: data.display_name,
-    strength: data.strength || null,
-    category: data.category || "Peptide",
-    series: data.series || null,
-    description: data.description || null,
-    research_notes: data.research_notes || null,
-    reconstitution: data.reconstitution || "2 mL",
-    price: Number(data.price || 0),
-    is_active: data.is_active !== false,
-    featured: data.featured === true,
-    hot_peptide: data.hot_peptide === true,
-    blend_stack: data.blend_stack === true,
-    image_data: data.image_data || null,
-    image_file: data.image_data || null,
-    image_status: data.image_status || (data.image_data ? "approved_png" : "template_overlay"),
-    coa_file: data.coa_file || null,
-    testing_statement: data.testing_statement || "Batch-specific third-party testing available when listed",
-    sort_name: data.sort_name,
-    updated_at: data.updated_at
-  };
+    const updates = {
+      product_key: data.product_key,
+      display_name: data.display_name,
+      strength: data.strength || null,
+      category: data.category || "Peptide",
+      series: data.series || null,
+      description: data.description || null,
+      research_notes: data.research_notes || null,
+      reconstitution: data.reconstitution || "2 mL",
+      price: Number(data.price || 0),
+      is_active: data.is_active !== false,
+      featured: data.featured === true,
+      hot_peptide: data.hot_peptide === true,
+      blend_stack: data.blend_stack === true,
+      image_data: data.image_data || null,
+      image_file: data.image_data || null,
+      image_status: data.image_status || (data.image_data ? "approved_png" : "template_overlay"),
+      coa_file: data.coa_file || null,
+      testing_statement: data.testing_statement || "Batch-specific third-party testing available when listed",
+      sort_name: String(data.display_name || data.product_key || "").toLowerCase(),
+      updated_at: new Date().toISOString()
+    };
 
-  let { error } = await db.from("product_catalog").update(updates).eq("id", id);
+    setStatus(`Saving ${updates.display_name}...`);
 
-  if (error && String(error.message || "").toLowerCase().includes("hot_peptide")) {
-    const retryUpdates = { ...updates };
-    delete retryUpdates.hot_peptide;
+    let result = await db
+      .from("product_catalog")
+      .update(updates)
+      .eq("id", id)
+      .select("id, product_key, display_name, description, hot_peptide")
+      .maybeSingle();
 
-    const retry = await db.from("product_catalog").update(retryUpdates).eq("id", id);
-    if (retry.error) throw retry.error;
+    if (result.error && String(result.error.message || "").toLowerCase().includes("hot_peptide")) {
+      const retryUpdates = { ...updates };
+      delete retryUpdates.hot_peptide;
 
-    dirtyIds.delete(id);
-    setStatus(`${updates.display_name} saved, but Hot Peptide could not be saved because the Supabase column hot_peptide is missing. Add a boolean column named hot_peptide to product_catalog.`, "bad");
+      result = await db
+        .from("product_catalog")
+        .update(retryUpdates)
+        .eq("id", id)
+        .select("id, product_key, display_name, description")
+        .maybeSingle();
+
+      if (result.error) throw result.error;
+
+      if (!result.data && data.product_key) {
+        result = await db
+          .from("product_catalog")
+          .update(retryUpdates)
+          .eq("product_key", data.product_key)
+          .select("id, product_key, display_name, description")
+          .maybeSingle();
+      }
+
+      if (!result.data) {
+        throw new Error("No matching product row was updated. The row ID may not match Supabase.");
+      }
+
+      dirtyIds.delete(String(id));
+      setStatus(`${updates.display_name} saved, but Hot Peptide was NOT saved because Supabase is missing the hot_peptide column. Add a boolean column named hot_peptide to product_catalog.`, "bad");
+      await loadProducts();
+      return;
+    }
+
+    if (result.error) throw result.error;
+
+    if (!result.data && data.product_key) {
+      result = await db
+        .from("product_catalog")
+        .update(updates)
+        .eq("product_key", data.product_key)
+        .select("id, product_key, display_name, description, hot_peptide")
+        .maybeSingle();
+
+      if (result.error) throw result.error;
+    }
+
+    if (!result.data) {
+      throw new Error("No matching product row was updated. The save did not reach Supabase.");
+    }
+
+    dirtyIds.delete(String(id));
+    setStatus(`${updates.display_name} saved and verified.`, "good");
     await loadProducts();
-    return;
-  }
-
-  if (error) throw error;
-
-  dirtyIds.delete(id);
-  setStatus(`${updates.display_name} saved.`, "good");
-  await loadProducts();
   } catch (err) {
     console.error("Product save error:", err);
-    setStatus("Save failed: " + (err && err.message ? err.message : String(err)), "bad");
-    alert("Save failed: " + (err && err.message ? err.message : String(err)));
+    const msg = err && err.message ? err.message : String(err);
+    setStatus("Save failed: " + msg, "bad");
+    alert("Save failed: " + msg);
   }
 }
-
 
 async function deleteProduct(id) {
   const product = allProducts.find(p => p.id === id);
