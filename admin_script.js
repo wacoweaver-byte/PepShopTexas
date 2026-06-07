@@ -1,70 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Admin Order Management</title>
-  <!-- PST Admin Orders diagnostic patch: prevents stuck Loading Orders state -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}header{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--border);box-shadow:0 3px 18px rgba(16,24,32,.04)}.topbar{max-width:1540px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;text-transform:uppercase}.brand-mark{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#004a7c);color:#fff;display:grid;place-items:center;font-size:16px}.brand small{display:block;color:#596579;font-size:12px;line-height:1.2;font-weight:700;text-transform:none}.actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.btn,a.btn,button.btn{min-height:40px;padding:10px 13px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:14px}.btn.secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}.btn.success{background:var(--success)}.btn.warning{background:var(--warning)}.btn.danger{background:var(--danger)}.btn:disabled{opacity:.55;cursor:not-allowed}main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}h1{margin:0 0 6px;font-size:clamp(24px,3vw,36px)}h2{margin:0;font-size:18px}.subtitle{margin:0;color:var(--muted);line-height:1.4}.status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted);min-height:42px}.status.good{color:var(--success);border-color:rgba(15,138,59,.25);background:rgba(15,138,59,.06)}.status.bad{color:var(--danger);border-color:rgba(180,35,24,.25);background:rgba(180,35,24,.06)}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.card-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.card-body{padding:16px}.filters{display:grid;grid-template-columns:1.2fr .75fr .75fr .75fr auto;gap:10px;width:100%;align-items:end}.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted)}input,select,textarea{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}textarea{min-height:84px;resize:vertical}.bulk-bar{padding:12px 16px;border-bottom:1px solid var(--border);background:#f9fbfd;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}.bulk-left{display:flex;align-items:center;gap:8px;font-weight:900}.bulk-left input,.row-check{width:18px;height:18px;min-height:18px;cursor:pointer}.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bulk-actions .btn{padding:8px 10px;min-height:35px;font-size:13px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:14px}th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}tr.order-row{cursor:pointer}tr.order-row:hover{background:#f7fbff}tr.active{background:rgba(0,119,200,.08)}.muted{color:var(--muted);font-size:13px}.pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid transparent;text-transform:capitalize}.pill.pending,.pill.awaiting_payment{color:var(--warning);background:rgba(183,121,31,.1);border-color:rgba(183,121,31,.18)}.pill.paid,.pill.complete,.pill.shipped,.pill.delivered{color:var(--success);background:rgba(15,138,59,.1);border-color:rgba(15,138,59,.18)}.pill.processing,.pill.packed{color:var(--blue);background:rgba(0,119,200,.1);border-color:rgba(0,119,200,.18)}.pill.cancelled,.pill.rejected,.pill.out_of_stock,.pill.refunded,.pill.failed{color:var(--danger);background:rgba(180,35,24,.1);border-color:rgba(180,35,24,.18)}.detail-empty{padding:34px 20px;text-align:center;color:var(--muted);line-height:1.5}.detail-section{border-bottom:1px solid var(--border);padding:16px}.detail-section:last-child{border-bottom:0}.detail-section h3{margin:0 0 12px;font-size:16px}.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kv{padding:10px;border:1px solid var(--border);border-radius:12px;background:#fbfcfe;word-break:break-word}.kv strong{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}.item-list{display:flex;flex-direction:column;gap:10px}.item{border:1px solid var(--border);border-radius:12px;padding:11px;background:#fbfcfe}.item-top{display:flex;justify-content:space-between;gap:12px;font-weight:900}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.note{background:#fff8e6;border:1px solid rgba(183,121,31,.24);color:#7a4a00;border-radius:12px;padding:11px;line-height:1.45;font-size:14px}.audit-list{display:grid;gap:9px}.audit-item{border:1px solid var(--border);background:#fbfcfe;border-radius:12px;padding:10px 11px;line-height:1.35}.audit-item strong{display:block;margin-bottom:3px}.email-box{margin-top:12px;padding:13px;border:1px solid rgba(0,119,200,.22);background:rgba(0,119,200,.055);border-radius:12px}.email-box h4{margin:0 0 8px;color:var(--blue);font-size:15px}.email-box p{margin:0 0 12px;color:#24445c;line-height:1.45;font-size:13px;font-weight:700}.tracking-link{display:inline-flex;margin-top:7px;color:var(--blue);font-weight:900;text-decoration:none}.tracking-link:hover{text-decoration:underline}@media(max-width:1100px){.grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}}@media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.filters,.edit-grid,.kv-grid,.bulk-bar{grid-template-columns:1fr}.bulk-actions{justify-content:flex-start}.page-title{flex-direction:column}}
-  </style>
-</head>
-<body>
-<!-- Admin Orders Build: 2026-06-07 Fixed Supabase URL -->
-<header>
-  <div class="topbar">
-    <div class="brand"><div class="brand-mark">PST</div><div>Pep Shop Texas<small>Admin Order Management</small></div></div>
-    <div class="actions">
-      <a class="btn secondary" href="admin.html">Orders</a>
-      <a class="btn secondary" href="inventory.html">Inventory</a>
-      <a class="btn secondary" href="products.html">Products</a>
-      <a class="btn secondary" href="discounts.html">Discounts</a>
-      <a class="btn secondary" href="index.html">Website</a>
-      <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
-      <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
-    </div>
-  </div>
-</header>
 
-<main>
-  <section class="page-title">
-    <div><h1>Orders Management</h1><p class="subtitle">Review all customer orders, update order/payment status, add tracking, and send status emails from one admin screen.</p></div>
-  </section>
-  <div id="statusLine" class="status">Checking admin access...</div>
-
-  <section class="grid">
-    <div class="card">
-      <div class="card-header"><h2>Order List</h2></div>
-      <div class="card-body">
-        <div class="filters">
-          <div class="field"><label for="searchInput">Search</label><input id="searchInput" type="search" placeholder="Customer, email, order #, tracking..." /></div>
-          <div class="field"><label for="statusFilter">Order Status</label><select id="statusFilter"><option value="">All</option><option value="pending">Pending</option><option value="awaiting_payment">Awaiting Payment</option><option value="processing">Processing</option><option value="packed">Packed</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option><option value="rejected">Rejected</option></select></div>
-          <div class="field"><label for="paymentFilter">Payment</label><select id="paymentFilter"><option value="">All</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="failed">Failed</option><option value="refunded">Refunded</option><option value="manual_review">Manual Review</option></select></div>
-          <div class="field"><label for="dateFilter">Date</label><select id="dateFilter"><option value="">All Time</option><option value="today">Today</option><option value="7">Last 7 Days</option><option value="30">Last 30 Days</option></select></div>
-          <button class="btn secondary" id="clearFiltersBtn" type="button">Clear</button>
-        </div>
-      </div>
-      <div class="bulk-bar">
-        <div class="bulk-left"><input id="selectAllOrders" type="checkbox" /><span id="selectedCount">0 selected</span></div>
-        <div class="bulk-actions">
-          <button class="btn secondary" id="bulkPaidBtn" type="button">Mark Paid</button>
-          <button class="btn secondary" id="bulkProcessingBtn" type="button">Processing</button>
-          <button class="btn secondary" id="bulkPackedBtn" type="button">Packed</button>
-          <button class="btn secondary" id="bulkDeliveredBtn" type="button">Delivered</button>
-          <button class="btn warning" id="bulkShippedBtn" type="button">Shipped</button>
-          <button class="btn danger" id="bulkRejectedBtn" type="button">Reject</button>
-          <button class="btn secondary" id="bulkClearBtn" type="button">Clear Selection</button>
-        </div>
-      </div>
-      <div class="table-wrap"><table><thead><tr><th></th><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Order</th><th>Payment</th><th>Tracking</th></tr></thead><tbody id="ordersBody"><tr><td colspan="8" class="muted">Loading orders...</td></tr></tbody></table></div>
-    </div>
-
-    <div class="card" id="detailCard"><div class="detail-empty">Select an order to view and manage details.</div></div>
-  </section>
-</main>
-
-<script>
   /* IMPORTANT: use the same Supabase URL and anon key already used in index.html/products.html. */
   const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
@@ -439,6 +373,3 @@
     }
   }
   init();
-</script>
-</body>
-</html>
