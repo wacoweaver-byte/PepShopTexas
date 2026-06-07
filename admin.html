@@ -27,7 +27,7 @@
 
 <main>
   <section class="page-title">
-    <div><h1>Orders Management</h1><p style="font-weight:900;color:#0f8a3b;margin:6px 0 0;">Verified Supabase Build: admin_orders.html 2026-06-07</p><p class="subtitle">Review all customer orders, update order/payment status, add tracking, and send status emails from one admin screen.</p></div>
+    <div><h1>Orders Management</h1><p style="font-weight:900;color:#0f8a3b;margin:6px 0 0;">Verified Supabase Build: admin_orders.html 2026-06-07 Profile Lookup Patch</p><p class="subtitle">Review all customer orders, update order/payment status, add tracking, and send status emails from one admin screen.</p></div>
   </section>
   <div id="statusLine" class="status">Checking admin access...</div>
 
@@ -222,14 +222,24 @@
 
       if(idCandidates.length){
         for(const col of ["user_id","id","customer_id"]){
-          const res = await supabaseClient.from("customer_profiles").select("*").in(col, idCandidates).catch(err => ({ data:[], error:err }));
-          if(!res.error) (res.data||[]).forEach(p => indexProfile(p, profileMaps));
+          try{
+            const res = await supabaseClient.from("customer_profiles").select("*").in(col, idCandidates);
+            if(res.error) console.warn(`Customer profile lookup by ${col} failed:`, res.error.message || res.error);
+            else (res.data||[]).forEach(p => indexProfile(p, profileMaps));
+          }catch(profileLookupError){
+            console.warn(`Customer profile lookup by ${col} failed:`, profileLookupError.message || profileLookupError);
+          }
         }
       }
       if(emailCandidates.length){
         for(const col of ["email","customer_email","shipping_email"]){
-          const res = await supabaseClient.from("customer_profiles").select("*").in(col, emailCandidates).catch(err => ({ data:[], error:err }));
-          if(!res.error) (res.data||[]).forEach(p => indexProfile(p, profileMaps));
+          try{
+            const res = await supabaseClient.from("customer_profiles").select("*").in(col, emailCandidates);
+            if(res.error) console.warn(`Customer profile lookup by ${col} failed:`, res.error.message || res.error);
+            else (res.data||[]).forEach(p => indexProfile(p, profileMaps));
+          }catch(profileLookupError){
+            console.warn(`Customer profile lookup by ${col} failed:`, profileLookupError.message || profileLookupError);
+          }
         }
       }
 
@@ -511,7 +521,7 @@
   async function init(){
     try{
       wireEvents();
-      if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){ setStatus("Before uploading: paste your Supabase URL and anon key into admin.html using the same values from your working index.html/products.html.", "bad"); return; }
+      if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){ setStatus("Supabase configuration is missing or invalid in this file.", "bad"); return; }
       if(await checkAdminAccess()) await loadOrders();
     }catch(error){ console.error(error); setStatus(error.message || "Something went wrong loading Admin Orders.", "bad"); }
   }
