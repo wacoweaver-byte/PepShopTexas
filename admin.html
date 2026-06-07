@@ -115,6 +115,38 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
   function normalizeAdminNotes(text){ return cleanValue(text).replace(/Admin account:\s*wacoweaver@gmail\.com/gi, "Admin account: Jimmie Weaver").replace(/wacoweaver@gmail\.com/gi, "Jimmie Weaver"); }
   function auditLine(text){ return `[${new Date().toLocaleString()}] ${text} | Admin account: ${adminDisplayName()}`; }
   function joinAuditNotes(current, line){ const base=normalizeAdminNotes(current || "").trim(); return `${base}${base ? "\n\n\n" : ""}${line}`; }
+  function describeFieldChange(label, oldValue, newValue){
+    const oldText = cleanValue(oldValue);
+    const newText = cleanValue(newValue);
+    if(oldText === newText) return "";
+    if(!oldText && newText) return `${label} added: ${newText}`;
+    if(oldText && !newText) return `${label} removed`;
+    return `${label} changed: ${oldText} → ${newText}`;
+  }
+  function emailTypeLabel(type){
+    const labels = {
+      payment_accepted:"Payment accepted",
+      payment_issue:"Payment issue",
+      order_processing:"Processing",
+      order_packed:"Packed / awaiting carrier pickup",
+      order_shipped:"Shipped",
+      order_delivered:"Delivered",
+      order_cancelled:"Cancelled",
+      order_rejected:"Rejected"
+    };
+    return labels[type] || String(type || "Status").replaceAll("_", " ");
+  }
+  function customerFacingStatusNote(type){
+    if(type === "order_packed") return "Your order has been packed and is awaiting carrier pickup.";
+    return "";
+  }
+  async function appendAdminAudit(order, text){
+    const current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+    const next = joinAuditNotes(current, auditLine(text));
+    await safeUpdateOrder(order.id, { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() }, order).catch(()=>{});
+    order.admin_note = next;
+    order.admin_notes = next;
+  }
 
   function selectedOrdersArray(){ return Array.from(selectedOrderIds); }
   function renderSelectedCount(){ $("selectedCount").textContent = `${selectedOrderIds.size} selected`; const allVisible = filteredOrders.length && filteredOrders.every(o => selectedOrderIds.has(o.id)); $("selectAllOrders").checked = !!allVisible; }
@@ -294,9 +326,12 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
     const changes = [];
     if(norm(orderStatus(order)) !== norm(os)) changes.push(`Order status: ${orderStatus(order)} → ${os}`);
     if(norm(paymentStatus(order)) !== norm(ps)) changes.push(`Payment status: ${paymentStatus(order)} → ${ps}`);
-    if(cleanValue(order.tracking_carrier || order.carrier) !== carrier) changes.push(`Carrier: ${cleanValue(order.tracking_carrier || order.carrier) || "blank"} → ${carrier || "blank"}`);
-    if(cleanValue(order.tracking_number || order.tracking) !== tracking) changes.push(`Tracking: ${cleanValue(order.tracking_number || order.tracking) || "blank"} → ${tracking || "blank"}`);
-    if(cleanValue(order.tracking_url) !== url) changes.push("Tracking URL updated");
+    const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
+    const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
+    const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
+    if(carrierChange) changes.push(carrierChange);
+    if(trackingChange) changes.push(trackingChange);
+    if(trackingUrlChange) changes.push(trackingUrlChange);
     const note = changes.length ? joinAuditNotes(typedNote, auditLine(changes.join(" | "))) : typedNote;
     const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now };
     if(ps === "paid") updates.paid_at = now;
@@ -395,6 +430,7 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
       if(emailType){
         try{
           await sendOrderEmail(mergedForEmail, emailType, true);
+          await appendAdminAudit(mergedForEmail, `${emailTypeLabel(emailType)} status notification sent to customer at ${customerEmail(mergedForEmail)}`);
           setStatus("Order updates saved and matching customer email sent.", "good");
         }catch(emailError){
           console.error(emailError);
@@ -417,17 +453,48 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
     const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
     if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before sending a shipped email."); return; }
     setStatus("Sending customer email...");
-    const payload = { type, to: email, customerName: customerName(order), orderNumber: orderNumber(order), orderDate: order.created_at || order.order_date, total: money(orderTotal(order)), carrier, trackingNumber, trackingUrl: $("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url), statusNote: "", rejectionReason: order.rejection_reason || "", items: (order.items || []).map(i => ({ name: i.product_name || i.name || i.product_key || "Item", quantity: i.quantity || i.qty || 1, price: i.unit_price || i.price || 0 })) };
+
+    const makePayload = (emailType) => ({
+      type: emailType,
+      originalType: type,
+      to: email,
+      customerName: customerName(order),
+      orderNumber: orderNumber(order),
+      orderDate: order.created_at || order.order_date,
+      total: money(orderTotal(order)),
+      carrier,
+      trackingNumber,
+      trackingUrl: $("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url),
+      statusNote: customerFacingStatusNote(type),
+      rejectionReason: order.rejection_reason || "",
+      items: (order.items || []).map(i => ({ name: i.product_name || i.name || i.product_key || "Item", quantity: i.quantity || i.qty || 1, price: i.unit_price || i.price || 0 }))
+    });
+
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const token = sessionData?.session?.access_token || SUPABASE_ANON_KEY;
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/${EMAIL_FUNCTION_NAME}`, { method:"POST", headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${token}` }, body: JSON.stringify(payload) });
-    const text = await res.text();
-    if(!res.ok) { setStatus(`Email failed: ${text}`, "bad"); throw new Error(text || "Email function failed."); }
+    const postEmail = async (emailType) => {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/${EMAIL_FUNCTION_NAME}`, { method:"POST", headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${token}` }, body: JSON.stringify(makePayload(emailType)) });
+      const text = await res.text();
+      if(!res.ok) throw new Error(text || "Email function failed.");
+      return text;
+    };
+
+    try{
+      await postEmail(type);
+    }catch(firstError){
+      // If the Edge Function does not recognize the newer order_packed template yet,
+      // fall back to the existing processing template while passing a customer-facing packed note.
+      if(type === "order_packed"){
+        await postEmail("order_processing");
+      }else{
+        setStatus(`Email failed: ${firstError.message || firstError}`, "bad");
+        throw firstError;
+      }
+    }
+
     if(type === "order_shipped") await safeUpdateOrder(order.id, { shipping_email_sent_at: new Date().toISOString(), updated_at: new Date().toISOString() }, order).catch(()=>{});
     if(!automatic){
-      const current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-      const next = joinAuditNotes(current, auditLine(`Manual customer email resent: ${type.replaceAll("_"," ")}`));
-      await safeUpdateOrder(order.id, { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() }, order).catch(()=>{});
+      await appendAdminAudit(order, `${emailTypeLabel(type)} status notification resent to customer at ${email}`);
     }
     setStatus("Customer email sent successfully.", "good");
   }
