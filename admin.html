@@ -4,14 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pep Shop Texas | Admin Order Management</title>
-  <!-- PST Admin Orders diagnostic patch: prevents stuck Loading Orders state -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}header{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--border);box-shadow:0 3px 18px rgba(16,24,32,.04)}.topbar{max-width:1540px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;text-transform:uppercase}.brand-mark{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#004a7c);color:#fff;display:grid;place-items:center;font-size:16px}.brand small{display:block;color:#596579;font-size:12px;line-height:1.2;font-weight:700;text-transform:none}.actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.btn,a.btn,button.btn{min-height:40px;padding:10px 13px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:14px}.btn.secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}.btn.success{background:var(--success)}.btn.warning{background:var(--warning)}.btn.danger{background:var(--danger)}.btn:disabled{opacity:.55;cursor:not-allowed}main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}h1{margin:0 0 6px;font-size:clamp(24px,3vw,36px)}h2{margin:0;font-size:18px}.subtitle{margin:0;color:var(--muted);line-height:1.4}.status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted);min-height:42px}.status.good{color:var(--success);border-color:rgba(15,138,59,.25);background:rgba(15,138,59,.06)}.status.bad{color:var(--danger);border-color:rgba(180,35,24,.25);background:rgba(180,35,24,.06)}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.card-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.card-body{padding:16px}.filters{display:grid;grid-template-columns:1.2fr .75fr .75fr .75fr auto;gap:10px;width:100%;align-items:end}.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted)}input,select,textarea{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}textarea{min-height:84px;resize:vertical}.bulk-bar{padding:12px 16px;border-bottom:1px solid var(--border);background:#f9fbfd;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}.bulk-left{display:flex;align-items:center;gap:8px;font-weight:900}.bulk-left input,.row-check{width:18px;height:18px;min-height:18px;cursor:pointer}.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bulk-actions .btn{padding:8px 10px;min-height:35px;font-size:13px}.order-list-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);background:#fff;flex-wrap:wrap}.order-list-controls .muted{font-weight:800}.size-buttons{display:flex;gap:8px;flex-wrap:wrap}.size-buttons .btn{min-height:32px;padding:7px 10px;font-size:12px}.table-x-scroll{overflow-x:auto;overflow-y:hidden;height:20px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:75px;z-index:9;scrollbar-gutter:stable}.table-x-inner{height:1px;min-width:980px}.table-wrap{overflow:auto;height:680px;min-height:300px;max-height:none;resize:none;position:relative;scrollbar-gutter:stable both-edges}.table-wrap thead th{position:sticky;top:0;z-index:3}.table-resize-bar{height:38px;border-top:1px solid var(--border);background:linear-gradient(#fbfcfe,#f1f5f9);display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.02em;cursor:ns-resize;user-select:none}.table-resize-bar:hover{background:#eef6ff;color:var(--blue)}.table-resize-grip{width:42px;height:5px;border-radius:999px;background:#c7d3df;display:inline-block}table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:14px}th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}tr.order-row{cursor:pointer}tr.order-row:hover{background:#f7fbff}tr.active{background:rgba(0,119,200,.08)}.muted{color:var(--muted);font-size:13px}.pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid transparent;text-transform:capitalize}.pill.pending,.pill.awaiting_payment{color:var(--warning);background:rgba(183,121,31,.1);border-color:rgba(183,121,31,.18)}.pill.paid,.pill.complete,.pill.shipped,.pill.delivered{color:var(--success);background:rgba(15,138,59,.1);border-color:rgba(15,138,59,.18)}.pill.processing,.pill.packed{color:var(--blue);background:rgba(0,119,200,.1);border-color:rgba(0,119,200,.18)}.pill.cancelled,.pill.rejected,.pill.out_of_stock,.pill.refunded,.pill.failed{color:var(--danger);background:rgba(180,35,24,.1);border-color:rgba(180,35,24,.18)}.detail-empty{padding:34px 20px;text-align:center;color:var(--muted);line-height:1.5}.detail-section{border-bottom:1px solid var(--border);padding:16px}.detail-section:last-child{border-bottom:0}.detail-section h3{margin:0 0 12px;font-size:16px}.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kv{padding:10px;border:1px solid var(--border);border-radius:12px;background:#fbfcfe;word-break:break-word}.kv strong{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}.item-list{display:flex;flex-direction:column;gap:10px}.item{border:1px solid var(--border);border-radius:12px;padding:11px;background:#fbfcfe}.item-top{display:flex;justify-content:space-between;gap:12px;font-weight:900}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.note{background:#fff8e6;border:1px solid rgba(183,121,31,.24);color:#7a4a00;border-radius:12px;padding:11px;line-height:1.45;font-size:14px}.audit-list{display:grid;gap:9px}.audit-item{border:1px solid var(--border);background:#fbfcfe;border-radius:12px;padding:10px 11px;line-height:1.35}.audit-item strong{display:block;margin-bottom:3px}.email-box{margin-top:12px;padding:13px;border:1px solid rgba(0,119,200,.22);background:rgba(0,119,200,.055);border-radius:12px}.email-box h4{margin:0 0 8px;color:var(--blue);font-size:15px}.email-box p{margin:0 0 12px;color:#24445c;line-height:1.45;font-size:13px;font-weight:700}.tracking-link{display:inline-flex;margin-top:7px;color:var(--blue);font-weight:900;text-decoration:none}.tracking-link:hover{text-decoration:underline}@media(max-width:1100px){.grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}}@media(max-width:700px){.table-x-scroll{top:132px}.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.filters,.edit-grid,.kv-grid,.bulk-bar{grid-template-columns:1fr}.bulk-actions{justify-content:flex-start}.page-title{flex-direction:column}}
+    :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}header{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--border);box-shadow:0 3px 18px rgba(16,24,32,.04)}.topbar{max-width:1540px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;text-transform:uppercase}.brand-mark{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#004a7c);color:#fff;display:grid;place-items:center;font-size:16px}.brand small{display:block;color:#596579;font-size:12px;line-height:1.2;font-weight:700;text-transform:none}.actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.btn,a.btn,button.btn{min-height:40px;padding:10px 13px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:14px}.btn.secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}.btn.success{background:var(--success)}.btn.warning{background:var(--warning)}.btn.danger{background:var(--danger)}.btn:disabled{opacity:.55;cursor:not-allowed}main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}h1{margin:0 0 6px;font-size:clamp(24px,3vw,36px)}h2{margin:0;font-size:18px}.subtitle{margin:0;color:var(--muted);line-height:1.4}.status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted);min-height:42px}.status.good{color:var(--success);border-color:rgba(15,138,59,.25);background:rgba(15,138,59,.06)}.status.bad{color:var(--danger);border-color:rgba(180,35,24,.25);background:rgba(180,35,24,.06)}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.card-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.card-body{padding:16px}.filters{display:grid;grid-template-columns:1.2fr .75fr .75fr .75fr auto;gap:10px;width:100%;align-items:end}.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted)}input,select,textarea{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}textarea{min-height:84px;resize:vertical}.bulk-bar{padding:12px 16px;border-bottom:1px solid var(--border);background:#f9fbfd;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}.bulk-left{display:flex;align-items:center;gap:8px;font-weight:900}.bulk-left input,.row-check{width:18px;height:18px;min-height:18px;cursor:pointer}.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bulk-actions .btn{padding:8px 10px;min-height:35px;font-size:13px}.table-wrap{height:420px;min-height:180px;max-height:78vh;overflow:auto;resize:vertical;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fff;display:block} .table-wrap::-webkit-resizer{background:linear-gradient(135deg,transparent 0 45%,#9aa7b8 45% 55%,transparent 55% 65%,#9aa7b8 65% 75%,transparent 75%)}table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:14px}th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe;position:sticky;top:0;z-index:2}tr.order-row{cursor:pointer}tr.order-row:hover{background:#f7fbff}tr.active{background:rgba(0,119,200,.08)}.muted{color:var(--muted);font-size:13px}.pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid transparent;text-transform:capitalize}.pill.pending,.pill.awaiting_payment{color:var(--warning);background:rgba(183,121,31,.1);border-color:rgba(183,121,31,.18)}.pill.paid,.pill.complete,.pill.shipped,.pill.delivered{color:var(--success);background:rgba(15,138,59,.1);border-color:rgba(15,138,59,.18)}.pill.processing,.pill.packed{color:var(--blue);background:rgba(0,119,200,.1);border-color:rgba(0,119,200,.18)}.pill.cancelled,.pill.rejected,.pill.out_of_stock,.pill.refunded,.pill.failed{color:var(--danger);background:rgba(180,35,24,.1);border-color:rgba(180,35,24,.18)}.detail-empty{padding:34px 20px;text-align:center;color:var(--muted);line-height:1.5}.detail-section{border-bottom:1px solid var(--border);padding:16px}.detail-section:last-child{border-bottom:0}.detail-section h3{margin:0 0 12px;font-size:16px}.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kv{padding:10px;border:1px solid var(--border);border-radius:12px;background:#fbfcfe;word-break:break-word}.kv strong{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}.item-list{display:flex;flex-direction:column;gap:10px}.item{border:1px solid var(--border);border-radius:12px;padding:11px;background:#fbfcfe}.item-top{display:flex;justify-content:space-between;gap:12px;font-weight:900}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.note{background:#fff8e6;border:1px solid rgba(183,121,31,.24);color:#7a4a00;border-radius:12px;padding:11px;line-height:1.45;font-size:14px}.audit-list{display:grid;gap:9px}.audit-item{border:1px solid var(--border);background:#fbfcfe;border-radius:12px;padding:10px 11px;line-height:1.35}.audit-item strong{display:block;margin-bottom:3px}.email-box{margin-top:12px;padding:13px;border:1px solid rgba(0,119,200,.22);background:rgba(0,119,200,.055);border-radius:12px}.email-box h4{margin:0 0 8px;color:var(--blue);font-size:15px}.email-box p{margin:0 0 12px;color:#24445c;line-height:1.45;font-size:13px;font-weight:700}.tracking-link{display:inline-flex;margin-top:7px;color:var(--blue);font-weight:900;text-decoration:none}.tracking-link:hover{text-decoration:underline}@media(max-width:1100px){.grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}}@media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.filters,.edit-grid,.kv-grid,.bulk-bar{grid-template-columns:1fr}.bulk-actions{justify-content:flex-start}.page-title{flex-direction:column}}
   </style>
 </head>
 <body>
-<!-- Admin Orders Build: 2026-06-07 Resizable Tall Order List + Floating Horizontal Scrollbar Patch -->
 <header>
   <div class="topbar">
     <div class="brand"><div class="brand-mark">PST</div><div>Pep Shop Texas<small>Admin Order Management</small></div></div>
@@ -29,7 +27,7 @@
 
 <main>
   <section class="page-title">
-    <div><h1>Orders Management</h1><p class="subtitle">Review all customer orders, update order/payment status, add tracking, and send status emails from one admin screen.</p></div>
+    <div><h1>Orders Management</h1><p class="subtitle">Review all customer orders, update order/payment status, add tracking, and send status emails from one admin screen. Build: Native resizable order-list box, no custom bottom drag bar.</p></div>
   </section>
   <div id="statusLine" class="status">Checking admin access...</div>
 
@@ -57,17 +55,7 @@
           <button class="btn secondary" id="bulkClearBtn" type="button">Clear Selection</button>
         </div>
       </div>
-      <div class="order-list-controls">
-        <span class="muted">Order list height</span>
-        <div class="size-buttons">
-          <button class="btn secondary" id="ordersCompactBtn" type="button">Compact</button>
-          <button class="btn secondary" id="ordersComfortBtn" type="button">Comfort</button>
-          <button class="btn secondary" id="ordersTallBtn" type="button">Tall</button>
-        </div>
-      </div>
-      <div class="table-x-scroll" id="ordersXScroll" aria-label="Horizontal order list scrollbar"><div class="table-x-inner" id="ordersXInner"></div></div>
-      <div class="table-wrap" id="ordersTableWrap"><table id="ordersTable"><thead><tr><th></th><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Order</th><th>Payment</th><th>Tracking</th></tr></thead><tbody id="ordersBody"><tr><td colspan="8" class="muted">Loading orders...</td></tr></tbody></table></div>
-      <div class="table-resize-bar" id="ordersResizeBar" title="Drag up or down to resize the order list"><span class="table-resize-grip"></span><span>Drag to show more or fewer orders</span><span class="table-resize-grip"></span></div>
+      <div class="table-wrap" id="ordersTableWrap" title="Drag the bottom-right corner to resize the order list"><table><thead><tr><th></th><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Order</th><th>Payment</th><th>Tracking</th></tr></thead><tbody id="ordersBody"><tr><td colspan="8" class="muted">Loading orders...</td></tr></tbody></table></div>
     </div>
 
     <div class="card" id="detailCard"><div class="detail-empty">Select an order to view and manage details.</div></div>
@@ -80,7 +68,7 @@
   const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
   const EMAIL_FUNCTION_NAME = "send-order-email";
 
-  let supabaseClient = null;
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const $ = (id) => document.getElementById(id);
   let currentUser = null;
   let allOrders = [];
@@ -102,77 +90,11 @@
   function orderStatus(order){ return order.order_status || order.status || "pending"; }
   function paymentStatus(order){ return order.payment_status || "pending"; }
   function profileOf(order){ return order.profile || {}; }
-  function cleanValue(value){ if(value === null || value === undefined) return ""; const text = String(value).trim(); return ["null","undefined","none","n/a"].includes(text.toLowerCase()) ? "" : text; }
-  function firstValue(...values){ for(const value of values){ const cleaned = cleanValue(value); if(cleaned) return cleaned; } return ""; }
-  function adminDisplayName(){
-    const meta = currentUser?.user_metadata || {};
-    const name = firstValue(meta.full_name, meta.name, [meta.first_name, meta.last_name].filter(Boolean).join(" "));
-    if(name) return name;
-    const email = cleanValue(currentUser?.email).toLowerCase();
-    if(email === "wacoweaver@gmail.com") return "Jimmie Weaver";
-    return cleanValue(currentUser?.email) || "Admin";
-  }
-  function displayPerson(value){
-    const text = cleanValue(value);
-    if(!text) return "";
-    if(text.toLowerCase() === "wacoweaver@gmail.com") return "Jimmie Weaver";
-    return text;
-  }
-  function safeJson(value){ if(!value || typeof value !== "string") return null; const t = value.trim(); if(!t || !["{","["].includes(t[0])) return null; try{return JSON.parse(t);}catch{return null;} }
-  function customerSources(order){
-    const p = profileOf(order);
-    const keys = ["customer","customer_info","customerInfo","customer_profile","customerProfile","profile","shipping","shipping_info","shippingInfo","shipping_details","shippingDetails","shipping_address","shippingAddress","billing","billing_info","metadata","meta","order_meta"];
-    const sources = [order, p];
-    keys.forEach(k => { const v = order[k]; if(v && typeof v === "object") sources.push(v); const parsed = safeJson(v); if(parsed && typeof parsed === "object") sources.push(parsed); });
-    keys.forEach(k => { const v = p[k]; if(v && typeof v === "object") sources.push(v); const parsed = safeJson(v); if(parsed && typeof parsed === "object") sources.push(parsed); });
-    return sources.filter(Boolean);
-  }
-  function sourceValue(order, keys){
-    for(const src of customerSources(order)){
-      for(const key of keys){
-        if(src && Object.prototype.hasOwnProperty.call(src, key)){
-          const val = cleanValue(src[key]);
-          if(val) return val;
-        }
-      }
-    }
-    return "";
-  }
-  function joinName(src){ return firstValue(src.full_name, src.fullName, src.customer_name, src.customerName, src.name, src.shipping_name, src.shippingName, src.recipient_name, src.recipientName, [src.first_name, src.last_name].filter(Boolean).join(" "), [src.firstName, src.lastName].filter(Boolean).join(" ")); }
-  function customerName(order){
-    for(const src of customerSources(order)){ const val = joinName(src); if(val) return val; }
-    return "Customer";
-  }
-  function customerEmail(order){ return sourceValue(order, ["customer_email","customerEmail","email","shipping_email","shippingEmail","contact_email","contactEmail","billing_email","billingEmail"]); }
-  function customerPhone(order){ return sourceValue(order, ["customer_phone","customerPhone","phone","phone_number","phoneNumber","shipping_phone","shippingPhone","contact_phone","contactPhone","billing_phone","billingPhone"]) || "—"; }
-  function addressFromSource(src){
-    const direct = firstValue(src.shipping_address, src.shippingAddress, src.address, src.street_address, src.streetAddress, src.delivery_address, src.deliveryAddress);
-    if(direct && !direct.startsWith("[object")) return direct;
-    const line1 = firstValue(src.address_line1, src.addressLine1, src.shipping_address_line1, src.shippingAddressLine1, src.address1, src.address_1, src.street1, src.line1, src.shipping_address1, src.shippingAddress1);
-    const line2 = firstValue(src.address_line2, src.addressLine2, src.shipping_address_line2, src.shippingAddressLine2, src.address2, src.address_2, src.street2, src.line2, src.shipping_address2, src.shippingAddress2);
-    const city = firstValue(src.city, src.shipping_city, src.shippingCity);
-    const state = firstValue(src.state, src.province, src.region, src.shipping_state, src.shippingState);
-    const zip = firstValue(src.zip, src.zip_code, src.zipCode, src.postal_code, src.postalCode, src.shipping_zip, src.shippingZip);
-    return [line1,line2,city,state,zip].filter(Boolean).join(", ");
-  }
-  function shippingAddress(order){
-    for(const src of customerSources(order)){ const val = addressFromSource(src); if(val) return val; }
-    return "—";
-  }
+  function customerName(order){ const p=profileOf(order); return order.customer_name || order.name || [p.first_name,p.last_name].filter(Boolean).join(" ") || p.full_name || "Customer"; }
+  function customerEmail(order){ const p=profileOf(order); return order.customer_email || order.email || p.email || ""; }
+  function customerPhone(order){ const p=profileOf(order); return order.customer_phone || order.phone || p.phone || "—"; }
+  function shippingAddress(order){ const p=profileOf(order); return order.shipping_address || order.address || p.shipping_address || p.address || [p.address1,p.address2,p.city,p.state,p.zip].filter(Boolean).join(", ") || "—"; }
   function trackingUrl(carrier, number, provided){ if(provided) return provided; if(!number) return ""; const n=encodeURIComponent(number); const c=String(carrier||"").toLowerCase(); if(c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${n}`; if(c.includes("ups")) return `https://www.ups.com/track?tracknum=${n}`; if(c.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${n}`; return ""; }
-
-  function indexProfile(profile, maps){
-    if(!profile) return;
-    [profile.user_id, profile.id, profile.customer_id, profile.profile_id].forEach(id => { const key=cleanValue(id); if(key) maps.byAnyId[key]=profile; });
-    [profile.email, profile.customer_email, profile.contact_email, profile.shipping_email].forEach(email => { const key=cleanValue(email).toLowerCase(); if(key) maps.byEmail[key]=profile; });
-  }
-  function matchProfileForOrder(order, maps){
-    const idKeys = [order.user_id, order.customer_id, order.profile_id, order.customer_profile_id, order.customer_uuid, order.auth_user_id, order.userId, order.customerId];
-    for(const id of idKeys){ const key=cleanValue(id); if(key && maps.byAnyId[key]) return maps.byAnyId[key]; }
-    const emailKeys = [order.customer_email, order.email, order.shipping_email, order.contact_email, order.billing_email];
-    for(const email of emailKeys){ const key=cleanValue(email).toLowerCase(); if(key && maps.byEmail[key]) return maps.byEmail[key]; }
-    return {};
-  }
 
   function selectedOrdersArray(){ return Array.from(selectedOrderIds); }
   function renderSelectedCount(){ $("selectedCount").textContent = `${selectedOrderIds.size} selected`; const allVisible = filteredOrders.length && filteredOrders.every(o => selectedOrderIds.has(o.id)); $("selectAllOrders").checked = !!allVisible; }
@@ -192,94 +114,35 @@
     const rows = results.filter(r => r.status === "fulfilled" && r.value?.data).map(r => r.value.data);
     const admin = rows.find(r => r && (r.is_active === true || r.active === true || r.is_admin === true || r.email === currentUser.email));
     if(!admin){ setStatus("Access denied. This login is not listed as an active Pep Shop Texas admin.", "bad"); return false; }
-    setStatus(`Admin access confirmed for ${adminDisplayName()}.`, "good");
+    setStatus(`Admin access confirmed for ${currentUser.email}.`, "good");
     return true;
   }
 
-  async function withTimeout(promise, label, ms=12000){
-    let timer;
-    const timeout = new Promise((_, reject) => {
-      timer = setTimeout(() => reject(new Error(`${label} timed out. Refresh the page or check Supabase/RLS access.`)), ms);
-    });
-    try { return await Promise.race([promise, timeout]); }
-    finally { clearTimeout(timer); }
-  }
-
   async function loadOrders(){
-    try{
-      setStatus("Loading orders...");
-      const body = $("ordersBody");
-      if(body) body.innerHTML = `<tr><td colspan="8" class="muted">Loading orders from Supabase...</td></tr>`;
+    setStatus("Loading orders...");
+    const { data: orders, error } = await supabaseClient.from("orders").select("*").order("created_at", { ascending:false });
+    if(error) throw error;
+    const orderIds = (orders||[]).map(o=>o.id).filter(Boolean);
+    const userIds = [...new Set((orders||[]).flatMap(o=>[o.user_id,o.customer_id]).filter(Boolean))];
+    const profileIds = [...new Set((orders||[]).flatMap(o=>[o.profile_id,o.customer_profile_id,o.customer_id]).filter(Boolean))];
+    let itemsByOrder = {}, profilesByUser = {}, profilesById = {};
 
-      const ordersResult = await withTimeout(
-        supabaseClient.from("orders").select("*").order("created_at", { ascending:false }),
-        "Orders query"
-      );
-      if(ordersResult.error) throw ordersResult.error;
-
-      const orders = ordersResult.data || [];
-      const orderIds = orders.map(o=>o.id).filter(Boolean);
-      const userIds = [...new Set(orders.flatMap(o=>[o.user_id,o.customer_id,o.auth_user_id,o.userId,o.customerId]).map(cleanValue).filter(Boolean))];
-      const profileIds = [...new Set(orders.flatMap(o=>[o.profile_id,o.customer_profile_id,o.customer_id,o.customer_uuid]).map(cleanValue).filter(Boolean))];
-      let itemsByOrder = {}, profileMaps = { byAnyId:{}, byEmail:{} };
-
-      /* Render the order rows immediately. The item/profile lookups below are helpful,
-         but they should never leave the Orders screen stuck on "Loading orders...". */
-      allOrders = orders.map(o => ({...o, items: [], profile: {}}));
-      selectedOrderIds = new Set([...selectedOrderIds].filter(id => allOrders.some(o => o.id === id)));
-      applyFilters();
-      setStatus(`Loaded ${allOrders.length} order${allOrders.length===1?"":"s"}. Loading order details...`, "good");
-
-      if(orderIds.length){
-        const itemsResult = await withTimeout(
-          supabaseClient.from("order_items").select("*").in("order_id", orderIds),
-          "Order items query"
-        ).catch(err => ({ data: [], error: err }));
-        if(itemsResult.error) console.warn("Order items could not be loaded:", itemsResult.error.message || itemsResult.error);
-        (itemsResult.data||[]).forEach(item => { const k=item.order_id; if(!itemsByOrder[k]) itemsByOrder[k]=[]; itemsByOrder[k].push(item); });
-      }
-      /* Customer info patch:
-         Try a small full-profile lookup first, then targeted user/id/email lookups.
-         This prevents the detail card from showing only "Customer" when the order row uses
-         customer_id but the profile table stores that same value under a different column. */
-      const profilesAllResult = await withTimeout(
-        supabaseClient.from("customer_profiles").select("*").limit(500),
-        "Customer profiles lookup"
-      ).catch(err => ({ data: [], error: err }));
-      if(profilesAllResult.error) console.warn("Customer profiles could not be loaded:", profilesAllResult.error.message || profilesAllResult.error);
-      (profilesAllResult.data||[]).forEach(p => indexProfile(p, profileMaps));
-
-      if(userIds.length){
-        const profilesByUserResult = await withTimeout(
-          supabaseClient.from("customer_profiles").select("*").in("user_id", userIds),
-          "Customer profiles by user query"
-        ).catch(err => ({ data: [], error: err }));
-        if(profilesByUserResult.error) console.warn("Customer profiles by user_id could not be loaded:", profilesByUserResult.error.message || profilesByUserResult.error);
-        (profilesByUserResult.data||[]).forEach(p => indexProfile(p, profileMaps));
-      }
-      if(profileIds.length){
-        const profilesByIdResult = await withTimeout(
-          supabaseClient.from("customer_profiles").select("*").in("id", profileIds),
-          "Customer profiles by id query"
-        ).catch(err => ({ data: [], error: err }));
-        if(profilesByIdResult.error) console.warn("Customer profiles by id could not be loaded:", profilesByIdResult.error.message || profilesByIdResult.error);
-        (profilesByIdResult.data||[]).forEach(p => indexProfile(p, profileMaps));
-      }
-
-      allOrders = orders.map(o => ({
-        ...o,
-        items: itemsByOrder[o.id] || [],
-        profile: matchProfileForOrder(o, profileMaps)
-      }));
-      selectedOrderIds = new Set([...selectedOrderIds].filter(id => allOrders.some(o => o.id === id)));
-      applyFilters();
-      setStatus(`Loaded ${allOrders.length} order${allOrders.length===1?"":"s"}.`, "good");
-    }catch(error){
-      console.error(error);
-      const body = $("ordersBody");
-      if(body) body.innerHTML = `<tr><td colspan="8" class="muted">Could not load orders. ${esc(error.message || error)}</td></tr>`;
-      setStatus(error.message || "Could not load orders from Supabase.", "bad");
+    if(orderIds.length){
+      const { data: items } = await supabaseClient.from("order_items").select("*").in("order_id", orderIds);
+      (items||[]).forEach(item => { const k=item.order_id; if(!itemsByOrder[k]) itemsByOrder[k]=[]; itemsByOrder[k].push(item); });
     }
+    if(userIds.length){
+      const { data: profiles } = await supabaseClient.from("customer_profiles").select("*").in("user_id", userIds);
+      (profiles||[]).forEach(p => { if(p.user_id) profilesByUser[p.user_id]=p; if(p.id) profilesById[p.id]=p; });
+    }
+    if(profileIds.length){
+      const { data: profiles } = await supabaseClient.from("customer_profiles").select("*").in("id", profileIds);
+      (profiles||[]).forEach(p => { if(p.user_id) profilesByUser[p.user_id]=p; if(p.id) profilesById[p.id]=p; });
+    }
+    allOrders = (orders||[]).map(o => ({...o, items: itemsByOrder[o.id] || [], profile: profilesByUser[o.user_id] || profilesById[o.profile_id] || profilesById[o.customer_profile_id] || profilesById[o.customer_id] || {}}));
+    selectedOrderIds = new Set([...selectedOrderIds].filter(id => allOrders.some(o => o.id === id)));
+    applyFilters();
+    setStatus(`Loaded ${allOrders.length} order${allOrders.length===1?"":"s"}.`, "good");
   }
 
   function applyFilters(){
@@ -301,7 +164,7 @@
 
   function renderOrders(){
     const body = $("ordersBody");
-    if(!filteredOrders.length){ body.innerHTML = `<tr><td colspan="8" class="muted">No orders match the current filters.</td></tr>`; setTimeout(syncOrderHorizontalScrollbar, 0); return; }
+    if(!filteredOrders.length){ body.innerHTML = `<tr><td colspan="8" class="muted">No orders match the current filters.</td></tr>`; return; }
     body.innerHTML = filteredOrders.map(order => {
       const id = esc(order.id);
       const track = order.tracking_number || order.tracking || "";
@@ -318,7 +181,6 @@
     }).join("");
     document.querySelectorAll("tr.order-row").forEach(row => row.addEventListener("click", () => { const order = allOrders.find(o => o.id === row.dataset.orderId); if(order) renderOrderDetail(order); }));
     document.querySelectorAll(".row-check").forEach(cb => cb.addEventListener("change", e => { const id=e.target.dataset.checkId; e.target.checked ? selectedOrderIds.add(id) : selectedOrderIds.delete(id); renderSelectedCount(); }));
-    setTimeout(syncOrderHorizontalScrollbar, 0);
   }
 
   function itemsMarkup(order){
@@ -333,24 +195,20 @@
     }).join("")}</div>`;
   }
 
-  function auditActor(order){
-    return displayPerson(firstValue(order.updated_by_name, order.last_updated_by_name, order.admin_name, order.updated_by, order.last_updated_by, order.updated_by_email));
-  }
   function historyMarkup(order){
     const events = [];
-    const actor = auditActor(order);
-    if(order.created_at) events.push(["Order created", order.created_at, ""]);
-    if(order.paid_at) events.push(["Payment received", order.paid_at, actor]);
-    if(order.processing_at) events.push(["Marked processing", order.processing_at, actor]);
-    if(order.packed_at) events.push(["Marked packed", order.packed_at, actor]);
-    if(order.shipped_at) events.push(["Marked shipped", order.shipped_at, actor]);
-    if(order.shipping_email_sent_at) events.push(["Shipping email sent", order.shipping_email_sent_at, actor]);
-    if(order.delivered_at) events.push(["Marked delivered", order.delivered_at, actor]);
-    if(order.cancelled_at) events.push(["Cancelled", order.cancelled_at, actor]);
-    if(order.rejected_at) events.push(["Rejected", order.rejected_at, actor]);
-    if(order.updated_at) events.push(["Last updated", order.updated_at, actor]);
+    if(order.created_at) events.push(["Order created", order.created_at]);
+    if(order.paid_at) events.push(["Payment received", order.paid_at]);
+    if(order.processing_at) events.push(["Marked processing", order.processing_at]);
+    if(order.packed_at) events.push(["Marked packed", order.packed_at]);
+    if(order.shipped_at) events.push(["Marked shipped", order.shipped_at]);
+    if(order.shipping_email_sent_at) events.push(["Shipping email sent", order.shipping_email_sent_at]);
+    if(order.delivered_at) events.push(["Marked delivered", order.delivered_at]);
+    if(order.cancelled_at) events.push(["Cancelled", order.cancelled_at]);
+    if(order.rejected_at) events.push(["Rejected", order.rejected_at]);
+    if(order.updated_at) events.push(["Last updated", order.updated_at]);
     if(!events.length) return `<div class="muted">No timeline fields are currently saved for this order.</div>`;
-    return `<div class="audit-list">${events.map(([label,date,who])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}${who ? ` · ${esc(who)}` : ""}</span></div>`).join("")}</div>`;
+    return `<div class="audit-list">${events.map(([label,date])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}</span></div>`).join("")}</div>`;
   }
 
   function renderOrderDetail(order){
@@ -394,7 +252,7 @@
     const note = $("editAdminNote").value.trim();
     if(os === "shipped" && (!carrier || !tracking)) throw new Error("Carrier and tracking number are required before marking an order as shipped.");
     const now = new Date().toISOString();
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_by_name: adminDisplayName(), last_updated_by_name: adminDisplayName(), updated_at: now };
+    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, updated_at: now };
     if(ps === "paid") updates.paid_at = now;
     if(os === "processing") updates.processing_at = now;
     if(os === "packed") updates.packed_at = now;
@@ -408,7 +266,7 @@
   async function safeUpdateOrder(id, updates){
     const attempts = [
       updates,
-      Object.fromEntries(Object.entries(updates).filter(([k]) => !["status","carrier","tracking","admin_notes","updated_by_name","last_updated_by_name","paid_at","processing_at","packed_at","shipped_at","delivered_at","cancelled_at","rejected_at"].includes(k))),
+      Object.fromEntries(Object.entries(updates).filter(([k]) => !["status","carrier","tracking","paid_at","processing_at","packed_at","shipped_at","delivered_at","cancelled_at","rejected_at"].includes(k))),
       Object.fromEntries(Object.entries(updates).filter(([k]) => ["order_status","payment_status","tracking_carrier","tracking_number","tracking_url","admin_note","updated_at"].includes(k))),
       Object.fromEntries(Object.entries(updates).filter(([k]) => ["status","payment_status","updated_at"].includes(k)))
     ];
@@ -475,89 +333,7 @@
     setStatus(failed ? `${message} ${failed} order(s) could not be updated.` : message, failed ? "bad" : "good");
   }
 
-  function setOrderListHeight(px){
-    const wrap = $("ordersTableWrap");
-    if(!wrap) return;
-    const min = 300;
-    const max = Math.max(420, window.innerHeight - 190);
-    const finalHeight = Math.max(min, Math.min(px, max));
-    wrap.style.height = `${finalHeight}px`;
-    localStorage.setItem("pstAdminOrdersListHeight", String(finalHeight));
-    syncOrderHorizontalScrollbar();
-  }
-
-  function syncOrderHorizontalScrollbar(){
-    const wrap = $("ordersTableWrap");
-    const xScroll = $("ordersXScroll");
-    const xInner = $("ordersXInner");
-    const table = $("ordersTable");
-    if(!wrap || !xScroll || !xInner || !table) return;
-    xInner.style.width = `${Math.max(table.scrollWidth, wrap.scrollWidth, wrap.clientWidth)}px`;
-    xScroll.scrollLeft = wrap.scrollLeft;
-  }
-
-  function wireFloatingHorizontalScrollbar(){
-    const wrap = $("ordersTableWrap");
-    const xScroll = $("ordersXScroll");
-    if(!wrap || !xScroll) return;
-    let syncing = false;
-    wrap.addEventListener("scroll", () => {
-      if(syncing) return;
-      syncing = true;
-      xScroll.scrollLeft = wrap.scrollLeft;
-      syncing = false;
-    });
-    xScroll.addEventListener("scroll", () => {
-      if(syncing) return;
-      syncing = true;
-      wrap.scrollLeft = xScroll.scrollLeft;
-      syncing = false;
-    });
-    window.addEventListener("resize", syncOrderHorizontalScrollbar);
-    const saved = Number(localStorage.getItem("pstAdminOrdersListHeight"));
-    if(saved) setOrderListHeight(saved); else setOrderListHeight(680);
-    setTimeout(syncOrderHorizontalScrollbar, 250);
-  }
-
-  function wireOrderListResizer(){
-    const bar = $("ordersResizeBar");
-    const wrap = $("ordersTableWrap");
-    if(!bar || !wrap) return;
-    let startY = 0;
-    let startH = 0;
-    function move(e){
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      setOrderListHeight(startH + (clientY - startY));
-    }
-    function stop(){
-      document.removeEventListener("mousemove", move);
-      document.removeEventListener("mouseup", stop);
-      document.removeEventListener("touchmove", move);
-      document.removeEventListener("touchend", stop);
-      document.body.style.userSelect = "";
-      document.body.style.cursor = "";
-    }
-    function start(e){
-      e.preventDefault();
-      startY = e.touches ? e.touches[0].clientY : e.clientY;
-      startH = wrap.getBoundingClientRect().height;
-      document.body.style.userSelect = "none";
-      document.body.style.cursor = "ns-resize";
-      document.addEventListener("mousemove", move);
-      document.addEventListener("mouseup", stop);
-      document.addEventListener("touchmove", move, { passive:false });
-      document.addEventListener("touchend", stop);
-    }
-    bar.addEventListener("mousedown", start);
-    bar.addEventListener("touchstart", start, { passive:false });
-  }
-
   function wireEvents(){
-    wireFloatingHorizontalScrollbar();
-    wireOrderListResizer();
-    $("ordersCompactBtn").addEventListener("click", () => setOrderListHeight(420));
-    $("ordersComfortBtn").addEventListener("click", () => setOrderListHeight(680));
-    $("ordersTallBtn").addEventListener("click", () => setOrderListHeight(Math.max(760, window.innerHeight - 190)));
     $("refreshBtn").addEventListener("click", loadOrders);
     $("signOutBtn").addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
     ["searchInput","statusFilter","paymentFilter","dateFilter"].forEach(id => $(id).addEventListener(id==="searchInput"?"input":"change", applyFilters));
@@ -572,45 +348,29 @@
     $("bulkClearBtn").addEventListener("click", () => { selectedOrderIds.clear(); renderOrders(); renderSelectedCount(); });
   }
 
-  function showOrdersTableMessage(message){
-    const body = $("ordersBody");
-    if(body) body.innerHTML = `<tr><td colspan="8" class="muted">${esc(message)}</td></tr>`;
+
+  function restoreResizableOrderList(){
+    const wrap = $("ordersTableWrap");
+    if(!wrap) return;
+    const saved = Number(localStorage.getItem("pstAdminOrdersListHeight") || 0);
+    if(saved && saved >= 180) wrap.style.height = saved + "px";
+    if(window.ResizeObserver){
+      const ro = new ResizeObserver(entries => {
+        const h = Math.round(entries[0].contentRect.height);
+        if(h >= 180) localStorage.setItem("pstAdminOrdersListHeight", String(h));
+      });
+      ro.observe(wrap);
+    } else {
+      wrap.addEventListener("mouseup", () => localStorage.setItem("pstAdminOrdersListHeight", String(wrap.offsetHeight)));
+    }
   }
 
   async function init(){
     try{
       wireEvents();
-
-      if(!window.supabase || !window.supabase.createClient){
-        const msg = "Supabase library did not load. Check your internet connection or the Supabase CDN script.";
-        setStatus(msg, "bad");
-        showOrdersTableMessage(msg);
-        return;
-      }
-
-      if(!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){
-        const msg = "Supabase URL/key are missing in admin.html. Paste the same SUPABASE_URL and SUPABASE_ANON_KEY from your working index.html/products.html.";
-        setStatus(msg, "bad");
-        showOrdersTableMessage(msg);
-        return;
-      }
-
-      try{
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }catch(createError){
-        const msg = `Supabase could not initialize: ${createError.message || createError}`;
-        setStatus(msg, "bad");
-        showOrdersTableMessage(msg);
-        return;
-      }
-
+      if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){ setStatus("Before uploading: paste your Supabase URL and anon key into admin.html using the same values from your working index.html/products.html.", "bad"); return; }
       if(await checkAdminAccess()) await loadOrders();
-    }catch(error){
-      console.error(error);
-      const msg = error.message || "Something went wrong loading Admin Orders.";
-      setStatus(msg, "bad");
-      showOrdersTableMessage(msg);
-    }
+    }catch(error){ console.error(error); setStatus(error.message || "Something went wrong loading Admin Orders.", "bad"); }
   }
   init();
 </script>
