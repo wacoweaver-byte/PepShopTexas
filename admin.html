@@ -232,8 +232,17 @@
     if(order.cancelled_at) events.push(["Cancelled", order.cancelled_at]);
     if(order.rejected_at) events.push(["Rejected", order.rejected_at]);
     if(order.updated_at) events.push(["Last updated", order.updated_at]);
-    if(!events.length) return `<div class="muted">No timeline fields are currently saved for this order.</div>`;
-    return `<div class="audit-list">${events.map(([label,date])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}</span></div>`).join("")}</div>`;
+
+    // Also show the internal admin audit trail as readable history entries.
+    // These stay inside Admin only and are not sent to customer emails.
+    const noteText = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+    const auditEntries = noteText.split(/\n{2,}/).map(x => x.trim()).filter(Boolean);
+
+    if(!events.length && !auditEntries.length) return `<div class="muted">No timeline fields are currently saved for this order.</div>`;
+
+    const timeline = events.map(([label,date])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}</span></div>`).join("");
+    const audit = auditEntries.map(entry => `<div class="audit-item"><strong>Admin audit note</strong><span class="muted">${esc(entry)}</span></div>`).join("");
+    return `<div class="audit-list">${timeline}${audit}</div>`;
   }
 
   function renderOrderDetail(order){
@@ -256,16 +265,15 @@
           <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
           <div class="field full"><label for="editAdminNote">Internal Admin Note</label><textarea id="editAdminNote" placeholder="Internal note for this order only">${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || ""))}</textarea></div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button><button class="btn warning" id="saveAndEmailBtn" type="button">Save + Send Matching Email</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
         <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped, add a carrier and tracking number first. The page will block a shipped save without tracking.</div>
       </div>
-      <div class="detail-section"><h3>Email Actions</h3><div class="email-box"><h4>Send a specific customer email</h4><p>Uses your Supabase Edge Function: <strong>${esc(EMAIL_FUNCTION_NAME)}</strong>. Order Shipped includes carrier/tracking.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary email-action" data-email-type="payment_accepted">Payment Accepted</button><button class="btn secondary email-action" data-email-type="payment_issue">Payment Issue</button><button class="btn secondary email-action" data-email-type="order_processing">Processing</button><button class="btn secondary email-action" data-email-type="order_shipped">Shipped</button><button class="btn secondary email-action" data-email-type="order_delivered">Delivered</button><button class="btn secondary email-action" data-email-type="order_cancelled">Cancelled</button><button class="btn secondary email-action" data-email-type="order_rejected">Rejected</button></div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
+      <div class="detail-section"><h3>Manual Email Resend</h3><div class="email-box"><h4>Resend a specific customer email</h4><p>Use this only when a customer needs an email sent again. Normal status emails send automatically when you click Save Order Updates.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary email-action" data-email-type="payment_accepted">Payment Accepted</button><button class="btn secondary email-action" data-email-type="payment_issue">Payment Issue</button><button class="btn secondary email-action" data-email-type="order_processing">Processing</button><button class="btn secondary email-action" data-email-type="order_shipped">Shipped</button><button class="btn secondary email-action" data-email-type="order_delivered">Delivered</button><button class="btn secondary email-action" data-email-type="order_cancelled">Cancelled</button><button class="btn secondary email-action" data-email-type="order_rejected">Rejected</button></div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
       <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div>`;
 
     $("reloadDetailBtn").addEventListener("click", loadOrders);
-    $("saveOrderBtn").addEventListener("click", () => saveOrder(order, false));
-    $("saveAndEmailBtn").addEventListener("click", () => saveOrder(order, true));
-    document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType)));
+    $("saveOrderBtn").addEventListener("click", () => saveOrder(order));
+    document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false)));
   }
 
   function buildUpdatesFromForm(order={}){
@@ -344,31 +352,58 @@
     throw error;
   }
 
-  function emailTypeFor(orderStatusValue, paymentStatusValue){
-    if(paymentStatusValue === "paid") return "payment_accepted";
-    if(paymentStatusValue === "failed") return "payment_issue";
-    if(orderStatusValue === "processing" || orderStatusValue === "packed") return "order_processing";
-    if(orderStatusValue === "shipped") return "order_shipped";
-    if(orderStatusValue === "delivered") return "order_delivered";
-    if(orderStatusValue === "cancelled") return "order_cancelled";
-    if(orderStatusValue === "rejected") return "order_rejected";
-    return "order_processing";
+  function detectCustomerEmailType(oldOrder, updates){
+    const oldOrderStatus = norm(orderStatus(oldOrder));
+    const oldPaymentStatus = norm(paymentStatus(oldOrder));
+    const newOrderStatus = norm(updates.order_status);
+    const newPaymentStatus = norm(updates.payment_status);
+    const oldTracking = cleanValue(oldOrder.tracking_number || oldOrder.tracking);
+    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
+    const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
+    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
+
+    if(oldPaymentStatus !== newPaymentStatus){
+      if(newPaymentStatus === "paid") return "payment_accepted";
+      if(["failed","manual_review","refunded"].includes(newPaymentStatus)) return "payment_issue";
+    }
+    if(oldOrderStatus !== newOrderStatus){
+      if(["processing","packed"].includes(newOrderStatus)) return "order_processing";
+      if(newOrderStatus === "shipped") return "order_shipped";
+      if(newOrderStatus === "delivered") return "order_delivered";
+      if(newOrderStatus === "cancelled") return "order_cancelled";
+      if(newOrderStatus === "rejected") return "order_rejected";
+    }
+    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier)) return "order_shipped";
+    return "";
   }
 
-  async function saveOrder(order, sendEmail){
+  async function saveOrder(order){
     try{
       const updates = buildUpdatesFromForm(order);
+      const emailType = detectCustomerEmailType(order, updates);
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
-      setStatus("Order updates saved.", "good");
+
+      const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
+      if(emailType){
+        try{
+          await sendOrderEmail(mergedForEmail, emailType, true);
+          setStatus("Order updates saved and matching customer email sent.", "good");
+        }catch(emailError){
+          console.error(emailError);
+          setStatus(`Order saved, but customer email failed: ${emailError.message || emailError}`, "bad");
+        }
+      }else{
+        setStatus("Order updates saved. No customer-facing status email was needed.", "good");
+      }
+
       await loadOrders();
-      const fresh = allOrders.find(o => o.id === order.id) || order;
+      const fresh = allOrders.find(o => o.id === order.id) || mergedForEmail;
       renderOrderDetail(fresh);
-      if(sendEmail){ await sendOrderEmail(fresh, emailTypeFor(updates.order_status, updates.payment_status)); }
     }catch(error){ console.error(error); setStatus(error.message || "Could not save order updates.", "bad"); alert(error.message || "Could not save order updates."); }
   }
 
-  async function sendOrderEmail(order, type){
+  async function sendOrderEmail(order, type, automatic=false){
     const email = customerEmail(order);
     if(!email){ alert("This order does not have a customer email address."); return; }
     const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
@@ -382,6 +417,11 @@
     const text = await res.text();
     if(!res.ok) { setStatus(`Email failed: ${text}`, "bad"); throw new Error(text || "Email function failed."); }
     if(type === "order_shipped") await safeUpdateOrder(order.id, { shipping_email_sent_at: new Date().toISOString(), updated_at: new Date().toISOString() }, order).catch(()=>{});
+    if(!automatic){
+      const current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+      const next = joinAuditNotes(current, auditLine(`Manual customer email resent: ${type.replaceAll("_"," ")}`));
+      await safeUpdateOrder(order.id, { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() }, order).catch(()=>{});
+    }
     setStatus("Customer email sent successfully.", "good");
   }
 
