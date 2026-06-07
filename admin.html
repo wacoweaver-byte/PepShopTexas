@@ -271,7 +271,7 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
         <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped, add a carrier and tracking number first. The page will block a shipped save without tracking.</div>
       </div>
-      <div class="detail-section"><h3>Manual Email Resend</h3><div class="email-box"><h4>Resend a specific customer email</h4><p>Use this only when a customer needs an email sent again. Normal status emails send automatically when you click Save Order Updates.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary email-action" data-email-type="payment_accepted">Payment Accepted</button><button class="btn secondary email-action" data-email-type="payment_issue">Payment Issue</button><button class="btn secondary email-action" data-email-type="order_processing">Processing</button><button class="btn secondary email-action" data-email-type="order_shipped">Shipped</button><button class="btn secondary email-action" data-email-type="order_delivered">Delivered</button><button class="btn secondary email-action" data-email-type="order_cancelled">Cancelled</button><button class="btn secondary email-action" data-email-type="order_rejected">Rejected</button></div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
+      <div class="detail-section"><h3>Manual Email Resend</h3><div class="email-box"><h4>Resend a specific customer email</h4><p>Use this only when a customer needs an email sent again. Normal status emails send automatically when you click Save Order Updates.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary email-action" data-email-type="payment_accepted">Payment Accepted</button><button class="btn secondary email-action" data-email-type="payment_issue">Payment Issue</button><button class="btn secondary email-action" data-email-type="order_processing">Processing</button><button class="btn secondary email-action" data-email-type="order_packed">Packed / Awaiting Pickup</button><button class="btn secondary email-action" data-email-type="order_shipped">Shipped</button><button class="btn secondary email-action" data-email-type="order_delivered">Delivered</button><button class="btn secondary email-action" data-email-type="order_cancelled">Cancelled</button><button class="btn secondary email-action" data-email-type="order_rejected">Rejected</button></div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
       <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div>`;
 
     if(window.matchMedia && window.matchMedia("(max-width:1100px)").matches){
@@ -373,7 +373,8 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
       if(["failed","manual_review","refunded"].includes(newPaymentStatus)) return "payment_issue";
     }
     if(oldOrderStatus !== newOrderStatus){
-      if(["processing","packed"].includes(newOrderStatus)) return "order_processing";
+      if(newOrderStatus === "processing") return "order_processing";
+      if(newOrderStatus === "packed") return "order_packed";
       if(newOrderStatus === "shipped") return "order_shipped";
       if(newOrderStatus === "delivered") return "order_delivered";
       if(newOrderStatus === "cancelled") return "order_cancelled";
