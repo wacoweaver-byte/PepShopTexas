@@ -263,15 +263,6 @@ th {
 .promo-on { color: var(--pst-success); font-weight: 900; }
 .promo-off { color: var(--pst-muted); font-weight: 900; }
 
-.view-edit-btn {
-  min-height: 32px;
-  padding: 7px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-
 @media (max-width: 680px) {
   .edit-grid {
     grid-template-columns: 1fr;
@@ -467,9 +458,9 @@ header .actions .btn:hover {
         <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the form above.</div>
         <table>
           <thead>
-            <tr><th>Action</th><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
+            <tr><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
           </thead>
-          <tbody id="discountCodesBody"><tr><td colspan="11" class="muted">Loading discount codes...</td></tr></tbody>
+          <tbody id="discountCodesBody"><tr><td colspan="10" class="muted">Loading discount codes...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -640,14 +631,14 @@ async function loadDiscountCodes() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    body.innerHTML = `<tr><td colspan="11" class="muted">${safe(error.message)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="muted">${safe(error.message)}</td></tr>`;
     return;
   }
 
   discountRows = data || [];
 
   if (!discountRows.length) {
-    body.innerHTML = `<tr><td colspan="11" class="muted">No discount codes yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="muted">No discount codes yet.</td></tr>`;
     return;
   }
 
@@ -659,8 +650,7 @@ async function loadDiscountCodes() {
     const heroText = row.hero_banner_text || "—";
     const promoClass = row.hero_banner_active ? "promo-on" : "promo-off";
     return `<tr class="discount-row ${selectedDiscountCode === code ? "selected" : ""}" data-discount-code="${safe(code)}" title="Click to load and edit this promotion">
-      <td><button class="btn secondary view-edit-btn" type="button" data-edit-code="${safe(code)}">View / Edit</button></td>
-      <td><strong>${safe(row.code)}</strong><div class="muted">Click row to edit</div></td>
+      <td><strong>${safe(row.code)}</strong><div class="muted">Click to edit</div></td>
       <td><strong>${safe(promoTitle)}</strong><div class="muted">${safe(row.promotion_description || "No card description")}</div></td>
       <td>${safe(heroText)}</td>
       <td>${safe(row.discount_type || "standard")}</td>
@@ -675,12 +665,6 @@ async function loadDiscountCodes() {
 
   document.querySelectorAll(".discount-row").forEach(row => {
     row.addEventListener("click", () => selectDiscountCode(row.dataset.discountCode));
-  });
-  document.querySelectorAll(".view-edit-btn").forEach(btn => {
-    btn.addEventListener("click", (event) => {
-      event.stopPropagation();
-      selectDiscountCode(btn.dataset.editCode);
-    });
   });
 }
 
