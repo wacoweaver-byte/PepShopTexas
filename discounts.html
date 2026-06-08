@@ -171,6 +171,107 @@ th {
   color: var(--pst-muted);
   font-size: 13px;
 }
+
+.field-hint {
+  color: var(--pst-muted);
+  font-size: 12px;
+  line-height: 1.35;
+  margin-top: -2px;
+}
+.field-guide {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(0,119,200,0.22);
+  background: rgba(0,119,200,0.055);
+  color: #24445c;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.field-guide strong { color: var(--pst-blue); }
+.promo-preview-card {
+  grid-column: 1 / -1;
+  border: 1px solid var(--pst-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fbfcfe;
+}
+.promo-preview-card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.promo-card-sample {
+  border: 1px solid rgba(0,119,200,0.25);
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 14px;
+  box-shadow: 0 6px 16px rgba(16,24,32,0.06);
+}
+.promo-card-title {
+  font-weight: 900;
+  color: var(--pst-dark);
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.promo-card-desc {
+  color: var(--pst-muted);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.promo-card-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--pst-blue);
+  background: rgba(0,119,200,0.08);
+  border: 1px solid rgba(0,119,200,0.18);
+}
+.hero-preview {
+  margin-top: 10px;
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: #fff8e6;
+  border: 1px solid rgba(183,121,31,0.24);
+  color: #7a4a00;
+  font-weight: 800;
+}
+.form-actions-row {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.form-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--pst-blue);
+  background: rgba(0,119,200,0.08);
+  border: 1px solid rgba(0,119,200,0.18);
+}
+.discount-row { cursor: pointer; }
+.discount-row:hover { background: #f7fbff; }
+.discount-row.selected { background: rgba(0,119,200,0.08); }
+.promo-on { color: var(--pst-success); font-weight: 900; }
+.promo-off { color: var(--pst-muted); font-weight: 900; }
+
+.view-edit-btn {
+  min-height: 32px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+
 @media (max-width: 680px) {
   .edit-grid {
     grid-template-columns: 1fr;
@@ -325,36 +426,50 @@ header .actions .btn:hover {
 
   <section class="card" style="margin-top:18px;">
     <div class="card-header">
-      <h2>Create / Manage Discount</h2>
+      <h2>Create / Manage Discount <span id="formModeBadge" class="form-mode-badge">New</span></h2>
       <span class="muted">Codes save to Supabase and can be used during checkout.</span>
     </div>
     <div class="card-body">
       <div class="edit-grid">
-        <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /></div>
-        <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select></div>
-        <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /></div>
-        <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /></div>
-        <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /></div>
-        <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /></div>
-        <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /></div>
-        <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select></div>
-        <div class="field"><label for="promoTitleAdmin">Promotion Title</label><input id="promoTitleAdmin" type="text" placeholder="New Customer Special" /></div>
-        <div class="field"><label for="promoBannerActiveAdmin">Show On Homepage</label><select id="promoBannerActiveAdmin"><option value="false">No</option><option value="true">Yes</option></select></div>
-        <div class="field full"><label for="promoDescriptionAdmin">Promotion Description</label><input id="promoDescriptionAdmin" type="text" placeholder="Optional internal/customer-facing description" /></div>
-        <div class="field full"><label for="heroBannerTextAdmin">Homepage Hero Banner Text</label><input id="heroBannerTextAdmin" type="text" placeholder="🎉 New Customer Special — Save 10% with code WELCOME10" /></div>
-        <div class="field"><label for="promoStartsAdmin">Promotion Start Date</label><input id="promoStartsAdmin" type="date" /></div>
-        <div class="field"><label for="promoEndsAdmin">Promotion End Date</label><input id="promoEndsAdmin" type="date" /></div>
-        <button class="btn success full" id="createDiscountBtn" type="button">Create / Save Discount</button>
+        <div class="field-guide">
+          <strong>Promotion card field guide:</strong><br>
+          <strong>Promotion Title</strong> = headline/title on the promotion card. <strong>Promotion Description</strong> = body text on the promotion card. <strong>Homepage Hero Banner Text</strong> = scrolling/banner text on the homepage. <strong>Show On Homepage</strong> controls whether the promotion is displayed publicly. Click any saved promotion below to reload and edit its details.
+        </div>
+        <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /><span class="field-hint">Displays as the coupon/code customers enter.</span></div>
+        <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select><span class="field-hint">Controls how the discount can be used.</span></div>
+        <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /><span class="field-hint">Shows as the percentage discount, if used.</span></div>
+        <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /><span class="field-hint">Shows as the dollar discount, if used instead of percent.</span></div>
+        <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /><span class="field-hint">Limits the code to one customer email when filled in.</span></div>
+        <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /><span class="field-hint">When the code/promotion expires.</span></div>
+        <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /><span class="field-hint">Limits total use count. 0 means unlimited.</span></div>
+        <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select><span class="field-hint">Inactive codes will not be usable.</span></div>
+        <div class="field"><label for="promoTitleAdmin">Promotion Title</label><input id="promoTitleAdmin" type="text" placeholder="New Customer Special" /><span class="field-hint">Main title displayed on the promotion card.</span></div>
+        <div class="field"><label for="promoBannerActiveAdmin">Show On Homepage</label><select id="promoBannerActiveAdmin"><option value="false">No</option><option value="true">Yes</option></select><span class="field-hint">Yes = show this promotion on homepage/promo display.</span></div>
+        <div class="field full"><label for="promoDescriptionAdmin">Promotion Description</label><input id="promoDescriptionAdmin" type="text" placeholder="Optional internal/customer-facing description" /><span class="field-hint">Body text displayed on the promotion card.</span></div>
+        <div class="field full"><label for="heroBannerTextAdmin">Homepage Hero Banner Text</label><input id="heroBannerTextAdmin" type="text" placeholder="🎉 New Customer Special — Save 10% with code WELCOME10" /><span class="field-hint">Exact text used for the homepage hero/banner line.</span></div>
+        <div class="promo-preview-card">
+          <h3>Promotion Card Preview</h3>
+          <div class="promo-card-sample">
+            <div id="previewPromoTitle" class="promo-card-title">Promotion title will appear here</div>
+            <div id="previewPromoDescription" class="promo-card-desc">Promotion description will appear here.</div>
+            <span id="previewPromoCode" class="promo-card-code">CODE</span>
+            <div id="previewHeroBanner" class="hero-preview">Homepage hero/banner text will appear here.</div>
+          </div>
+        </div>
+        <div class="field"><label for="promoStartsAdmin">Promotion Start Date</label><input id="promoStartsAdmin" type="date" /><span class="field-hint">Optional date when homepage promo should begin.</span></div>
+        <div class="field"><label for="promoEndsAdmin">Promotion End Date</label><input id="promoEndsAdmin" type="date" /><span class="field-hint">Optional date when homepage promo should stop.</span></div>
+        <div class="form-actions-row"><button class="btn success" id="createDiscountBtn" type="button">Create / Save Discount</button><button class="btn secondary" id="newDiscountBtn" type="button">New / Clear Form</button></div>
       </div>
 
       <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
 
       <div class="orders-table-wrap" style="margin-top:14px;">
+        <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the form above.</div>
         <table>
           <thead>
-            <tr><th>Code</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
+            <tr><th>Action</th><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
           </thead>
-          <tbody id="discountCodesBody"><tr><td colspan="8" class="muted">Loading discount codes...</td></tr></tbody>
+          <tbody id="discountCodesBody"><tr><td colspan="11" class="muted">Loading discount codes...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -367,6 +482,8 @@ const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
+let discountRows = [];
+let selectedDiscountCode = null;
 const $ = (id) => document.getElementById(id);
 
 function safe(value) {
@@ -383,6 +500,86 @@ function formatDate(value) {
   if (Number.isNaN(date.getTime())) return String(value);
   return date.toLocaleString();
 }
+
+function toDateInputValue(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value).slice(0, 10);
+  return date.toISOString().slice(0, 10);
+}
+
+function discountLabelFromRow(row) {
+  const pct = Number(row.percent_off || row.discount_percent || 0);
+  const amt = Number(row.amount_off || row.discount_amount || 0);
+  return pct ? `${pct}% off` : amt ? `${money(amt)} off` : "Discount details not set";
+}
+
+function updatePromotionPreview() {
+  const code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase() || "CODE";
+  const title = ($("promoTitleAdmin")?.value || "").trim() || "Promotion title will appear here";
+  const desc = ($("promoDescriptionAdmin")?.value || "").trim() || "Promotion description will appear here.";
+  const hero = ($("heroBannerTextAdmin")?.value || "").trim() || "Homepage hero/banner text will appear here.";
+  const pct = Number($("discountPercentAdmin")?.value || 0);
+  const amt = Number($("discountAmountAdmin")?.value || 0);
+  const discountText = pct ? `${pct}% off` : amt ? `${money(amt)} off` : "Discount amount not set";
+  if ($("previewPromoTitle")) $("previewPromoTitle").textContent = title;
+  if ($("previewPromoDescription")) $("previewPromoDescription").textContent = desc;
+  if ($("previewPromoCode")) $("previewPromoCode").textContent = `${code} · ${discountText}`;
+  if ($("previewHeroBanner")) $("previewHeroBanner").textContent = hero;
+}
+
+function setFormMode(mode, code = "") {
+  const badge = $("formModeBadge");
+  if (badge) badge.textContent = mode === "edit" ? `Editing ${code}` : "New";
+  const btn = $("createDiscountBtn");
+  if (btn) btn.textContent = mode === "edit" ? "Save Promotion Changes" : "Create / Save Discount";
+}
+
+function resetDiscountForm() {
+  selectedDiscountCode = null;
+  ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","discountEmailAdmin","discountExpiresAdmin","discountMaxUsesAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin","promoStartsAdmin","promoEndsAdmin"].forEach(id => {
+    const el = $(id);
+    if (el) el.value = "";
+  });
+  const typeEl = $("discountTypeAdmin");
+  if (typeEl) typeEl.value = "standard";
+  const activeEl = $("discountActiveAdmin");
+  if (activeEl) activeEl.value = "true";
+  const promoActiveEl = $("promoBannerActiveAdmin");
+  if (promoActiveEl) promoActiveEl.value = "false";
+  setFormMode("new");
+  updatePromotionPreview();
+  document.querySelectorAll(".discount-row.selected").forEach(row => row.classList.remove("selected"));
+  setDiscountAdminStatus("Ready for a new discount/promotion.");
+}
+
+function selectDiscountCode(code) {
+  const row = discountRows.find(item => String(item.code || "").toUpperCase() === String(code || "").toUpperCase());
+  if (!row) return;
+  selectedDiscountCode = String(row.code || "").toUpperCase();
+  const setVal = (id, value) => { const el = $(id); if (el) el.value = value ?? ""; };
+  setVal("discountCodeAdmin", row.code || "");
+  setVal("discountTypeAdmin", row.discount_type || "standard");
+  setVal("discountPercentAdmin", Number(row.percent_off || row.discount_percent || 0) || "");
+  setVal("discountAmountAdmin", Number(row.amount_off || row.discount_amount || 0) || "");
+  setVal("discountEmailAdmin", row.assigned_email || "");
+  setVal("discountExpiresAdmin", toDateInputValue(row.expires_at));
+  setVal("discountMaxUsesAdmin", Number(row.max_uses || 0) || "");
+  setVal("discountActiveAdmin", row.active ? "true" : "false");
+  setVal("promoTitleAdmin", row.promotion_title || "");
+  setVal("promoBannerActiveAdmin", row.hero_banner_active ? "true" : "false");
+  setVal("promoDescriptionAdmin", row.promotion_description || "");
+  setVal("heroBannerTextAdmin", row.hero_banner_text || "");
+  setVal("promoStartsAdmin", toDateInputValue(row.promotion_starts_at));
+  setVal("promoEndsAdmin", toDateInputValue(row.promotion_ends_at));
+  setFormMode("edit", selectedDiscountCode);
+  updatePromotionPreview();
+  document.querySelectorAll(".discount-row.selected").forEach(tr => tr.classList.remove("selected"));
+  const selectedRow = document.querySelector(`[data-discount-code="${CSS.escape(selectedDiscountCode)}"]`);
+  if (selectedRow) selectedRow.classList.add("selected");
+  setDiscountAdminStatus(`Loaded ${selectedDiscountCode}. You can now edit and save changes.`, "good");
+}
+
 
 function setStatus(message, type = "") {
   const el = $("statusLine");
@@ -443,29 +640,48 @@ async function loadDiscountCodes() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    body.innerHTML = `<tr><td colspan="8" class="muted">${safe(error.message)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="11" class="muted">${safe(error.message)}</td></tr>`;
     return;
   }
 
-  if (!data || !data.length) {
-    body.innerHTML = `<tr><td colspan="8" class="muted">No discount codes yet.</td></tr>`;
+  discountRows = data || [];
+
+  if (!discountRows.length) {
+    body.innerHTML = `<tr><td colspan="11" class="muted">No discount codes yet.</td></tr>`;
     return;
   }
 
-  body.innerHTML = data.map(row => {
-    const pct = Number(row.percent_off || row.discount_percent || 0);
-    const amt = Number(row.amount_off || row.discount_amount || 0);
-    const discountText = pct ? `${pct}%` : amt ? money(amt) : "—";
+  body.innerHTML = discountRows.map(row => {
+    const discountText = discountLabelFromRow(row);
     const uses = `${Number(row.times_used || row.uses || 0)} / ${Number(row.max_uses || 0) || "∞"}`;
-    return `<tr>
-      <td><strong>${safe(row.code)}</strong></td>
+    const code = String(row.code || "").toUpperCase();
+    const promoTitle = row.promotion_title || "—";
+    const heroText = row.hero_banner_text || "—";
+    const promoClass = row.hero_banner_active ? "promo-on" : "promo-off";
+    return `<tr class="discount-row ${selectedDiscountCode === code ? "selected" : ""}" data-discount-code="${safe(code)}" title="Click to load and edit this promotion">
+      <td><button class="btn secondary view-edit-btn" type="button" data-edit-code="${safe(code)}">View / Edit</button></td>
+      <td><strong>${safe(row.code)}</strong><div class="muted">Click row to edit</div></td>
+      <td><strong>${safe(promoTitle)}</strong><div class="muted">${safe(row.promotion_description || "No card description")}</div></td>
+      <td>${safe(heroText)}</td>
       <td>${safe(row.discount_type || "standard")}</td>
-      <td>${discountText}</td>
+      <td>${safe(discountText)}</td>
       <td>${safe(row.assigned_email || "Any customer")}</td>
       <td>${uses}</td>
       <td>${row.expires_at ? formatDate(row.expires_at) : "No expiration"}</td>
-      <td>${row.hero_banner_active ? "Homepage" : "Off"}</td>\n      <td>${row.active ? "Active" : "Inactive"}</td>\n    </tr>`;
+      <td class="${promoClass}">${row.hero_banner_active ? "Homepage" : "Off"}</td>
+      <td>${row.active ? "Active" : "Inactive"}</td>
+    </tr>`;
   }).join("");
+
+  document.querySelectorAll(".discount-row").forEach(row => {
+    row.addEventListener("click", () => selectDiscountCode(row.dataset.discountCode));
+  });
+  document.querySelectorAll(".view-edit-btn").forEach(btn => {
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      selectDiscountCode(btn.dataset.editCode);
+    });
+  });
 }
 
 async function createDiscountCode() {
@@ -512,20 +728,22 @@ async function createDiscountCode() {
 
   if (error) return setDiscountAdminStatus(error.message, "bad");
 
-  setDiscountAdminStatus(`Discount code ${code} saved.`, "good");
-  ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","discountEmailAdmin","discountExpiresAdmin","discountMaxUsesAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin","promoStartsAdmin","promoEndsAdmin"].forEach(id => {
-    const el = $(id);
-    if (el) el.value = "";
-  });
-  const promoActiveEl = $("promoBannerActiveAdmin");
-  if (promoActiveEl) promoActiveEl.value = "false";
+  selectedDiscountCode = code;
+  setFormMode("edit", code);
+  setDiscountAdminStatus(`Discount code ${code} saved. Click any saved row below to load its details again.`, "good");
   await loadDiscountCodes();
+  updatePromotionPreview();
 }
 
 async function init() {
   try {
     $("refreshBtn").addEventListener("click", loadDiscountCodes);
     $("createDiscountBtn").addEventListener("click", createDiscountCode);
+    $("newDiscountBtn")?.addEventListener("click", resetDiscountForm);
+    ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin"].forEach(id => {
+      const el = $(id);
+      if (el) el.addEventListener("input", updatePromotionPreview);
+    });
     $("signOutBtn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
       window.location.href = "index.html";
@@ -535,6 +753,7 @@ async function init() {
     if (!isAdmin) return;
 
     await loadDiscountCodes();
+    updatePromotionPreview();
   } catch (error) {
     console.error(error);
     setStatus(error.message || "Something went wrong loading Discount Management.", "bad");
