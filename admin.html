@@ -40,7 +40,7 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
       <div class="card-body">
         <div class="filters">
           <div class="field"><label for="searchInput">Search</label><input id="searchInput" type="search" placeholder="Customer, email, order #, tracking..." /></div>
-          <div class="field"><label for="statusFilter">Order Status</label><select id="statusFilter"><option value="">All</option><option value="pending">Pending</option><option value="awaiting_payment">Awaiting Payment</option><option value="processing">Processing</option><option value="packed">Packed</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option><option value="rejected">Rejected</option></select></div>
+          <div class="field"><label for="statusFilter">Order Status</label><select id="statusFilter"><option value="">All</option><option value="pending">Pending</option><option value="awaiting_payment">Awaiting Payment</option><option value="processing">Processing</option><option value="packed">Packed</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="complete">Complete</option><option value="cancelled">Cancelled</option><option value="rejected">Rejected</option></select></div>
           <div class="field"><label for="paymentFilter">Payment</label><select id="paymentFilter"><option value="">All</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="failed">Failed</option><option value="refunded">Refunded</option><option value="manual_review">Manual Review</option></select></div>
           <div class="field"><label for="dateFilter">Date</label><select id="dateFilter"><option value="">All Time</option><option value="today">Today</option><option value="7">Last 7 Days</option><option value="30">Last 30 Days</option></select></div>
           <button class="btn secondary" id="clearFiltersBtn" type="button">Clear</button>
@@ -79,7 +79,7 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
   let activeOrderId = null;
   let selectedOrderIds = new Set();
 
-  const orderStatuses = ["pending","awaiting_payment","processing","packed","shipped","delivered","cancelled","rejected"];
+  const orderStatuses = ["pending","awaiting_payment","processing","packed","shipped","delivered","complete","cancelled","rejected"];
   const paymentStatuses = ["pending","paid","failed","refunded","manual_review"];
 
   function setStatus(message, type="") { const el = $("statusLine"); el.textContent = message; el.className = `status ${type}`.trim(); }
@@ -131,6 +131,7 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
       order_packed:"Packed / awaiting carrier pickup",
       order_shipped:"Shipped",
       order_delivered:"Delivered",
+      order_complete:"Complete",
       order_cancelled:"Cancelled",
       order_rejected:"Rejected"
     };
@@ -281,17 +282,17 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
   }
 
 
-  const orderStatusRank = { pending:0, awaiting_payment:0, processing:1, packed:2, shipped:3, delivered:4, cancelled:-1, rejected:-1 };
+  const orderStatusRank = { pending:0, awaiting_payment:0, processing:1, packed:2, shipped:3, delivered:4, complete:5, cancelled:-1, rejected:-1 };
   function isOrderLocked(order){
     const os = norm(orderStatus(order));
     const ps = norm(paymentStatus(order));
-    return ps === "paid" || ["packed","shipped","delivered"].includes(os);
+    return ps === "paid" || ["packed","shipped","delivered","complete"].includes(os);
   }
   function lockReason(order){
     const reasons = [];
     if(norm(paymentStatus(order)) === "paid") reasons.push("payment is marked Paid");
     const os = norm(orderStatus(order));
-    if(["packed","shipped","delivered"].includes(os)) reasons.push(`order is marked ${os.replaceAll("_"," ")}`);
+    if(["packed","shipped","delivered","complete"].includes(os)) reasons.push(`order is marked ${os.replaceAll("_"," ")}`);
     return reasons.join(" and ") || "protected order stage";
   }
   function isRiskyLockedChange(order, updates){
@@ -312,9 +313,15 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
 
     const oldRank = orderStatusRank[oldOS] ?? 0;
     const newRank = orderStatusRank[newOS] ?? 0;
-    if(["packed","shipped","delivered"].includes(oldOS) && newRank < oldRank) return true;
 
-    if(["shipped","delivered"].includes(oldOS) && (oldCarrier !== newCarrier || oldTracking !== newTracking || oldUrl !== newUrl)) return true;
+    // Complete is the final locked state: any change after Complete requires Admin Override.
+    if(oldOS === "complete"){
+      return oldOS !== newOS || oldPS !== newPS || oldCarrier !== newCarrier || oldTracking !== newTracking || oldUrl !== newUrl;
+    }
+
+    if(["packed","shipped","delivered","complete"].includes(oldOS) && newRank < oldRank) return true;
+
+    if(["shipped","delivered","complete"].includes(oldOS) && (oldCarrier !== newCarrier || oldTracking !== newTracking || oldUrl !== newUrl)) return true;
     return false;
   }
   function lockBannerMarkup(order){
@@ -406,6 +413,7 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
     if(os === "packed") updates.packed_at = now;
     if(os === "shipped") updates.shipped_at = now;
     if(os === "delivered") updates.delivered_at = now;
+    if(os === "complete") updates.completed_at = now;
     if(os === "cancelled") updates.cancelled_at = now;
     if(os === "rejected") updates.rejected_at = now;
     return updates;
