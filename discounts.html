@@ -212,7 +212,6 @@ th {
   color: var(--pst-dark);
   font-size: 18px;
   margin-bottom: 6px;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.75);
 }
 .promo-card-desc {
   color: var(--pst-muted);
@@ -263,6 +262,15 @@ th {
 .discount-row.selected { background: rgba(0,119,200,0.08); }
 .promo-on { color: var(--pst-success); font-weight: 900; }
 .promo-off { color: var(--pst-muted); font-weight: 900; }
+
+.view-edit-btn {
+  min-height: 32px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 
 @media (max-width: 680px) {
   .edit-grid {
@@ -482,11 +490,6 @@ function safe(value) {
   return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);
 }
 
-function cssEscape(value) {
-  if (window.CSS && typeof window.CSS.escape === "function") return CSS.escape(String(value));
-  return String(value ?? "").replace(/["\\]/g, "\\$&");
-}
-
 function money(value) {
   return "$" + Number(value || 0).toFixed(2);
 }
@@ -572,7 +575,7 @@ function selectDiscountCode(code) {
   setFormMode("edit", selectedDiscountCode);
   updatePromotionPreview();
   document.querySelectorAll(".discount-row.selected").forEach(tr => tr.classList.remove("selected"));
-  const selectedRow = document.querySelector(`[data-discount-code="${cssEscape(selectedDiscountCode)}"]`);
+  const selectedRow = document.querySelector(`[data-discount-code="${CSS.escape(selectedDiscountCode)}"]`);
   if (selectedRow) selectedRow.classList.add("selected");
   setDiscountAdminStatus(`Loaded ${selectedDiscountCode}. You can now edit and save changes.`, "good");
 }
@@ -630,18 +633,16 @@ async function checkAdminAccess() {
 async function loadDiscountCodes() {
   const body = $("discountCodesBody");
   if (!body) return;
-  try {
-    body.innerHTML = `<tr><td colspan="11" class="muted">Loading discount codes...</td></tr>`;
 
-    const { data, error } = await supabaseClient
-      .from("discount_codes")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const { data, error } = await supabaseClient
+    .from("discount_codes")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    if (error) {
-      body.innerHTML = `<tr><td colspan="11" class="muted">${safe(error.message)}</td></tr>`;
-      return;
-    }
+  if (error) {
+    body.innerHTML = `<tr><td colspan="11" class="muted">${safe(error.message)}</td></tr>`;
+    return;
+  }
 
   discountRows = data || [];
 
@@ -658,8 +659,8 @@ async function loadDiscountCodes() {
     const heroText = row.hero_banner_text || "—";
     const promoClass = row.hero_banner_active ? "promo-on" : "promo-off";
     return `<tr class="discount-row ${selectedDiscountCode === code ? "selected" : ""}" data-discount-code="${safe(code)}" title="Click to load and edit this promotion">
-      <td><button class="btn secondary edit-discount-btn" type="button" data-discount-code="${safe(code)}">View / Edit</button></td>
-      <td><strong>${safe(row.code)}</strong><div class="muted">Click to edit</div></td>
+      <td><button class="btn secondary view-edit-btn" type="button" data-edit-code="${safe(code)}">View / Edit</button></td>
+      <td><strong>${safe(row.code)}</strong><div class="muted">Click row to edit</div></td>
       <td><strong>${safe(promoTitle)}</strong><div class="muted">${safe(row.promotion_description || "No card description")}</div></td>
       <td>${safe(heroText)}</td>
       <td>${safe(row.discount_type || "standard")}</td>
@@ -675,17 +676,12 @@ async function loadDiscountCodes() {
   document.querySelectorAll(".discount-row").forEach(row => {
     row.addEventListener("click", () => selectDiscountCode(row.dataset.discountCode));
   });
-  document.querySelectorAll(".edit-discount-btn").forEach(btn => {
+  document.querySelectorAll(".view-edit-btn").forEach(btn => {
     btn.addEventListener("click", (event) => {
       event.stopPropagation();
-      selectDiscountCode(btn.dataset.discountCode);
+      selectDiscountCode(btn.dataset.editCode);
     });
   });
-  } catch (error) {
-    console.error(error);
-    body.innerHTML = `<tr><td colspan="11" class="muted">${safe(error.message || "Could not load discount codes.")}</td></tr>`;
-    setDiscountAdminStatus(error.message || "Could not load discount codes.", "bad");
-  }
 }
 
 async function createDiscountCode() {
@@ -744,7 +740,7 @@ async function init() {
     $("refreshBtn").addEventListener("click", loadDiscountCodes);
     $("createDiscountBtn").addEventListener("click", createDiscountCode);
     $("newDiscountBtn")?.addEventListener("click", resetDiscountForm);
-    ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin","discountTypeAdmin"].forEach(id => {
+    ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin"].forEach(id => {
       const el = $(id);
       if (el) el.addEventListener("input", updatePromotionPreview);
     });
