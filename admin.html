@@ -362,12 +362,20 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
   }
 
   function buildUpdatesFromForm(order={}){
-    const os = $("editOrderStatus").value;
+    let os = $("editOrderStatus").value;
     const ps = $("editPaymentStatus").value;
     const carrier = $("editCarrier").value.trim();
     const tracking = $("editTracking").value.trim();
     const url = $("editTrackingUrl").value.trim();
     const typedNote = normalizeAdminNotes($("editAdminNote").value.trim());
+
+    // Payment accepted should automatically advance a newly paid order into Processing.
+    // Do not move backwards or override higher fulfillment stages like Packed/Shipped/Delivered.
+    const currentOrderStage = norm(orderStatus(order));
+    if(ps === "paid" && ["pending","awaiting_payment"].includes(norm(os)) && ["pending","awaiting_payment"].includes(currentOrderStage)){
+      os = "processing";
+    }
+
     if(os === "shipped" && (!carrier || !tracking)) throw new Error("Carrier and tracking number are required before marking an order as shipped.");
     const now = new Date().toISOString();
     const changes = [];
@@ -478,19 +486,48 @@ table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;
     return "";
   }
 
+  function detectCustomerEmailTypes(oldOrder, updates){
+    const oldOrderStatus = norm(orderStatus(oldOrder));
+    const oldPaymentStatus = norm(paymentStatus(oldOrder));
+    const newOrderStatus = norm(updates.order_status);
+    const newPaymentStatus = norm(updates.payment_status);
+    const oldTracking = cleanValue(oldOrder.tracking_number || oldOrder.tracking);
+    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
+    const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
+    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
+    const types = [];
+
+    if(oldPaymentStatus !== newPaymentStatus){
+      if(newPaymentStatus === "paid") types.push("payment_accepted");
+      if(["failed","manual_review","refunded"].includes(newPaymentStatus)) types.push("payment_issue");
+    }
+    if(oldOrderStatus !== newOrderStatus){
+      if(newOrderStatus === "processing") types.push("order_processing");
+      if(newOrderStatus === "packed") types.push("order_packed");
+      if(newOrderStatus === "shipped") types.push("order_shipped");
+      if(newOrderStatus === "delivered") types.push("order_delivered");
+      if(newOrderStatus === "cancelled") types.push("order_cancelled");
+      if(newOrderStatus === "rejected") types.push("order_rejected");
+    }
+    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier)) types.push("order_shipped");
+    return [...new Set(types)];
+  }
+
   async function saveOrder(order){
     try{
       const updates = buildUpdatesFromForm(order);
-      const emailType = detectCustomerEmailType(order, updates);
+      const emailTypes = detectCustomerEmailTypes(order, updates);
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
 
       const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
-      if(emailType){
+      if(emailTypes.length){
         try{
-          await sendOrderEmail(mergedForEmail, emailType, true);
-          await appendAdminAudit(mergedForEmail, `${emailTypeLabel(emailType)} status notification sent to customer at ${customerEmail(mergedForEmail)}`);
-          setStatus("Order updates saved and matching customer email sent.", "good");
+          for(const emailType of emailTypes){
+            await sendOrderEmail(mergedForEmail, emailType, true);
+            await appendAdminAudit(mergedForEmail, `${emailTypeLabel(emailType)} status notification sent to customer at ${customerEmail(mergedForEmail)}`);
+          }
+          setStatus("Order updates saved and matching customer email notification(s) sent.", "good");
         }catch(emailError){
           console.error(emailError);
           setStatus(`Order saved, but customer email failed: ${emailError.message || emailError}`, "bad");
