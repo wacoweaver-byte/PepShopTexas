@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pep Shop Texas | Reports</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}
+    header{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--border);box-shadow:0 3px 18px rgba(16,24,32,.04)}
+    .topbar{max-width:1540px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .brand{display:flex;align-items:center;gap:16px;font-family:Arial,Helvetica,sans-serif;font-weight:900;letter-spacing:0;text-transform:none}
+    .pst-master-admin-logo{height:54px;width:auto;max-width:230px;display:block;object-fit:contain}
+    .pst-master-page-label{color:#596579;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.15;font-weight:800;letter-spacing:0;text-transform:none;white-space:nowrap}
+    .actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+    .btn,a.btn,button.btn{min-height:40px;height:40px;padding:10px 13px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:14px;line-height:1;white-space:nowrap}
+    .btn.secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}
+    .btn.secondary.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .btn.danger{background:var(--danger);color:#fff;border:1px solid var(--danger)}
+    .btn.success{background:var(--success)}
+    main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}
+    .page-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+    h1{margin:0 0 6px;font-size:clamp(24px,3vw,36px);line-height:1.15;color:var(--dark);font-weight:900}
+    h2{margin:0;font-size:18px}
+    h3{margin:0 0 10px;font-size:16px}
+    .subtitle{margin:0;color:var(--muted);line-height:1.4}
+    .status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted);min-height:42px}
+    .status.good{color:var(--success);border-color:rgba(15,138,59,.25);background:rgba(15,138,59,.06)}
+    .status.bad{color:var(--danger);border-color:rgba(180,35,24,.25);background:rgba(180,35,24,.06)}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;align-items:start}
+    .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}
+    .card-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .card-body{padding:16px}
+    .muted{color:var(--muted);font-size:13px;line-height:1.4}
+    .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .stat{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:14px;min-height:98px}
+    .stat strong{display:block;font-size:30px;line-height:1;font-weight:900;color:var(--blue);margin-bottom:8px}
+    .stat span{display:block;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+    .resource-list{display:grid;gap:10px}
+    .resource{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:13px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+    .resource strong{display:block;margin-bottom:4px}
+    .resource p{margin:0;color:var(--muted);font-size:13px;line-height:1.35}
+    .pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid transparent;white-space:nowrap}
+    .pill.good{color:var(--success);background:rgba(15,138,59,.1);border-color:rgba(15,138,59,.18)}
+    .pill.warn{color:var(--warning);background:rgba(183,121,31,.1);border-color:rgba(183,121,31,.18)}
+    .pill.info{color:var(--blue);background:rgba(0,119,200,.1);border-color:rgba(0,119,200,.18)}
+    .ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .ops-note{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:13px;line-height:1.45}
+    .ops-note strong{display:block;margin-bottom:6px;color:var(--blue)}
+    table{width:100%;border-collapse:collapse;min-width:760px}
+    th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:14px}
+    th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px}
+    .print-actions{display:flex;gap:8px;flex-wrap:wrap}
+    @media(max-width:1100px){.span-8,.span-6,.span-4{grid-column:span 12}.stat-grid{grid-template-columns:1fr 1fr}.ops-grid{grid-template-columns:1fr}}
+    @media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.pst-master-admin-logo{height:46px;max-width:200px}.pst-master-page-label{font-size:15px;white-space:normal}.page-title{flex-direction:column}.stat-grid{grid-template-columns:1fr}.resource{grid-template-columns:1fr}.resource .btn{width:100%}}
+    @media print{header,.actions,.print-actions,#refreshBtn,#signOutBtn{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}main{max-width:none;padding:0}.status{display:none}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <img class="pst-master-admin-logo" src="assets/icons/pst-approved-logo.png" alt="Pep Shop Texas logo">
+      <div class="pst-master-page-label">Reports</div>
+    </div>
+    <div class="actions">
+      <a class="btn secondary" href="admin.html">Orders</a>
+      <a class="btn secondary" href="inventory.html">Inventory</a>
+      <a class="btn secondary" href="products.html">Products</a>
+      <a class="btn secondary" href="discounts.html">Discounts</a>
+      <a class="btn secondary active" href="reports.html">Reports</a>
+      <a class="btn secondary" href="index.html">Website</a>
+      <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="page-title">
+    <div>
+      <h1>Reports & Site Operations</h1>
+      <p class="subtitle">Read-only admin hub for quick reports, platform links, and Pep Shop Texas operating notes.</p>
+    </div>
+    <div class="print-actions">
+      <button class="btn secondary" type="button" onclick="window.print()">Print / Save PDF</button>
+    </div>
+  </section>
+
+  <div id="statusLine" class="status">Checking admin access...</div>
+
+  <section class="grid">
+    <div class="card span-12">
+      <div class="card-header"><h2>Quick Report Snapshot</h2><span class="muted" id="snapshotUpdated">Not loaded yet</span></div>
+      <div class="card-body">
+        <div class="stat-grid">
+          <div class="stat"><strong id="statOrders">—</strong><span>Total Orders</span></div>
+          <div class="stat"><strong id="statOpenOrders">—</strong><span>Open Orders</span></div>
+          <div class="stat"><strong id="statInventory">—</strong><span>Inventory Rows</span></div>
+          <div class="stat"><strong id="statPromos">—</strong><span>Active Homepage Promos</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-8">
+      <div class="card-header"><h2>Order Report</h2><span class="pill info">Read Only</span></div>
+      <div class="card-body">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Status</th><th>Count</th><th>Estimated Total</th></tr></thead>
+            <tbody id="orderReportBody"><tr><td colspan="3" class="muted">Loading order report...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-4">
+      <div class="card-header"><h2>Inventory Watch</h2><span class="pill warn">Needs Review</span></div>
+      <div class="card-body">
+        <div class="stat-grid" style="grid-template-columns:1fr;">
+          <div class="stat"><strong id="statLowStock">—</strong><span>Low / Limited Stock</span></div>
+          <div class="stat"><strong id="statOutStock">—</strong><span>Out of Stock</span></div>
+        </div>
+        <p class="muted" style="margin:14px 0 0;">This uses best-effort inventory fields and is meant as a quick warning, not the final inventory authority.</p>
+      </div>
+    </div>
+
+    <div class="card span-6">
+      <div class="card-header"><h2>Admin Resources</h2><span class="muted">Quick links</span></div>
+      <div class="card-body">
+        <div class="resource-list">
+          <div class="resource"><div><strong>Live Website</strong><p>Customer-facing Pep Shop Texas homepage.</p></div><a class="btn secondary" href="https://www.pepshoptexas.com/" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>Supabase Project</strong><p>Database, auth, admin tables, orders, inventory, discounts, and Edge Functions.</p></div><a class="btn secondary" href="https://supabase.com/dashboard/project/ucejjztsbmrogiteivxl" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>GitHub</strong><p>Website source files and GitHub Pages deployment.</p></div><a class="btn secondary" href="https://github.com/" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>Namecheap Account</strong><p>Domain, DNS, and account management for pepshoptexas.com.</p></div><a class="btn secondary" href="https://ap.www.namecheap.com/" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>Namecheap Private Email / Webmail</strong><p>Quick access to email functions and webmail.</p></div><a class="btn secondary" href="https://privateemail.com/appsuite/" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>Resend</strong><p>Email notification service used for order/status email functions.</p></div><a class="btn secondary" href="https://resend.com/" target="_blank" rel="noopener">Open</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-6">
+      <div class="card-header"><h2>Site Operations Notes</h2><span class="pill good">Saved Here</span></div>
+      <div class="card-body">
+        <div class="ops-grid">
+          <div class="ops-note"><strong>Supabase</strong>Used for login/authentication, admin access, customer profiles, orders, order items, product management, inventory, discount codes, homepage promotions, and Edge Function email calls.</div>
+          <div class="ops-note"><strong>GitHub / GitHub Pages</strong>Used for the website files and live deployment. Root files include index.html, admin.html, inventory.html, products.html, discounts.html, and now reports.html.</div>
+          <div class="ops-note"><strong>Namecheap</strong>Used for the pepshoptexas.com domain, DNS/domain management, and email/webmail access.</div>
+          <div class="ops-note"><strong>Email Notifications</strong>Order emails are connected through Supabase Edge Functions and the current email provider setup. Namecheap email/webmail links are included here so email operations are easy to find.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <div class="card-header"><h2>Future Reports TODO</h2><span class="muted">Next phases</span></div>
+      <div class="card-body">
+        <div class="ops-grid">
+          <div class="ops-note"><strong>Sales Report</strong>Daily, weekly, monthly sales totals, order count, average order value, and paid/unpaid order totals.</div>
+          <div class="ops-note"><strong>Inventory Report</strong>Low stock, out of stock, limited supply, product inventory history, and reorder planning.</div>
+          <div class="ops-note"><strong>Promotion Report</strong>Active homepage promotions, discount usage, expired promos, one-time codes, and Friends & Family discounts.</div>
+          <div class="ops-note"><strong>Customer Report</strong>Customer list, order history, repeat customers, and customer-specific discounts.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = (id) => document.getElementById(id);
+let currentUser = null;
+
+function setStatus(message, type="") {
+  const el = $("statusLine");
+  if (!el) return;
+  el.textContent = message;
+  el.className = `status ${type}`.trim();
+}
+function safe(value){return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);}
+function money(value){return Number(value || 0).toLocaleString(undefined,{style:"currency",currency:"USD"});}
+function norm(value, fallback="pending"){return String(value || fallback).toLowerCase().replace(/\s+/g,"_");}
+function orderStatus(order){return order.status || order.order_status || "pending";}
+function orderTotal(order){return Number(order.total || order.total_amount || order.order_total || order.grand_total || 0);}
+function qtyValue(row){
+  const keys = ["quantity_on_hand","on_hand","inventory_count","stock","qty","quantity","available","available_quantity"];
+  for (const key of keys) {
+    if (row && row[key] !== undefined && row[key] !== null && row[key] !== "") return Number(row[key] || 0);
+  }
+  return 0;
+}
+function isActiveHomepagePromo(row){
+  if (!row || row.active !== true || row.hero_banner_active !== true) return false;
+  const now = new Date();
+  const start = row.promotion_starts_at ? new Date(row.promotion_starts_at) : null;
+  const end = row.promotion_ends_at ? new Date(row.promotion_ends_at) : null;
+  if (start && !Number.isNaN(start.getTime()) && start > now) return false;
+  if (end && !Number.isNaN(end.getTime()) && end < now) return false;
+  return true;
+}
+
+async function checkAdminAccess(){
+  setStatus("Checking admin access...");
+  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+  if (sessionError) throw sessionError;
+  const session = sessionData?.session;
+  if (!session?.user) {
+    setStatus("You are not logged in. Log in from the website first, then return to reports.html.", "bad");
+    return false;
+  }
+  currentUser = session.user;
+  const checks = [
+    supabaseClient.from("admin_users").select("*").eq("user_id", currentUser.id).maybeSingle(),
+    supabaseClient.from("admin_users").select("*").eq("email", currentUser.email).maybeSingle()
+  ];
+  const results = await Promise.allSettled(checks);
+  const rows = results.filter(r => r.status === "fulfilled" && r.value?.data).map(r => r.value.data);
+  const admin = rows.find(r => r && (r.is_active === true || r.active === true || r.is_admin === true || r.email === currentUser.email));
+  if (!admin) {
+    setStatus("Access denied. This login is not listed as an active Pep Shop Texas admin.", "bad");
+    return false;
+  }
+  setStatus(`Admin access confirmed for ${currentUser.email}.`, "good");
+  return true;
+}
+
+async function loadReports(){
+  setStatus("Loading reports...");
+  const [ordersRes, inventoryRes, productsRes, discountsRes] = await Promise.allSettled([
+    supabaseClient.from("orders").select("*"),
+    supabaseClient.from("product_inventory").select("*"),
+    supabaseClient.from("products").select("*"),
+    supabaseClient.from("discount_codes").select("*")
+  ]);
+
+  const orders = ordersRes.status === "fulfilled" && !ordersRes.value.error ? (ordersRes.value.data || []) : [];
+  const inventory = inventoryRes.status === "fulfilled" && !inventoryRes.value.error ? (inventoryRes.value.data || []) : [];
+  const products = productsRes.status === "fulfilled" && !productsRes.value.error ? (productsRes.value.data || []) : [];
+  const discounts = discountsRes.status === "fulfilled" && !discountsRes.value.error ? (discountsRes.value.data || []) : [];
+
+  const openStatuses = new Set(["pending","awaiting_payment","processing","packed","shipped"]);
+  const openOrders = orders.filter(o => openStatuses.has(norm(orderStatus(o))));
+  const activePromos = discounts.filter(isActiveHomepagePromo);
+  const lowStock = inventory.filter(row => { const q = qtyValue(row); return q > 0 && q <= 3; });
+  const outStock = inventory.filter(row => qtyValue(row) <= 0);
+
+  $("statOrders").textContent = orders.length;
+  $("statOpenOrders").textContent = openOrders.length;
+  $("statInventory").textContent = inventory.length || products.length;
+  $("statPromos").textContent = activePromos.length;
+  $("statLowStock").textContent = lowStock.length;
+  $("statOutStock").textContent = outStock.length;
+  $("snapshotUpdated").textContent = `Updated ${new Date().toLocaleString()}`;
+
+  renderOrderReport(orders);
+  const warnings = [];
+  if (ordersRes.status === "fulfilled" && ordersRes.value.error) warnings.push("orders");
+  if (inventoryRes.status === "fulfilled" && inventoryRes.value.error) warnings.push("inventory");
+  if (productsRes.status === "fulfilled" && productsRes.value.error) warnings.push("products");
+  if (discountsRes.status === "fulfilled" && discountsRes.value.error) warnings.push("discounts");
+  setStatus(warnings.length ? `Reports loaded with limited access to: ${warnings.join(", ")}.` : "Reports loaded successfully.", warnings.length ? "bad" : "good");
+}
+
+function renderOrderReport(orders){
+  const body = $("orderReportBody");
+  if (!orders.length) {
+    body.innerHTML = `<tr><td colspan="3" class="muted">No orders found.</td></tr>`;
+    return;
+  }
+  const groups = {};
+  orders.forEach(order => {
+    const status = norm(orderStatus(order));
+    if (!groups[status]) groups[status] = { count:0, total:0 };
+    groups[status].count += 1;
+    groups[status].total += orderTotal(order);
+  });
+  const preferred = ["pending","awaiting_payment","processing","packed","shipped","delivered","complete","cancelled","rejected"];
+  const keys = [...preferred.filter(k => groups[k]), ...Object.keys(groups).filter(k => !preferred.includes(k)).sort()];
+  body.innerHTML = keys.map(key => `<tr><td><strong>${safe(key.replaceAll("_"," "))}</strong></td><td>${groups[key].count}</td><td>${money(groups[key].total)}</td></tr>`).join("");
+}
+
+async function init(){
+  try{
+    $("refreshBtn")?.addEventListener("click", loadReports);
+    $("signOutBtn")?.addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
+    const isAdmin = await checkAdminAccess();
+    if (isAdmin) await loadReports();
+  }catch(error){
+    console.error(error);
+    setStatus(error.message || "Something went wrong loading Reports.", "bad");
+  }
+}
+init();
+</script>
+</body>
+</html>
