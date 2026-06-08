@@ -271,6 +271,17 @@ th {
   white-space: nowrap;
 }
 
+.delete-discount-btn {
+  min-height: 32px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-left: 6px;
+  background: var(--pst-danger);
+  color: #ffffff;
+}
+
 
 @media (max-width: 680px) {
   .edit-grid {
@@ -631,10 +642,10 @@ main > h1,
       <div class="edit-grid">
         <div class="field-guide">
           <strong>Promotion card field guide:</strong><br>
-          <strong>Promotion Title</strong> = headline/title on the promotion card. <strong>Promotion Description</strong> = body text on the promotion card. <strong>Homepage Hero Banner Text</strong> = scrolling/banner text on the homepage. <strong>Show On Homepage</strong> controls whether the promotion is displayed publicly. Click any saved promotion below to reload and edit its details.
+          <strong>Promotion Title</strong> = headline/title on the promotion card. <strong>Promotion Description</strong> = body text on the promotion card. <strong>Homepage Hero Banner Text</strong> = scrolling/banner text on the homepage. <strong>Show On Homepage</strong> controls whether the promotion is displayed publicly. Use <strong>Homepage Message Only</strong> when you want a generic homepage message without requiring a discount code or discount amount. Click any saved promotion below to reload and edit its details.
         </div>
         <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /><span class="field-hint">Displays as the coupon/code customers enter.</span></div>
-        <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select><span class="field-hint">Controls how the discount can be used.</span></div>
+        <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option><option value="homepage_message">Homepage Message Only</option></select><span class="field-hint">Choose Homepage Message Only for a public promo/message that does not require a discount code.</span></div>
         <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /><span class="field-hint">Shows as the percentage discount, if used.</span></div>
         <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /><span class="field-hint">Shows as the dollar discount, if used instead of percent.</span></div>
         <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /><span class="field-hint">Limits the code to one customer email when filled in.</span></div>
@@ -662,7 +673,7 @@ main > h1,
       <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
 
       <div class="orders-table-wrap" style="margin-top:14px;">
-        <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the form above.</div>
+        <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the form above. Use Delete to permanently remove a promotion so it can no longer display on the homepage.</div>
         <table>
           <thead>
             <tr><th>Action</th><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
@@ -712,7 +723,26 @@ function discountLabelFromRow(row) {
   return pct ? `${pct}% off` : amt ? `${money(amt)} off` : "Discount details not set";
 }
 
+function isHomepageMessageOnly(row) {
+  return row?.discount_type === "homepage_message" || String(row?.code || "").toUpperCase().startsWith("MSG-");
+}
+
+function displayCodeLabel(row) {
+  return isHomepageMessageOnly(row) ? "Message only" : String(row?.code || "");
+}
+
+function makeMessageOnlyCode(title, heroText) {
+  const base = String(title || heroText || "homepage-message")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 24) || "HOMEPAGE-MESSAGE";
+  return `MSG-${base}-${Date.now()}`;
+}
+
 function updatePromotionPreview() {
+  const discountType = $("discountTypeAdmin")?.value || "standard";
+  const isMessageOnly = discountType === "homepage_message";
   const code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase() || "CODE";
   const title = ($("promoTitleAdmin")?.value || "").trim() || "Promotion title will appear here";
   const desc = ($("promoDescriptionAdmin")?.value || "").trim() || "Promotion description will appear here.";
@@ -722,7 +752,7 @@ function updatePromotionPreview() {
   const discountText = pct ? `${pct}% off` : amt ? `${money(amt)} off` : "Discount amount not set";
   if ($("previewPromoTitle")) $("previewPromoTitle").textContent = title;
   if ($("previewPromoDescription")) $("previewPromoDescription").textContent = desc;
-  if ($("previewPromoCode")) $("previewPromoCode").textContent = `${code} · ${discountText}`;
+  if ($("previewPromoCode")) $("previewPromoCode").textContent = isMessageOnly ? "Homepage Message Only" : `${code} · ${discountText}`;
   if ($("previewHeroBanner")) $("previewHeroBanner").textContent = hero;
 }
 
@@ -756,7 +786,7 @@ function selectDiscountCode(code) {
   if (!row) return;
   selectedDiscountCode = String(row.code || "").toUpperCase();
   const setVal = (id, value) => { const el = $(id); if (el) el.value = value ?? ""; };
-  setVal("discountCodeAdmin", row.code || "");
+  setVal("discountCodeAdmin", isHomepageMessageOnly(row) ? "" : (row.code || ""));
   setVal("discountTypeAdmin", row.discount_type || "standard");
   setVal("discountPercentAdmin", Number(row.percent_off || row.discount_percent || 0) || "");
   setVal("discountAmountAdmin", Number(row.amount_off || row.discount_amount || 0) || "");
@@ -850,18 +880,20 @@ async function loadDiscountCodes() {
   }
 
   body.innerHTML = discountRows.map(row => {
-    const discountText = discountLabelFromRow(row);
+    const discountText = isHomepageMessageOnly(row) ? "Homepage message only" : discountLabelFromRow(row);
     const uses = `${Number(row.times_used || row.uses || 0)} / ${Number(row.max_uses || 0) || "∞"}`;
     const code = String(row.code || "").toUpperCase();
+    const displayCode = displayCodeLabel(row);
+    const typeLabel = isHomepageMessageOnly(row) ? "Homepage Message" : (row.discount_type || "standard");
     const promoTitle = row.promotion_title || "—";
     const heroText = row.hero_banner_text || "—";
     const promoClass = row.hero_banner_active ? "promo-on" : "promo-off";
     return `<tr class="discount-row ${selectedDiscountCode === code ? "selected" : ""}" data-discount-code="${safe(code)}" title="Click to load and edit this promotion">
-      <td><button class="btn secondary view-edit-btn" type="button" data-edit-code="${safe(code)}">View / Edit</button></td>
-      <td><strong>${safe(row.code)}</strong><div class="muted">Click row to edit</div></td>
+      <td><button class="btn secondary view-edit-btn" type="button" data-edit-code="${safe(code)}">View / Edit</button><button class="btn delete-discount-btn" type="button" data-delete-code="${safe(code)}">Delete</button></td>
+      <td><strong>${safe(displayCode)}</strong><div class="muted">${isHomepageMessageOnly(row) ? "No customer code required" : "Click row to edit"}</div></td>
       <td><strong>${safe(promoTitle)}</strong><div class="muted">${safe(row.promotion_description || "No card description")}</div></td>
       <td>${safe(heroText)}</td>
-      <td>${safe(row.discount_type || "standard")}</td>
+      <td>${safe(typeLabel)}</td>
       <td>${safe(discountText)}</td>
       <td>${safe(row.assigned_email || "Any customer")}</td>
       <td>${uses}</td>
@@ -880,11 +912,42 @@ async function loadDiscountCodes() {
       selectDiscountCode(btn.dataset.editCode);
     });
   });
+  document.querySelectorAll(".delete-discount-btn").forEach(btn => {
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteDiscountCode(btn.dataset.deleteCode);
+    });
+  });
+}
+
+
+async function deleteDiscountCode(code) {
+  const row = discountRows.find(item => String(item.code || "").toUpperCase() === String(code || "").toUpperCase());
+  if (!row) return setDiscountAdminStatus("Could not find that promotion to delete.", "bad");
+
+  const label = row.promotion_title || displayCodeLabel(row) || code;
+  const confirmed = confirm(`Delete "${label}"?\n\nThis permanently removes it from Discount Management and it will no longer display on the homepage, even if it was active.`);
+  if (!confirmed) return;
+
+  setDiscountAdminStatus("Deleting promotion...");
+  const { error } = await supabaseClient
+    .from("discount_codes")
+    .delete()
+    .eq("code", row.code);
+
+  if (error) return setDiscountAdminStatus(error.message, "bad");
+
+  if (selectedDiscountCode === String(row.code || "").toUpperCase()) {
+    resetDiscountForm();
+  }
+  setDiscountAdminStatus(`Deleted ${label}.`, "good");
+  await loadDiscountCodes();
 }
 
 async function createDiscountCode() {
-  const code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase();
   const discountType = $("discountTypeAdmin")?.value || "standard";
+  const isMessageOnly = discountType === "homepage_message";
+  let code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase();
   const percentOff = Number($("discountPercentAdmin")?.value || 0);
   const amountOff = Number($("discountAmountAdmin")?.value || 0);
   const assignedEmail = ($("discountEmailAdmin")?.value || "").trim().toLowerCase() || null;
@@ -898,18 +961,25 @@ async function createDiscountCode() {
   const promoStartsValue = $("promoStartsAdmin")?.value || "";
   const promoEndsValue = $("promoEndsAdmin")?.value || "";
 
-  if (!code) return setDiscountAdminStatus("Enter a discount code.", "bad");
-  if (percentOff <= 0 && amountOff <= 0) return setDiscountAdminStatus("Enter either a percent off or dollar off amount.", "bad");
-  if (percentOff > 100) return setDiscountAdminStatus("Percent off cannot be more than 100%.", "bad");
+  if (isMessageOnly) {
+    if (!promotionTitle && !promotionDescription && !heroBannerText) {
+      return setDiscountAdminStatus("Enter a promotion title, description, or homepage message.", "bad");
+    }
+    code = selectedDiscountCode || makeMessageOnlyCode(promotionTitle, heroBannerText);
+  } else {
+    if (!code) return setDiscountAdminStatus("Enter a discount code.", "bad");
+    if (percentOff <= 0 && amountOff <= 0) return setDiscountAdminStatus("Enter either a percent off or dollar off amount.", "bad");
+    if (percentOff > 100) return setDiscountAdminStatus("Percent off cannot be more than 100%.", "bad");
+  }
 
   const payload = {
     code,
     discount_type: discountType,
-    percent_off: percentOff || 0,
-    amount_off: amountOff || 0,
-    assigned_email: assignedEmail,
-    one_time_use: discountType === "one_time",
-    max_uses: maxUsesRaw || (discountType === "one_time" ? 1 : null),
+    percent_off: isMessageOnly ? 0 : (percentOff || 0),
+    amount_off: isMessageOnly ? 0 : (amountOff || 0),
+    assigned_email: isMessageOnly ? null : assignedEmail,
+    one_time_use: isMessageOnly ? false : discountType === "one_time",
+    max_uses: isMessageOnly ? null : (maxUsesRaw || (discountType === "one_time" ? 1 : null)),
     active,
     expires_at: expiresValue ? new Date(expiresValue + "T23:59:59").toISOString() : null,
     promotion_title: promotionTitle,
@@ -928,7 +998,7 @@ async function createDiscountCode() {
 
   selectedDiscountCode = code;
   setFormMode("edit", code);
-  setDiscountAdminStatus(`Discount code ${code} saved. Click any saved row below to load its details again.`, "good");
+  setDiscountAdminStatus(`${isMessageOnly ? "Homepage message" : "Discount code"} ${isMessageOnly ? "" : code + " "}saved. Click any saved row below to load its details again.`, "good");
   await loadDiscountCodes();
   updatePromotionPreview();
 }
@@ -942,6 +1012,7 @@ async function init() {
       const el = $(id);
       if (el) el.addEventListener("input", updatePromotionPreview);
     });
+    $("discountTypeAdmin")?.addEventListener("change", updatePromotionPreview);
     $("signOutBtn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
       window.location.href = "index.html";
