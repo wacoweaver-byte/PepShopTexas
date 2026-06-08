@@ -459,6 +459,138 @@ main {
   }
 }
 
+
+
+/* PST FINAL UNIFIED ADMIN LAYOUT - COPIED FROM ORDERS MANAGEMENT */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
+}
+header .topbar {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+header .brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+header .pst-master-admin-logo {
+  height: 54px !important;
+  width: auto !important;
+  max-width: 230px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+header .pst-master-page-label {
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.15 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+header .actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn {
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 10px 13px !important;
+  border-radius: 10px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+}
+header .actions .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+header .actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+header .actions .btn.danger {
+  background: #b42318 !important;
+  color: #ffffff !important;
+  border: 1px solid #b42318 !important;
+}
+main {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 22px 18px 54px !important;
+}
+.page-title {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin-bottom: 16px !important;
+}
+main > h1,
+.page-title h1 {
+  margin: 0 0 6px !important;
+  font-size: clamp(24px, 3vw, 36px) !important;
+  line-height: 1.15 !important;
+  color: #101820 !important;
+  font-weight: 900 !important;
+}
+.subtitle {
+  margin: 0 !important;
+  color: #667085 !important;
+  line-height: 1.4 !important;
+}
+@media (max-width: 700px) {
+  header .topbar {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+  header .actions {
+    justify-content: flex-start !important;
+  }
+  header .pst-master-admin-logo {
+    height: 46px !important;
+    max-width: 200px !important;
+  }
+  header .pst-master-page-label {
+    font-size: 15px !important;
+    white-space: normal !important;
+  }
+}
+
 </style>
 </head>
 <body>
