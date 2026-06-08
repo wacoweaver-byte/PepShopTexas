@@ -1,17 +1,475 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Admin Order Management</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}header{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--border);box-shadow:0 3px 18px rgba(16,24,32,.04)}.topbar{max-width:1540px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;text-transform:uppercase}.brand-mark{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#004a7c);color:#fff;display:grid;place-items:center;font-size:16px}.brand small{display:block;color:#596579;font-size:12px;line-height:1.2;font-weight:700;text-transform:none}.actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.btn,a.btn,button.btn{min-height:40px;padding:10px 13px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:14px}.btn.secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}.btn.success{background:var(--success)}.btn.warning{background:var(--warning)}.btn.danger{background:var(--danger)}.btn:disabled{opacity:.55;cursor:not-allowed}main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}h1{margin:0 0 6px;font-size:clamp(24px,3vw,36px)}h2{margin:0;font-size:18px}.subtitle{margin:0;color:var(--muted);line-height:1.4}.status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted);min-height:42px}.status.good{color:var(--success);border-color:rgba(15,138,59,.25);background:rgba(15,138,59,.06)}.status.bad{color:var(--danger);border-color:rgba(180,35,24,.25);background:rgba(180,35,24,.06)}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.card-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.card-body{padding:16px}.filters{display:grid;grid-template-columns:1.2fr .75fr .75fr .75fr auto;gap:10px;width:100%;align-items:end}.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted)}input,select,textarea{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}textarea{min-height:84px;resize:vertical}.bulk-bar{padding:12px 16px;border-bottom:1px solid var(--border);background:#f9fbfd;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}.bulk-left{display:flex;align-items:center;gap:8px;font-weight:900}.bulk-left input,.row-check{width:18px;height:18px;min-height:18px;cursor:pointer}.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bulk-actions .btn{padding:8px 10px;min-height:35px;font-size:13px}.table-wrap{overflow:auto;resize:vertical;min-height:360px;height:520px;max-height:78vh;position:relative}
-.table-wrap::-webkit-resizer{background:linear-gradient(135deg,transparent 0 45%,#98a2b3 45% 55%,transparent 55% 100%)}
-#detailCard{position:sticky;top:88px;max-height:calc(100vh - 110px);overflow:auto}
-table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:14px}th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}tr.order-row{cursor:pointer}tr.order-row:hover{background:#f7fbff}tr.active{background:rgba(0,119,200,.08)}.muted{color:var(--muted);font-size:13px}.pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid transparent;text-transform:capitalize}.pill.pending,.pill.awaiting_payment{color:var(--warning);background:rgba(183,121,31,.1);border-color:rgba(183,121,31,.18)}.pill.paid,.pill.complete,.pill.shipped,.pill.delivered{color:var(--success);background:rgba(15,138,59,.1);border-color:rgba(15,138,59,.18)}.pill.processing,.pill.packed{color:var(--blue);background:rgba(0,119,200,.1);border-color:rgba(0,119,200,.18)}.pill.cancelled,.pill.rejected,.pill.out_of_stock,.pill.refunded,.pill.failed{color:var(--danger);background:rgba(180,35,24,.1);border-color:rgba(180,35,24,.18)}.detail-empty{padding:34px 20px;text-align:center;color:var(--muted);line-height:1.5}.detail-section{border-bottom:1px solid var(--border);padding:16px}.detail-section:last-child{border-bottom:0}.detail-section h3{margin:0 0 12px;font-size:16px}.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kv{padding:10px;border:1px solid var(--border);border-radius:12px;background:#fbfcfe;word-break:break-word}.kv strong{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}.item-list{display:flex;flex-direction:column;gap:10px}.item{border:1px solid var(--border);border-radius:12px;padding:11px;background:#fbfcfe}.item-top{display:flex;justify-content:space-between;gap:12px;font-weight:900}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.note{background:#fff8e6;border:1px solid rgba(183,121,31,.24);color:#7a4a00;border-radius:12px;padding:11px;line-height:1.45;font-size:14px}.lock-banner{margin:12px 0;padding:12px;border-radius:12px;border:1px solid rgba(183,121,31,.35);background:#fff8e6;color:#7a4a00;line-height:1.45;font-size:14px}.lock-banner strong{display:block;margin-bottom:4px}.override-panel{margin-top:12px;padding:12px;border:1px solid rgba(180,35,24,.25);background:rgba(180,35,24,.055);border-radius:12px}.override-check{display:flex;align-items:flex-start;gap:10px;font-weight:900;color:var(--danger);text-transform:none;letter-spacing:0}.override-check input{width:18px;min-height:18px;margin-top:1px}.override-panel textarea{margin-top:8px;min-height:64px}.locked-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid rgba(183,121,31,.28);color:#7a4a00;background:#fff8e6;text-transform:uppercase;letter-spacing:.04em}.audit-list{display:grid;gap:9px}.audit-item{border:1px solid var(--border);background:#fbfcfe;border-radius:12px;padding:10px 11px;line-height:1.35}.audit-item strong{display:block;margin-bottom:3px}.email-box{margin-top:12px;padding:13px;border:1px solid rgba(0,119,200,.22);background:rgba(0,119,200,.055);border-radius:12px}.email-box h4{margin:0 0 8px;color:var(--blue);font-size:15px}.email-box p{margin:0 0 12px;color:#24445c;line-height:1.45;font-size:13px;font-weight:700}.tracking-link{display:inline-flex;margin-top:7px;color:var(--blue);font-weight:900;text-decoration:none}.tracking-link:hover{text-decoration:underline}@media(max-width:1100px){.grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}#detailCard{position:static;max-height:none;overflow:visible}}@media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.filters,.edit-grid,.kv-grid,.bulk-bar{grid-template-columns:1fr}.bulk-actions{justify-content:flex-start}.page-title{flex-direction:column}}
-  
-/* PST UNIFIED ADMIN HEADER - APPROVED LOGO + MATCHING FONT/SIZE */
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pep Shop Texas | Inventory Management</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --pst-blue: #0077c8;
+  --pst-dark: #101820;
+  --pst-light: #f5f8fb;
+  --pst-border: #d9e2ec;
+  --pst-muted: #667085;
+  --pst-success: #0f8a3b;
+  --pst-warning: #b7791f;
+  --pst-danger: #b42318;
+  --white: #ffffff;
+  --shadow: 0 10px 30px rgba(16, 24, 32, 0.08);
+  --radius: 16px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--pst-light);
+  color: var(--pst-dark);
+}
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--white);
+  border-bottom: 1px solid var(--pst-border);
+  box-shadow: 0 3px 18px rgba(16, 24, 32, 0.04);
+}
+a, button, input, select, textarea { font-family: inherit; }
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 13px;
+  background: var(--pst-blue);
+  color: var(--white);
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+}
+.btn:hover { filter: brightness(0.95); }
+.btn.secondary {
+  background: var(--white);
+  color: var(--pst-dark);
+  border: 1px solid var(--pst-border);
+}
+.btn.success { background: var(--pst-success); }
+.btn.danger { background: var(--pst-danger); }
+main {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 22px 18px 50px;
+}
+.page-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+h1 {
+  margin: 0 0 6px;
+  font-size: clamp(24px, 3vw, 36px);
+}
+.subtitle {
+  margin: 0;
+  color: var(--pst-muted);
+  line-height: 1.4;
+}
+.status-line {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  border: 1px solid var(--pst-border);
+  background: var(--white);
+  color: var(--pst-muted);
+  min-height: 42px;
+}
+.status-line.good {
+  color: var(--pst-success);
+  border-color: rgba(15, 138, 59, 0.25);
+  background: rgba(15, 138, 59, 0.06);
+}
+.status-line.bad {
+  color: var(--pst-danger);
+  border-color: rgba(180, 35, 24, 0.25);
+  background: rgba(180, 35, 24, 0.06);
+}
+.card {
+  background: var(--white);
+  border: 1px solid var(--pst-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--pst-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.card-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.card-body { padding: 16px; }
+.edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.edit-grid .full { grid-column: 1 / -1; }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  color: var(--pst-muted);
+}
+input, select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--pst-border);
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 14px;
+  background: var(--white);
+  color: var(--pst-dark);
+}
+.orders-table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+th, td {
+  text-align: left;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--pst-border);
+  vertical-align: middle;
+  font-size: 14px;
+}
+th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pst-muted);
+  background: #fbfcfe;
+}
+.muted {
+  color: var(--pst-muted);
+  font-size: 13px;
+}
+
+.field-hint {
+  color: var(--pst-muted);
+  font-size: 12px;
+  line-height: 1.35;
+  margin-top: -2px;
+}
+.field-guide {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(0,119,200,0.22);
+  background: rgba(0,119,200,0.055);
+  color: #24445c;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.field-guide strong { color: var(--pst-blue); }
+.promo-preview-card {
+  grid-column: 1 / -1;
+  border: 1px solid var(--pst-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fbfcfe;
+}
+.promo-preview-card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.promo-card-sample {
+  border: 1px solid rgba(0,119,200,0.25);
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 14px;
+  box-shadow: 0 6px 16px rgba(16,24,32,0.06);
+}
+.promo-card-title {
+  font-weight: 900;
+  color: var(--pst-dark);
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.promo-card-desc {
+  color: var(--pst-muted);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.promo-card-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--pst-blue);
+  background: rgba(0,119,200,0.08);
+  border: 1px solid rgba(0,119,200,0.18);
+}
+.hero-preview {
+  margin-top: 10px;
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: #fff8e6;
+  border: 1px solid rgba(183,121,31,0.24);
+  color: #7a4a00;
+  font-weight: 800;
+}
+.form-actions-row {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.form-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--pst-blue);
+  background: rgba(0,119,200,0.08);
+  border: 1px solid rgba(0,119,200,0.18);
+}
+.discount-row { cursor: pointer; }
+.discount-row:hover { background: #f7fbff; }
+.discount-row.selected { background: rgba(0,119,200,0.08); }
+.promo-on { color: var(--pst-success); font-weight: 900; }
+.promo-off { color: var(--pst-muted); font-weight: 900; }
+
+.view-edit-btn {
+  min-height: 32px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+
+@media (max-width: 680px) {
+  .edit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* PST MASTER ADMIN HEADER - KEEP IDENTICAL ON ALL ADMIN PAGES */
+header .topbar {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+
+header .brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+header .brand small {
+  display: block !important;
+  color: #596579 !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin-top: 2px !important;
+}
+
+header .pst-admin-logo {
+  height: 54px !important;
+  width: auto !important;
+  max-width: 250px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+
+header .header-actions,
+header .actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+header .header-actions .btn,
+header .actions .btn,
+header .header-actions a.btn,
+header .actions a.btn,
+header .header-actions button.btn,
+header .actions button.btn {
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 10px 13px !important;
+  border-radius: 10px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+}
+
+header .header-actions .btn.secondary,
+header .actions .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+
+header .header-actions .btn.secondary.active,
+header .actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
+header .header-actions .btn.danger,
+header .actions .btn.danger {
+  background: #b42318 !important;
+  color: #ffffff !important;
+  border: 1px solid #b42318 !important;
+}
+
+header .header-actions .btn:hover,
+header .actions .btn:hover {
+  filter: brightness(0.95) !important;
+}
+
+@media (max-width: 640px) {
+  header .topbar {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+  header .header-actions,
+  header .actions {
+    justify-content: flex-start !important;
+  }
+  header .pst-admin-logo {
+    height: 46px !important;
+    max-width: 220px !important;
+  }
+}
+
+
+
+/* PST FINAL MATCHED ADMIN HEADER + PAGE ALIGNMENT */
+header .topbar {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+header .brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 18px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+header .pst-master-admin-logo,
+header .pst-admin-logo {
+  height: 78px !important;
+  width: auto !important;
+  max-width: 260px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+header .pst-master-page-label,
+header .brand small {
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 20px !important;
+  line-height: 1.15 !important;
+  font-weight: 900 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+main {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 22px 18px 60px !important;
+}
+@media (max-width: 640px) {
+  header .topbar {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+  header .actions {
+    justify-content: flex-start !important;
+  }
+  header .pst-master-admin-logo,
+  header .pst-admin-logo {
+    height: 46px !important;
+    max-width: 200px !important;
+  }
+  header .pst-master-page-label,
+  header .brand small {
+    font-size: 15px !important;
+    white-space: normal !important;
+  }
+}
+
+
+
+/* PST FINAL UNIFIED ADMIN LAYOUT - COPIED FROM ORDERS MANAGEMENT */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
+}
 header .topbar {
   max-width: 1540px !important;
   margin: 0 auto !important;
@@ -90,7 +548,32 @@ header .actions .btn.danger {
   color: #ffffff !important;
   border: 1px solid #b42318 !important;
 }
-@media (max-width: 640px) {
+main {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 22px 18px 54px !important;
+}
+.page-title {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin-bottom: 16px !important;
+}
+main > h1,
+.page-title h1 {
+  margin: 0 0 6px !important;
+  font-size: clamp(24px, 3vw, 36px) !important;
+  line-height: 1.15 !important;
+  color: #101820 !important;
+  font-weight: 900 !important;
+}
+.subtitle {
+  margin: 0 !important;
+  color: #667085 !important;
+  line-height: 1.4 !important;
+}
+@media (max-width: 700px) {
   header .topbar {
     align-items: flex-start !important;
     flex-direction: column !important;
@@ -115,11 +598,11 @@ header .actions .btn.danger {
   <div class="topbar">
     <div class="brand">
       <img class="pst-master-admin-logo" src="assets/icons/pst-approved-logo.png" alt="Pep Shop Texas logo">
-      <div class="pst-master-page-label">Admin Order Management</div>
+      <div class="pst-master-page-label">Inventory Management</div>
     </div>
     <div class="actions">
-      <a class="btn secondary active" href="admin.html">Orders</a>
-      <a class="btn secondary" href="inventory.html">Inventory</a>
+      <a class="btn secondary" href="admin.html">Orders</a>
+      <a class="btn secondary active" href="inventory.html">Inventory</a>
       <a class="btn secondary" href="products.html">Products</a>
       <a class="btn secondary" href="discounts.html">Discounts</a>
       <a class="btn secondary" href="index.html">Website</a>
@@ -131,625 +614,351 @@ header .actions .btn.danger {
 
 <main>
   <section class="page-title">
-    <div><h1>Orders Management</h1><p class="subtitle">Review all customer orders, update order/payment status, add tracking, and send status emails from one admin screen.</p></div>
-  </section>
-  <div id="statusLine" class="status">Checking admin access...</div>
-
-  <section class="grid">
-    <div class="card">
-      <div class="card-header"><h2>Order List</h2></div>
-      <div class="card-body">
-        <div class="filters">
-          <div class="field"><label for="searchInput">Search</label><input id="searchInput" type="search" placeholder="Customer, email, order #, tracking..." /></div>
-          <div class="field"><label for="statusFilter">Order Status</label><select id="statusFilter"><option value="">All</option><option value="pending">Pending</option><option value="awaiting_payment">Awaiting Payment</option><option value="processing">Processing</option><option value="packed">Packed</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="complete">Complete</option><option value="cancelled">Cancelled</option><option value="rejected">Rejected</option></select></div>
-          <div class="field"><label for="paymentFilter">Payment</label><select id="paymentFilter"><option value="">All</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="failed">Failed</option><option value="refunded">Refunded</option><option value="manual_review">Manual Review</option></select></div>
-          <div class="field"><label for="dateFilter">Date</label><select id="dateFilter"><option value="">All Time</option><option value="today">Today</option><option value="7">Last 7 Days</option><option value="30">Last 30 Days</option></select></div>
-          <button class="btn secondary" id="clearFiltersBtn" type="button">Clear</button>
-        </div>
-      </div>
-      <div class="bulk-bar">
-        <div class="bulk-left"><input id="selectAllOrders" type="checkbox" /><span id="selectedCount">0 selected</span></div>
-        <div class="bulk-actions">
-          <button class="btn secondary" id="bulkPaidBtn" type="button">Mark Paid</button>
-          <button class="btn secondary" id="bulkProcessingBtn" type="button">Processing</button>
-          <button class="btn secondary" id="bulkPackedBtn" type="button">Packed</button>
-          <button class="btn secondary" id="bulkDeliveredBtn" type="button">Delivered</button>
-          <button class="btn warning" id="bulkShippedBtn" type="button">Shipped</button>
-          <button class="btn danger" id="bulkRejectedBtn" type="button">Reject</button>
-          <button class="btn secondary" id="bulkClearBtn" type="button">Clear Selection</button>
-        </div>
-      </div>
-      <div class="table-wrap"><table><thead><tr><th></th><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Order</th><th>Payment</th><th>Tracking</th></tr></thead><tbody id="ordersBody"><tr><td colspan="8" class="muted">Loading orders...</td></tr></tbody></table></div>
+    <div>
+      <h1>Inventory Management</h1>
+      <p class="subtitle">Create and manage promo codes, one-time offers, customer-specific codes, and Friends & Family discounts.</p>
     </div>
+  </section>
 
-    <div class="card" id="detailCard"><div class="detail-empty">Select an order to view and manage details.</div></div>
+  <div id="statusLine" class="status-line">Checking admin access...</div>
+
+  <section class="card" style="margin-top:18px;">
+    <div class="card-header">
+      <h2>Create / Manage Discount <span id="formModeBadge" class="form-mode-badge">New</span></h2>
+      <span class="muted">Codes save to Supabase and can be used during checkout.</span>
+    </div>
+    <div class="card-body">
+      <div class="edit-grid">
+        <div class="field-guide">
+          <strong>Promotion card field guide:</strong><br>
+          <strong>Promotion Title</strong> = headline/title on the promotion card. <strong>Promotion Description</strong> = body text on the promotion card. <strong>Homepage Hero Banner Text</strong> = scrolling/banner text on the homepage. <strong>Show On Homepage</strong> controls whether the promotion is displayed publicly. Click any saved promotion below to reload and edit its details.
+        </div>
+        <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /><span class="field-hint">Displays as the coupon/code customers enter.</span></div>
+        <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select><span class="field-hint">Controls how the discount can be used.</span></div>
+        <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /><span class="field-hint">Shows as the percentage discount, if used.</span></div>
+        <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /><span class="field-hint">Shows as the dollar discount, if used instead of percent.</span></div>
+        <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /><span class="field-hint">Limits the code to one customer email when filled in.</span></div>
+        <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /><span class="field-hint">When the code/promotion expires.</span></div>
+        <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /><span class="field-hint">Limits total use count. 0 means unlimited.</span></div>
+        <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select><span class="field-hint">Inactive codes will not be usable.</span></div>
+        <div class="field"><label for="promoTitleAdmin">Promotion Title</label><input id="promoTitleAdmin" type="text" placeholder="New Customer Special" /><span class="field-hint">Main title displayed on the promotion card.</span></div>
+        <div class="field"><label for="promoBannerActiveAdmin">Show On Homepage</label><select id="promoBannerActiveAdmin"><option value="false">No</option><option value="true">Yes</option></select><span class="field-hint">Yes = show this promotion on homepage/promo display.</span></div>
+        <div class="field full"><label for="promoDescriptionAdmin">Promotion Description</label><input id="promoDescriptionAdmin" type="text" placeholder="Optional internal/customer-facing description" /><span class="field-hint">Body text displayed on the promotion card.</span></div>
+        <div class="field full"><label for="heroBannerTextAdmin">Homepage Hero Banner Text</label><input id="heroBannerTextAdmin" type="text" placeholder="🎉 New Customer Special — Save 10% with code WELCOME10" /><span class="field-hint">Exact text used for the homepage hero/banner line.</span></div>
+        <div class="promo-preview-card">
+          <h3>Promotion Card Preview</h3>
+          <div class="promo-card-sample">
+            <div id="previewPromoTitle" class="promo-card-title">Promotion title will appear here</div>
+            <div id="previewPromoDescription" class="promo-card-desc">Promotion description will appear here.</div>
+            <span id="previewPromoCode" class="promo-card-code">CODE</span>
+            <div id="previewHeroBanner" class="hero-preview">Homepage hero/banner text will appear here.</div>
+          </div>
+        </div>
+        <div class="field"><label for="promoStartsAdmin">Promotion Start Date</label><input id="promoStartsAdmin" type="date" /><span class="field-hint">Optional date when homepage promo should begin.</span></div>
+        <div class="field"><label for="promoEndsAdmin">Promotion End Date</label><input id="promoEndsAdmin" type="date" /><span class="field-hint">Optional date when homepage promo should stop.</span></div>
+        <div class="form-actions-row"><button class="btn success" id="createDiscountBtn" type="button">Create / Save Discount</button><button class="btn secondary" id="newDiscountBtn" type="button">New / Clear Form</button></div>
+      </div>
+
+      <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
+
+      <div class="orders-table-wrap" style="margin-top:14px;">
+        <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the form above.</div>
+        <table>
+          <thead>
+            <tr><th>Action</th><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
+          </thead>
+          <tbody id="discountCodesBody"><tr><td colspan="11" class="muted">Loading discount codes...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
   </section>
 </main>
 
 <script>
-  /* IMPORTANT: use the same Supabase URL and anon key already used in index.html/products.html. */
-  const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
-  const EMAIL_FUNCTION_NAME = "send-order-email";
+const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const $ = (id) => document.getElementById(id);
-  let currentUser = null;
-  let allOrders = [];
-  let filteredOrders = [];
-  let activeOrderId = null;
-  let selectedOrderIds = new Set();
+let currentUser = null;
+let discountRows = [];
+let selectedDiscountCode = null;
+const $ = (id) => document.getElementById(id);
 
-  const orderStatuses = ["pending","awaiting_payment","processing","packed","shipped","delivered","complete","cancelled","rejected"];
-  const paymentStatuses = ["pending","paid","failed","refunded","manual_review"];
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);
+}
 
-  function setStatus(message, type="") { const el = $("statusLine"); el.textContent = message; el.className = `status ${type}`.trim(); }
-  function esc(value){return String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));}
-  function money(value){ const n = Number(value ?? 0); return n.toLocaleString(undefined,{style:"currency",currency:"USD"}); }
-  function fmtDate(value){ if(!value) return "—"; const d = new Date(value); return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString(); }
-  function norm(value, fallback="pending"){ return String(value || fallback).toLowerCase().replace(/\s+/g,"_"); }
-  function cleanValue(value){ if(value === null || value === undefined) return ""; const text = String(value).trim(); return ["null","undefined","none","n/a","[object Object]"].includes(text.toLowerCase()) ? "" : text; }
-  function pill(value){ const v = norm(value); return `<span class="pill ${esc(v)}">${esc(v.replaceAll("_"," "))}</span>`; }
-  function orderNumber(order){ return order.order_number || order.order_no || order.id || "—"; }
-  function orderTotal(order){ return order.total ?? order.total_amount ?? order.order_total ?? order.grand_total ?? 0; }
-  function orderStatus(order){
-    // Use the real active status in a safe priority order.
-    // Supabase rows may contain both `status` and `order_status`; if they disagree,
-    // `status` is the field that reflects the latest admin/bulk update.
-    const statusValue = cleanValue(order.status);
-    const orderStatusValue = cleanValue(order.order_status);
-    const statusNorm = norm(statusValue, "");
-    const orderStatusNorm = norm(orderStatusValue, "");
+function money(value) {
+  return "$" + Number(value || 0).toFixed(2);
+}
 
-    if(statusValue && statusNorm !== "pending") return statusValue;
-    if(orderStatusValue && orderStatusNorm !== "pending") return orderStatusValue;
-    return statusValue || orderStatusValue || "pending";
-  }
-  function paymentStatus(order){ return order.payment_status || "pending"; }
-  function profileOf(order){ return order.profile || {}; }
-  function customerName(order){ const p=profileOf(order); return order.customer_name || order.name || [p.first_name,p.last_name].filter(Boolean).join(" ") || p.full_name || "Customer"; }
-  function customerEmail(order){ const p=profileOf(order); return order.customer_email || order.email || p.email || ""; }
-  function customerPhone(order){ const p=profileOf(order); return order.customer_phone || order.phone || p.phone || "—"; }
-  function shippingAddress(order){ const p=profileOf(order); return order.shipping_address || order.address || p.shipping_address || p.address || [p.address1,p.address2,p.city,p.state,p.zip].filter(Boolean).join(", ") || "—"; }
-  function trackingUrl(carrier, number, provided){ if(provided) return provided; if(!number) return ""; const n=encodeURIComponent(number); const c=String(carrier||"").toLowerCase(); if(c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${n}`; if(c.includes("ups")) return `https://www.ups.com/track?tracknum=${n}`; if(c.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${n}`; return ""; }
-  function adminDisplayName(){ const email=cleanValue(currentUser?.email).toLowerCase(); if(email === "wacoweaver@gmail.com") return "Jimmie Weaver"; return cleanValue(currentUser?.user_metadata?.full_name) || cleanValue(currentUser?.email) || "Admin"; }
-  function normalizeAdminNotes(text){ return cleanValue(text).replace(/Admin account:\s*wacoweaver@gmail\.com/gi, "Admin account: Jimmie Weaver").replace(/wacoweaver@gmail\.com/gi, "Jimmie Weaver"); }
-  function auditLine(text){ return `[${new Date().toLocaleString()}] ${text} | Admin account: ${adminDisplayName()}`; }
-  function joinAuditNotes(current, line){ const base=normalizeAdminNotes(current || "").trim(); return `${base}${base ? "\n\n\n" : ""}${line}`; }
-  function describeFieldChange(label, oldValue, newValue){
-    const oldText = cleanValue(oldValue);
-    const newText = cleanValue(newValue);
-    if(oldText === newText) return "";
-    if(!oldText && newText) return `${label} added: ${newText}`;
-    if(oldText && !newText) return `${label} removed`;
-    return `${label} changed: ${oldText} → ${newText}`;
-  }
-  function emailTypeLabel(type){
-    const labels = {
-      payment_accepted:"Payment accepted",
-      payment_issue:"Payment issue",
-      order_processing:"Processing",
-      order_packed:"Packed / awaiting carrier pickup",
-      order_shipped:"Shipped",
-      order_delivered:"Delivered",
-      order_complete:"Complete",
-      order_cancelled:"Cancelled",
-      order_rejected:"Rejected"
-    };
-    return labels[type] || String(type || "Status").replaceAll("_", " ");
-  }
-  function customerFacingStatusNote(type){
-    if(type === "order_packed") return "Your order has been packed and is awaiting carrier pickup.";
-    return "";
-  }
-  async function appendAdminAudit(order, text){
-    const current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-    const next = joinAuditNotes(current, auditLine(text));
-    await safeUpdateOrder(order.id, { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() }, order).catch(()=>{});
-    order.admin_note = next;
-    order.admin_notes = next;
-  }
+function formatDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString();
+}
 
-  function selectedOrdersArray(){ return Array.from(selectedOrderIds); }
-  function renderSelectedCount(){ $("selectedCount").textContent = `${selectedOrderIds.size} selected`; const allVisible = filteredOrders.length && filteredOrders.every(o => selectedOrderIds.has(o.id)); $("selectAllOrders").checked = !!allVisible; }
+function toDateInputValue(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value).slice(0, 10);
+  return date.toISOString().slice(0, 10);
+}
 
-  async function checkAdminAccess(){
-    setStatus("Checking admin access...");
-    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-    if(sessionError) throw sessionError;
-    const session = sessionData?.session;
-    if(!session?.user){ setStatus("You are not logged in. Log in from the website first, then return to admin.html.", "bad"); return false; }
-    currentUser = session.user;
-    const checks = [
-      supabaseClient.from("admin_users").select("*").eq("user_id", currentUser.id).maybeSingle(),
-      supabaseClient.from("admin_users").select("*").eq("email", currentUser.email).maybeSingle()
-    ];
-    const results = await Promise.allSettled(checks);
-    const rows = results.filter(r => r.status === "fulfilled" && r.value?.data).map(r => r.value.data);
-    const admin = rows.find(r => r && (r.is_active === true || r.active === true || r.is_admin === true || r.email === currentUser.email));
-    if(!admin){ setStatus("Access denied. This login is not listed as an active Pep Shop Texas admin.", "bad"); return false; }
-    setStatus(`Admin access confirmed for ${currentUser.email}.`, "good");
-    return true;
-  }
+function discountLabelFromRow(row) {
+  const pct = Number(row.percent_off || row.discount_percent || 0);
+  const amt = Number(row.amount_off || row.discount_amount || 0);
+  return pct ? `${pct}% off` : amt ? `${money(amt)} off` : "Discount details not set";
+}
 
-  async function loadOrders(){
-    setStatus("Loading orders...");
-    const { data: orders, error } = await supabaseClient.from("orders").select("*").order("created_at", { ascending:false });
-    if(error) throw error;
-    const orderIds = (orders||[]).map(o=>o.id).filter(Boolean);
-    const userIds = [...new Set((orders||[]).flatMap(o=>[o.user_id,o.customer_id,o.profile_id,o.customer_profile_id,o.auth_user_id]).map(cleanValue).filter(Boolean))];
-    const orderEmails = [...new Set((orders||[]).flatMap(o=>[o.customer_email,o.email,o.shipping_email,o.contact_email,o.billing_email]).map(v=>cleanValue(v).toLowerCase()).filter(Boolean))];
-    let itemsByOrder = {}, profilesByUser = {}, profilesByEmail = {};
+function updatePromotionPreview() {
+  const code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase() || "CODE";
+  const title = ($("promoTitleAdmin")?.value || "").trim() || "Promotion title will appear here";
+  const desc = ($("promoDescriptionAdmin")?.value || "").trim() || "Promotion description will appear here.";
+  const hero = ($("heroBannerTextAdmin")?.value || "").trim() || "Homepage hero/banner text will appear here.";
+  const pct = Number($("discountPercentAdmin")?.value || 0);
+  const amt = Number($("discountAmountAdmin")?.value || 0);
+  const discountText = pct ? `${pct}% off` : amt ? `${money(amt)} off` : "Discount amount not set";
+  if ($("previewPromoTitle")) $("previewPromoTitle").textContent = title;
+  if ($("previewPromoDescription")) $("previewPromoDescription").textContent = desc;
+  if ($("previewPromoCode")) $("previewPromoCode").textContent = `${code} · ${discountText}`;
+  if ($("previewHeroBanner")) $("previewHeroBanner").textContent = hero;
+}
 
-    if(orderIds.length){
-      const { data: items } = await supabaseClient.from("order_items").select("*").in("order_id", orderIds);
-      (items||[]).forEach(item => { const k=item.order_id; if(!itemsByOrder[k]) itemsByOrder[k]=[]; itemsByOrder[k].push(item); });
-    }
+function setFormMode(mode, code = "") {
+  const badge = $("formModeBadge");
+  if (badge) badge.textContent = mode === "edit" ? `Editing ${code}` : "New";
+  const btn = $("createDiscountBtn");
+  if (btn) btn.textContent = mode === "edit" ? "Save Promotion Changes" : "Create / Save Discount";
+}
 
-    // customer_profiles appears to have user_id and email, but not id/customer_id/customer_email/shipping_email.
-    // Keep lookups limited to known-safe columns to avoid Supabase 400 console errors.
-    if(userIds.length){
-      const { data: profiles, error: profileError } = await supabaseClient.from("customer_profiles").select("*").in("user_id", userIds);
-      if(profileError) console.warn("Customer profile lookup by user_id failed:", profileError.message || profileError);
-      (profiles||[]).forEach(p => { if(p.user_id) profilesByUser[String(p.user_id)]=p; if(p.email) profilesByEmail[String(p.email).toLowerCase()]=p; });
-    }
-    if(orderEmails.length){
-      const { data: profiles, error: emailProfileError } = await supabaseClient.from("customer_profiles").select("*").in("email", orderEmails);
-      if(emailProfileError) console.warn("Customer profile lookup by email failed:", emailProfileError.message || emailProfileError);
-      (profiles||[]).forEach(p => { if(p.user_id) profilesByUser[String(p.user_id)]=p; if(p.email) profilesByEmail[String(p.email).toLowerCase()]=p; });
-    }
-    allOrders = (orders||[]).map(o => {
-      const profile = profilesByUser[cleanValue(o.user_id)] || profilesByUser[cleanValue(o.customer_id)] || profilesByUser[cleanValue(o.profile_id)] || profilesByEmail[cleanValue(o.customer_email || o.email || o.shipping_email).toLowerCase()] || {};
-      return {...o, items: itemsByOrder[o.id] || [], profile};
-    });
-    selectedOrderIds = new Set([...selectedOrderIds].filter(id => allOrders.some(o => o.id === id)));
-    applyFilters();
-    setStatus(`Loaded ${allOrders.length} order${allOrders.length===1?"":"s"}.`, "good");
-  }
+function resetDiscountForm() {
+  selectedDiscountCode = null;
+  ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","discountEmailAdmin","discountExpiresAdmin","discountMaxUsesAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin","promoStartsAdmin","promoEndsAdmin"].forEach(id => {
+    const el = $(id);
+    if (el) el.value = "";
+  });
+  const typeEl = $("discountTypeAdmin");
+  if (typeEl) typeEl.value = "standard";
+  const activeEl = $("discountActiveAdmin");
+  if (activeEl) activeEl.value = "true";
+  const promoActiveEl = $("promoBannerActiveAdmin");
+  if (promoActiveEl) promoActiveEl.value = "false";
+  setFormMode("new");
+  updatePromotionPreview();
+  document.querySelectorAll(".discount-row.selected").forEach(row => row.classList.remove("selected"));
+  setDiscountAdminStatus("Ready for a new discount/promotion.");
+}
 
-  function applyFilters(){
-    const q = $("searchInput").value.trim().toLowerCase();
-    const s = $("statusFilter").value;
-    const p = $("paymentFilter").value;
-    const d = $("dateFilter").value;
-    const now = new Date();
-    filteredOrders = allOrders.filter(order => {
-      const hay = [orderNumber(order), customerName(order), customerEmail(order), customerPhone(order), order.tracking_number, order.carrier, order.tracking_carrier, order.admin_note, order.customer_notes].join(" ").toLowerCase();
-      if(q && !hay.includes(q)) return false;
-      if(s && norm(orderStatus(order)) !== s) return false;
-      if(p && norm(paymentStatus(order)) !== p) return false;
-      if(d){ const created = new Date(order.created_at || order.order_date || 0); if(Number.isNaN(created.getTime())) return false; if(d === "today" && created.toDateString() !== now.toDateString()) return false; if(d !== "today" && ((now-created)/(1000*60*60*24) > Number(d))) return false; }
-      return true;
-    });
-    renderOrders(); renderSelectedCount();
-  }
-
-  function renderOrders(){
-    const body = $("ordersBody");
-    if(!filteredOrders.length){ body.innerHTML = `<tr><td colspan="8" class="muted">No orders match the current filters.</td></tr>`; return; }
-    body.innerHTML = filteredOrders.map(order => {
-      const id = esc(order.id);
-      const track = order.tracking_number || order.tracking || "";
-      return `<tr class="order-row ${activeOrderId===order.id?"active":""}" data-order-id="${id}">
-        <td onclick="event.stopPropagation()"><input class="row-check" type="checkbox" data-check-id="${id}" ${selectedOrderIds.has(order.id)?"checked":""}></td>
-        <td><strong>#${esc(String(orderNumber(order)))}</strong><div class="muted">${esc((order.items||[]).length)} item row(s)</div></td>
-        <td>${esc(fmtDate(order.created_at || order.order_date))}</td>
-        <td><strong>${esc(customerName(order))}</strong><div class="muted">${esc(customerEmail(order) || "No email")}</div></td>
-        <td><strong>${money(orderTotal(order))}</strong></td>
-        <td>${pill(orderStatus(order))}</td>
-        <td>${pill(paymentStatus(order))}</td>
-        <td>${track ? `<strong>${esc(track)}</strong><div class="muted">${esc(order.tracking_carrier || order.carrier || "Carrier not set")}</div>` : `<span class="muted">Not added</span>`}</td>
-      </tr>`;
-    }).join("");
-    document.querySelectorAll("tr.order-row").forEach(row => row.addEventListener("click", () => { const order = allOrders.find(o => o.id === row.dataset.orderId); if(order) renderOrderDetail(order); }));
-    document.querySelectorAll(".row-check").forEach(cb => cb.addEventListener("change", e => { const id=e.target.dataset.checkId; e.target.checked ? selectedOrderIds.add(id) : selectedOrderIds.delete(id); renderSelectedCount(); }));
-  }
-
-  function itemsMarkup(order){
-    const items = order.items || [];
-    if(!items.length) return `<div class="muted">No item rows found for this order.</div>`;
-    return `<div class="item-list">${items.map(item => {
-      const name = item.product_name || item.name || item.display_name || item.product_key || "Item";
-      const qty = item.quantity ?? item.qty ?? 1;
-      const price = item.unit_price ?? item.price ?? 0;
-      const line = item.line_total ?? item.total ?? (Number(qty)*Number(price));
-      return `<div class="item"><div class="item-top"><span>${esc(name)}</span><span>${money(line)}</span></div><div class="muted">Qty: ${esc(qty)} · Unit: ${money(price)} ${item.strength ? `· ${esc(item.strength)}` : ""}</div></div>`;
-    }).join("")}</div>`;
-  }
-
-  function historyMarkup(order){
-    const events = [];
-    if(order.created_at) events.push(["Order created", order.created_at]);
-    if(order.paid_at) events.push(["Payment received", order.paid_at]);
-    if(order.processing_at) events.push(["Marked processing", order.processing_at]);
-    if(order.packed_at) events.push(["Marked packed", order.packed_at]);
-    if(order.shipped_at) events.push(["Marked shipped", order.shipped_at]);
-    if(order.shipping_email_sent_at) events.push(["Shipping email sent", order.shipping_email_sent_at]);
-    if(order.delivered_at) events.push(["Marked delivered", order.delivered_at]);
-    if(order.cancelled_at) events.push(["Cancelled", order.cancelled_at]);
-    if(order.rejected_at) events.push(["Rejected", order.rejected_at]);
-    if(order.updated_at) events.push(["Last updated", order.updated_at]);
-
-    // Also show the internal admin audit trail as readable history entries.
-    // These stay inside Admin only and are not sent to customer emails.
-    const noteText = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-    const auditEntries = noteText.split(/\n{2,}/).map(x => x.trim()).filter(Boolean);
-
-    if(!events.length && !auditEntries.length) return `<div class="muted">No timeline fields are currently saved for this order.</div>`;
-
-    const timeline = events.map(([label,date])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}</span></div>`).join("");
-    const audit = auditEntries.map(entry => `<div class="audit-item"><strong>Admin audit note</strong><span class="muted">${esc(entry)}</span></div>`).join("");
-    return `<div class="audit-list">${timeline}${audit}</div>`;
-  }
+function selectDiscountCode(code) {
+  const row = discountRows.find(item => String(item.code || "").toUpperCase() === String(code || "").toUpperCase());
+  if (!row) return;
+  selectedDiscountCode = String(row.code || "").toUpperCase();
+  const setVal = (id, value) => { const el = $(id); if (el) el.value = value ?? ""; };
+  setVal("discountCodeAdmin", row.code || "");
+  setVal("discountTypeAdmin", row.discount_type || "standard");
+  setVal("discountPercentAdmin", Number(row.percent_off || row.discount_percent || 0) || "");
+  setVal("discountAmountAdmin", Number(row.amount_off || row.discount_amount || 0) || "");
+  setVal("discountEmailAdmin", row.assigned_email || "");
+  setVal("discountExpiresAdmin", toDateInputValue(row.expires_at));
+  setVal("discountMaxUsesAdmin", Number(row.max_uses || 0) || "");
+  setVal("discountActiveAdmin", row.active ? "true" : "false");
+  setVal("promoTitleAdmin", row.promotion_title || "");
+  setVal("promoBannerActiveAdmin", row.hero_banner_active ? "true" : "false");
+  setVal("promoDescriptionAdmin", row.promotion_description || "");
+  setVal("heroBannerTextAdmin", row.hero_banner_text || "");
+  setVal("promoStartsAdmin", toDateInputValue(row.promotion_starts_at));
+  setVal("promoEndsAdmin", toDateInputValue(row.promotion_ends_at));
+  setFormMode("edit", selectedDiscountCode);
+  updatePromotionPreview();
+  document.querySelectorAll(".discount-row.selected").forEach(tr => tr.classList.remove("selected"));
+  const selectedRow = document.querySelector(`[data-discount-code="${CSS.escape(selectedDiscountCode)}"]`);
+  if (selectedRow) selectedRow.classList.add("selected");
+  setDiscountAdminStatus(`Loaded ${selectedDiscountCode}. You can now edit and save changes.`, "good");
+}
 
 
-  const orderStatusRank = { pending:0, awaiting_payment:0, processing:1, packed:2, shipped:3, delivered:4, complete:5, cancelled:-1, rejected:-1 };
-  function isOrderLocked(order){
-    const os = norm(orderStatus(order));
-    const ps = norm(paymentStatus(order));
-    return ps === "paid" || ["packed","shipped","delivered","complete"].includes(os);
-  }
-  function lockReason(order){
-    const reasons = [];
-    if(norm(paymentStatus(order)) === "paid") reasons.push("payment is marked Paid");
-    const os = norm(orderStatus(order));
-    if(["packed","shipped","delivered","complete"].includes(os)) reasons.push(`order is marked ${os.replaceAll("_"," ")}`);
-    return reasons.join(" and ") || "protected order stage";
-  }
-  function isRiskyLockedChange(order, updates){
-    if(!isOrderLocked(order)) return false;
-    const oldOS = norm(orderStatus(order));
-    const newOS = norm(updates.order_status || oldOS);
-    const oldPS = norm(paymentStatus(order));
-    const newPS = norm(updates.payment_status || oldPS);
-    const oldCarrier = cleanValue(order.tracking_carrier || order.carrier);
-    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
-    const oldTracking = cleanValue(order.tracking_number || order.tracking);
-    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
-    const oldUrl = cleanValue(order.tracking_url);
-    const newUrl = cleanValue(updates.tracking_url);
+function setStatus(message, type = "") {
+  const el = $("statusLine");
+  el.textContent = message;
+  el.className = "status-line";
+  if (type) el.classList.add(type);
+}
 
-    if(oldPS === "paid" && newPS !== "paid") return true;
-    if(["cancelled","rejected"].includes(newOS)) return true;
+function setDiscountAdminStatus(message, type = "info") {
+  const el = $("discountAdminStatus");
+  if (!el) return;
+  el.className = "status-line " + (type === "good" ? "good" : type === "bad" ? "bad" : "");
+  el.textContent = message;
+}
 
-    const oldRank = orderStatusRank[oldOS] ?? 0;
-    const newRank = orderStatusRank[newOS] ?? 0;
+async function checkAdminAccess() {
+  setStatus("Checking admin access...");
 
-    // Complete is the final locked state: any change after Complete requires Admin Override.
-    if(oldOS === "complete"){
-      return oldOS !== newOS || oldPS !== newPS || oldCarrier !== newCarrier || oldTracking !== newTracking || oldUrl !== newUrl;
-    }
+  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+  if (sessionError) throw sessionError;
 
-    if(["packed","shipped","delivered","complete"].includes(oldOS) && newRank < oldRank) return true;
-
-    if(["shipped","delivered","complete"].includes(oldOS) && (oldCarrier !== newCarrier || oldTracking !== newTracking || oldUrl !== newUrl)) return true;
+  const session = sessionData?.session;
+  if (!session?.user) {
+    setStatus("You are not logged in. Please log in from the website first, then return to discounts.html.", "bad");
     return false;
   }
-  function lockBannerMarkup(order){
-    if(!isOrderLocked(order)) return "";
-    return `<div class="lock-banner"><strong>🔒 Locked Order</strong>This order is protected because ${esc(lockReason(order))}. Safe forward progress is allowed, but risky changes require an Admin Override reason.</div>`;
-  }
-  function overrideMarkup(order){
-    if(!isOrderLocked(order)) return "";
-    return `<div class="override-panel full"><label class="override-check"><input id="adminOverrideCheck" type="checkbox" />Admin Override — allow a protected/risky change</label><textarea id="adminOverrideReason" placeholder="Required only for risky protected changes. Example: Correcting wrong tracking number, approved cancellation, payment correction, etc."></textarea></div>`;
-  }
 
-  function renderOrderDetail(order){
-    activeOrderId = order.id; renderOrders();
-    const carrier = order.tracking_carrier || order.carrier || "";
-    const tracking = order.tracking_number || order.tracking || "";
-    const turl = trackingUrl(carrier, tracking, order.tracking_url);
-    const detail = $("detailCard");
-    detail.innerHTML = `
-      <div class="card-header"><h2>Manage Order #${esc(orderNumber(order))}</h2><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button></div>
-      <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div></div>
-      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3><div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div></div>${lockBannerMarkup(order)}</div>
-      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}</div>
-      <div class="detail-section"><h3>Update Order</h3>
-        <div class="edit-grid">
-          <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatuses.map(s=>`<option value="${s}" ${norm(orderStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
-          <div class="field"><label for="editPaymentStatus">Payment Status</label><select id="editPaymentStatus">${paymentStatuses.map(s=>`<option value="${s}" ${norm(paymentStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
-          <div class="field"><label for="editCarrier">Carrier</label><input id="editCarrier" value="${esc(carrier)}" placeholder="USPS, UPS, FedEx..." /></div>
-          <div class="field"><label for="editTracking">Tracking Number</label><input id="editTracking" value="${esc(tracking)}" placeholder="Tracking number" /></div>
-          <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
-          <div class="field full"><label for="editAdminNote">Internal Admin Note</label><textarea id="editAdminNote" placeholder="Internal note for this order only">${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || ""))}</textarea></div>
-          ${overrideMarkup(order)}
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
-        <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped, add a carrier and tracking number first. The page will block a shipped save without tracking.</div>
-      </div>
-      <div class="detail-section"><h3>Manual Email Resend</h3><div class="email-box"><h4>Resend a specific customer email</h4><p>Use this only when a customer needs an email sent again. Normal status emails send automatically when you click Save Order Updates.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary email-action" data-email-type="payment_accepted">Payment Accepted</button><button class="btn secondary email-action" data-email-type="payment_issue">Payment Issue</button><button class="btn secondary email-action" data-email-type="order_processing">Processing</button><button class="btn secondary email-action" data-email-type="order_packed">Packed / Awaiting Pickup</button><button class="btn secondary email-action" data-email-type="order_shipped">Shipped</button><button class="btn secondary email-action" data-email-type="order_delivered">Delivered</button><button class="btn secondary email-action" data-email-type="order_cancelled">Cancelled</button><button class="btn secondary email-action" data-email-type="order_rejected">Rejected</button></div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
-      <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div>`;
+  currentUser = session.user;
 
-    if(window.matchMedia && window.matchMedia("(max-width:1100px)").matches){
-      detail.scrollIntoView({ behavior:"smooth", block:"start" });
-    }
-    $("reloadDetailBtn").addEventListener("click", loadOrders);
-    $("saveOrderBtn").addEventListener("click", () => saveOrder(order));
-    document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false)));
+  const checks = [
+    supabaseClient.from("admin_users").select("*").eq("user_id", currentUser.id).maybeSingle(),
+    supabaseClient.from("admin_users").select("*").eq("email", currentUser.email).maybeSingle()
+  ];
+
+  const results = await Promise.allSettled(checks);
+  const adminRows = results
+    .filter(result => result.status === "fulfilled" && result.value?.data)
+    .map(result => result.value.data);
+
+  const admin = adminRows.find(row => row && (row.is_active === true || row.active === true || row.is_admin === true || row.email === currentUser.email));
+
+  if (!admin) {
+    setStatus("Access denied. This login is not listed as an active Pep Shop Texas admin.", "bad");
+    return false;
   }
 
-  function buildUpdatesFromForm(order={}){
-    let os = $("editOrderStatus").value;
-    const ps = $("editPaymentStatus").value;
-    const carrier = $("editCarrier").value.trim();
-    const tracking = $("editTracking").value.trim();
-    const url = $("editTrackingUrl").value.trim();
-    const typedNote = normalizeAdminNotes($("editAdminNote").value.trim());
+  setStatus(`Admin access confirmed for ${currentUser.email}.`, "good");
+  return true;
+}
 
-    // Payment accepted should automatically advance a newly paid order into Processing.
-    // Do not move backwards or override higher fulfillment stages like Packed/Shipped/Delivered.
-    const currentOrderStage = norm(orderStatus(order));
-    if(ps === "paid" && ["pending","awaiting_payment"].includes(norm(os)) && ["pending","awaiting_payment"].includes(currentOrderStage)){
-      os = "processing";
-    }
+async function loadDiscountCodes() {
+  const body = $("discountCodesBody");
+  if (!body) return;
 
-    if(os === "shipped" && (!carrier || !tracking)) throw new Error("Carrier and tracking number are required before marking an order as shipped.");
-    const now = new Date().toISOString();
-    const changes = [];
-    if(norm(orderStatus(order)) !== norm(os)) changes.push(`Order status: ${orderStatus(order)} → ${os}`);
-    if(norm(paymentStatus(order)) !== norm(ps)) changes.push(`Payment status: ${paymentStatus(order)} → ${ps}`);
-    const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
-    const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
-    const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
-    if(carrierChange) changes.push(carrierChange);
-    if(trackingChange) changes.push(trackingChange);
-    if(trackingUrlChange) changes.push(trackingUrlChange);
-    const note = changes.length ? joinAuditNotes(typedNote, auditLine(changes.join(" | "))) : typedNote;
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now };
+  const { data, error } = await supabaseClient
+    .from("discount_codes")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    if(isRiskyLockedChange(order, updates)){
-      const overrideChecked = $("adminOverrideCheck")?.checked;
-      const overrideReason = cleanValue($("adminOverrideReason")?.value);
-      if(!overrideChecked || !overrideReason){
-        throw new Error("This order is locked. Check Admin Override and enter a reason before making this protected change.");
-      }
-      const overrideNote = joinAuditNotes(updates.admin_note || "", auditLine(`Admin override used: ${overrideReason}`));
-      updates.admin_note = overrideNote;
-      updates.admin_notes = overrideNote;
-    }
-
-    if(ps === "paid") updates.paid_at = now;
-    if(os === "processing") updates.processing_at = now;
-    if(os === "packed") updates.packed_at = now;
-    if(os === "shipped") updates.shipped_at = now;
-    if(os === "delivered") updates.delivered_at = now;
-    if(os === "complete") updates.completed_at = now;
-    if(os === "cancelled") updates.cancelled_at = now;
-    if(os === "rejected") updates.rejected_at = now;
-    return updates;
+  if (error) {
+    body.innerHTML = `<tr><td colspan="11" class="muted">${safe(error.message)}</td></tr>`;
+    return;
   }
 
-  function missingColumnFromError(error){
-    const msg = String(error?.message || error || "");
-    return (msg.match(/column\s+orders\.([a-zA-Z0-9_]+)\s+does\s+not\s+exist/i) ||
-            msg.match(/column\s+\"?([a-zA-Z0-9_]+)\"?\s+of\s+relation\s+\"?orders\"?\s+does\s+not\s+exist/i) ||
-            msg.match(/Could not find the ['\"]([a-zA-Z0-9_]+)['\"] column/i) ||
-            [])[1] || "";
+  discountRows = data || [];
+
+  if (!discountRows.length) {
+    body.innerHTML = `<tr><td colspan="11" class="muted">No discount codes yet.</td></tr>`;
+    return;
   }
 
-  function orderColumnKeys(order){
-    const row = order || allOrders.find(o => String(o.id) === String(order?.id || "")) || {};
-    return new Set(Object.keys(row).filter(k => !["items","profile"].includes(k)));
-  }
+  body.innerHTML = discountRows.map(row => {
+    const discountText = discountLabelFromRow(row);
+    const uses = `${Number(row.times_used || row.uses || 0)} / ${Number(row.max_uses || 0) || "∞"}`;
+    const code = String(row.code || "").toUpperCase();
+    const promoTitle = row.promotion_title || "—";
+    const heroText = row.hero_banner_text || "—";
+    const promoClass = row.hero_banner_active ? "promo-on" : "promo-off";
+    return `<tr class="discount-row ${selectedDiscountCode === code ? "selected" : ""}" data-discount-code="${safe(code)}" title="Click to load and edit this promotion">
+      <td><button class="btn secondary view-edit-btn" type="button" data-edit-code="${safe(code)}">View / Edit</button></td>
+      <td><strong>${safe(row.code)}</strong><div class="muted">Click row to edit</div></td>
+      <td><strong>${safe(promoTitle)}</strong><div class="muted">${safe(row.promotion_description || "No card description")}</div></td>
+      <td>${safe(heroText)}</td>
+      <td>${safe(row.discount_type || "standard")}</td>
+      <td>${safe(discountText)}</td>
+      <td>${safe(row.assigned_email || "Any customer")}</td>
+      <td>${uses}</td>
+      <td>${row.expires_at ? formatDate(row.expires_at) : "No expiration"}</td>
+      <td class="${promoClass}">${row.hero_banner_active ? "Homepage" : "Off"}</td>
+      <td>${row.active ? "Active" : "Inactive"}</td>
+    </tr>`;
+  }).join("");
 
-  function filterUpdatesToOrderColumns(updates, order){
-    const keys = orderColumnKeys(order);
-    const filtered = {};
-    Object.entries(updates || {}).forEach(([key, value]) => {
-      if(value !== undefined && keys.has(key)) filtered[key] = value;
+  document.querySelectorAll(".discount-row").forEach(row => {
+    row.addEventListener("click", () => selectDiscountCode(row.dataset.discountCode));
+  });
+  document.querySelectorAll(".view-edit-btn").forEach(btn => {
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      selectDiscountCode(btn.dataset.editCode);
     });
-    return filtered;
-  }
+  });
+}
 
-  async function safeUpdateOrder(id, updates, order=null){
-    const row = order || allOrders.find(o => String(o.id) === String(id)) || {};
-    let payload = filterUpdatesToOrderColumns(updates, row);
+async function createDiscountCode() {
+  const code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase();
+  const discountType = $("discountTypeAdmin")?.value || "standard";
+  const percentOff = Number($("discountPercentAdmin")?.value || 0);
+  const amountOff = Number($("discountAmountAdmin")?.value || 0);
+  const assignedEmail = ($("discountEmailAdmin")?.value || "").trim().toLowerCase() || null;
+  const expiresValue = $("discountExpiresAdmin")?.value || "";
+  const maxUsesRaw = Number($("discountMaxUsesAdmin")?.value || 0);
+  const active = ($("discountActiveAdmin")?.value || "true") === "true";
+  const promotionTitle = ($("promoTitleAdmin")?.value || "").trim() || null;
+  const promotionDescription = ($("promoDescriptionAdmin")?.value || "").trim() || null;
+  const heroBannerText = ($("heroBannerTextAdmin")?.value || "").trim() || null;
+  const heroBannerActive = ($("promoBannerActiveAdmin")?.value || "false") === "true";
+  const promoStartsValue = $("promoStartsAdmin")?.value || "";
+  const promoEndsValue = $("promoEndsAdmin")?.value || "";
 
-    // Ensure the status fields stay synced, but only for columns that actually exist on this orders table.
-    if(Object.prototype.hasOwnProperty.call(row, "order_status") && updates.order_status !== undefined) payload.order_status = updates.order_status;
-    if(Object.prototype.hasOwnProperty.call(row, "status") && updates.status !== undefined) payload.status = updates.status;
-    if(Object.prototype.hasOwnProperty.call(row, "payment_status") && updates.payment_status !== undefined) payload.payment_status = updates.payment_status;
+  if (!code) return setDiscountAdminStatus("Enter a discount code.", "bad");
+  if (percentOff <= 0 && amountOff <= 0) return setDiscountAdminStatus("Enter either a percent off or dollar off amount.", "bad");
+  if (percentOff > 100) return setDiscountAdminStatus("Percent off cannot be more than 100%.", "bad");
 
-    if(!Object.keys(payload).length) throw new Error("No matching order columns were available to update.");
+  const payload = {
+    code,
+    discount_type: discountType,
+    percent_off: percentOff || 0,
+    amount_off: amountOff || 0,
+    assigned_email: assignedEmail,
+    one_time_use: discountType === "one_time",
+    max_uses: maxUsesRaw || (discountType === "one_time" ? 1 : null),
+    active,
+    expires_at: expiresValue ? new Date(expiresValue + "T23:59:59").toISOString() : null,
+    promotion_title: promotionTitle,
+    promotion_description: promotionDescription,
+    hero_banner_text: heroBannerText,
+    hero_banner_active: heroBannerActive,
+    promotion_starts_at: promoStartsValue ? new Date(promoStartsValue + "T00:00:00").toISOString() : null,
+    promotion_ends_at: promoEndsValue ? new Date(promoEndsValue + "T23:59:59").toISOString() : null,
+    created_by: currentUser?.email || null
+  };
 
-    const { error } = await supabaseClient.from("orders").update(payload).eq("id", id);
-    if(!error) return;
+  setDiscountAdminStatus("Saving discount code...");
+  const { error } = await supabaseClient.from("discount_codes").upsert(payload, { onConflict: "code" });
 
-    // If a stale/browser-cached payload still includes a missing column, drop only that column and retry once.
-    const missing = missingColumnFromError(error);
-    if(missing && Object.prototype.hasOwnProperty.call(payload, missing)){
-      delete payload[missing];
-      if(Object.keys(payload).length){
-        const retry = await supabaseClient.from("orders").update(payload).eq("id", id);
-        if(!retry.error) return;
-        throw retry.error;
-      }
-    }
-    throw error;
-  }
+  if (error) return setDiscountAdminStatus(error.message, "bad");
 
-  function detectCustomerEmailType(oldOrder, updates){
-    const oldOrderStatus = norm(orderStatus(oldOrder));
-    const oldPaymentStatus = norm(paymentStatus(oldOrder));
-    const newOrderStatus = norm(updates.order_status);
-    const newPaymentStatus = norm(updates.payment_status);
-    const oldTracking = cleanValue(oldOrder.tracking_number || oldOrder.tracking);
-    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
-    const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
-    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
+  selectedDiscountCode = code;
+  setFormMode("edit", code);
+  setDiscountAdminStatus(`Discount code ${code} saved. Click any saved row below to load its details again.`, "good");
+  await loadDiscountCodes();
+  updatePromotionPreview();
+}
 
-    if(oldPaymentStatus !== newPaymentStatus){
-      if(newPaymentStatus === "paid") return "payment_accepted";
-      if(["failed","manual_review","refunded"].includes(newPaymentStatus)) return "payment_issue";
-    }
-    if(oldOrderStatus !== newOrderStatus){
-      if(newOrderStatus === "processing") return "order_processing";
-      if(newOrderStatus === "packed") return "order_packed";
-      if(newOrderStatus === "shipped") return "order_shipped";
-      if(newOrderStatus === "delivered") return "order_delivered";
-      if(newOrderStatus === "cancelled") return "order_cancelled";
-      if(newOrderStatus === "rejected") return "order_rejected";
-    }
-    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier)) return "order_shipped";
-    return "";
-  }
-
-  function detectCustomerEmailTypes(oldOrder, updates){
-    const oldOrderStatus = norm(orderStatus(oldOrder));
-    const oldPaymentStatus = norm(paymentStatus(oldOrder));
-    const newOrderStatus = norm(updates.order_status);
-    const newPaymentStatus = norm(updates.payment_status);
-    const oldTracking = cleanValue(oldOrder.tracking_number || oldOrder.tracking);
-    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
-    const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
-    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
-    const types = [];
-
-    if(oldPaymentStatus !== newPaymentStatus){
-      if(newPaymentStatus === "paid") types.push("payment_accepted");
-      if(["failed","manual_review","refunded"].includes(newPaymentStatus)) types.push("payment_issue");
-    }
-    if(oldOrderStatus !== newOrderStatus){
-      if(newOrderStatus === "processing") types.push("order_processing");
-      if(newOrderStatus === "packed") types.push("order_packed");
-      if(newOrderStatus === "shipped") types.push("order_shipped");
-      if(newOrderStatus === "delivered") types.push("order_delivered");
-      if(newOrderStatus === "cancelled") types.push("order_cancelled");
-      if(newOrderStatus === "rejected") types.push("order_rejected");
-    }
-    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier)) types.push("order_shipped");
-    return [...new Set(types)];
-  }
-
-  async function saveOrder(order){
-    try{
-      const updates = buildUpdatesFromForm(order);
-      const emailTypes = detectCustomerEmailTypes(order, updates);
-      setStatus("Saving order updates...");
-      await safeUpdateOrder(order.id, updates, order);
-
-      const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
-      if(emailTypes.length){
-        try{
-          for(const emailType of emailTypes){
-            await sendOrderEmail(mergedForEmail, emailType, true);
-            await appendAdminAudit(mergedForEmail, `${emailTypeLabel(emailType)} status notification sent to customer at ${customerEmail(mergedForEmail)}`);
-          }
-          setStatus("Order updates saved and matching customer email notification(s) sent.", "good");
-        }catch(emailError){
-          console.error(emailError);
-          setStatus(`Order saved, but customer email failed: ${emailError.message || emailError}`, "bad");
-        }
-      }else{
-        setStatus("Order updates saved. No customer-facing status email was needed.", "good");
-      }
-
-      await loadOrders();
-      const fresh = allOrders.find(o => o.id === order.id) || mergedForEmail;
-      renderOrderDetail(fresh);
-    }catch(error){ console.error(error); setStatus(error.message || "Could not save order updates.", "bad"); alert(error.message || "Could not save order updates."); }
-  }
-
-  async function sendOrderEmail(order, type, automatic=false){
-    const email = customerEmail(order);
-    if(!email){ alert("This order does not have a customer email address."); return; }
-    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
-    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before sending a shipped email."); return; }
-    setStatus("Sending customer email...");
-
-    const makePayload = (emailType) => ({
-      type: emailType,
-      originalType: type,
-      to: email,
-      customerName: customerName(order),
-      orderNumber: orderNumber(order),
-      orderDate: order.created_at || order.order_date,
-      total: money(orderTotal(order)),
-      carrier,
-      trackingNumber,
-      trackingUrl: $("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url),
-      statusNote: customerFacingStatusNote(type),
-      rejectionReason: order.rejection_reason || "",
-      items: (order.items || []).map(i => ({ name: i.product_name || i.name || i.product_key || "Item", quantity: i.quantity || i.qty || 1, price: i.unit_price || i.price || 0 }))
+async function init() {
+  try {
+    $("refreshBtn").addEventListener("click", loadDiscountCodes);
+    $("createDiscountBtn").addEventListener("click", createDiscountCode);
+    $("newDiscountBtn")?.addEventListener("click", resetDiscountForm);
+    ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin"].forEach(id => {
+      const el = $(id);
+      if (el) el.addEventListener("input", updatePromotionPreview);
+    });
+    $("signOutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = "index.html";
     });
 
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    const token = sessionData?.session?.access_token || SUPABASE_ANON_KEY;
-    const postEmail = async (emailType) => {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/${EMAIL_FUNCTION_NAME}`, { method:"POST", headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${token}` }, body: JSON.stringify(makePayload(emailType)) });
-      const text = await res.text();
-      if(!res.ok) throw new Error(text || "Email function failed.");
-      return text;
-    };
+    const isAdmin = await checkAdminAccess();
+    if (!isAdmin) return;
 
-    try{
-      await postEmail(type);
-    }catch(firstError){
-      // If the Edge Function does not recognize the newer order_packed template yet,
-      // fall back to the existing processing template while passing a customer-facing packed note.
-      if(type === "order_packed"){
-        await postEmail("order_processing");
-      }else{
-        setStatus(`Email failed: ${firstError.message || firstError}`, "bad");
-        throw firstError;
-      }
-    }
-
-    if(type === "order_shipped") await safeUpdateOrder(order.id, { shipping_email_sent_at: new Date().toISOString(), updated_at: new Date().toISOString() }, order).catch(()=>{});
-    if(!automatic){
-      await appendAdminAudit(order, `${emailTypeLabel(type)} status notification resent to customer at ${email}`);
-    }
-    setStatus("Customer email sent successfully.", "good");
+    await loadDiscountCodes();
+    updatePromotionPreview();
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "Something went wrong loading Discount Management.", "bad");
   }
+}
 
-  async function bulkUpdate(updates, message){
-    const ids = selectedOrdersArray();
-    if(!ids.length){ alert("Select one or more orders first."); return; }
-    if(updates.order_status === "shipped" && !confirm("Bulk marking as shipped does not add tracking numbers. Continue only if tracking was already added to these orders.")) return;
-    setStatus("Saving bulk updates...");
-    const payload = { ...updates, updated_at: new Date().toISOString() };
-    let failed = 0;
-    let skippedLocked = 0;
-    for(const id of ids){
-      try{
-        const order = allOrders.find(o => String(o.id) === String(id));
-        if(order && isRiskyLockedChange(order, payload)){
-          skippedLocked++;
-          continue;
-        }
-        await safeUpdateOrder(id, payload, order);
-      } catch(e){ console.error(e); failed++; }
-    }
-    await loadOrders();
-    const extra = skippedLocked ? ` ${skippedLocked} locked order(s) were skipped because they require single-order Admin Override.` : "";
-    setStatus(failed ? `${message} ${failed} order(s) could not be updated.${extra}` : `${message}${extra}`, failed ? "bad" : "good");
-  }
-
-  function wireEvents(){
-    $("refreshBtn").addEventListener("click", loadOrders);
-    $("signOutBtn").addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
-    ["searchInput","statusFilter","paymentFilter","dateFilter"].forEach(id => $(id).addEventListener(id==="searchInput"?"input":"change", applyFilters));
-    $("clearFiltersBtn").addEventListener("click", () => { $("searchInput").value=""; $("statusFilter").value=""; $("paymentFilter").value=""; $("dateFilter").value=""; applyFilters(); });
-    $("selectAllOrders").addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(o.id)); else filteredOrders.forEach(o=>selectedOrderIds.delete(o.id)); renderOrders(); renderSelectedCount(); });
-    $("bulkPaidBtn").addEventListener("click", () => bulkUpdate({ payment_status:"paid" }, "Selected orders marked paid."));
-    $("bulkProcessingBtn").addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
-    $("bulkPackedBtn").addEventListener("click", () => bulkUpdate({ order_status:"packed", status:"packed" }, "Selected orders marked packed."));
-    $("bulkDeliveredBtn").addEventListener("click", () => bulkUpdate({ order_status:"delivered", status:"delivered" }, "Selected orders marked delivered."));
-    $("bulkShippedBtn").addEventListener("click", () => bulkUpdate({ order_status:"shipped", status:"shipped" }, "Selected orders marked shipped."));
-    $("bulkRejectedBtn").addEventListener("click", () => bulkUpdate({ order_status:"rejected", status:"rejected" }, "Selected orders marked rejected."));
-    $("bulkClearBtn").addEventListener("click", () => { selectedOrderIds.clear(); renderOrders(); renderSelectedCount(); });
-  }
-
-  async function init(){
-    try{
-      wireEvents();
-      if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){ setStatus("Before uploading: paste your Supabase URL and anon key into admin.html using the same values from your working index.html/products.html.", "bad"); return; }
-      if(await checkAdminAccess()) await loadOrders();
-    }catch(error){ console.error(error); setStatus(error.message || "Something went wrong loading Admin Orders.", "bad"); }
-  }
-  init();
+init();
 </script>
 </body>
 </html>
