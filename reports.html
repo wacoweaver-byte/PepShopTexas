@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V10_CUSTOM_DATE_RANGE -->
+<!-- PST_REPORTS_PATCH_V11_TOTALS_AND_CSV -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Reports v10</title>
+  <title>Pep Shop Texas | Reports v11</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
@@ -61,6 +61,11 @@
     .report-controls .field{display:flex;flex-direction:column;gap:6px;min-width:220px}
     .report-controls .field.small{min-width:160px}
     .report-note{color:var(--muted);font-size:13px;line-height:1.35;font-weight:700}
+    .report-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+    .financial-summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 14px}
+    .financial-summary-card{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;min-height:82px}
+    .financial-summary-card strong{display:block;font-size:20px;line-height:1.05;font-weight:900;color:var(--blue);margin-bottom:7px;word-break:break-word}
+    .financial-summary-card span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.045em;line-height:1.2}
     .detail-report-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px;flex-wrap:wrap}
     .detail-report-head h3{margin:0;font-size:17px}
     .detail-report-table{min-width:1040px}
@@ -72,6 +77,8 @@
     label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted);display:block;margin-bottom:6px}
     input,select{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}
     .settings-status{margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#fbfcfe;color:var(--muted);font-size:13px;line-height:1.35;font-weight:700}
+    @media(max-width:1200px){.financial-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:700px){.financial-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:1100px){.span-8,.span-6,.span-4{grid-column:span 12}.stat-grid{grid-template-columns:1fr 1fr}.ops-grid{grid-template-columns:1fr}}
     @media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.pst-master-admin-logo{height:46px;max-width:200px}.pst-master-page-label{font-size:15px;white-space:normal}.page-title{flex-direction:column}.stat-grid{grid-template-columns:1fr}.resource{grid-template-columns:1fr}.resource .btn{width:100%}}
     @media print{
@@ -90,6 +97,11 @@
       .report-controls{border:0!important;background:#fff!important;padding:0!important;margin:0 0 10px!important;display:block!important}
       .report-controls .field{display:none!important}
       .report-note{font-size:12px!important;color:#000!important;font-weight:700!important}
+      .report-actions{display:none!important}
+      .financial-summary-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:6px!important;margin:0 0 10px!important}
+      .financial-summary-card{border:1px solid #bbb!important;background:#fff!important;border-radius:0!important;padding:8px!important;min-height:0!important;break-inside:avoid!important}
+      .financial-summary-card strong{font-size:15px!important;color:#000!important;margin-bottom:4px!important}
+      .financial-summary-card span{font-size:9px!important;color:#333!important}
       .detail-report-head{display:flex!important;margin:14px 0 6px!important;padding-top:8px!important;border-top:1px solid #999!important}
       .detail-report-head h3{font-size:15px!important;margin:0!important}
       .detail-report-table{min-width:0!important}
@@ -174,7 +186,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8 print-report-only">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v10 DATE RANGE</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v11 TOTALS + CSV</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -197,6 +209,19 @@ header .header-actions .btn.secondary.active {
           </div>
           <div class="report-note" id="orderReportNote">Showing recent operational orders. Select a preset range or choose custom start/end dates.</div>
         </div>
+        <div class="report-actions">
+          <button class="btn secondary" id="exportOrderCsvBtn" type="button">Export CSV</button>
+        </div>
+
+        <div class="financial-summary-grid" id="financialSummaryGrid">
+          <div class="financial-summary-card"><strong id="sumOrderCount">—</strong><span>Orders</span></div>
+          <div class="financial-summary-card"><strong id="sumGrossSales">—</strong><span>Gross Sales</span></div>
+          <div class="financial-summary-card"><strong id="sumTaxCollected">—</strong><span>Tax Collected</span></div>
+          <div class="financial-summary-card"><strong id="sumShippingCollected">—</strong><span>Shipping Collected</span></div>
+          <div class="financial-summary-card"><strong id="sumDiscountsGiven">—</strong><span>Discounts Given</span></div>
+          <div class="financial-summary-card"><strong id="sumAverageOrder">—</strong><span>Average Order Value</span></div>
+        </div>
+
         <div class="table-wrap">
           <table>
             <thead><tr><th>Status</th><th>Count</th><th>Estimated Total</th></tr></thead>
@@ -340,6 +365,8 @@ function displayOrderStatus(key){
 function orderTotal(order){return Number(order.total || order.total_amount || order.order_total || order.grand_total || 0);}
 function orderTax(order){return Number(order.tax_amount || order.tax || order.sales_tax || 0);}
 function orderShipping(order){return Number(order.shipping_amount || order.shipping || order.shipping_total || 0);}
+function orderDiscount(order){return Number(order.discount_amount || order.discount || order.discount_total || 0);}
+function orderSubtotal(order){return Number(order.subtotal || order.subtotal_amount || order.items_subtotal || order.product_subtotal || 0);}
 function orderNumber(order){return order.order_number || order.order_no || order.order_id || order.id || "—";}
 function customerName(order){return order.customer_name || order.name || order.full_name || order.customer || "Customer";}
 function customerEmail(order){return order.customer_email || order.email || order.contact_email || order.shipping_email || "";}
@@ -554,6 +581,7 @@ function filteredReportOrders(){
 }
 function refreshOrderReport(){
   const orders = filteredReportOrders();
+  renderFinancialSummary(orders);
   renderOrderReport(orders);
   renderDetailedOrders(orders);
   const note = $("orderReportNote");
@@ -568,6 +596,71 @@ function switchToCustomRange(){
     $("orderReportRange").value = "custom";
   }
   refreshOrderReport();
+}
+
+function reportTotals(orders){
+  const totals = { orders: orders.length, gross:0, tax:0, shipping:0, discounts:0, average:0 };
+  orders.forEach(order => {
+    totals.gross += orderTotal(order);
+    totals.tax += orderTax(order);
+    totals.shipping += orderShipping(order);
+    totals.discounts += orderDiscount(order);
+  });
+  totals.average = totals.orders ? totals.gross / totals.orders : 0;
+  return totals;
+}
+function setText(id, value){ const el = $(id); if(el) el.textContent = value; }
+function renderFinancialSummary(orders){
+  const totals = reportTotals(orders);
+  setText("sumOrderCount", String(totals.orders));
+  setText("sumGrossSales", money(totals.gross));
+  setText("sumTaxCollected", money(totals.tax));
+  setText("sumShippingCollected", money(totals.shipping));
+  setText("sumDiscountsGiven", money(totals.discounts));
+  setText("sumAverageOrder", money(totals.average));
+}
+function csvEscape(value){
+  const text = String(value ?? "");
+  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"','""')}"` : text;
+}
+function csvDateStamp(){
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth()+1).padStart(2,"0");
+  const dd = String(now.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function exportOrderCsv(){
+  const orders = filteredReportOrders().slice().sort((a,b) => {
+    const da = orderDateValue(a)?.getTime() || 0;
+    const db = orderDateValue(b)?.getTime() || 0;
+    return db - da;
+  });
+  const headers = ["Date","Order #","Customer","Email","Status","Payment","Subtotal","Discount","Tax","Shipping","Total"];
+  const rows = orders.map(order => [
+    shortDateTime(order.created_at || order.order_date || order.date || order.submitted_at || order.created),
+    orderNumber(order),
+    customerName(order),
+    customerEmail(order),
+    displayOrderStatus(norm(orderStatus(order))),
+    String(paymentStatus(order)).replaceAll("_"," "),
+    orderSubtotal(order).toFixed(2),
+    orderDiscount(order).toFixed(2),
+    orderTax(order).toFixed(2),
+    orderShipping(order).toFixed(2),
+    orderTotal(order).toFixed(2)
+  ]);
+  const csv = [headers, ...rows].map(row => row.map(csvEscape).join(",")).join("\r\n");
+  const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const range = $("orderReportRange")?.value || "report";
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `pep-shop-texas-orders-${range}-${csvDateStamp()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 function renderOrderReport(orders){
@@ -623,6 +716,7 @@ async function init(){
     $("orderReportRange")?.addEventListener("change", () => { setPresetDateInputs($("orderReportRange")?.value || "last7"); refreshOrderReport(); });
     $("orderReportStartDate")?.addEventListener("change", switchToCustomRange);
     $("orderReportEndDate")?.addEventListener("change", switchToCustomRange);
+    $("exportOrderCsvBtn")?.addEventListener("click", exportOrderCsv);
     setPresetDateInputs("last7");
     $("saveTaxSettingsBtn")?.addEventListener("click", saveTaxSettings);
     $("resetTaxSettingsBtn")?.addEventListener("click", () => { fillTaxForm(PST_DEFAULT_TAX_SETTINGS); saveTaxSettings(); });
