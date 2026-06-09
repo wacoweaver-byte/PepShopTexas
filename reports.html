@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V6_CLEANUP_AWARE_REPORTS -->
+<!-- PST_REPORTS_PATCH_V5_FILTERED_ORDER_REPORT_NO_OPTIONAL_404_LOOKUPS -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Reports</title>
+  <title>Pep Shop Texas | Reports v5</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
@@ -60,8 +60,6 @@
     .report-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:12px;border:1px solid var(--border);background:#fbfcfe;border-radius:14px}
     .report-controls .field{display:flex;flex-direction:column;gap:6px;min-width:220px}
     .report-note{color:var(--muted);font-size:13px;line-height:1.35;font-weight:700}
-    .cleanup-report-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:var(--dark);text-transform:none;letter-spacing:0}
-    .cleanup-report-check input{width:18px;min-height:18px}
 
     .tax-settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:end}
     .tax-settings-grid .full{grid-column:1/-1}
@@ -143,7 +141,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v6 CLEANUP AWARE</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v7 CONSOLE CLEAN</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -155,7 +153,6 @@ header .header-actions .btn.secondary.active {
               <option value="all">All Time</option>
             </select>
           </div>
-          <label class="cleanup-report-check"><input id="includeCleanupOrders" type="checkbox"> Include test / archived / hidden</label>
           <div class="report-note" id="orderReportNote">Showing recent operational orders. Select All Time to include old test/history rows.</div>
         </div>
         <div class="table-wrap">
@@ -208,7 +205,7 @@ header .header-actions .btn.secondary.active {
           <button class="btn success" id="saveTaxSettingsBtn" type="button">Save Tax Settings</button>
           <button class="btn secondary" id="resetTaxSettingsBtn" type="button">Reset Texas 8.25%</button>
         </div>
-        <div id="taxSettingsStatus" class="settings-status">Default is enabled at 8.25%. Settings save locally and to Supabase site_settings when that table is available.</div>
+        <div id="taxSettingsStatus" class="settings-status">Default is enabled at 8.25%. Settings save in this browser only until a sitewide settings table is intentionally added.</div>
       </div>
     </div>
 
@@ -287,21 +284,6 @@ function displayOrderStatus(key){
   if (key === "no_status_legacy") return "No Status / Legacy";
   return String(key || "").replaceAll("_", " ");
 }
-const PST_CLEANUP_MARKERS = {
-  test:"[PST_CLEANUP_TEST_ORDER]",
-  archived:"[PST_CLEANUP_ARCHIVED]",
-  hidden:"[PST_CLEANUP_HIDE_FROM_REPORTS]"
-};
-function cleanupNoteText(order){ return String(order?.admin_note || order?.admin_notes || ""); }
-function boolish(value){ return value === true || value === "true" || value === 1 || value === "1" || value === "yes"; }
-function cleanupFlag(order, key){
-  const text = cleanupNoteText(order);
-  if(key === "test") return boolish(order?.is_test_order) || boolish(order?.test_order) || text.includes(PST_CLEANUP_MARKERS.test);
-  if(key === "archived") return boolish(order?.is_archived) || boolish(order?.archived) || text.includes(PST_CLEANUP_MARKERS.archived);
-  if(key === "hidden") return boolish(order?.hidden_from_reports) || boolish(order?.hide_from_reports) || text.includes(PST_CLEANUP_MARKERS.hidden);
-  return false;
-}
-function isCleanupExcluded(order){ return cleanupFlag(order,"test") || cleanupFlag(order,"archived") || cleanupFlag(order,"hidden"); }
 function orderTotal(order){return Number(order.total || order.total_amount || order.order_total || order.grand_total || 0);}
 function qtyValue(row){
   const keys = ["quantity_on_hand","on_hand","inventory_count","stock","qty","quantity","available","available_quantity"];
@@ -354,28 +336,18 @@ function readTaxForm(){
 }
 async function loadTaxSettings(){
   let settings = { ...PST_DEFAULT_TAX_SETTINGS };
-  try{ const local = localStorage.getItem("pst_tax_settings"); if(local) settings = normalizeTaxSettings(JSON.parse(local)); }catch(e){}
   try{
-    const { data, error } = await supabaseClient.from("site_settings").select("value, settings").eq("key", "pst_tax_settings").maybeSingle();
-    if(!error && data) settings = normalizeTaxSettings(data.value || data.settings || data);
-    else if(error) taxStatus("Using local/default tax settings. Supabase site_settings table may not exist yet.");
-  }catch(e){ taxStatus("Using local/default tax settings. Supabase site_settings table may not exist yet."); }
+    const local = localStorage.getItem("pst_tax_settings");
+    if(local) settings = normalizeTaxSettings(JSON.parse(local));
+  }catch(e){}
   fillTaxForm(settings);
+  taxStatus("Using local/default tax settings. No optional Supabase settings table lookup is being attempted.");
 }
 async function saveTaxSettings(){
   const settings = readTaxForm();
   pstTaxSettings = settings;
   try{ localStorage.setItem("pst_tax_settings", JSON.stringify(settings)); }catch(e){}
-  taxStatus("Saving tax settings...");
-  try{
-    const payload = { key:"pst_tax_settings", value:settings, updated_at:new Date().toISOString(), updated_by: currentUser?.email || null };
-    const { error } = await supabaseClient.from("site_settings").upsert(payload, { onConflict:"key" });
-    if(error) throw error;
-    taxStatus(`Tax settings saved: ${settings.enabled ? "enabled" : "disabled"}, ${(settings.rate * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, "")}%${settings.taxShipping ? ", shipping taxable" : ", shipping not taxable"}.`);
-  }catch(error){
-    console.warn(error);
-    taxStatus("Tax settings saved in this browser. To sync sitewide, create/enable the Supabase site_settings table for key pst_tax_settings.");
-  }
+  taxStatus(`Tax settings saved in this browser: ${settings.enabled ? "enabled" : "disabled"}, ${(settings.rate * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, "")}%${settings.taxShipping ? ", shipping taxable" : ", shipping not taxable"}.`);
 }
 
 async function checkAdminAccess(){
@@ -405,16 +377,14 @@ async function checkAdminAccess(){
 
 async function loadReports(){
   setStatus("Loading reports...");
-  const [ordersRes, inventoryRes, productsRes, discountsRes] = await Promise.allSettled([
+  const [ordersRes, inventoryRes, discountsRes] = await Promise.allSettled([
     supabaseClient.from("orders").select("*"),
     supabaseClient.from("product_inventory").select("*"),
-    supabaseClient.from("products").select("*"),
     supabaseClient.from("discount_codes").select("*")
   ]);
 
   const orders = ordersRes.status === "fulfilled" && !ordersRes.value.error ? (ordersRes.value.data || []) : [];
   const inventory = inventoryRes.status === "fulfilled" && !inventoryRes.value.error ? (inventoryRes.value.data || []) : [];
-  const products = productsRes.status === "fulfilled" && !productsRes.value.error ? (productsRes.value.data || []) : [];
   const discounts = discountsRes.status === "fulfilled" && !discountsRes.value.error ? (discountsRes.value.data || []) : [];
 
   const openStatuses = new Set(["pending","awaiting_payment","processing","packed","shipped"]);
@@ -425,7 +395,7 @@ async function loadReports(){
 
   $("statOrders").textContent = orders.length;
   $("statOpenOrders").textContent = openOrders.length;
-  $("statInventory").textContent = inventory.length || products.length;
+  $("statInventory").textContent = inventory.length;
   $("statPromos").textContent = activePromos.length;
   $("statLowStock").textContent = lowStock.length;
   $("statOutStock").textContent = outStock.length;
@@ -436,7 +406,6 @@ async function loadReports(){
   const warnings = [];
   if (ordersRes.status === "fulfilled" && ordersRes.value.error) warnings.push("orders");
   if (inventoryRes.status === "fulfilled" && inventoryRes.value.error) warnings.push("inventory");
-  if (productsRes.status === "fulfilled" && productsRes.value.error) warnings.push("products");
   if (discountsRes.status === "fulfilled" && discountsRes.value.error) warnings.push("discounts");
   setStatus(warnings.length ? `Reports loaded with limited access to: ${warnings.join(", ")}.` : "Reports loaded successfully.", warnings.length ? "bad" : "good");
 }
@@ -451,15 +420,13 @@ function orderDateValue(order){
 function filteredReportOrders(){
   const rangeEl = $("orderReportRange");
   const range = rangeEl?.value || "last7";
-  const includeCleanup = !!$("includeCleanupOrders")?.checked;
-  const baseOrders = includeCleanup ? allReportOrders.slice() : allReportOrders.filter(order => !isCleanupExcluded(order));
-  if (range === "all") return baseOrders.slice();
+  if (range === "all") return allReportOrders.slice();
   const now = new Date();
   let cutoff = new Date(now);
   if (range === "today") cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   if (range === "last7") cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   if (range === "last30") cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  return baseOrders.filter(order => {
+  return allReportOrders.filter(order => {
     const d = orderDateValue(order);
     return d && d >= cutoff;
   });
@@ -470,7 +437,7 @@ function refreshOrderReport(){
   const note = $("orderReportNote");
   const range = $("orderReportRange")?.value || "last7";
   const label = range === "today" ? "today" : range === "last7" ? "the last 7 days" : range === "last30" ? "the last 30 days" : "all stored orders";
-  if (note) note.textContent = `Showing ${orders.length} of ${allReportOrders.length} orders from ${label}. ${$("includeCleanupOrders")?.checked ? "Including" : "Excluding"} test / archived / hidden orders.`;
+  if (note) note.textContent = `Showing ${orders.length} of ${allReportOrders.length} orders from ${label}. All Time includes old test/history rows.`;
 }
 
 function renderOrderReport(orders){
@@ -495,7 +462,6 @@ async function init(){
   try{
     $("refreshBtn")?.addEventListener("click", loadReports);
     $("orderReportRange")?.addEventListener("change", refreshOrderReport);
-    $("includeCleanupOrders")?.addEventListener("change", refreshOrderReport);
     $("saveTaxSettingsBtn")?.addEventListener("click", saveTaxSettings);
     $("resetTaxSettingsBtn")?.addEventListener("click", () => { fillTaxForm(PST_DEFAULT_TAX_SETTINGS); saveTaxSettings(); });
     $("signOutBtn")?.addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
