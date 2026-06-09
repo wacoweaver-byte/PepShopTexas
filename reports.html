@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V19_INVENTORY_WATCH_QTY_FIX -->
+<!-- PST_REPORTS_PATCH_V21_DOSE_LABEL_PRODUCT_SALES -->
+<!-- PST_REPORTS_PATCH_V20_PRODUCT_ALIAS_INVENTORY_MATCH -->
 <!-- PST_REPORTS_PATCH_V18_FINANCIALS_BUTTON_FIX -->
 <!-- PST_REPORTS_PATCH_V16_REORDER_STATUS_LEGEND -->
 <html lang="en">
@@ -931,6 +932,30 @@ function renderDetailedOrders(orders){
 function itemProductName(item){
   return cleanText(item?.product_name || item?.name || item?.display_name || item?.product_key || item?.sku || item?.product_id) || "Unknown Product";
 }
+function doseTextFromObject(obj){
+  const keys = [
+    "strength", "dose", "dosage", "vial_strength", "product_strength",
+    "size", "subtitle", "description", "product_description", "label_description"
+  ];
+  for (const key of keys) {
+    const value = cleanText(obj?.[key]);
+    if (value) return value;
+  }
+  return "";
+}
+function joinProductDoseLabel(name, dose){
+  const n = cleanText(name);
+  const d = cleanText(dose);
+  if (!n) return d || "Unknown Product";
+  if (!d) return n;
+  const nLower = n.toLowerCase();
+  const dLower = d.toLowerCase();
+  if (nLower.includes(dLower)) return n;
+  return `${n} — ${d}`;
+}
+function itemDisplayLabelWithDose(item){
+  return joinProductDoseLabel(itemProductName(item), doseTextFromObject(item));
+}
 function itemQuantity(item){
   const n = Number(item?.quantity ?? item?.qty ?? item?.vials ?? 1);
   return Number.isFinite(n) && n > 0 ? n : 1;
@@ -951,13 +976,18 @@ function getProductSalesRows(orders){
   Object.entries(allOrderItemsByOrder || {}).forEach(([orderId, items]) => {
     if (!allowedOrderIds.has(String(orderId))) return;
     (items || []).forEach(item => {
-      const name = itemProductName(item);
-      if (!groups[name]) groups[name] = { product:name, quantity:0, sales:0 };
-      groups[name].quantity += itemQuantity(item);
-      groups[name].sales += itemLineTotal(item);
+      const rawName = itemProductName(item);
+      const inventoryRow = inventoryRowForProduct(rawName, item);
+      const label = inventoryRow ? inventoryDisplayLabel(inventoryRow) : itemDisplayLabelWithDose(item);
+      const key = inventoryRow ? `inventory:${inventoryRow.id || inventoryRow.product_id || label}` : `item:${label}`;
+      if (!groups[key]) groups[key] = { product:label, quantity:0, sales:0, aliases:new Set(), inventoryRow:null };
+      groups[key].quantity += itemQuantity(item);
+      groups[key].sales += itemLineTotal(item);
+      groups[key].aliases.add(rawName);
+      if (inventoryRow) groups[key].inventoryRow = inventoryRow;
     });
   });
-  return Object.values(groups).sort((a,b) => b.quantity - a.quantity || b.sales - a.sales || a.product.localeCompare(b.product));
+  return Object.values(groups).map(row => ({ ...row, aliases:[...row.aliases] })).sort((a,b) => b.quantity - a.quantity || b.sales - a.sales || a.product.localeCompare(b.product));
 }
 function selectedRangeDays(){
   const range = $("orderReportRange")?.value || "last7";
@@ -988,15 +1018,92 @@ function bestSalesDay(orders){
 function inventoryProductName(row){
   return cleanText(row?.product_name || row?.name || row?.display_name || row?.product_key || row?.sku || row?.product_id || row?.peptide_name);
 }
+function inventoryDisplayLabel(row){
+  return joinProductDoseLabel(inventoryProductName(row), doseTextFromObject(row));
+}
+function inventoryRowForProduct(productName, item){
+  const itemValues = [
+    productName, item?.product_name, item?.name, item?.display_name, item?.product_key,
+    item?.sku, item?.product_id, item?.label, item?.title
+  ].map(cleanText).filter(Boolean);
+  const wantedKeys = new Set(itemValues.flatMap(productMatchKeys));
+  for (const row of (allInventoryRows || [])) {
+    const rowKeys = productIdentityValues(row).flatMap(productMatchKeys);
+    if (rowKeys.some(key => wantedKeys.has(key))) return row;
+  }
+  const wantedTokenSets = itemValues.map(v => productMatchKeys(v).find(k => k.includes("|"))).filter(Boolean);
+  for (const row of (allInventoryRows || [])) {
+    const rowTokenSets = productIdentityValues(row).map(v => productMatchKeys(v).find(k => k.includes("|"))).filter(Boolean);
+    for (const wanted of wantedTokenSets) {
+      const wantedTokens = new Set(wanted.split("|").filter(Boolean));
+      if (!wantedTokens.size) continue;
+      for (const rowTokenSet of rowTokenSets) {
+        const rowTokens = rowTokenSet.split("|").filter(Boolean);
+        const hits = rowTokens.filter(t => wantedTokens.has(t)).length;
+        const required = Math.min(wantedTokens.size, rowTokens.length);
+        if (required && hits >= required) return row;
+      }
+    }
+  }
+  return null;
+}
+function productMatchKeys(value){
+  const raw = cleanText(value);
+  if (!raw) return [];
+  const base = raw
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/\+/g, " ")
+    .replace(/\//g, " ")
+    .replace(/-/g, " ")
+    .replace(/\bno\s*dac\b/g, "no dac")
+    .replace(/\bmg\b|\bmcg\b|\bunits?\b|\bvials?\b|\bblend\b/g, " ")
+    .replace(/\d+(\.\d+)?/g, " ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  const compact = base.replace(/\s+/g, "");
+  const tokens = [...new Set(base.split(/\s+/).filter(Boolean).filter(t => !["and","with","w"].includes(t)))].sort();
+  const tokenKey = tokens.join("|");
+  const keys = [raw.toLowerCase(), base, compact, tokenKey].filter(Boolean);
+  return [...new Set(keys)];
+}
+function productIdentityValues(row){
+  return [
+    row?.product_name, row?.name, row?.display_name, row?.product_key, row?.sku,
+    row?.product_id, row?.peptide_name, row?.label, row?.title, row?.description
+  ].map(cleanText).filter(Boolean);
+}
 function inventoryStockMap(){
   const map = {};
   (allInventoryRows || []).forEach(row => {
-    const name = inventoryProductName(row);
-    if (!name) return;
-    const key = name.toLowerCase();
-    map[key] = (map[key] || 0) + qtyValue(row);
+    const qty = qtyValue(row);
+    if (!Number.isFinite(qty)) return;
+    const values = productIdentityValues(row);
+    if (!values.length) return;
+    const keys = [...new Set(values.flatMap(productMatchKeys))];
+    keys.forEach(key => { map[key] = (map[key] || 0) + qty; });
   });
   return map;
+}
+function inventoryQuantityForProduct(productName, stockMap){
+  const keys = productMatchKeys(productName);
+  for (const key of keys) {
+    const value = stockMap[key];
+    if (Number.isFinite(Number(value))) return Number(value);
+  }
+  // Last resort: compare token sets so aliases such as
+  // "Ipamorelin + CJC no DAC" match "CJC-No DAC / Ipamorelin Blend".
+  const wantedTokens = new Set((productMatchKeys(productName).find(k => k.includes("|")) || "").split("|").filter(Boolean));
+  if (wantedTokens.size) {
+    for (const [key, value] of Object.entries(stockMap || {})) {
+      if (!key.includes("|")) continue;
+      const rowTokens = key.split("|").filter(Boolean);
+      const hits = rowTokens.filter(t => wantedTokens.has(t)).length;
+      const required = Math.min(wantedTokens.size, rowTokens.length);
+      if (required && hits >= required) return Number(value);
+    }
+  }
+  return null;
 }
 const PST_REORDER_LEAD_DAYS = 21;
 function productVelocityLabel(avgPerDay){
@@ -1010,8 +1117,8 @@ function productSalesWithInventory(orders){
   const stock = inventoryStockMap();
   return getProductSalesRows(orders).map(row => {
     const avgPerDay = days ? row.quantity / days : 0;
-    const currentRaw = stock[row.product.toLowerCase()];
-    const current = Number.isFinite(Number(currentRaw)) ? Number(currentRaw) : null;
+    const matchedQty = row.inventoryRow ? qtyValue(row.inventoryRow) : null;
+    const current = matchedQty !== null && matchedQty !== undefined ? matchedQty : inventoryQuantityForProduct(row.product, stock);
     const projectedDemand = avgPerDay * PST_REORDER_LEAD_DAYS;
     const daysRemaining = current !== null && avgPerDay > 0 ? current / avgPerDay : null;
     return { ...row, avgPerDay, current, projectedDemand, daysRemaining, reorderStatus: reorderStatus(current, avgPerDay, daysRemaining) };
