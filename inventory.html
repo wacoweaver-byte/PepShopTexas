@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V10_REPLENISHMENT_STATUS_FIX -->
 <!-- PST_INVENTORY_PATCH_V9_KIT_COST_AUTO_CALC -->
 <!-- PST_INVENTORY_PATCH_V8_COST_TRACKING_FINANCIALS -->
 <!-- PST_INVENTORY_PATCH_V7_REORDER_SALES_LOOKUP_FIX -->
@@ -1055,10 +1056,13 @@ async function loadReorderSales() {
 
 function estimateOriginalStock(item, currentStock) {
   const movement = movementByInventoryId[item.id] || {};
-  const received = Number(movement.received || 0);
+  // Do NOT use cumulative received quantity as the depletion baseline.
+  // A product can be reordered/received multiple times, and adding every receipt together
+  // makes replenished items look permanently "94% depleted" even after stock is restored.
+  // Use the highest known on-hand quantity instead, then fall back to imported starting values.
   const highestKnown = Number(movement.highestKnown || 0);
   const importedOrKnown = Number(item.starting_inventory || item.initial_inventory || item.original_inventory || item.received_inventory || 0);
-  const base = Math.max(received, highestKnown, importedOrKnown, currentStock);
+  const base = Math.max(highestKnown, importedOrKnown, currentStock);
 
   if (base > 0) return base;
   if (currentStock <= DEFAULT_KIT_VIAL_COUNT) return DEFAULT_KIT_VIAL_COUNT;
@@ -1084,13 +1088,17 @@ function reorderStatusForDays(daysRemaining, avgPerDay, currentStock, depletion)
   const staticRisk = stockRiskStatus(currentStock, depletion || { pct:0 });
   if (!avgPerDay || avgPerDay <= 0) return staticRisk;
 
-  let velocityRisk;
-  if (currentStock <= 0 || daysRemaining <= 7) velocityRisk = { label:"Critical", cls:"reorder-critical", rank:0 };
-  else if (daysRemaining <= 21) velocityRisk = { label:"Reorder Now", cls:"reorder-now", rank:1 };
-  else if (daysRemaining <= 30) velocityRisk = { label:"Watch", cls:"reorder-watch", rank:2 };
-  else velocityRisk = { label:"Healthy", cls:"reorder-healthy", rank:3 };
+  // When there is sales velocity, coverage must be the primary decision maker.
+  // Replenished products should not stay Critical only because old cumulative movement
+  // history made the depletion percentage look high.
+  if (currentStock <= 0) return { label:"Critical: Out of Stock", cls:"reorder-critical", rank:0 };
+  if (currentStock <= 2) return { label:"Critical Low Stock", cls:"reorder-critical", rank:0 };
 
-  return velocityRisk.rank <= staticRisk.rank ? velocityRisk : staticRisk;
+  if (daysRemaining <= 7) return { label:"Critical", cls:"reorder-critical", rank:0 };
+  if (daysRemaining <= 21) return { label:"Reorder Now", cls:"reorder-now", rank:1 };
+  if (daysRemaining <= 30) return { label:"Watch", cls:"reorder-watch", rank:2 };
+
+  return { label:"Healthy", cls:"reorder-healthy", rank:3 };
 }
 
 function roundUpToFive(value) {
