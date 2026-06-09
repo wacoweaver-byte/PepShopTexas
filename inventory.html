@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V5_INCOMING_DROPDOWN_STRENGTH -->
+<!-- PST_INVENTORY_PATCH_V4_REORDER_HEADER_COUNTS -->
 <!-- PST_INVENTORY_PATCH_V3_INCOMING_INVENTORY -->
 <!-- PST_INVENTORY_PATCH_V2_STOCK_DEPLETION_LOGIC -->
 <!-- PST_INVENTORY_PATCH_V1_REORDER_REVIEW -->
@@ -1090,9 +1092,11 @@ function renderReorderReview() {
   });
 
   const counts = rows.reduce((acc, row) => {
-    if (row.status.label === "Critical") acc.critical++;
-    else if (row.status.label === "Reorder Now") acc.reorder++;
-    else if (row.status.label === "Watch") acc.watch++;
+    // Header counts must match the same risk buckets shown in each line item.
+    // This includes "Critical Low Stock" and "Critical: Out of Stock," not only velocity-based "Critical."
+    if (row.status.rank === 0) acc.critical++;
+    else if (row.status.rank === 1) acc.reorder++;
+    else if (row.status.rank === 2) acc.watch++;
     else acc.healthy++;
     return acc;
   }, { critical:0, reorder:0, watch:0, healthy:0 });
@@ -1204,6 +1208,16 @@ function incomingRowOpen(row) {
   return !["received", "cancelled"].includes(s);
 }
 
+function incomingProductLabel(item) {
+  if (!item) return "Product";
+  const display = String(item.display_name || item.product_key || item.id || "Product").trim();
+  const strength = String(item.strength || "").trim();
+  if (strength && !display.toLowerCase().includes(strength.toLowerCase())) {
+    return `${display} — ${strength}`;
+  }
+  return display;
+}
+
 function selectedIncomingProduct() {
   const id = $("incomingProductSelect")?.value || "";
   return allItems.find(item => String(item.id) === String(id)) || null;
@@ -1213,7 +1227,7 @@ function populateIncomingProductSelect() {
   const select = $("incomingProductSelect");
   if (!select) return;
   const current = select.value;
-  select.innerHTML = `<option value="">Select product...</option>` + allItems.map(item => `<option value="${esc(item.id)}">${esc(item.display_name || item.product_key || item.id)}</option>`).join("");
+  select.innerHTML = `<option value="">Select product...</option>` + allItems.map(item => `<option value="${esc(item.id)}">${esc(incomingProductLabel(item))}</option>`).join("");
   if (current && allItems.some(item => String(item.id) === String(current))) select.value = current;
 }
 
@@ -1336,7 +1350,7 @@ async function addIncomingInventory() {
     id: crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}`,
     product_id: product.id,
     product_key: product.product_key || null,
-    product_name: product.display_name || product.product_key || "Product",
+    product_name: incomingProductLabel(product),
     ordered_quantity: qty,
     supplier_name: $("incomingSupplier")?.value.trim() || null,
     tracking_number: $("incomingTracking")?.value.trim() || null,
