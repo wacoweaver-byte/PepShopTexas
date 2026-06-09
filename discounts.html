@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pep Shop Texas | Discount Management</title>
+<title>Pep Shop Texas | Discount Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -263,26 +263,6 @@ th {
 .promo-on { color: var(--pst-success); font-weight: 900; }
 .promo-off { color: var(--pst-muted); font-weight: 900; }
 
-.view-edit-btn {
-  min-height: 32px;
-  padding: 7px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.delete-discount-btn {
-  min-height: 32px;
-  padding: 7px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  white-space: nowrap;
-  margin-left: 6px;
-  background: var(--pst-danger);
-  color: #ffffff;
-}
-
-
 @media (max-width: 680px) {
   .edit-grid {
     grid-template-columns: 1fr;
@@ -404,212 +384,14 @@ header .actions .btn:hover {
   }
 }
 
-
-
-/* PST FINAL MATCHED ADMIN HEADER + PAGE ALIGNMENT */
-header .topbar {
-  max-width: 1540px !important;
-  margin: 0 auto !important;
-  padding: 14px 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 14px !important;
-}
-header .brand {
-  display: flex !important;
-  align-items: center !important;
-  gap: 18px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-weight: 900 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-}
-header .pst-master-admin-logo,
-header .pst-admin-logo {
-  height: 78px !important;
-  width: auto !important;
-  max-width: 260px !important;
-  display: block !important;
-  object-fit: contain !important;
-}
-header .pst-master-page-label,
-header .brand small {
-  color: #596579 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 20px !important;
-  line-height: 1.15 !important;
-  font-weight: 900 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  white-space: nowrap !important;
-  margin: 0 !important;
-}
-main {
-  max-width: 1540px !important;
-  margin: 0 auto !important;
-  padding: 22px 18px 60px !important;
-}
-@media (max-width: 640px) {
-  header .topbar {
-    align-items: flex-start !important;
-    flex-direction: column !important;
-  }
-  header .actions {
-    justify-content: flex-start !important;
-  }
-  header .pst-master-admin-logo,
-  header .pst-admin-logo {
-    height: 46px !important;
-    max-width: 200px !important;
-  }
-  header .pst-master-page-label,
-  header .brand small {
-    font-size: 15px !important;
-    white-space: normal !important;
-  }
-}
-
-
-
-/* PST FINAL UNIFIED ADMIN LAYOUT - COPIED FROM ORDERS MANAGEMENT */
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 50 !important;
-  background: #ffffff !important;
-  border-bottom: 1px solid #d9e2ec !important;
-  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
-}
-header .topbar {
-  max-width: 1540px !important;
-  margin: 0 auto !important;
-  padding: 14px 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 14px !important;
-}
-header .brand {
-  display: flex !important;
-  align-items: center !important;
-  gap: 16px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-weight: 900 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-}
-header .pst-master-admin-logo {
-  height: 54px !important;
-  width: auto !important;
-  max-width: 230px !important;
-  display: block !important;
-  object-fit: contain !important;
-}
-header .pst-master-page-label {
-  color: #596579 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 16px !important;
-  line-height: 1.15 !important;
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-}
-header .actions {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 8px !important;
-  flex-wrap: wrap !important;
-}
-header .actions .btn,
-header .actions a.btn,
-header .actions button.btn {
-  min-height: 40px !important;
-  height: 40px !important;
-  padding: 10px 13px !important;
-  border-radius: 10px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 14px !important;
-  line-height: 1 !important;
-  font-weight: 800 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 7px !important;
-  text-decoration: none !important;
-  box-sizing: border-box !important;
-  white-space: nowrap !important;
-}
-header .actions .btn.secondary {
-  background: #ffffff !important;
-  color: #101820 !important;
-  border: 1px solid #d9e2ec !important;
-}
-header .actions .btn.secondary.active {
-  background: #0077c8 !important;
-  color: #ffffff !important;
-  border-color: #0077c8 !important;
-}
-header .actions .btn.danger {
-  background: #b42318 !important;
-  color: #ffffff !important;
-  border: 1px solid #b42318 !important;
-}
-main {
-  max-width: 1540px !important;
-  margin: 0 auto !important;
-  padding: 22px 18px 54px !important;
-}
-.page-title {
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: space-between !important;
-  gap: 16px !important;
-  margin-bottom: 16px !important;
-}
-main > h1,
-.page-title h1 {
-  margin: 0 0 6px !important;
-  font-size: clamp(24px, 3vw, 36px) !important;
-  line-height: 1.15 !important;
-  color: #101820 !important;
-  font-weight: 900 !important;
-}
-.subtitle {
-  margin: 0 !important;
-  color: #667085 !important;
-  line-height: 1.4 !important;
-}
-@media (max-width: 700px) {
-  header .topbar {
-    align-items: flex-start !important;
-    flex-direction: column !important;
-  }
-  header .actions {
-    justify-content: flex-start !important;
-  }
-  header .pst-master-admin-logo {
-    height: 46px !important;
-    max-width: 200px !important;
-  }
-  header .pst-master-page-label {
-    font-size: 15px !important;
-    white-space: normal !important;
-  }
-}
-
 </style>
 </head>
 <body>
 <header>
   <div class="topbar">
     <div class="brand">
-      <img class="pst-master-admin-logo" src="assets/icons/pst-approved-logo.png" alt="Pep Shop Texas logo">
-      <div class="pst-master-page-label">Discount Management</div>
+      <img class="pst-admin-logo" src="assets/icons/apple-touch-icon.png" alt="Pep Shop Texas logo">
+      <div><small>Discount Management</small></div>
     </div>
     <div class="actions">
       <a class="btn secondary" href="admin.html">Orders</a>
@@ -642,10 +424,10 @@ main > h1,
       <div class="edit-grid">
         <div class="field-guide">
           <strong>Promotion card field guide:</strong><br>
-          <strong>Promotion Title</strong> = headline/title on the promotion card. <strong>Promotion Description</strong> = body text on the promotion card. <strong>Homepage Hero Banner Text</strong> = scrolling/banner text on the homepage. <strong>Show On Homepage</strong> controls whether the promotion is displayed publicly. Use <strong>Homepage Message Only</strong> when you want a generic homepage message without requiring a discount code or discount amount. Click any saved promotion below to reload and edit its details.
+          <strong>Promotion Title</strong> = headline/title on the promotion card. <strong>Promotion Description</strong> = body text on the promotion card. <strong>Homepage Hero Banner Text</strong> = scrolling/banner text on the homepage. <strong>Show On Homepage</strong> controls whether the promotion is displayed publicly. Click any saved promotion below to reload and edit its details.
         </div>
         <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /><span class="field-hint">Displays as the coupon/code customers enter.</span></div>
-        <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option><option value="homepage_message">Homepage Message Only</option></select><span class="field-hint">Choose Homepage Message Only for a public promo/message that does not require a discount code.</span></div>
+        <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select><span class="field-hint">Controls how the discount can be used.</span></div>
         <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /><span class="field-hint">Shows as the percentage discount, if used.</span></div>
         <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /><span class="field-hint">Shows as the dollar discount, if used instead of percent.</span></div>
         <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /><span class="field-hint">Limits the code to one customer email when filled in.</span></div>
@@ -673,12 +455,12 @@ main > h1,
       <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
 
       <div class="orders-table-wrap" style="margin-top:14px;">
-        <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the form above. Use Delete to permanently remove a promotion so it can no longer display on the homepage.</div>
+        <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the form above.</div>
         <table>
           <thead>
-            <tr><th>Action</th><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
+            <tr><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
           </thead>
-          <tbody id="discountCodesBody"><tr><td colspan="11" class="muted">Loading discount codes...</td></tr></tbody>
+          <tbody id="discountCodesBody"><tr><td colspan="10" class="muted">Loading discount codes...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -723,26 +505,7 @@ function discountLabelFromRow(row) {
   return pct ? `${pct}% off` : amt ? `${money(amt)} off` : "Discount details not set";
 }
 
-function isHomepageMessageOnly(row) {
-  return row?.discount_type === "homepage_message" || String(row?.code || "").toUpperCase().startsWith("MSG-");
-}
-
-function displayCodeLabel(row) {
-  return isHomepageMessageOnly(row) ? "Message only" : String(row?.code || "");
-}
-
-function makeMessageOnlyCode(title, heroText) {
-  const base = String(title || heroText || "homepage-message")
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 24) || "HOMEPAGE-MESSAGE";
-  return `MSG-${base}-${Date.now()}`;
-}
-
 function updatePromotionPreview() {
-  const discountType = $("discountTypeAdmin")?.value || "standard";
-  const isMessageOnly = discountType === "homepage_message";
   const code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase() || "CODE";
   const title = ($("promoTitleAdmin")?.value || "").trim() || "Promotion title will appear here";
   const desc = ($("promoDescriptionAdmin")?.value || "").trim() || "Promotion description will appear here.";
@@ -752,7 +515,7 @@ function updatePromotionPreview() {
   const discountText = pct ? `${pct}% off` : amt ? `${money(amt)} off` : "Discount amount not set";
   if ($("previewPromoTitle")) $("previewPromoTitle").textContent = title;
   if ($("previewPromoDescription")) $("previewPromoDescription").textContent = desc;
-  if ($("previewPromoCode")) $("previewPromoCode").textContent = isMessageOnly ? "Homepage Message Only" : `${code} · ${discountText}`;
+  if ($("previewPromoCode")) $("previewPromoCode").textContent = `${code} · ${discountText}`;
   if ($("previewHeroBanner")) $("previewHeroBanner").textContent = hero;
 }
 
@@ -786,7 +549,7 @@ function selectDiscountCode(code) {
   if (!row) return;
   selectedDiscountCode = String(row.code || "").toUpperCase();
   const setVal = (id, value) => { const el = $(id); if (el) el.value = value ?? ""; };
-  setVal("discountCodeAdmin", isHomepageMessageOnly(row) ? "" : (row.code || ""));
+  setVal("discountCodeAdmin", row.code || "");
   setVal("discountTypeAdmin", row.discount_type || "standard");
   setVal("discountPercentAdmin", Number(row.percent_off || row.discount_percent || 0) || "");
   setVal("discountAmountAdmin", Number(row.amount_off || row.discount_amount || 0) || "");
@@ -868,32 +631,29 @@ async function loadDiscountCodes() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    body.innerHTML = `<tr><td colspan="11" class="muted">${safe(error.message)}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="muted">${safe(error.message)}</td></tr>`;
     return;
   }
 
   discountRows = data || [];
 
   if (!discountRows.length) {
-    body.innerHTML = `<tr><td colspan="11" class="muted">No discount codes yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="muted">No discount codes yet.</td></tr>`;
     return;
   }
 
   body.innerHTML = discountRows.map(row => {
-    const discountText = isHomepageMessageOnly(row) ? "Homepage message only" : discountLabelFromRow(row);
+    const discountText = discountLabelFromRow(row);
     const uses = `${Number(row.times_used || row.uses || 0)} / ${Number(row.max_uses || 0) || "∞"}`;
     const code = String(row.code || "").toUpperCase();
-    const displayCode = displayCodeLabel(row);
-    const typeLabel = isHomepageMessageOnly(row) ? "Homepage Message" : (row.discount_type || "standard");
     const promoTitle = row.promotion_title || "—";
     const heroText = row.hero_banner_text || "—";
     const promoClass = row.hero_banner_active ? "promo-on" : "promo-off";
     return `<tr class="discount-row ${selectedDiscountCode === code ? "selected" : ""}" data-discount-code="${safe(code)}" title="Click to load and edit this promotion">
-      <td><button class="btn secondary view-edit-btn" type="button" data-edit-code="${safe(code)}">View / Edit</button><button class="btn delete-discount-btn" type="button" data-delete-code="${safe(code)}">Delete</button></td>
-      <td><strong>${safe(displayCode)}</strong><div class="muted">${isHomepageMessageOnly(row) ? "No customer code required" : "Click row to edit"}</div></td>
+      <td><strong>${safe(row.code)}</strong><div class="muted">Click to edit</div></td>
       <td><strong>${safe(promoTitle)}</strong><div class="muted">${safe(row.promotion_description || "No card description")}</div></td>
       <td>${safe(heroText)}</td>
-      <td>${safe(typeLabel)}</td>
+      <td>${safe(row.discount_type || "standard")}</td>
       <td>${safe(discountText)}</td>
       <td>${safe(row.assigned_email || "Any customer")}</td>
       <td>${uses}</td>
@@ -906,48 +666,11 @@ async function loadDiscountCodes() {
   document.querySelectorAll(".discount-row").forEach(row => {
     row.addEventListener("click", () => selectDiscountCode(row.dataset.discountCode));
   });
-  document.querySelectorAll(".view-edit-btn").forEach(btn => {
-    btn.addEventListener("click", (event) => {
-      event.stopPropagation();
-      selectDiscountCode(btn.dataset.editCode);
-    });
-  });
-  document.querySelectorAll(".delete-discount-btn").forEach(btn => {
-    btn.addEventListener("click", (event) => {
-      event.stopPropagation();
-      deleteDiscountCode(btn.dataset.deleteCode);
-    });
-  });
-}
-
-
-async function deleteDiscountCode(code) {
-  const row = discountRows.find(item => String(item.code || "").toUpperCase() === String(code || "").toUpperCase());
-  if (!row) return setDiscountAdminStatus("Could not find that promotion to delete.", "bad");
-
-  const label = row.promotion_title || displayCodeLabel(row) || code;
-  const confirmed = confirm(`Delete "${label}"?\n\nThis permanently removes it from Discount Management and it will no longer display on the homepage, even if it was active.`);
-  if (!confirmed) return;
-
-  setDiscountAdminStatus("Deleting promotion...");
-  const { error } = await supabaseClient
-    .from("discount_codes")
-    .delete()
-    .eq("code", row.code);
-
-  if (error) return setDiscountAdminStatus(error.message, "bad");
-
-  if (selectedDiscountCode === String(row.code || "").toUpperCase()) {
-    resetDiscountForm();
-  }
-  setDiscountAdminStatus(`Deleted ${label}.`, "good");
-  await loadDiscountCodes();
 }
 
 async function createDiscountCode() {
+  const code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase();
   const discountType = $("discountTypeAdmin")?.value || "standard";
-  const isMessageOnly = discountType === "homepage_message";
-  let code = ($("discountCodeAdmin")?.value || "").trim().toUpperCase();
   const percentOff = Number($("discountPercentAdmin")?.value || 0);
   const amountOff = Number($("discountAmountAdmin")?.value || 0);
   const assignedEmail = ($("discountEmailAdmin")?.value || "").trim().toLowerCase() || null;
@@ -961,25 +684,18 @@ async function createDiscountCode() {
   const promoStartsValue = $("promoStartsAdmin")?.value || "";
   const promoEndsValue = $("promoEndsAdmin")?.value || "";
 
-  if (isMessageOnly) {
-    if (!promotionTitle && !promotionDescription && !heroBannerText) {
-      return setDiscountAdminStatus("Enter a promotion title, description, or homepage message.", "bad");
-    }
-    code = selectedDiscountCode || makeMessageOnlyCode(promotionTitle, heroBannerText);
-  } else {
-    if (!code) return setDiscountAdminStatus("Enter a discount code.", "bad");
-    if (percentOff <= 0 && amountOff <= 0) return setDiscountAdminStatus("Enter either a percent off or dollar off amount.", "bad");
-    if (percentOff > 100) return setDiscountAdminStatus("Percent off cannot be more than 100%.", "bad");
-  }
+  if (!code) return setDiscountAdminStatus("Enter a discount code.", "bad");
+  if (percentOff <= 0 && amountOff <= 0) return setDiscountAdminStatus("Enter either a percent off or dollar off amount.", "bad");
+  if (percentOff > 100) return setDiscountAdminStatus("Percent off cannot be more than 100%.", "bad");
 
   const payload = {
     code,
     discount_type: discountType,
-    percent_off: isMessageOnly ? 0 : (percentOff || 0),
-    amount_off: isMessageOnly ? 0 : (amountOff || 0),
-    assigned_email: isMessageOnly ? null : assignedEmail,
-    one_time_use: isMessageOnly ? false : discountType === "one_time",
-    max_uses: isMessageOnly ? null : (maxUsesRaw || (discountType === "one_time" ? 1 : null)),
+    percent_off: percentOff || 0,
+    amount_off: amountOff || 0,
+    assigned_email: assignedEmail,
+    one_time_use: discountType === "one_time",
+    max_uses: maxUsesRaw || (discountType === "one_time" ? 1 : null),
     active,
     expires_at: expiresValue ? new Date(expiresValue + "T23:59:59").toISOString() : null,
     promotion_title: promotionTitle,
@@ -998,7 +714,7 @@ async function createDiscountCode() {
 
   selectedDiscountCode = code;
   setFormMode("edit", code);
-  setDiscountAdminStatus(`${isMessageOnly ? "Homepage message" : "Discount code"} ${isMessageOnly ? "" : code + " "}saved. Click any saved row below to load its details again.`, "good");
+  setDiscountAdminStatus(`Discount code ${code} saved. Click any saved row below to load its details again.`, "good");
   await loadDiscountCodes();
   updatePromotionPreview();
 }
@@ -1012,7 +728,6 @@ async function init() {
       const el = $(id);
       if (el) el.addEventListener("input", updatePromotionPreview);
     });
-    $("discountTypeAdmin")?.addEventListener("change", updatePromotionPreview);
     $("signOutBtn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
       window.location.href = "index.html";
