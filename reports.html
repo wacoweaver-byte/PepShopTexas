@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V11_TOTALS_AND_CSV -->
+<!-- PST_REPORTS_PATCH_V12_CUSTOMER_NAMES -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -186,7 +186,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8 print-report-only">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v11 TOTALS + CSV</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v12 CUSTOMER NAMES</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -333,6 +333,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = (id) => document.getElementById(id);
 let currentUser = null;
+let allReportOrders = [];
 
 function setStatus(message, type="") {
   const el = $("statusLine");
@@ -368,8 +369,31 @@ function orderShipping(order){return Number(order.shipping_amount || order.shipp
 function orderDiscount(order){return Number(order.discount_amount || order.discount || order.discount_total || 0);}
 function orderSubtotal(order){return Number(order.subtotal || order.subtotal_amount || order.items_subtotal || order.product_subtotal || 0);}
 function orderNumber(order){return order.order_number || order.order_no || order.order_id || order.id || "—";}
-function customerName(order){return order.customer_name || order.name || order.full_name || order.customer || "Customer";}
-function customerEmail(order){return order.customer_email || order.email || order.contact_email || order.shipping_email || "";}
+function cleanText(value){
+  const text = String(value ?? "").trim();
+  if (!text || ["null","undefined","none","n/a","[object object]"].includes(text.toLowerCase())) return "";
+  return text;
+}
+function profileOf(order){ return order?.profile && typeof order.profile === "object" ? order.profile : {}; }
+function customerEmail(order){
+  const p = profileOf(order);
+  return cleanText(order.customer_email) || cleanText(order.email) || cleanText(order.contact_email) || cleanText(order.shipping_email) || cleanText(order.billing_email) || cleanText(p.email) || "";
+}
+function emailNameFallback(email){
+  const text = cleanText(email);
+  if (!text || !text.includes("@")) return "Customer";
+  return text.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, ch => ch.toUpperCase());
+}
+function customerName(order){
+  const p = profileOf(order);
+  const direct = cleanText(order.customer_name) || cleanText(order.name) || cleanText(order.full_name) || cleanText(order.customer) || cleanText(order.shipping_name) || cleanText(order.billing_name) || cleanText(order.contact_name);
+  if (direct && direct.toLowerCase() !== "customer") return direct;
+  const profileFull = cleanText(p.full_name) || cleanText(p.name) || cleanText(p.customer_name);
+  if (profileFull && profileFull.toLowerCase() !== "customer") return profileFull;
+  const firstLast = [cleanText(order.first_name), cleanText(order.last_name)].filter(Boolean).join(" ") || [cleanText(p.first_name), cleanText(p.last_name)].filter(Boolean).join(" ");
+  if (firstLast) return firstLast;
+  return emailNameFallback(customerEmail(order));
+}
 function paymentStatus(order){return order.payment_status || order.payment || "pending";}
 function shortDateTime(value){
   const d = orderDateValue({ created_at:value });
@@ -473,9 +497,38 @@ async function loadReports(){
     supabaseClient.from("discount_codes").select("*")
   ]);
 
-  const orders = ordersRes.status === "fulfilled" && !ordersRes.value.error ? (ordersRes.value.data || []) : [];
+  let orders = ordersRes.status === "fulfilled" && !ordersRes.value.error ? (ordersRes.value.data || []) : [];
   const inventory = inventoryRes.status === "fulfilled" && !inventoryRes.value.error ? (inventoryRes.value.data || []) : [];
   const discounts = discountsRes.status === "fulfilled" && !discountsRes.value.error ? (discountsRes.value.data || []) : [];
+
+  const profileUserIds = [...new Set(orders.flatMap(o => [o.user_id, o.customer_id, o.profile_id, o.customer_profile_id, o.auth_user_id]).map(cleanText).filter(Boolean))];
+  const profileEmails = [...new Set(orders.flatMap(o => [o.customer_email, o.email, o.contact_email, o.shipping_email, o.billing_email]).map(v => cleanText(v).toLowerCase()).filter(Boolean))];
+  const profilesByUser = {};
+  const profilesByEmail = {};
+
+  try {
+    if (profileUserIds.length) {
+      const { data: profiles } = await supabaseClient.from("customer_profiles").select("*").in("user_id", profileUserIds);
+      (profiles || []).forEach(p => {
+        if (p.user_id) profilesByUser[String(p.user_id)] = p;
+        if (p.email) profilesByEmail[String(p.email).toLowerCase()] = p;
+      });
+    }
+    if (profileEmails.length) {
+      const { data: profiles } = await supabaseClient.from("customer_profiles").select("*").in("email", profileEmails);
+      (profiles || []).forEach(p => {
+        if (p.user_id) profilesByUser[String(p.user_id)] = p;
+        if (p.email) profilesByEmail[String(p.email).toLowerCase()] = p;
+      });
+    }
+  } catch (profileError) {
+    console.warn("Reports customer profile lookup skipped:", profileError?.message || profileError);
+  }
+
+  orders = orders.map(order => {
+    const profile = profilesByUser[cleanText(order.user_id)] || profilesByUser[cleanText(order.customer_id)] || profilesByUser[cleanText(order.profile_id)] || profilesByUser[cleanText(order.customer_profile_id)] || profilesByUser[cleanText(order.auth_user_id)] || profilesByEmail[cleanText(order.customer_email || order.email || order.contact_email || order.shipping_email || order.billing_email).toLowerCase()] || {};
+    return { ...order, profile };
+  });
 
   const openStatuses = new Set(["pending","awaiting_payment","processing","packed","shipped"]);
   const openOrders = orders.filter(o => openStatuses.has(norm(orderStatus(o))));
