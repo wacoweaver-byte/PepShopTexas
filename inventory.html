@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PST_INVENTORY_PATCH_V6_INCOMING_USER_FIELD -->
+<!-- PST_INVENTORY_PATCH_V7_REORDER_SALES_LOOKUP_FIX -->
 <!-- PST_INVENTORY_PATCH_V5_INCOMING_DROPDOWN_STRENGTH -->
 <!-- PST_INVENTORY_PATCH_V4_REORDER_HEADER_COUNTS -->
 <!-- PST_INVENTORY_PATCH_V3_INCOMING_INVENTORY -->
@@ -975,7 +975,7 @@ async function loadReorderSales() {
   try {
     const { data: orders, error: orderError } = await db
       .from("orders")
-      .select("id,created_at,order_date,date,updated_at,status,order_status");
+      .select("*");
     if (orderError) throw orderError;
 
     const eligibleOrders = (orders || []).filter(order => {
