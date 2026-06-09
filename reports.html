@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_REPORTS_PATCH_V19_INVENTORY_WATCH_QTY_FIX -->
 <!-- PST_REPORTS_PATCH_V18_FINANCIALS_BUTTON_FIX -->
 <!-- PST_REPORTS_PATCH_V16_REORDER_STATUS_LEGEND -->
 <html lang="en">
@@ -526,11 +527,27 @@ function shortDateTime(value){
   return d ? d.toLocaleString([], { month:"numeric", day:"numeric", year:"2-digit", hour:"numeric", minute:"2-digit" }) : "—";
 }
 function qtyValue(row){
-  const keys = ["quantity_on_hand","on_hand","inventory_count","stock","qty","quantity","available","available_quantity"];
+  // Keep Reports in sync with Inventory Management. The live inventory table uses
+  // current_inventory, so do not treat missing older fields as zero/out-of-stock.
+  const keys = [
+    "current_inventory",
+    "inventory",
+    "stock_quantity",
+    "quantity_on_hand",
+    "on_hand",
+    "inventory_count",
+    "stock",
+    "qty",
+    "quantity",
+    "available",
+    "available_quantity"
+  ];
   for (const key of keys) {
-    if (row && row[key] !== undefined && row[key] !== null && row[key] !== "") return Number(row[key] || 0);
+    if (!row || row[key] === undefined || row[key] === null || row[key] === "") continue;
+    const n = Number(row[key]);
+    return Number.isFinite(n) ? n : null;
   }
-  return 0;
+  return null;
 }
 function isActiveHomepagePromo(row){
   if (!row || row.active !== true || row.hero_banner_active !== true) return false;
@@ -677,8 +694,8 @@ async function loadReports(){
   const openStatuses = new Set(["pending","awaiting_payment","processing","packed","shipped"]);
   const openOrders = orders.filter(o => openStatuses.has(norm(orderStatus(o))));
   const activePromos = discounts.filter(isActiveHomepagePromo);
-  const lowStock = inventory.filter(row => { const q = qtyValue(row); return q > 0 && q <= 3; });
-  const outStock = inventory.filter(row => qtyValue(row) <= 0);
+  const lowStock = inventory.filter(row => { const q = qtyValue(row); return Number.isFinite(q) && q > 0 && q <= 3; });
+  const outStock = inventory.filter(row => { const q = qtyValue(row); return Number.isFinite(q) && q <= 0; });
 
   $("statOrders").textContent = orders.length;
   $("statOpenOrders").textContent = openOrders.length;
