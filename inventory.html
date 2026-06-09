@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V6_INCOMING_USER_FIELD -->
 <!-- PST_INVENTORY_PATCH_V5_INCOMING_DROPDOWN_STRENGTH -->
 <!-- PST_INVENTORY_PATCH_V4_REORDER_HEADER_COUNTS -->
 <!-- PST_INVENTORY_PATCH_V3_INCOMING_INVENTORY -->
@@ -674,8 +675,8 @@ header .header-actions .btn.secondary.active {
         </select>
       </div>
       <div class="field">
-        <label>Notes</label>
-        <input id="incomingNotes" type="text" placeholder="Optional order note" />
+        <label>User</label>
+        <input id="incomingNotes" type="text" placeholder="J.Weaver" />
       </div>
       <button class="btn success" id="addIncomingBtn" type="button">Add Incoming</button>
     </div>
@@ -691,7 +692,7 @@ header .header-actions .btn.secondary.active {
             <th>Expected Arrival</th>
             <th>Supplier / Tracking</th>
             <th>Status</th>
-            <th>Notes</th>
+            <th>User</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -798,6 +799,7 @@ const PST_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruq
 const db = window.supabase.createClient(PST_SUPABASE_URL, PST_SUPABASE_PUBLISHABLE_KEY);
 
 let currentUser = null;
+let currentAdminRecord = null;
 let allItems = [];
 let filteredItems = [];
 let selectedIds = new Set();
@@ -826,6 +828,35 @@ function esc(v) {
 }
 
 function money(v) { return Number(v || 0).toFixed(2); }
+
+function cleanText(v) { return String(v ?? "").trim(); }
+function titleCaseName(v) {
+  const text = cleanText(v);
+  if (!text) return "";
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+function shortLoggedInUserName() {
+  const meta = currentUser?.user_metadata || {};
+  const admin = currentAdminRecord || {};
+  const email = cleanText(currentUser?.email || admin.email).toLowerCase();
+  const first = cleanText(admin.first_name || meta.first_name || meta.given_name);
+  const last = cleanText(admin.last_name || meta.last_name || meta.family_name);
+  if (first && last) return `${first.charAt(0).toUpperCase()}.${titleCaseName(last)}`;
+  const full = cleanText(admin.full_name || admin.name || meta.full_name || meta.name);
+  if (full) {
+    const parts = full.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return `${parts[0].charAt(0).toUpperCase()}.${titleCaseName(parts[parts.length - 1])}`;
+  }
+  if (email === "wacoweaver@gmail.com") return "J.Weaver";
+  const local = email.split("@")[0] || "Admin";
+  return local;
+}
+function setIncomingUserField(force=false) {
+  const el = $("incomingNotes");
+  if (!el) return;
+  if (force || !cleanText(el.value)) el.value = shortLoggedInUserName();
+}
+
 
 function normalizeStatus(item) {
   const qty = Number(item.current_inventory || 0);
@@ -1151,6 +1182,7 @@ async function checkAdmin() {
   const byUser = await db.from("admin_users").select("*").eq("user_id", currentUser.id).maybeSingle();
   const byEmail = await db.from("admin_users").select("*").eq("email", currentUser.email).maybeSingle();
   const admin = byUser.data || byEmail.data;
+  currentAdminRecord = admin || null;
 
   if (!admin || !(admin.is_active === true || admin.active === true || admin.is_admin === true || admin.email === currentUser.email)) {
     setStatus("Access denied. This account is not listed as an active admin.", "bad");
@@ -1158,6 +1190,7 @@ async function checkAdmin() {
   }
 
   setStatus("Admin access confirmed. Loading inventory...", "good");
+  setIncomingUserField(true);
   return true;
 }
 
@@ -1355,14 +1388,14 @@ async function addIncomingInventory() {
     supplier_name: $("incomingSupplier")?.value.trim() || null,
     tracking_number: $("incomingTracking")?.value.trim() || null,
     status: $("incomingStatus")?.value || "ordered",
-    notes: $("incomingNotes")?.value.trim() || null,
+    notes: $("incomingNotes")?.value.trim() || shortLoggedInUserName() || null,
     ordered_at: orderedAt,
     expected_arrival_date: expectedArrival,
     created_at: orderedAt,
     updated_at: orderedAt,
     created_by: currentUser?.id || null,
     created_by_email: currentUser?.email || null,
-    audit_note: `Incoming order entered for ${qty} vial(s). Expected arrival ${fmtShortDate(expectedArrival)} using ${PST_INCOMING_LEAD_DAYS}-day lead time.`
+    audit_note: `Incoming order entered for ${qty} vial(s) by ${shortLoggedInUserName()}. Expected arrival ${fmtShortDate(expectedArrival)} using ${PST_INCOMING_LEAD_DAYS}-day lead time.`
   };
   if (incomingUsesSupabase) {
     const { error } = await db.from("incoming_inventory").insert(row);
@@ -1380,6 +1413,7 @@ async function addIncomingInventory() {
   if ($("incomingSupplier")) $("incomingSupplier").value = "";
   if ($("incomingTracking")) $("incomingTracking").value = "";
   if ($("incomingNotes")) $("incomingNotes").value = "";
+  setIncomingUserField(true);
   setStatus(`Incoming order added for ${row.product_name}: ${qty} vial(s).`, "good");
   await loadIncomingInventory();
 }
