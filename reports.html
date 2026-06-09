@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V15_21_DAY_REORDER_RISK -->
+<!-- PST_REPORTS_PATCH_V16_REORDER_STATUS_LEGEND -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Reports v15</title>
+  <title>Pep Shop Texas | Reports v16</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
@@ -78,6 +78,17 @@
     .insights-list{margin:0;padding-left:20px;color:#153f76;line-height:1.55;font-weight:800}
     .insights-list li{margin:5px 0}
     .insights-muted{color:#596579;font-size:13px;font-weight:700;line-height:1.45}
+    .reorder-guide{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;margin:10px 0 12px}
+    .reorder-guide-title{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted);margin-bottom:9px}
+    .reorder-guide-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .reorder-guide-item{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;color:#344054}
+    .risk-dot{width:10px;height:10px;border-radius:999px;display:inline-block;flex:0 0 auto}
+    .risk-badge{display:inline-flex;align-items:center;justify-content:center;min-width:104px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid transparent;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+    .risk-critical,.risk-dot-critical{background:#fff0f0;color:#b42318;border-color:#ffb8c0}
+    .risk-reorder,.risk-dot-reorder{background:#fff7e6;color:#a35b00;border-color:#ffd58a}
+    .risk-watch,.risk-dot-watch{background:#fffbeb;color:#854d0e;border-color:#fde68a}
+    .risk-healthy,.risk-dot-healthy{background:#edf8f0;color:#0f8a3b;border-color:#bfe8c8}
+    .risk-unknown,.risk-dot-unknown{background:#f2f4f7;color:#475467;border-color:#d0d5dd}
 
 
     .tax-settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:end}
@@ -194,7 +205,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8 print-report-only">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v15 21-DAY REORDER RISK</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v16 REORDER GUIDE</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -256,6 +267,15 @@ header .header-actions .btn.secondary.active {
         <div class="detail-report-head">
           <h3>Product Sales Report</h3>
           <span class="muted" id="productSalesCount">Loading...</span>
+        </div>
+        <div class="reorder-guide">
+          <div class="reorder-guide-title">Reorder Status Guide — 21-Day Lead Time</div>
+          <div class="reorder-guide-row">
+            <span class="reorder-guide-item"><span class="risk-dot risk-dot-critical"></span>0–7 days remaining = Critical</span>
+            <span class="reorder-guide-item"><span class="risk-dot risk-dot-reorder"></span>8–21 days remaining = Reorder Now</span>
+            <span class="reorder-guide-item"><span class="risk-dot risk-dot-watch"></span>22–30 days remaining = Watch</span>
+            <span class="reorder-guide-item"><span class="risk-dot risk-dot-healthy"></span>31+ days remaining = Healthy</span>
+          </div>
         </div>
         <div class="table-wrap">
           <table class="product-sales-table">
@@ -901,8 +921,8 @@ function productSalesWithInventory(orders){
 }
 function reorderStatus(current, avgPerDay, daysRemaining){
   if (current === null || current === undefined) return { key:"unknown", label:"Inventory Unknown" };
-  if (current <= 0) return { key:"critical", label:"Out / Critical" };
-  if (!avgPerDay || avgPerDay <= 0) return { key:"healthy", label:"No Recent Sales" };
+  if (current <= 0) return { key:"critical", label:"Critical" };
+  if (!avgPerDay || avgPerDay <= 0) return { key:"healthy", label:"Healthy" };
   if (daysRemaining <= 7) return { key:"critical", label:"Critical" };
   if (daysRemaining <= PST_REORDER_LEAD_DAYS) return { key:"reorder", label:"Reorder Now" };
   if (daysRemaining <= 30) return { key:"watch", label:"Watch" };
@@ -969,7 +989,7 @@ function renderProductSalesReport(orders){
   body.innerHTML = rows.map(row => {
     const avg = row.quantity ? row.sales / row.quantity : 0;
     const currentText = row.current === null ? "—" : formatNumber(row.current, row.current % 1 === 0 ? 0 : 2);
-    const daysRemainingText = Number.isFinite(row.daysRemaining) ? `${Math.ceil(row.daysRemaining)} day${Math.ceil(row.daysRemaining) === 1 ? "" : "s"}` : "—";
+    const daysRemainingText = Number.isFinite(row.daysRemaining) ? `${Math.ceil(row.daysRemaining)} day${Math.ceil(row.daysRemaining) === 1 ? "" : "s"} remain${Math.ceil(row.daysRemaining) === 1 ? "s" : ""}` : "—";
     return `<tr>
       <td><strong>${safe(row.product)}</strong></td>
       <td>${safe(row.quantity)}</td>
