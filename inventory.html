@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V3_INCOMING_INVENTORY -->
 <!-- PST_INVENTORY_PATCH_V2_STOCK_DEPLETION_LOGIC -->
 <!-- PST_INVENTORY_PATCH_V1_REORDER_REVIEW -->
 <html lang="en">
@@ -517,6 +518,31 @@ header .header-actions .btn.secondary.active {
   }
 }
 
+
+
+/* PST Incoming Inventory / Purchase Order Lite */
+.incoming-card { margin: 18px 0; }
+.incoming-form-grid { display:grid; grid-template-columns:1.2fr .55fr .8fr .9fr .9fr 1fr auto; gap:10px; align-items:end; padding:14px; border-bottom:1px solid var(--line); background:#fbfcff; }
+.incoming-note { padding:10px 14px; color:var(--muted); font-size:13px; line-height:1.4; border-bottom:1px solid var(--line); }
+.incoming-table-wrap { overflow:auto; }
+.incoming-table { width:100%; border-collapse:collapse; min-width:1250px; }
+.incoming-table th, .incoming-table td { border-bottom:1px solid var(--line); padding:9px 7px; text-align:left; vertical-align:middle; font-size:13px; }
+.incoming-table th { background:#fff; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-size:11px; }
+.incoming-pill { display:inline-flex; align-items:center; justify-content:center; padding:5px 8px; border-radius:999px; font-size:11px; font-weight:900; text-transform:uppercase; white-space:nowrap; border:1px solid transparent; }
+.incoming-ordered { background:#f4f8ff; color:#003f9e; border-color:#d9e7ff; }
+.incoming-in_transit { background:#fff7e6; color:#a35b00; border-color:#ffd58a; }
+.incoming-received { background:#edf8f0; color:var(--green); border-color:#bfe8c8; }
+.incoming-cancelled, .incoming-issue_shorted { background:#fff0f0; color:var(--red); border-color:#ffb8c0; }
+.incoming-audit { display:none; margin-top:8px; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:#fbfcff; color:#333; font-size:12px; line-height:1.4; white-space:pre-wrap; }
+.incoming-audit.open { display:block; }
+.incoming-actions { display:flex; flex-wrap:wrap; gap:6px; }
+.incoming-summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:14px; border-bottom:1px solid var(--line); background:#fff; }
+.incoming-stat { border:1px solid var(--line); border-radius:12px; padding:11px; background:#fbfcff; }
+.incoming-stat strong { display:block; font-size:22px; color:var(--blue); line-height:1; margin-bottom:6px; }
+.incoming-stat span { color:var(--muted); font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; }
+@media(max-width:1150px){ .incoming-form-grid { grid-template-columns:1fr 1fr; } .incoming-summary-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:640px){ .incoming-form-grid,.incoming-summary-grid { grid-template-columns:1fr; } }
+
 </style>
 </head>
 <body>
@@ -598,6 +624,77 @@ header .header-actions .btn.secondary.active {
         </thead>
         <tbody id="reorderReviewBody">
           <tr><td colspan="9" class="note">Loading reorder review...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card incoming-card" id="incomingInventoryCard">
+    <div class="card-head">
+      <div>
+        <h2 style="margin:0 0 5px;">Incoming Inventory / Purchase Orders</h2>
+        <p class="subtitle" style="font-size:13px;">Track product already ordered, days on order, estimated 21-day arrival, and receive shipments directly into inventory.</p>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="refreshIncomingBtn" type="button">Refresh Incoming</button>
+        <button class="btn secondary" id="toggleIncomingAuditBtn" type="button">Show Audit Trail</button>
+      </div>
+    </div>
+    <div class="incoming-summary-grid">
+      <div class="incoming-stat"><strong id="incomingOnOrderCount">—</strong><span>Open Incoming Orders</span></div>
+      <div class="incoming-stat"><strong id="incomingOnOrderQty">—</strong><span>Total Qty On Order</span></div>
+      <div class="incoming-stat"><strong id="incomingDueSoonCount">—</strong><span>Due Within 7 Days</span></div>
+      <div class="incoming-stat"><strong id="incomingOverdueCount">—</strong><span>Past Expected Arrival</span></div>
+    </div>
+    <div class="incoming-form-grid">
+      <div class="field">
+        <label>Product</label>
+        <select id="incomingProductSelect"><option value="">Loading products...</option></select>
+      </div>
+      <div class="field">
+        <label>Ordered Qty</label>
+        <input id="incomingQty" type="number" min="1" step="1" placeholder="10" />
+      </div>
+      <div class="field">
+        <label>Supplier / Source</label>
+        <input id="incomingSupplier" type="text" placeholder="Supplier" />
+      </div>
+      <div class="field">
+        <label>Tracking #</label>
+        <input id="incomingTracking" type="text" placeholder="Optional" />
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="incomingStatus">
+          <option value="ordered">Ordered</option>
+          <option value="in_transit">In Transit</option>
+          <option value="issue_shorted">Issue / Shorted</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <input id="incomingNotes" type="text" placeholder="Optional order note" />
+      </div>
+      <button class="btn success" id="addIncomingBtn" type="button">Add Incoming</button>
+    </div>
+    <div class="incoming-note" id="incomingInventoryNote">Entry timestamp is stored when you add the incoming order. Expected arrival defaults to order date + 21 days. Receiving an order adds that quantity into Current Vials and records an inventory movement.</div>
+    <div class="incoming-table-wrap">
+      <table class="incoming-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Qty Ordered</th>
+            <th>Date Ordered</th>
+            <th>Days On Order</th>
+            <th>Expected Arrival</th>
+            <th>Supplier / Tracking</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="incomingInventoryBody">
+          <tr><td colspan="9" class="note">Loading incoming inventory...</td></tr>
         </tbody>
       </table>
     </div>
@@ -703,6 +800,11 @@ let allItems = [];
 let filteredItems = [];
 let selectedIds = new Set();
 let dirtyIds = new Set();
+let incomingInventoryRows = [];
+let incomingUsesSupabase = false;
+let incomingAuditVisible = false;
+const PST_INCOMING_LEAD_DAYS = 21;
+const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 let salesByInventoryId = {};
 let movementByInventoryId = {};
 let reorderSalesLoadError = "";
@@ -1055,6 +1157,261 @@ async function checkAdmin() {
   return true;
 }
 
+
+function localDateInputValue(date) {
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function fmtShortDate(value) {
+  if (!value) return "—";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
+}
+
+function addDays(value, days) {
+  const d = value ? new Date(value) : new Date();
+  if (Number.isNaN(d.getTime())) return new Date();
+  d.setDate(d.getDate() + Number(days || 0));
+  return d;
+}
+
+function daysBetween(startValue, endValue = new Date()) {
+  const start = new Date(startValue);
+  const end = new Date(endValue);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0;
+  const a = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  const b = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+  return Math.max(0, Math.floor((b - a) / (1000 * 60 * 60 * 24)));
+}
+
+function incomingStatusLabel(value) {
+  const v = String(value || "ordered").toLowerCase();
+  return { ordered:"Ordered", in_transit:"In Transit", received:"Received", cancelled:"Cancelled", issue_shorted:"Issue / Shorted" }[v] || v.replaceAll("_", " ");
+}
+
+function incomingStatusPill(value) {
+  const v = String(value || "ordered").toLowerCase();
+  return `<span class="incoming-pill incoming-${esc(v)}">${esc(incomingStatusLabel(v))}</span>`;
+}
+
+function incomingRowOpen(row) {
+  const s = String(row.status || "ordered").toLowerCase();
+  return !["received", "cancelled"].includes(s);
+}
+
+function selectedIncomingProduct() {
+  const id = $("incomingProductSelect")?.value || "";
+  return allItems.find(item => String(item.id) === String(id)) || null;
+}
+
+function populateIncomingProductSelect() {
+  const select = $("incomingProductSelect");
+  if (!select) return;
+  const current = select.value;
+  select.innerHTML = `<option value="">Select product...</option>` + allItems.map(item => `<option value="${esc(item.id)}">${esc(item.display_name || item.product_key || item.id)}</option>`).join("");
+  if (current && allItems.some(item => String(item.id) === String(current))) select.value = current;
+}
+
+function readIncomingLocalRows() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PST_INCOMING_STORAGE_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveIncomingLocalRows(rows) {
+  try { localStorage.setItem(PST_INCOMING_STORAGE_KEY, JSON.stringify(rows || [])); } catch (e) {}
+}
+
+function incomingAuditText(row) {
+  const lines = [];
+  lines.push(`Entered: ${fmtShortDate(row.ordered_at || row.created_at)} by ${row.created_by_email || "Admin"}`);
+  lines.push(`Expected arrival: ${fmtShortDate(row.expected_arrival_date)}`);
+  if (row.received_at) lines.push(`Received: ${fmtShortDate(row.received_at)} · Qty received: ${row.received_quantity || row.ordered_quantity || 0}`);
+  if (row.updated_at) lines.push(`Last updated: ${fmtShortDate(row.updated_at)}`);
+  if (row.audit_note) lines.push(String(row.audit_note));
+  return lines.join("\n");
+}
+
+function renderIncomingInventory() {
+  populateIncomingProductSelect();
+  const body = $("incomingInventoryBody");
+  if (!body) return;
+  const rows = (incomingInventoryRows || []).slice().sort((a,b) => new Date(b.ordered_at || b.created_at || 0) - new Date(a.ordered_at || a.created_at || 0));
+  const openRows = rows.filter(incomingRowOpen);
+  const today = new Date();
+  const dueSoon = openRows.filter(row => {
+    const expected = new Date(row.expected_arrival_date || addDays(row.ordered_at || row.created_at, PST_INCOMING_LEAD_DAYS));
+    if (Number.isNaN(expected.getTime())) return false;
+    const diff = Math.ceil((expected - today) / (1000 * 60 * 60 * 24));
+    return diff >= 0 && diff <= 7;
+  });
+  const overdue = openRows.filter(row => {
+    const expected = new Date(row.expected_arrival_date || addDays(row.ordered_at || row.created_at, PST_INCOMING_LEAD_DAYS));
+    return !Number.isNaN(expected.getTime()) && expected < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  });
+  if ($("incomingOnOrderCount")) $("incomingOnOrderCount").textContent = String(openRows.length);
+  if ($("incomingOnOrderQty")) $("incomingOnOrderQty").textContent = String(openRows.reduce((sum,row)=>sum + Number(row.ordered_quantity || 0),0));
+  if ($("incomingDueSoonCount")) $("incomingDueSoonCount").textContent = String(dueSoon.length);
+  if ($("incomingOverdueCount")) $("incomingOverdueCount").textContent = String(overdue.length);
+
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="9" class="note">No incoming inventory orders recorded yet.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(row => {
+    const orderedAt = row.ordered_at || row.created_at || new Date().toISOString();
+    const expected = row.expected_arrival_date || addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString();
+    const days = daysBetween(orderedAt);
+    const qty = Number(row.ordered_quantity || 0);
+    const status = String(row.status || "ordered").toLowerCase();
+    const isReceived = status === "received";
+    const isCancelled = status === "cancelled";
+    const source = [row.supplier_name || row.supplier || "", row.tracking_number || ""].filter(Boolean).join(" / ") || "—";
+    const auditClass = incomingAuditVisible ? "incoming-audit open" : "incoming-audit";
+    return `<tr data-incoming-id="${esc(row.id)}">
+      <td><strong>${esc(row.product_name || row.display_name || row.product_key || "Product")}</strong><div class="note">${esc(row.product_key || "")}</div></td>
+      <td><strong>${esc(qty)}</strong></td>
+      <td>${esc(fmtShortDate(orderedAt))}<div class="note">Static entry timestamp</div></td>
+      <td><strong>${esc(days)}</strong> day${days === 1 ? "" : "s"}</td>
+      <td>${esc(fmtShortDate(expected))}<div class="note">21-day lead time</div></td>
+      <td>${esc(source)}</td>
+      <td>${incomingStatusPill(status)}</td>
+      <td>${esc(row.notes || "—")}</td>
+      <td>
+        <div class="incoming-actions">
+          <button class="btn success receive-incoming-btn" data-incoming-id="${esc(row.id)}" type="button" ${isReceived || isCancelled ? "disabled" : ""}>Receive</button>
+          <button class="btn warning transit-incoming-btn" data-incoming-id="${esc(row.id)}" type="button" ${isReceived || isCancelled ? "disabled" : ""}>In Transit</button>
+          <button class="btn danger cancel-incoming-btn" data-incoming-id="${esc(row.id)}" type="button" ${isReceived || isCancelled ? "disabled" : ""}>Cancel</button>
+          <button class="btn secondary row-audit-btn" data-incoming-id="${esc(row.id)}" type="button">Audit</button>
+        </div>
+        <div class="${auditClass}" id="incomingAudit_${esc(row.id)}">${esc(incomingAuditText(row))}</div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  document.querySelectorAll(".receive-incoming-btn").forEach(btn => btn.addEventListener("click", () => receiveIncomingInventory(btn.dataset.incomingId)));
+  document.querySelectorAll(".transit-incoming-btn").forEach(btn => btn.addEventListener("click", () => updateIncomingStatus(btn.dataset.incomingId, "in_transit")));
+  document.querySelectorAll(".cancel-incoming-btn").forEach(btn => btn.addEventListener("click", () => updateIncomingStatus(btn.dataset.incomingId, "cancelled")));
+  document.querySelectorAll(".row-audit-btn").forEach(btn => btn.addEventListener("click", () => {
+    const el = $(`incomingAudit_${btn.dataset.incomingId}`);
+    if (el) el.classList.toggle("open");
+  }));
+}
+
+async function loadIncomingInventory() {
+  try {
+    const { data, error } = await db.from("incoming_inventory").select("*").order("ordered_at", { ascending:false });
+    if (error) throw error;
+    incomingUsesSupabase = true;
+    incomingInventoryRows = data || [];
+    if ($("incomingInventoryNote")) $("incomingInventoryNote").textContent = "Incoming inventory is loading from Supabase incoming_inventory. Entry timestamp is static. Expected arrival defaults to +21 days.";
+  } catch (err) {
+    incomingUsesSupabase = false;
+    incomingInventoryRows = readIncomingLocalRows();
+    if ($("incomingInventoryNote")) $("incomingInventoryNote").textContent = "Incoming inventory is using local browser storage because the incoming_inventory table is not available yet. Receiving still adds stock to product_inventory.";
+  }
+  renderIncomingInventory();
+}
+
+async function persistIncomingRows() {
+  if (!incomingUsesSupabase) saveIncomingLocalRows(incomingInventoryRows);
+}
+
+async function addIncomingInventory() {
+  const product = selectedIncomingProduct();
+  const qty = Number($("incomingQty")?.value || 0);
+  if (!product) { alert("Select a product for the incoming order."); return; }
+  if (!qty || qty <= 0) { alert("Enter an ordered quantity greater than zero."); return; }
+  const orderedAt = new Date().toISOString();
+  const expectedArrival = addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString();
+  const row = {
+    id: crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}`,
+    product_id: product.id,
+    product_key: product.product_key || null,
+    product_name: product.display_name || product.product_key || "Product",
+    ordered_quantity: qty,
+    supplier_name: $("incomingSupplier")?.value.trim() || null,
+    tracking_number: $("incomingTracking")?.value.trim() || null,
+    status: $("incomingStatus")?.value || "ordered",
+    notes: $("incomingNotes")?.value.trim() || null,
+    ordered_at: orderedAt,
+    expected_arrival_date: expectedArrival,
+    created_at: orderedAt,
+    updated_at: orderedAt,
+    created_by: currentUser?.id || null,
+    created_by_email: currentUser?.email || null,
+    audit_note: `Incoming order entered for ${qty} vial(s). Expected arrival ${fmtShortDate(expectedArrival)} using ${PST_INCOMING_LEAD_DAYS}-day lead time.`
+  };
+  if (incomingUsesSupabase) {
+    const { error } = await db.from("incoming_inventory").insert(row);
+    if (error) {
+      console.warn("Incoming Supabase insert failed; falling back to local storage:", error);
+      incomingUsesSupabase = false;
+      incomingInventoryRows.unshift(row);
+      saveIncomingLocalRows(incomingInventoryRows);
+    }
+  } else {
+    incomingInventoryRows.unshift(row);
+    saveIncomingLocalRows(incomingInventoryRows);
+  }
+  if ($("incomingQty")) $("incomingQty").value = "";
+  if ($("incomingSupplier")) $("incomingSupplier").value = "";
+  if ($("incomingTracking")) $("incomingTracking").value = "";
+  if ($("incomingNotes")) $("incomingNotes").value = "";
+  setStatus(`Incoming order added for ${row.product_name}: ${qty} vial(s).`, "good");
+  await loadIncomingInventory();
+}
+
+async function updateIncomingStatus(id, status) {
+  const row = incomingInventoryRows.find(r => String(r.id) === String(id));
+  if (!row) return;
+  const next = { ...row, status, updated_at: new Date().toISOString(), audit_note: `${row.audit_note || ""}\nStatus changed to ${incomingStatusLabel(status)} on ${new Date().toLocaleString()} by ${currentUser?.email || "Admin"}.`.trim() };
+  if (incomingUsesSupabase) {
+    const { error } = await db.from("incoming_inventory").update({ status: next.status, updated_at: next.updated_at, audit_note: next.audit_note }).eq("id", id);
+    if (error) throw error;
+  } else {
+    incomingInventoryRows = incomingInventoryRows.map(r => String(r.id) === String(id) ? next : r);
+    saveIncomingLocalRows(incomingInventoryRows);
+  }
+  setStatus(`Incoming order marked ${incomingStatusLabel(status)}.`, "good");
+  await loadIncomingInventory();
+}
+
+async function receiveIncomingInventory(id) {
+  const row = incomingInventoryRows.find(r => String(r.id) === String(id));
+  if (!row) return;
+  if (String(row.status || "").toLowerCase() === "received") { alert("This incoming order has already been received."); return; }
+  const qty = Number(row.ordered_quantity || 0);
+  if (!qty || qty <= 0) { alert("Incoming order quantity is missing."); return; }
+  const item = allItems.find(i => String(i.id) === String(row.product_id) || String(i.product_key || "").toLowerCase() === String(row.product_key || "").toLowerCase());
+  if (!item) { alert("Could not match this incoming order to an inventory item."); return; }
+  if (!confirm(`Receive ${qty} vial(s) of ${row.product_name || item.display_name || item.product_key} into inventory?`)) return;
+  const previousQty = Number(item.current_inventory || 0);
+  const newQty = previousQty + qty;
+  const now = new Date().toISOString();
+  const { error: invError } = await db.from("product_inventory").update({ current_inventory:newQty, updated_at:now }).eq("id", item.id);
+  if (invError) throw invError;
+  await logMovement(item, "incoming_received", qty, previousQty, newQty, `Received incoming order: ${row.product_name || item.display_name || item.product_key} · ${qty} vial(s). Incoming ID: ${row.id}`);
+  const audit = `${row.audit_note || ""}\nReceived ${qty} vial(s) into inventory on ${new Date().toLocaleString()} by ${currentUser?.email || "Admin"}. Previous stock ${previousQty}; new stock ${newQty}.`.trim();
+  if (incomingUsesSupabase) {
+    const { error } = await db.from("incoming_inventory").update({ status:"received", received_at:now, received_quantity:qty, updated_at:now, audit_note:audit }).eq("id", row.id);
+    if (error) throw error;
+  } else {
+    incomingInventoryRows = incomingInventoryRows.map(r => String(r.id) === String(row.id) ? { ...r, status:"received", received_at:now, received_quantity:qty, updated_at:now, audit_note:audit } : r);
+    saveIncomingLocalRows(incomingInventoryRows);
+  }
+  setStatus(`Received ${qty} vial(s) of ${row.product_name || item.display_name || item.product_key}. Inventory updated from ${previousQty} to ${newQty}.`, "good");
+  await loadInventory();
+}
+
 async function loadInventory() {
   setStatus("Loading inventory...");
   const { data, error } = await db
@@ -1069,6 +1426,7 @@ async function loadInventory() {
   populateCategoryFilter();
   applyFilters();
   renderReorderReview();
+  await loadIncomingInventory();
   setStatus(`Loaded ${allItems.length} inventory item${allItems.length === 1 ? "" : "s"}.`, "good");
 }
 
@@ -1423,8 +1781,15 @@ function wireEvents() {
     applyFilters();
   });
 
-  if ($("reorderRange")) $("reorderRange").addEventListener("change", loadReorderSales);
-  if ($("refreshReorderBtn")) $("refreshReorderBtn").addEventListener("click", loadReorderSales);
+  if ($("reorderRange")) $("reorderRange").addEventListener("change", async () => { await loadReorderSales(); renderReorderReview(); });
+  if ($("refreshReorderBtn")) $("refreshReorderBtn").addEventListener("click", async () => { await loadReorderSales(); renderReorderReview(); });
+  if ($("refreshIncomingBtn")) $("refreshIncomingBtn").addEventListener("click", loadIncomingInventory);
+  if ($("addIncomingBtn")) $("addIncomingBtn").addEventListener("click", addIncomingInventory);
+  if ($("toggleIncomingAuditBtn")) $("toggleIncomingAuditBtn").addEventListener("click", () => {
+    incomingAuditVisible = !incomingAuditVisible;
+    $("toggleIncomingAuditBtn").textContent = incomingAuditVisible ? "Hide Audit Trail" : "Show Audit Trail";
+    renderIncomingInventory();
+  });
 
   $("selectAll").addEventListener("change", e => {
     const visible = filteredItems.map(i => i.id);
