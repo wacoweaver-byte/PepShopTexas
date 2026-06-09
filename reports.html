@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V12_CUSTOMER_NAMES -->
+<!-- PST_REPORTS_PATCH_V13_PRODUCT_SALES_REPORT -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Reports v11</title>
+  <title>Pep Shop Texas | Reports v13</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
@@ -71,6 +71,9 @@
     .detail-report-table{min-width:1040px}
     .detail-report-table th,.detail-report-table td{font-size:13px}
     .detail-report-table td strong{white-space:nowrap}
+    .product-sales-table{min-width:760px}
+    .product-sales-table th,.product-sales-table td{font-size:13px}
+
 
     .tax-settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:end}
     .tax-settings-grid .full{grid-column:1/-1}
@@ -104,7 +107,7 @@
       .financial-summary-card span{font-size:9px!important;color:#333!important}
       .detail-report-head{display:flex!important;margin:14px 0 6px!important;padding-top:8px!important;border-top:1px solid #999!important}
       .detail-report-head h3{font-size:15px!important;margin:0!important}
-      .detail-report-table{min-width:0!important}
+      .detail-report-table,.product-sales-table{min-width:0!important}
       .table-wrap{overflow:visible!important;height:auto!important;max-height:none!important;border:0!important;border-radius:0!important}
       table{width:100%!important;min-width:0!important;border-collapse:collapse!important;page-break-inside:auto!important}
       thead{display:table-header-group!important}
@@ -186,7 +189,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8 print-report-only">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v12 CUSTOMER NAMES</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v13 PRODUCT SALES</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -237,6 +240,17 @@ header .header-actions .btn.secondary.active {
           <table class="detail-report-table">
             <thead><tr><th>Date</th><th>Order #</th><th>Customer</th><th>Status</th><th>Payment</th><th>Tax</th><th>Shipping</th><th>Total</th></tr></thead>
             <tbody id="detailedOrdersBody"><tr><td colspan="8" class="muted">Loading detailed orders...</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="detail-report-head">
+          <h3>Product Sales Report</h3>
+          <span class="muted" id="productSalesCount">Loading...</span>
+        </div>
+        <div class="table-wrap">
+          <table class="product-sales-table">
+            <thead><tr><th>Product</th><th>Quantity Sold</th><th>Gross Sales</th><th>Average Price</th></tr></thead>
+            <tbody id="productSalesBody"><tr><td colspan="4" class="muted">Loading product sales...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -334,6 +348,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 const $ = (id) => document.getElementById(id);
 let currentUser = null;
 let allReportOrders = [];
+let allOrderItemsByOrder = {};
 
 function setStatus(message, type="") {
   const el = $("statusLine");
@@ -501,6 +516,23 @@ async function loadReports(){
   const inventory = inventoryRes.status === "fulfilled" && !inventoryRes.value.error ? (inventoryRes.value.data || []) : [];
   const discounts = discountsRes.status === "fulfilled" && !discountsRes.value.error ? (discountsRes.value.data || []) : [];
 
+  allOrderItemsByOrder = {};
+  const orderIdsForItems = orders.map(o => o.id).filter(Boolean);
+  if (orderIdsForItems.length) {
+    try {
+      const { data: items, error: itemsError } = await supabaseClient.from("order_items").select("*").in("order_id", orderIdsForItems);
+      if (itemsError) throw itemsError;
+      (items || []).forEach(item => {
+        const key = String(item.order_id || "");
+        if (!key) return;
+        if (!allOrderItemsByOrder[key]) allOrderItemsByOrder[key] = [];
+        allOrderItemsByOrder[key].push(item);
+      });
+    } catch (itemsError) {
+      console.warn("Reports order_items lookup skipped:", itemsError?.message || itemsError);
+    }
+  }
+
   const profileUserIds = [...new Set(orders.flatMap(o => [o.user_id, o.customer_id, o.profile_id, o.customer_profile_id, o.auth_user_id]).map(cleanText).filter(Boolean))];
   const profileEmails = [...new Set(orders.flatMap(o => [o.customer_email, o.email, o.contact_email, o.shipping_email, o.billing_email]).map(v => cleanText(v).toLowerCase()).filter(Boolean))];
   const profilesByUser = {};
@@ -637,6 +669,7 @@ function refreshOrderReport(){
   renderFinancialSummary(orders);
   renderOrderReport(orders);
   renderDetailedOrders(orders);
+  renderProductSalesReport(orders);
   const note = $("orderReportNote");
   const range = $("orderReportRange")?.value || "last7";
   const startDate = range === "all" ? null : dateInputValue("orderReportStartDate");
@@ -759,6 +792,55 @@ function renderDetailedOrders(orders){
       <td>${money(orderTax(order))}</td>
       <td>${money(orderShipping(order))}</td>
       <td><strong>${money(orderTotal(order))}</strong></td>
+    </tr>`;
+  }).join("");
+}
+
+
+function itemProductName(item){
+  return cleanText(item?.product_name || item?.name || item?.display_name || item?.product_key || item?.sku || item?.product_id) || "Unknown Product";
+}
+function itemQuantity(item){
+  const n = Number(item?.quantity ?? item?.qty ?? item?.vials ?? 1);
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+function itemUnitPrice(item){
+  const n = Number(item?.unit_price ?? item?.price ?? item?.sale_price ?? 0);
+  return Number.isFinite(n) ? n : 0;
+}
+function itemLineTotal(item){
+  const explicit = Number(item?.line_total ?? item?.total ?? item?.subtotal ?? item?.amount);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  return itemQuantity(item) * itemUnitPrice(item);
+}
+function renderProductSalesReport(orders){
+  const body = $("productSalesBody");
+  const count = $("productSalesCount");
+  if (!body) return;
+  const allowedOrderIds = new Set(orders.map(o => String(o.id)).filter(Boolean));
+  const groups = {};
+  Object.entries(allOrderItemsByOrder || {}).forEach(([orderId, items]) => {
+    if (!allowedOrderIds.has(String(orderId))) return;
+    (items || []).forEach(item => {
+      const name = itemProductName(item);
+      if (!groups[name]) groups[name] = { product:name, quantity:0, sales:0 };
+      groups[name].quantity += itemQuantity(item);
+      groups[name].sales += itemLineTotal(item);
+    });
+  });
+  const rows = Object.values(groups).sort((a,b) => b.quantity - a.quantity || b.sales - a.sales || a.product.localeCompare(b.product));
+  if (count) count.textContent = `${rows.length} product${rows.length === 1 ? "" : "s"}`;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="4" class="muted">No product item rows found for this range.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(row => {
+    const avg = row.quantity ? row.sales / row.quantity : 0;
+    return `<tr>
+      <td><strong>${safe(row.product)}</strong></td>
+      <td>${safe(row.quantity)}</td>
+      <td>${money(row.sales)}</td>
+      <td>${money(avg)}</td>
     </tr>`;
   }).join("");
 }
