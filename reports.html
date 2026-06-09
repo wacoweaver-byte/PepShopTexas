@@ -55,6 +55,12 @@
     th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}
     .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px}
     .print-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    .tax-settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:end}
+    .tax-settings-grid .full{grid-column:1/-1}
+    label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted);display:block;margin-bottom:6px}
+    input,select{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}
+    .settings-status{margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#fbfcfe;color:var(--muted);font-size:13px;line-height:1.35;font-weight:700}
     @media(max-width:1100px){.span-8,.span-6,.span-4{grid-column:span 12}.stat-grid{grid-template-columns:1fr 1fr}.ops-grid{grid-template-columns:1fr}}
     @media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.pst-master-admin-logo{height:46px;max-width:200px}.pst-master-page-label{font-size:15px;white-space:normal}.page-title{flex-direction:column}.stat-grid{grid-template-columns:1fr}.resource{grid-template-columns:1fr}.resource .btn{width:100%}}
     @media print{header,.actions,.print-actions,#refreshBtn,#signOutBtn{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}main{max-width:none;padding:0}.status{display:none}}
@@ -152,6 +158,40 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
+
+    <div class="card span-12">
+      <div class="card-header"><h2>Checkout Tax Settings</h2><span class="pill info">Checkout</span></div>
+      <div class="card-body">
+        <div class="tax-settings-grid">
+          <div>
+            <label for="taxEnabled">Tax Enabled</label>
+            <select id="taxEnabled"><option value="true">Yes</option><option value="false">No</option></select>
+          </div>
+          <div>
+            <label for="taxRate">Default Tax Rate (%)</label>
+            <input id="taxRate" type="number" min="0" step="0.001" value="8.25" />
+          </div>
+          <div>
+            <label for="taxShipping">Tax Shipping</label>
+            <select id="taxShipping"><option value="true">Yes</option><option value="false">No</option></select>
+          </div>
+          <div>
+            <label for="taxRegion">Tax Region / Note</label>
+            <input id="taxRegion" type="text" value="Texas default 8.25%" />
+          </div>
+          <div class="full">
+            <label for="taxLabel">Cart Tax Label</label>
+            <input id="taxLabel" type="text" value="Estimated Sales Tax" />
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+          <button class="btn success" id="saveTaxSettingsBtn" type="button">Save Tax Settings</button>
+          <button class="btn secondary" id="resetTaxSettingsBtn" type="button">Reset Texas 8.25%</button>
+        </div>
+        <div id="taxSettingsStatus" class="settings-status">Default is enabled at 8.25%. Settings save locally and to Supabase site_settings when that table is available.</div>
+      </div>
+    </div>
+
     <div class="card span-6">
       <div class="card-header"><h2>Admin Resources</h2><span class="muted">Quick links</span></div>
       <div class="card-body">
@@ -225,6 +265,64 @@ function isActiveHomepagePromo(row){
   if (start && !Number.isNaN(start.getTime()) && start > now) return false;
   if (end && !Number.isNaN(end.getTime()) && end < now) return false;
   return true;
+}
+
+const PST_DEFAULT_TAX_SETTINGS = { enabled:true, rate:0.0825, taxShipping:true, label:"Estimated Sales Tax", region:"Texas default 8.25%" };
+let pstTaxSettings = { ...PST_DEFAULT_TAX_SETTINGS };
+function normalizeTaxRate(value){ const n=Number(value || 0); if(!Number.isFinite(n) || n < 0) return 0; return n > 1 ? n / 100 : n; }
+function normalizeTaxSettings(raw){
+  const source = raw && typeof raw === "object" ? raw : {};
+  return {
+    enabled: source.enabled !== false,
+    rate: normalizeTaxRate(source.rate ?? source.tax_rate ?? PST_DEFAULT_TAX_SETTINGS.rate),
+    taxShipping: source.taxShipping !== false && source.tax_shipping !== false,
+    label: String(source.label || source.tax_label || PST_DEFAULT_TAX_SETTINGS.label),
+    region: String(source.region || source.tax_region || PST_DEFAULT_TAX_SETTINGS.region)
+  };
+}
+function taxStatus(message){ const el=$("taxSettingsStatus"); if(el) el.textContent = message; }
+function fillTaxForm(settings){
+  const s = normalizeTaxSettings(settings);
+  pstTaxSettings = s;
+  if($("taxEnabled")) $("taxEnabled").value = String(!!s.enabled);
+  if($("taxRate")) $("taxRate").value = (s.rate * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, "");
+  if($("taxShipping")) $("taxShipping").value = String(!!s.taxShipping);
+  if($("taxLabel")) $("taxLabel").value = s.label;
+  if($("taxRegion")) $("taxRegion").value = s.region;
+}
+function readTaxForm(){
+  return normalizeTaxSettings({
+    enabled: $("taxEnabled")?.value === "true",
+    rate: normalizeTaxRate($("taxRate")?.value),
+    taxShipping: $("taxShipping")?.value === "true",
+    label: $("taxLabel")?.value || PST_DEFAULT_TAX_SETTINGS.label,
+    region: $("taxRegion")?.value || PST_DEFAULT_TAX_SETTINGS.region
+  });
+}
+async function loadTaxSettings(){
+  let settings = { ...PST_DEFAULT_TAX_SETTINGS };
+  try{ const local = localStorage.getItem("pst_tax_settings"); if(local) settings = normalizeTaxSettings(JSON.parse(local)); }catch(e){}
+  try{
+    const { data, error } = await supabaseClient.from("site_settings").select("value, settings").eq("key", "pst_tax_settings").maybeSingle();
+    if(!error && data) settings = normalizeTaxSettings(data.value || data.settings || data);
+    else if(error) taxStatus("Using local/default tax settings. Supabase site_settings table may not exist yet.");
+  }catch(e){ taxStatus("Using local/default tax settings. Supabase site_settings table may not exist yet."); }
+  fillTaxForm(settings);
+}
+async function saveTaxSettings(){
+  const settings = readTaxForm();
+  pstTaxSettings = settings;
+  try{ localStorage.setItem("pst_tax_settings", JSON.stringify(settings)); }catch(e){}
+  taxStatus("Saving tax settings...");
+  try{
+    const payload = { key:"pst_tax_settings", value:settings, updated_at:new Date().toISOString(), updated_by: currentUser?.email || null };
+    const { error } = await supabaseClient.from("site_settings").upsert(payload, { onConflict:"key" });
+    if(error) throw error;
+    taxStatus(`Tax settings saved: ${settings.enabled ? "enabled" : "disabled"}, ${(settings.rate * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, "")}%${settings.taxShipping ? ", shipping taxable" : ", shipping not taxable"}.`);
+  }catch(error){
+    console.warn(error);
+    taxStatus("Tax settings saved in this browser. To sync sitewide, create/enable the Supabase site_settings table for key pst_tax_settings.");
+  }
 }
 
 async function checkAdminAccess(){
@@ -310,9 +408,11 @@ function renderOrderReport(orders){
 async function init(){
   try{
     $("refreshBtn")?.addEventListener("click", loadReports);
+    $("saveTaxSettingsBtn")?.addEventListener("click", saveTaxSettings);
+    $("resetTaxSettingsBtn")?.addEventListener("click", () => { fillTaxForm(PST_DEFAULT_TAX_SETTINGS); saveTaxSettings(); });
     $("signOutBtn")?.addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
     const isAdmin = await checkAdminAccess();
-    if (isAdmin) await loadReports();
+    if (isAdmin) { await loadTaxSettings(); await loadReports(); }
   }catch(error){
     console.error(error);
     setStatus(error.message || "Something went wrong loading Reports.", "bad");

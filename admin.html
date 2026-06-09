@@ -348,6 +348,12 @@ header .header-actions .btn.secondary.active {
   function pill(value){ const v = norm(value); return `<span class="pill ${esc(v)}">${esc(v.replaceAll("_"," "))}</span>`; }
   function orderNumber(order){ return order.order_number || order.order_no || order.id || "—"; }
   function orderTotal(order){ return order.total ?? order.total_amount ?? order.order_total ?? order.grand_total ?? 0; }
+  function orderSubtotal(order){ return order.subtotal ?? order.subtotal_amount ?? 0; }
+  function orderDiscount(order){ return order.discount_amount ?? order.discount ?? 0; }
+  function orderShipping(order){ return order.shipping_amount ?? order.shipping ?? 0; }
+  function orderTax(order){ return order.tax_amount ?? order.tax ?? 0; }
+  function orderTaxRate(order){ return Number(order.tax_rate ?? order.sales_tax_rate ?? 0); }
+  function orderTaxRegion(order){ return order.tax_region || order.tax_jurisdiction || "—"; }
   function orderStatus(order){
     // Use the real active status in a safe priority order.
     // Supabase rows may contain both `status` and `order_status`; if they disagree,
@@ -599,7 +605,7 @@ header .header-actions .btn.secondary.active {
     detail.innerHTML = `
       <div class="card-header"><h2>Manage Order #${esc(orderNumber(order))}</h2><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button></div>
       <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div></div>
-      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3><div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div></div>${lockBannerMarkup(order)}</div>
+      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3><div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div></div>${lockBannerMarkup(order)}</div>
       <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}</div>
       <div class="detail-section"><h3>Update Order</h3>
         <div class="edit-grid">
