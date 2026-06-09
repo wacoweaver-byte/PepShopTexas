@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V13_PRODUCT_SALES_REPORT -->
+<!-- PST_REPORTS_PATCH_V14_OPERATIONAL_INSIGHTS -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Reports v13</title>
+  <title>Pep Shop Texas | Reports v14</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
@@ -73,6 +73,11 @@
     .detail-report-table td strong{white-space:nowrap}
     .product-sales-table{min-width:760px}
     .product-sales-table th,.product-sales-table td{font-size:13px}
+    .insights-panel{border:1px solid #d9e7ff;background:#f4f8ff;border-radius:16px;padding:14px;margin:0 0 14px}
+    .insights-panel h3{margin:0 0 10px;color:var(--blue);font-size:17px}
+    .insights-list{margin:0;padding-left:20px;color:#153f76;line-height:1.55;font-weight:800}
+    .insights-list li{margin:5px 0}
+    .insights-muted{color:#596579;font-size:13px;font-weight:700;line-height:1.45}
 
 
     .tax-settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:end}
@@ -189,7 +194,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8 print-report-only">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v13 PRODUCT SALES</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v14 OPERATIONAL INSIGHTS</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -214,6 +219,11 @@ header .header-actions .btn.secondary.active {
         </div>
         <div class="report-actions">
           <button class="btn secondary" id="exportOrderCsvBtn" type="button">Export CSV</button>
+        </div>
+
+        <div class="insights-panel" id="operationalInsightsPanel">
+          <h3>Operational Insights</h3>
+          <div id="operationalInsightsBody" class="insights-muted">Loading insights...</div>
         </div>
 
         <div class="financial-summary-grid" id="financialSummaryGrid">
@@ -349,6 +359,7 @@ const $ = (id) => document.getElementById(id);
 let currentUser = null;
 let allReportOrders = [];
 let allOrderItemsByOrder = {};
+let allInventoryRows = [];
 
 function setStatus(message, type="") {
   const el = $("statusLine");
@@ -515,6 +526,7 @@ async function loadReports(){
   let orders = ordersRes.status === "fulfilled" && !ordersRes.value.error ? (ordersRes.value.data || []) : [];
   const inventory = inventoryRes.status === "fulfilled" && !inventoryRes.value.error ? (inventoryRes.value.data || []) : [];
   const discounts = discountsRes.status === "fulfilled" && !discountsRes.value.error ? (discountsRes.value.data || []) : [];
+  allInventoryRows = inventory || [];
 
   allOrderItemsByOrder = {};
   const orderIdsForItems = orders.map(o => o.id).filter(Boolean);
@@ -666,6 +678,7 @@ function filteredReportOrders(){
 }
 function refreshOrderReport(){
   const orders = filteredReportOrders();
+  renderOperationalInsights(orders);
   renderFinancialSummary(orders);
   renderOrderReport(orders);
   renderDetailedOrders(orders);
@@ -813,10 +826,8 @@ function itemLineTotal(item){
   if (Number.isFinite(explicit) && explicit > 0) return explicit;
   return itemQuantity(item) * itemUnitPrice(item);
 }
-function renderProductSalesReport(orders){
-  const body = $("productSalesBody");
-  const count = $("productSalesCount");
-  if (!body) return;
+
+function getProductSalesRows(orders){
   const allowedOrderIds = new Set(orders.map(o => String(o.id)).filter(Boolean));
   const groups = {};
   Object.entries(allOrderItemsByOrder || {}).forEach(([orderId, items]) => {
@@ -828,7 +839,92 @@ function renderProductSalesReport(orders){
       groups[name].sales += itemLineTotal(item);
     });
   });
-  const rows = Object.values(groups).sort((a,b) => b.quantity - a.quantity || b.sales - a.sales || a.product.localeCompare(b.product));
+  return Object.values(groups).sort((a,b) => b.quantity - a.quantity || b.sales - a.sales || a.product.localeCompare(b.product));
+}
+function selectedRangeDays(){
+  const range = $("orderReportRange")?.value || "last7";
+  if (range === "today") return 1;
+  if (range === "last7") return 7;
+  if (range === "last30") return 30;
+  if (range === "custom") {
+    const start = dateInputValue("orderReportStartDate");
+    const end = dateInputValue("orderReportEndDate");
+    if (start && end) return Math.max(1, Math.round((endOfDay(end) - start) / (1000 * 60 * 60 * 24)) + 1);
+  }
+  const dated = allReportOrders.map(orderDateValue).filter(Boolean).sort((a,b)=>a-b);
+  if (range === "all" && dated.length) return Math.max(1, Math.round((dated[dated.length-1] - dated[0]) / (1000 * 60 * 60 * 24)) + 1);
+  return 1;
+}
+function bestSalesDay(orders){
+  const days = {};
+  orders.forEach(order => {
+    const d = orderDateValue(order);
+    if (!d) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    if (!days[key]) days[key] = { date:d, total:0, count:0 };
+    days[key].total += orderTotal(order);
+    days[key].count += 1;
+  });
+  return Object.values(days).sort((a,b) => b.total - a.total || b.count - a.count)[0] || null;
+}
+function inventoryProductName(row){
+  return cleanText(row?.product_name || row?.name || row?.display_name || row?.product_key || row?.sku || row?.product_id || row?.peptide_name);
+}
+function inventoryStockMap(){
+  const map = {};
+  (allInventoryRows || []).forEach(row => {
+    const name = inventoryProductName(row);
+    if (!name) return;
+    const key = name.toLowerCase();
+    map[key] = (map[key] || 0) + qtyValue(row);
+  });
+  return map;
+}
+function productVelocityLabel(avgPerDay){
+  if (avgPerDay >= 2) return "fast mover";
+  if (avgPerDay >= 0.75) return "moderate mover";
+  if (avgPerDay > 0) return "slow mover";
+  return "no recent sales";
+}
+function renderOperationalInsights(orders){
+  const body = $("operationalInsightsBody");
+  if (!body) return;
+  if (!orders.length) {
+    body.innerHTML = `<div class="insights-muted">No orders found for this range yet.</div>`;
+    return;
+  }
+  const totals = reportTotals(orders);
+  const products = getProductSalesRows(orders);
+  const days = selectedRangeDays();
+  const bestDay = bestSalesDay(orders);
+  const topQty = products[0] || null;
+  const topRevenue = products.slice().sort((a,b) => b.sales - a.sales || b.quantity - a.quantity)[0] || null;
+  const stock = inventoryStockMap();
+  const reorderRisks = products.map(row => {
+    const current = stock[row.product.toLowerCase()];
+    const avgPerDay = days ? row.quantity / days : 0;
+    const daysLeft = current && avgPerDay ? current / avgPerDay : null;
+    return { ...row, current, avgPerDay, daysLeft };
+  }).filter(row => Number.isFinite(row.daysLeft) && row.daysLeft <= 14).sort((a,b) => a.daysLeft - b.daysLeft);
+  const fastMovers = products.filter(row => (row.quantity / days) >= 0.75).slice(0,3);
+  const insights = [];
+  insights.push(`${orders.length} order${orders.length === 1 ? "" : "s"} generated ${money(totals.gross)} in the selected range.`);
+  insights.push(`Average order value is ${money(totals.average)}; tax collected is ${money(totals.tax)} and shipping collected is ${money(totals.shipping)}.`);
+  if (topQty) insights.push(`Top seller by quantity: ${safe(topQty.product)} with ${topQty.quantity} unit${topQty.quantity === 1 ? "" : "s"} sold (${productVelocityLabel(topQty.quantity / days)}).`);
+  if (topRevenue) insights.push(`Top seller by revenue: ${safe(topRevenue.product)} at ${money(topRevenue.sales)}.`);
+  if (bestDay) insights.push(`Best sales day: ${bestDay.date.toLocaleDateString()} with ${money(bestDay.total)} across ${bestDay.count} order${bestDay.count === 1 ? "" : "s"}.`);
+  if (fastMovers.length) insights.push(`Fast/moderate movers to watch: ${fastMovers.map(p => `${safe(p.product)} (${(p.quantity/days).toFixed(2)}/day)`).join(", ")}.`);
+  if (reorderRisks.length) insights.push(`Reorder review: ${reorderRisks.slice(0,3).map(p => `${safe(p.product)} about ${Math.max(1, Math.ceil(p.daysLeft))} day${Math.ceil(p.daysLeft) === 1 ? "" : "s"} remaining`).join(", ")}.`);
+  else if ((allInventoryRows || []).length) insights.push(`No product in this report shows a 14-day reorder risk based on matched inventory names.`);
+  else insights.push(`Inventory risk is not shown because inventory rows were not available to Reports.`);
+  body.innerHTML = `<ul class="insights-list">${insights.map(text => `<li>${text}</li>`).join("")}</ul>`;
+}
+
+function renderProductSalesReport(orders){
+  const body = $("productSalesBody");
+  const count = $("productSalesCount");
+  if (!body) return;
+  const rows = getProductSalesRows(orders);
   if (count) count.textContent = `${rows.length} product${rows.length === 1 ? "" : "s"}`;
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="4" class="muted">No product item rows found for this range.</td></tr>`;
