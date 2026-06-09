@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V1_REORDER_REVIEW -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -387,6 +388,134 @@ header .header-actions .btn.secondary.active {
   border-color: #0077c8 !important;
 }
 
+
+/* PST Inventory Reorder Review */
+.reorder-card {
+  margin: 18px 0;
+}
+.reorder-card .card-head {
+  grid-template-columns: 1fr auto;
+}
+.reorder-controls {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:end;
+  justify-content:flex-end;
+}
+.reorder-controls .field {
+  min-width:180px;
+}
+.reorder-summary-grid {
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap:10px;
+  padding:14px;
+  border-bottom:1px solid var(--line);
+  background:#fbfcff;
+}
+.reorder-stat {
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:12px;
+  padding:12px;
+}
+.reorder-stat strong {
+  display:block;
+  font-size:24px;
+  line-height:1;
+  margin-bottom:6px;
+}
+.reorder-stat span {
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.reorder-guide {
+  padding:12px 14px;
+  border-bottom:1px solid var(--line);
+  background:#ffffff;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+}
+.reorder-guide strong {
+  margin-right:4px;
+  font-size:13px;
+}
+.reorder-table-wrap {
+  overflow:auto;
+  max-height:420px;
+}
+.reorder-table {
+  min-width:1160px;
+}
+.reorder-badge {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  white-space:nowrap;
+  border:1px solid transparent;
+}
+.reorder-critical {
+  background:#fff0f0;
+  color:#b42318;
+  border-color:#ffb8c0;
+}
+.reorder-now {
+  background:#fff4e5;
+  color:#a35b00;
+  border-color:#ffd199;
+}
+.reorder-watch {
+  background:#fffbe6;
+  color:#8a6d00;
+  border-color:#f6df72;
+}
+.reorder-healthy {
+  background:#edf8f0;
+  color:#0f8a3b;
+  border-color:#bfe8c8;
+}
+.reorder-none,
+.reorder-unknown {
+  background:#eeeeee;
+  color:#555;
+  border-color:#cccccc;
+}
+.reorder-note {
+  padding:11px 14px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+  line-height:1.35;
+  border-bottom:1px solid var(--line);
+}
+@media(max-width:900px) {
+  .reorder-card .card-head {
+    grid-template-columns:1fr;
+  }
+  .reorder-controls {
+    justify-content:flex-start;
+  }
+  .reorder-summary-grid {
+    grid-template-columns:1fr 1fr;
+  }
+}
+@media(max-width:560px) {
+  .reorder-summary-grid {
+    grid-template-columns:1fr;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -414,6 +543,62 @@ header .header-actions .btn.secondary.active {
   <h1>Inventory Management</h1>
   <p class="subtitle">Spreadsheet-style inventory control. Edit rows, receive stock, remove stock, set exact counts, mark products active/inactive, and save directly to Supabase.</p>
   <div id="status" class="status">Checking admin access...</div>
+
+
+  <section class="card reorder-card" id="reorderReviewCard">
+    <div class="card-head">
+      <div>
+        <h2 style="margin:0 0 5px;">Inventory Reorder Review</h2>
+        <p class="subtitle" style="font-size:13px;">Uses recent product sales velocity and a 21-day lead time to flag items that may sell out before replacement stock can arrive.</p>
+      </div>
+      <div class="reorder-controls">
+        <div class="field">
+          <label>Sales Velocity Range</label>
+          <select id="reorderRange">
+            <option value="7">Last 7 Days</option>
+            <option value="30" selected>Last 30 Days</option>
+            <option value="60">Last 60 Days</option>
+            <option value="90">Last 90 Days</option>
+          </select>
+        </div>
+        <button class="btn secondary" id="refreshReorderBtn" type="button">Refresh Review</button>
+      </div>
+    </div>
+    <div class="reorder-summary-grid">
+      <div class="reorder-stat"><strong id="reorderCriticalCount">—</strong><span>Critical</span></div>
+      <div class="reorder-stat"><strong id="reorderNowCount">—</strong><span>Reorder Now</span></div>
+      <div class="reorder-stat"><strong id="reorderWatchCount">—</strong><span>Watch</span></div>
+      <div class="reorder-stat"><strong id="reorderHealthyCount">—</strong><span>Healthy / No Recent Sales</span></div>
+    </div>
+    <div class="reorder-guide">
+      <strong>Guide:</strong>
+      <span class="reorder-badge reorder-critical">0–7 days = Critical</span>
+      <span class="reorder-badge reorder-now">8–21 days = Reorder Now</span>
+      <span class="reorder-badge reorder-watch">22–30 days = Watch</span>
+      <span class="reorder-badge reorder-healthy">31+ days = Healthy</span>
+      <span class="reorder-badge reorder-none">No recent sales</span>
+    </div>
+    <div class="reorder-note" id="reorderReviewNote">Loading reorder review...</div>
+    <div class="reorder-table-wrap">
+      <table class="reorder-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Current Stock</th>
+            <th>Qty Sold</th>
+            <th>Avg / Day</th>
+            <th>21-Day Demand</th>
+            <th>Days Remaining</th>
+            <th>Reorder Status</th>
+            <th>Suggested Reorder Qty</th>
+          </tr>
+        </thead>
+        <tbody id="reorderReviewBody">
+          <tr><td colspan="8" class="note">Loading reorder review...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 
   <section class="card">
     <div class="card-head">
@@ -515,6 +700,9 @@ let allItems = [];
 let filteredItems = [];
 let selectedIds = new Set();
 let dirtyIds = new Set();
+let salesByInventoryId = {};
+let reorderSalesLoadError = "";
+
 
 const $ = id => document.getElementById(id);
 
@@ -552,6 +740,228 @@ function activePill(isActive) {
     : `<span class="status-pill inactive-pill">Hidden</span>`;
 }
 
+
+const REORDER_LEAD_DAYS = 21;
+const REORDER_WATCH_DAYS = 30;
+
+function normTextKey(value) {
+  return String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function orderActiveStatus(order) {
+  const statusValue = String(order?.status ?? "").trim().toLowerCase().replace(/\s+/g, "_");
+  const orderStatusValue = String(order?.order_status ?? "").trim().toLowerCase().replace(/\s+/g, "_");
+  if (statusValue && statusValue !== "pending") return statusValue;
+  if (orderStatusValue && orderStatusValue !== "pending") return orderStatusValue;
+  return statusValue || orderStatusValue || "pending";
+}
+
+function orderDateValue(order) {
+  const raw = order?.created_at || order?.order_date || order?.date || order?.updated_at;
+  const d = raw ? new Date(raw) : null;
+  return d && !Number.isNaN(d.getTime()) ? d : null;
+}
+
+function itemQuantityValue(item) {
+  const keys = ["quantity", "qty", "count", "vials", "units"];
+  for (const key of keys) {
+    if (item && item[key] !== undefined && item[key] !== null && item[key] !== "") {
+      const n = Number(item[key]);
+      return Number.isFinite(n) ? n : 0;
+    }
+  }
+  return 1;
+}
+
+function itemLineTotalValue(item) {
+  const directKeys = ["line_total", "total", "item_total", "extended_price"];
+  for (const key of directKeys) {
+    if (item && item[key] !== undefined && item[key] !== null && item[key] !== "") {
+      const n = Number(item[key]);
+      if (Number.isFinite(n)) return n;
+    }
+  }
+  const qty = itemQuantityValue(item);
+  const unit = Number(item?.unit_price ?? item?.price ?? item?.product_price ?? 0);
+  return Number.isFinite(unit) ? qty * unit : 0;
+}
+
+function inventoryCandidateKeys(item) {
+  return [
+    item?.id,
+    item?.product_id,
+    item?.product_key,
+    item?.sku,
+    item?.display_name,
+    item?.name
+  ].map(normTextKey).filter(Boolean);
+}
+
+function orderItemCandidateKeys(item) {
+  return [
+    item?.product_inventory_id,
+    item?.inventory_id,
+    item?.product_id,
+    item?.product_key,
+    item?.sku,
+    item?.product_name,
+    item?.name,
+    item?.display_name
+  ].map(normTextKey).filter(Boolean);
+}
+
+function findInventoryForOrderItem(orderItem) {
+  const itemKeys = new Set(orderItemCandidateKeys(orderItem));
+  if (!itemKeys.size) return null;
+  return allItems.find(inv => inventoryCandidateKeys(inv).some(key => itemKeys.has(key))) || null;
+}
+
+function getReorderRangeDays() {
+  const n = Number($("reorderRange")?.value || 30);
+  return Number.isFinite(n) && n > 0 ? n : 30;
+}
+
+async function loadReorderSales() {
+  reorderSalesLoadError = "";
+  salesByInventoryId = {};
+  if (!allItems.length) return;
+
+  const rangeDays = getReorderRangeDays();
+  const since = new Date();
+  since.setDate(since.getDate() - rangeDays);
+  since.setHours(0,0,0,0);
+
+  try {
+    const { data: orders, error: orderError } = await db
+      .from("orders")
+      .select("id,created_at,order_date,date,updated_at,status,order_status");
+    if (orderError) throw orderError;
+
+    const eligibleOrders = (orders || []).filter(order => {
+      const d = orderDateValue(order);
+      if (!d || d < since) return false;
+      const s = orderActiveStatus(order);
+      return !["cancelled", "rejected", "refunded", "failed"].includes(s);
+    });
+
+    const orderIds = eligibleOrders.map(order => order.id).filter(Boolean);
+    if (!orderIds.length) {
+      renderReorderReview();
+      return;
+    }
+
+    const orderIdSet = new Set(orderIds.map(String));
+    const { data: orderItems, error: itemError } = await db
+      .from("order_items")
+      .select("*")
+      .in("order_id", orderIds);
+    if (itemError) throw itemError;
+
+    (orderItems || []).forEach(orderItem => {
+      if (!orderIdSet.has(String(orderItem.order_id))) return;
+      const inv = findInventoryForOrderItem(orderItem);
+      if (!inv?.id) return;
+
+      if (!salesByInventoryId[inv.id]) salesByInventoryId[inv.id] = { qty:0, gross:0 };
+      salesByInventoryId[inv.id].qty += itemQuantityValue(orderItem);
+      salesByInventoryId[inv.id].gross += itemLineTotalValue(orderItem);
+    });
+  } catch (err) {
+    console.warn("Reorder review sales lookup failed:", err);
+    reorderSalesLoadError = err?.message || "Sales lookup failed.";
+  }
+
+  renderReorderReview();
+}
+
+function reorderStatusForDays(daysRemaining, avgPerDay, currentStock) {
+  if (!avgPerDay || avgPerDay <= 0) return { label:"No Recent Sales", cls:"reorder-none", rank:4 };
+  if (currentStock <= 0 || daysRemaining <= 7) return { label:"Critical", cls:"reorder-critical", rank:0 };
+  if (daysRemaining <= 21) return { label:"Reorder Now", cls:"reorder-now", rank:1 };
+  if (daysRemaining <= 30) return { label:"Watch", cls:"reorder-watch", rank:2 };
+  return { label:"Healthy", cls:"reorder-healthy", rank:3 };
+}
+
+function roundUpToFive(value) {
+  const n = Math.max(0, Number(value || 0));
+  if (n <= 0) return 0;
+  return Math.ceil(n / 5) * 5;
+}
+
+function formatDaysRemaining(days, avgPerDay) {
+  if (!avgPerDay || avgPerDay <= 0) return "No recent sales";
+  if (!Number.isFinite(days)) return "—";
+  const rounded = Math.max(0, Math.ceil(days));
+  return rounded === 1 ? "1 day remains" : `${rounded} days remain`;
+}
+
+function renderReorderReview() {
+  const body = $("reorderReviewBody");
+  if (!body) return;
+
+  const rangeDays = getReorderRangeDays();
+  const rows = allItems.map(item => {
+    const sales = salesByInventoryId[item.id] || { qty:0, gross:0 };
+    const currentStock = Number(item.current_inventory || 0);
+    const avgPerDay = sales.qty / Math.max(1, rangeDays);
+    const demand21 = avgPerDay * REORDER_LEAD_DAYS;
+    const demand30 = avgPerDay * REORDER_WATCH_DAYS;
+    const daysRemaining = avgPerDay > 0 ? currentStock / avgPerDay : Infinity;
+    const status = reorderStatusForDays(daysRemaining, avgPerDay, currentStock);
+    const suggested = roundUpToFive(Math.ceil(demand30 - currentStock));
+    return { item, sales, currentStock, avgPerDay, demand21, daysRemaining, status, suggested };
+  }).sort((a,b) => {
+    if (a.status.rank !== b.status.rank) return a.status.rank - b.status.rank;
+    const aDays = Number.isFinite(a.daysRemaining) ? a.daysRemaining : 999999;
+    const bDays = Number.isFinite(b.daysRemaining) ? b.daysRemaining : 999999;
+    if (aDays !== bDays) return aDays - bDays;
+    return String(a.item.display_name || a.item.product_key).localeCompare(String(b.item.display_name || b.item.product_key));
+  });
+
+  const counts = rows.reduce((acc, row) => {
+    if (row.status.label === "Critical") acc.critical++;
+    else if (row.status.label === "Reorder Now") acc.reorder++;
+    else if (row.status.label === "Watch") acc.watch++;
+    else acc.healthy++;
+    return acc;
+  }, { critical:0, reorder:0, watch:0, healthy:0 });
+
+  if ($("reorderCriticalCount")) $("reorderCriticalCount").textContent = counts.critical;
+  if ($("reorderNowCount")) $("reorderNowCount").textContent = counts.reorder;
+  if ($("reorderWatchCount")) $("reorderWatchCount").textContent = counts.watch;
+  if ($("reorderHealthyCount")) $("reorderHealthyCount").textContent = counts.healthy;
+
+  const note = $("reorderReviewNote");
+  if (note) {
+    const base = `Using the last ${rangeDays} days of order_items sales and a ${REORDER_LEAD_DAYS}-day lead time. Suggested reorder quantity targets roughly ${REORDER_WATCH_DAYS} days of coverage and rounds up to the nearest 5 vials.`;
+    note.textContent = reorderSalesLoadError ? `${base} Sales lookup warning: ${reorderSalesLoadError}` : base;
+  }
+
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="8" class="note">No inventory rows loaded.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = rows.map(row => {
+    const name = row.item.display_name || row.item.product_key || "Product";
+    const key = row.item.product_key || "";
+    const suggestedText = row.suggested > 0 ? `${row.suggested} vials` : "—";
+    return `
+      <tr>
+        <td class="name-cell"><strong>${esc(name)}</strong><span>${esc(key)}</span></td>
+        <td><strong>${Number(row.currentStock || 0)}</strong></td>
+        <td>${Number(row.sales.qty || 0).toFixed(0)}</td>
+        <td>${row.avgPerDay.toFixed(2)}</td>
+        <td>${Math.ceil(row.demand21)}</td>
+        <td>${esc(formatDaysRemaining(row.daysRemaining, row.avgPerDay))}</td>
+        <td><span class="reorder-badge ${row.status.cls}">${esc(row.status.label)}</span></td>
+        <td><strong>${esc(suggestedText)}</strong></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+
 async function checkAdmin() {
   const { data, error } = await db.auth.getSession();
   if (error) throw error;
@@ -585,8 +995,10 @@ async function loadInventory() {
   if (error) throw error;
 
   allItems = (data || []).map(item => ({ ...item }));
+  await loadReorderSales();
   populateCategoryFilter();
   applyFilters();
+  renderReorderReview();
   setStatus(`Loaded ${allItems.length} inventory item${allItems.length === 1 ? "" : "s"}.`, "good");
 }
 
@@ -940,6 +1352,9 @@ function wireEvents() {
     $("activeFilter").value = "";
     applyFilters();
   });
+
+  if ($("reorderRange")) $("reorderRange").addEventListener("change", loadReorderSales);
+  if ($("refreshReorderBtn")) $("refreshReorderBtn").addEventListener("click", loadReorderSales);
 
   $("selectAll").addEventListener("change", e => {
     const visible = filteredItems.map(i => i.id);
