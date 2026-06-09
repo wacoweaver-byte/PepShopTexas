@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V14_OPERATIONAL_INSIGHTS -->
+<!-- PST_REPORTS_PATCH_V15_21_DAY_REORDER_RISK -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Reports v14</title>
+  <title>Pep Shop Texas | Reports v15</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
@@ -194,7 +194,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8 print-report-only">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v14 OPERATIONAL INSIGHTS</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v15 21-DAY REORDER RISK</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -259,8 +259,8 @@ header .header-actions .btn.secondary.active {
         </div>
         <div class="table-wrap">
           <table class="product-sales-table">
-            <thead><tr><th>Product</th><th>Quantity Sold</th><th>Gross Sales</th><th>Average Price</th></tr></thead>
-            <tbody id="productSalesBody"><tr><td colspan="4" class="muted">Loading product sales...</td></tr></tbody>
+            <thead><tr><th>Product</th><th>Qty Sold</th><th>Gross Sales</th><th>Avg Price</th><th>Current Stock</th><th>Avg/Day</th><th>21-Day Demand</th><th>Days Remaining</th><th>Reorder Status</th></tr></thead>
+            <tbody id="productSalesBody"><tr><td colspan="9" class="muted">Loading product sales...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -880,11 +880,42 @@ function inventoryStockMap(){
   });
   return map;
 }
+const PST_REORDER_LEAD_DAYS = 21;
 function productVelocityLabel(avgPerDay){
   if (avgPerDay >= 2) return "fast mover";
   if (avgPerDay >= 0.75) return "moderate mover";
   if (avgPerDay > 0) return "slow mover";
   return "no recent sales";
+}
+function productSalesWithInventory(orders){
+  const days = selectedRangeDays();
+  const stock = inventoryStockMap();
+  return getProductSalesRows(orders).map(row => {
+    const avgPerDay = days ? row.quantity / days : 0;
+    const currentRaw = stock[row.product.toLowerCase()];
+    const current = Number.isFinite(Number(currentRaw)) ? Number(currentRaw) : null;
+    const projectedDemand = avgPerDay * PST_REORDER_LEAD_DAYS;
+    const daysRemaining = current !== null && avgPerDay > 0 ? current / avgPerDay : null;
+    return { ...row, avgPerDay, current, projectedDemand, daysRemaining, reorderStatus: reorderStatus(current, avgPerDay, daysRemaining) };
+  });
+}
+function reorderStatus(current, avgPerDay, daysRemaining){
+  if (current === null || current === undefined) return { key:"unknown", label:"Inventory Unknown" };
+  if (current <= 0) return { key:"critical", label:"Out / Critical" };
+  if (!avgPerDay || avgPerDay <= 0) return { key:"healthy", label:"No Recent Sales" };
+  if (daysRemaining <= 7) return { key:"critical", label:"Critical" };
+  if (daysRemaining <= PST_REORDER_LEAD_DAYS) return { key:"reorder", label:"Reorder Now" };
+  if (daysRemaining <= 30) return { key:"watch", label:"Watch" };
+  return { key:"healthy", label:"Healthy" };
+}
+function riskBadge(status){
+  const key = status?.key || "unknown";
+  const label = status?.label || "Unknown";
+  return `<span class="risk-badge risk-${safe(key)}">${safe(label)}</span>`;
+}
+function formatNumber(value, digits=2){
+  const n = Number(value || 0);
+  return Number.isFinite(n) ? n.toFixed(digits) : "—";
 }
 function renderOperationalInsights(orders){
   const body = $("operationalInsightsBody");
@@ -894,19 +925,15 @@ function renderOperationalInsights(orders){
     return;
   }
   const totals = reportTotals(orders);
-  const products = getProductSalesRows(orders);
+  const products = productSalesWithInventory(orders);
+  const rawProducts = getProductSalesRows(orders);
   const days = selectedRangeDays();
   const bestDay = bestSalesDay(orders);
-  const topQty = products[0] || null;
-  const topRevenue = products.slice().sort((a,b) => b.sales - a.sales || b.quantity - a.quantity)[0] || null;
-  const stock = inventoryStockMap();
-  const reorderRisks = products.map(row => {
-    const current = stock[row.product.toLowerCase()];
-    const avgPerDay = days ? row.quantity / days : 0;
-    const daysLeft = current && avgPerDay ? current / avgPerDay : null;
-    return { ...row, current, avgPerDay, daysLeft };
-  }).filter(row => Number.isFinite(row.daysLeft) && row.daysLeft <= 14).sort((a,b) => a.daysLeft - b.daysLeft);
-  const fastMovers = products.filter(row => (row.quantity / days) >= 0.75).slice(0,3);
+  const topQty = rawProducts[0] || null;
+  const topRevenue = rawProducts.slice().sort((a,b) => b.sales - a.sales || b.quantity - a.quantity)[0] || null;
+  const reorderNow = products.filter(row => ["critical","reorder"].includes(row.reorderStatus.key)).sort((a,b) => (a.daysRemaining ?? 999999) - (b.daysRemaining ?? 999999));
+  const watchItems = products.filter(row => row.reorderStatus.key === "watch").sort((a,b) => (a.daysRemaining ?? 999999) - (b.daysRemaining ?? 999999));
+  const fastMovers = rawProducts.filter(row => (row.quantity / days) >= 0.75).slice(0,3);
   const insights = [];
   insights.push(`${orders.length} order${orders.length === 1 ? "" : "s"} generated ${money(totals.gross)} in the selected range.`);
   insights.push(`Average order value is ${money(totals.average)}; tax collected is ${money(totals.tax)} and shipping collected is ${money(totals.shipping)}.`);
@@ -914,9 +941,18 @@ function renderOperationalInsights(orders){
   if (topRevenue) insights.push(`Top seller by revenue: ${safe(topRevenue.product)} at ${money(topRevenue.sales)}.`);
   if (bestDay) insights.push(`Best sales day: ${bestDay.date.toLocaleDateString()} with ${money(bestDay.total)} across ${bestDay.count} order${bestDay.count === 1 ? "" : "s"}.`);
   if (fastMovers.length) insights.push(`Fast/moderate movers to watch: ${fastMovers.map(p => `${safe(p.product)} (${(p.quantity/days).toFixed(2)}/day)`).join(", ")}.`);
-  if (reorderRisks.length) insights.push(`Reorder review: ${reorderRisks.slice(0,3).map(p => `${safe(p.product)} about ${Math.max(1, Math.ceil(p.daysLeft))} day${Math.ceil(p.daysLeft) === 1 ? "" : "s"} remaining`).join(", ")}.`);
-  else if ((allInventoryRows || []).length) insights.push(`No product in this report shows a 14-day reorder risk based on matched inventory names.`);
-  else insights.push(`Inventory risk is not shown because inventory rows were not available to Reports.`);
+  if (reorderNow.length) {
+    insights.push(`21-day reorder alert: ${reorderNow.slice(0,5).map(p => {
+      const daysText = Number.isFinite(p.daysRemaining) ? `${Math.max(1, Math.ceil(p.daysRemaining))} day${Math.ceil(p.daysRemaining) === 1 ? "" : "s"} remaining` : "inventory unavailable";
+      return `${safe(p.product)} (${daysText})`;
+    }).join(", ")}.`);
+  } else if (watchItems.length) {
+    insights.push(`No item is projected to sell out inside the 21-day lead time, but watch: ${watchItems.slice(0,5).map(p => `${safe(p.product)} (${Math.ceil(p.daysRemaining)} days remaining)`).join(", ")}.`);
+  } else if ((allInventoryRows || []).length) {
+    insights.push(`No product in this report is projected to sell out within the 21-day lead time based on matched inventory names.`);
+  } else {
+    insights.push(`21-day reorder risk is not shown because inventory rows were not available to Reports.`);
+  }
   body.innerHTML = `<ul class="insights-list">${insights.map(text => `<li>${text}</li>`).join("")}</ul>`;
 }
 
@@ -924,19 +960,26 @@ function renderProductSalesReport(orders){
   const body = $("productSalesBody");
   const count = $("productSalesCount");
   if (!body) return;
-  const rows = getProductSalesRows(orders);
-  if (count) count.textContent = `${rows.length} product${rows.length === 1 ? "" : "s"}`;
+  const rows = productSalesWithInventory(orders);
+  if (count) count.textContent = `${rows.length} product${rows.length === 1 ? "" : "s"} · ${PST_REORDER_LEAD_DAYS}-day lead-time logic`;
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="4" class="muted">No product item rows found for this range.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9" class="muted">No product item rows found for this range.</td></tr>`;
     return;
   }
   body.innerHTML = rows.map(row => {
     const avg = row.quantity ? row.sales / row.quantity : 0;
+    const currentText = row.current === null ? "—" : formatNumber(row.current, row.current % 1 === 0 ? 0 : 2);
+    const daysRemainingText = Number.isFinite(row.daysRemaining) ? `${Math.ceil(row.daysRemaining)} day${Math.ceil(row.daysRemaining) === 1 ? "" : "s"}` : "—";
     return `<tr>
       <td><strong>${safe(row.product)}</strong></td>
       <td>${safe(row.quantity)}</td>
       <td>${money(row.sales)}</td>
       <td>${money(avg)}</td>
+      <td>${safe(currentText)}</td>
+      <td>${safe(formatNumber(row.avgPerDay, 2))}</td>
+      <td>${safe(formatNumber(row.projectedDemand, 1))}</td>
+      <td>${safe(daysRemainingText)}</td>
+      <td>${riskBadge(row.reorderStatus)}</td>
     </tr>`;
   }).join("");
 }
