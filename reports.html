@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V9_DETAILED_ORDER_REPORT -->
+<!-- PST_REPORTS_PATCH_V10_CUSTOM_DATE_RANGE -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Reports v9</title>
+  <title>Pep Shop Texas | Reports v10</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
@@ -59,6 +59,7 @@
 
     .report-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:12px;border:1px solid var(--border);background:#fbfcfe;border-radius:14px}
     .report-controls .field{display:flex;flex-direction:column;gap:6px;min-width:220px}
+    .report-controls .field.small{min-width:160px}
     .report-note{color:var(--muted);font-size:13px;line-height:1.35;font-weight:700}
     .detail-report-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px;flex-wrap:wrap}
     .detail-report-head h3{margin:0;font-size:17px}
@@ -173,7 +174,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8 print-report-only">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v9 DETAILED PRINT</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v10 DATE RANGE</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -182,10 +183,19 @@ header .header-actions .btn.secondary.active {
               <option value="today">Today</option>
               <option value="last7" selected>Last 7 Days</option>
               <option value="last30">Last 30 Days</option>
+              <option value="custom">Custom Date Range</option>
               <option value="all">All Time</option>
             </select>
           </div>
-          <div class="report-note" id="orderReportNote">Showing recent operational orders. Select All Time to include old test/history rows.</div>
+          <div class="field small">
+            <label for="orderReportStartDate">Start Date</label>
+            <input id="orderReportStartDate" type="date" />
+          </div>
+          <div class="field small">
+            <label for="orderReportEndDate">End Date</label>
+            <input id="orderReportEndDate" type="date" />
+          </div>
+          <div class="report-note" id="orderReportNote">Showing recent operational orders. Select a preset range or choose custom start/end dates.</div>
         </div>
         <div class="table-wrap">
           <table>
@@ -470,18 +480,76 @@ function orderDateValue(order){
   const d = new Date(raw);
   return Number.isNaN(d.getTime()) ? null : d;
 }
-function filteredReportOrders(){
-  const rangeEl = $("orderReportRange");
-  const range = rangeEl?.value || "last7";
-  if (range === "all") return allReportOrders.slice();
+function dateInputValue(id){
+  const raw = $(id)?.value || "";
+  if (!raw) return null;
+  const parts = raw.split("-").map(Number);
+  if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return null;
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+function endOfDay(date){
+  if (!date) return null;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+}
+function setDateInput(id, date){
+  const el = $(id);
+  if (!el || !date) return;
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  el.value = `${yyyy}-${mm}-${dd}`;
+}
+function setPresetDateInputs(range){
   const now = new Date();
-  let cutoff = new Date(now);
-  if (range === "today") cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (range === "last7") cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  if (range === "last30") cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (range === "today") {
+    setDateInput("orderReportStartDate", today);
+    setDateInput("orderReportEndDate", today);
+  }
+  if (range === "last7") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 6);
+    setDateInput("orderReportStartDate", start);
+    setDateInput("orderReportEndDate", today);
+  }
+  if (range === "last30") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 29);
+    setDateInput("orderReportStartDate", start);
+    setDateInput("orderReportEndDate", today);
+  }
+  if (range === "all") {
+    if ($("orderReportStartDate")) $("orderReportStartDate").value = "";
+    if ($("orderReportEndDate")) $("orderReportEndDate").value = "";
+  }
+}
+function reportRangeLabel(range, startDate, endDate){
+  const fmt = (d) => d ? d.toLocaleDateString() : "not set";
+  if (range === "today") return "today";
+  if (range === "last7") return "the last 7 days";
+  if (range === "last30") return "the last 30 days";
+  if (range === "custom") return `${fmt(startDate)} through ${fmt(endDate)}`;
+  return "all stored orders";
+}
+function filteredReportOrders(){
+  const range = $("orderReportRange")?.value || "last7";
+  if (range === "all") return allReportOrders.slice();
+  let startDate = null;
+  let endDate = null;
+  if (range === "custom") {
+    startDate = dateInputValue("orderReportStartDate");
+    endDate = endOfDay(dateInputValue("orderReportEndDate"));
+  } else {
+    setPresetDateInputs(range);
+    startDate = dateInputValue("orderReportStartDate");
+    endDate = endOfDay(dateInputValue("orderReportEndDate"));
+  }
   return allReportOrders.filter(order => {
     const d = orderDateValue(order);
-    return d && d >= cutoff;
+    if (!d) return false;
+    if (startDate && d < startDate) return false;
+    if (endDate && d > endDate) return false;
+    return true;
   });
 }
 function refreshOrderReport(){
@@ -490,8 +558,16 @@ function refreshOrderReport(){
   renderDetailedOrders(orders);
   const note = $("orderReportNote");
   const range = $("orderReportRange")?.value || "last7";
-  const label = range === "today" ? "today" : range === "last7" ? "the last 7 days" : range === "last30" ? "the last 30 days" : "all stored orders";
+  const startDate = range === "all" ? null : dateInputValue("orderReportStartDate");
+  const endDate = range === "all" ? null : dateInputValue("orderReportEndDate");
+  const label = reportRangeLabel(range, startDate, endDate);
   if (note) note.textContent = `Showing ${orders.length} of ${allReportOrders.length} orders from ${label}. All Time includes old test/history rows.`;
+}
+function switchToCustomRange(){
+  if ($("orderReportRange")?.value !== "custom") {
+    $("orderReportRange").value = "custom";
+  }
+  refreshOrderReport();
 }
 
 function renderOrderReport(orders){
@@ -544,7 +620,10 @@ function renderDetailedOrders(orders){
 async function init(){
   try{
     $("refreshBtn")?.addEventListener("click", loadReports);
-    $("orderReportRange")?.addEventListener("change", refreshOrderReport);
+    $("orderReportRange")?.addEventListener("change", () => { setPresetDateInputs($("orderReportRange")?.value || "last7"); refreshOrderReport(); });
+    $("orderReportStartDate")?.addEventListener("change", switchToCustomRange);
+    $("orderReportEndDate")?.addEventListener("change", switchToCustomRange);
+    setPresetDateInputs("last7");
     $("saveTaxSettingsBtn")?.addEventListener("click", saveTaxSettings);
     $("resetTaxSettingsBtn")?.addEventListener("click", () => { fillTaxForm(PST_DEFAULT_TAX_SETTINGS); saveTaxSettings(); });
     $("signOutBtn")?.addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
