@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V2_STOCK_DEPLETION_LOGIC -->
 <!-- PST_INVENTORY_PATCH_V1_REORDER_REVIEW -->
 <html lang="en">
 <head>
@@ -549,7 +550,7 @@ header .header-actions .btn.secondary.active {
     <div class="card-head">
       <div>
         <h2 style="margin:0 0 5px;">Inventory Reorder Review</h2>
-        <p class="subtitle" style="font-size:13px;">Uses recent product sales velocity and a 21-day lead time to flag items that may sell out before replacement stock can arrive.</p>
+        <p class="subtitle" style="font-size:13px;">Uses recent product sales velocity, a 21-day lead time, and stock depletion logic to flag items that may need reorder review.</p>
       </div>
       <div class="reorder-controls">
         <div class="field">
@@ -577,6 +578,7 @@ header .header-actions .btn.secondary.active {
       <span class="reorder-badge reorder-watch">22–30 days = Watch</span>
       <span class="reorder-badge reorder-healthy">31+ days = Healthy</span>
       <span class="reorder-badge reorder-none">No recent sales</span>
+      <span class="reorder-badge reorder-critical">≤2 vials or 90% depleted = Critical Low Stock</span>
     </div>
     <div class="reorder-note" id="reorderReviewNote">Loading reorder review...</div>
     <div class="reorder-table-wrap">
@@ -589,12 +591,13 @@ header .header-actions .btn.secondary.active {
             <th>Avg / Day</th>
             <th>21-Day Demand</th>
             <th>Days Remaining</th>
+            <th>Stock Depletion</th>
             <th>Reorder Status</th>
             <th>Suggested Reorder Qty</th>
           </tr>
         </thead>
         <tbody id="reorderReviewBody">
-          <tr><td colspan="8" class="note">Loading reorder review...</td></tr>
+          <tr><td colspan="9" class="note">Loading reorder review...</td></tr>
         </tbody>
       </table>
     </div>
@@ -701,6 +704,7 @@ let filteredItems = [];
 let selectedIds = new Set();
 let dirtyIds = new Set();
 let salesByInventoryId = {};
+let movementByInventoryId = {};
 let reorderSalesLoadError = "";
 
 
@@ -743,6 +747,7 @@ function activePill(isActive) {
 
 const REORDER_LEAD_DAYS = 21;
 const REORDER_WATCH_DAYS = 30;
+const DEFAULT_KIT_VIAL_COUNT = 10;
 
 function normTextKey(value) {
   return String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
@@ -824,6 +829,7 @@ function getReorderRangeDays() {
 async function loadReorderSales() {
   reorderSalesLoadError = "";
   salesByInventoryId = {};
+  movementByInventoryId = {};
   if (!allItems.length) return;
 
   const rangeDays = getReorderRangeDays();
@@ -845,27 +851,48 @@ async function loadReorderSales() {
     });
 
     const orderIds = eligibleOrders.map(order => order.id).filter(Boolean);
-    if (!orderIds.length) {
-      renderReorderReview();
-      return;
+    if (orderIds.length) {
+      const orderIdSet = new Set(orderIds.map(String));
+      const { data: orderItems, error: itemError } = await db
+        .from("order_items")
+        .select("*")
+        .in("order_id", orderIds);
+      if (itemError) throw itemError;
+
+      (orderItems || []).forEach(orderItem => {
+        if (!orderIdSet.has(String(orderItem.order_id))) return;
+        const inv = findInventoryForOrderItem(orderItem);
+        if (!inv?.id) return;
+
+        if (!salesByInventoryId[inv.id]) salesByInventoryId[inv.id] = { qty:0, gross:0 };
+        salesByInventoryId[inv.id].qty += itemQuantityValue(orderItem);
+        salesByInventoryId[inv.id].gross += itemLineTotalValue(orderItem);
+      });
     }
 
-    const orderIdSet = new Set(orderIds.map(String));
-    const { data: orderItems, error: itemError } = await db
-      .from("order_items")
-      .select("*")
-      .in("order_id", orderIds);
-    if (itemError) throw itemError;
+    // Movement history is optional. If present, it helps us estimate original/received stock.
+    // If absent or incomplete, the review falls back to a 10-vial kit baseline for low-stock rows.
+    try {
+      const { data: movements, error: movementError } = await db
+        .from("inventory_movements")
+        .select("product_id,product_key,movement_type,quantity_change,previous_quantity,new_quantity,created_at");
+      if (movementError) throw movementError;
 
-    (orderItems || []).forEach(orderItem => {
-      if (!orderIdSet.has(String(orderItem.order_id))) return;
-      const inv = findInventoryForOrderItem(orderItem);
-      if (!inv?.id) return;
-
-      if (!salesByInventoryId[inv.id]) salesByInventoryId[inv.id] = { qty:0, gross:0 };
-      salesByInventoryId[inv.id].qty += itemQuantityValue(orderItem);
-      salesByInventoryId[inv.id].gross += itemLineTotalValue(orderItem);
-    });
+      (movements || []).forEach(mv => {
+        const inv = allItems.find(item => String(item.id) === String(mv.product_id) || String(item.product_key || "").toLowerCase() === String(mv.product_key || "").toLowerCase());
+        if (!inv?.id) return;
+        if (!movementByInventoryId[inv.id]) movementByInventoryId[inv.id] = { received:0, removed:0, highestKnown:0 };
+        const bucket = movementByInventoryId[inv.id];
+        const change = Number(mv.quantity_change || 0);
+        const prev = Number(mv.previous_quantity || 0);
+        const next = Number(mv.new_quantity || 0);
+        bucket.highestKnown = Math.max(bucket.highestKnown, prev, next);
+        if (change > 0 || String(mv.movement_type || "").toLowerCase().includes("received")) bucket.received += Math.max(0, change);
+        if (change < 0 || ["removed", "out_of_stock"].includes(String(mv.movement_type || "").toLowerCase())) bucket.removed += Math.abs(Math.min(0, change));
+      });
+    } catch (movementErr) {
+      console.warn("Optional movement history lookup failed:", movementErr);
+    }
   } catch (err) {
     console.warn("Reorder review sales lookup failed:", err);
     reorderSalesLoadError = err?.message || "Sales lookup failed.";
@@ -874,12 +901,44 @@ async function loadReorderSales() {
   renderReorderReview();
 }
 
-function reorderStatusForDays(daysRemaining, avgPerDay, currentStock) {
-  if (!avgPerDay || avgPerDay <= 0) return { label:"No Recent Sales", cls:"reorder-none", rank:4 };
-  if (currentStock <= 0 || daysRemaining <= 7) return { label:"Critical", cls:"reorder-critical", rank:0 };
-  if (daysRemaining <= 21) return { label:"Reorder Now", cls:"reorder-now", rank:1 };
-  if (daysRemaining <= 30) return { label:"Watch", cls:"reorder-watch", rank:2 };
-  return { label:"Healthy", cls:"reorder-healthy", rank:3 };
+function estimateOriginalStock(item, currentStock) {
+  const movement = movementByInventoryId[item.id] || {};
+  const received = Number(movement.received || 0);
+  const highestKnown = Number(movement.highestKnown || 0);
+  const importedOrKnown = Number(item.starting_inventory || item.initial_inventory || item.original_inventory || item.received_inventory || 0);
+  const base = Math.max(received, highestKnown, importedOrKnown, currentStock);
+
+  if (base > 0) return base;
+  if (currentStock <= DEFAULT_KIT_VIAL_COUNT) return DEFAULT_KIT_VIAL_COUNT;
+  return currentStock;
+}
+
+function stockDepletionInfo(item, currentStock) {
+  const original = estimateOriginalStock(item, currentStock);
+  const depleted = Math.max(0, original - currentStock);
+  const pct = original > 0 ? depleted / original : 0;
+  return { original, depleted, pct };
+}
+
+function stockRiskStatus(currentStock, depletion) {
+  if (currentStock <= 0) return { label:"Critical: Out of Stock", cls:"reorder-critical", rank:0 };
+  if (currentStock <= 2 || depletion.pct >= 0.90) return { label:"Critical Low Stock", cls:"reorder-critical", rank:0 };
+  if (currentStock <= 4 || depletion.pct >= 0.80) return { label:"Reorder Now", cls:"reorder-now", rank:1 };
+  if (currentStock <= 5 || depletion.pct >= 0.50) return { label:"Watch", cls:"reorder-watch", rank:2 };
+  return { label:"No Recent Sales", cls:"reorder-none", rank:4 };
+}
+
+function reorderStatusForDays(daysRemaining, avgPerDay, currentStock, depletion) {
+  const staticRisk = stockRiskStatus(currentStock, depletion || { pct:0 });
+  if (!avgPerDay || avgPerDay <= 0) return staticRisk;
+
+  let velocityRisk;
+  if (currentStock <= 0 || daysRemaining <= 7) velocityRisk = { label:"Critical", cls:"reorder-critical", rank:0 };
+  else if (daysRemaining <= 21) velocityRisk = { label:"Reorder Now", cls:"reorder-now", rank:1 };
+  else if (daysRemaining <= 30) velocityRisk = { label:"Watch", cls:"reorder-watch", rank:2 };
+  else velocityRisk = { label:"Healthy", cls:"reorder-healthy", rank:3 };
+
+  return velocityRisk.rank <= staticRisk.rank ? velocityRisk : staticRisk;
 }
 
 function roundUpToFive(value) {
@@ -895,6 +954,14 @@ function formatDaysRemaining(days, avgPerDay) {
   return rounded === 1 ? "1 day remains" : `${rounded} days remain`;
 }
 
+function formatDepletion(depletion, currentStock) {
+  const original = Math.max(0, Math.round(Number(depletion?.original || 0)));
+  const depleted = Math.max(0, Math.round(Number(depletion?.depleted || 0)));
+  const pct = Math.round(Number(depletion?.pct || 0) * 100);
+  if (!original) return "—";
+  return `${currentStock} of ${original} left · ${pct}% depleted`;
+}
+
 function renderReorderReview() {
   const body = $("reorderReviewBody");
   if (!body) return;
@@ -907,9 +974,11 @@ function renderReorderReview() {
     const demand21 = avgPerDay * REORDER_LEAD_DAYS;
     const demand30 = avgPerDay * REORDER_WATCH_DAYS;
     const daysRemaining = avgPerDay > 0 ? currentStock / avgPerDay : Infinity;
-    const status = reorderStatusForDays(daysRemaining, avgPerDay, currentStock);
-    const suggested = roundUpToFive(Math.ceil(demand30 - currentStock));
-    return { item, sales, currentStock, avgPerDay, demand21, daysRemaining, status, suggested };
+    const depletion = stockDepletionInfo(item, currentStock);
+    const status = reorderStatusForDays(daysRemaining, avgPerDay, currentStock, depletion);
+    const targetStock = avgPerDay > 0 ? Math.ceil(demand30) : DEFAULT_KIT_VIAL_COUNT;
+    const suggested = roundUpToFive(Math.ceil(targetStock - currentStock));
+    return { item, sales, currentStock, avgPerDay, demand21, daysRemaining, depletion, status, suggested };
   }).sort((a,b) => {
     if (a.status.rank !== b.status.rank) return a.status.rank - b.status.rank;
     const aDays = Number.isFinite(a.daysRemaining) ? a.daysRemaining : 999999;
@@ -933,12 +1002,12 @@ function renderReorderReview() {
 
   const note = $("reorderReviewNote");
   if (note) {
-    const base = `Using the last ${rangeDays} days of order_items sales and a ${REORDER_LEAD_DAYS}-day lead time. Suggested reorder quantity targets roughly ${REORDER_WATCH_DAYS} days of coverage and rounds up to the nearest 5 vials.`;
+    const base = `Using the last ${rangeDays} days of order_items sales, stock depletion, a ${REORDER_LEAD_DAYS}-day lead time, and a ${DEFAULT_KIT_VIAL_COUNT}-vial kit baseline when movement history is unavailable. Suggested reorder quantity targets roughly ${REORDER_WATCH_DAYS} days of coverage or restores to a kit baseline, rounded up to the nearest 5 vials.`;
     note.textContent = reorderSalesLoadError ? `${base} Sales lookup warning: ${reorderSalesLoadError}` : base;
   }
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="8" class="note">No inventory rows loaded.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9" class="note">No inventory rows loaded.</td></tr>`;
     return;
   }
 
@@ -954,6 +1023,7 @@ function renderReorderReview() {
         <td>${row.avgPerDay.toFixed(2)}</td>
         <td>${Math.ceil(row.demand21)}</td>
         <td>${esc(formatDaysRemaining(row.daysRemaining, row.avgPerDay))}</td>
+        <td>${esc(formatDepletion(row.depletion, row.currentStock))}</td>
         <td><span class="reorder-badge ${row.status.cls}">${esc(row.status.label)}</span></td>
         <td><strong>${esc(suggestedText)}</strong></td>
       </tr>
