@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V11_REORDER_BUTTON_TO_INCOMING -->
 <!-- PST_INVENTORY_PATCH_V10_REPLENISHMENT_STATUS_FIX -->
 <!-- PST_INVENTORY_PATCH_V9_KIT_COST_AUTO_CALC -->
 <!-- PST_INVENTORY_PATCH_V8_COST_TRACKING_FINANCIALS -->
@@ -472,6 +473,19 @@ header .header-actions .btn.secondary.active {
   text-transform:uppercase;
   white-space:nowrap;
   border:1px solid transparent;
+}
+.reorder-action-btn {
+  cursor:pointer;
+  font-family:inherit;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.reorder-action-btn:hover {
+  filter:brightness(0.97);
+  transform:translateY(-1px);
+}
+.reorder-action-btn:active {
+  transform:translateY(0);
 }
 .reorder-critical {
   background:#fff0f0;
@@ -1186,13 +1200,43 @@ function renderReorderReview() {
         <td>${Math.ceil(row.demand21)}</td>
         <td>${esc(formatDaysRemaining(row.daysRemaining, row.avgPerDay))}</td>
         <td>${esc(formatDepletion(row.depletion, row.currentStock))}</td>
-        <td><span class="reorder-badge ${row.status.cls}">${esc(row.status.label)}</span></td>
+        <td>${row.status.rank <= 2 ? `<button class="reorder-badge reorder-action-btn ${row.status.cls}" type="button" data-reorder-product-id="${esc(row.item.id)}" data-reorder-qty="${esc(row.suggested > 0 ? row.suggested : DEFAULT_KIT_VIAL_COUNT)}" title="Create an incoming inventory order for this product">${esc(row.status.label)}</button>` : `<span class="reorder-badge ${row.status.cls}">${esc(row.status.label)}</span>`}</td>
         <td><strong>${esc(suggestedText)}</strong></td>
       </tr>
     `;
   }).join("");
+
+  document.querySelectorAll(".reorder-action-btn").forEach(btn => {
+    btn.addEventListener("click", () => startIncomingOrderFromReorder(btn.dataset.reorderProductId, btn.dataset.reorderQty));
+  });
 }
 
+function startIncomingOrderFromReorder(productId, suggestedQty) {
+  const product = allItems.find(item => String(item.id) === String(productId));
+  if (!product) return;
+
+  populateIncomingProductSelect();
+  const select = $("incomingProductSelect");
+  const qtyEl = $("incomingQty");
+  const statusEl = $("incomingStatus");
+  const card = $("incomingInventoryCard");
+
+  if (select) select.value = product.id;
+  if (qtyEl) {
+    const qty = Number(suggestedQty || 0) > 0 ? Number(suggestedQty) : DEFAULT_KIT_VIAL_COUNT;
+    qtyEl.value = String(qty);
+  }
+  if (statusEl) statusEl.value = "ordered";
+  setIncomingUserField(true);
+  syncIncomingTotalCostField();
+
+  if (card) card.scrollIntoView({ behavior:"smooth", block:"start" });
+  setStatus(`Incoming order started for ${incomingProductLabel(product)}. Enter kit cost, supplier/tracking if available, then click Add Incoming.`, "good");
+  setTimeout(() => {
+    const kitCost = $("incomingKitCost");
+    if (kitCost) kitCost.focus();
+  }, 350);
+}
 
 async function checkAdmin() {
   const { data, error } = await db.auth.getSession();
