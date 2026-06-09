@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V12_SKU_IDENTITY_READY -->
 <!-- PST_INVENTORY_PATCH_V11_REORDER_BUTTON_TO_INCOMING -->
 <!-- PST_INVENTORY_PATCH_V10_REPLENISHMENT_STATUS_FIX -->
 <!-- PST_INVENTORY_PATCH_V9_KIT_COST_AUTO_CALC -->
@@ -670,7 +671,7 @@ header .header-actions .btn.secondary.active {
     </div>
     <div class="incoming-form-grid">
       <div class="field">
-        <label>Product</label>
+        <label>Product / SKU</label>
         <select id="incomingProductSelect"><option value="">Loading products...</option></select>
       </div>
       <div class="field">
@@ -1312,12 +1313,11 @@ function incomingRowOpen(row) {
 
 function incomingProductLabel(item) {
   if (!item) return "Product";
-  const display = String(item.display_name || item.product_key || item.id || "Product").trim();
+  const sku = String(item.product_key || item.sku || "").trim();
+  const display = String(item.display_name || sku || item.id || "Product").trim();
   const strength = String(item.strength || "").trim();
-  if (strength && !display.toLowerCase().includes(strength.toLowerCase())) {
-    return `${display} — ${strength}`;
-  }
-  return display;
+  const fullLabel = strength && !display.toLowerCase().includes(strength.toLowerCase()) ? `${display} ${strength}` : display;
+  return sku ? `${fullLabel} — ${sku}` : fullLabel;
 }
 
 function selectedIncomingProduct() {

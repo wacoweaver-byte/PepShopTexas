@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_REPORTS_PATCH_V22_SKU_IDENTITY_READY -->
 <!-- PST_REPORTS_PATCH_V21_DOSE_LABEL_PRODUCT_SALES -->
 <!-- PST_REPORTS_PATCH_V20_PRODUCT_ALIAS_INVENTORY_MATCH -->
 <!-- PST_REPORTS_PATCH_V18_FINANCIALS_BUTTON_FIX -->
@@ -297,8 +298,8 @@ header .header-actions .btn.secondary.active {
         </div>
         <div class="table-wrap">
           <table class="product-sales-table">
-            <thead><tr><th>Product</th><th>Qty Sold</th><th>Gross Sales</th><th>Avg Price</th><th>Current Stock</th><th>Avg/Day</th><th>21-Day Demand</th><th>Days Remaining</th><th>Reorder Status</th></tr></thead>
-            <tbody id="productSalesBody"><tr><td colspan="9" class="muted">Loading product sales...</td></tr></tbody>
+            <thead><tr><th>Product</th><th>SKU</th><th>Qty Sold</th><th>Gross Sales</th><th>Avg Price</th><th>Current Stock</th><th>Avg/Day</th><th>21-Day Demand</th><th>Days Remaining</th><th>Reorder Status</th></tr></thead>
+            <tbody id="productSalesBody"><tr><td colspan="10" class="muted">Loading product sales...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -980,7 +981,8 @@ function getProductSalesRows(orders){
       const inventoryRow = inventoryRowForProduct(rawName, item);
       const label = inventoryRow ? inventoryDisplayLabel(inventoryRow) : itemDisplayLabelWithDose(item);
       const key = inventoryRow ? `inventory:${inventoryRow.id || inventoryRow.product_id || label}` : `item:${label}`;
-      if (!groups[key]) groups[key] = { product:label, quantity:0, sales:0, aliases:new Set(), inventoryRow:null };
+      const sku = inventoryRow ? cleanText(inventoryRow.product_key || inventoryRow.sku || inventoryRow.product_id) : cleanText(item.product_id || item.product_key || item.sku);
+      if (!groups[key]) groups[key] = { product:label, sku, quantity:0, sales:0, aliases:new Set(), inventoryRow:null };
       groups[key].quantity += itemQuantity(item);
       groups[key].sales += itemLineTotal(item);
       groups[key].aliases.add(rawName);
@@ -1188,7 +1190,7 @@ function renderProductSalesReport(orders){
   const rows = productSalesWithInventory(orders);
   if (count) count.textContent = `${rows.length} product${rows.length === 1 ? "" : "s"} · ${PST_REORDER_LEAD_DAYS}-day lead-time logic`;
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="9" class="muted">No product item rows found for this range.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="muted">No product item rows found for this range.</td></tr>`;
     return;
   }
   body.innerHTML = rows.map(row => {
@@ -1197,6 +1199,7 @@ function renderProductSalesReport(orders){
     const daysRemainingText = Number.isFinite(row.daysRemaining) ? `${Math.ceil(row.daysRemaining)} day${Math.ceil(row.daysRemaining) === 1 ? "" : "s"} remain${Math.ceil(row.daysRemaining) === 1 ? "s" : ""}` : "—";
     return `<tr>
       <td><strong>${safe(row.product)}</strong></td>
+      <td><code>${safe(row.sku || "—")}</code></td>
       <td>${safe(row.quantity)}</td>
       <td>${money(row.sales)}</td>
       <td>${money(avg)}</td>
