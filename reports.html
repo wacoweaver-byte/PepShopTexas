@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_REPORTS_PATCH_V23_REALIZED_REVENUE -->
 <!-- PST_REPORTS_PATCH_V22_SKU_IDENTITY_READY -->
 <!-- PST_REPORTS_PATCH_V21_DOSE_LABEL_PRODUCT_SALES -->
 <!-- PST_REPORTS_PATCH_V20_PRODUCT_ALIAS_INVENTORY_MATCH -->
@@ -52,6 +53,7 @@
     .pill.good{color:var(--success);background:rgba(15,138,59,.1);border-color:rgba(15,138,59,.18)}
     .pill.warn{color:var(--warning);background:rgba(183,121,31,.1);border-color:rgba(183,121,31,.18)}
     .pill.info{color:var(--blue);background:rgba(0,119,200,.1);border-color:rgba(0,119,200,.18)}
+    .pill.danger{color:var(--danger);background:rgba(180,35,24,.1);border-color:rgba(180,35,24,.18)}
     .ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .ops-note{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:13px;line-height:1.45}
     .ops-note strong{display:block;margin-bottom:6px;color:var(--blue)}
@@ -278,8 +280,8 @@ header .header-actions .btn.secondary.active {
         </div>
         <div class="table-wrap">
           <table class="detail-report-table">
-            <thead><tr><th>Date</th><th>Order #</th><th>Customer</th><th>Status</th><th>Payment</th><th>Tax</th><th>Shipping</th><th>Total</th></tr></thead>
-            <tbody id="detailedOrdersBody"><tr><td colspan="8" class="muted">Loading detailed orders...</td></tr></tbody>
+            <thead><tr><th>Date</th><th>Order #</th><th>Customer</th><th>Status</th><th>Payment</th><th>Revenue Class</th><th>Tax</th><th>Shipping</th><th>Total</th></tr></thead>
+            <tbody id="detailedOrdersBody"><tr><td colspan="9" class="muted">Loading detailed orders...</td></tr></tbody>
           </table>
         </div>
 
@@ -359,10 +361,11 @@ header .header-actions .btn.secondary.active {
       </div>
       <div class="card-body finance-panel">
         <div class="finance-summary-grid">
-          <div class="finance-summary-card"><strong id="finRevenue">—</strong><span>Revenue in Range</span></div>
+          <div class="finance-summary-card"><strong id="finRevenue">—</strong><span>Realized Revenue</span></div>
+          <div class="finance-summary-card"><strong id="finPendingRevenue">—</strong><span>Pending / Open Revenue</span></div>
           <div class="finance-summary-card"><strong id="finProductSpend">—</strong><span>Inventory / Product Spend</span></div>
           <div class="finance-summary-card"><strong id="finOperatingExpenses">—</strong><span>Operating Expenses</span></div>
-          <div class="finance-summary-card"><strong id="finCashProfit">—</strong><span>Estimated Cash Profit</span></div>
+          <div class="finance-summary-card"><strong id="finCashProfit">—</strong><span>Estimated Realized Profit</span></div>
           <div class="finance-summary-card"><strong id="finInventoryValue">—</strong><span>Estimated Inventory Value</span></div>
           <div class="finance-summary-card"><strong id="finTaxHeld">—</strong><span>Tax Collected / Held</span></div>
         </div>
@@ -496,6 +499,29 @@ function orderTotal(order){return Number(order.total || order.total_amount || or
 function orderTax(order){return Number(order.tax_amount || order.tax || order.sales_tax || 0);}
 function orderShipping(order){return Number(order.shipping_amount || order.shipping || order.shipping_total || 0);}
 function orderDiscount(order){return Number(order.discount_amount || order.discount || order.discount_total || 0);}
+const PST_REALIZED_REVENUE_STATUSES = new Set(["shipped","delivered","complete","completed"]);
+const PST_EXCLUDED_REVENUE_STATUSES = new Set(["rejected","reject","cancelled","canceled","cancelled_order","canceled_order","inventory_failed","failed","refunded","void","voided"]);
+function revenueClass(order){
+  const status = norm(orderStatus(order));
+  if (PST_EXCLUDED_REVENUE_STATUSES.has(status)) return "excluded";
+  if (PST_REALIZED_REVENUE_STATUSES.has(status)) return "realized";
+  return "pending";
+}
+function revenueClassLabel(order){
+  const cls = revenueClass(order);
+  if (cls === "realized") return "Realized";
+  if (cls === "excluded") return "Excluded";
+  return "Pending / Open";
+}
+function revenueClassBadge(order){
+  const cls = revenueClass(order);
+  if (cls === "realized") return `<span class="pill good">Realized</span>`;
+  if (cls === "excluded") return `<span class="pill danger">Excluded</span>`;
+  return `<span class="pill warn">Pending / Open</span>`;
+}
+function isRealizedRevenueOrder(order){ return revenueClass(order) === "realized"; }
+function isPendingRevenueOrder(order){ return revenueClass(order) === "pending"; }
+function isExcludedRevenueOrder(order){ return revenueClass(order) === "excluded"; }
 function orderSubtotal(order){return Number(order.subtotal || order.subtotal_amount || order.items_subtotal || order.product_subtotal || 0);}
 function orderNumber(order){return order.order_number || order.order_no || order.order_id || order.id || "—";}
 function cleanText(value){
@@ -817,9 +843,16 @@ function switchToCustomRange(){
   refreshOrderReport();
 }
 
-function reportTotals(orders){
-  const totals = { orders: orders.length, gross:0, tax:0, shipping:0, discounts:0, average:0 };
-  orders.forEach(order => {
+function reportTotals(orders, mode="all"){
+  const source = (orders || []).filter(order => {
+    if (mode === "realized") return isRealizedRevenueOrder(order);
+    if (mode === "pending") return isPendingRevenueOrder(order);
+    if (mode === "excluded") return isExcludedRevenueOrder(order);
+    if (mode === "active") return !isExcludedRevenueOrder(order);
+    return true;
+  });
+  const totals = { orders: source.length, gross:0, tax:0, shipping:0, discounts:0, average:0 };
+  source.forEach(order => {
     totals.gross += orderTotal(order);
     totals.tax += orderTax(order);
     totals.shipping += orderShipping(order);
@@ -855,7 +888,7 @@ function exportOrderCsv(){
     const db = orderDateValue(b)?.getTime() || 0;
     return db - da;
   });
-  const headers = ["Date","Order #","Customer","Email","Status","Payment","Subtotal","Discount","Tax","Shipping","Total"];
+  const headers = ["Date","Order #","Customer","Email","Status","Payment","Revenue Class","Subtotal","Discount","Tax","Shipping","Total"];
   const rows = orders.map(order => [
     shortDateTime(order.created_at || order.order_date || order.date || order.submitted_at || order.created),
     orderNumber(order),
@@ -863,6 +896,7 @@ function exportOrderCsv(){
     customerEmail(order),
     displayOrderStatus(norm(orderStatus(order))),
     String(paymentStatus(order)).replaceAll("_"," "),
+    revenueClassLabel(order),
     orderSubtotal(order).toFixed(2),
     orderDiscount(order).toFixed(2),
     orderTax(order).toFixed(2),
@@ -906,7 +940,7 @@ function renderDetailedOrders(orders){
   if (count) count.textContent = `${orders.length} order${orders.length === 1 ? "" : "s"}`;
   if (!body) return;
   if (!orders.length) {
-    body.innerHTML = `<tr><td colspan="8" class="muted">No individual orders found for this range.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9" class="muted">No individual orders found for this range.</td></tr>`;
     return;
   }
   const sorted = orders.slice().sort((a,b) => {
@@ -922,6 +956,7 @@ function renderDetailedOrders(orders){
       <td>${customer}</td>
       <td>${safe(displayOrderStatus(norm(orderStatus(order))))}</td>
       <td>${safe(String(paymentStatus(order)).replaceAll("_"," "))}</td>
+      <td>${revenueClassBadge(order)}</td>
       <td>${money(orderTax(order))}</td>
       <td>${money(orderShipping(order))}</td>
       <td><strong>${money(orderTotal(order))}</strong></td>
@@ -1257,7 +1292,10 @@ function inventoryValueFromIncoming(){
   return total;
 }
 function renderFinancials(orders){
-  const totals = reportTotals(orders || []);
+  const allOrders = orders || [];
+  const realizedTotals = reportTotals(allOrders, "realized");
+  const pendingTotals = reportTotals(allOrders, "pending");
+  const excludedTotals = reportTotals(allOrders, "excluded");
   const incoming = incomingRowsLocal();
   const expenses = expenseRowsLocal();
   localExpenseRows = expenses;
@@ -1265,18 +1303,19 @@ function renderFinancials(orders){
   const expensesInRange = expenses.filter(row => rowDateInSelectedRange(row.date || row.created_at));
   const productSpend = incomingInRange.reduce((sum,row)=>sum + incomingCost(row),0);
   const operatingExpenses = expensesInRange.reduce((sum,row)=>sum + Number(row.amount || 0),0);
-  const cashProfit = totals.gross - productSpend - operatingExpenses;
-  setText("finRevenue", money(totals.gross));
+  const cashProfit = realizedTotals.gross - productSpend - operatingExpenses;
+  setText("finRevenue", money(realizedTotals.gross));
+  setText("finPendingRevenue", money(pendingTotals.gross));
   setText("finProductSpend", money(productSpend));
   setText("finOperatingExpenses", money(operatingExpenses));
   setText("finCashProfit", money(cashProfit));
   const profitEl = $("finCashProfit");
   if (profitEl) profitEl.className = cashProfit >= 0 ? "money-positive" : "money-negative";
   setText("finInventoryValue", money(inventoryValueFromIncoming()));
-  setText("finTaxHeld", money(totals.tax));
+  setText("finTaxHeld", money(realizedTotals.tax));
   renderExpenseTable(expensesInRange);
   const note = $("financeNote");
-  if (note) note.textContent = `Financials for the selected report range: ${expensesInRange.length} expense row(s), ${incomingInRange.length} incoming inventory cost row(s). Cash profit is revenue minus product spend and operating expenses; it is an operational estimate, not a tax/accounting statement.`;
+  if (note) note.textContent = `Financials for the selected report range: ${realizedTotals.orders} realized order(s), ${pendingTotals.orders} pending/open order(s), ${excludedTotals.orders} excluded order(s), ${expensesInRange.length} expense row(s), and ${incomingInRange.length} incoming inventory cost row(s). Revenue and estimated profit are realized only when order status is Shipped, Delivered, Complete, or Completed. Pending, Processing, Packed, Inventory Failed, Rejected, Cancelled, Refunded, and Void orders are not counted as realized revenue/profit.`;
 }
 function renderExpenseTable(rows){
   const body = $("expenseBody");
