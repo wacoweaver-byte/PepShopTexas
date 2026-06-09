@@ -365,6 +365,28 @@ main {
   }
 }
 
+
+/* PST SHARED ADMIN HEADER RULE - VERIFIED 2026-06-08 */
+header .pst-master-admin-logo {
+  height: 54px !important;
+  max-width: 230px !important;
+}
+
+header .pst-master-page-label {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* PST SHARED ADMIN ACTIVE NAV RULE - VERIFIED 2026-06-08 */
+header .actions .btn.secondary.active,
+header .header-actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
 </style>
 </head>
 <body>
@@ -375,7 +397,7 @@ main {
       <div class="pst-master-page-label">Inventory Management</div>
     </div>
     <div class="actions">
-      <!-- PST VERIFIED ADMIN NAV: Reports link added 2026-06-08 -->
+      <!-- PST SHARED ADMIN NAV VERIFIED 2026-06-08 -->
       <a class="btn secondary" href="admin.html">Orders</a>
       <a class="btn secondary active" href="inventory.html">Inventory</a>
       <a class="btn secondary" href="products.html">Products</a>

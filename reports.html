@@ -58,7 +58,29 @@
     @media(max-width:1100px){.span-8,.span-6,.span-4{grid-column:span 12}.stat-grid{grid-template-columns:1fr 1fr}.ops-grid{grid-template-columns:1fr}}
     @media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.pst-master-admin-logo{height:46px;max-width:200px}.pst-master-page-label{font-size:15px;white-space:normal}.page-title{flex-direction:column}.stat-grid{grid-template-columns:1fr}.resource{grid-template-columns:1fr}.resource .btn{width:100%}}
     @media print{header,.actions,.print-actions,#refreshBtn,#signOutBtn{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}main{max-width:none;padding:0}.status{display:none}}
-  </style>
+  
+/* PST SHARED ADMIN HEADER RULE - VERIFIED 2026-06-08 */
+header .pst-master-admin-logo {
+  height: 54px !important;
+  max-width: 230px !important;
+}
+
+header .pst-master-page-label {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* PST SHARED ADMIN ACTIVE NAV RULE - VERIFIED 2026-06-08 */
+header .actions .btn.secondary.active,
+header .header-actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
+</style>
 </head>
 <body>
 <header>
@@ -68,6 +90,7 @@
       <div class="pst-master-page-label">Reports</div>
     </div>
     <div class="actions">
+      <!-- PST SHARED ADMIN NAV VERIFIED 2026-06-08 -->
       <a class="btn secondary" href="admin.html">Orders</a>
       <a class="btn secondary" href="inventory.html">Inventory</a>
       <a class="btn secondary" href="products.html">Products</a>

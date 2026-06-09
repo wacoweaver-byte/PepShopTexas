@@ -384,21 +384,43 @@ header .actions .btn:hover {
   }
 }
 
+
+/* PST SHARED ADMIN HEADER RULE - VERIFIED 2026-06-08 */
+header .pst-master-admin-logo {
+  height: 54px !important;
+  max-width: 230px !important;
+}
+
+header .pst-master-page-label {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* PST SHARED ADMIN ACTIVE NAV RULE - VERIFIED 2026-06-08 */
+header .actions .btn.secondary.active,
+header .header-actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
 </style>
 </head>
 <body>
 <header>
   <div class="topbar">
     <div class="brand">
-      <img class="pst-admin-logo" src="assets/icons/apple-touch-icon.png" alt="Pep Shop Texas logo">
-      <div><small>Discount Management</small></div>
+      <img class="pst-master-admin-logo" src="assets/icons/pst-approved-logo.png" alt="Pep Shop Texas logo">
+      <div class="pst-master-page-label">Discount Management</div>
     </div>
     <div class="actions">
+      <!-- PST SHARED ADMIN NAV VERIFIED 2026-06-08 -->
       <a class="btn secondary" href="admin.html">Orders</a>
       <a class="btn secondary" href="inventory.html">Inventory</a>
       <a class="btn secondary" href="products.html">Products</a>
       <a class="btn secondary active" href="discounts.html">Discounts</a>
-      <!-- PST REPORTS LINK VERIFIED 2026-06-08 -->
       <a class="btn secondary" href="reports.html">Reports</a>
       <a class="btn secondary" href="index.html">Website</a>
       <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
