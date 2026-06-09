@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_REPORTS_PATCH_V17_FINANCIALS_EXPENSES -->
 <!-- PST_REPORTS_PATCH_V16_REORDER_STATUS_LEGEND -->
 <html lang="en">
 <head>
@@ -66,6 +67,20 @@
     .financial-summary-card{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;min-height:82px}
     .financial-summary-card strong{display:block;font-size:20px;line-height:1.05;font-weight:900;color:var(--blue);margin-bottom:7px;word-break:break-word}
     .financial-summary-card span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.045em;line-height:1.2}
+    .finance-panel{margin-top:18px}
+    .finance-controls{display:grid;grid-template-columns:.8fr 1fr 1.2fr .7fr .8fr auto;gap:10px;align-items:end;padding:14px;border-bottom:1px solid var(--border);background:#fbfcfe}
+    .finance-summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 14px}
+    .finance-summary-card{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;min-height:82px}
+    .finance-summary-card strong{display:block;font-size:20px;line-height:1.05;font-weight:900;color:var(--blue);margin-bottom:7px;word-break:break-word}
+    .finance-summary-card span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.045em;line-height:1.2}
+    .finance-note{padding:12px 14px;color:var(--muted);font-size:13px;line-height:1.4;border-top:1px solid var(--border);background:#fbfcfe}
+    .finance-table{width:100%;border-collapse:collapse;min-width:860px}
+    .finance-table th,.finance-table td{border-bottom:1px solid var(--border);padding:10px;text-align:left;vertical-align:middle;font-size:13px}
+    .finance-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}
+    .money-negative{color:var(--danger);font-weight:900}.money-positive{color:var(--success);font-weight:900}
+    @media(max-width:1200px){.finance-controls{grid-template-columns:1fr 1fr}.finance-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:700px){.finance-controls,.finance-summary-grid{grid-template-columns:1fr}}
+
     .detail-report-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px;flex-wrap:wrap}
     .detail-report-head h3{margin:0;font-size:17px}
     .detail-report-table{min-width:1040px}
@@ -185,6 +200,7 @@ header .header-actions .btn.secondary.active {
       <p class="subtitle">Read-only admin hub for quick reports, platform links, and Pep Shop Texas operating notes.</p>
     </div>
     <div class="print-actions">
+      <a class="btn secondary" href="#financials">Financials / Expenses</a>
       <button class="btn secondary" type="button" onclick="window.print()">Print / Save PDF</button>
     </div>
   </section>
@@ -205,7 +221,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8 print-report-only">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v16 REORDER GUIDE</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v17 FINANCIALS</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -377,6 +393,9 @@ const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = (id) => document.getElementById(id);
 let currentUser = null;
+const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
+const PST_EXPENSE_STORAGE_KEY = "pst_operating_expenses_v1";
+let localExpenseRows = [];
 let allReportOrders = [];
 let allOrderItemsByOrder = {};
 let allInventoryRows = [];
@@ -703,6 +722,7 @@ function refreshOrderReport(){
   renderOrderReport(orders);
   renderDetailedOrders(orders);
   renderProductSalesReport(orders);
+  renderFinancials(orders);
   const note = $("orderReportNote");
   const range = $("orderReportRange")?.value || "last7";
   const startDate = range === "all" ? null : dateInputValue("orderReportStartDate");
@@ -1004,6 +1024,118 @@ function renderProductSalesReport(orders){
   }).join("");
 }
 
+
+function readJsonStorage(key, fallback){
+  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch(e) { return fallback; }
+}
+function writeJsonStorage(key, value){
+  try { localStorage.setItem(key, JSON.stringify(value || [])); } catch(e) {}
+}
+function incomingRowsLocal(){ return readJsonStorage(PST_INCOMING_STORAGE_KEY, []); }
+function expenseRowsLocal(){ return readJsonStorage(PST_EXPENSE_STORAGE_KEY, []); }
+function rowDateInSelectedRange(value){
+  const range = $("orderReportRange")?.value || "last7";
+  if (range === "all") return true;
+  const d = value ? new Date(value) : null;
+  if (!d || Number.isNaN(d.getTime())) return false;
+  const start = dateInputValue("orderReportStartDate");
+  const end = endOfDay(dateInputValue("orderReportEndDate"));
+  if (start && d < start) return false;
+  if (end && d > end) return false;
+  return true;
+}
+function incomingCost(row){
+  const explicit = Number(row?.total_cost ?? row?.total_paid ?? row?.amount_paid ?? 0);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  const qty = Number(row?.ordered_quantity || 0);
+  const unit = Number(row?.cost_per_unit ?? row?.unit_cost ?? 0);
+  const ship = Number(row?.shipping_cost ?? row?.freight_cost ?? row?.fees ?? 0);
+  return (qty * unit) + ship;
+}
+function inventoryValueFromIncoming(){
+  const incoming = incomingRowsLocal();
+  const latestUnitCost = {};
+  incoming.forEach(row => {
+    const key = cleanText(row.product_key || row.product_name || row.product_id).toLowerCase();
+    const unit = Number(row.cost_per_unit ?? row.unit_cost ?? 0);
+    if (key && unit > 0) latestUnitCost[key] = unit;
+  });
+  let total = 0;
+  (allInventoryRows || []).forEach(row => {
+    const names = [row.product_key, row.display_name, row.product_name, row.name].map(v => cleanText(v).toLowerCase()).filter(Boolean);
+    const cost = names.map(n => latestUnitCost[n]).find(v => Number(v) > 0) || 0;
+    total += qtyValue(row) * cost;
+  });
+  return total;
+}
+function renderFinancials(orders){
+  const totals = reportTotals(orders || []);
+  const incoming = incomingRowsLocal();
+  const expenses = expenseRowsLocal();
+  localExpenseRows = expenses;
+  const incomingInRange = incoming.filter(row => rowDateInSelectedRange(row.ordered_at || row.created_at || row.date_ordered));
+  const expensesInRange = expenses.filter(row => rowDateInSelectedRange(row.date || row.created_at));
+  const productSpend = incomingInRange.reduce((sum,row)=>sum + incomingCost(row),0);
+  const operatingExpenses = expensesInRange.reduce((sum,row)=>sum + Number(row.amount || 0),0);
+  const cashProfit = totals.gross - productSpend - operatingExpenses;
+  setText("finRevenue", money(totals.gross));
+  setText("finProductSpend", money(productSpend));
+  setText("finOperatingExpenses", money(operatingExpenses));
+  setText("finCashProfit", money(cashProfit));
+  const profitEl = $("finCashProfit");
+  if (profitEl) profitEl.className = cashProfit >= 0 ? "money-positive" : "money-negative";
+  setText("finInventoryValue", money(inventoryValueFromIncoming()));
+  setText("finTaxHeld", money(totals.tax));
+  renderExpenseTable(expensesInRange);
+  const note = $("financeNote");
+  if (note) note.textContent = `Financials for the selected report range: ${expensesInRange.length} expense row(s), ${incomingInRange.length} incoming inventory cost row(s). Cash profit is revenue minus product spend and operating expenses; it is an operational estimate, not a tax/accounting statement.`;
+}
+function renderExpenseTable(rows){
+  const body = $("expenseBody");
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="6" class="muted">No expenses recorded in the selected report range.</td></tr>`;
+    return;
+  }
+  const sorted = rows.slice().sort((a,b)=>new Date(b.date || b.created_at || 0)-new Date(a.date || a.created_at || 0));
+  body.innerHTML = sorted.map(row => `<tr>
+    <td>${safe(row.date || shortDateTime(row.created_at))}</td>
+    <td>${safe(row.category || "Expense")}</td>
+    <td>${safe(row.description || "—")}</td>
+    <td>${safe(row.method || "—")}</td>
+    <td><strong>${money(row.amount || 0)}</strong></td>
+    <td><button class="btn danger delete-expense-btn" data-expense-id="${safe(row.id)}" type="button">Delete</button></td>
+  </tr>`).join("");
+  document.querySelectorAll(".delete-expense-btn").forEach(btn => btn.addEventListener("click", () => deleteExpense(btn.dataset.expenseId)));
+}
+function addExpense(){
+  const amount = Number($("expenseAmount")?.value || 0);
+  if (!amount || amount <= 0) { alert("Enter an expense amount greater than zero."); return; }
+  const row = {
+    id: crypto?.randomUUID ? crypto.randomUUID() : `expense_${Date.now()}`,
+    date: $("expenseDate")?.value || new Date().toISOString().slice(0,10),
+    category: $("expenseCategory")?.value || "Expense",
+    description: $("expenseDescription")?.value.trim() || "",
+    amount,
+    method: $("expenseMethod")?.value.trim() || "",
+    created_at: new Date().toISOString(),
+    created_by: currentUser?.email || null
+  };
+  const rows = expenseRowsLocal();
+  rows.unshift(row);
+  writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+  if ($("expenseAmount")) $("expenseAmount").value = "";
+  if ($("expenseDescription")) $("expenseDescription").value = "";
+  if ($("expenseMethod")) $("expenseMethod").value = "";
+  refreshOrderReport();
+}
+function deleteExpense(id){
+  if (!confirm("Delete this expense entry?")) return;
+  const rows = expenseRowsLocal().filter(row => String(row.id) !== String(id));
+  writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+  refreshOrderReport();
+}
+
 async function init(){
   try{
     $("refreshBtn")?.addEventListener("click", loadReports);
@@ -1011,6 +1143,8 @@ async function init(){
     $("orderReportStartDate")?.addEventListener("change", switchToCustomRange);
     $("orderReportEndDate")?.addEventListener("change", switchToCustomRange);
     $("exportOrderCsvBtn")?.addEventListener("click", exportOrderCsv);
+    if ($("expenseDate") && !$("expenseDate").value) $("expenseDate").value = new Date().toISOString().slice(0,10);
+    $("addExpenseBtn")?.addEventListener("click", addExpense);
     setPresetDateInputs("last7");
     $("saveTaxSettingsBtn")?.addEventListener("click", saveTaxSettings);
     $("resetTaxSettingsBtn")?.addEventListener("click", () => { fillTaxForm(PST_DEFAULT_TAX_SETTINGS); saveTaxSettings(); });

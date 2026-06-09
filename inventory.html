@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V8_COST_TRACKING_FINANCIALS -->
 <!-- PST_INVENTORY_PATCH_V7_REORDER_SALES_LOOKUP_FIX -->
 <!-- PST_INVENTORY_PATCH_V5_INCOMING_DROPDOWN_STRENGTH -->
 <!-- PST_INVENTORY_PATCH_V4_REORDER_HEADER_COUNTS -->
@@ -525,7 +526,7 @@ header .header-actions .btn.secondary.active {
 
 /* PST Incoming Inventory / Purchase Order Lite */
 .incoming-card { margin: 18px 0; }
-.incoming-form-grid { display:grid; grid-template-columns:1.2fr .55fr .8fr .9fr .9fr 1fr auto; gap:10px; align-items:end; padding:14px; border-bottom:1px solid var(--line); background:#fbfcff; }
+.incoming-form-grid { display:grid; grid-template-columns:1.2fr .5fr .7fr .7fr .7fr .8fr .8fr .8fr 1fr auto; gap:10px; align-items:end; padding:14px; border-bottom:1px solid var(--line); background:#fbfcff; }
 .incoming-note { padding:10px 14px; color:var(--muted); font-size:13px; line-height:1.4; border-bottom:1px solid var(--line); }
 .incoming-table-wrap { overflow:auto; }
 .incoming-table { width:100%; border-collapse:collapse; min-width:1250px; }
@@ -539,7 +540,7 @@ header .header-actions .btn.secondary.active {
 .incoming-audit { display:none; margin-top:8px; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:#fbfcff; color:#333; font-size:12px; line-height:1.4; white-space:pre-wrap; }
 .incoming-audit.open { display:block; }
 .incoming-actions { display:flex; flex-wrap:wrap; gap:6px; }
-.incoming-summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:14px; border-bottom:1px solid var(--line); background:#fff; }
+.incoming-summary-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; padding:14px; border-bottom:1px solid var(--line); background:#fff; }
 .incoming-stat { border:1px solid var(--line); border-radius:12px; padding:11px; background:#fbfcff; }
 .incoming-stat strong { display:block; font-size:22px; color:var(--blue); line-height:1; margin-bottom:6px; }
 .incoming-stat span { color:var(--muted); font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; }
@@ -646,6 +647,8 @@ header .header-actions .btn.secondary.active {
     <div class="incoming-summary-grid">
       <div class="incoming-stat"><strong id="incomingOnOrderCount">—</strong><span>Open Incoming Orders</span></div>
       <div class="incoming-stat"><strong id="incomingOnOrderQty">—</strong><span>Total Qty On Order</span></div>
+      <div class="incoming-stat"><strong id="incomingOpenCost">—</strong><span>Open Incoming Cost</span></div>
+      <div class="incoming-stat"><strong id="incomingReceivedCost">—</strong><span>Received Cost</span></div>
       <div class="incoming-stat"><strong id="incomingDueSoonCount">—</strong><span>Due Within 7 Days</span></div>
       <div class="incoming-stat"><strong id="incomingOverdueCount">—</strong><span>Past Expected Arrival</span></div>
     </div>
@@ -657,6 +660,18 @@ header .header-actions .btn.secondary.active {
       <div class="field">
         <label>Ordered Qty</label>
         <input id="incomingQty" type="number" min="1" step="1" placeholder="10" />
+      </div>
+      <div class="field">
+        <label>Cost / Vial</label>
+        <input id="incomingCostPerUnit" type="number" min="0" step="0.01" placeholder="0.00" />
+      </div>
+      <div class="field">
+        <label>Ship / Fees</label>
+        <input id="incomingShippingCost" type="number" min="0" step="0.01" placeholder="0.00" />
+      </div>
+      <div class="field">
+        <label>Total Paid</label>
+        <input id="incomingTotalCost" type="number" min="0" step="0.01" placeholder="Auto" />
       </div>
       <div class="field">
         <label>Supplier / Source</label>
@@ -680,7 +695,7 @@ header .header-actions .btn.secondary.active {
       </div>
       <button class="btn success" id="addIncomingBtn" type="button">Add Incoming</button>
     </div>
-    <div class="incoming-note" id="incomingInventoryNote">Entry timestamp is stored when you add the incoming order. Expected arrival defaults to order date + 21 days. Receiving an order adds that quantity into Current Vials and records an inventory movement.</div>
+    <div class="incoming-note" id="incomingInventoryNote">Entry timestamp is stored when you add the incoming order. Expected arrival defaults to order date + 21 days. Cost fields support financial reporting. Receiving an order adds that quantity into Current Vials and records an inventory movement.</div>
     <div class="incoming-table-wrap">
       <table class="incoming-table">
         <thead>
@@ -691,13 +706,14 @@ header .header-actions .btn.secondary.active {
             <th>Days On Order</th>
             <th>Expected Arrival</th>
             <th>Supplier / Tracking</th>
+            <th>Cost / Paid</th>
             <th>Status</th>
             <th>User</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="incomingInventoryBody">
-          <tr><td colspan="9" class="note">Loading incoming inventory...</td></tr>
+          <tr><td colspan="10" class="note">Loading incoming inventory...</td></tr>
         </tbody>
       </table>
     </div>
@@ -1277,10 +1293,34 @@ function saveIncomingLocalRows(rows) {
   try { localStorage.setItem(PST_INCOMING_STORAGE_KEY, JSON.stringify(rows || [])); } catch (e) {}
 }
 
+function incomingMoney(value) {
+  const n = Number(value || 0);
+  return Number.isFinite(n) ? n.toLocaleString(undefined,{style:"currency",currency:"USD"}) : "$0.00";
+}
+function incomingCostPerUnit(row) { return Number(row.cost_per_unit ?? row.unit_cost ?? 0) || 0; }
+function incomingShippingCost(row) { return Number(row.shipping_cost ?? row.freight_cost ?? row.fees ?? 0) || 0; }
+function incomingTotalCost(row) {
+  const explicit = Number(row.total_cost ?? row.total_paid ?? row.amount_paid ?? 0);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  return (Number(row.ordered_quantity || 0) * incomingCostPerUnit(row)) + incomingShippingCost(row);
+}
+function syncIncomingTotalCostField() {
+  const qty = Number($("incomingQty")?.value || 0);
+  const unit = Number($("incomingCostPerUnit")?.value || 0);
+  const shipping = Number($("incomingShippingCost")?.value || 0);
+  const totalEl = $("incomingTotalCost");
+  if (!totalEl) return;
+  if (!String(totalEl.value || "").trim()) {
+    const calc = (qty * unit) + shipping;
+    if (calc > 0) totalEl.placeholder = calc.toFixed(2);
+  }
+}
+
 function incomingAuditText(row) {
   const lines = [];
   lines.push(`Entered: ${fmtShortDate(row.ordered_at || row.created_at)} by ${row.created_by_email || "Admin"}`);
   lines.push(`Expected arrival: ${fmtShortDate(row.expected_arrival_date)}`);
+  if (incomingTotalCost(row) > 0) lines.push(`Cost tracking: ${incomingMoney(incomingCostPerUnit(row))}/vial · Ship/fees ${incomingMoney(incomingShippingCost(row))} · Total paid ${incomingMoney(incomingTotalCost(row))}`);
   if (row.received_at) lines.push(`Received: ${fmtShortDate(row.received_at)} · Qty received: ${row.received_quantity || row.ordered_quantity || 0}`);
   if (row.updated_at) lines.push(`Last updated: ${fmtShortDate(row.updated_at)}`);
   if (row.audit_note) lines.push(String(row.audit_note));
@@ -1306,11 +1346,13 @@ function renderIncomingInventory() {
   });
   if ($("incomingOnOrderCount")) $("incomingOnOrderCount").textContent = String(openRows.length);
   if ($("incomingOnOrderQty")) $("incomingOnOrderQty").textContent = String(openRows.reduce((sum,row)=>sum + Number(row.ordered_quantity || 0),0));
+  if ($("incomingOpenCost")) $("incomingOpenCost").textContent = incomingMoney(openRows.reduce((sum,row)=>sum + incomingTotalCost(row),0));
+  if ($("incomingReceivedCost")) $("incomingReceivedCost").textContent = incomingMoney(rows.filter(row => String(row.status || "").toLowerCase() === "received").reduce((sum,row)=>sum + incomingTotalCost(row),0));
   if ($("incomingDueSoonCount")) $("incomingDueSoonCount").textContent = String(dueSoon.length);
   if ($("incomingOverdueCount")) $("incomingOverdueCount").textContent = String(overdue.length);
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="9" class="note">No incoming inventory orders recorded yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="note">No incoming inventory orders recorded yet.</td></tr>`;
     return;
   }
   body.innerHTML = rows.map(row => {
@@ -1322,6 +1364,9 @@ function renderIncomingInventory() {
     const isReceived = status === "received";
     const isCancelled = status === "cancelled";
     const source = [row.supplier_name || row.supplier || "", row.tracking_number || ""].filter(Boolean).join(" / ") || "—";
+    const unitCost = incomingCostPerUnit(row);
+    const shipCost = incomingShippingCost(row);
+    const totalCost = incomingTotalCost(row);
     const auditClass = incomingAuditVisible ? "incoming-audit open" : "incoming-audit";
     return `<tr data-incoming-id="${esc(row.id)}">
       <td><strong>${esc(row.product_name || row.display_name || row.product_key || "Product")}</strong><div class="note">${esc(row.product_key || "")}</div></td>
@@ -1330,6 +1375,7 @@ function renderIncomingInventory() {
       <td><strong>${esc(days)}</strong> day${days === 1 ? "" : "s"}</td>
       <td>${esc(fmtShortDate(expected))}<div class="note">21-day lead time</div></td>
       <td>${esc(source)}</td>
+      <td><strong>${totalCost > 0 ? incomingMoney(totalCost) : "—"}</strong><div class="note">${unitCost > 0 ? `${incomingMoney(unitCost)}/vial` : "No unit cost"}${shipCost > 0 ? ` · ${incomingMoney(shipCost)} ship/fees` : ""}</div></td>
       <td>${incomingStatusPill(status)}</td>
       <td>${esc(row.notes || "—")}</td>
       <td>
@@ -1377,6 +1423,11 @@ async function addIncomingInventory() {
   const qty = Number($("incomingQty")?.value || 0);
   if (!product) { alert("Select a product for the incoming order."); return; }
   if (!qty || qty <= 0) { alert("Enter an ordered quantity greater than zero."); return; }
+  const unitCost = Number($("incomingCostPerUnit")?.value || 0);
+  const shippingCost = Number($("incomingShippingCost")?.value || 0);
+  const enteredTotal = Number($("incomingTotalCost")?.value || 0);
+  const calculatedTotal = (qty * unitCost) + shippingCost;
+  const totalCost = enteredTotal > 0 ? enteredTotal : calculatedTotal;
   const orderedAt = new Date().toISOString();
   const expectedArrival = addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString();
   const row = {
@@ -1385,6 +1436,9 @@ async function addIncomingInventory() {
     product_key: product.product_key || null,
     product_name: incomingProductLabel(product),
     ordered_quantity: qty,
+    cost_per_unit: Number.isFinite(unitCost) ? unitCost : 0,
+    shipping_cost: Number.isFinite(shippingCost) ? shippingCost : 0,
+    total_cost: Number.isFinite(totalCost) ? totalCost : 0,
     supplier_name: $("incomingSupplier")?.value.trim() || null,
     tracking_number: $("incomingTracking")?.value.trim() || null,
     status: $("incomingStatus")?.value || "ordered",
@@ -1395,7 +1449,7 @@ async function addIncomingInventory() {
     updated_at: orderedAt,
     created_by: currentUser?.id || null,
     created_by_email: currentUser?.email || null,
-    audit_note: `Incoming order entered for ${qty} vial(s) by ${shortLoggedInUserName()}. Expected arrival ${fmtShortDate(expectedArrival)} using ${PST_INCOMING_LEAD_DAYS}-day lead time.`
+    audit_note: `Incoming order entered for ${qty} vial(s) by ${shortLoggedInUserName()}. Expected arrival ${fmtShortDate(expectedArrival)} using ${PST_INCOMING_LEAD_DAYS}-day lead time. Cost recorded: ${incomingMoney(totalCost)} total (${incomingMoney(unitCost)}/vial, ${incomingMoney(shippingCost)} ship/fees).`
   };
   if (incomingUsesSupabase) {
     const { error } = await db.from("incoming_inventory").insert(row);
@@ -1410,6 +1464,9 @@ async function addIncomingInventory() {
     saveIncomingLocalRows(incomingInventoryRows);
   }
   if ($("incomingQty")) $("incomingQty").value = "";
+  if ($("incomingCostPerUnit")) $("incomingCostPerUnit").value = "";
+  if ($("incomingShippingCost")) $("incomingShippingCost").value = "";
+  if ($("incomingTotalCost")) $("incomingTotalCost").value = "";
   if ($("incomingSupplier")) $("incomingSupplier").value = "";
   if ($("incomingTracking")) $("incomingTracking").value = "";
   if ($("incomingNotes")) $("incomingNotes").value = "";
@@ -1447,7 +1504,7 @@ async function receiveIncomingInventory(id) {
   const now = new Date().toISOString();
   const { error: invError } = await db.from("product_inventory").update({ current_inventory:newQty, updated_at:now }).eq("id", item.id);
   if (invError) throw invError;
-  await logMovement(item, "incoming_received", qty, previousQty, newQty, `Received incoming order: ${row.product_name || item.display_name || item.product_key} · ${qty} vial(s). Incoming ID: ${row.id}`);
+  await logMovement(item, "incoming_received", qty, previousQty, newQty, `Received incoming order: ${row.product_name || item.display_name || item.product_key} · ${qty} vial(s). Total cost: ${incomingMoney(incomingTotalCost(row))}. Incoming ID: ${row.id}`);
   const audit = `${row.audit_note || ""}\nReceived ${qty} vial(s) into inventory on ${new Date().toLocaleString()} by ${currentUser?.email || "Admin"}. Previous stock ${previousQty}; new stock ${newQty}.`.trim();
   if (incomingUsesSupabase) {
     const { error } = await db.from("incoming_inventory").update({ status:"received", received_at:now, received_quantity:qty, updated_at:now, audit_note:audit }).eq("id", row.id);
