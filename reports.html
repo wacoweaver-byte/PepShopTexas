@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PST_REPORTS_PATCH_V17_FINANCIALS_EXPENSES -->
+<!-- PST_REPORTS_PATCH_V18_FINANCIALS_BUTTON_FIX -->
 <!-- PST_REPORTS_PATCH_V16_REORDER_STATUS_LEGEND -->
 <html lang="en">
 <head>
@@ -200,7 +200,7 @@ header .header-actions .btn.secondary.active {
       <p class="subtitle">Read-only admin hub for quick reports, platform links, and Pep Shop Texas operating notes.</p>
     </div>
     <div class="print-actions">
-      <a class="btn secondary" href="#financials">Financials / Expenses</a>
+      <a class="btn secondary" id="financialsJumpBtn" href="#financials">Financials / Expenses</a>
       <button class="btn secondary" type="button" onclick="window.print()">Print / Save PDF</button>
     </div>
   </section>
@@ -221,7 +221,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
     <div class="card span-8 print-report-only">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v17 FINANCIALS</span></h2><span class="pill info">Read Only</span></div>
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v18 FINANCIALS FIX</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -344,6 +344,67 @@ header .header-actions .btn.secondary.active {
           <button class="btn secondary" id="resetTaxSettingsBtn" type="button">Reset Texas 8.25%</button>
         </div>
         <div id="taxSettingsStatus" class="settings-status">Default is enabled at 8.25%. Settings save in this browser only until a sitewide settings table is intentionally added.</div>
+      </div>
+    </div>
+
+
+
+    <div class="card span-12 no-print" id="financials" style="scroll-margin-top:110px;">
+      <div class="card-header">
+        <h2>Financials / Expenses</h2>
+        <span class="pill info">Operational Estimate</span>
+      </div>
+      <div class="card-body finance-panel">
+        <div class="finance-summary-grid">
+          <div class="finance-summary-card"><strong id="finRevenue">—</strong><span>Revenue in Range</span></div>
+          <div class="finance-summary-card"><strong id="finProductSpend">—</strong><span>Inventory / Product Spend</span></div>
+          <div class="finance-summary-card"><strong id="finOperatingExpenses">—</strong><span>Operating Expenses</span></div>
+          <div class="finance-summary-card"><strong id="finCashProfit">—</strong><span>Estimated Cash Profit</span></div>
+          <div class="finance-summary-card"><strong id="finInventoryValue">—</strong><span>Estimated Inventory Value</span></div>
+          <div class="finance-summary-card"><strong id="finTaxHeld">—</strong><span>Tax Collected / Held</span></div>
+        </div>
+
+        <div class="finance-controls">
+          <div class="field">
+            <label for="expenseDate">Date</label>
+            <input id="expenseDate" type="date" />
+          </div>
+          <div class="field">
+            <label for="expenseCategory">Category</label>
+            <select id="expenseCategory">
+              <option value="Supplies">Supplies</option>
+              <option value="Shipping Supplies">Shipping Supplies</option>
+              <option value="Peptide Bags">Peptide Bags</option>
+              <option value="Packaging">Packaging</option>
+              <option value="Merchandise">Merchandise</option>
+              <option value="Website / Software">Website / Software</option>
+              <option value="Payment Fees">Payment Fees</option>
+              <option value="Operating Cost">Operating Cost</option>
+              <option value="Misc Expense">Misc Expense</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="expenseDescription">Description</label>
+            <input id="expenseDescription" type="text" placeholder="Example: peptide bags, labels, web hosting..." />
+          </div>
+          <div class="field">
+            <label for="expenseAmount">Amount</label>
+            <input id="expenseAmount" type="number" step="0.01" min="0" placeholder="0.00" />
+          </div>
+          <div class="field">
+            <label for="expenseMethod">Method</label>
+            <input id="expenseMethod" type="text" placeholder="Cash, card, Venmo..." />
+          </div>
+          <button class="btn success" id="addExpenseBtn" type="button">Add Expense</button>
+        </div>
+
+        <div class="table-wrap" style="margin-top:14px;">
+          <table class="finance-table">
+            <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Method</th><th>Amount</th><th>Action</th></tr></thead>
+            <tbody id="expenseBody"><tr><td colspan="6" class="muted">Loading expenses...</td></tr></tbody>
+          </table>
+        </div>
+        <div id="financeNote" class="finance-note">Financials use the selected report date range. These are operational estimates, not tax/accounting statements.</div>
       </div>
     </div>
 
@@ -1143,6 +1204,11 @@ async function init(){
     $("orderReportStartDate")?.addEventListener("change", switchToCustomRange);
     $("orderReportEndDate")?.addEventListener("change", switchToCustomRange);
     $("exportOrderCsvBtn")?.addEventListener("click", exportOrderCsv);
+    $("financialsJumpBtn")?.addEventListener("click", (event) => {
+      event.preventDefault();
+      const target = $("financials");
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     if ($("expenseDate") && !$("expenseDate").value) $("expenseDate").value = new Date().toISOString().slice(0,10);
     $("addExpenseBtn")?.addEventListener("click", addExpense);
     setPresetDateInputs("last7");
