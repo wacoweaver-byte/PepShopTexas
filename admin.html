@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- PST_ADMIN_PATCH_V6_DELETE_TEST_ORDERS -->
+<!-- PST_ADMIN_PATCH_V7_FORCE_DELETE_TEST_ORDERS -->
 <!-- PST_ADMIN_PATCH_V5_NO_TRACKING_REQUIRED -->
 <!-- PST_ADMIN_PATCH_V4_PAYMENT_INSTRUCTIONS_VISIBILITY -->
 <!-- PST_ADMIN_PATCH_V1_ORDER_STATUS_ATTENTION -->
@@ -542,8 +542,8 @@ header .header-actions .btn.secondary.active {
     order.admin_notes = next;
   }
 
-  function selectedOrdersArray(){ return Array.from(selectedOrderIds); }
-  function renderSelectedCount(){ $("selectedCount").textContent = `${selectedOrderIds.size} selected`; const allVisible = filteredOrders.length && filteredOrders.every(o => selectedOrderIds.has(o.id)); $("selectAllOrders").checked = !!allVisible; }
+  function selectedOrdersArray(){ return Array.from(selectedOrderIds).map(String).filter(Boolean); }
+  function renderSelectedCount(){ $("selectedCount").textContent = `${selectedOrderIds.size} selected`; const allVisible = filteredOrders.length && filteredOrders.every(o => selectedOrderIds.has(String(o.id))); $("selectAllOrders").checked = !!allVisible; }
 
   async function checkAdminAccess(){
     setStatus("Checking admin access...");
@@ -625,7 +625,7 @@ header .header-actions .btn.secondary.active {
       const id = esc(order.id);
       const track = order.tracking_number || order.tracking || "";
       return `<tr class="order-row ${activeOrderId===order.id?"active":""}" data-order-id="${id}">
-        <td onclick="event.stopPropagation()"><input class="row-check" type="checkbox" data-check-id="${id}" ${selectedOrderIds.has(order.id)?"checked":""}></td>
+        <td onclick="event.stopPropagation()"><input class="row-check" type="checkbox" data-check-id="${id}" ${selectedOrderIds.has(String(order.id))?"checked":""}></td>
         <td><strong>#${esc(String(orderNumber(order)))}</strong><div class="muted">${esc((order.items||[]).length)} item row(s)</div></td>
         <td>${esc(fmtDate(order.created_at || order.order_date))}</td>
         <td><strong>${esc(customerName(order))}</strong><div class="muted">${esc(customerEmail(order) || "No email")}</div></td>
@@ -637,7 +637,7 @@ header .header-actions .btn.secondary.active {
         <td>${attentionReason(order)}</td>
       </tr>`;
     }).join("");
-    document.querySelectorAll("tr.order-row").forEach(row => row.addEventListener("click", () => { const order = allOrders.find(o => o.id === row.dataset.orderId); if(order) renderOrderDetail(order); }));
+    document.querySelectorAll("tr.order-row").forEach(row => row.addEventListener("click", () => { const order = allOrders.find(o => String(o.id) === String(row.dataset.orderId)); if(order) renderOrderDetail(order); }));
     document.querySelectorAll(".row-check").forEach(cb => cb.addEventListener("change", e => { const id=e.target.dataset.checkId; e.target.checked ? selectedOrderIds.add(id) : selectedOrderIds.delete(id); renderSelectedCount(); }));
   }
 
@@ -1062,39 +1062,69 @@ header .header-actions .btn.secondary.active {
   async function bulkDeleteSelectedTestOrders(){
     const ids = selectedOrdersArray();
     if(!ids.length){ alert("Select one or more test orders first."); return; }
-    const selectedOrders = allOrders.filter(o => ids.map(String).includes(String(o.id)));
-    const firstConfirm = confirm(`Delete ${ids.length} selected TEST order(s)?\n\nThis permanently removes the selected orders and their item rows from Supabase. Use this only for test orders.`);
+    const selectedOrders = allOrders.filter(o => ids.includes(String(o.id)));
+    if(!selectedOrders.length){ setStatus("Delete stopped: selected rows were not found in the loaded order list. Refresh and try again.", "bad"); return; }
+
+    const firstConfirm = confirm(`Delete ${selectedOrders.length} selected TEST order(s)?\n\nThis permanently removes the selected orders and their item rows from Supabase. Use this only for test orders.`);
     if(!firstConfirm) return;
     const typed = prompt('Type DELETE TEST ORDERS to confirm permanent deletion.');
     if(String(typed || '').trim().toUpperCase() !== 'DELETE TEST ORDERS'){
       setStatus('Delete cancelled. Confirmation text did not match.', 'bad');
       return;
     }
-    const shouldRestore = confirm('Restore selected order item quantities back into Inventory before deleting?\n\nChoose OK for normal test checkout cleanup. Choose Cancel only if you already manually corrected inventory.');
-    setStatus('Deleting selected test orders...');
-    let restoreResult = { restored:0, failed:0 };
-    if(shouldRestore){
-      setStatus('Restoring inventory from selected test orders...');
-      restoreResult = await restoreInventoryForDeletedTestOrders(selectedOrders);
+    const shouldRestore = confirm('Restore selected order item quantities back into Inventory before deleting?\n\nChoose OK if you want to reverse test inventory deductions. Choose Cancel if you want to delete the test orders only and leave inventory as-is.');
+
+    try{
+      setStatus(`Deleting ${selectedOrders.length} selected test order(s)...`);
+      let restoreResult = { restored:0, failed:0 };
+      if(shouldRestore){
+        setStatus('Restoring inventory from selected test orders...');
+        restoreResult = await restoreInventoryForDeletedTestOrders(selectedOrders);
+      }
+
+      // Delete child item rows first so foreign-key constraints cannot block order deletion.
+      setStatus('Deleting matching order item rows...');
+      const { data: deletedItems, error: itemDeleteError } = await supabaseClient
+        .from('order_items')
+        .delete()
+        .in('order_id', ids)
+        .select('id, order_id');
+      if(itemDeleteError){
+        console.error('Order item delete failed:', itemDeleteError);
+        setStatus(`Order item delete failed: ${itemDeleteError.message || itemDeleteError}. Orders were not deleted.`, 'bad');
+        return;
+      }
+
+      // Delete parent orders. Use .select() so we can verify Supabase actually removed rows.
+      setStatus('Deleting selected order rows...');
+      const { data: deletedOrders, error: orderDeleteError } = await supabaseClient
+        .from('orders')
+        .delete()
+        .in('id', ids)
+        .select('id');
+      if(orderDeleteError){
+        console.error('Order delete failed:', orderDeleteError);
+        setStatus(`Test order delete failed: ${orderDeleteError.message || orderDeleteError}`, 'bad');
+        return;
+      }
+
+      const deletedOrderCount = (deletedOrders || []).length;
+      const deletedItemCount = (deletedItems || []).length;
+      if(deletedOrderCount === 0){
+        setStatus('Delete did not remove any orders. This usually means the selected IDs did not match Supabase rows or Row Level Security blocked the delete without returning rows. Refresh and try again; if it still happens, we will add a SQL cleanup button/script.', 'bad');
+        return;
+      }
+
+      selectedOrderIds.clear();
+      activeOrderId = null;
+      await loadOrders();
+      const parts = [`Deleted ${deletedOrderCount} test order(s)`, `deleted ${deletedItemCount} item row(s)`];
+      if(shouldRestore) parts.push(`inventory restored for ${restoreResult.restored} product(s)${restoreResult.failed ? `, ${restoreResult.failed} restore issue(s)` : ''}`);
+      setStatus(parts.join('. ') + '.', restoreResult.failed ? 'bad' : 'good');
+    }catch(error){
+      console.error('Delete test orders unexpected error:', error);
+      setStatus(`Delete failed unexpectedly: ${error.message || error}`, 'bad');
     }
-    let itemDeleteError = null;
-    if(ids.length){
-      const { error } = await supabaseClient.from('order_items').delete().in('order_id', ids);
-      itemDeleteError = error || null;
-      if(itemDeleteError) console.warn('Order item delete failed. Orders may still delete if cascade exists:', itemDeleteError.message || itemDeleteError);
-    }
-    const { error: orderDeleteError } = await supabaseClient.from('orders').delete().in('id', ids);
-    if(orderDeleteError){
-      setStatus(`Test order delete failed: ${orderDeleteError.message || orderDeleteError}`, 'bad');
-      return;
-    }
-    selectedOrderIds.clear();
-    activeOrderId = null;
-    await loadOrders();
-    const parts = [`Deleted ${ids.length} test order(s)`];
-    if(shouldRestore) parts.push(`inventory restored for ${restoreResult.restored} product(s)${restoreResult.failed ? `, ${restoreResult.failed} restore issue(s)` : ''}`);
-    if(itemDeleteError) parts.push('order item cleanup warned; verify order_items if needed');
-    setStatus(parts.join('. ') + '.', restoreResult.failed || itemDeleteError ? 'bad' : 'good');
   }
 
   async function bulkSetNoTrackingRequired(){
@@ -1143,7 +1173,7 @@ header .header-actions .btn.secondary.active {
     $("signOutBtn").addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
     ["searchInput","statusFilter","paymentFilter","dateFilter"].forEach(id => $(id).addEventListener(id==="searchInput"?"input":"change", applyFilters));
     $("clearFiltersBtn").addEventListener("click", () => { $("searchInput").value=""; $("statusFilter").value=""; $("paymentFilter").value=""; $("dateFilter").value=""; applyFilters(); });
-    $("selectAllOrders").addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(o.id)); else filteredOrders.forEach(o=>selectedOrderIds.delete(o.id)); renderOrders(); renderSelectedCount(); });
+    $("selectAllOrders").addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(String(o.id))); else filteredOrders.forEach(o=>selectedOrderIds.delete(String(o.id))); renderOrders(); renderSelectedCount(); });
     $("bulkPaidBtn").addEventListener("click", () => bulkUpdate({ payment_status:"paid" }, "Selected orders marked paid."));
     $("bulkProcessingBtn").addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
     $("bulkPackedBtn").addEventListener("click", () => bulkUpdate({ order_status:"packed", status:"packed" }, "Selected orders marked packed."));
