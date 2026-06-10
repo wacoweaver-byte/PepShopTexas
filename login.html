@@ -33,6 +33,11 @@ input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6p
 #successPanel{display:none;margin-top:20px;padding:18px;border:1px solid #bfe8c8;background:#edf8f0;border-radius:8px}
 #successPanel h2{margin:0 0 10px;font-size:22px;text-transform:uppercase}
 .raw-link{display:block;margin-top:14px;color:#003f9e;font-weight:900;word-break:break-all}
+
+.password-wrap{position:relative;margin-bottom:16px}
+.password-wrap input{padding-right:86px;margin-bottom:0}
+.password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:#f4f8ff;color:var(--blue);font-weight:900;border-radius:5px;padding:7px 9px;cursor:pointer;text-transform:uppercase;font-size:12px}
+.password-toggle:hover{background:#e8f1ff}
 @media(max-width:720px){.menu{display:none}.wrap,.nav{padding-left:18px;padding-right:18px}.top-strip{display:none}.actions{display:grid}.btn{width:100%}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -66,8 +71,11 @@ input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6p
       <label>Email Address</label>
       <input id="email" name="email" type="email" autocomplete="email" required>
 
-      <label>Password</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <label for="password">Password</label>
+      <div class="password-wrap">
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button class="password-toggle" type="button" data-toggle-password="password" aria-label="Show password">Show</button>
+      </div>
 
       <div class="actions">
         <button id="loginBtn" class="btn primary" type="submit">Login</button>
@@ -93,6 +101,21 @@ input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6p
 const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+
+function setupPasswordToggles(){
+  document.querySelectorAll('[data-toggle-password]').forEach(function(btn){
+    const input = document.getElementById(btn.getAttribute('data-toggle-password'));
+    if (!input) return;
+    btn.addEventListener('click', function(){
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.textContent = show ? 'Hide' : 'Show';
+      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+  });
+}
+setupPasswordToggles();
 
 function goHome(){
   window.location.href = "./index.html?login=success";
