@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V34_QUICK_LINK_TOGGLE_ACTIVE -->
 <!-- PST_REPORTS_PATCH_V33_INVENTORY_AUDIT_COLLAPSIBLE -->
 <!-- PST_REPORTS_PATCH_V32_ALL_CARDS_COLLAPSIBLE -->
 <!-- PST_REPORTS_PATCH_V31_QUICK_LINK_ORDER -->
@@ -227,7 +228,9 @@ header .header-actions .btn.secondary.active {
 .reports-jumpbar-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);white-space:nowrap}
 .reports-jumpbar-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .reports-jumpbar a{min-height:34px;height:34px;padding:8px 11px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--dark);font-size:12px;font-weight:900;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
-.reports-jumpbar a:hover{border-color:var(--blue);color:var(--blue)}
+ .reports-jumpbar a:hover{border-color:var(--blue);color:var(--blue)}
+.reports-jumpbar a.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 6px 14px rgba(0,119,200,.22)}
+.reports-jumpbar a.active:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
 .card.collapsible-card .card-header{align-items:center}
 .collapse-toggle{min-height:32px!important;height:32px!important;padding:7px 10px!important;font-size:12px!important;border-radius:999px!important}
 .card.collapsible-card.collapsed .card-body{display:none!important}
@@ -1800,6 +1803,22 @@ function scrollReportsToTarget(id){
 }
 
 // PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD
+// PST_REPORTS_PATCH_V34_QUICK_LINK_TOGGLE_ACTIVE
+function reportsJumpLinkForCard(id){
+  if (!id) return null;
+  return document.querySelector(`.reports-jumpbar a[data-jump-target="${id}"]`);
+}
+function setReportsJumpLinkActive(id, active){
+  const link = reportsJumpLinkForCard(id);
+  if (!link) return;
+  link.classList.toggle("active", !!active);
+  link.setAttribute("aria-pressed", active ? "true" : "false");
+}
+function syncReportsJumpLinkState(id){
+  const card = document.getElementById(id);
+  if (!card || !card.classList.contains("collapsible-card")) return;
+  setReportsJumpLinkActive(id, !card.classList.contains("collapsed"));
+}
 function setReportsCardCollapsed(card, collapsed){
   if (!card) return;
   card.classList.toggle("collapsed", !!collapsed);
@@ -1808,10 +1827,26 @@ function setReportsCardCollapsed(card, collapsed){
     button.textContent = collapsed ? "Open" : "Collapse";
     button.setAttribute("aria-expanded", collapsed ? "false" : "true");
   }
+  syncReportsJumpLinkState(card.id);
 }
 function openReportsCardById(id){
   const card = document.getElementById(id);
   if (card && card.classList.contains("collapsible-card")) setReportsCardCollapsed(card, false);
+}
+function toggleReportsCardFromJump(id){
+  const card = document.getElementById(id);
+  if (!card || !card.classList.contains("collapsible-card")) {
+    scrollReportsToTarget(id);
+    return;
+  }
+  const shouldOpen = card.classList.contains("collapsed");
+  setReportsCardCollapsed(card, !shouldOpen);
+  if (shouldOpen) {
+    window.requestAnimationFrame(() => {
+      const top = card.getBoundingClientRect().top + window.pageYOffset - reportsStickyOffset();
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
+  }
 }
 function setupReportsDashboardNavigation(){
   document.querySelectorAll(".section-backtop a").forEach(link => {
@@ -1827,9 +1862,11 @@ function setupReportsDashboardNavigation(){
     button.addEventListener("click", () => setReportsCardCollapsed(card, !card.classList.contains("collapsed")));
   });
   document.querySelectorAll(".reports-jumpbar a[data-jump-target]").forEach(link => {
+    link.setAttribute("role", "button");
+    syncReportsJumpLinkState(link.dataset.jumpTarget);
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      scrollReportsToTarget(link.dataset.jumpTarget);
+      toggleReportsCardFromJump(link.dataset.jumpTarget);
     });
   });
 }
