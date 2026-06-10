@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V33_INVENTORY_AUDIT_COLLAPSIBLE -->
 <!-- PST_REPORTS_PATCH_V32_ALL_CARDS_COLLAPSIBLE -->
 <!-- PST_REPORTS_PATCH_V31_QUICK_LINK_ORDER -->
 <!-- PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX -->
@@ -495,10 +496,10 @@ header .header-actions .btn.secondary.active {
     </div>
 
 
-    <div class="card span-12 no-print" id="inventory-audit" style="scroll-margin-top:185px;">
+    <div class="card span-12 no-print collapsible-card collapsed" id="inventory-audit" style="scroll-margin-top:185px;">
       <div class="card-header">
         <h2>Inventory Audit / Movement History</h2>
-        <span class="muted" id="inventoryAuditCount">Loading inventory movements...</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="inventoryAuditCount">Loading inventory movements...</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="inventory-audit" aria-expanded="false">Open</button></div>
       </div>
       <div class="card-body">
         <p class="muted" style="margin-top:0;">Shows received, removed, exact count, out-of-stock, and other inventory adjustments recorded from Inventory Management. Use this to verify broken/damaged vial removals and stock corrections.</p>
