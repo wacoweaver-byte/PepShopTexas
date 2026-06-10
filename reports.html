@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX -->
 <!-- PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD -->
 <!-- PST_REPORTS_PATCH_V28_AUDIT_PRODUCT_DOSE -->
 <!-- PST_REPORTS_PATCH_V27_INVENTORY_AUDIT -->
@@ -201,6 +202,7 @@ header .header-actions .btn.secondary.active {
 
 
 
+/* PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX */
 /* PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD */
 .reports-jumpbar{
   position:sticky;
@@ -393,7 +395,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
 
-    <div class="card span-12 no-print collapsible-card collapsed" id="tax-settings-card" style="scroll-margin-top:140px;">
+    <div class="card span-12 no-print collapsible-card collapsed" id="tax-settings-card" style="scroll-margin-top:185px;">
       <div class="card-header"><h2>Checkout Tax Settings</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="tax-settings-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
         <div class="tax-settings-grid">
@@ -428,7 +430,7 @@ header .header-actions .btn.secondary.active {
 
 
 
-    <div class="card span-12 no-print" id="financials" style="scroll-margin-top:110px;">
+    <div class="card span-12 no-print" id="financials" style="scroll-margin-top:185px;">
       <div class="card-header">
         <h2>Financials / Expenses</h2>
         <span class="pill info">Operational Estimate</span>
@@ -490,7 +492,7 @@ header .header-actions .btn.secondary.active {
     </div>
 
 
-    <div class="card span-12 no-print" id="inventory-audit" style="scroll-margin-top:110px;">
+    <div class="card span-12 no-print" id="inventory-audit" style="scroll-margin-top:185px;">
       <div class="card-header">
         <h2>Inventory Audit / Movement History</h2>
         <span class="muted" id="inventoryAuditCount">Loading inventory movements...</span>
@@ -507,7 +509,7 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
-    <div class="card span-6 no-print collapsible-card collapsed" id="admin-resources-card" style="scroll-margin-top:140px;">
+    <div class="card span-6 no-print collapsible-card collapsed" id="admin-resources-card" style="scroll-margin-top:185px;">
       <div class="card-header"><h2>Admin Resources</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="admin-resources-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
         <div class="resource-list">
@@ -521,7 +523,7 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
-    <div class="card span-6 no-print collapsible-card collapsed" id="site-notes-card" style="scroll-margin-top:140px;">
+    <div class="card span-6 no-print collapsible-card collapsed" id="site-notes-card" style="scroll-margin-top:185px;">
       <div class="card-header"><h2>Site Operations Notes</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="site-notes-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
         <div class="ops-grid">
@@ -533,7 +535,7 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
-    <div class="card span-12 no-print collapsible-card collapsed" id="future-todos-card" style="scroll-margin-top:140px;">
+    <div class="card span-12 no-print collapsible-card collapsed" id="future-todos-card" style="scroll-margin-top:185px;">
       <div class="card-header"><h2>Future Reports TODO</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="future-todos-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
         <div class="ops-grid">
@@ -547,7 +549,7 @@ header .header-actions .btn.secondary.active {
   </section>
 
   <section class="grid no-print" id="payment-options">
-    <div class="card span-12 collapsible-card collapsed" id="payment-methods-card" style="scroll-margin-top:140px;">
+    <div class="card span-12 collapsible-card collapsed" id="payment-methods-card" style="scroll-margin-top:185px;">
       <div class="card-header">
         <h2>Payment Methods Manager</h2>
         <button class="btn secondary collapse-toggle" type="button" data-collapse-target="payment-methods-card" aria-expanded="false">Open</button>
@@ -1680,8 +1682,7 @@ async function init(){
     $("exportOrderCsvBtn")?.addEventListener("click", exportOrderCsv);
     $("financialsJumpBtn")?.addEventListener("click", (event) => {
       event.preventDefault();
-      const target = $("financials");
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollReportsToTarget("financials");
     });
     if ($("expenseDate") && !$("expenseDate").value) $("expenseDate").value = new Date().toISOString().slice(0,10);
     $("addExpenseBtn")?.addEventListener("click", addExpense);
@@ -1775,6 +1776,24 @@ function renderPSTPaymentMethodsAdmin(){
 }
 
 
+// PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX
+function reportsStickyOffset(){
+  const header = document.querySelector("header");
+  const jumpbar = document.getElementById("reportsTop");
+  const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+  const jumpbarHeight = jumpbar ? Math.ceil(jumpbar.getBoundingClientRect().height) : 0;
+  return headerHeight + jumpbarHeight + 18;
+}
+function scrollReportsToTarget(id){
+  const target = document.getElementById(id);
+  if (!target) return;
+  openReportsCardById(id);
+  window.requestAnimationFrame(() => {
+    const top = target.getBoundingClientRect().top + window.pageYOffset - reportsStickyOffset();
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  });
+}
+
 // PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD
 function setReportsCardCollapsed(card, collapsed){
   if (!card) return;
@@ -1790,6 +1809,12 @@ function openReportsCardById(id){
   if (card && card.classList.contains("collapsible-card")) setReportsCardCollapsed(card, false);
 }
 function setupReportsDashboardNavigation(){
+  document.querySelectorAll(".section-backtop a").forEach(link => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      scrollReportsToTarget("reportsTop");
+    });
+  });
   document.querySelectorAll("[data-collapse-target]").forEach(button => {
     const card = document.getElementById(button.dataset.collapseTarget || "");
     if (!card) return;
@@ -1797,7 +1822,10 @@ function setupReportsDashboardNavigation(){
     button.addEventListener("click", () => setReportsCardCollapsed(card, !card.classList.contains("collapsed")));
   });
   document.querySelectorAll(".reports-jumpbar a[data-jump-target]").forEach(link => {
-    link.addEventListener("click", () => openReportsCardById(link.dataset.jumpTarget));
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      scrollReportsToTarget(link.dataset.jumpTarget);
+    });
   });
 }
 if (document.readyState === "loading") {
