@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V28_AUDIT_PRODUCT_DOSE -->
 <!-- PST_REPORTS_PATCH_V27_INVENTORY_AUDIT -->
 <!-- PST_REPORTS_PATCH_V26_SHARED_FINANCIALS_SUPABASE -->
 <!-- PST_REPORTS_PATCH_V24_PAYMENT_OPTIONS_TOGGLE -->
@@ -1074,6 +1075,18 @@ function joinProductDoseLabel(name, dose){
   if (nLower.includes(dLower)) return n;
   return `${n} — ${d}`;
 }
+function strengthFromProductKey(value){
+  const text = cleanText(value).toUpperCase();
+  if (!text) return "";
+  const matches = [...text.matchAll(/(\d+(?:\.\d+)?)\s*(MG|MCG|UG|ΜG|IU|ML)\b/g)];
+  if (!matches.length) return "";
+  return matches.map(match => {
+    const amount = match[1];
+    const unitRaw = match[2];
+    const unit = unitRaw === "UG" || unitRaw === "ΜG" ? "mcg" : unitRaw.toLowerCase();
+    return `${amount} ${unit}`;
+  }).join(" / ");
+}
 function itemDisplayLabelWithDose(item){
   return joinProductDoseLabel(itemProductName(item), doseTextFromObject(item));
 }
@@ -1451,7 +1464,9 @@ function inventoryAuditProductForMovement(row){
 }
 function inventoryAuditProductName(row){
   const item = inventoryAuditProductForMovement(row);
-  return cleanText(row?.product_name || row?.display_name || item?.display_name || item?.product_name || item?.name || row?.product_key || row?.sku || "Product");
+  const baseName = cleanText(row?.product_name || row?.display_name || item?.display_name || item?.product_name || item?.name || row?.product_key || row?.sku || "Product");
+  const dose = cleanText(row?.strength || row?.dose || row?.dosage || row?.vial_strength || row?.product_strength || item?.strength || item?.dose || item?.dosage || item?.vial_strength || item?.product_strength || strengthFromProductKey(row?.product_key || row?.sku || item?.product_key || item?.sku || item?.product_id));
+  return joinProductDoseLabel(baseName, dose);
 }
 function inventoryAuditProductKey(row){
   const item = inventoryAuditProductForMovement(row);
