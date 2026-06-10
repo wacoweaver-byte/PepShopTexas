@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V13_SUPABASE_INCOMING_SHARED -->
 <!-- PST_INVENTORY_PATCH_V12_SKU_IDENTITY_READY -->
 <!-- PST_INVENTORY_PATCH_V11_REORDER_BUTTON_TO_INCOMING -->
 <!-- PST_INVENTORY_PATCH_V10_REPLENISHMENT_STATUS_FIX -->
@@ -842,6 +843,7 @@ let incomingUsesSupabase = false;
 let incomingAuditVisible = false;
 const PST_INCOMING_LEAD_DAYS = 21;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
+const PST_INCOMING_MIGRATION_KEY = "pst_incoming_inventory_migrated_to_supabase_v1";
 let salesByInventoryId = {};
 let movementByInventoryId = {};
 let reorderSalesLoadError = "";
@@ -1346,6 +1348,53 @@ function saveIncomingLocalRows(rows) {
   try { localStorage.setItem(PST_INCOMING_STORAGE_KEY, JSON.stringify(rows || [])); } catch (e) {}
 }
 
+function normalizeIncomingRowForSupabase(row) {
+  const now = new Date().toISOString();
+  const orderedAt = row.ordered_at || row.created_at || now;
+  const qty = Number(row.ordered_quantity ?? row.qty_ordered ?? 0) || 0;
+  const kitCost = Number(row.kit_cost ?? row.kit_cost_per_10 ?? row.cost_per_kit ?? 0) || 0;
+  const shippingCost = Number(row.shipping_cost ?? row.ship_fees ?? row.freight_cost ?? row.fees ?? 0) || 0;
+  const totalCost = Number(row.total_cost ?? row.total_paid ?? row.amount_paid ?? 0) || (((qty / PST_KIT_VIAL_COUNT) * kitCost) + shippingCost);
+  return {
+    id: String(row.id || (crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}_${Math.random().toString(16).slice(2)}`)),
+    product_id: row.product_id ? String(row.product_id) : null,
+    product_key: row.product_key || row.product_sku || row.sku || null,
+    product_name: row.product_name || row.display_name || row.product_key || "Product",
+    ordered_quantity: qty,
+    kit_cost: Number.isFinite(kitCost) ? kitCost : 0,
+    kit_vial_count: Number(row.kit_vial_count || PST_KIT_VIAL_COUNT) || PST_KIT_VIAL_COUNT,
+    cost_per_unit: Number(row.cost_per_unit ?? row.unit_cost ?? (kitCost > 0 ? kitCost / PST_KIT_VIAL_COUNT : 0)) || 0,
+    shipping_cost: Number.isFinite(shippingCost) ? shippingCost : 0,
+    total_cost: Number.isFinite(totalCost) ? totalCost : 0,
+    supplier_name: row.supplier_name || row.supplier || row.supplier_source || null,
+    tracking_number: row.tracking_number || row.tracking || null,
+    status: String(row.status || "ordered").toLowerCase(),
+    notes: row.notes || row.user_name || null,
+    ordered_at: orderedAt,
+    expected_arrival_date: row.expected_arrival_date || row.expected_arrival || addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString(),
+    received_at: row.received_at || null,
+    received_quantity: Number(row.received_quantity || 0) || null,
+    created_at: row.created_at || orderedAt,
+    updated_at: row.updated_at || now,
+    created_by: row.created_by || currentUser?.id || null,
+    created_by_email: row.created_by_email || currentUser?.email || null,
+    audit_note: row.audit_note || ""
+  };
+}
+
+async function migrateLocalIncomingRowsToSupabase() {
+  const localRows = readIncomingLocalRows();
+  if (!localRows.length || localStorage.getItem(PST_INCOMING_MIGRATION_KEY) === "true") return false;
+  const payload = localRows.map(normalizeIncomingRowForSupabase);
+  const { error } = await db.from("incoming_inventory").upsert(payload, { onConflict: "id" });
+  if (error) {
+    console.warn("Incoming local-to-Supabase migration failed:", error);
+    return false;
+  }
+  localStorage.setItem(PST_INCOMING_MIGRATION_KEY, "true");
+  return true;
+}
+
 function incomingMoney(value) {
   const n = Number(value || 0);
   return Number.isFinite(n) ? n.toLocaleString(undefined,{style:"currency",currency:"USD"}) : "$0.00";
@@ -1472,15 +1521,27 @@ function renderIncomingInventory() {
 
 async function loadIncomingInventory() {
   try {
-    const { data, error } = await db.from("incoming_inventory").select("*").order("ordered_at", { ascending:false });
+    let { data, error } = await db.from("incoming_inventory").select("*").order("ordered_at", { ascending:false });
     if (error) throw error;
+
     incomingUsesSupabase = true;
+
+    const migrated = await migrateLocalIncomingRowsToSupabase();
+    if (migrated) {
+      const refreshed = await db.from("incoming_inventory").select("*").order("ordered_at", { ascending:false });
+      if (!refreshed.error) data = refreshed.data || data;
+    }
+
     incomingInventoryRows = data || [];
-    if ($("incomingInventoryNote")) $("incomingInventoryNote").textContent = "Incoming inventory is loading from Supabase incoming_inventory. Entry timestamp is static. Expected arrival defaults to +21 days.";
+    if ($("incomingInventoryNote")) {
+      $("incomingInventoryNote").textContent = migrated
+        ? "Incoming inventory is now shared through Supabase. Your previous local incoming inventory records were copied into the incoming_inventory table."
+        : "Incoming inventory is loading from Supabase incoming_inventory. These records are shared across admin users. Entry timestamp is static. Expected arrival defaults to +21 days.";
+    }
   } catch (err) {
     incomingUsesSupabase = false;
     incomingInventoryRows = readIncomingLocalRows();
-    if ($("incomingInventoryNote")) $("incomingInventoryNote").textContent = "Incoming inventory is using local browser storage because the incoming_inventory table is not available yet. Receiving still adds stock to product_inventory.";
+    if ($("incomingInventoryNote")) $("incomingInventoryNote").textContent = "Incoming inventory is using local browser storage because the incoming_inventory table is not available or not accessible yet. Receiving still adds stock to product_inventory, but this incoming list will only appear in this browser until Supabase is connected.";
   }
   renderIncomingInventory();
 }
@@ -1524,7 +1585,7 @@ async function addIncomingInventory() {
     audit_note: `Incoming order entered for ${qty} vial(s) by ${shortLoggedInUserName()}. Expected arrival ${fmtShortDate(expectedArrival)} using ${PST_INCOMING_LEAD_DAYS}-day lead time. Kit cost recorded: ${incomingMoney(kitCost)} per 10-vial kit (${incomingMoney(unitCost)}/vial). Total paid: ${incomingMoney(totalCost)} including ${incomingMoney(shippingCost)} ship/fees.`
   };
   if (incomingUsesSupabase) {
-    const { error } = await db.from("incoming_inventory").insert(row);
+    const { error } = await db.from("incoming_inventory").insert(normalizeIncomingRowForSupabase(row));
     if (error) {
       console.warn("Incoming Supabase insert failed; falling back to local storage:", error);
       incomingUsesSupabase = false;
