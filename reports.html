@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V31_QUICK_LINK_ORDER -->
 <!-- PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX -->
 <!-- PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD -->
 <!-- PST_REPORTS_PATCH_V28_AUDIT_PRODUCT_DOSE -->
@@ -278,12 +279,13 @@ header .header-actions .btn.secondary.active {
   <nav class="reports-jumpbar no-print" id="reportsTop" aria-label="Reports quick navigation">
     <div class="reports-jumpbar-title">Jump to</div>
     <div class="reports-jumpbar-links">
-      <a href="#financials" data-jump-target="financials">Financials</a>
-      <a href="#inventory-audit" data-jump-target="inventory-audit">Inventory Audit</a>
-      <a href="#tax-settings-card" data-jump-target="tax-settings-card">Tax Settings</a>
+      <a href="#order-report-card" data-jump-target="order-report-card">Order Report</a>
+      <a href="#tax-settings-card" data-jump-target="tax-settings-card">Checkout Tax Settings</a>
+      <a href="#financials" data-jump-target="financials">Financials / Expenses</a>
+      <a href="#inventory-audit" data-jump-target="inventory-audit">Inventory Audit / Movement History</a>
       <a href="#admin-resources-card" data-jump-target="admin-resources-card">Admin Resources</a>
-      <a href="#site-notes-card" data-jump-target="site-notes-card">Site Notes</a>
-      <a href="#future-todos-card" data-jump-target="future-todos-card">Future TODOs</a>
+      <a href="#site-notes-card" data-jump-target="site-notes-card">Site Operations Notes</a>
+      <a href="#future-todos-card" data-jump-target="future-todos-card">Future Todos</a>
       <a href="#payment-methods-card" data-jump-target="payment-methods-card">Payment Methods</a>
     </div>
   </nav>
@@ -301,7 +303,7 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
-    <div class="card span-8 print-report-only">
+    <div class="card span-8 print-report-only" id="order-report-card" style="scroll-margin-top:185px;">
       <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v18 FINANCIALS FIX</span></h2><span class="pill info">Read Only</span></div>
       <div class="card-body">
         <div class="report-controls">
