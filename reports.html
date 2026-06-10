@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V32_ALL_CARDS_COLLAPSIBLE -->
 <!-- PST_REPORTS_PATCH_V31_QUICK_LINK_ORDER -->
 <!-- PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX -->
 <!-- PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD -->
@@ -291,8 +292,8 @@ header .header-actions .btn.secondary.active {
   </nav>
 
   <section class="grid">
-    <div class="card span-12 no-print">
-      <div class="card-header"><h2>Quick Report Snapshot</h2><span class="muted" id="snapshotUpdated">Not loaded yet</span></div>
+    <div class="card span-12 no-print collapsible-card collapsed" id="quick-snapshot-card" style="scroll-margin-top:185px;">
+      <div class="card-header"><h2>Quick Report Snapshot</h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="snapshotUpdated">Not loaded yet</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="quick-snapshot-card" aria-expanded="false">Open</button></div></div>
       <div class="card-body">
         <div class="stat-grid">
           <div class="stat"><strong id="statOrders">—</strong><span>Total Orders</span></div>
@@ -303,8 +304,8 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
-    <div class="card span-8 print-report-only" id="order-report-card" style="scroll-margin-top:185px;">
-      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v18 FINANCIALS FIX</span></h2><span class="pill info">Read Only</span></div>
+    <div class="card span-8 print-report-only collapsible-card collapsed" id="order-report-card" style="scroll-margin-top:185px;">
+      <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v18 FINANCIALS FIX</span></h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill info">Read Only</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="order-report-card" aria-expanded="false">Open</button></div></div>
       <div class="card-body">
         <div class="report-controls">
           <div class="field">
@@ -385,8 +386,8 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
-    <div class="card span-4 no-print">
-      <div class="card-header"><h2>Inventory Watch</h2><span class="pill warn">Needs Review</span></div>
+    <div class="card span-4 no-print collapsible-card collapsed" id="inventory-watch-card" style="scroll-margin-top:185px;">
+      <div class="card-header"><h2>Inventory Watch</h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill warn">Needs Review</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="inventory-watch-card" aria-expanded="false">Open</button></div></div>
       <div class="card-body">
         <div class="stat-grid" style="grid-template-columns:1fr;">
           <div class="stat"><strong id="statLowStock">—</strong><span>Low / Limited Stock</span></div>
@@ -432,10 +433,10 @@ header .header-actions .btn.secondary.active {
 
 
 
-    <div class="card span-12 no-print" id="financials" style="scroll-margin-top:185px;">
+    <div class="card span-12 no-print collapsible-card collapsed" id="financials" style="scroll-margin-top:185px;">
       <div class="card-header">
         <h2>Financials / Expenses</h2>
-        <span class="pill info">Operational Estimate</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill info">Operational Estimate</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="financials" aria-expanded="false">Open</button></div>
       </div>
       <div class="card-body finance-panel">
         <div class="finance-summary-grid">
@@ -1778,6 +1779,7 @@ function renderPSTPaymentMethodsAdmin(){
 }
 
 
+// PST_REPORTS_PATCH_V32_ALL_CARDS_COLLAPSIBLE
 // PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX
 function reportsStickyOffset(){
   const header = document.querySelector("header");
