@@ -1,3 +1,5 @@
+<!-- PST_REPORTS_PATCH_V36_BUILD_SALES_REPORT -->
+<!-- PST_REPORTS_PATCH_V35_SALES_REPORT -->
 <!-- PST_REPORTS_PATCH_V34_QUICK_LINK_TOGGLE_ACTIVE -->
 <!-- PST_REPORTS_PATCH_V33_INVENTORY_AUDIT_COLLAPSIBLE -->
 <!-- PST_REPORTS_PATCH_V32_ALL_CARDS_COLLAPSIBLE -->
@@ -284,6 +286,7 @@ header .header-actions .btn.secondary.active {
   <nav class="reports-jumpbar no-print" id="reportsTop" aria-label="Reports quick navigation">
     <div class="reports-jumpbar-title">Jump to</div>
     <div class="reports-jumpbar-links">
+      <a href="#sales-report-card" data-jump-target="sales-report-card">Sales Report</a>
       <a href="#order-report-card" data-jump-target="order-report-card">Order Report</a>
       <a href="#tax-settings-card" data-jump-target="tax-settings-card">Checkout Tax Settings</a>
       <a href="#financials" data-jump-target="financials">Financials / Expenses</a>
@@ -305,6 +308,50 @@ header .header-actions .btn.secondary.active {
           <div class="stat"><strong id="statInventory">—</strong><span>Inventory Rows</span></div>
           <div class="stat"><strong id="statPromos">—</strong><span>Active Homepage Promos</span></div>
         </div>
+      </div>
+    </div>
+
+    <div class="card span-12 print-report-only collapsible-card collapsed" id="sales-report-card" style="scroll-margin-top:185px;">
+      <div class="card-header">
+        <h2>Sales Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v36</span></h2>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill good">Live Sales</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="sales-report-card" aria-expanded="false">Open</button></div>
+      </div>
+      <div class="card-body">
+        <p class="muted" id="salesReportNote" style="margin-top:0;">Uses the same selected date range as Order Report. Realized sales count orders marked Shipped, Delivered, Complete, or Completed.</p>
+        <div class="financial-summary-grid" id="salesSummaryGrid">
+          <div class="financial-summary-card"><strong id="salesRealizedRevenue">—</strong><span>Realized Sales</span></div>
+          <div class="financial-summary-card"><strong id="salesPendingRevenue">—</strong><span>Pending / Open Sales</span></div>
+          <div class="financial-summary-card"><strong id="salesRealizedOrders">—</strong><span>Realized Orders</span></div>
+          <div class="financial-summary-card"><strong id="salesAverageOrder">—</strong><span>Average Order</span></div>
+          <div class="financial-summary-card"><strong id="salesUnitsSold">—</strong><span>Units Sold</span></div>
+          <div class="financial-summary-card"><strong id="salesTopProduct">—</strong><span>Top Product</span></div>
+        </div>
+        <div class="report-actions">
+          <button class="btn secondary" id="exportSalesCsvBtn" type="button">Export Sales CSV</button>
+        </div>
+
+        <div class="detail-report-head">
+          <h3>Daily Sales Breakdown</h3>
+          <span class="muted" id="dailySalesCount">Loading...</span>
+        </div>
+        <div class="table-wrap">
+          <table class="finance-table">
+            <thead><tr><th>Date</th><th>Realized Orders</th><th>Realized Sales</th><th>Units Sold</th><th>Tax Collected</th><th>Shipping Collected</th><th>Avg Order</th></tr></thead>
+            <tbody id="dailySalesBody"><tr><td colspan="7" class="muted">Loading daily sales...</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="detail-report-head">
+          <h3>Top Products by Sales</h3>
+          <span class="muted" id="topSalesProductsCount">Loading...</span>
+        </div>
+        <div class="table-wrap">
+          <table class="finance-table">
+            <thead><tr><th>Rank</th><th>Product</th><th>SKU</th><th>Qty Sold</th><th>Sales</th><th>Avg Price</th><th>% of Sales</th></tr></thead>
+            <tbody id="topSalesProductsBody"><tr><td colspan="7" class="muted">Loading product sales...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="section-backtop"><a href="#reportsTop">Back to Top ↑</a></div>
       </div>
     </div>
 
@@ -546,7 +593,6 @@ header .header-actions .btn.secondary.active {
       <div class="card-header"><h2>Future Reports TODO</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="future-todos-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
         <div class="ops-grid">
-          <div class="ops-note"><strong>Sales Report</strong>Daily, weekly, monthly sales totals, order count, average order value, and paid/unpaid order totals.</div>
           <div class="ops-note"><strong>Inventory Report</strong>Low stock, out of stock, limited supply, product inventory history, and reorder planning.</div>
           <div class="ops-note"><strong>Promotion Report</strong>Active homepage promotions, discount usage, expired promos, one-time codes, and Friends & Family discounts.</div>
           <div class="ops-note"><strong>Customer Report</strong>Customer list, order history, repeat customers, and customer-specific discounts.</div>
@@ -971,6 +1017,7 @@ function filteredReportOrders(){
 function refreshOrderReport(){
   const orders = filteredReportOrders();
   renderOperationalInsights(orders);
+  renderSalesReport(orders);
   renderFinancialSummary(orders);
   renderOrderReport(orders);
   renderDetailedOrders(orders);
@@ -1338,6 +1385,130 @@ function formatNumber(value, digits=2){
   const n = Number(value || 0);
   return Number.isFinite(n) ? n.toFixed(digits) : "—";
 }
+
+// PST_REPORTS_PATCH_V36_BUILD_SALES_REPORT
+// PST_REPORTS_PATCH_V35_SALES_REPORT
+function salesRealizedOrders(orders){
+  return (orders || []).filter(isRealizedRevenueOrder);
+}
+function salesProductRows(orders){
+  return getProductSalesRows(salesRealizedOrders(orders));
+}
+function salesUnitsTotal(rows){
+  return (rows || []).reduce((sum,row)=>sum + Number(row.quantity || 0), 0);
+}
+function dailySalesRows(orders){
+  const realized = salesRealizedOrders(orders);
+  const productRowsByOrder = allOrderItemsByOrder || {};
+  const days = {};
+  realized.forEach(order => {
+    const d = orderDateValue(order);
+    if (!d) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    if (!days[key]) days[key] = { key, date:d, orders:0, sales:0, tax:0, shipping:0, units:0 };
+    days[key].orders += 1;
+    days[key].sales += orderTotal(order);
+    days[key].tax += orderTax(order);
+    days[key].shipping += orderShipping(order);
+    const orderId = String(order.id || "");
+    (productRowsByOrder[orderId] || []).forEach(item => { days[key].units += itemQuantity(item); });
+  });
+  return Object.values(days).sort((a,b)=>b.date-a.date);
+}
+function renderSalesReport(orders){
+  const realized = salesRealizedOrders(orders);
+  const pendingTotals = reportTotals(orders, "pending");
+  const realizedTotals = reportTotals(orders, "realized");
+  const products = salesProductRows(orders).sort((a,b)=>b.sales - a.sales || b.quantity - a.quantity || a.product.localeCompare(b.product));
+  const daily = dailySalesRows(orders);
+  const units = salesUnitsTotal(products);
+  const topProduct = products[0] || null;
+  setText("salesRealizedRevenue", money(realizedTotals.gross));
+  setText("salesPendingRevenue", money(pendingTotals.gross));
+  setText("salesRealizedOrders", String(realizedTotals.orders));
+  setText("salesAverageOrder", money(realizedTotals.average));
+  setText("salesUnitsSold", String(units));
+  setText("salesTopProduct", topProduct ? `${topProduct.product} (${topProduct.quantity})` : "—");
+  const note = $("salesReportNote");
+  if (note) {
+    const range = $("orderReportRange")?.value || "last7";
+    const startDate = range === "all" ? null : dateInputValue("orderReportStartDate");
+    const endDate = range === "all" ? null : dateInputValue("orderReportEndDate");
+    note.textContent = `Sales Report for ${reportRangeLabel(range, startDate, endDate)}. Realized sales include Shipped, Delivered, Complete, or Completed orders only. Pending/open sales are shown separately.`;
+  }
+  renderDailySalesTable(daily);
+  renderTopSalesProductsTable(products, realizedTotals.gross);
+}
+function renderDailySalesTable(rows){
+  const body = $("dailySalesBody");
+  const count = $("dailySalesCount");
+  if (count) count.textContent = `${rows.length} day${rows.length === 1 ? "" : "s"}`;
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="7" class="muted">No realized sales found for this range.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(row => `<tr>
+    <td><strong>${safe(row.date.toLocaleDateString())}</strong></td>
+    <td>${safe(row.orders)}</td>
+    <td><strong>${money(row.sales)}</strong></td>
+    <td>${safe(row.units)}</td>
+    <td>${money(row.tax)}</td>
+    <td>${money(row.shipping)}</td>
+    <td>${money(row.orders ? row.sales / row.orders : 0)}</td>
+  </tr>`).join("");
+}
+function renderTopSalesProductsTable(rows, totalSales){
+  const body = $("topSalesProductsBody");
+  const count = $("topSalesProductsCount");
+  if (count) count.textContent = `${rows.length} product${rows.length === 1 ? "" : "s"}`;
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="7" class="muted">No product sales found for realized orders in this range.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map((row, index) => {
+    const avg = row.quantity ? row.sales / row.quantity : 0;
+    const pct = totalSales > 0 ? (row.sales / totalSales) * 100 : 0;
+    return `<tr>
+      <td><strong>#${index + 1}</strong></td>
+      <td><strong>${safe(row.product)}</strong></td>
+      <td><code>${safe(row.sku || "—")}</code></td>
+      <td>${safe(row.quantity)}</td>
+      <td><strong>${money(row.sales)}</strong></td>
+      <td>${money(avg)}</td>
+      <td>${formatNumber(pct, 1)}%</td>
+    </tr>`;
+  }).join("");
+}
+function exportSalesCsv(){
+  const orders = filteredReportOrders();
+  const daily = dailySalesRows(orders);
+  const products = salesProductRows(orders).sort((a,b)=>b.sales - a.sales || b.quantity - a.quantity || a.product.localeCompare(b.product));
+  const rows = [];
+  rows.push(["Pep Shop Texas Sales Report"]);
+  rows.push(["Generated", new Date().toLocaleString()]);
+  rows.push([]);
+  rows.push(["Daily Sales Breakdown"]);
+  rows.push(["Date","Realized Orders","Realized Sales","Units Sold","Tax Collected","Shipping Collected","Average Order"]);
+  daily.forEach(row => rows.push([row.date.toLocaleDateString(), row.orders, row.sales.toFixed(2), row.units, row.tax.toFixed(2), row.shipping.toFixed(2), (row.orders ? row.sales / row.orders : 0).toFixed(2)]));
+  rows.push([]);
+  rows.push(["Top Products by Sales"]);
+  rows.push(["Rank","Product","SKU","Qty Sold","Sales","Avg Price"]);
+  products.forEach((row,index) => rows.push([index + 1, row.product, row.sku || "", row.quantity, row.sales.toFixed(2), (row.quantity ? row.sales / row.quantity : 0).toFixed(2)]));
+  const csv = rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
+  const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const range = $("orderReportRange")?.value || "report";
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `pep-shop-texas-sales-${range}-${csvDateStamp()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 function renderOperationalInsights(orders){
   const body = $("operationalInsightsBody");
   if (!body) return;
@@ -1687,6 +1858,7 @@ async function init(){
     $("orderReportStartDate")?.addEventListener("change", switchToCustomRange);
     $("orderReportEndDate")?.addEventListener("change", switchToCustomRange);
     $("exportOrderCsvBtn")?.addEventListener("click", exportOrderCsv);
+    $("exportSalesCsvBtn")?.addEventListener("click", exportSalesCsv);
     $("financialsJumpBtn")?.addEventListener("click", (event) => {
       event.preventDefault();
       scrollReportsToTarget("financials");
