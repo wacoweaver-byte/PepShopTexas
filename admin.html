@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_ADMIN_PATCH_V4_PAYMENT_INSTRUCTIONS_VISIBILITY -->
 <!-- PST_ADMIN_PATCH_V1_ORDER_STATUS_ATTENTION -->
 <!-- PST_ADMIN_PATCH_V2_ORDER_RECEIVED_RESEND -->
 <!-- PST_ADMIN_PATCH_V3_PAYMENT_METHOD_VISIBILITY -->
@@ -403,6 +404,23 @@ header .header-actions .btn.secondary.active {
     const cls = norm(method, "manual");
     return `<span class="payment-method-pill ${esc(cls)}">${esc(method.replaceAll("_", " "))}</span>`;
   }
+
+  function paymentInstructions(order){
+    const direct = cleanValue(order.payment_instructions_snapshot || order.payment_instructions || order.payment_note || order.payment_notes);
+    if(direct) return direct;
+    const notes = cleanValue(order.customer_notes || order.notes || order.order_notes || "");
+    const marker = "Payment method selected:";
+    const idx = notes.indexOf(marker);
+    if(idx >= 0) return notes.slice(idx).trim();
+    return "";
+  }
+  function paymentInstructionsMarkup(order){
+    const txt = paymentInstructions(order);
+    if(!txt) return "";
+    const qrMatch = txt.match(/QR code\/payment image:\s*(\S+)/i);
+    const qr = qrMatch ? qrMatch[1] : "";
+    return `<div class="detail-section"><h3>Payment Instructions Shown to Customer</h3><div class="email-box"><p style="white-space:pre-wrap;margin:0 0 8px;line-height:1.45">${esc(txt.replace(/\s*\|\s*/g, "\n"))}</p>${qr ? `<img src="${esc(qr)}" alt="Payment QR code" style="width:140px;max-width:100%;border:1px solid #d9e2ec;border-radius:8px;padding:6px;background:#fff">` : ""}</div></div>`;
+  }
   function orderAgeHours(order){
     const d = new Date(order.created_at || order.order_date || 0);
     if(Number.isNaN(d.getTime())) return 0;
@@ -713,6 +731,7 @@ header .header-actions .btn.secondary.active {
       <div class="card-header"><h2>Manage Order #${esc(orderNumber(order))}</h2><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button></div>
       <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked Shipped but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
       <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3><div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div></div>${lockBannerMarkup(order)}</div>
+      ${paymentInstructionsMarkup(order)}
       <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}</div>
       <div class="detail-section"><h3>Update Order</h3>
         <div class="edit-grid">
@@ -943,7 +962,9 @@ header .header-actions .btn.secondary.active {
       carrier,
       trackingNumber,
       trackingUrl: $("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url),
-      statusNote: customerFacingStatusNote(type),
+      statusNote: type === "order_received" ? (paymentInstructions(order) || customerFacingStatusNote(type)) : customerFacingStatusNote(type),
+      paymentMethod: paymentMethod(order),
+      paymentInstructions: paymentInstructions(order),
       rejectionReason: order.rejection_reason || "",
       items: (order.items || []).map(i => ({ name: i.product_name || i.name || i.product_key || "Item", quantity: i.quantity || i.qty || 1, price: i.unit_price || i.price || 0 }))
     });

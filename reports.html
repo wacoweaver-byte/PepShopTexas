@@ -1,5 +1,6 @@
 <!-- PST_REPORTS_PATCH_V24_PAYMENT_OPTIONS_TOGGLE -->
 <!DOCTYPE html>
+<!-- PST_REPORTS_PATCH_V25_PAYMENT_METHODS_MANAGER -->
 <!-- PST_REPORTS_PATCH_V23_REALIZED_REVENUE -->
 <!-- PST_REPORTS_PATCH_V22_SKU_IDENTITY_READY -->
 <!-- PST_REPORTS_PATCH_V21_DOSE_LABEL_PRODUCT_SALES -->
@@ -184,6 +185,16 @@ header .header-actions .btn.secondary.active {
 .payment-options-status.good{color:var(--success)}
 .payment-options-status.bad{color:var(--danger)}
 @media(max-width:720px){.payment-options-grid{grid-template-columns:1fr}}
+
+.payment-methods-admin-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.payment-method-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+.payment-method-card h3{margin:0 0 10px;font-size:16px;color:var(--blue)}
+.payment-method-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.payment-method-fields .full{grid-column:1 / -1}
+.payment-method-card textarea{min-height:74px;resize:vertical}
+.qr-preview{display:block;width:96px;max-width:100%;height:auto;margin-top:7px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:5px}
+@media(max-width:900px){.payment-methods-admin-list{grid-template-columns:1fr}.payment-method-fields{grid-template-columns:1fr}.payment-method-fields .full{grid-column:auto}}
+
 
 </style>
 </head>
@@ -466,33 +477,18 @@ header .header-actions .btn.secondary.active {
   <section class="grid no-print" id="payment-options">
     <div class="card span-12">
       <div class="card-header">
-        <h2>Payment Options</h2>
-        <span class="muted">Toggle customer payment methods</span>
+        <h2>Payment Methods Manager</h2>
+        <span class="muted">Toggle customer payment methods, account details, QR codes, and checkout instructions</span>
       </div>
       <div class="card-body">
-        <div class="payment-options-grid">
-          <div>
-            <label>Venmo Enabled</label>
-            <select id="venmoEnabled">
-              <option value="false">Off / Hidden</option>
-              <option value="true">On / Show in Cart</option>
-            </select>
-          </div>
-          <div>
-            <label>Venmo Handle</label>
-            <input id="venmoHandle" placeholder="@PepShopTexas or phone/email" />
-          </div>
-          <div class="span-12">
-            <label>Venmo Customer Note</label>
-            <input id="venmoNote" placeholder="Order will remain pending until payment is confirmed." />
-          </div>
-          <div class="span-12">
-            <button class="btn" type="button" onclick="savePSTPaymentOptions()">Save Payment Options</button>
-            <button class="btn secondary" type="button" onclick="loadPSTPaymentOptionsAdmin()">Reload</button>
-          </div>
+        <p class="muted" style="line-height:1.45;margin-top:0"><strong>QR upload:</strong> Use the QR Image Upload button on each method. It stores the QR image with that payment method setting. You can also paste an image URL if you prefer to upload QR images into GitHub assets.</p>
+        <div id="paymentMethodsAdminList" class="payment-methods-admin-list"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <button class="btn" type="button" onclick="savePSTPaymentOptions()">Save Payment Methods</button>
+          <button class="btn secondary" type="button" onclick="loadPSTPaymentOptionsAdmin()">Reload</button>
         </div>
-        <div id="paymentOptionsStatus" class="payment-options-status">Venmo is optional. When enabled, the cart will show Venmo as a payment option.</div>
-        <p class="muted" style="margin-top:10px;line-height:1.45;"><strong>Note:</strong> Orders paid by Venmo should still stay payment pending until you manually verify payment and mark the order paid in Admin Orders.</p>
+        <div id="paymentOptionsStatus" class="payment-options-status">Payment methods are optional. Enabled methods appear in the cart and order confirmation email payload.</div>
+        <p class="muted" style="margin-top:10px;line-height:1.45;"><strong>Note:</strong> Manual payment methods keep orders Payment Pending until you verify payment and mark the order paid in Admin Orders.</p>
       </div>
     </div>
   </section>
@@ -1437,55 +1433,117 @@ init();
 </script>
 
 <script>
-/* PST payment options admin toggle */
-const PST_PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v1";
+/* PST payment methods manager - admin settings */
+const PST_PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
+const PST_PAYMENT_LEGACY_STORAGE_KEY = "pst_payment_options_v1";
+const PST_DEFAULT_PAYMENT_METHODS_ADMIN = [
+  { id:"venmo", label:"Venmo", accountLabel:"Send payment to", enabled:false, account:"", qrUrl:"", instructions:"Please include your order number in the Venmo note. Your order will remain pending until payment is verified." },
+  { id:"zelle", label:"Zelle", accountLabel:"Send payment to", enabled:false, account:"", qrUrl:"", instructions:"Please send payment by Zelle and include your order number if possible. Your order will remain pending until payment is verified." },
+  { id:"bitcoin", label:"Bitcoin", accountLabel:"Wallet address", enabled:false, account:"", qrUrl:"", instructions:"Send the exact order total. Your order will remain pending until the transaction is confirmed." },
+  { id:"credit_card", label:"Credit Card", accountLabel:"Payment instructions", enabled:false, account:"", qrUrl:"", instructions:"Credit card payment instructions will be provided after order review. Your order will remain pending until payment is verified." },
+  { id:"apple_pay", label:"Apple Pay", accountLabel:"Send payment to", enabled:false, account:"", qrUrl:"", instructions:"Send payment using Apple Cash / Apple Pay and include your order number. Your order will remain pending until payment is verified." },
+  { id:"google_pay", label:"Google Pay", accountLabel:"Send payment to", enabled:false, account:"", qrUrl:"", instructions:"Send payment using Google Pay and include your order number. Your order will remain pending until payment is verified." }
+];
+let pstAdminPaymentMethods = PST_DEFAULT_PAYMENT_METHODS_ADMIN.map(m => ({...m}));
 function paymentOptionsStatus(message, type){
   const el = document.getElementById("paymentOptionsStatus");
   if (!el) return;
   el.textContent = message;
   el.className = "payment-options-status" + (type ? " " + type : "");
 }
-function normalizePSTPaymentOptionsAdmin(row){
-  row = row || {};
-  return {
-    venmo_enabled: row.venmo_enabled === true || row.enabled === true || String(row.venmo_enabled || row.enabled || "").toLowerCase() === "true",
-    venmo_handle: String(row.venmo_handle || row.handle || row.value || "").trim(),
-    venmo_note: String(row.venmo_note || row.note || row.notes || "Order will remain pending until payment is confirmed.").trim()
-  };
+function escPay(value){ return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch])); }
+function normalizePSTPaymentMethodsAdmin(row){
+  let methods = null;
+  if (Array.isArray(row)) methods = row;
+  else if (row && Array.isArray(row.payment_methods)) methods = row.payment_methods;
+  else if (row && row.payment_methods && typeof row.payment_methods === "string") { try { methods = JSON.parse(row.payment_methods); } catch(_){} }
+  const defaults = PST_DEFAULT_PAYMENT_METHODS_ADMIN.map(m => ({...m}));
+  const byId = Object.fromEntries(defaults.map(m => [m.id, m]));
+  (methods || []).forEach(m => {
+    const id = String(m.id || m.key || "").trim();
+    if (!id || !byId[id]) return;
+    byId[id] = { ...byId[id], ...m, enabled: m.enabled === true || String(m.enabled || "").toLowerCase() === "true", account:String(m.account || m.handle || m.wallet || m.value || "").trim(), qrUrl:String(m.qrUrl || m.qr_url || m.qr || "").trim(), instructions:String(m.instructions || m.note || m.notes || byId[id].instructions || "").trim() };
+  });
+  if (row && (row.venmo_enabled || row.venmo_handle || row.venmo_note)) {
+    byId.venmo.enabled = row.venmo_enabled === true || String(row.venmo_enabled || "").toLowerCase() === "true";
+    byId.venmo.account = String(row.venmo_handle || byId.venmo.account || "").trim();
+    byId.venmo.instructions = String(row.venmo_note || byId.venmo.instructions || "").trim();
+  }
+  return defaults.map(d => byId[d.id]);
+}
+function renderPSTPaymentMethodsAdmin(){
+  const wrap = document.getElementById("paymentMethodsAdminList");
+  if (!wrap) return;
+  wrap.innerHTML = pstAdminPaymentMethods.map(m => `
+    <div class="payment-method-card" data-method-id="${escPay(m.id)}">
+      <h3>${escPay(m.label)}</h3>
+      <div class="payment-method-fields">
+        <div><label>Enabled</label><select data-pay-field="enabled"><option value="false" ${m.enabled ? "" : "selected"}>Off / Hidden</option><option value="true" ${m.enabled ? "selected" : ""}>On / Show in Cart</option></select></div>
+        <div><label>Display Name</label><input data-pay-field="label" value="${escPay(m.label)}"></div>
+        <div><label>Account Label</label><input data-pay-field="accountLabel" value="${escPay(m.accountLabel || "Send payment to")}" placeholder="Send payment to / Wallet address"></div>
+        <div><label>Account / Handle / Wallet</label><input data-pay-field="account" value="${escPay(m.account || "")}" placeholder="@handle, phone/email, wallet address"></div>
+        <div class="full"><label>QR Code Image URL</label><input data-pay-field="qrUrl" value="${escPay(m.qrUrl || "")}" placeholder="Paste image URL or upload QR below"></div>
+        <div class="full"><label>QR Image Upload</label><input type="file" accept="image/*" data-pay-field="qrUpload"><div class="muted" style="font-size:12px;margin-top:4px">Upload a PNG/JPG QR image. It will be saved with this payment setting.</div>${m.qrUrl ? `<img class="qr-preview" src="${escPay(m.qrUrl)}" alt="QR preview">` : ""}</div>
+        <div class="full"><label>Customer Instructions</label><textarea data-pay-field="instructions" placeholder="Instructions shown in cart and sent in order email payload">${escPay(m.instructions || "")}</textarea></div>
+      </div>
+    </div>`).join("");
+  wrap.querySelectorAll('input[type="file"][data-pay-field="qrUpload"]').forEach(input => {
+    input.addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const card = event.target.closest(".payment-method-card");
+      const id = card?.dataset?.methodId;
+      if (!id) return;
+      if (file.size > 450000) { alert("That QR image is large. Use a smaller PNG/JPG under about 450 KB."); event.target.value = ""; return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const method = pstAdminPaymentMethods.find(m => m.id === id);
+        if (method) method.qrUrl = String(reader.result || "");
+        renderPSTPaymentMethodsAdmin();
+        paymentOptionsStatus(`${method?.label || "QR"} QR image loaded. Click Save Payment Methods to publish it.`, "good");
+      };
+      reader.readAsDataURL(file);
+    });
+  });
 }
 function readPSTPaymentOptionsForm(){
-  return {
-    venmo_enabled: document.getElementById("venmoEnabled")?.value === "true",
-    venmo_handle: String(document.getElementById("venmoHandle")?.value || "").trim(),
-    venmo_note: String(document.getElementById("venmoNote")?.value || "Order will remain pending until payment is confirmed.").trim()
-  };
+  const cards = Array.from(document.querySelectorAll(".payment-method-card[data-method-id]"));
+  return cards.map(card => {
+    const id = card.dataset.methodId;
+    const existing = pstAdminPaymentMethods.find(m => m.id === id) || {};
+    const get = field => card.querySelector(`[data-pay-field="${field}"]`);
+    return {
+      id,
+      label: String(get("label")?.value || existing.label || id).trim(),
+      accountLabel: String(get("accountLabel")?.value || existing.accountLabel || "Send payment to").trim(),
+      enabled: get("enabled")?.value === "true",
+      account: String(get("account")?.value || "").trim(),
+      qrUrl: String(get("qrUrl")?.value || existing.qrUrl || "").trim(),
+      instructions: String(get("instructions")?.value || existing.instructions || "Order will remain pending until payment is confirmed.").trim()
+    };
+  });
 }
 function fillPSTPaymentOptionsForm(settings){
-  settings = normalizePSTPaymentOptionsAdmin(settings);
-  const enabled = document.getElementById("venmoEnabled");
-  const handle = document.getElementById("venmoHandle");
-  const note = document.getElementById("venmoNote");
-  if (enabled) enabled.value = settings.venmo_enabled ? "true" : "false";
-  if (handle) handle.value = settings.venmo_handle || "";
-  if (note) note.value = settings.venmo_note || "Order will remain pending until payment is confirmed.";
+  pstAdminPaymentMethods = normalizePSTPaymentMethodsAdmin(settings);
+  renderPSTPaymentMethodsAdmin();
 }
 async function loadPSTPaymentOptionsAdmin(){
-  let settings = { venmo_enabled:false, venmo_handle:"", venmo_note:"Order will remain pending until payment is confirmed." };
+  let settings = PST_DEFAULT_PAYMENT_METHODS_ADMIN.map(m => ({...m}));
   try {
-    const local = localStorage.getItem(PST_PAYMENT_OPTIONS_STORAGE_KEY);
-    if (local) settings = normalizePSTPaymentOptionsAdmin(JSON.parse(local));
+    const local = localStorage.getItem(PST_PAYMENT_OPTIONS_STORAGE_KEY) || localStorage.getItem(PST_PAYMENT_LEGACY_STORAGE_KEY);
+    if (local) settings = normalizePSTPaymentMethodsAdmin(JSON.parse(local));
   } catch (_) {}
   try {
     const { data, error } = await supabaseClient
       .from("site_payment_options")
-      .select("venmo_enabled, venmo_handle, venmo_note, updated_at")
+      .select("payment_methods, venmo_enabled, venmo_handle, venmo_note, updated_at")
       .eq("id", 1)
       .maybeSingle();
     if (!error && data) {
-      settings = normalizePSTPaymentOptionsAdmin(data);
-      paymentOptionsStatus("Loaded payment options from Supabase.", "good");
+      settings = normalizePSTPaymentMethodsAdmin(data);
+      paymentOptionsStatus("Loaded payment methods from Supabase.", "good");
     } else if (error) {
-      paymentOptionsStatus("Optional site_payment_options table not found yet. Saving will use local browser fallback until SQL is run.", "bad");
+      paymentOptionsStatus("Optional site_payment_options table/columns not ready. Saving will use local browser fallback until SQL is run.", "bad");
     }
   } catch (err) {
     paymentOptionsStatus("Optional site_payment_options table unavailable. Saving will use local browser fallback until SQL is run.", "bad");
@@ -1493,16 +1551,19 @@ async function loadPSTPaymentOptionsAdmin(){
   fillPSTPaymentOptionsForm(settings);
 }
 async function savePSTPaymentOptions(){
-  const settings = readPSTPaymentOptionsForm();
-  try { localStorage.setItem(PST_PAYMENT_OPTIONS_STORAGE_KEY, JSON.stringify(settings)); } catch (_) {}
+  const methods = readPSTPaymentOptionsForm();
+  pstAdminPaymentMethods = normalizePSTPaymentMethodsAdmin(methods);
+  const legacyVenmo = pstAdminPaymentMethods.find(m => m.id === "venmo") || {};
+  const payload = { id:1, payment_methods:pstAdminPaymentMethods, venmo_enabled:!!legacyVenmo.enabled, venmo_handle:legacyVenmo.account || "", venmo_note:legacyVenmo.instructions || "", updated_at:new Date().toISOString() };
+  try { localStorage.setItem(PST_PAYMENT_OPTIONS_STORAGE_KEY, JSON.stringify({ payment_methods:pstAdminPaymentMethods })); } catch (_) {}
   try {
     const { error } = await supabaseClient
       .from("site_payment_options")
-      .upsert({ id:1, ...settings, updated_at:new Date().toISOString() }, { onConflict:"id" });
+      .upsert(payload, { onConflict:"id" });
     if (error) throw error;
-    paymentOptionsStatus("Payment options saved to Supabase. Public cart will use this setting.", "good");
+    paymentOptionsStatus("Payment methods saved to Supabase. Public cart will use these settings.", "good");
   } catch (err) {
-    paymentOptionsStatus("Saved locally only. To make this toggle affect every customer/device, run the optional site_payment_options SQL setup.", "bad");
+    paymentOptionsStatus("Saved locally only. Run the updated payment options SQL so every customer/device can see these methods.", "bad");
   }
 }
 if (document.readyState === "loading") {
