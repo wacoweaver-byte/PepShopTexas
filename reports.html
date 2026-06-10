@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD -->
 <!-- PST_REPORTS_PATCH_V28_AUDIT_PRODUCT_DOSE -->
 <!-- PST_REPORTS_PATCH_V27_INVENTORY_AUDIT -->
 <!-- PST_REPORTS_PATCH_V26_SHARED_FINANCIALS_SUPABASE -->
@@ -199,6 +200,41 @@ header .header-actions .btn.secondary.active {
 @media(max-width:900px){.payment-methods-admin-list{grid-template-columns:1fr}.payment-method-fields{grid-template-columns:1fr}.payment-method-fields .full{grid-column:auto}}
 
 
+
+/* PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD */
+.reports-jumpbar{
+  position:sticky;
+  top:83px;
+  z-index:45;
+  background:rgba(245,248,251,.96);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:0 8px 24px rgba(16,24,32,.08);
+  padding:10px;
+  margin:0 0 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  backdrop-filter:blur(8px);
+}
+.reports-jumpbar-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);white-space:nowrap}
+.reports-jumpbar-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.reports-jumpbar a{min-height:34px;height:34px;padding:8px 11px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--dark);font-size:12px;font-weight:900;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+.reports-jumpbar a:hover{border-color:var(--blue);color:var(--blue)}
+.card.collapsible-card .card-header{align-items:center}
+.collapse-toggle{min-height:32px!important;height:32px!important;padding:7px 10px!important;font-size:12px!important;border-radius:999px!important}
+.card.collapsible-card.collapsed .card-body{display:none!important}
+.card.collapsible-card.collapsed .card-header{border-bottom:0!important}
+.card.collapsible-card.collapsed{box-shadow:0 6px 18px rgba(16,24,32,.05)}
+.card.collapsible-card h2::before{content:"▾";display:inline-block;margin-right:8px;color:var(--blue);font-size:14px;transform:translateY(-1px)}
+.card.collapsible-card.collapsed h2::before{content:"▸"}
+.section-backtop{display:flex;justify-content:flex-end;margin-top:12px}
+.section-backtop a{font-size:12px;font-weight:900;color:var(--blue);text-decoration:none}
+@media(max-width:850px){.reports-jumpbar{top:118px}.reports-jumpbar-title{width:100%}.reports-jumpbar-links{width:100%}.reports-jumpbar a{flex:1 1 auto}}
+@media print{.reports-jumpbar,.collapse-toggle,.section-backtop{display:none!important}.card.collapsible-card .card-body{display:block!important}}
+
 </style>
 </head>
 <body>
@@ -235,6 +271,20 @@ header .header-actions .btn.secondary.active {
   </section>
 
   <div id="statusLine" class="status">Checking admin access...</div>
+
+
+  <nav class="reports-jumpbar no-print" id="reportsTop" aria-label="Reports quick navigation">
+    <div class="reports-jumpbar-title">Jump to</div>
+    <div class="reports-jumpbar-links">
+      <a href="#financials" data-jump-target="financials">Financials</a>
+      <a href="#inventory-audit" data-jump-target="inventory-audit">Inventory Audit</a>
+      <a href="#tax-settings-card" data-jump-target="tax-settings-card">Tax Settings</a>
+      <a href="#admin-resources-card" data-jump-target="admin-resources-card">Admin Resources</a>
+      <a href="#site-notes-card" data-jump-target="site-notes-card">Site Notes</a>
+      <a href="#future-todos-card" data-jump-target="future-todos-card">Future TODOs</a>
+      <a href="#payment-methods-card" data-jump-target="payment-methods-card">Payment Methods</a>
+    </div>
+  </nav>
 
   <section class="grid">
     <div class="card span-12 no-print">
@@ -343,8 +393,8 @@ header .header-actions .btn.secondary.active {
     </div>
 
 
-    <div class="card span-12 no-print">
-      <div class="card-header"><h2>Checkout Tax Settings</h2><span class="pill info">Checkout</span></div>
+    <div class="card span-12 no-print collapsible-card collapsed" id="tax-settings-card" style="scroll-margin-top:140px;">
+      <div class="card-header"><h2>Checkout Tax Settings</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="tax-settings-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
         <div class="tax-settings-grid">
           <div>
@@ -435,6 +485,7 @@ header .header-actions .btn.secondary.active {
           </table>
         </div>
         <div id="financeNote" class="finance-note">Financials use the selected report date range. These are operational estimates, not tax/accounting statements.</div>
+        <div class="section-backtop"><a href="#reportsTop">Back to Top ↑</a></div>
       </div>
     </div>
 
@@ -452,11 +503,12 @@ header .header-actions .btn.secondary.active {
             <tbody id="inventoryAuditBody"><tr><td colspan="9" class="muted">Loading inventory audit...</td></tr></tbody>
           </table>
         </div>
+        <div class="section-backtop"><a href="#reportsTop">Back to Top ↑</a></div>
       </div>
     </div>
 
-    <div class="card span-6 no-print">
-      <div class="card-header"><h2>Admin Resources</h2><span class="muted">Quick links</span></div>
+    <div class="card span-6 no-print collapsible-card collapsed" id="admin-resources-card" style="scroll-margin-top:140px;">
+      <div class="card-header"><h2>Admin Resources</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="admin-resources-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
         <div class="resource-list">
           <div class="resource"><div><strong>Live Website</strong><p>Customer-facing Pep Shop Texas homepage.</p></div><a class="btn secondary" href="https://www.pepshoptexas.com/" target="_blank" rel="noopener">Open</a></div>
@@ -469,8 +521,8 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
-    <div class="card span-6 no-print">
-      <div class="card-header"><h2>Site Operations Notes</h2><span class="pill good">Saved Here</span></div>
+    <div class="card span-6 no-print collapsible-card collapsed" id="site-notes-card" style="scroll-margin-top:140px;">
+      <div class="card-header"><h2>Site Operations Notes</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="site-notes-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
         <div class="ops-grid">
           <div class="ops-note"><strong>Supabase</strong>Used for login/authentication, admin access, customer profiles, orders, order items, product management, inventory, discount codes, homepage promotions, and Edge Function email calls.</div>
@@ -481,8 +533,8 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
-    <div class="card span-12 no-print">
-      <div class="card-header"><h2>Future Reports TODO</h2><span class="muted">Next phases</span></div>
+    <div class="card span-12 no-print collapsible-card collapsed" id="future-todos-card" style="scroll-margin-top:140px;">
+      <div class="card-header"><h2>Future Reports TODO</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="future-todos-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
         <div class="ops-grid">
           <div class="ops-note"><strong>Sales Report</strong>Daily, weekly, monthly sales totals, order count, average order value, and paid/unpaid order totals.</div>
@@ -495,10 +547,10 @@ header .header-actions .btn.secondary.active {
   </section>
 
   <section class="grid no-print" id="payment-options">
-    <div class="card span-12">
+    <div class="card span-12 collapsible-card collapsed" id="payment-methods-card" style="scroll-margin-top:140px;">
       <div class="card-header">
         <h2>Payment Methods Manager</h2>
-        <span class="muted">Toggle customer payment methods, account details, QR codes, and checkout instructions</span>
+        <button class="btn secondary collapse-toggle" type="button" data-collapse-target="payment-methods-card" aria-expanded="false">Open</button>
       </div>
       <div class="card-body">
         <p class="muted" style="line-height:1.45;margin-top:0"><strong>QR upload:</strong> Use the QR Image Upload button on each method. It stores the QR image with that payment method setting. You can also paste an image URL if you prefer to upload QR images into GitHub assets.</p>
@@ -1721,6 +1773,39 @@ function renderPSTPaymentMethodsAdmin(){
     });
   });
 }
+
+
+// PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD
+function setReportsCardCollapsed(card, collapsed){
+  if (!card) return;
+  card.classList.toggle("collapsed", !!collapsed);
+  const button = document.querySelector(`[data-collapse-target="${card.id}"]`);
+  if (button) {
+    button.textContent = collapsed ? "Open" : "Collapse";
+    button.setAttribute("aria-expanded", collapsed ? "false" : "true");
+  }
+}
+function openReportsCardById(id){
+  const card = document.getElementById(id);
+  if (card && card.classList.contains("collapsible-card")) setReportsCardCollapsed(card, false);
+}
+function setupReportsDashboardNavigation(){
+  document.querySelectorAll("[data-collapse-target]").forEach(button => {
+    const card = document.getElementById(button.dataset.collapseTarget || "");
+    if (!card) return;
+    setReportsCardCollapsed(card, card.classList.contains("collapsed"));
+    button.addEventListener("click", () => setReportsCardCollapsed(card, !card.classList.contains("collapsed")));
+  });
+  document.querySelectorAll(".reports-jumpbar a[data-jump-target]").forEach(link => {
+    link.addEventListener("click", () => openReportsCardById(link.dataset.jumpTarget));
+  });
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", setupReportsDashboardNavigation);
+} else {
+  setupReportsDashboardNavigation();
+}
+
 function readPSTPaymentOptionsForm(){
   const cards = Array.from(document.querySelectorAll(".payment-method-card[data-method-id]"));
   return cards.map(card => {
