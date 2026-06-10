@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V26_SHARED_FINANCIALS_SUPABASE -->
 <!-- PST_REPORTS_PATCH_V24_PAYMENT_OPTIONS_TOGGLE -->
 <!DOCTYPE html>
 <!-- PST_REPORTS_PATCH_V25_PAYMENT_METHODS_MANAGER -->
@@ -507,6 +508,10 @@ let localExpenseRows = [];
 let allReportOrders = [];
 let allOrderItemsByOrder = {};
 let allInventoryRows = [];
+let allIncomingRows = [];
+let allExpenseRows = [];
+let reportsIncomingUsesSupabase = false;
+let reportsExpensesUsesSupabase = false;
 
 function setStatus(message, type="") {
   const el = $("statusLine");
@@ -703,16 +708,27 @@ async function checkAdminAccess(){
 
 async function loadReports(){
   setStatus("Loading reports...");
-  const [ordersRes, inventoryRes, discountsRes] = await Promise.allSettled([
+  const [ordersRes, inventoryRes, discountsRes, incomingRes, expensesRes] = await Promise.allSettled([
     supabaseClient.from("orders").select("*"),
     supabaseClient.from("product_inventory").select("*"),
-    supabaseClient.from("discount_codes").select("*")
+    supabaseClient.from("discount_codes").select("*"),
+    supabaseClient.from("incoming_inventory").select("*"),
+    supabaseClient.from("operating_expenses").select("*")
   ]);
 
   let orders = ordersRes.status === "fulfilled" && !ordersRes.value.error ? (ordersRes.value.data || []) : [];
   const inventory = inventoryRes.status === "fulfilled" && !inventoryRes.value.error ? (inventoryRes.value.data || []) : [];
   const discounts = discountsRes.status === "fulfilled" && !discountsRes.value.error ? (discountsRes.value.data || []) : [];
   allInventoryRows = inventory || [];
+
+  reportsIncomingUsesSupabase = incomingRes.status === "fulfilled" && !incomingRes.value.error;
+  allIncomingRows = reportsIncomingUsesSupabase ? (incomingRes.value.data || []) : incomingRowsLocalRaw();
+
+  reportsExpensesUsesSupabase = expensesRes.status === "fulfilled" && !expensesRes.value.error;
+  allExpenseRows = reportsExpensesUsesSupabase ? (expensesRes.value.data || []) : expenseRowsLocalRaw();
+
+  if (reportsIncomingUsesSupabase) await migrateLocalIncomingRowsToSupabase();
+  if (reportsExpensesUsesSupabase) await migrateLocalExpenseRowsToSupabase();
 
   allOrderItemsByOrder = {};
   const orderIdsForItems = orders.map(o => o.id).filter(Boolean);
@@ -780,7 +796,9 @@ async function loadReports(){
   if (ordersRes.status === "fulfilled" && ordersRes.value.error) warnings.push("orders");
   if (inventoryRes.status === "fulfilled" && inventoryRes.value.error) warnings.push("inventory");
   if (discountsRes.status === "fulfilled" && discountsRes.value.error) warnings.push("discounts");
-  setStatus(warnings.length ? `Reports loaded with limited access to: ${warnings.join(", ")}.` : "Reports loaded successfully.", warnings.length ? "bad" : "good");
+  if (!reportsIncomingUsesSupabase) warnings.push("incoming_inventory fallback");
+  if (!reportsExpensesUsesSupabase) warnings.push("operating_expenses fallback");
+  setStatus(warnings.length ? `Reports loaded with limited access to: ${warnings.join(", ")}.` : "Reports loaded successfully with shared Supabase financials.", warnings.length ? "bad" : "good");
 }
 
 
@@ -1295,8 +1313,70 @@ function readJsonStorage(key, fallback){
 function writeJsonStorage(key, value){
   try { localStorage.setItem(key, JSON.stringify(value || [])); } catch(e) {}
 }
-function incomingRowsLocal(){ return readJsonStorage(PST_INCOMING_STORAGE_KEY, []); }
-function expenseRowsLocal(){ return readJsonStorage(PST_EXPENSE_STORAGE_KEY, []); }
+function incomingRowsLocalRaw(){ return readJsonStorage(PST_INCOMING_STORAGE_KEY, []); }
+function expenseRowsLocalRaw(){ return readJsonStorage(PST_EXPENSE_STORAGE_KEY, []); }
+function incomingRowsLocal(){ return reportsIncomingUsesSupabase ? (allIncomingRows || []) : incomingRowsLocalRaw(); }
+function expenseRowsLocal(){ return reportsExpensesUsesSupabase ? (allExpenseRows || []) : expenseRowsLocalRaw(); }
+function reportFinanceRowId(row){
+  return String(row?.id || "").trim();
+}
+function localRowAlreadyInSupabase(localRow, supabaseRows, type){
+  const localId = reportFinanceRowId(localRow);
+  if (localId && (supabaseRows || []).some(row => reportFinanceRowId(row) === localId)) return true;
+  const localDate = cleanText(localRow.date || localRow.ordered_at || localRow.created_at || localRow.date_ordered);
+  const localAmount = Number(type === "expense" ? localRow.amount : incomingCost(localRow));
+  const localDesc = cleanText(type === "expense" ? localRow.description : localRow.product_name);
+  return (supabaseRows || []).some(row => {
+    const rowDate = cleanText(row.date || row.ordered_at || row.created_at || row.date_ordered);
+    const rowAmount = Number(type === "expense" ? row.amount : incomingCost(row));
+    const rowDesc = cleanText(type === "expense" ? row.description : row.product_name);
+    return localDate && rowDate && localDate.slice(0,10) === rowDate.slice(0,10) && Math.abs(localAmount - rowAmount) < 0.01 && localDesc === rowDesc;
+  });
+}
+async function migrateLocalIncomingRowsToSupabase(){
+  const localRows = incomingRowsLocalRaw();
+  if (!localRows.length || !reportsIncomingUsesSupabase) return;
+  const toInsert = localRows.filter(row => !localRowAlreadyInSupabase(row, allIncomingRows, "incoming"));
+  if (!toInsert.length) return;
+  const cleaned = toInsert.map(row => ({
+    ...row,
+    id: row.id || (crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}_${Math.random().toString(16).slice(2)}`),
+    created_by: row.created_by || currentUser?.id || null,
+    created_by_email: row.created_by_email || currentUser?.email || null
+  }));
+  const { data, error } = await supabaseClient.from("incoming_inventory").insert(cleaned).select("*");
+  if (!error && data) {
+    allIncomingRows = [...data, ...(allIncomingRows || [])];
+    try { localStorage.removeItem(PST_INCOMING_STORAGE_KEY); } catch(e) {}
+  } else if (error) {
+    console.warn("Incoming inventory migration skipped:", error.message || error);
+  }
+}
+async function migrateLocalExpenseRowsToSupabase(){
+  const localRows = expenseRowsLocalRaw();
+  if (!localRows.length || !reportsExpensesUsesSupabase) return;
+  const toInsert = localRows.filter(row => !localRowAlreadyInSupabase(row, allExpenseRows, "expense"));
+  if (!toInsert.length) return;
+  const cleaned = toInsert.map(row => ({
+    id: row.id || (crypto?.randomUUID ? crypto.randomUUID() : `expense_${Date.now()}_${Math.random().toString(16).slice(2)}`),
+    date: row.date || (row.created_at ? String(row.created_at).slice(0,10) : new Date().toISOString().slice(0,10)),
+    category: row.category || "Expense",
+    description: row.description || "",
+    amount: Number(row.amount || 0),
+    method: row.method || "",
+    created_at: row.created_at || new Date().toISOString(),
+    created_by: row.created_by || currentUser?.id || null,
+    created_by_email: row.created_by_email || currentUser?.email || null
+  })).filter(row => row.amount > 0);
+  if (!cleaned.length) return;
+  const { data, error } = await supabaseClient.from("operating_expenses").insert(cleaned).select("*");
+  if (!error && data) {
+    allExpenseRows = [...data, ...(allExpenseRows || [])];
+    try { localStorage.removeItem(PST_EXPENSE_STORAGE_KEY); } catch(e) {}
+  } else if (error) {
+    console.warn("Expense migration skipped:", error.message || error);
+  }
+}
 function rowDateInSelectedRange(value){
   const range = $("orderReportRange")?.value || "last7";
   if (range === "all") return true;
@@ -1356,7 +1436,10 @@ function renderFinancials(orders){
   setText("finTaxHeld", money(realizedTotals.tax));
   renderExpenseTable(expensesInRange);
   const note = $("financeNote");
-  if (note) note.textContent = `Financials for the selected report range: ${realizedTotals.orders} realized order(s), ${pendingTotals.orders} pending/open order(s), ${excludedTotals.orders} excluded order(s), ${expensesInRange.length} expense row(s), and ${incomingInRange.length} incoming inventory cost row(s). Revenue and estimated profit are realized only when order status is Shipped, Delivered, Complete, or Completed. Pending, Processing, Packed, Inventory Failed, Rejected, Cancelled, Refunded, and Void orders are not counted as realized revenue/profit.`;
+  if (note) {
+    const sourceText = `${reportsExpensesUsesSupabase ? "expenses from Supabase" : "expenses from this browser only"}; ${reportsIncomingUsesSupabase ? "incoming inventory from Supabase" : "incoming inventory from this browser only"}`;
+    note.textContent = `Financials for the selected report range: ${realizedTotals.orders} realized order(s), ${pendingTotals.orders} pending/open order(s), ${excludedTotals.orders} excluded order(s), ${expensesInRange.length} expense row(s), and ${incomingInRange.length} incoming inventory cost row(s). Data source: ${sourceText}. Revenue and estimated profit are realized only when order status is Shipped, Delivered, Complete, or Completed. Pending, Processing, Packed, Inventory Failed, Rejected, Cancelled, Refunded, and Void orders are not counted as realized revenue/profit.`;
+  }
 }
 function renderExpenseTable(rows){
   const body = $("expenseBody");
@@ -1376,7 +1459,7 @@ function renderExpenseTable(rows){
   </tr>`).join("");
   document.querySelectorAll(".delete-expense-btn").forEach(btn => btn.addEventListener("click", () => deleteExpense(btn.dataset.expenseId)));
 }
-function addExpense(){
+async function addExpense(){
   const amount = Number($("expenseAmount")?.value || 0);
   if (!amount || amount <= 0) { alert("Enter an expense amount greater than zero."); return; }
   const row = {
@@ -1387,20 +1470,48 @@ function addExpense(){
     amount,
     method: $("expenseMethod")?.value.trim() || "",
     created_at: new Date().toISOString(),
-    created_by: currentUser?.email || null
+    created_by: currentUser?.id || null,
+    created_by_email: currentUser?.email || null
   };
-  const rows = expenseRowsLocal();
-  rows.unshift(row);
-  writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+
+  if (reportsExpensesUsesSupabase) {
+    const { data, error } = await supabaseClient.from("operating_expenses").insert(row).select("*").maybeSingle();
+    if (error) {
+      console.warn("Supabase expense insert failed; saving locally:", error.message || error);
+      const rows = expenseRowsLocalRaw();
+      rows.unshift(row);
+      writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+      allExpenseRows = rows;
+      reportsExpensesUsesSupabase = false;
+    } else {
+      allExpenseRows = [data || row, ...(allExpenseRows || [])];
+    }
+  } else {
+    const rows = expenseRowsLocalRaw();
+    rows.unshift(row);
+    writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+    allExpenseRows = rows;
+  }
+
   if ($("expenseAmount")) $("expenseAmount").value = "";
   if ($("expenseDescription")) $("expenseDescription").value = "";
   if ($("expenseMethod")) $("expenseMethod").value = "";
   refreshOrderReport();
 }
-function deleteExpense(id){
+async function deleteExpense(id){
   if (!confirm("Delete this expense entry?")) return;
-  const rows = expenseRowsLocal().filter(row => String(row.id) !== String(id));
-  writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+  if (reportsExpensesUsesSupabase) {
+    const { error } = await supabaseClient.from("operating_expenses").delete().eq("id", id);
+    if (error) {
+      alert("Delete failed: " + (error.message || error));
+      return;
+    }
+    allExpenseRows = (allExpenseRows || []).filter(row => String(row.id) !== String(id));
+  } else {
+    const rows = expenseRowsLocalRaw().filter(row => String(row.id) !== String(id));
+    writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+    allExpenseRows = rows;
+  }
   refreshOrderReport();
 }
 
