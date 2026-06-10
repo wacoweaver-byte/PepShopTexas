@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V27_INVENTORY_AUDIT -->
 <!-- PST_REPORTS_PATCH_V26_SHARED_FINANCIALS_SUPABASE -->
 <!-- PST_REPORTS_PATCH_V24_PAYMENT_OPTIONS_TOGGLE -->
 <!DOCTYPE html>
@@ -436,6 +437,23 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
+
+    <div class="card span-12 no-print" id="inventory-audit" style="scroll-margin-top:110px;">
+      <div class="card-header">
+        <h2>Inventory Audit / Movement History</h2>
+        <span class="muted" id="inventoryAuditCount">Loading inventory movements...</span>
+      </div>
+      <div class="card-body">
+        <p class="muted" style="margin-top:0;">Shows received, removed, exact count, out-of-stock, and other inventory adjustments recorded from Inventory Management. Use this to verify broken/damaged vial removals and stock corrections.</p>
+        <div class="table-wrap">
+          <table class="finance-table">
+            <thead><tr><th>Date / Time</th><th>Product</th><th>SKU / Key</th><th>Movement</th><th>Qty Change</th><th>Previous Qty</th><th>New Qty</th><th>Admin</th><th>Reason / Note</th></tr></thead>
+            <tbody id="inventoryAuditBody"><tr><td colspan="9" class="muted">Loading inventory audit...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <div class="card span-6 no-print">
       <div class="card-header"><h2>Admin Resources</h2><span class="muted">Quick links</span></div>
       <div class="card-body">
@@ -510,6 +528,8 @@ let allOrderItemsByOrder = {};
 let allInventoryRows = [];
 let allIncomingRows = [];
 let allExpenseRows = [];
+let allInventoryMovementRows = [];
+let reportsMovementUsesSupabase = false;
 let reportsIncomingUsesSupabase = false;
 let reportsExpensesUsesSupabase = false;
 
@@ -708,12 +728,13 @@ async function checkAdminAccess(){
 
 async function loadReports(){
   setStatus("Loading reports...");
-  const [ordersRes, inventoryRes, discountsRes, incomingRes, expensesRes] = await Promise.allSettled([
+  const [ordersRes, inventoryRes, discountsRes, incomingRes, expensesRes, movementsRes] = await Promise.allSettled([
     supabaseClient.from("orders").select("*"),
     supabaseClient.from("product_inventory").select("*"),
     supabaseClient.from("discount_codes").select("*"),
     supabaseClient.from("incoming_inventory").select("*"),
-    supabaseClient.from("operating_expenses").select("*")
+    supabaseClient.from("operating_expenses").select("*"),
+    supabaseClient.from("inventory_movements").select("*").order("created_at", { ascending:false }).limit(250)
   ]);
 
   let orders = ordersRes.status === "fulfilled" && !ordersRes.value.error ? (ordersRes.value.data || []) : [];
@@ -726,6 +747,9 @@ async function loadReports(){
 
   reportsExpensesUsesSupabase = expensesRes.status === "fulfilled" && !expensesRes.value.error;
   allExpenseRows = reportsExpensesUsesSupabase ? (expensesRes.value.data || []) : expenseRowsLocalRaw();
+
+  reportsMovementUsesSupabase = movementsRes.status === "fulfilled" && !movementsRes.value.error;
+  allInventoryMovementRows = reportsMovementUsesSupabase ? (movementsRes.value.data || []) : [];
 
   if (reportsIncomingUsesSupabase) await migrateLocalIncomingRowsToSupabase();
   if (reportsExpensesUsesSupabase) await migrateLocalExpenseRowsToSupabase();
@@ -792,12 +816,14 @@ async function loadReports(){
 
   allReportOrders = orders;
   refreshOrderReport();
+  renderInventoryAudit();
   const warnings = [];
   if (ordersRes.status === "fulfilled" && ordersRes.value.error) warnings.push("orders");
   if (inventoryRes.status === "fulfilled" && inventoryRes.value.error) warnings.push("inventory");
   if (discountsRes.status === "fulfilled" && discountsRes.value.error) warnings.push("discounts");
   if (!reportsIncomingUsesSupabase) warnings.push("incoming_inventory fallback");
   if (!reportsExpensesUsesSupabase) warnings.push("operating_expenses fallback");
+  if (!reportsMovementUsesSupabase) warnings.push("inventory_movements fallback");
   setStatus(warnings.length ? `Reports loaded with limited access to: ${warnings.join(", ")}.` : "Reports loaded successfully with shared Supabase financials.", warnings.length ? "bad" : "good");
 }
 
@@ -1412,6 +1438,69 @@ function inventoryValueFromIncoming(){
   });
   return total;
 }
+
+function inventoryAuditProductForMovement(row){
+  const productId = cleanText(row?.product_id || row?.inventory_id || row?.product_inventory_id);
+  const productKey = cleanText(row?.product_key || row?.sku);
+  const candidates = (allInventoryRows || []).filter(item => {
+    if (productId && String(item.id || item.product_id || item.inventory_id || "") === productId) return true;
+    if (productKey && cleanText(item.product_key || item.sku || item.product_id).toLowerCase() === productKey.toLowerCase()) return true;
+    return false;
+  });
+  return candidates[0] || null;
+}
+function inventoryAuditProductName(row){
+  const item = inventoryAuditProductForMovement(row);
+  return cleanText(row?.product_name || row?.display_name || item?.display_name || item?.product_name || item?.name || row?.product_key || row?.sku || "Product");
+}
+function inventoryAuditProductKey(row){
+  const item = inventoryAuditProductForMovement(row);
+  return cleanText(row?.product_key || row?.sku || item?.product_key || item?.sku || item?.product_id || "—");
+}
+function movementQtyClass(value){
+  const n = Number(value || 0);
+  if (n > 0) return "money-positive";
+  if (n < 0) return "money-negative";
+  return "";
+}
+function movementTypeLabel(value){
+  return cleanText(value || "movement").replaceAll("_", " ");
+}
+function renderInventoryAudit(){
+  const body = $("inventoryAuditBody");
+  const count = $("inventoryAuditCount");
+  if (!body) return;
+  if (!reportsMovementUsesSupabase) {
+    body.innerHTML = `<tr><td colspan="9" class="muted">Inventory movement audit is not available yet. Confirm the inventory_movements table exists and admin policies allow Reports to read it.</td></tr>`;
+    if (count) count.textContent = "Audit unavailable";
+    return;
+  }
+  const rows = (allInventoryMovementRows || []).slice().sort((a,b)=>new Date(b.created_at || b.date || 0)-new Date(a.created_at || a.date || 0));
+  if (count) count.textContent = `${rows.length} movement${rows.length === 1 ? "" : "s"} shown`;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="9" class="muted">No inventory movements have been recorded yet.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(row => {
+    const qty = Number(row.quantity_change ?? row.qty_change ?? row.change ?? row.quantity ?? 0);
+    const previousQty = row.previous_quantity ?? row.previous_qty ?? row.old_quantity ?? "—";
+    const newQty = row.new_quantity ?? row.new_qty ?? row.current_quantity ?? "—";
+    const note = cleanText(row.admin_note || row.reason || row.note || row.notes || row.audit_note || "—");
+    const admin = cleanText(row.created_by_email || row.admin_email || row.user_email || row.created_by || "—");
+    return `<tr>
+      <td>${safe(shortDateTime(row.created_at || row.date || row.updated_at))}</td>
+      <td><strong>${safe(inventoryAuditProductName(row))}</strong></td>
+      <td>${safe(inventoryAuditProductKey(row))}</td>
+      <td>${safe(movementTypeLabel(row.movement_type || row.type || row.action))}</td>
+      <td><strong class="${movementQtyClass(qty)}">${qty > 0 ? "+" : ""}${safe(qty)}</strong></td>
+      <td>${safe(previousQty)}</td>
+      <td>${safe(newQty)}</td>
+      <td>${safe(admin)}</td>
+      <td>${safe(note)}</td>
+    </tr>`;
+  }).join("");
+}
+
 function renderFinancials(orders){
   const allOrders = orders || [];
   const realizedTotals = reportTotals(allOrders, "realized");
