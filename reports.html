@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V24_PAYMENT_OPTIONS_TOGGLE -->
 <!DOCTYPE html>
 <!-- PST_REPORTS_PATCH_V23_REALIZED_REVENUE -->
 <!-- PST_REPORTS_PATCH_V22_SKU_IDENTITY_READY -->
@@ -174,6 +175,15 @@ header .header-actions .btn.secondary.active {
   color: #ffffff !important;
   border-color: #0077c8 !important;
 }
+
+
+
+/* PST payment options toggle */
+.payment-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
+.payment-options-status{margin-top:10px;font-size:13px;font-weight:800;color:var(--muted)}
+.payment-options-status.good{color:var(--success)}
+.payment-options-status.bad{color:var(--danger)}
+@media(max-width:720px){.payment-options-grid{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -452,6 +462,41 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
   </section>
+
+  <section class="grid no-print" id="payment-options">
+    <div class="card span-12">
+      <div class="card-header">
+        <h2>Payment Options</h2>
+        <span class="muted">Toggle customer payment methods</span>
+      </div>
+      <div class="card-body">
+        <div class="payment-options-grid">
+          <div>
+            <label>Venmo Enabled</label>
+            <select id="venmoEnabled">
+              <option value="false">Off / Hidden</option>
+              <option value="true">On / Show in Cart</option>
+            </select>
+          </div>
+          <div>
+            <label>Venmo Handle</label>
+            <input id="venmoHandle" placeholder="@PepShopTexas or phone/email" />
+          </div>
+          <div class="span-12">
+            <label>Venmo Customer Note</label>
+            <input id="venmoNote" placeholder="Order will remain pending until payment is confirmed." />
+          </div>
+          <div class="span-12">
+            <button class="btn" type="button" onclick="savePSTPaymentOptions()">Save Payment Options</button>
+            <button class="btn secondary" type="button" onclick="loadPSTPaymentOptionsAdmin()">Reload</button>
+          </div>
+        </div>
+        <div id="paymentOptionsStatus" class="payment-options-status">Venmo is optional. When enabled, the cart will show Venmo as a payment option.</div>
+        <p class="muted" style="margin-top:10px;line-height:1.45;"><strong>Note:</strong> Orders paid by Venmo should still stay payment pending until you manually verify payment and mark the order paid in Admin Orders.</p>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <script>
@@ -1390,5 +1435,82 @@ async function init(){
 }
 init();
 </script>
+
+<script>
+/* PST payment options admin toggle */
+const PST_PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v1";
+function paymentOptionsStatus(message, type){
+  const el = document.getElementById("paymentOptionsStatus");
+  if (!el) return;
+  el.textContent = message;
+  el.className = "payment-options-status" + (type ? " " + type : "");
+}
+function normalizePSTPaymentOptionsAdmin(row){
+  row = row || {};
+  return {
+    venmo_enabled: row.venmo_enabled === true || row.enabled === true || String(row.venmo_enabled || row.enabled || "").toLowerCase() === "true",
+    venmo_handle: String(row.venmo_handle || row.handle || row.value || "").trim(),
+    venmo_note: String(row.venmo_note || row.note || row.notes || "Order will remain pending until payment is confirmed.").trim()
+  };
+}
+function readPSTPaymentOptionsForm(){
+  return {
+    venmo_enabled: document.getElementById("venmoEnabled")?.value === "true",
+    venmo_handle: String(document.getElementById("venmoHandle")?.value || "").trim(),
+    venmo_note: String(document.getElementById("venmoNote")?.value || "Order will remain pending until payment is confirmed.").trim()
+  };
+}
+function fillPSTPaymentOptionsForm(settings){
+  settings = normalizePSTPaymentOptionsAdmin(settings);
+  const enabled = document.getElementById("venmoEnabled");
+  const handle = document.getElementById("venmoHandle");
+  const note = document.getElementById("venmoNote");
+  if (enabled) enabled.value = settings.venmo_enabled ? "true" : "false";
+  if (handle) handle.value = settings.venmo_handle || "";
+  if (note) note.value = settings.venmo_note || "Order will remain pending until payment is confirmed.";
+}
+async function loadPSTPaymentOptionsAdmin(){
+  let settings = { venmo_enabled:false, venmo_handle:"", venmo_note:"Order will remain pending until payment is confirmed." };
+  try {
+    const local = localStorage.getItem(PST_PAYMENT_OPTIONS_STORAGE_KEY);
+    if (local) settings = normalizePSTPaymentOptionsAdmin(JSON.parse(local));
+  } catch (_) {}
+  try {
+    const { data, error } = await supabaseClient
+      .from("site_payment_options")
+      .select("venmo_enabled, venmo_handle, venmo_note, updated_at")
+      .eq("id", 1)
+      .maybeSingle();
+    if (!error && data) {
+      settings = normalizePSTPaymentOptionsAdmin(data);
+      paymentOptionsStatus("Loaded payment options from Supabase.", "good");
+    } else if (error) {
+      paymentOptionsStatus("Optional site_payment_options table not found yet. Saving will use local browser fallback until SQL is run.", "bad");
+    }
+  } catch (err) {
+    paymentOptionsStatus("Optional site_payment_options table unavailable. Saving will use local browser fallback until SQL is run.", "bad");
+  }
+  fillPSTPaymentOptionsForm(settings);
+}
+async function savePSTPaymentOptions(){
+  const settings = readPSTPaymentOptionsForm();
+  try { localStorage.setItem(PST_PAYMENT_OPTIONS_STORAGE_KEY, JSON.stringify(settings)); } catch (_) {}
+  try {
+    const { error } = await supabaseClient
+      .from("site_payment_options")
+      .upsert({ id:1, ...settings, updated_at:new Date().toISOString() }, { onConflict:"id" });
+    if (error) throw error;
+    paymentOptionsStatus("Payment options saved to Supabase. Public cart will use this setting.", "good");
+  } catch (err) {
+    paymentOptionsStatus("Saved locally only. To make this toggle affect every customer/device, run the optional site_payment_options SQL setup.", "bad");
+  }
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", loadPSTPaymentOptionsAdmin);
+} else {
+  loadPSTPaymentOptionsAdmin();
+}
+</script>
+
 </body>
 </html>
