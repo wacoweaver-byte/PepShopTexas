@@ -772,7 +772,8 @@ header .header-actions .btn.secondary.active {
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
     }
-async function appendAdminAudit(order, text){
+  }
+    async function appendAdminAudit(order, text){
   let current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
 
   try {
