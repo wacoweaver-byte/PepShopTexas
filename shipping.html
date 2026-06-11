@@ -3,153 +3,33 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pep Shop Texas | Shipping</title>
-<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+<title>Pep Shop Texas | Shipping & Returns Editor</title>
 <style>
-
-:root {
-  --blue:#003f9e;
-  --black:#050505;
-  --white:#ffffff;
-  --line:#e6e6e6;
-  --soft:#f7f9fc;
-  --muted:#555;
-  --danger:#b00020;
-}
-* { box-sizing:border-box; }
-body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#fff; color:#111; }
-.top-strip {
-  background:#050505; color:#fff; font-size:13px; font-weight:900; text-transform:uppercase;
-  display:flex; justify-content:space-between; gap:20px; padding:9px 36px;
-}
-header { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20; }
-.nav { max-width:1180px; margin:auto; padding:14px 34px; display:flex; justify-content:space-between; align-items:center; gap:24px; }
-.logo-mark { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-decoration:none; color:#111; font-size:36px; letter-spacing:1px; }
-.logo-mark span { color:var(--blue); }
-.menu { display:flex; gap:22px; align-items:center; text-transform:uppercase; font-weight:900; font-size:14px; flex-wrap:wrap; }
-.menu a { color:#111; text-decoration:none; white-space:nowrap; }
-.menu a.active { color:var(--blue); border-bottom:2px solid var(--blue); padding-bottom:6px; }
-.wrap { max-width:1000px; margin:auto; padding:0 34px; }
-.hero { background:linear-gradient(135deg,#06111f 0%,#0f2748 52%,#003f9e 100%); color:#fff; padding:62px 0; }
-.kicker {
-  display:inline-block; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22);
-  padding:8px 12px; border-radius:999px; text-transform:uppercase; font-weight:900; font-size:12px; letter-spacing:1.2px;
-}
-.hero h1 { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:clamp(40px,7vw,78px); line-height:.92; margin:18px 0 14px; }
-.hero p { max-width:800px; color:rgba(255,255,255,.88); font-size:18px; line-height:1.55; }
-.section { padding:40px 0; }
-.policy-card {
-  border:1px solid var(--line); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06);
-  padding:28px; margin-bottom:18px;
-}
-h2 { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:34px; margin:0 0 10px; }
-h3 { text-transform:uppercase; color:var(--blue); margin:24px 0 8px; }
-p, li { color:#333; line-height:1.62; }
-ul { padding-left:22px; }
-.notice {
-  background:#f4f8ff; border:1px solid #d9e7ff; color:#153f76; border-radius:12px; padding:15px; font-weight:800; line-height:1.5;
-}
-.warning {
-  background:#fff0f0; border:1px solid #ffb8c0; color:var(--danger); border-radius:12px; padding:15px; font-weight:800; line-height:1.5;
-}
-.btn {
-  display:inline-block; border:2px solid var(--blue); background:var(--blue); color:#fff; border-radius:8px;
-  padding:12px 18px; font-weight:900; text-transform:uppercase; text-decoration:none; margin-top:10px;
-}
-footer { background:#fff; border-top:1px solid var(--line); margin-top:30px; }
-.footer-inner { max-width:1180px; margin:auto; padding:34px; display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:30px; }
-footer h4 { text-transform:uppercase; color:var(--blue); margin:0 0 12px; }
-footer a { display:block; color:#222; text-decoration:none; margin:8px 0; }
-.bottom { background:var(--blue); color:#fff; text-align:center; padding:14px; font-weight:800; }
-@media(max-width:820px) {
-  .top-strip { display:none; }
-  .nav { flex-direction:column; align-items:flex-start; }
-  .footer-inner { grid-template-columns:1fr; }
-}
-
-</style>
+:root{--blue:#003f9e;--dark:#101820;--line:#e6e6e6;--soft:#f7f9fc;--muted:#596579}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--soft);color:var(--dark);line-height:1.55}header{background:#fff;border-bottom:1px solid var(--line);padding:22px}main{max-width:1000px;margin:0 auto;padding:24px}h1,h2{margin-top:0;color:var(--blue)}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin:18px 0;box-shadow:0 10px 28px rgba(0,0,0,.05)}.editor-note{background:#fff8e6;border:1px solid #f1d48a;border-radius:12px;padding:14px;margin:16px 0;color:#6b4b00;font-weight:700}.editable{border:2px dashed #c9d7ea;border-radius:12px;padding:18px;background:#fff}.editable:focus{outline:3px solid rgba(0,63,158,.18);border-color:var(--blue)}a{color:var(--blue);font-weight:700}.back{display:inline-block;margin-top:12px;text-decoration:none}.small{color:var(--muted);font-size:13px}</style>
 </head>
 <body>
-<div class="top-strip">
-  <span>Research use only</span>
-  <span>Not for human or veterinary use</span>
-  <span>Not medical advice</span>
+<header><h1>Shipping & Returns</h1><a class="back" href="index.html">← Back to Pep Shop Texas</a></header>
+<main>
+<div class="editor-note">Editable page: click inside the dashed policy area, make changes, then save this HTML file with your editor and re-upload it as <strong>shipping.html</strong>.</div>
+<section class="card">
+<h2>Policy Content</h2>
+<div class="editable" contenteditable="true">
+<h2>Shipping</h2>
+<p>Orders ship from Central Texas after payment has been confirmed.</p>
+<p>Typical processing time is 1–2 business days, excluding weekends and holidays.</p>
+<p>Available shipping options may include standard, 3-day, or 2-day shipping depending on carrier availability and checkout selections.</p>
+<p>Tracking information will be provided when available. Carrier delays, weather delays, and address issues are outside the control of Pep Shop Texas.</p>
+
+<h2>Returns</h2>
+<p>Due to product handling, storage, and research-product integrity concerns, returns are not accepted once an order has shipped.</p>
+<p>If an order arrives damaged, missing an item, or incorrect, contact Pep Shop Texas within 48 hours of delivery so the issue can be reviewed.</p>
+<p>Damaged, missing, or incorrect item concerns are reviewed case by case.</p>
+
+<h2>Contact</h2>
+<p>For shipping or order questions, contact Pep Shop Texas through the contact information listed on the website. Please include your order number when available.</p>
 </div>
-
-<header>
-  <nav class="nav">
-    <a class="logo-mark" href="index.html">P<span>S</span>T</a>
-    <div class="menu">
-      <a href="index.html">Home</a>
-      <a href="index.html#az">Peptides A-Z</a>
-      <a href="index.html#featured">Featured</a>
-      <a href="research-library.html">Research</a>
-      <a href="contact.html" >Contact</a>
-    </div>
-  </nav>
-</header>
-
-<section class="hero">
-  <div class="wrap">
-    <span class="kicker">Pep Shop Texas Policies</span>
-    <h1>Shipping Policy</h1>
-    <p>Shipping, processing, tracking, address responsibility, and delivery issue guidance.</p>
-  </div>
 </section>
-
-<main class="section">
-  <div class="wrap">
-    
-<div class="policy-card">
-  <h2>Shipping Policy</h2>
-  <div class="notice">Shipping options, costs, processing windows, and carrier availability may change before public launch.</div>
-
-  <h3>1. Processing Time</h3>
-  <p>Orders may require administrative review, payment confirmation, inventory confirmation, and fulfillment preparation before shipping.</p>
-
-  <h3>2. Shipping Methods</h3>
-  <p>Available shipping methods may include standard, 2-day, or 3-day options when enabled. Shipping options may vary by product availability, destination, and carrier limitations.</p>
-
-  <h3>3. Address Responsibility</h3>
-  <p>Customers are responsible for providing a complete and accurate shipping address. Pep Shop Texas is not responsible for delays or losses caused by incorrect or incomplete address information.</p>
-
-  <h3>4. Tracking</h3>
-  <p>When tracking is available, tracking information may be added to the customer order record or sent by email after fulfillment.</p>
-
-  <h3>5. Delays</h3>
-  <p>Carrier delays, weather events, holidays, incorrect addresses, and operational issues may affect delivery timelines.</p>
-
-  <h3>6. Lost or Damaged Packages</h3>
-  <p>Customers should contact support promptly if a package appears lost, damaged, or misdelivered. Include order number, tracking information, photos if applicable, and a brief description of the issue.</p>
-
-  <h3>7. Research-Use Notice</h3>
-  <p>All products are provided for research-use context only. Not for human or veterinary use.</p>
-</div>
-
-  </div>
+<section class="card small"><p><strong>Owner note:</strong> This page is intentionally simple so you can edit the text directly. The public page visitors will only see the policy content and layout.</p></section>
 </main>
-
-<footer>
-  <div class="footer-inner">
-    <div>
-      <h4>Pep Shop Texas</h4>
-      <p>Research-use catalog and product information. Not for human or veterinary use. Not medical advice.</p>
-    </div>
-    <div>
-      <h4>Resources</h4>
-      <a href="research-library.html">Research Library</a>
-      <a href="contact.html">Contact</a>
-      <a href="index.html#faq">FAQ</a>
-    </div>
-    <div>
-      <h4>Policies</h4>
-      <a href="terms.html">Terms</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="shipping.html">Shipping</a>
-      <a href="returns.html">Returns</a>
-    </div>
-  </div>
-  <div class="bottom">© Pep Shop Texas. Research use only. Not for human or veterinary use.</div>
-</footer>
 </body>
 </html>
