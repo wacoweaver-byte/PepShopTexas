@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_ADMIN_PATCH_V8_ORDER_DASHBOARD -->
 <!-- PST_ADMIN_PATCH_V7_FORCE_DELETE_TEST_ORDERS -->
 <!-- PST_ADMIN_PATCH_V5_NO_TRACKING_REQUIRED -->
 <!-- PST_ADMIN_PATCH_V4_PAYMENT_INSTRUCTIONS_VISIBILITY -->
@@ -286,6 +287,67 @@ header .header-actions .btn.secondary.active {
   border-color: #0077c8 !important;
 }
 
+
+
+/* PST_ADMIN_PATCH_V8_ORDER_DASHBOARD */
+.admin-dashboard-nav {
+  position: sticky;
+  top: 83px;
+  z-index: 35;
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255,255,255,.96);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.admin-dashboard-nav strong {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-right: 2px;
+}
+.admin-dashboard-nav .btn {
+  background: #fff;
+  color: var(--dark);
+  border: 1px solid var(--border);
+}
+.admin-dashboard-nav .btn.active,
+.admin-dashboard-nav .btn[aria-pressed="true"] {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+.admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 18px;
+  align-items: start;
+}
+.collapsible-card { scroll-margin-top: 178px; }
+.collapsible-card > .card-header { cursor: pointer; }
+.collapsible-card.collapsed > :not(.card-header) { display: none !important; }
+.card-toggle-btn {
+  min-width: 112px;
+}
+.admin-back-top {
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--border);
+  background: #fbfcfe;
+}
+@media(max-width:1100px){
+  .admin-dashboard-grid{grid-template-columns:1fr;}
+  .admin-dashboard-nav{top: 78px;}
+}
+@media(max-width:700px){
+  .admin-dashboard-nav{position: static;}
+}
+
 </style>
 </head>
 <body>
@@ -315,9 +377,19 @@ header .header-actions .btn.secondary.active {
   </section>
   <div id="statusLine" class="status">Checking admin access...</div>
 
-  <section class="grid">
-    <div class="card">
-      <div class="card-header"><h2>Order List</h2></div>
+  <nav class="admin-dashboard-nav" id="adminDashboardNav" aria-label="Orders dashboard quick links">
+    <strong>Jump To:</strong>
+    <button class="btn" type="button" data-admin-jump="open-pending" data-admin-target="order-list-card">Open / Pending Orders</button>
+    <button class="btn" type="button" data-admin-jump="paid-processing" data-admin-target="order-list-card">Paid / Processing Orders</button>
+    <button class="btn" type="button" data-admin-jump="packed-ready" data-admin-target="order-list-card">Packed / Ready to Ship</button>
+    <button class="btn" type="button" data-admin-jump="shipped-completed" data-admin-target="order-list-card">Shipped / Completed Orders</button>
+    <button class="btn" type="button" data-admin-jump="rejected-cancelled" data-admin-target="order-list-card">Rejected / Cancelled Orders</button>
+    <button class="btn" type="button" data-admin-jump="order-tools-email" data-admin-target="detailCard">Order Tools / Email Tools</button>
+  </nav>
+
+  <section class="grid admin-dashboard-grid">
+    <div class="card collapsible-card collapsed" id="order-list-card" data-admin-card="order-list">
+      <div class="card-header" data-admin-header="order-list-card"><h2>Order List</h2><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="order-list-card">Open</button></div>
       <div class="card-body">
         <div class="filters">
           <div class="field"><label for="searchInput">Search</label><input id="searchInput" type="search" placeholder="Customer, email, order #, tracking..." /></div>
@@ -344,9 +416,13 @@ header .header-actions .btn.secondary.active {
         </div>
       </div>
       <div class="table-wrap"><table><thead><tr><th></th><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Order</th><th>Payment</th><th>Method</th><th>Tracking</th><th>Attention</th></tr></thead><tbody id="ordersBody"><tr><td colspan="10" class="muted">Loading orders...</td></tr></tbody></table></div>
+      <div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>
     </div>
 
-    <div class="card" id="detailCard"><div class="detail-empty">Select an order to view and manage details.</div></div>
+    <div class="card collapsible-card collapsed" id="detailCard" data-admin-card="order-tools-email">
+      <div class="card-header" data-admin-header="detailCard"><h2>Order Tools / Email Tools</h2><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Open</button></div>
+      <div class="detail-empty">Select an order to view and manage details.</div>
+    </div>
   </section>
 </main>
 
@@ -363,6 +439,7 @@ header .header-actions .btn.secondary.active {
   let filteredOrders = [];
   let activeOrderId = null;
   let selectedOrderIds = new Set();
+  let adminDashboardGroupFilter = "";
 
   const orderStatuses = ["pending","awaiting_payment","processing","packed","shipped","delivered","complete","inventory_failed","cancelled","rejected","refunded"];
   const paymentStatuses = ["pending","paid","failed","refunded","manual_review"];
@@ -492,7 +569,9 @@ header .header-actions .btn.secondary.active {
       const key = btn.dataset.attentionCard;
       const filter = $("attentionFilter");
       if(filter) filter.value = (filter.value === key ? "" : key);
+      clearOrderDashboardFilters();
       applyFilters();
+      syncAdminJumpLinkState();
     }));
   }
 
@@ -544,6 +623,130 @@ header .header-actions .btn.secondary.active {
 
   function selectedOrdersArray(){ return Array.from(selectedOrderIds).map(String).filter(Boolean); }
   function renderSelectedCount(){ $("selectedCount").textContent = `${selectedOrderIds.size} selected`; const allVisible = filteredOrders.length && filteredOrders.every(o => selectedOrderIds.has(String(o.id))); $("selectAllOrders").checked = !!allVisible; }
+
+
+  function adminStickyOffset(){
+    const header = document.querySelector("header")?.offsetHeight || 0;
+    const nav = $("adminDashboardNav")?.offsetHeight || 0;
+    return header + nav + 22;
+  }
+  function scrollAdminToTarget(targetId){
+    const el = $(targetId);
+    if(!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY - adminStickyOffset();
+    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+  }
+  function setAdminCardOpen(targetId, open=true){
+    const card = $(targetId);
+    if(!card) return;
+    card.classList.toggle("collapsed", !open);
+    const btn = card.querySelector("[data-admin-collapse-target]");
+    if(btn) btn.textContent = open ? "Collapse" : "Open";
+    syncAdminJumpLinkState();
+  }
+  function toggleAdminCard(targetId){
+    const card = $(targetId);
+    if(!card) return;
+    setAdminCardOpen(targetId, card.classList.contains("collapsed"));
+  }
+  function clearOrderDashboardFilters(){
+    adminDashboardGroupFilter = "";
+  }
+  function matchesAdminDashboardGroup(order, group){
+    if(!group) return true;
+    const os = norm(orderStatus(order));
+    const ps = norm(paymentStatus(order));
+    if(group === "open-pending") return ["pending","awaiting_payment"].includes(os) || ps === "pending";
+    if(group === "paid-processing") return (ps === "paid" && ["pending","awaiting_payment","processing"].includes(os)) || os === "processing";
+    if(group === "packed-ready") return os === "packed";
+    if(group === "shipped-completed") return ["shipped","delivered","complete","completed"].includes(os);
+    if(group === "rejected-cancelled") return ["cancelled","canceled","rejected","refunded","inventory_failed","failed"].includes(os) || ["refunded","failed"].includes(ps);
+    return true;
+  }
+  function dashboardGroupLabel(group){
+    const labels = {
+      "open-pending":"Open / Pending Orders",
+      "paid-processing":"Paid / Processing Orders",
+      "packed-ready":"Packed / Ready to Ship",
+      "shipped-completed":"Shipped / Completed Orders",
+      "rejected-cancelled":"Rejected / Cancelled Orders",
+      "order-tools-email":"Order Tools / Email Tools"
+    };
+    return labels[group] || "Orders";
+  }
+  function syncAdminJumpLinkState(){
+    document.querySelectorAll("#adminDashboardNav [data-admin-jump]").forEach(btn => {
+      const targetId = btn.dataset.adminTarget;
+      const jump = btn.dataset.adminJump;
+      const targetOpen = targetId && $(targetId) && !$(targetId).classList.contains("collapsed");
+      const active = targetOpen && (jump === "order-tools-email" ? true : adminDashboardGroupFilter === jump);
+      btn.classList.toggle("active", !!active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    document.querySelectorAll("[data-admin-collapse-target]").forEach(btn => {
+      const target = $(btn.dataset.adminCollapseTarget);
+      if(target) btn.textContent = target.classList.contains("collapsed") ? "Open" : "Collapse";
+    });
+  }
+  function toggleAdminCardFromJump(btn){
+    const targetId = btn.dataset.adminTarget;
+    const jump = btn.dataset.adminJump;
+    const target = $(targetId);
+    if(!target) return;
+
+    if(jump === "order-tools-email"){
+      const willOpen = target.classList.contains("collapsed");
+      setAdminCardOpen(targetId, willOpen);
+      if(willOpen) setTimeout(() => scrollAdminToTarget(targetId), 60);
+      return;
+    }
+
+    const sameActive = adminDashboardGroupFilter === jump && !target.classList.contains("collapsed");
+    if(sameActive){
+      adminDashboardGroupFilter = "";
+      setAdminCardOpen(targetId, false);
+      applyFilters();
+      syncAdminJumpLinkState();
+      return;
+    }
+
+    adminDashboardGroupFilter = jump;
+    if($("statusFilter")) $("statusFilter").value = "";
+    if($("paymentFilter")) $("paymentFilter").value = "";
+    if($("attentionFilter")) $("attentionFilter").value = "";
+    setAdminCardOpen(targetId, true);
+    applyFilters();
+    setStatus(`Showing ${dashboardGroupLabel(jump)}.`, "good");
+    setTimeout(() => scrollAdminToTarget(targetId), 60);
+  }
+  function setupAdminDashboardNavigation(){
+    document.addEventListener("click", (event) => {
+      const collapseBtn = event.target.closest("[data-admin-collapse-target]");
+      if(collapseBtn){
+        event.preventDefault();
+        event.stopPropagation();
+        const targetId = collapseBtn.dataset.adminCollapseTarget;
+        if(targetId === "order-list-card" && !$(targetId)?.classList.contains("collapsed")) adminDashboardGroupFilter = "";
+        toggleAdminCard(targetId);
+        applyFilters();
+        syncAdminJumpLinkState();
+        return;
+      }
+      const jumpBtn = event.target.closest("#adminDashboardNav [data-admin-jump]");
+      if(jumpBtn){
+        event.preventDefault();
+        toggleAdminCardFromJump(jumpBtn);
+        return;
+      }
+      const topBtn = event.target.closest("[data-admin-back-top]");
+      if(topBtn){
+        event.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+    syncAdminJumpLinkState();
+  }
+
 
   async function checkAdminAccess(){
     setStatus("Checking admin access...");
@@ -605,6 +808,7 @@ header .header-actions .btn.secondary.active {
     const p = $("paymentFilter").value;
     const d = $("dateFilter").value;
     const a = $("attentionFilter")?.value || "";
+    const g = adminDashboardGroupFilter;
     const now = new Date();
     filteredOrders = allOrders.filter(order => {
       const hay = [orderNumber(order), customerName(order), customerEmail(order), customerPhone(order), order.tracking_number, order.carrier, order.tracking_carrier, order.admin_note, order.customer_notes, paymentMethod(order)].join(" ").toLowerCase();
@@ -612,10 +816,11 @@ header .header-actions .btn.secondary.active {
       if(s && norm(orderStatus(order)) !== s) return false;
       if(p && norm(paymentStatus(order)) !== p) return false;
       if(a && !matchesAttentionFilter(order, a)) return false;
+      if(g && !matchesAdminDashboardGroup(order, g)) return false;
       if(d){ const created = new Date(order.created_at || order.order_date || 0); if(Number.isNaN(created.getTime())) return false; if(d === "today" && created.toDateString() !== now.toDateString()) return false; if(d !== "today" && ((now-created)/(1000*60*60*24) > Number(d))) return false; }
       return true;
     });
-    renderOrders(); renderSelectedCount(); renderAttentionSummary();
+    renderOrders(); renderSelectedCount(); renderAttentionSummary(); syncAdminJumpLinkState();
   }
 
   function renderOrders(){
@@ -732,12 +937,13 @@ header .header-actions .btn.secondary.active {
 
   function renderOrderDetail(order){
     activeOrderId = order.id; renderOrders();
+    setAdminCardOpen("detailCard", true);
     const carrier = order.tracking_carrier || order.carrier || "";
     const tracking = order.tracking_number || order.tracking || "";
     const turl = trackingUrl(carrier, tracking, order.tracking_url);
     const detail = $("detailCard");
     detail.innerHTML = `
-      <div class="card-header"><h2>Manage Order #${esc(orderNumber(order))}</h2><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button></div>
+      <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
       <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
       <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3><div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
       ${paymentInstructionsMarkup(order)}
@@ -758,7 +964,7 @@ header .header-actions .btn.secondary.active {
         <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required. Missing tracking will stay on the attention dashboard until one of those is done.</div>
       </div>
       <div class="detail-section"><h3>Manual Email Resend</h3><div class="email-box"><h4>Resend a specific customer email</h4><p>Use this only when a customer needs an email sent again. Normal status emails send automatically when you click Save Order Updates.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary email-action" data-email-type="order_received">Order Received</button><button class="btn secondary email-action" data-email-type="payment_accepted">Payment Accepted</button><button class="btn secondary email-action" data-email-type="payment_issue">Payment Issue</button><button class="btn secondary email-action" data-email-type="order_processing">Processing</button><button class="btn secondary email-action" data-email-type="order_packed">Packed / Awaiting Pickup</button><button class="btn secondary email-action" data-email-type="order_shipped">Shipped</button><button class="btn secondary email-action" data-email-type="order_delivered">Delivered</button><button class="btn secondary email-action" data-email-type="order_complete">Complete</button><button class="btn secondary email-action" data-email-type="order_cancelled">Cancelled</button><button class="btn secondary email-action" data-email-type="order_rejected">Rejected</button></div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
-      <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div>`;
+      <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div><div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
 
     if(window.matchMedia && window.matchMedia("(max-width:1100px)").matches){
       detail.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1169,10 +1375,11 @@ header .header-actions .btn.secondary.active {
   }
 
   function wireEvents(){
+    setupAdminDashboardNavigation();
     $("refreshBtn").addEventListener("click", loadOrders);
     $("signOutBtn").addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
-    ["searchInput","statusFilter","paymentFilter","dateFilter"].forEach(id => $(id).addEventListener(id==="searchInput"?"input":"change", applyFilters));
-    $("clearFiltersBtn").addEventListener("click", () => { $("searchInput").value=""; $("statusFilter").value=""; $("paymentFilter").value=""; $("dateFilter").value=""; applyFilters(); });
+    ["searchInput","statusFilter","paymentFilter","dateFilter","attentionFilter"].forEach(id => { const el=$(id); if(el) el.addEventListener(id==="searchInput"?"input":"change", () => { clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); }); });
+    $("clearFiltersBtn").addEventListener("click", () => { $("searchInput").value=""; $("statusFilter").value=""; $("paymentFilter").value=""; $("dateFilter").value=""; if($("attentionFilter")) $("attentionFilter").value=""; clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); });
     $("selectAllOrders").addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(String(o.id))); else filteredOrders.forEach(o=>selectedOrderIds.delete(String(o.id))); renderOrders(); renderSelectedCount(); });
     $("bulkPaidBtn").addEventListener("click", () => bulkUpdate({ payment_status:"paid" }, "Selected orders marked paid."));
     $("bulkProcessingBtn").addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
