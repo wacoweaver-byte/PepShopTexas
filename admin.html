@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- PST_ADMIN_PATCH_V12_HISTORY_WHO_DID_WHAT -->
 <!-- PST_ADMIN_PATCH_V11_FULFILLMENT_NO_AUDIT_NOTES -->
 <!-- PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT -->
 <!-- PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL -->
@@ -791,11 +790,10 @@ header .header-actions .btn.secondary.active {
 
   const next = joinAuditNotes(current, auditLine(text));
 
-  await safeUpdateOrder(
-    order.id,
-    { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() },
-    { ...order, admin_note: current, admin_notes: current }
-  ).catch(()=>{});
+  await supabaseClient
+    .from("orders")
+    .update({ admin_note: next, admin_notes: next, updated_at: new Date().toISOString() })
+    .eq("id", order.id);
 
   order.admin_note = next;
   order.admin_notes = next;
@@ -1039,36 +1037,14 @@ header .header-actions .btn.secondary.active {
   }
 
   function parseAuditEntry(entry){
-    const text = cleanValue(entry);
-    const timestampMatch = text.match(/^\[([^\]]+)\]\s*(.*)$/);
-    const timestamp = timestampMatch ? timestampMatch[1] : "";
-    const body = timestampMatch ? timestampMatch[2] : text;
-    const parts = body.split(/\s*\|\s*Admin account:\s*/i);
-    const actionText = cleanValue(parts[0]);
-    const adminText = cleanValue(parts[1] || "");
-    const byMatch = actionText.match(/by\s+([^:]+):/i);
-    const changedBy = cleanValue(byMatch ? byMatch[1] : adminText) || "Admin";
-    let title = "Admin action";
-    if(/order status changed/i.test(actionText)) title = "Order status changed";
-    else if(/payment status changed/i.test(actionText)) title = "Payment status changed";
-    else if(/status notification sent/i.test(actionText)) title = "Status notification sent";
-    else if(/admin override used/i.test(actionText)) title = "Admin override used";
-    return { timestamp, actionText, changedBy, title };
-  }
-
-  function auditHistoryMarkupFromNotes(order){
-    const noteText = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-    const auditEntries = noteText
-      .split(/\n{2,}/)
-      .map(x => x.trim())
-      .filter(Boolean)
-      .filter(entry => /^\[[^\]]+\]/.test(entry) || /changed by|Admin account:|status notification sent|admin override used/i.test(entry));
-
-    return auditEntries.map(entry => {
-      const parsed = parseAuditEntry(entry);
-      const when = parsed.timestamp || "—";
-      return `<div class="audit-item"><strong>${esc(parsed.title)}</strong><span class="muted">${esc(when)}</span><div style="margin-top:6px;line-height:1.45"><strong style="display:inline">Changed by:</strong> ${esc(parsed.changedBy)}<br><strong style="display:inline">What happened:</strong> ${esc(parsed.actionText)}</div></div>`;
-    }).join("");
+    const clean = cleanValue(entry);
+    const match = clean.match(/^\[([^\]]+)\]\s*(.*?)\s*\|\s*Admin account:\s*(.*)$/i);
+    const when = match ? match[1] : "";
+    const what = match ? match[2] : clean;
+    const who = match ? match[3] : "";
+    const statusMatch = what.match(/Order status changed by\s+(.+?):\s*(.*?)\s*→\s*(.*)$/i);
+    const paymentMatch = what.match(/Payment status changed by\s+(.+?):\s*(.*?)\s*→\s*(.*)$/i);
+    return { when, what, who, statusMatch, paymentMatch };
   }
 
   function historyMarkup(order){
@@ -1080,14 +1056,34 @@ header .header-actions .btn.secondary.active {
     if(order.shipped_at) events.push(["Marked shipped", order.shipped_at]);
     if(order.shipping_email_sent_at) events.push(["Shipping email sent", order.shipping_email_sent_at]);
     if(order.delivered_at) events.push(["Marked delivered", order.delivered_at]);
+    if(order.completed_at) events.push(["Marked complete", order.completed_at]);
     if(order.cancelled_at) events.push(["Cancelled", order.cancelled_at]);
     if(order.rejected_at) events.push(["Rejected", order.rejected_at]);
     if(order.updated_at) events.push(["Last updated", order.updated_at]);
 
-    const audit = auditHistoryMarkupFromNotes(order);
-    if(!events.length && !audit) return `<div class="muted">No timeline fields are currently saved for this order.</div>`;
+    const noteText = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+    const auditEntries = noteText.split(/\n{2,}/).map(x => x.trim()).filter(Boolean);
 
-    const timeline = events.map(([label,date])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}</span><div style="margin-top:6px;line-height:1.45"><strong style="display:inline">Changed by:</strong> System timeline</div></div>`).join("");
+    if(!events.length && !auditEntries.length) return `<div class="muted">No timeline fields are currently saved for this order.</div>`;
+
+    const audit = auditEntries.map(entry => {
+      const parsed = parseAuditEntry(entry);
+      if(parsed.statusMatch){
+        const who = parsed.statusMatch[1] || parsed.who || "Admin";
+        const from = parsed.statusMatch[2] || "—";
+        const to = parsed.statusMatch[3] || "—";
+        return `<div class="audit-item"><strong>Order status changed</strong>${parsed.when ? `<span class="muted">${esc(parsed.when)}</span>` : ""}<div><strong style="display:inline">Changed by:</strong> ${esc(who)}</div><div><strong style="display:inline">From:</strong> ${esc(from)}</div><div><strong style="display:inline">To:</strong> ${esc(to)}</div></div>`;
+      }
+      if(parsed.paymentMatch){
+        const who = parsed.paymentMatch[1] || parsed.who || "Admin";
+        const from = parsed.paymentMatch[2] || "—";
+        const to = parsed.paymentMatch[3] || "—";
+        return `<div class="audit-item"><strong>Payment status changed</strong>${parsed.when ? `<span class="muted">${esc(parsed.when)}</span>` : ""}<div><strong style="display:inline">Changed by:</strong> ${esc(who)}</div><div><strong style="display:inline">From:</strong> ${esc(from)}</div><div><strong style="display:inline">To:</strong> ${esc(to)}</div></div>`;
+      }
+      return `<div class="audit-item"><strong>Admin action</strong>${parsed.when ? `<span class="muted">${esc(parsed.when)}</span>` : ""}<div><strong style="display:inline">Changed by:</strong> ${esc(parsed.who || "Admin")}</div><div><strong style="display:inline">What happened:</strong> ${esc(parsed.what)}</div></div>`;
+    }).join("");
+
+    const timeline = events.map(([label,date])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}</span></div>`).join("");
     return `<div class="audit-list">${audit}${timeline}</div>`;
   }
 
@@ -1248,13 +1244,19 @@ header .header-actions .btn.secondary.active {
     if(["shipped","delivered","complete","completed"].includes(norm(os)) && (!carrier || !tracking) && !trackingNotRequired) throw new Error("Tracking is required for shipped/delivered/complete orders unless No tracking required is checked.");
     const now = new Date().toISOString();
     const changes = [];
-if(norm(orderStatus(order)) !== norm(os)) {
-  changes.push(`Order status changed by ${adminDisplayName()}: ${String(orderStatus(order)).replaceAll("_"," ")} → ${String(os).replaceAll("_"," ")}`);
-}
+    const adminName = adminDisplayName();
+    const oldOrderStatusText = String(orderStatus(order)).replaceAll("_", " ");
+    const newOrderStatusText = String(os).replaceAll("_", " ");
+    const oldPaymentStatusText = String(paymentStatus(order)).replaceAll("_", " ");
+    const newPaymentStatusText = String(ps).replaceAll("_", " ");
 
-if(norm(paymentStatus(order)) !== norm(ps)) {
-  changes.push(`Payment status changed by ${adminDisplayName()}: ${String(paymentStatus(order)).replaceAll("_"," ")} → ${String(ps).replaceAll("_"," ")}`);
-}
+    if(norm(orderStatus(order)) !== norm(os)) {
+      changes.push(`Order status changed by ${adminName}: ${oldOrderStatusText} → ${newOrderStatusText}`);
+    }
+
+    if(norm(paymentStatus(order)) !== norm(ps)) {
+      changes.push(`Payment status changed by ${adminName}: ${oldPaymentStatusText} → ${newPaymentStatusText}`);
+    }
     const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
     const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
     const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
