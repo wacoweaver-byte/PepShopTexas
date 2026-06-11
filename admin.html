@@ -437,6 +437,31 @@ header .header-actions .btn.secondary.active {
   .email-preview-dialog{max-height: 96vh;}
 }
 
+
+
+/* PST compact fixed-height internal admin audit log */
+.audit-scrollbox{
+  max-height:220px;
+  overflow-y:auto;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fbfcfe;
+  padding:6px;
+}
+.audit-scrollbox .audit-list{display:grid;gap:5px;}
+.audit-scrollbox .audit-item{
+  border:1px solid #e3eaf2;
+  background:#fff;
+  border-radius:8px;
+  padding:6px 8px;
+  font-size:11px;
+  line-height:1.25;
+}
+.audit-scrollbox .audit-item strong{display:inline;margin:0;font-size:11px;}
+.audit-scrollbox .audit-item .muted{font-size:10.5px;}
+.audit-scrollbox .audit-line-detail{margin-top:3px;line-height:1.25;font-size:11px;color:#344054;}
+.audit-scrollbox .audit-empty{font-size:12px;color:var(--muted);padding:8px;}
+
 </style>
 </head>
 <body>
@@ -1063,15 +1088,15 @@ header .header-actions .btn.secondary.active {
 
   function orderAuditLogMarkup(order){
     const rows = Array.isArray(order.audit_log) ? order.audit_log : [];
-    if(!rows.length) return `<div class="muted">No audit entries have been recorded for this order yet.</div>`;
-    return `<div class="audit-list">${rows.map(row => {
+    if(!rows.length) return `<div class="audit-scrollbox"><div class="audit-empty">No audit entries have been recorded for this order yet.</div></div>`;
+    return `<div class="audit-scrollbox"><div class="audit-list">${rows.map(row => {
       const label = auditActionLabel(row);
       const who = cleanValue(row.changed_by) || cleanValue(row.changed_by_email) || "System";
       const from = auditValueText(row.old_value);
       const to = auditValueText(row.new_value);
       const when = fmtDate(row.created_at);
-      return `<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(when)}</span><div style="margin-top:6px;line-height:1.45"><strong style="display:inline">Changed by:</strong> ${esc(who)}<br><strong style="display:inline">From:</strong> ${esc(from)}<br><strong style="display:inline">To:</strong> ${esc(to)}</div></div>`;
-    }).join("")}</div>`;
+      return `<div class="audit-item"><strong>${esc(label)}</strong> <span class="muted">${esc(when)}</span><div class="audit-line-detail"><strong>By:</strong> ${esc(who)} &nbsp; <strong>From:</strong> ${esc(from)} &nbsp; <strong>To:</strong> ${esc(to)}</div></div>`;
+    }).join("")}</div></div>`;
   }
 
   async function attachAuditLog(order){
@@ -1217,7 +1242,32 @@ header .header-actions .btn.secondary.active {
     const generated = new Date().toLocaleString();
     return `<!doctype html><html><head><meta charset="utf-8"><title>Fulfillment Sheet #${esc(orderNumber(order))}</title><style>
       *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px;color:#101820;background:#fff}.sheet{max-width:900px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border-bottom:3px solid #101820;padding-bottom:14px;margin-bottom:16px}.brand{font-size:24px;font-weight:900;letter-spacing:.04em}.sub{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#667085;font-weight:900}.order-no{font-size:30px;font-weight:900;text-align:right}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.box{border:1px solid #d9e2ec;border-radius:10px;padding:12px;min-height:92px}.box h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#667085}.box p{margin:0;line-height:1.4}.line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #edf2f7;padding:4px 0}.line:last-child{border-bottom:0}.pill{display:inline-block;border:1px solid #d9e2ec;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:900;text-transform:capitalize}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #d9e2ec;padding:9px 8px;text-align:left;vertical-align:top}th{background:#f5f8fb;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#667085}.qty,.check{text-align:center;font-weight:900}.small{font-size:12px;color:#667085;margin-top:3px}.checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.checkitem{border:1px solid #d9e2ec;border-radius:10px;padding:9px;font-weight:800}.sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.sigline{border-top:1px solid #101820;padding-top:6px;font-size:12px;color:#667085}.footer{margin-top:16px;font-size:11px;color:#667085;text-align:center}@media print{body{padding:0}.sheet{max-width:none}.no-print{display:none}.box,th,td,.checkitem{break-inside:avoid}}
-    </style></head><body><div class="sheet">
+    
+
+/* PST compact fixed-height internal admin audit log */
+.audit-scrollbox{
+  max-height:220px;
+  overflow-y:auto;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fbfcfe;
+  padding:6px;
+}
+.audit-scrollbox .audit-list{display:grid;gap:5px;}
+.audit-scrollbox .audit-item{
+  border:1px solid #e3eaf2;
+  background:#fff;
+  border-radius:8px;
+  padding:6px 8px;
+  font-size:11px;
+  line-height:1.25;
+}
+.audit-scrollbox .audit-item strong{display:inline;margin:0;font-size:11px;}
+.audit-scrollbox .audit-item .muted{font-size:10.5px;}
+.audit-scrollbox .audit-line-detail{margin-top:3px;line-height:1.25;font-size:11px;color:#344054;}
+.audit-scrollbox .audit-empty{font-size:12px;color:var(--muted);padding:8px;}
+
+</style></head><body><div class="sheet">
       <div class="top"><div><div class="brand">PEP SHOP TEXAS</div><div class="sub">Order Fulfillment Sheet</div><div class="small">Generated: ${esc(generated)}</div></div><div><div class="sub">Order</div><div class="order-no">#${esc(orderNumber(order))}</div></div></div>
       <div class="grid"><div class="box"><h3>Customer / Ship To</h3><p><strong>${esc(customerName(order))}</strong><br>${esc(shippingAddress(order))}<br>${esc(customerEmail(order) || "No email")}<br>${esc(customerPhone(order))}</p></div><div class="box"><h3>Order Snapshot</h3><div class="line"><span>Date</span><strong>${esc(fmtDate(order.created_at || order.order_date))}</strong></div><div class="line"><span>Order Status</span><span class="pill">${esc(String(orderStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Payment Status</span><span class="pill">${esc(String(paymentStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Shipping</span><strong>${money(orderShipping(order))}</strong></div><div class="line"><span>Total</span><strong>${money(orderTotal(order))}</strong></div></div></div>
       <table><thead><tr><th>#</th><th>Product / Vial Label</th><th>Strength</th><th>SKU / Item</th><th>Qty</th><th>Picked</th></tr></thead><tbody>${rows}</tbody></table>
