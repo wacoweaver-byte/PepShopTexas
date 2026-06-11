@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- PST_ADMIN_PATCH_V12_INTERNAL_AUDIT_LOG_FRESH_COMPARE -->
 <!-- PST_ADMIN_PATCH_V11_FULFILLMENT_NO_AUDIT_NOTES -->
 <!-- PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT -->
 <!-- PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL -->
@@ -1396,20 +1395,49 @@ header .header-actions .btn.secondary.active {
 
   async function saveOrder(order){
     try{
-      // Always compare the form against the freshest saved row, not the possibly stale rendered object.
-      // This is what makes the audit log record the actual old → new status/payment change.
-      let auditBaseOrder = order;
+      // Always compare against the freshest row in Supabase, then append the audit
+      // lines directly into admin_note/admin_notes in the SAME update as the status save.
+      let compareOrder = order;
       try{
-        const { data: freshRow, error: freshError } = await supabaseClient.from("orders").select("*").eq("id", order.id).maybeSingle();
-        if(!freshError && freshRow) auditBaseOrder = { ...order, ...freshRow, profile: profileOf(order), items: order.items || [] };
+        const { data: freshRow, error: freshError } = await supabaseClient
+          .from("orders")
+          .select("*")
+          .eq("id", order.id)
+          .maybeSingle();
+        if(!freshError && freshRow) compareOrder = { ...order, ...freshRow, items: order.items || [], profile: profileOf(order) };
       }catch(_){}
 
-      const updates = buildUpdatesFromForm(auditBaseOrder);
-      const emailTypes = detectCustomerEmailTypes(auditBaseOrder, updates);
-      setStatus("Saving order updates...");
-      await safeUpdateOrder(order.id, updates, auditBaseOrder);
+      const updates = buildUpdatesFromForm(compareOrder);
+      const forcedAuditLines = [];
+      const adminName = adminDisplayName();
+      const oldOrderStatusText = String(orderStatus(compareOrder)).replaceAll("_", " ");
+      const newOrderStatusText = String(updates.order_status || $("editOrderStatus")?.value || "").replaceAll("_", " ");
+      const oldPaymentStatusText = String(paymentStatus(compareOrder)).replaceAll("_", " ");
+      const newPaymentStatusText = String(updates.payment_status || $("editPaymentStatus")?.value || "").replaceAll("_", " ");
 
-      const mergedForEmail = { ...auditBaseOrder, ...updates, profile: profileOf(order), items: order.items || [] };
+      if(norm(orderStatus(compareOrder)) !== norm(updates.order_status)){
+        forcedAuditLines.push(`Order status changed by ${adminName}: ${oldOrderStatusText} → ${newOrderStatusText}`);
+      }
+      if(norm(paymentStatus(compareOrder)) !== norm(updates.payment_status)){
+        forcedAuditLines.push(`Payment status changed by ${adminName}: ${oldPaymentStatusText} → ${newPaymentStatusText}`);
+      }
+
+      if(forcedAuditLines.length){
+        let baseNote = normalizeAdminNotes(compareOrder.admin_note || compareOrder.admin_notes || "");
+        const existingNote = normalizeAdminNotes(updates.admin_note || updates.admin_notes || "");
+        if(existingNote && existingNote.length > baseNote.length) baseNote = existingNote;
+        forcedAuditLines.forEach(line => {
+          if(!baseNote.includes(line)) baseNote = joinAuditNotes(baseNote, auditLine(line));
+        });
+        updates.admin_note = baseNote || null;
+        updates.admin_notes = baseNote || null;
+      }
+
+      const emailTypes = detectCustomerEmailTypes(compareOrder, updates);
+      setStatus("Saving order updates...");
+      await safeUpdateOrder(order.id, updates, compareOrder);
+
+      const mergedForEmail = { ...compareOrder, ...updates, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
       const previewTypes = emailTypes.filter(emailTypeNeedsPreview);
 
