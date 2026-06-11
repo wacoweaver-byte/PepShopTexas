@@ -1689,7 +1689,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
   async function init(){
     try{
       wireEvents();
-      if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){ setStatus("Before uploading: paste your Supabase URL and anon key into admin.html using the same values from your working index.html/products.html.", "bad"); return; }
+if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){ setStatus("Before uploading: paste your Supabase URL and anon key into admin.html using the same values from your working index.html/products.html.", "bad"); return; }
       if(await checkAdminAccess()) await loadOrders();
     }catch(error){ console.error(error); setStatus(error.message || "Something went wrong loading Admin Orders.", "bad"); }
   }
