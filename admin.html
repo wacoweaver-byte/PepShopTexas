@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- PST_ADMIN_PATCH_V12_INTERNAL_ADMIN_AUDIT_LOG_READONLY -->
 <!-- PST_ADMIN_PATCH_V11_FULFILLMENT_NO_AUDIT_NOTES -->
 <!-- PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT -->
 <!-- PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL -->
@@ -562,7 +561,7 @@ header .header-actions .btn.secondary.active {
   const NO_TRACKING_REQUIRED_TOKEN = "[NO_TRACKING_REQUIRED]";
   function removeNoTrackingToken(text){ return cleanValue(text).replace(new RegExp("\\s*" + NO_TRACKING_REQUIRED_TOKEN.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&"), "gi"), "").trim(); }
   function rawAdminNotes(order){ return cleanValue(order.admin_note || order.admin_notes || ""); }
-  function noTrackingRequired(order){ return order.no_tracking_required === true || order.tracking_not_required === true || rawAdminNotes(order).toUpperCase().includes(NO_TRACKING_REQUIRED_TOKEN); }
+  function noTrackingRequired(order){ return order.no_tracking_required === true || String(order.no_tracking_required).toLowerCase() === "true"; }
   function setNoTrackingToken(text, enabled){ const clean = removeNoTrackingToken(text); return enabled ? `${NO_TRACKING_REQUIRED_TOKEN}${clean ? "\n" + clean : ""}` : clean; }
   function pill(value){ const v = norm(value); return `<span class="pill ${esc(v)}">${esc(v.replaceAll("_"," "))}</span>`; }
   function orderNumber(order){ return order.order_number || order.order_no || order.id || "—"; }
@@ -1207,7 +1206,8 @@ header .header-actions .btn.secondary.active {
           <div class="field"><label for="editTracking">Tracking Number</label><input id="editTracking" value="${esc(tracking)}" placeholder="Tracking number" /></div>
           <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
           <div class="field full"><label class="tracking-exception-check"><input id="editNoTrackingRequired" type="checkbox" ${noTrackingRequired(order) ? "checked" : ""} /> No tracking required for this order</label></div>
-          <div class="field full"><label for="editAdminAuditLog">Internal Admin Audit Log</label><textarea id="editAdminAuditLog" readonly placeholder="Audit log will appear here automatically">${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || ""))}</textarea></div>
+          <div class="field full"><label for="editNoTrackingReason">No Tracking Reason</label><textarea id="editNoTrackingReason" placeholder="Optional reason no tracking is required">${esc(order.no_tracking_reason || "")}</textarea></div>
+          <div class="field full"><label for="editAdminNote">Internal Admin Audit Log</label><textarea id="editAdminNote" readonly placeholder="Audit log will appear here automatically">${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || ""))}</textarea></div>
           ${overrideMarkup(order)}
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
@@ -1229,14 +1229,12 @@ header .header-actions .btn.secondary.active {
   function buildUpdatesFromForm(order={}){
     let os = $("editOrderStatus").value;
     const ps = $("editPaymentStatus").value;
-    const carrier = $("editCarrier").value.trim();
-    const tracking = $("editTracking").value.trim();
-    const url = $("editTrackingUrl").value.trim();
-    const existingAuditLog = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+    const carrier = cleanValue($("editCarrier").value);
+    const tracking = cleanValue($("editTracking").value);
+    const url = cleanValue($("editTrackingUrl").value);
     const trackingNotRequired = !!$("editNoTrackingRequired")?.checked;
+    const noTrackingReason = cleanValue($("editNoTrackingReason")?.value);
 
-    // Payment accepted should automatically advance a newly paid order into Processing.
-    // Do not move backwards or override higher fulfillment stages like Packed/Shipped/Delivered.
     const currentOrderStage = norm(orderStatus(order));
     if(ps === "paid" && ["pending","awaiting_payment"].includes(norm(os)) && ["pending","awaiting_payment"].includes(currentOrderStage)){
       os = "processing";
@@ -1251,26 +1249,23 @@ header .header-actions .btn.secondary.active {
     const oldPaymentStatusText = String(paymentStatus(order)).replaceAll("_", " ");
     const newPaymentStatusText = String(ps).replaceAll("_", " ");
 
-    if(norm(orderStatus(order)) !== norm(os)) {
-      changes.push(`Order status changed by ${adminName}: ${oldOrderStatusText} → ${newOrderStatusText}`);
-    }
-
-    if(norm(paymentStatus(order)) !== norm(ps)) {
-      changes.push(`Payment status changed by ${adminName}: ${oldPaymentStatusText} → ${newPaymentStatusText}`);
-    }
+    if(norm(orderStatus(order)) !== norm(os)) changes.push(`Order status changed by ${adminName}: ${oldOrderStatusText} → ${newOrderStatusText}`);
+    if(norm(paymentStatus(order)) !== norm(ps)) changes.push(`Payment status changed by ${adminName}: ${oldPaymentStatusText} → ${newPaymentStatusText}`);
     const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
     const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
     const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
-    if(carrierChange) changes.push(carrierChange);
-    if(trackingChange) changes.push(trackingChange);
-    if(trackingUrlChange) changes.push(trackingUrlChange);
-    if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? "No tracking required enabled" : "No tracking required removed");
+    if(carrierChange) changes.push(`${carrierChange} by ${adminName}`);
+    if(trackingChange) changes.push(`${trackingChange} by ${adminName}`);
+    if(trackingUrlChange) changes.push(`${trackingUrlChange} by ${adminName}`);
+    if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? `No tracking required enabled by ${adminName}` : `No tracking required removed by ${adminName}`);
+    if(cleanValue(order.no_tracking_reason) !== noTrackingReason) changes.push(noTrackingReason ? `No tracking reason set by ${adminName}: ${noTrackingReason}` : `No tracking reason cleared by ${adminName}`);
 
-    let note = setNoTrackingToken(existingAuditLog, trackingNotRequired);
+    let note = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
     if(changes.length){
-      note = joinAuditNotes(note, auditLine(changes.join(" | ")));
+      note = [note, ...changes.map(change => auditLine(change))].filter(Boolean).join("\n\n\n");
     }
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now, __auditChanges: [] };
+
+    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, tracking_number: tracking || null, tracking_url: url || null, no_tracking_required: trackingNotRequired, no_tracking_reason: noTrackingReason || null, admin_note: note || null, admin_notes: note || null, updated_at: now };
 
     if(isRiskyLockedChange(order, updates)){
       const overrideChecked = $("adminOverrideCheck")?.checked;
@@ -1404,16 +1399,6 @@ header .header-actions .btn.secondary.active {
       const emailTypes = detectCustomerEmailTypes(order, updates);
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
-
-      order.admin_note = updates.admin_note;
-      order.admin_notes = updates.admin_notes;
-      const localOrder = allOrders.find(o => String(o.id) === String(order.id));
-      if(localOrder){
-        localOrder.admin_note = updates.admin_note;
-        localOrder.admin_notes = updates.admin_notes;
-      }
-
-      delete updates.__auditChanges;
 
       const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
