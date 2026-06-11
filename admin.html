@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL -->
 <!-- PST_ADMIN_PATCH_V8_ORDER_DASHBOARD -->
 <!-- PST_ADMIN_PATCH_V7_FORCE_DELETE_TEST_ORDERS -->
 <!-- PST_ADMIN_PATCH_V5_NO_TRACKING_REQUIRED -->
@@ -348,6 +349,87 @@ header .header-actions .btn.secondary.active {
   .admin-dashboard-nav{position: static;}
 }
 
+
+/* PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL */
+.email-preview-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(16,24,32,.55);
+}
+.email-preview-modal.open { display: flex; }
+.email-preview-dialog {
+  width: min(980px, 96vw);
+  max-height: 92vh;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(16,24,32,.28);
+  display: flex;
+  flex-direction: column;
+}
+.email-preview-header {
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.email-preview-header h2 { margin: 0; font-size: 18px; }
+.email-preview-meta {
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  background: #fbfcfe;
+}
+.email-preview-meta .kv { background: #ffffff; }
+.email-preview-body {
+  padding: 16px;
+  overflow: auto;
+  background: #f5f8fb;
+}
+.email-preview-frame {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+}
+.email-preview-actions {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  background: #ffffff;
+}
+.email-action-group {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.email-action-group strong { min-width: 170px; }
+.email-action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+@media(max-width:700px){
+  .email-preview-meta{grid-template-columns:1fr;}
+  .email-preview-dialog{max-height: 96vh;}
+}
+
 </style>
 </head>
 <body>
@@ -425,6 +507,27 @@ header .header-actions .btn.secondary.active {
     </div>
   </section>
 </main>
+
+
+<div class="email-preview-modal" id="emailPreviewModal" aria-hidden="true">
+  <div class="email-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="emailPreviewTitle">
+    <div class="email-preview-header">
+      <h2 id="emailPreviewTitle">Email Preview</h2>
+      <button class="btn secondary" id="closeEmailPreviewBtn" type="button">Close</button>
+    </div>
+    <div class="email-preview-meta">
+      <div class="kv"><strong>To</strong><span id="emailPreviewTo">—</span></div>
+      <div class="kv"><strong>Subject</strong><span id="emailPreviewSubject">—</span></div>
+    </div>
+    <div class="email-preview-body">
+      <div class="email-preview-frame" id="emailPreviewHtml">Loading preview...</div>
+    </div>
+    <div class="email-preview-actions">
+      <button class="btn secondary" id="cancelEmailPreviewBtn" type="button">Cancel</button>
+      <button class="btn success" id="sendPreviewedEmailBtn" type="button">Send This Email</button>
+    </div>
+  </div>
+</div>
 
 <script>
   /* IMPORTANT: use the same Supabase URL and anon key already used in index.html/products.html. */
@@ -612,6 +715,32 @@ header .header-actions .btn.secondary.active {
     if(type === "order_received") return "Your order has been received and is pending payment/processing.";
     if(type === "order_packed") return "Your order has been packed and is awaiting carrier pickup.";
     return "";
+  }
+
+  function emailTypeNeedsPreview(type){
+    return ["order_shipped","order_cancelled","order_rejected"].includes(String(type || ""));
+  }
+  function previewableManualEmailTypes(){
+    return ["order_received","payment_accepted","payment_issue","order_processing","order_packed","order_shipped","order_delivered","order_cancelled","order_rejected"];
+  }
+  function closeEmailPreview(){
+    const modal = $("emailPreviewModal");
+    if(modal){
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+    window.pendingPreviewEmail = null;
+  }
+  function setEmailPreviewLoading(to, label){
+    if($("emailPreviewTitle")) $("emailPreviewTitle").textContent = `Email Preview — ${label}`;
+    if($("emailPreviewTo")) $("emailPreviewTo").textContent = to || "—";
+    if($("emailPreviewSubject")) $("emailPreviewSubject").textContent = "Loading...";
+    if($("emailPreviewHtml")) $("emailPreviewHtml").innerHTML = "Loading preview...";
+    const modal = $("emailPreviewModal");
+    if(modal){
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+    }
   }
   async function appendAdminAudit(order, text){
     const current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
@@ -963,7 +1092,7 @@ header .header-actions .btn.secondary.active {
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
         <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required. Missing tracking will stay on the attention dashboard until one of those is done.</div>
       </div>
-      <div class="detail-section"><h3>Manual Email Resend</h3><div class="email-box"><h4>Resend a specific customer email</h4><p>Use this only when a customer needs an email sent again. Normal status emails send automatically when you click Save Order Updates.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary email-action" data-email-type="order_received">Order Received</button><button class="btn secondary email-action" data-email-type="payment_accepted">Payment Accepted</button><button class="btn secondary email-action" data-email-type="payment_issue">Payment Issue</button><button class="btn secondary email-action" data-email-type="order_processing">Processing</button><button class="btn secondary email-action" data-email-type="order_packed">Packed / Awaiting Pickup</button><button class="btn secondary email-action" data-email-type="order_shipped">Shipped</button><button class="btn secondary email-action" data-email-type="order_delivered">Delivered</button><button class="btn secondary email-action" data-email-type="order_complete">Complete</button><button class="btn secondary email-action" data-email-type="order_cancelled">Cancelled</button><button class="btn secondary email-action" data-email-type="order_rejected">Rejected</button></div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
+      <div class="detail-section"><h3>Email Preview / Manual Resend</h3><div class="email-box"><h4>Preview before manually sending</h4><p>Payment marked Paid still sends automatically and moves the order to Processing. Use these buttons only when you intentionally need to preview or resend a customer email.</p><div style="display:grid;gap:8px">${previewableManualEmailTypes().map(emailType => `<div class="email-action-group"><strong>${esc(emailTypeLabel(emailType))}</strong><div class="email-action-buttons"><button class="btn secondary preview-email-action" data-email-type="${esc(emailType)}" type="button">Preview</button><button class="btn secondary email-action" data-email-type="${esc(emailType)}" type="button">Send</button></div></div>`).join("")}</div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
       <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div><div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
 
     if(window.matchMedia && window.matchMedia("(max-width:1100px)").matches){
@@ -971,7 +1100,8 @@ header .header-actions .btn.secondary.active {
     }
     $("reloadDetailBtn").addEventListener("click", loadOrders);
     $("saveOrderBtn").addEventListener("click", () => saveOrder(order));
-    document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false)));
+    document.querySelectorAll(".preview-email-action").forEach(btn => btn.addEventListener("click", () => openEmailPreview(order, btn.dataset.emailType, false)));
+    document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false, { skipPreview:true })));
   }
 
   function buildUpdatesFromForm(order={}){
@@ -1113,20 +1243,22 @@ header .header-actions .btn.secondary.active {
     const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
     const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
     const types = [];
+    const paymentJustMarkedPaid = oldPaymentStatus !== newPaymentStatus && newPaymentStatus === "paid";
+    const paidAutoMovedToProcessing = paymentJustMarkedPaid && ["pending","awaiting_payment"].includes(oldOrderStatus) && newOrderStatus === "processing";
 
     if(oldPaymentStatus !== newPaymentStatus){
       if(newPaymentStatus === "paid") types.push("payment_accepted");
       if(["failed","manual_review","refunded"].includes(newPaymentStatus)) types.push("payment_issue");
     }
     if(oldOrderStatus !== newOrderStatus){
-      if(newOrderStatus === "processing") types.push("order_processing");
+      if(newOrderStatus === "processing" && !paidAutoMovedToProcessing) types.push("order_processing");
       if(newOrderStatus === "packed") types.push("order_packed");
       if(newOrderStatus === "shipped") types.push("order_shipped");
       if(newOrderStatus === "delivered") types.push("order_delivered");
       if(newOrderStatus === "cancelled") types.push("order_cancelled");
       if(newOrderStatus === "rejected") types.push("order_rejected");
     }
-    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier)) types.push("order_shipped");
+    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier) && !types.includes("order_shipped")) types.push("order_shipped");
     return [...new Set(types)];
   }
 
@@ -1138,72 +1270,120 @@ header .header-actions .btn.secondary.active {
       await safeUpdateOrder(order.id, updates, order);
 
       const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
-      if(emailTypes.length){
+      const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
+      const previewTypes = emailTypes.filter(emailTypeNeedsPreview);
+
+      if(automaticTypes.length){
         try{
-          for(const emailType of emailTypes){
-            await sendOrderEmail(mergedForEmail, emailType, true);
-            await appendAdminAudit(mergedForEmail, `${emailTypeLabel(emailType)} status notification sent to customer at ${customerEmail(mergedForEmail)}`);
+          for(const emailType of automaticTypes){
+            await sendOrderEmail(mergedForEmail, emailType, true, { skipPreview:true, auditAutomatic:true });
           }
-          setStatus("Order updates saved and matching customer email notification(s) sent.", "good");
+          setStatus("Order updates saved and automatic customer email notification(s) sent.", "good");
         }catch(emailError){
           console.error(emailError);
           setStatus(`Order saved, but customer email failed: ${emailError.message || emailError}`, "bad");
         }
       }else{
-        setStatus("Order updates saved. No customer-facing status email was needed.", "good");
+        setStatus("Order updates saved.", "good");
       }
 
       await loadOrders();
       const fresh = allOrders.find(o => o.id === order.id) || mergedForEmail;
       renderOrderDetail(fresh);
+
+      if(previewTypes.length){
+        setStatus(`Order saved. Preview required before sending: ${previewTypes.map(emailTypeLabel).join(", ")}.`, "good");
+        setTimeout(() => openEmailPreview(fresh, previewTypes[0], true), 250);
+      }else if(!emailTypes.length){
+        setStatus("Order updates saved. No customer-facing status email was needed.", "good");
+      }
     }catch(error){ console.error(error); setStatus(error.message || "Could not save order updates.", "bad"); alert(error.message || "Could not save order updates."); }
   }
 
-  async function sendOrderEmail(order, type, automatic=false){
+  async function makeEmailPayload(order, type){
     const email = customerEmail(order);
-    if(!email){ alert("This order does not have a customer email address."); return; }
     const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
     const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before sending a shipped email."); return; }
-    setStatus("Sending customer email...");
-
-    const makePayload = (emailType) => ({
-      type: emailType,
+    return {
+      type,
       originalType: type,
       to: email,
       customerName: customerName(order),
       orderNumber: orderNumber(order),
       orderDate: order.created_at || order.order_date,
-      subtotal: money(orderSubtotal(order)),
-      shipping: money(orderShipping(order)),
-      tax: money(orderTax(order)),
-      total: money(orderTotal(order)),
+      subtotal: orderSubtotal(order),
+      discount: orderDiscount(order),
+      shipping: orderShipping(order),
+      tax: orderTax(order),
+      total: orderTotal(order),
       carrier,
       trackingNumber,
       trackingUrl: $("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url),
       statusNote: type === "order_received" ? (paymentInstructions(order) || customerFacingStatusNote(type)) : customerFacingStatusNote(type),
       paymentMethod: paymentMethod(order),
+      paymentStatus: paymentStatus(order),
       paymentInstructions: paymentInstructions(order),
       rejectionReason: order.rejection_reason || "",
-      items: (order.items || []).map(i => ({ name: i.product_name || i.name || i.product_key || "Item", quantity: i.quantity || i.qty || 1, price: i.unit_price || i.price || 0 }))
-    });
+      items: (order.items || []).map(i => ({ name: i.product_name || i.name || i.product_key || "Item", quantity: i.quantity || i.qty || 1, price: i.unit_price || i.price || 0, total: i.line_total || i.total || null }))
+    };
+  }
 
+  async function callEmailFunction(payload){
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const token = sessionData?.session?.access_token || SUPABASE_ANON_KEY;
-    const postEmail = async (emailType) => {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/${EMAIL_FUNCTION_NAME}`, { method:"POST", headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${token}` }, body: JSON.stringify(makePayload(emailType)) });
-      const text = await res.text();
-      if(!res.ok) throw new Error(text || "Email function failed.");
-      return text;
-    };
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/${EMAIL_FUNCTION_NAME}`, { method:"POST", headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${token}` }, body: JSON.stringify(payload) });
+    const text = await res.text();
+    let data = null;
+    try{ data = text ? JSON.parse(text) : null; }catch(_){ data = text; }
+    if(!res.ok) throw new Error((data && data.error) || text || "Email function failed.");
+    return data;
+  }
+
+  async function openEmailPreview(order, type, automatic=false){
+    const email = customerEmail(order);
+    if(!email){ alert("This order does not have a customer email address."); return; }
+    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
+    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
+    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before previewing a shipped email."); return; }
+    setEmailPreviewLoading(email, emailTypeLabel(type));
+    setStatus("Generating email preview...");
+    try{
+      const payload = await makeEmailPayload(order, type);
+      payload.preview_only = true;
+      payload.previewOnly = true;
+      const preview = await callEmailFunction(payload);
+      const subject = preview?.preview?.subject || preview?.subject || emailTypeLabel(type);
+      const html = preview?.preview?.html || preview?.html || "Preview unavailable.";
+      if($("emailPreviewSubject")) $("emailPreviewSubject").textContent = subject;
+      if($("emailPreviewHtml")) $("emailPreviewHtml").innerHTML = html;
+      window.pendingPreviewEmail = { order, type, automatic };
+      setStatus("Email preview ready. Review it, then send when ready.", "good");
+    }catch(error){
+      console.error(error);
+      if($("emailPreviewHtml")) $("emailPreviewHtml").innerHTML = `<div class="problem-banner"><strong>Preview failed</strong>${esc(error.message || error)}</div>`;
+      setStatus(`Email preview failed: ${error.message || error}`, "bad");
+    }
+  }
+
+  async function sendOrderEmail(order, type, automatic=false, options={}){
+    const email = customerEmail(order);
+    if(!email){ alert("This order does not have a customer email address."); return; }
+    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
+    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
+    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before sending a shipped email."); return; }
+    if(!options.skipPreview && (emailTypeNeedsPreview(type) || options.previewFirst)){
+      return openEmailPreview(order, type, automatic);
+    }
+    setStatus("Sending customer email...");
 
     try{
-      await postEmail(type);
+      const payload = await makeEmailPayload(order, type);
+      await callEmailFunction(payload);
     }catch(firstError){
-      // If the Edge Function does not recognize the newer order_packed template yet,
-      // fall back to the existing processing template while passing a customer-facing packed note.
       if(type === "order_packed"){
-        await postEmail("order_processing");
+        const fallbackPayload = await makeEmailPayload(order, "order_processing");
+        fallbackPayload.originalType = type;
+        await callEmailFunction(fallbackPayload);
       }else{
         setStatus(`Email failed: ${firstError.message || firstError}`, "bad");
         throw firstError;
@@ -1211,11 +1391,12 @@ header .header-actions .btn.secondary.active {
     }
 
     if(type === "order_shipped") await safeUpdateOrder(order.id, { shipping_email_sent_at: new Date().toISOString(), updated_at: new Date().toISOString() }, order).catch(()=>{});
-    if(!automatic){
-      await appendAdminAudit(order, `${emailTypeLabel(type)} status notification resent to customer at ${email}`);
+    if(!automatic || options.auditAutomatic){
+      await appendAdminAudit(order, `${emailTypeLabel(type)} status notification ${automatic ? "sent" : "resent"} to customer at ${email}`);
     }
     setStatus("Customer email sent successfully.", "good");
   }
+
 
 
 
@@ -1377,6 +1558,20 @@ header .header-actions .btn.secondary.active {
   function wireEvents(){
     setupAdminDashboardNavigation();
     $("refreshBtn").addEventListener("click", loadOrders);
+    $("closeEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
+    $("cancelEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
+    $("emailPreviewModal")?.addEventListener("click", (event) => { if(event.target?.id === "emailPreviewModal") closeEmailPreview(); });
+    $("sendPreviewedEmailBtn")?.addEventListener("click", async () => {
+      const pending = window.pendingPreviewEmail;
+      if(!pending) return closeEmailPreview();
+      try{
+        await sendOrderEmail(pending.order, pending.type, pending.automatic, { skipPreview:true, auditAutomatic:true });
+        closeEmailPreview();
+      }catch(error){
+        console.error(error);
+        alert(error.message || "Could not send previewed email.");
+      }
+    });
     $("signOutBtn").addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
     ["searchInput","statusFilter","paymentFilter","dateFilter","attentionFilter"].forEach(id => { const el=$(id); if(el) el.addEventListener(id==="searchInput"?"input":"change", () => { clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); }); });
     $("clearFiltersBtn").addEventListener("click", () => { $("searchInput").value=""; $("statusFilter").value=""; $("paymentFilter").value=""; $("dateFilter").value=""; if($("attentionFilter")) $("attentionFilter").value=""; clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); });
