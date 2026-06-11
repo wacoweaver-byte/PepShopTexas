@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT -->
 <!-- PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL -->
 <!-- PST_ADMIN_PATCH_V8_ORDER_DASHBOARD -->
 <!-- PST_ADMIN_PATCH_V7_FORCE_DELETE_TEST_ORDERS -->
@@ -351,6 +352,9 @@ header .header-actions .btn.secondary.active {
 
 
 /* PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL */
+/* PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT */
+.fulfillment-print-note{margin-top:10px;padding:11px;border:1px solid rgba(0,119,200,.22);background:rgba(0,119,200,.055);border-radius:12px;color:#24445c;font-size:13px;line-height:1.4;font-weight:700}
+
 .email-preview-modal {
   position: fixed;
   inset: 0;
@@ -1064,6 +1068,51 @@ header .header-actions .btn.secondary.active {
     return `<div class="override-panel full"><label class="override-check"><input id="adminOverrideCheck" type="checkbox" />Admin Override — allow a protected/risky change</label><textarea id="adminOverrideReason" placeholder="Required only for risky protected changes. Example: Correcting wrong tracking number, approved cancellation, payment correction, etc."></textarea></div>`;
   }
 
+  /* PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT */
+  function fulfillmentItemSku(item={}){
+    return cleanValue(item.sku || item.product_sku || item.item_number || item.item_no || item.product_id || item.product_key || item.id);
+  }
+  function fulfillmentItemStrength(item={}){
+    return cleanValue(item.strength || item.dose || item.dosage || item.product_strength || item.label_dose);
+  }
+  function fulfillmentItemLabel(item={}){
+    const lines = [item.label_line_1, item.label_line_2, item.label_line_3, item.label_dose].map(cleanValue).filter(Boolean);
+    if(lines.length) return lines.join(" / ");
+    const name = cleanValue(item.label_name || item.product_name || item.name || item.display_name || item.product_key || "Item");
+    const strength = fulfillmentItemStrength(item);
+    return strength && !name.toLowerCase().includes(strength.toLowerCase()) ? `${name} / ${strength}` : name;
+  }
+  function fulfillmentSheetHtml(order){
+    const items = order.items || [];
+    const rows = items.length ? items.map((item, index) => {
+      const name = item.product_name || item.name || item.display_name || item.product_key || "Item";
+      const qty = item.quantity ?? item.qty ?? 1;
+      const sku = fulfillmentItemSku(item) || "—";
+      const strength = fulfillmentItemStrength(item) || "—";
+      const label = fulfillmentItemLabel(item);
+      return `<tr><td>${index + 1}</td><td><strong>${esc(name)}</strong><div class="small">Label: ${esc(label)}</div></td><td>${esc(strength)}</td><td>${esc(sku)}</td><td class="qty">${esc(qty)}</td><td class="check">□</td></tr>`;
+    }).join("") : `<tr><td colspan="6">No item rows found for this order.</td></tr>`;
+    const generated = new Date().toLocaleString();
+    return `<!doctype html><html><head><meta charset="utf-8"><title>Fulfillment Sheet #${esc(orderNumber(order))}</title><style>
+      *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px;color:#101820;background:#fff}.sheet{max-width:900px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border-bottom:3px solid #101820;padding-bottom:14px;margin-bottom:16px}.brand{font-size:24px;font-weight:900;letter-spacing:.04em}.sub{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#667085;font-weight:900}.order-no{font-size:30px;font-weight:900;text-align:right}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.box{border:1px solid #d9e2ec;border-radius:10px;padding:12px;min-height:92px}.box h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#667085}.box p{margin:0;line-height:1.4}.line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #edf2f7;padding:4px 0}.line:last-child{border-bottom:0}.pill{display:inline-block;border:1px solid #d9e2ec;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:900;text-transform:capitalize}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #d9e2ec;padding:9px 8px;text-align:left;vertical-align:top}th{background:#f5f8fb;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#667085}.qty,.check{text-align:center;font-weight:900}.small{font-size:12px;color:#667085;margin-top:3px}.checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.checkitem{border:1px solid #d9e2ec;border-radius:10px;padding:9px;font-weight:800}.sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.sigline{border-top:1px solid #101820;padding-top:6px;font-size:12px;color:#667085}.footer{margin-top:16px;font-size:11px;color:#667085;text-align:center}@media print{body{padding:0}.sheet{max-width:none}.no-print{display:none}.box,th,td,.checkitem{break-inside:avoid}}
+    </style></head><body><div class="sheet">
+      <div class="top"><div><div class="brand">PEP SHOP TEXAS</div><div class="sub">Order Fulfillment Sheet</div><div class="small">Generated: ${esc(generated)}</div></div><div><div class="sub">Order</div><div class="order-no">#${esc(orderNumber(order))}</div></div></div>
+      <div class="grid"><div class="box"><h3>Customer / Ship To</h3><p><strong>${esc(customerName(order))}</strong><br>${esc(shippingAddress(order))}<br>${esc(customerEmail(order) || "No email")}<br>${esc(customerPhone(order))}</p></div><div class="box"><h3>Order Snapshot</h3><div class="line"><span>Date</span><strong>${esc(fmtDate(order.created_at || order.order_date))}</strong></div><div class="line"><span>Order Status</span><span class="pill">${esc(String(orderStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Payment Status</span><span class="pill">${esc(String(paymentStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Shipping</span><strong>${money(orderShipping(order))}</strong></div><div class="line"><span>Total</span><strong>${money(orderTotal(order))}</strong></div></div></div>
+      <table><thead><tr><th>#</th><th>Product / Vial Label</th><th>Strength</th><th>SKU / Item</th><th>Qty</th><th>Picked</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="checklist"><div class="checkitem">□ Correct product/SKU pulled</div><div class="checkitem">□ Correct quantity pulled</div><div class="checkitem">□ Vial label checked</div><div class="checkitem">□ Lot/COA checked if applicable</div><div class="checkitem">□ Items protected in packaging</div><div class="checkitem">□ Packing slip/order sheet included</div><div class="checkitem">□ Shipping label matches customer address</div><div class="checkitem">□ Final package sealed</div></div>
+      <div class="grid"><div class="box"><h3>Internal Notes</h3><p>${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || "")).replace(/\n/g,"<br>") || "—"}</p></div><div class="box"><h3>Tracking / Carrier</h3><p>Carrier: ${esc(order.tracking_carrier || order.carrier || "—")}<br>Tracking: ${esc(order.tracking_number || order.tracking || "—")}</p></div></div>
+      <div class="sign"><div class="sigline">Packed by / Date</div><div class="sigline">Final check / Date</div></div><div class="footer">Internal fulfillment document only. Not a customer-facing marketing insert.</div>
+    </div><script>window.addEventListener('load',function(){setTimeout(function(){window.focus();window.print();},250);});<\/script></body></html>`;
+  }
+  function printFulfillmentSheet(order){
+    const win = window.open("", "_blank", "width=960,height=900");
+    if(!win){ alert("Popup blocked. Allow popups for this site, then click Print Fulfillment Sheet again."); return; }
+    win.document.open();
+    win.document.write(fulfillmentSheetHtml(order));
+    win.document.close();
+    setStatus(`Fulfillment sheet opened for Order #${orderNumber(order)}.`, "good");
+  }
+
   function renderOrderDetail(order){
     activeOrderId = order.id; renderOrders();
     setAdminCardOpen("detailCard", true);
@@ -1072,11 +1121,11 @@ header .header-actions .btn.secondary.active {
     const turl = trackingUrl(carrier, tracking, order.tracking_url);
     const detail = $("detailCard");
     detail.innerHTML = `
-      <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
+      <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Fulfillment Sheet</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
       <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
       <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3><div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
       ${paymentInstructionsMarkup(order)}
-      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}</div>
+      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Fulfillment:</strong> Use Print Fulfillment Sheet after the order is received, paid, or moved to Processing. It opens a clean packing sheet with customer address, item/SKU rows, quantity checks, and final verification boxes.</div></div>
       <div class="detail-section"><h3>Update Order</h3>
         <div class="edit-grid">
           <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatuses.map(s=>`<option value="${s}" ${norm(orderStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
@@ -1099,6 +1148,7 @@ header .header-actions .btn.secondary.active {
       detail.scrollIntoView({ behavior:"smooth", block:"start" });
     }
     $("reloadDetailBtn").addEventListener("click", loadOrders);
+    $("printFulfillmentBtn").addEventListener("click", () => printFulfillmentSheet(order));
     $("saveOrderBtn").addEventListener("click", () => saveOrder(order));
     document.querySelectorAll(".preview-email-action").forEach(btn => btn.addEventListener("click", () => openEmailPreview(order, btn.dataset.emailType, false)));
     document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false, { skipPreview:true })));
