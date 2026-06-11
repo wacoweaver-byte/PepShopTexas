@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_ADMIN_PATCH_V12_HISTORY_WHO_DID_WHAT -->
 <!-- PST_ADMIN_PATCH_V11_FULFILLMENT_NO_AUDIT_NOTES -->
 <!-- PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT -->
 <!-- PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL -->
@@ -561,7 +562,7 @@ header .header-actions .btn.secondary.active {
   const NO_TRACKING_REQUIRED_TOKEN = "[NO_TRACKING_REQUIRED]";
   function removeNoTrackingToken(text){ return cleanValue(text).replace(new RegExp("\\s*" + NO_TRACKING_REQUIRED_TOKEN.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&"), "gi"), "").trim(); }
   function rawAdminNotes(order){ return cleanValue(order.admin_note || order.admin_notes || ""); }
-  function noTrackingRequired(order){ return order.no_tracking_required === true || String(order.no_tracking_required).toLowerCase() === "true"; }
+  function noTrackingRequired(order){ return order.no_tracking_required === true || order.tracking_not_required === true || rawAdminNotes(order).toUpperCase().includes(NO_TRACKING_REQUIRED_TOKEN); }
   function setNoTrackingToken(text, enabled){ const clean = removeNoTrackingToken(text); return enabled ? `${NO_TRACKING_REQUIRED_TOKEN}${clean ? "\n" + clean : ""}` : clean; }
   function pill(value){ const v = norm(value); return `<span class="pill ${esc(v)}">${esc(v.replaceAll("_"," "))}</span>`; }
   function orderNumber(order){ return order.order_number || order.order_no || order.id || "—"; }
@@ -790,10 +791,11 @@ header .header-actions .btn.secondary.active {
 
   const next = joinAuditNotes(current, auditLine(text));
 
-  await supabaseClient
-    .from("orders")
-    .update({ admin_note: next, admin_notes: next, updated_at: new Date().toISOString() })
-    .eq("id", order.id);
+  await safeUpdateOrder(
+    order.id,
+    { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() },
+    { ...order, admin_note: current, admin_notes: current }
+  ).catch(()=>{});
 
   order.admin_note = next;
   order.admin_notes = next;
@@ -1037,14 +1039,36 @@ header .header-actions .btn.secondary.active {
   }
 
   function parseAuditEntry(entry){
-    const clean = cleanValue(entry);
-    const match = clean.match(/^\[([^\]]+)\]\s*(.*?)\s*\|\s*Admin account:\s*(.*)$/i);
-    const when = match ? match[1] : "";
-    const what = match ? match[2] : clean;
-    const who = match ? match[3] : "";
-    const statusMatch = what.match(/Order status changed by\s+(.+?):\s*(.*?)\s*→\s*(.*)$/i);
-    const paymentMatch = what.match(/Payment status changed by\s+(.+?):\s*(.*?)\s*→\s*(.*)$/i);
-    return { when, what, who, statusMatch, paymentMatch };
+    const text = cleanValue(entry);
+    const timestampMatch = text.match(/^\[([^\]]+)\]\s*(.*)$/);
+    const timestamp = timestampMatch ? timestampMatch[1] : "";
+    const body = timestampMatch ? timestampMatch[2] : text;
+    const parts = body.split(/\s*\|\s*Admin account:\s*/i);
+    const actionText = cleanValue(parts[0]);
+    const adminText = cleanValue(parts[1] || "");
+    const byMatch = actionText.match(/by\s+([^:]+):/i);
+    const changedBy = cleanValue(byMatch ? byMatch[1] : adminText) || "Admin";
+    let title = "Admin action";
+    if(/order status changed/i.test(actionText)) title = "Order status changed";
+    else if(/payment status changed/i.test(actionText)) title = "Payment status changed";
+    else if(/status notification sent/i.test(actionText)) title = "Status notification sent";
+    else if(/admin override used/i.test(actionText)) title = "Admin override used";
+    return { timestamp, actionText, changedBy, title };
+  }
+
+  function auditHistoryMarkupFromNotes(order){
+    const noteText = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+    const auditEntries = noteText
+      .split(/\n{2,}/)
+      .map(x => x.trim())
+      .filter(Boolean)
+      .filter(entry => /^\[[^\]]+\]/.test(entry) || /changed by|Admin account:|status notification sent|admin override used/i.test(entry));
+
+    return auditEntries.map(entry => {
+      const parsed = parseAuditEntry(entry);
+      const when = parsed.timestamp || "—";
+      return `<div class="audit-item"><strong>${esc(parsed.title)}</strong><span class="muted">${esc(when)}</span><div style="margin-top:6px;line-height:1.45"><strong style="display:inline">Changed by:</strong> ${esc(parsed.changedBy)}<br><strong style="display:inline">What happened:</strong> ${esc(parsed.actionText)}</div></div>`;
+    }).join("");
   }
 
   function historyMarkup(order){
@@ -1056,34 +1080,14 @@ header .header-actions .btn.secondary.active {
     if(order.shipped_at) events.push(["Marked shipped", order.shipped_at]);
     if(order.shipping_email_sent_at) events.push(["Shipping email sent", order.shipping_email_sent_at]);
     if(order.delivered_at) events.push(["Marked delivered", order.delivered_at]);
-    if(order.completed_at) events.push(["Marked complete", order.completed_at]);
     if(order.cancelled_at) events.push(["Cancelled", order.cancelled_at]);
     if(order.rejected_at) events.push(["Rejected", order.rejected_at]);
     if(order.updated_at) events.push(["Last updated", order.updated_at]);
 
-    const noteText = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-    const auditEntries = noteText.split(/\n{2,}/).map(x => x.trim()).filter(Boolean);
+    const audit = auditHistoryMarkupFromNotes(order);
+    if(!events.length && !audit) return `<div class="muted">No timeline fields are currently saved for this order.</div>`;
 
-    if(!events.length && !auditEntries.length) return `<div class="muted">No timeline fields are currently saved for this order.</div>`;
-
-    const audit = auditEntries.map(entry => {
-      const parsed = parseAuditEntry(entry);
-      if(parsed.statusMatch){
-        const who = parsed.statusMatch[1] || parsed.who || "Admin";
-        const from = parsed.statusMatch[2] || "—";
-        const to = parsed.statusMatch[3] || "—";
-        return `<div class="audit-item"><strong>Order status changed</strong>${parsed.when ? `<span class="muted">${esc(parsed.when)}</span>` : ""}<div><strong style="display:inline">Changed by:</strong> ${esc(who)}</div><div><strong style="display:inline">From:</strong> ${esc(from)}</div><div><strong style="display:inline">To:</strong> ${esc(to)}</div></div>`;
-      }
-      if(parsed.paymentMatch){
-        const who = parsed.paymentMatch[1] || parsed.who || "Admin";
-        const from = parsed.paymentMatch[2] || "—";
-        const to = parsed.paymentMatch[3] || "—";
-        return `<div class="audit-item"><strong>Payment status changed</strong>${parsed.when ? `<span class="muted">${esc(parsed.when)}</span>` : ""}<div><strong style="display:inline">Changed by:</strong> ${esc(who)}</div><div><strong style="display:inline">From:</strong> ${esc(from)}</div><div><strong style="display:inline">To:</strong> ${esc(to)}</div></div>`;
-      }
-      return `<div class="audit-item"><strong>Admin action</strong>${parsed.when ? `<span class="muted">${esc(parsed.when)}</span>` : ""}<div><strong style="display:inline">Changed by:</strong> ${esc(parsed.who || "Admin")}</div><div><strong style="display:inline">What happened:</strong> ${esc(parsed.what)}</div></div>`;
-    }).join("");
-
-    const timeline = events.map(([label,date])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}</span></div>`).join("");
+    const timeline = events.map(([label,date])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}</span><div style="margin-top:6px;line-height:1.45"><strong style="display:inline">Changed by:</strong> System timeline</div></div>`).join("");
     return `<div class="audit-list">${audit}${timeline}</div>`;
   }
 
@@ -1206,15 +1210,14 @@ header .header-actions .btn.secondary.active {
           <div class="field"><label for="editTracking">Tracking Number</label><input id="editTracking" value="${esc(tracking)}" placeholder="Tracking number" /></div>
           <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
           <div class="field full"><label class="tracking-exception-check"><input id="editNoTrackingRequired" type="checkbox" ${noTrackingRequired(order) ? "checked" : ""} /> No tracking required for this order</label></div>
-          <div class="field full"><label for="editNoTrackingReason">No Tracking Reason</label><textarea id="editNoTrackingReason" placeholder="Optional reason no tracking is required">${esc(order.no_tracking_reason || "")}</textarea></div>
-          <div class="field full"><label for="editAdminNote">Internal Admin Audit Log</label><textarea id="editAdminNote" readonly placeholder="Audit log will appear here automatically">${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || ""))}</textarea></div>
+          <div class="field full"><label for="editAdminNote">Internal Admin Note</label><textarea id="editAdminNote" placeholder="Internal note for this order only">${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || ""))}</textarea></div>
           ${overrideMarkup(order)}
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
         <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required. Missing tracking will stay on the attention dashboard until one of those is done.</div>
       </div>
       <div class="detail-section"><h3>Email Preview / Manual Resend</h3><div class="email-box"><h4>Preview before manually sending</h4><p>Payment marked Paid still sends automatically and moves the order to Processing. Use these buttons only when you intentionally need to preview or resend a customer email.</p><div style="display:grid;gap:8px">${previewableManualEmailTypes().map(emailType => `<div class="email-action-group"><strong>${esc(emailTypeLabel(emailType))}</strong><div class="email-action-buttons"><button class="btn secondary preview-email-action" data-email-type="${esc(emailType)}" type="button">Preview</button><button class="btn secondary email-action" data-email-type="${esc(emailType)}" type="button">Send</button></div></div>`).join("")}</div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
-      <div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
+      <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div><div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
 
     if(window.matchMedia && window.matchMedia("(max-width:1100px)").matches){
       detail.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1229,22 +1232,50 @@ header .header-actions .btn.secondary.active {
   function buildUpdatesFromForm(order={}){
     let os = $("editOrderStatus").value;
     const ps = $("editPaymentStatus").value;
-    const carrier = cleanValue($("editCarrier").value);
-    const tracking = cleanValue($("editTracking").value);
-    const url = cleanValue($("editTrackingUrl").value);
+    const carrier = $("editCarrier").value.trim();
+    const tracking = $("editTracking").value.trim();
+    const url = $("editTrackingUrl").value.trim();
+    const typedNote = normalizeAdminNotes($("editAdminNote").value.trim());
     const trackingNotRequired = !!$("editNoTrackingRequired")?.checked;
-    const noTrackingReason = cleanValue($("editNoTrackingReason")?.value);
 
+    // Payment accepted should automatically advance a newly paid order into Processing.
+    // Do not move backwards or override higher fulfillment stages like Packed/Shipped/Delivered.
     const currentOrderStage = norm(orderStatus(order));
     if(ps === "paid" && ["pending","awaiting_payment"].includes(norm(os)) && ["pending","awaiting_payment"].includes(currentOrderStage)){
       os = "processing";
-      const statusSelect = $("editOrderStatus");
-      if(statusSelect) statusSelect.value = "processing";
     }
 
     if(["shipped","delivered","complete","completed"].includes(norm(os)) && (!carrier || !tracking) && !trackingNotRequired) throw new Error("Tracking is required for shipped/delivered/complete orders unless No tracking required is checked.");
     const now = new Date().toISOString();
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, tracking_number: tracking || null, tracking_url: url || null, no_tracking_required: trackingNotRequired, no_tracking_reason: noTrackingReason || null, updated_at: now };
+    const changes = [];
+if(norm(orderStatus(order)) !== norm(os)) {
+  changes.push(`Order status changed by ${adminDisplayName()}: ${String(orderStatus(order)).replaceAll("_"," ")} → ${String(os).replaceAll("_"," ")}`);
+}
+
+if(norm(paymentStatus(order)) !== norm(ps)) {
+  changes.push(`Payment status changed by ${adminDisplayName()}: ${String(paymentStatus(order)).replaceAll("_"," ")} → ${String(ps).replaceAll("_"," ")}`);
+}
+    const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
+    const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
+    const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
+    if(carrierChange) changes.push(carrierChange);
+    if(trackingChange) changes.push(trackingChange);
+    if(trackingUrlChange) changes.push(trackingUrlChange);
+    if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? "No tracking required enabled" : "No tracking required removed");
+    let note = changes.length ? joinAuditNotes(typedNote, auditLine(changes.join(" | "))) : typedNote;
+    note = setNoTrackingToken(note, trackingNotRequired);
+    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now };
+
+    if(isRiskyLockedChange(order, updates)){
+      const overrideChecked = $("adminOverrideCheck")?.checked;
+      const overrideReason = cleanValue($("adminOverrideReason")?.value);
+      if(!overrideChecked || !overrideReason){
+        throw new Error("This order is locked. Check Admin Override and enter a reason before making this protected change.");
+      }
+      const overrideNote = joinAuditNotes(updates.admin_note || "", auditLine(`Admin override used: ${overrideReason}`));
+      updates.admin_note = overrideNote;
+      updates.admin_notes = overrideNote;
+    }
 
     if(ps === "paid") updates.paid_at = now;
     if(os === "processing") updates.processing_at = now;
@@ -1257,64 +1288,118 @@ header .header-actions .btn.secondary.active {
     return updates;
   }
 
-  function buildAuditLinesForOrderChange(oldOrder={}, updates={}){
-    const lines = [];
-    const adminName = adminDisplayName();
-    const currentNotes = normalizeAdminNotes(oldOrder.admin_note || oldOrder.admin_notes || "");
-    const oldOS = norm(orderStatus(oldOrder));
-    const newOS = norm(updates.order_status || updates.status || oldOS);
-    const oldPS = norm(paymentStatus(oldOrder));
-    const newPS = norm(updates.payment_status || oldPS);
-
-    if(!currentNotes && (oldOrder.created_at || oldOrder.order_date)){
-      lines.push(`Order received by system: ${orderNumber(oldOrder)}`);
-    }
-    if(oldPS !== newPS){
-      lines.push(`Payment status changed by ${adminName}: ${oldPS.replaceAll("_", " ")} → ${newPS.replaceAll("_", " ")}`);
-    }
-    if(oldOS !== newOS){
-      lines.push(`Order status changed by ${adminName}: ${oldOS.replaceAll("_", " ")} → ${newOS.replaceAll("_", " ")}`);
-    }
-
-    const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
-    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
-    const oldTracking = cleanValue(oldOrder.tracking_number || oldOrder.tracking);
-    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
-    const oldUrl = cleanValue(oldOrder.tracking_url);
-    const newUrl = cleanValue(updates.tracking_url);
-    const carrierChange = describeFieldChange("Carrier", oldCarrier, newCarrier);
-    const trackingChange = describeFieldChange("Tracking", oldTracking, newTracking);
-    const trackingUrlChange = describeFieldChange("Tracking URL", oldUrl, newUrl);
-    if(carrierChange) lines.push(`${carrierChange} by ${adminName}`);
-    if(trackingChange) lines.push(`${trackingChange} by ${adminName}`);
-    if(trackingUrlChange) lines.push(`${trackingUrlChange} by ${adminName}`);
-
-    const oldNoTracking = noTrackingRequired(oldOrder);
-    const newNoTracking = updates.no_tracking_required === true || String(updates.no_tracking_required).toLowerCase() === "true";
-    if(oldNoTracking !== newNoTracking) lines.push(newNoTracking ? `No tracking required enabled by ${adminName}` : `No tracking required removed by ${adminName}`);
-    if(cleanValue(oldOrder.no_tracking_reason) !== cleanValue(updates.no_tracking_reason)){
-      lines.push(cleanValue(updates.no_tracking_reason) ? `No tracking reason set by ${adminName}: ${cleanValue(updates.no_tracking_reason)}` : `No tracking reason cleared by ${adminName}`);
-    }
-    return lines;
+  function missingColumnFromError(error){
+    const msg = String(error?.message || error || "");
+    return (msg.match(/column\s+orders\.([a-zA-Z0-9_]+)\s+does\s+not\s+exist/i) ||
+            msg.match(/column\s+\"?([a-zA-Z0-9_]+)\"?\s+of\s+relation\s+\"?orders\"?\s+does\s+not\s+exist/i) ||
+            msg.match(/Could not find the ['\"]([a-zA-Z0-9_]+)['\"] column/i) ||
+            [])[1] || "";
   }
 
-  async function fetchFreshOrderRow(id){
-    const { data, error } = await supabaseClient.from("orders").select("*").eq("id", id).maybeSingle();
-    if(error) throw error;
-    return data || allOrders.find(o => String(o.id) === String(id)) || {};
+  function orderColumnKeys(order){
+    const row = order || allOrders.find(o => String(o.id) === String(order?.id || "")) || {};
+    return new Set(Object.keys(row).filter(k => !["items","profile"].includes(k)));
+  }
+
+  function filterUpdatesToOrderColumns(updates, order){
+    const keys = orderColumnKeys(order);
+    const filtered = {};
+    Object.entries(updates || {}).forEach(([key, value]) => {
+      if(value !== undefined && keys.has(key)) filtered[key] = value;
+    });
+    return filtered;
+  }
+
+  async function safeUpdateOrder(id, updates, order=null){
+    const row = order || allOrders.find(o => String(o.id) === String(id)) || {};
+    let payload = filterUpdatesToOrderColumns(updates, row);
+
+    // Ensure the status fields stay synced, but only for columns that actually exist on this orders table.
+    if(Object.prototype.hasOwnProperty.call(row, "order_status") && updates.order_status !== undefined) payload.order_status = updates.order_status;
+    if(Object.prototype.hasOwnProperty.call(row, "status") && updates.status !== undefined) payload.status = updates.status;
+    if(Object.prototype.hasOwnProperty.call(row, "payment_status") && updates.payment_status !== undefined) payload.payment_status = updates.payment_status;
+
+    if(!Object.keys(payload).length) throw new Error("No matching order columns were available to update.");
+
+    const { error } = await supabaseClient.from("orders").update(payload).eq("id", id);
+    if(!error) return;
+
+    // If a stale/browser-cached payload still includes a missing column, drop only that column and retry once.
+    const missing = missingColumnFromError(error);
+    if(missing && Object.prototype.hasOwnProperty.call(payload, missing)){
+      delete payload[missing];
+      if(Object.keys(payload).length){
+        const retry = await supabaseClient.from("orders").update(payload).eq("id", id);
+        if(!retry.error) return;
+        throw retry.error;
+      }
+    }
+    throw error;
+  }
+
+  function detectCustomerEmailType(oldOrder, updates){
+    const oldOrderStatus = norm(orderStatus(oldOrder));
+    const oldPaymentStatus = norm(paymentStatus(oldOrder));
+    const newOrderStatus = norm(updates.order_status);
+    const newPaymentStatus = norm(updates.payment_status);
+    const oldTracking = cleanValue(oldOrder.tracking_number || oldOrder.tracking);
+    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
+    const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
+    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
+
+    if(oldPaymentStatus !== newPaymentStatus){
+      if(newPaymentStatus === "paid") return "payment_accepted";
+      if(["failed","manual_review","refunded"].includes(newPaymentStatus)) return "payment_issue";
+    }
+    if(oldOrderStatus !== newOrderStatus){
+      if(newOrderStatus === "processing") return "order_processing";
+      if(newOrderStatus === "packed") return "order_packed";
+      if(newOrderStatus === "shipped") return "order_shipped";
+      if(newOrderStatus === "delivered") return "order_delivered";
+      if(newOrderStatus === "cancelled") return "order_cancelled";
+      if(newOrderStatus === "rejected") return "order_rejected";
+    }
+    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier)) return "order_shipped";
+    return "";
+  }
+
+  function detectCustomerEmailTypes(oldOrder, updates){
+    const oldOrderStatus = norm(orderStatus(oldOrder));
+    const oldPaymentStatus = norm(paymentStatus(oldOrder));
+    const newOrderStatus = norm(updates.order_status);
+    const newPaymentStatus = norm(updates.payment_status);
+    const oldTracking = cleanValue(oldOrder.tracking_number || oldOrder.tracking);
+    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
+    const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
+    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
+    const types = [];
+    const paymentJustMarkedPaid = oldPaymentStatus !== newPaymentStatus && newPaymentStatus === "paid";
+    const paidAutoMovedToProcessing = paymentJustMarkedPaid && ["pending","awaiting_payment"].includes(oldOrderStatus) && newOrderStatus === "processing";
+
+    if(oldPaymentStatus !== newPaymentStatus){
+      if(newPaymentStatus === "paid") types.push("payment_accepted");
+      if(["failed","manual_review","refunded"].includes(newPaymentStatus)) types.push("payment_issue");
+    }
+    if(oldOrderStatus !== newOrderStatus){
+      if(newOrderStatus === "processing" && !paidAutoMovedToProcessing) types.push("order_processing");
+      if(newOrderStatus === "packed") types.push("order_packed");
+      if(newOrderStatus === "shipped") types.push("order_shipped");
+      if(newOrderStatus === "delivered") types.push("order_delivered");
+      if(newOrderStatus === "cancelled") types.push("order_cancelled");
+      if(newOrderStatus === "rejected") types.push("order_rejected");
+    }
+    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier) && !types.includes("order_shipped")) types.push("order_shipped");
+    return [...new Set(types)];
   }
 
   async function saveOrder(order){
     try{
+      const updates = buildUpdatesFromForm(order);
+      const emailTypes = detectCustomerEmailTypes(order, updates);
       setStatus("Saving order updates...");
-      const freshOrder = await fetchFreshOrderRow(order.id);
-      const mergedOld = { ...order, ...freshOrder, profile: profileOf(order), items: order.items || [] };
-      const updates = buildUpdatesFromForm(mergedOld);
-      const emailTypes = detectCustomerEmailTypes(mergedOld, updates);
+      await safeUpdateOrder(order.id, updates, order);
 
-      await saveOrderWithAudit(order.id, updates, mergedOld);
-
-      const mergedForEmail = { ...mergedOld, ...updates, profile: profileOf(order), items: order.items || [] };
+      const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
       const previewTypes = emailTypes.filter(emailTypeNeedsPreview);
 
