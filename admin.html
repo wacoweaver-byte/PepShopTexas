@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_ADMIN_PATCH_V12_INTERNAL_ADMIN_AUDIT_LOG_READONLY -->
 <!-- PST_ADMIN_PATCH_V11_FULFILLMENT_NO_AUDIT_NOTES -->
 <!-- PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT -->
 <!-- PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL -->
@@ -1206,7 +1207,7 @@ header .header-actions .btn.secondary.active {
           <div class="field"><label for="editTracking">Tracking Number</label><input id="editTracking" value="${esc(tracking)}" placeholder="Tracking number" /></div>
           <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
           <div class="field full"><label class="tracking-exception-check"><input id="editNoTrackingRequired" type="checkbox" ${noTrackingRequired(order) ? "checked" : ""} /> No tracking required for this order</label></div>
-          <div class="field full"><label for="editAdminNote">Internal Admin Note</label><textarea id="editAdminNote" placeholder="Internal note for this order only">${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || ""))}</textarea></div>
+          <div class="field full"><label for="editAdminAuditLog">Internal Admin Audit Log</label><textarea id="editAdminAuditLog" readonly placeholder="Audit log will appear here automatically">${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || ""))}</textarea></div>
           ${overrideMarkup(order)}
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
@@ -1231,7 +1232,7 @@ header .header-actions .btn.secondary.active {
     const carrier = $("editCarrier").value.trim();
     const tracking = $("editTracking").value.trim();
     const url = $("editTrackingUrl").value.trim();
-    const typedNote = normalizeAdminNotes($("editAdminNote").value.trim());
+    const existingAuditLog = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
     const trackingNotRequired = !!$("editNoTrackingRequired")?.checked;
 
     // Payment accepted should automatically advance a newly paid order into Processing.
@@ -1260,17 +1261,16 @@ header .header-actions .btn.secondary.active {
     const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
     const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
     const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
-    if(carrierChange) changes.push(`${carrierChange} by ${adminName}`);
-    if(trackingChange) changes.push(`${trackingChange} by ${adminName}`);
-    if(trackingUrlChange) changes.push(`${trackingUrlChange} by ${adminName}`);
-    if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? `No tracking required enabled by ${adminName}` : `No tracking required removed by ${adminName}`);
+    if(carrierChange) changes.push(carrierChange);
+    if(trackingChange) changes.push(trackingChange);
+    if(trackingUrlChange) changes.push(trackingUrlChange);
+    if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? "No tracking required enabled" : "No tracking required removed");
 
-    let note = setNoTrackingToken(typedNote, trackingNotRequired);
+    let note = setNoTrackingToken(existingAuditLog, trackingNotRequired);
     if(changes.length){
       note = joinAuditNotes(note, auditLine(changes.join(" | ")));
     }
-
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now };
+    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now, __auditChanges: [] };
 
     if(isRiskyLockedChange(order, updates)){
       const overrideChecked = $("adminOverrideCheck")?.checked;
@@ -1278,7 +1278,7 @@ header .header-actions .btn.secondary.active {
       if(!overrideChecked || !overrideReason){
         throw new Error("This order is locked. Check Admin Override and enter a reason before making this protected change.");
       }
-      const overrideNote = joinAuditNotes(updates.admin_note || "", auditLine(`Admin override used by ${adminName}: ${overrideReason}`));
+      const overrideNote = joinAuditNotes(updates.admin_note || "", auditLine(`Admin override used: ${overrideReason}`));
       updates.admin_note = overrideNote;
       updates.admin_notes = overrideNote;
     }
@@ -1405,6 +1405,15 @@ header .header-actions .btn.secondary.active {
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
 
+      order.admin_note = updates.admin_note;
+      order.admin_notes = updates.admin_notes;
+      const localOrder = allOrders.find(o => String(o.id) === String(order.id));
+      if(localOrder){
+        localOrder.admin_note = updates.admin_note;
+        localOrder.admin_notes = updates.admin_notes;
+      }
+
+      delete updates.__auditChanges;
 
       const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
