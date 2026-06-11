@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_INVENTORY_PATCH_V14_COLLAPSIBLE_DASHBOARD -->
 <!-- PST_INVENTORY_PATCH_V13_SUPABASE_INCOMING_SHARED -->
 <!-- PST_INVENTORY_PATCH_V12_SKU_IDENTITY_READY -->
 <!-- PST_INVENTORY_PATCH_V11_REORDER_BUTTON_TO_INCOMING -->
@@ -565,6 +566,105 @@ header .header-actions .btn.secondary.active {
 @media(max-width:1150px){ .incoming-form-grid { grid-template-columns:1fr 1fr; } .incoming-summary-grid { grid-template-columns:1fr 1fr; } }
 @media(max-width:640px){ .incoming-form-grid,.incoming-summary-grid { grid-template-columns:1fr; } }
 
+
+/* PST_INVENTORY_PATCH_V14_COLLAPSIBLE_DASHBOARD */
+.inventory-jumpbar {
+  position: sticky;
+  top: 83px;
+  z-index: 40;
+  margin: 14px 0 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 10px 26px rgba(16,24,32,.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+}
+.inventory-jumpbar-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-right: auto;
+  white-space: nowrap;
+}
+.inventory-jumpbar .btn {
+  flex: 0 0 auto;
+}
+.inventory-jumpbar .btn.active,
+.inventory-collapse-toggle.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+.inventory-dashboard-card {
+  margin: 18px 0;
+  scroll-margin-top: 170px;
+}
+.inventory-collapse-head {
+  cursor: pointer;
+}
+.inventory-collapse-title {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  width:100%;
+}
+.inventory-collapse-head h2 {
+  margin: 0 0 5px;
+}
+.inventory-card-actions {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.inventory-dashboard-card.collapsed > :not(.inventory-collapse-head) {
+  display: none !important;
+}
+.inventory-dashboard-card.collapsed {
+  overflow: hidden;
+}
+.physical-inventory-head {
+  padding:14px;
+  border-bottom:1px solid var(--line);
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:12px;
+  align-items:center;
+}
+.physical-inventory-head h2 {
+  margin: 0 0 5px;
+}
+.back-to-inventory-top {
+  padding: 10px 14px 14px;
+  border-top: 1px solid var(--line);
+  background: #fbfcff;
+}
+.back-to-inventory-top a {
+  color: var(--blue);
+  font-weight: 900;
+  text-decoration: none;
+}
+@media(max-width:900px) {
+  .inventory-jumpbar {
+    top: 0;
+    align-items:flex-start;
+  }
+  .inventory-jumpbar-label {
+    margin-right: 0;
+  }
+  .physical-inventory-head {
+    grid-template-columns:1fr;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -593,9 +693,16 @@ header .header-actions .btn.secondary.active {
   <p class="subtitle">Spreadsheet-style inventory control. Edit rows, receive stock, remove stock, set exact counts, mark products active/inactive, and save directly to Supabase.</p>
   <div id="status" class="status">Checking admin access...</div>
 
+  <nav class="inventory-jumpbar" id="inventoryDashboardNav" aria-label="Inventory quick links">
+    <span class="inventory-jumpbar-label">Jump To</span>
+    <button class="btn secondary inventory-jump-link" type="button" data-inventory-target="reorderReviewCard" aria-pressed="false">Inventory Reorder Review</button>
+    <button class="btn secondary inventory-jump-link" type="button" data-inventory-target="incomingInventoryCard" aria-pressed="false">Incoming Inventory / Purchase Orders / Order Entry</button>
+    <button class="btn secondary inventory-jump-link" type="button" data-inventory-target="physicalInventoryCard" aria-pressed="false">Physical Inventory / Adjustments</button>
+  </nav>
 
-  <section class="card reorder-card" id="reorderReviewCard">
-    <div class="card-head">
+
+  <section class="card reorder-card inventory-dashboard-card collapsed" id="reorderReviewCard">
+    <div class="card-head inventory-collapse-head" data-collapse-card="reorderReviewCard">
       <div>
         <h2 style="margin:0 0 5px;">Inventory Reorder Review</h2>
         <p class="subtitle" style="font-size:13px;">Uses recent product sales velocity, a 21-day lead time, and stock depletion logic to flag items that may need reorder review.</p>
@@ -611,6 +718,7 @@ header .header-actions .btn.secondary.active {
           </select>
         </div>
         <button class="btn secondary" id="refreshReorderBtn" type="button">Refresh Review</button>
+        <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="reorderReviewCard" aria-expanded="false">Open</button>
       </div>
     </div>
     <div class="reorder-summary-grid">
@@ -649,17 +757,19 @@ header .header-actions .btn.secondary.active {
         </tbody>
       </table>
     </div>
+    <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
   </section>
 
-  <section class="card incoming-card" id="incomingInventoryCard">
-    <div class="card-head">
+  <section class="card incoming-card inventory-dashboard-card collapsed" id="incomingInventoryCard">
+    <div class="card-head inventory-collapse-head" data-collapse-card="incomingInventoryCard">
       <div>
-        <h2 style="margin:0 0 5px;">Incoming Inventory / Purchase Orders</h2>
+        <h2 style="margin:0 0 5px;">Incoming Inventory / Purchase Orders / Order Entry</h2>
         <p class="subtitle" style="font-size:13px;">Track product already ordered, days on order, estimated 21-day arrival, and receive shipments directly into inventory.</p>
       </div>
       <div class="actions">
         <button class="btn secondary" id="refreshIncomingBtn" type="button">Refresh Incoming</button>
         <button class="btn secondary" id="toggleIncomingAuditBtn" type="button">Show Audit Trail</button>
+        <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="incomingInventoryCard" aria-expanded="false">Open</button>
       </div>
     </div>
     <div class="incoming-summary-grid">
@@ -735,9 +845,17 @@ header .header-actions .btn.secondary.active {
         </tbody>
       </table>
     </div>
+    <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
   </section>
 
-  <section class="card">
+  <section class="card inventory-dashboard-card collapsed" id="physicalInventoryCard">
+    <div class="physical-inventory-head inventory-collapse-head" data-collapse-card="physicalInventoryCard">
+      <div>
+        <h2>Physical Inventory / Adjustments</h2>
+        <p class="subtitle" style="font-size:13px;">Search, filter, adjust physical vial counts, save edited rows, and control website visibility for inventory products.</p>
+      </div>
+      <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="physicalInventoryCard" aria-expanded="false">Open</button>
+    </div>
     <div class="card-head">
       <div class="filters">
         <div class="field">
@@ -824,6 +942,7 @@ header .header-actions .btn.secondary.active {
         </tbody>
       </table>
     </div>
+    <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
   </section>
 </main>
 
@@ -1999,6 +2118,86 @@ async function importProductsJson() {
   await loadInventory();
 }
 
+
+/* PST_INVENTORY_PATCH_V14_COLLAPSIBLE_DASHBOARD */
+function inventoryStickyOffset() {
+  const header = document.querySelector("header");
+  const jumpbar = $("inventoryDashboardNav");
+  const headerHeight = header ? header.getBoundingClientRect().height : 0;
+  const jumpHeight = jumpbar ? jumpbar.getBoundingClientRect().height : 0;
+  return Math.ceil(headerHeight + jumpHeight + 18);
+}
+
+function scrollInventoryToCard(card) {
+  if (!card) return;
+  const top = card.getBoundingClientRect().top + window.pageYOffset - inventoryStickyOffset();
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
+function setInventoryCardOpen(card, shouldOpen) {
+  if (!card) return;
+  card.classList.toggle("collapsed", !shouldOpen);
+  const expanded = !card.classList.contains("collapsed");
+  document.querySelectorAll(`[data-collapse-target="${card.id}"]`).forEach(btn => {
+    btn.textContent = expanded ? "Collapse" : "Open";
+    btn.setAttribute("aria-expanded", String(expanded));
+    btn.classList.toggle("active", expanded);
+  });
+  document.querySelectorAll(`[data-inventory-target="${card.id}"]`).forEach(btn => {
+    btn.classList.toggle("active", expanded);
+    btn.setAttribute("aria-pressed", String(expanded));
+  });
+}
+
+function toggleInventoryCard(card, shouldScroll=false) {
+  if (!card) return;
+  const willOpen = card.classList.contains("collapsed");
+  setInventoryCardOpen(card, willOpen);
+  if (willOpen && shouldScroll) setTimeout(() => scrollInventoryToCard(card), 60);
+}
+
+function setupInventoryDashboardNavigation() {
+  document.querySelectorAll(".inventory-dashboard-card").forEach(card => {
+    setInventoryCardOpen(card, !card.classList.contains("collapsed"));
+  });
+
+  document.querySelectorAll(".inventory-jump-link").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const card = $(btn.dataset.inventoryTarget);
+      if (!card) return;
+      const willOpen = card.classList.contains("collapsed");
+      setInventoryCardOpen(card, willOpen);
+      if (willOpen) setTimeout(() => scrollInventoryToCard(card), 60);
+    });
+  });
+
+  document.querySelectorAll(".inventory-collapse-toggle").forEach(btn => {
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const card = $(btn.dataset.collapseTarget);
+      toggleInventoryCard(card, true);
+    });
+  });
+
+  document.querySelectorAll(".inventory-collapse-head").forEach(head => {
+    head.addEventListener("click", (event) => {
+      if (event.target.closest("button, a, input, select, textarea, label")) return;
+      const card = $(head.dataset.collapseCard);
+      toggleInventoryCard(card, true);
+    });
+  });
+
+  document.querySelectorAll("[data-inventory-top]").forEach(link => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const nav = $("inventoryDashboardNav");
+      const top = nav ? nav.getBoundingClientRect().top + window.pageYOffset - (document.querySelector("header")?.getBoundingClientRect().height || 0) - 8 : 0;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
+  });
+}
+
+
 function wireEvents() {
   $("refreshBtn").addEventListener("click", loadInventory);
   $("signOutBtn").addEventListener("click", async () => {
@@ -2054,6 +2253,7 @@ function wireEvents() {
 async function init() {
   try {
     wireEvents();
+    setupInventoryDashboardNavigation();
     const ok = await checkAdmin();
     if (!ok) return;
     await loadInventory();
