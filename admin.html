@@ -771,14 +771,32 @@ header .header-actions .btn.secondary.active {
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
     }
-  }
-  async function appendAdminAudit(order, text){
-    const current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-    const next = joinAuditNotes(current, auditLine(text));
-    await safeUpdateOrder(order.id, { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() }, order).catch(()=>{});
-    order.admin_note = next;
-    order.admin_notes = next;
-  }
+async function appendAdminAudit(order, text){
+  let current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("orders")
+      .select("admin_note, admin_notes")
+      .eq("id", order.id)
+      .maybeSingle();
+
+    if(!error && data){
+      current = normalizeAdminNotes(data.admin_note || data.admin_notes || current);
+    }
+  } catch (_) {}
+
+  const next = joinAuditNotes(current, auditLine(text));
+
+  await safeUpdateOrder(
+    order.id,
+    { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() },
+    { ...order, admin_note: current, admin_notes: current }
+  ).catch(()=>{});
+
+  order.admin_note = next;
+  order.admin_notes = next;
+}
 
   function selectedOrdersArray(){ return Array.from(selectedOrderIds).map(String).filter(Boolean); }
   function renderSelectedCount(){ $("selectedCount").textContent = `${selectedOrderIds.size} selected`; const allVisible = filteredOrders.length && filteredOrders.every(o => selectedOrderIds.has(String(o.id))); $("selectAllOrders").checked = !!allVisible; }
