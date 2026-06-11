@@ -715,7 +715,7 @@ header .header-actions .btn.secondary.active {
     .join("\n\n\n");
 }
 
-Then we’ll do the second replacement for the status/payment lines.
+// Then we'll do the second replacement for the status/payment lines.
   function auditLine(text){ return `[${new Date().toLocaleString()}] ${text} | Admin account: ${adminDisplayName()}`; }
   function joinAuditNotes(current, line){ const base=normalizeAdminNotes(current || "").trim(); return `${base}${base ? "\n\n\n" : ""}${line}`; }
   function describeFieldChange(label, oldValue, newValue){
