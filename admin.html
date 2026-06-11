@@ -1213,7 +1213,7 @@ header .header-actions .btn.secondary.active {
         <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required. Missing tracking will stay on the attention dashboard until one of those is done.</div>
       </div>
       <div class="detail-section"><h3>Email Preview / Manual Resend</h3><div class="email-box"><h4>Preview before manually sending</h4><p>Payment marked Paid still sends automatically and moves the order to Processing. Use these buttons only when you intentionally need to preview or resend a customer email.</p><div style="display:grid;gap:8px">${previewableManualEmailTypes().map(emailType => `<div class="email-action-group"><strong>${esc(emailTypeLabel(emailType))}</strong><div class="email-action-buttons"><button class="btn secondary preview-email-action" data-email-type="${esc(emailType)}" type="button">Preview</button><button class="btn secondary email-action" data-email-type="${esc(emailType)}" type="button">Send</button></div></div>`).join("")}</div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
-      <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div><div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
+      <div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
 
     if(window.matchMedia && window.matchMedia("(max-width:1100px)").matches){
       detail.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1260,15 +1260,17 @@ header .header-actions .btn.secondary.active {
     const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
     const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
     const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
-    if(carrierChange) changes.push(carrierChange);
-    if(trackingChange) changes.push(trackingChange);
-    if(trackingUrlChange) changes.push(trackingUrlChange);
-    if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? "No tracking required enabled" : "No tracking required removed");
+    if(carrierChange) changes.push(`${carrierChange} by ${adminName}`);
+    if(trackingChange) changes.push(`${trackingChange} by ${adminName}`);
+    if(trackingUrlChange) changes.push(`${trackingUrlChange} by ${adminName}`);
+    if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? `No tracking required enabled by ${adminName}` : `No tracking required removed by ${adminName}`);
 
-    // Manual note box stays manual. Admin action/audit lines are appended in saveOrder()
-    // after the main order update succeeds, so they cannot be lost/overwritten by email updates.
     let note = setNoTrackingToken(typedNote, trackingNotRequired);
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now, __auditChanges: changes };
+    if(changes.length){
+      note = joinAuditNotes(note, auditLine(changes.join(" | ")));
+    }
+
+    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now };
 
     if(isRiskyLockedChange(order, updates)){
       const overrideChecked = $("adminOverrideCheck")?.checked;
@@ -1276,7 +1278,7 @@ header .header-actions .btn.secondary.active {
       if(!overrideChecked || !overrideReason){
         throw new Error("This order is locked. Check Admin Override and enter a reason before making this protected change.");
       }
-      const overrideNote = joinAuditNotes(updates.admin_note || "", auditLine(`Admin override used: ${overrideReason}`));
+      const overrideNote = joinAuditNotes(updates.admin_note || "", auditLine(`Admin override used by ${adminName}: ${overrideReason}`));
       updates.admin_note = overrideNote;
       updates.admin_notes = overrideNote;
     }
@@ -1403,12 +1405,6 @@ header .header-actions .btn.secondary.active {
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
 
-      // Force the real WHO-DID-WHAT audit entry to save immediately after the status/payment update.
-      // This is what the History panel reads and displays above the generic timeline.
-      if(Array.isArray(updates.__auditChanges) && updates.__auditChanges.length){
-        await appendAdminAudit({ ...order, ...updates }, updates.__auditChanges.join(" | "));
-      }
-      delete updates.__auditChanges;
 
       const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
