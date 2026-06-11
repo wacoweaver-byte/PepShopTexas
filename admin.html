@@ -715,9 +715,7 @@ header .header-actions .btn.secondary.active {
 
   return entries.join("\n\n\n");
 }
-
-// Then we'll do the second replacement for the status/payment lines.
-  function auditLine(text){ return `[${new Date().toLocaleString()}] ${text} | Admin account: ${adminDisplayName()}`; }
+    function auditLine(text){ return `[${new Date().toLocaleString()}] ${text} | Admin account: ${adminDisplayName()}`; }
   function joinAuditNotes(current, line){ const base=normalizeAdminNotes(current || "").trim(); return `${base}${base ? "\n\n\n" : ""}${line}`; }
   function describeFieldChange(label, oldValue, newValue){
     const oldText = cleanValue(oldValue);
@@ -774,31 +772,31 @@ header .header-actions .btn.secondary.active {
     }
   }
     async function appendAdminAudit(order, text){
-  let current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+    let current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
 
-  try {
-    const { data, error } = await supabaseClient
-      .from("orders")
-      .select("admin_note, admin_notes")
-      .eq("id", order.id)
-      .maybeSingle();
+    try {
+      const { data, error } = await supabaseClient
+        .from("orders")
+        .select("admin_note, admin_notes")
+        .eq("id", order.id)
+        .maybeSingle();
 
-    if(!error && data){
-      current = normalizeAdminNotes(data.admin_note || data.admin_notes || current);
-    }
-  } catch (_) {}
+      if(!error && data){
+        current = normalizeAdminNotes(data.admin_note || data.admin_notes || current);
+      }
+    } catch (_) {}
 
-  const next = joinAuditNotes(current, auditLine(text));
+    const next = joinAuditNotes(current, auditLine(text));
 
-  await safeUpdateOrder(
-    order.id,
-    { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() },
-    { ...order, admin_note: current, admin_notes: current }
-  ).catch(()=>{});
+    await safeUpdateOrder(
+      order.id,
+      { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() },
+      { ...order, admin_note: current, admin_notes: current }
+    ).catch(()=>{});
 
-  order.admin_note = next;
-  order.admin_notes = next;
-}
+    order.admin_note = next;
+    order.admin_notes = next;
+  }
 
   function selectedOrdersArray(){ return Array.from(selectedOrderIds).map(String).filter(Boolean); }
   function renderSelectedCount(){ $("selectedCount").textContent = `${selectedOrderIds.size} selected`; const allVisible = filteredOrders.length && filteredOrders.every(o => selectedOrderIds.has(String(o.id))); $("selectAllOrders").checked = !!allVisible; }
@@ -1219,13 +1217,19 @@ header .header-actions .btn.secondary.active {
     if(["shipped","delivered","complete","completed"].includes(norm(os)) && (!carrier || !tracking) && !trackingNotRequired) throw new Error("Tracking is required for shipped/delivered/complete orders unless No tracking required is checked.");
     const now = new Date().toISOString();
     const changes = [];
-if(norm(orderStatus(order)) !== norm(os)) {
-  changes.push(`Order status changed: ${String(orderStatus(order)).replaceAll("_"," ")} → ${String(os).replaceAll("_"," ")}`);
-}
+    const adminName = adminDisplayName();
+    const oldOrderStatusText = String(orderStatus(order)).replaceAll("_", " ");
+    const newOrderStatusText = String(os).replaceAll("_", " ");
+    const oldPaymentStatusText = String(paymentStatus(order)).replaceAll("_", " ");
+    const newPaymentStatusText = String(ps).replaceAll("_", " ");
 
-if(norm(paymentStatus(order)) !== norm(ps)) {
-  changes.push(`Payment status changed: ${String(paymentStatus(order)).replaceAll("_"," ")} → ${String(ps).replaceAll("_"," ")}`);
-}
+    if(norm(orderStatus(order)) !== norm(os)) {
+      changes.push(`Order status changed by ${adminName}: ${oldOrderStatusText} → ${newOrderStatusText}`);
+    }
+
+    if(norm(paymentStatus(order)) !== norm(ps)) {
+      changes.push(`Payment status changed by ${adminName}: ${oldPaymentStatusText} → ${newPaymentStatusText}`);
+    }
     const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
     const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
     const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
@@ -1233,7 +1237,12 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     if(trackingChange) changes.push(trackingChange);
     if(trackingUrlChange) changes.push(trackingUrlChange);
     if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? "No tracking required enabled" : "No tracking required removed");
-    let note = changes.length ? joinAuditNotes(typedNote, auditLine(changes.join(" | "))) : typedNote;
+    let note = typedNote;
+    if(changes.length){
+      const existingLines = normalizeAdminNotes(note);
+      const newAuditLine = auditLine(changes.join(" | "));
+      note = joinAuditNotes(existingLines, newAuditLine);
+    }
     note = setNoTrackingToken(note, trackingNotRequired);
     const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now };
 
