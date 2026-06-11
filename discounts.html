@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_DISCOUNTS_PATCH_V17_PROMO_FORM_PREVIEW_LAYOUT -->
 <!-- PST_DISCOUNTS_PATCH_V16_COLLAPSIBLE_DASHBOARD -->
 <html lang="en">
 <head>
@@ -480,6 +481,103 @@ header .header-actions .btn.secondary.active {
   }
 }
 
+
+
+/* PST_DISCOUNTS_PATCH_V17_PROMO_FORM_PREVIEW_LAYOUT */
+.discount-form-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, .78fr) !important;
+  gap: 16px !important;
+  align-items: start !important;
+}
+.discount-form-fields {
+  display: grid !important;
+  gap: 14px !important;
+}
+.discount-fieldset {
+  border: 1px solid var(--pst-border) !important;
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  padding: 14px !important;
+}
+.discount-fieldset h3 {
+  margin: 0 0 10px !important;
+  color: var(--pst-dark) !important;
+  font-size: 15px !important;
+}
+.discount-fieldset .edit-grid {
+  grid-template-columns: 1fr 1fr !important;
+}
+.promo-preview-card {
+  position: sticky !important;
+  top: 142px !important;
+  grid-column: auto !important;
+  padding: 16px !important;
+  background: #f8fbff !important;
+}
+.promo-preview-card h3 {
+  font-size: 17px !important;
+  color: var(--pst-dark) !important;
+  margin-bottom: 12px !important;
+}
+.promo-card-sample {
+  min-height: 250px !important;
+  border: 1px solid #cfe0ff !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at top right, rgba(0,119,200,.11), transparent 42%),
+    linear-gradient(180deg,#ffffff 0%,#f6f9ff 100%) !important;
+  box-shadow: 0 10px 26px rgba(16,24,32,.08) !important;
+  padding: 22px 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+.promo-card-title {
+  font-family: Impact,'Arial Black','Arial Narrow',Arial,sans-serif !important;
+  font-size: 36px !important;
+  line-height: .98 !important;
+  text-transform: uppercase !important;
+  color: #101820 !important;
+  margin: 0 0 12px !important;
+}
+.promo-card-desc {
+  max-width: 330px !important;
+  color: #26384f !important;
+  font-size: 16px !important;
+  line-height: 1.35 !important;
+  font-weight: 800 !important;
+  margin: 0 0 16px !important;
+}
+.promo-card-code {
+  border: 2px dashed var(--pst-blue) !important;
+  color: var(--pst-blue) !important;
+  background: #ffffff !important;
+  border-radius: 999px !important;
+  padding: 9px 16px !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+.hero-preview {
+  width: 100% !important;
+  margin-top: 14px !important;
+  background: #fff8e6 !important;
+  border: 1px solid rgba(183,121,31,.24) !important;
+  border-radius: 10px !important;
+  color: #7a4a00 !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+@media(max-width: 980px) {
+  .discount-form-layout { grid-template-columns: 1fr !important; }
+  .promo-preview-card { position: static !important; }
+}
+@media(max-width: 680px) {
+  .discount-fieldset .edit-grid { grid-template-columns: 1fr !important; }
+}
+
 </style>
 </head>
 <body>
@@ -529,35 +627,52 @@ header .header-actions .btn.secondary.active {
       <button class="btn secondary collapse-toggle" type="button" data-collapse-target="create-manage-discounts" aria-expanded="false">Open</button>
     </div>
     <div class="card-body">
-      <div class="edit-grid">
-        <div class="field-guide">
-          <strong>Promotion card field guide:</strong><br>
-          <strong>Promotion Title</strong> = headline/title on the promotion card. <strong>Promotion Description</strong> = body text on the promotion card. <strong>Homepage Hero Banner Text</strong> = scrolling/banner text on the homepage. <strong>Show On Homepage</strong> controls whether the promotion is displayed publicly. Click any saved promotion below to reload and edit its details.
+      <div class="discount-form-layout">
+        <div class="discount-form-fields">
+          <div class="field-guide">
+            <strong>Promotion card field guide:</strong><br>
+            Fill in the discount mechanics first, then the website promotion display. The live preview on the right shows how the promotion will look on the homepage before you save it.
+          </div>
+
+          <section class="discount-fieldset">
+            <h3>1. Discount Code & Rules</h3>
+            <div class="edit-grid">
+              <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /><span class="field-hint">Coupon/code customers enter.</span></div>
+              <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select><span class="field-hint">Controls how the discount can be used.</span></div>
+              <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /><span class="field-hint">Use this for percentage discounts.</span></div>
+              <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /><span class="field-hint">Use this instead of percent when needed.</span></div>
+              <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /><span class="field-hint">Limits the code to one customer email when filled in.</span></div>
+              <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /><span class="field-hint">0 means unlimited.</span></div>
+              <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /><span class="field-hint">When the code expires.</span></div>
+              <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select><span class="field-hint">Inactive codes will not be usable.</span></div>
+            </div>
+          </section>
+
+          <section class="discount-fieldset">
+            <h3>2. Website Promotion Display</h3>
+            <div class="edit-grid">
+              <div class="field"><label for="promoTitleAdmin">Promotion Title</label><input id="promoTitleAdmin" type="text" placeholder="New Customer Special" /><span class="field-hint">Large title shown on the homepage card.</span></div>
+              <div class="field"><label for="promoBannerActiveAdmin">Show On Homepage</label><select id="promoBannerActiveAdmin"><option value="false">No</option><option value="true">Yes</option></select><span class="field-hint">Yes = show this promotion publicly.</span></div>
+              <div class="field full"><label for="promoDescriptionAdmin">Promotion Description</label><input id="promoDescriptionAdmin" type="text" placeholder="New customers 15% off with code WELCOME15" /><span class="field-hint">Main body text on the homepage promotion card.</span></div>
+              <div class="field full"><label for="heroBannerTextAdmin">Homepage Hero Banner Text</label><input id="heroBannerTextAdmin" type="text" placeholder="🎉 New Customer Special — Save 15% with code WELCOME15" /><span class="field-hint">Optional banner/hero text. Also shown in preview.</span></div>
+              <div class="field"><label for="promoStartsAdmin">Promotion Start Date</label><input id="promoStartsAdmin" type="date" /><span class="field-hint">Optional date when homepage promo should begin.</span></div>
+              <div class="field"><label for="promoEndsAdmin">Promotion End Date</label><input id="promoEndsAdmin" type="date" /><span class="field-hint">Optional date when homepage promo should stop.</span></div>
+            </div>
+          </section>
+
+          <div class="form-actions-row"><button class="btn success" id="createDiscountBtn" type="button">Create / Save Discount</button><button class="btn secondary" id="newDiscountBtn" type="button">New / Clear Form</button></div>
         </div>
-        <div class="field"><label for="discountCodeAdmin">Code</label><input id="discountCodeAdmin" type="text" placeholder="FRIENDS15" /><span class="field-hint">Displays as the coupon/code customers enter.</span></div>
-        <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select><span class="field-hint">Controls how the discount can be used.</span></div>
-        <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /><span class="field-hint">Shows as the percentage discount, if used.</span></div>
-        <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /><span class="field-hint">Shows as the dollar discount, if used instead of percent.</span></div>
-        <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /><span class="field-hint">Limits the code to one customer email when filled in.</span></div>
-        <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /><span class="field-hint">When the code/promotion expires.</span></div>
-        <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /><span class="field-hint">Limits total use count. 0 means unlimited.</span></div>
-        <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select><span class="field-hint">Inactive codes will not be usable.</span></div>
-        <div class="field"><label for="promoTitleAdmin">Promotion Title</label><input id="promoTitleAdmin" type="text" placeholder="New Customer Special" /><span class="field-hint">Main title displayed on the promotion card.</span></div>
-        <div class="field"><label for="promoBannerActiveAdmin">Show On Homepage</label><select id="promoBannerActiveAdmin"><option value="false">No</option><option value="true">Yes</option></select><span class="field-hint">Yes = show this promotion on homepage/promo display.</span></div>
-        <div class="field full"><label for="promoDescriptionAdmin">Promotion Description</label><input id="promoDescriptionAdmin" type="text" placeholder="Optional internal/customer-facing description" /><span class="field-hint">Body text displayed on the promotion card.</span></div>
-        <div class="field full"><label for="heroBannerTextAdmin">Homepage Hero Banner Text</label><input id="heroBannerTextAdmin" type="text" placeholder="🎉 New Customer Special — Save 10% with code WELCOME10" /><span class="field-hint">Exact text used for the homepage hero/banner line.</span></div>
-        <div class="promo-preview-card">
-          <h3>Promotion Card Preview</h3>
+
+        <aside class="promo-preview-card">
+          <h3>Website Promotion Preview</h3>
           <div class="promo-card-sample">
+            <div class="home-promo-eyebrow">Promotion</div>
             <div id="previewPromoTitle" class="promo-card-title">Promotion title will appear here</div>
             <div id="previewPromoDescription" class="promo-card-desc">Promotion description will appear here.</div>
             <span id="previewPromoCode" class="promo-card-code">CODE</span>
             <div id="previewHeroBanner" class="hero-preview">Homepage hero/banner text will appear here.</div>
           </div>
-        </div>
-        <div class="field"><label for="promoStartsAdmin">Promotion Start Date</label><input id="promoStartsAdmin" type="date" /><span class="field-hint">Optional date when homepage promo should begin.</span></div>
-        <div class="field"><label for="promoEndsAdmin">Promotion End Date</label><input id="promoEndsAdmin" type="date" /><span class="field-hint">Optional date when homepage promo should stop.</span></div>
-        <div class="form-actions-row"><button class="btn success" id="createDiscountBtn" type="button">Create / Save Discount</button><button class="btn secondary" id="newDiscountBtn" type="button">New / Clear Form</button></div>
+        </aside>
       </div>
 
       <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
@@ -638,7 +753,7 @@ function updatePromotionPreview() {
   const discountText = pct ? `${pct}% off` : amt ? `${money(amt)} off` : "Discount amount not set";
   if ($("previewPromoTitle")) $("previewPromoTitle").textContent = title;
   if ($("previewPromoDescription")) $("previewPromoDescription").textContent = desc;
-  if ($("previewPromoCode")) $("previewPromoCode").textContent = `${code} · ${discountText}`;
+  if ($("previewPromoCode")) $("previewPromoCode").textContent = `Code: ${code}`;
   if ($("previewHeroBanner")) $("previewHeroBanner").textContent = hero;
 }
 
