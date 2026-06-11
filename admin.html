@@ -1264,9 +1264,11 @@ header .header-actions .btn.secondary.active {
     if(trackingChange) changes.push(trackingChange);
     if(trackingUrlChange) changes.push(trackingUrlChange);
     if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? "No tracking required enabled" : "No tracking required removed");
-    let note = changes.length ? joinAuditNotes(typedNote, auditLine(changes.join(" | "))) : typedNote;
-    note = setNoTrackingToken(note, trackingNotRequired);
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now };
+
+    // Manual note box stays manual. Admin action/audit lines are appended in saveOrder()
+    // after the main order update succeeds, so they cannot be lost/overwritten by email updates.
+    let note = setNoTrackingToken(typedNote, trackingNotRequired);
+    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now, __auditChanges: changes };
 
     if(isRiskyLockedChange(order, updates)){
       const overrideChecked = $("adminOverrideCheck")?.checked;
@@ -1400,6 +1402,13 @@ header .header-actions .btn.secondary.active {
       const emailTypes = detectCustomerEmailTypes(order, updates);
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
+
+      // Force the real WHO-DID-WHAT audit entry to save immediately after the status/payment update.
+      // This is what the History panel reads and displays above the generic timeline.
+      if(Array.isArray(updates.__auditChanges) && updates.__auditChanges.length){
+        await appendAdminAudit({ ...order, ...updates }, updates.__auditChanges.join(" | "));
+      }
+      delete updates.__auditChanges;
 
       const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
