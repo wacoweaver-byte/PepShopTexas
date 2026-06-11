@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_ADMIN_PATCH_V13_DB_AUDIT_LOG -->
 <!-- PST_ADMIN_PATCH_V12_HISTORY_WHO_DID_WHAT -->
 <!-- PST_ADMIN_PATCH_V11_FULFILLMENT_NO_AUDIT_NOTES -->
 <!-- PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT -->
@@ -562,7 +563,7 @@ header .header-actions .btn.secondary.active {
   const NO_TRACKING_REQUIRED_TOKEN = "[NO_TRACKING_REQUIRED]";
   function removeNoTrackingToken(text){ return cleanValue(text).replace(new RegExp("\\s*" + NO_TRACKING_REQUIRED_TOKEN.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&"), "gi"), "").trim(); }
   function rawAdminNotes(order){ return cleanValue(order.admin_note || order.admin_notes || ""); }
-  function noTrackingRequired(order){ return order.no_tracking_required === true || order.tracking_not_required === true || rawAdminNotes(order).toUpperCase().includes(NO_TRACKING_REQUIRED_TOKEN); }
+  function noTrackingRequired(order){ return order.no_tracking_required === true || String(order.no_tracking_required).toLowerCase() === "true"; }
   function setNoTrackingToken(text, enabled){ const clean = removeNoTrackingToken(text); return enabled ? `${NO_TRACKING_REQUIRED_TOKEN}${clean ? "\n" + clean : ""}` : clean; }
   function pill(value){ const v = norm(value); return `<span class="pill ${esc(v)}">${esc(v.replaceAll("_"," "))}</span>`; }
   function orderNumber(order){ return order.order_number || order.order_no || order.id || "—"; }
@@ -1038,6 +1039,52 @@ header .header-actions .btn.secondary.active {
     }).join("")}</div>`;
   }
 
+
+  function auditActionLabel(row){
+    const type = cleanValue(row.action_type);
+    const labels = {
+      order_received: "Order received",
+      payment_status_changed: "Payment status changed",
+      order_status_changed: "Order status changed",
+      tracking_changed: "Tracking changed",
+      tracking_carrier_changed: "Tracking carrier changed",
+      no_tracking_required_changed: "No tracking required changed",
+      no_tracking_reason_changed: "No tracking reason changed"
+    };
+    return labels[type] || type.replaceAll("_", " ") || "Admin action";
+  }
+
+  function auditValueText(value){
+    const txt = cleanValue(value);
+    if(txt === "true") return "Yes";
+    if(txt === "false") return "No";
+    return txt || "—";
+  }
+
+  function orderAuditLogMarkup(order){
+    const rows = Array.isArray(order.audit_log) ? order.audit_log : [];
+    if(!rows.length) return `<div class="muted">No audit entries have been recorded for this order yet.</div>`;
+    return `<div class="audit-list">${rows.map(row => {
+      const label = auditActionLabel(row);
+      const who = cleanValue(row.changed_by) || cleanValue(row.changed_by_email) || "System";
+      const from = auditValueText(row.old_value);
+      const to = auditValueText(row.new_value);
+      const when = fmtDate(row.created_at);
+      return `<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(when)}</span><div style="margin-top:6px;line-height:1.45"><strong style="display:inline">Changed by:</strong> ${esc(who)}<br><strong style="display:inline">From:</strong> ${esc(from)}<br><strong style="display:inline">To:</strong> ${esc(to)}</div></div>`;
+    }).join("")}</div>`;
+  }
+
+  async function attachAuditLog(order){
+    if(!order?.id) return order;
+    const { data, error } = await supabaseClient
+      .from("order_audit_log")
+      .select("action_type, field_name, old_value, new_value, changed_by, changed_by_email, created_at")
+      .eq("order_id", order.id)
+      .order("created_at", { ascending:false });
+    if(error){ console.warn("Could not load order audit log:", error.message || error); return { ...order, audit_log: [] }; }
+    return { ...order, audit_log: data || [] };
+  }
+
   function parseAuditEntry(entry){
     const text = cleanValue(entry);
     const timestampMatch = text.match(/^\[([^\]]+)\]\s*(.*)$/);
@@ -1188,7 +1235,8 @@ header .header-actions .btn.secondary.active {
     setStatus(`Fulfillment sheet opened for Order #${orderNumber(order)}.`, "good");
   }
 
-  function renderOrderDetail(order){
+  async function renderOrderDetail(order){
+    order = await attachAuditLog(order);
     activeOrderId = order.id; renderOrders();
     setAdminCardOpen("detailCard", true);
     const carrier = order.tracking_carrier || order.carrier || "";
@@ -1210,14 +1258,15 @@ header .header-actions .btn.secondary.active {
           <div class="field"><label for="editTracking">Tracking Number</label><input id="editTracking" value="${esc(tracking)}" placeholder="Tracking number" /></div>
           <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
           <div class="field full"><label class="tracking-exception-check"><input id="editNoTrackingRequired" type="checkbox" ${noTrackingRequired(order) ? "checked" : ""} /> No tracking required for this order</label></div>
-          <div class="field full"><label for="editAdminNote">Internal Admin Note</label><textarea id="editAdminNote" placeholder="Internal note for this order only">${esc(normalizeAdminNotes(order.admin_note || order.admin_notes || ""))}</textarea></div>
+          <div class="field full"><label for="editNoTrackingReason">No Tracking Reason</label><input id="editNoTrackingReason" value="${esc(order.no_tracking_reason || "")}" placeholder="Optional reason if tracking is not required" /></div>
+          <div class="field full"><label>Internal Admin Audit Log</label>${orderAuditLogMarkup(order)}</div>
           ${overrideMarkup(order)}
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
         <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required. Missing tracking will stay on the attention dashboard until one of those is done.</div>
       </div>
       <div class="detail-section"><h3>Email Preview / Manual Resend</h3><div class="email-box"><h4>Preview before manually sending</h4><p>Payment marked Paid still sends automatically and moves the order to Processing. Use these buttons only when you intentionally need to preview or resend a customer email.</p><div style="display:grid;gap:8px">${previewableManualEmailTypes().map(emailType => `<div class="email-action-group"><strong>${esc(emailTypeLabel(emailType))}</strong><div class="email-action-buttons"><button class="btn secondary preview-email-action" data-email-type="${esc(emailType)}" type="button">Preview</button><button class="btn secondary email-action" data-email-type="${esc(emailType)}" type="button">Send</button></div></div>`).join("")}</div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
-      <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div><div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
+      <div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
 
     if(window.matchMedia && window.matchMedia("(max-width:1100px)").matches){
       detail.scrollIntoView({ behavior:"smooth", block:"start" });
@@ -1235,8 +1284,8 @@ header .header-actions .btn.secondary.active {
     const carrier = $("editCarrier").value.trim();
     const tracking = $("editTracking").value.trim();
     const url = $("editTrackingUrl").value.trim();
-    const typedNote = normalizeAdminNotes($("editAdminNote").value.trim());
     const trackingNotRequired = !!$("editNoTrackingRequired")?.checked;
+    const trackingReason = cleanValue($("editNoTrackingReason")?.value);
 
     // Payment accepted should automatically advance a newly paid order into Processing.
     // Do not move backwards or override higher fulfillment stages like Packed/Shipped/Delivered.
@@ -1262,9 +1311,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     if(trackingChange) changes.push(trackingChange);
     if(trackingUrlChange) changes.push(trackingUrlChange);
     if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? "No tracking required enabled" : "No tracking required removed");
-    let note = changes.length ? joinAuditNotes(typedNote, auditLine(changes.join(" | "))) : typedNote;
-    note = setNoTrackingToken(note, trackingNotRequired);
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, admin_note: note || null, admin_notes: note || null, updated_at: now };
+    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, no_tracking_required: trackingNotRequired, no_tracking_reason: trackingReason || null, last_admin_actor: adminDisplayName(), last_admin_actor_email: cleanValue(currentUser?.email), updated_at: now };
 
     if(isRiskyLockedChange(order, updates)){
       const overrideChecked = $("adminOverrideCheck")?.checked;
@@ -1272,9 +1319,8 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       if(!overrideChecked || !overrideReason){
         throw new Error("This order is locked. Check Admin Override and enter a reason before making this protected change.");
       }
-      const overrideNote = joinAuditNotes(updates.admin_note || "", auditLine(`Admin override used: ${overrideReason}`));
-      updates.admin_note = overrideNote;
-      updates.admin_notes = overrideNote;
+      updates.last_admin_actor = adminDisplayName();
+      updates.last_admin_actor_email = cleanValue(currentUser?.email);
     }
 
     if(ps === "paid") updates.paid_at = now;
@@ -1419,7 +1465,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
 
       await loadOrders();
       const fresh = allOrders.find(o => o.id === order.id) || mergedForEmail;
-      renderOrderDetail(fresh);
+      await renderOrderDetail(fresh);
 
       if(previewTypes.length){
         setStatus(`Order saved. Preview required before sending: ${previewTypes.map(emailTypeLabel).join(", ")}.`, "good");
