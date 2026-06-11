@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_ADMIN_PATCH_V12_INTERNAL_AUDIT_LOG_FRESH_COMPARE -->
 <!-- PST_ADMIN_PATCH_V11_FULFILLMENT_NO_AUDIT_NOTES -->
 <!-- PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT -->
 <!-- PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL -->
@@ -1395,12 +1396,20 @@ header .header-actions .btn.secondary.active {
 
   async function saveOrder(order){
     try{
-      const updates = buildUpdatesFromForm(order);
-      const emailTypes = detectCustomerEmailTypes(order, updates);
-      setStatus("Saving order updates...");
-      await safeUpdateOrder(order.id, updates, order);
+      // Always compare the form against the freshest saved row, not the possibly stale rendered object.
+      // This is what makes the audit log record the actual old → new status/payment change.
+      let auditBaseOrder = order;
+      try{
+        const { data: freshRow, error: freshError } = await supabaseClient.from("orders").select("*").eq("id", order.id).maybeSingle();
+        if(!freshError && freshRow) auditBaseOrder = { ...order, ...freshRow, profile: profileOf(order), items: order.items || [] };
+      }catch(_){}
 
-      const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
+      const updates = buildUpdatesFromForm(auditBaseOrder);
+      const emailTypes = detectCustomerEmailTypes(auditBaseOrder, updates);
+      setStatus("Saving order updates...");
+      await safeUpdateOrder(order.id, updates, auditBaseOrder);
+
+      const mergedForEmail = { ...auditBaseOrder, ...updates, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
       const previewTypes = emailTypes.filter(emailTypeNeedsPreview);
 
