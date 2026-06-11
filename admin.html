@@ -690,12 +690,12 @@ header .header-actions .btn.secondary.active {
   function shippingAddress(order){ const p=profileOf(order); return order.shipping_address || order.address || p.shipping_address || p.address || [p.address1,p.address2,p.city,p.state,p.zip].filter(Boolean).join(", ") || "—"; }
   function trackingUrl(carrier, number, provided){ if(provided) return provided; if(!number) return ""; const n=encodeURIComponent(number); const c=String(carrier||"").toLowerCase(); if(c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${n}`; if(c.includes("ups")) return `https://www.ups.com/track?tracknum=${n}`; if(c.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${n}`; return ""; }
   function adminDisplayName(){ const email=cleanValue(currentUser?.email).toLowerCase(); if(email === "wacoweaver@gmail.com") return "Jimmie Weaver"; return cleanValue(currentUser?.user_metadata?.full_name) || cleanValue(currentUser?.email) || "Admin"; }
-  function normalizeAdminNotes(text){
+ function normalizeAdminNotes(text){
   const raw = removeNoTrackingToken(cleanValue(text))
     .replace(/Admin account:\s*wacoweaver@gmail\.com/gi, "Admin account: Jimmie Weaver")
     .replace(/wacoweaver@gmail\.com/gi, "Jimmie Weaver");
 
-  return raw
+  const entries = raw
     .split(/\n{2,}/)
     .map(x => x.trim())
     .filter(Boolean)
@@ -711,8 +711,9 @@ header .header-actions .btn.secondary.active {
       if(/\bjff@yh\.m\b/i.test(compact)) return false;
 
       return true;
-    })
-    .join("\n\n\n");
+    });
+
+  return entries.join("\n\n\n");
 }
 
 // Then we'll do the second replacement for the status/payment lines.
