@@ -1199,8 +1199,13 @@ Then we’ll do the second replacement for the status/payment lines.
     if(["shipped","delivered","complete","completed"].includes(norm(os)) && (!carrier || !tracking) && !trackingNotRequired) throw new Error("Tracking is required for shipped/delivered/complete orders unless No tracking required is checked.");
     const now = new Date().toISOString();
     const changes = [];
-    if(norm(orderStatus(order)) !== norm(os)) changes.push(`Order status: ${orderStatus(order)} → ${os}`);
-    if(norm(paymentStatus(order)) !== norm(ps)) changes.push(`Payment status: ${paymentStatus(order)} → ${ps}`);
+if(norm(orderStatus(order)) !== norm(os)) {
+  changes.push(`Order status changed: ${String(orderStatus(order)).replaceAll("_"," ")} → ${String(os).replaceAll("_"," ")}`);
+}
+
+if(norm(paymentStatus(order)) !== norm(ps)) {
+  changes.push(`Payment status changed: ${String(paymentStatus(order)).replaceAll("_"," ")} → ${String(ps).replaceAll("_"," ")}`);
+}
     const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
     const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
     const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
