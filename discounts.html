@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PST_DISCOUNTS_PATCH_V16_COLLAPSIBLE_DASHBOARD -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -406,6 +407,79 @@ header .header-actions .btn.secondary.active {
   border-color: #0077c8 !important;
 }
 
+
+/* PST Discounts Dashboard / Collapsible Cards */
+.discount-dashboard-nav {
+  position: sticky;
+  top: 82px;
+  z-index: 40;
+  margin: 14px 0 18px;
+  padding: 12px 14px;
+  background: rgba(245,248,251,0.96);
+  border: 1px solid var(--pst-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(16,24,32,0.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.discount-dashboard-nav strong {
+  margin-right: auto;
+  color: var(--pst-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.discount-dashboard-nav .btn {
+  color: var(--pst-dark);
+  background: var(--white);
+  border: 1px solid var(--pst-border);
+}
+.discount-dashboard-nav .btn.active,
+.discount-dashboard-nav .btn[aria-pressed="true"] {
+  background: var(--pst-blue);
+  border-color: var(--pst-blue);
+  color: var(--white);
+}
+.collapsible-card .card-header {
+  align-items: center;
+}
+.collapsible-card .card-header > div:first-child {
+  min-width: 240px;
+}
+.collapsible-card.collapsed > .card-body {
+  display: none;
+}
+.collapse-toggle {
+  white-space: nowrap;
+}
+.discount-card-subtitle {
+  margin: 5px 0 0;
+  color: var(--pst-muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.discount-back-top {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+@media (max-width: 760px) {
+  .discount-dashboard-nav {
+    top: 120px;
+    align-items: stretch;
+  }
+  .discount-dashboard-nav strong {
+    width: 100%;
+    margin-right: 0;
+  }
+  .discount-dashboard-nav .btn {
+    width: 100%;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -439,10 +513,20 @@ header .header-actions .btn.secondary.active {
 
   <div id="statusLine" class="status-line">Checking admin access...</div>
 
-  <section class="card" style="margin-top:18px;">
+
+  <section class="discount-dashboard-nav" id="discountDashboardNav" aria-label="Discount quick links">
+    <strong>Jump To</strong>
+    <button class="btn secondary" type="button" data-discount-jump="create-manage-discounts" aria-pressed="false">Create / Manage Discounts</button>
+    <button class="btn secondary" type="button" data-discount-jump="active-inactive-discounts" aria-pressed="false">Active / Inactive Discounts (Editable)</button>
+  </section>
+
+  <section class="card collapsible-card collapsed" id="create-manage-discounts" style="margin-top:18px;">
     <div class="card-header">
-      <h2>Create / Manage Discount <span id="formModeBadge" class="form-mode-badge">New</span></h2>
-      <span class="muted">Codes save to Supabase and can be used during checkout.</span>
+      <div>
+        <h2>Create / Manage Discounts <span id="formModeBadge" class="form-mode-badge">New</span></h2>
+        <p class="discount-card-subtitle">Create promo codes, one-time offers, customer-specific discounts, Friends & Family discounts, and homepage promotion banners.</p>
+      </div>
+      <button class="btn secondary collapse-toggle" type="button" data-collapse-target="create-manage-discounts" aria-expanded="false">Open</button>
     </div>
     <div class="card-body">
       <div class="edit-grid">
@@ -478,8 +562,21 @@ header .header-actions .btn.secondary.active {
 
       <div id="discountAdminStatus" class="status-line" style="margin-top:12px;">Discount system ready.</div>
 
-      <div class="orders-table-wrap" style="margin-top:14px;">
-        <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the form above.</div>
+      <div class="discount-back-top"><button class="btn secondary" type="button" data-discount-back-top>Back to Top ↑</button></div>
+    </div>
+  </section>
+
+  <section class="card collapsible-card collapsed" id="active-inactive-discounts" style="margin-top:18px;">
+    <div class="card-header">
+      <div>
+        <h2>Active / Inactive Discounts (Editable)</h2>
+        <p class="discount-card-subtitle">Review active and inactive discount codes, homepage promotion status, expiration dates, assigned emails, and usage counts. Click any row to edit it.</p>
+      </div>
+      <button class="btn secondary collapse-toggle" type="button" data-collapse-target="active-inactive-discounts" aria-expanded="false">Open</button>
+    </div>
+    <div class="card-body">
+      <div class="orders-table-wrap">
+        <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the Create / Manage Discounts form.</div>
         <table>
           <thead>
             <tr><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
@@ -487,6 +584,8 @@ header .header-actions .btn.secondary.active {
           <tbody id="discountCodesBody"><tr><td colspan="10" class="muted">Loading discount codes...</td></tr></tbody>
         </table>
       </div>
+
+      <div class="discount-back-top"><button class="btn secondary" type="button" data-discount-back-top>Back to Top ↑</button></div>
     </div>
   </section>
 </main>
@@ -743,8 +842,67 @@ async function createDiscountCode() {
   updatePromotionPreview();
 }
 
+
+function discountStickyOffset() {
+  const header = document.querySelector("header");
+  const nav = document.getElementById("discountDashboardNav");
+  const headerH = header ? header.getBoundingClientRect().height : 0;
+  const navH = nav ? nav.getBoundingClientRect().height : 0;
+  return headerH + navH + 22;
+}
+
+function syncDiscountJumpState() {
+  document.querySelectorAll("[data-discount-jump]").forEach(btn => {
+    const target = document.getElementById(btn.dataset.discountJump);
+    const isOpen = target && !target.classList.contains("collapsed");
+    btn.classList.toggle("active", !!isOpen);
+    btn.setAttribute("aria-pressed", isOpen ? "true" : "false");
+  });
+  document.querySelectorAll("[data-collapse-target]").forEach(btn => {
+    const target = document.getElementById(btn.dataset.collapseTarget);
+    const isOpen = target && !target.classList.contains("collapsed");
+    btn.textContent = isOpen ? "Collapse" : "Open";
+    btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  });
+}
+
+function scrollDiscountToTarget(target) {
+  if (!target) return;
+  const top = target.getBoundingClientRect().top + window.pageYOffset - discountStickyOffset();
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
+function toggleDiscountCard(targetId, shouldScroll = true) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  target.classList.toggle("collapsed");
+  syncDiscountJumpState();
+  if (shouldScroll && !target.classList.contains("collapsed")) {
+    setTimeout(() => scrollDiscountToTarget(target), 60);
+  }
+}
+
+function setupDiscountDashboardNavigation() {
+  document.querySelectorAll("[data-discount-jump]").forEach(btn => {
+    btn.addEventListener("click", () => toggleDiscountCard(btn.dataset.discountJump, true));
+  });
+  document.querySelectorAll("[data-collapse-target]").forEach(btn => {
+    btn.addEventListener("click", () => toggleDiscountCard(btn.dataset.collapseTarget, false));
+  });
+  document.querySelectorAll("[data-discount-back-top]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const nav = document.getElementById("discountDashboardNav");
+      if (nav) scrollDiscountToTarget(nav);
+      else window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+  syncDiscountJumpState();
+}
+
+
 async function init() {
   try {
+    setupDiscountDashboardNavigation();
     $("refreshBtn").addEventListener("click", loadDiscountCodes);
     $("createDiscountBtn").addEventListener("click", createDiscountCode);
     $("newDiscountBtn")?.addEventListener("click", resetDiscountForm);
