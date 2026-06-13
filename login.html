@@ -1,3 +1,4 @@
+<!-- PST_LOGIN_PATCH_V2_RETURN_URL_CART_RESTORE -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -92,7 +93,7 @@ input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6p
         <button class="btn primary" type="button" onclick="goHome()">Go to Home Page</button>
         <button class="btn secondary" type="button" onclick="goAccount()">My Account</button>
       </div>
-      <a class="raw-link" href="./index.html?login=success">Direct home link: ./index.html?login=success</a>
+      <a class="raw-link" id="returnLink" href="./index.html?login=success">Continue to previous page</a>
     </div>
   </section>
 </main>
@@ -101,6 +102,31 @@ input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6p
 const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+
+function getLoginReturnUrl(){
+  const params = new URLSearchParams(window.location.search);
+  const rawReturn = params.get("return") || params.get("redirect") || "";
+  if (!rawReturn) return "./index.html?login=success";
+
+  let decoded = rawReturn;
+  try { decoded = decodeURIComponent(rawReturn); } catch (_) {}
+
+  // Safety: allow only local site paths/pages, not external redirects.
+  if (/^https?:\/\//i.test(decoded) || decoded.startsWith("//")) {
+    return "./index.html?login=success";
+  }
+
+  if (decoded.startsWith("./")) return decoded;
+  if (decoded.startsWith("/")) return "." + decoded;
+  return "./" + decoded.replace(/^\.?\//, "");
+}
+
+function continueAfterLogin(){
+  const target = getLoginReturnUrl();
+  window.location.href = target;
+}
+
 
 
 function setupPasswordToggles(){
@@ -118,7 +144,7 @@ function setupPasswordToggles(){
 setupPasswordToggles();
 
 function goHome(){
-  window.location.href = "./index.html?login=success";
+  continueAfterLogin();
 }
 function goAccount(){
   window.location.href = "./account.html";
@@ -152,9 +178,12 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       return;
     }
 
-    showNotice('Login successful.', 'ok');
+    showNotice('Login successful. Returning you to checkout...', 'ok');
     document.getElementById('loginForm').style.display = 'none';
     document.getElementById('successPanel').style.display = 'block';
+    const returnLink = document.getElementById('returnLink');
+    if (returnLink) returnLink.href = getLoginReturnUrl();
+    setTimeout(continueAfterLogin, 450);
 
   } catch (err) {
     showNotice('Login failed: ' + (err.message || err), 'err');
