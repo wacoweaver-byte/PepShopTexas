@@ -1,4 +1,4 @@
-<!-- PST_REPORTS_PATCH_V39_REMOVE_FUTURE_TODOS_ONLY_KEEP_QUICK_LINKS -->
+<!-- PST_REPORTS_PATCH_V40_CLEAN_REMOVE_FUTURE_TODOS_ONLY -->
 <!-- PST_REPORTS_PATCH_V36_BUILD_SALES_REPORT -->
 <!-- PST_REPORTS_PATCH_V35_SALES_REPORT -->
 <!-- PST_REPORTS_PATCH_V34_QUICK_LINK_TOGGLE_ACTIVE -->
@@ -124,6 +124,7 @@
     .risk-healthy,.risk-dot-healthy{background:#edf8f0;color:#0f8a3b;border-color:#bfe8c8}
     .risk-unknown,.risk-dot-unknown{background:#f2f4f7;color:#475467;border-color:#d0d5dd}
 
+
     .tax-settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:end}
     .tax-settings-grid .full{grid-column:1/-1}
     label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted);display:block;margin-bottom:6px}
@@ -188,6 +189,8 @@ header .header-actions .btn.secondary.active {
   border-color: #0077c8 !important;
 }
 
+
+
 /* PST payment options toggle */
 .payment-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
 .payment-options-status{margin-top:10px;font-size:13px;font-weight:800;color:var(--muted)}
@@ -203,6 +206,8 @@ header .header-actions .btn.secondary.active {
 .payment-method-card textarea{min-height:74px;resize:vertical}
 .qr-preview{display:block;width:96px;max-width:100%;height:auto;margin-top:7px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:5px}
 @media(max-width:900px){.payment-methods-admin-list{grid-template-columns:1fr}.payment-method-fields{grid-template-columns:1fr}.payment-method-fields .full{grid-column:auto}}
+
+
 
 /* PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX */
 /* PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD */
@@ -259,7 +264,45 @@ header .header-actions .btn.secondary.active {
       <a class="btn secondary" href="promotions.html">Promotions</a>
       <a class="btn secondary active" href="reports.html">Reports</a>
       <a class="btn secondary" href="customers.html">Customers</a>
-      <a class="btn secondary" href="index.html">Website</a></div></div>
+      <a class="btn secondary" href="index.html">Website</a>
+      <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="page-title">
+    <div>
+      <h1>Reports & Site Operations</h1>
+      <p class="subtitle">Read-only admin hub for quick reports, platform links, and Pep Shop Texas operating notes.</p>
+    </div>
+    <div class="print-actions">
+      <a class="btn secondary" id="financialsJumpBtn" href="#financials">Financials / Expenses</a>
+      <button class="btn secondary" type="button" onclick="window.print()">Print / Save PDF</button>
+    </div>
+  </section>
+
+  <div id="statusLine" class="status">Checking admin access...</div>
+
+
+  <nav class="reports-jumpbar no-print" id="reportsTop" aria-label="Reports quick navigation">
+    <div class="reports-jumpbar-title">Jump to</div>
+    <div class="reports-jumpbar-links">
+      <a href="#sales-report-card" data-jump-target="sales-report-card">Sales Report</a>
+      <a href="#order-report-card" data-jump-target="order-report-card">Order Report</a>
+      <a href="#tax-settings-card" data-jump-target="tax-settings-card">Checkout Tax Settings</a>
+      <a href="#financials" data-jump-target="financials">Financials / Expenses</a>
+      <a href="#inventory-audit" data-jump-target="inventory-audit">Inventory Audit / Movement History</a>
+      <a href="#admin-resources-card" data-jump-target="admin-resources-card">Admin Resources</a>
+      <a href="#site-notes-card" data-jump-target="site-notes-card">Site Operations Notes</a>
+      <a href="#payment-methods-card" data-jump-target="payment-methods-card">Payment Methods</a>
+    </div>
+  </nav>
+
+  <section class="grid">
+    <div class="card span-12 no-print collapsible-card collapsed" id="quick-snapshot-card" style="scroll-margin-top:185px;">
+      <div class="card-header"><h2>Quick Report Snapshot</h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="snapshotUpdated">Not loaded yet</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="quick-snapshot-card" aria-expanded="false">Open</button></div></div>
       <div class="card-body">
         <div class="stat-grid">
           <div class="stat"><strong id="statOrders">—</strong><span>Total Orders</span></div>
@@ -407,6 +450,7 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
+
     <div class="card span-12 no-print collapsible-card collapsed" id="tax-settings-card" style="scroll-margin-top:185px;">
       <div class="card-header"><h2>Checkout Tax Settings</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="tax-settings-card" aria-expanded="false">Open</button></div>
       <div class="card-body">
@@ -439,6 +483,8 @@ header .header-actions .btn.secondary.active {
         <div id="taxSettingsStatus" class="settings-status">Default is enabled at 8.25%. Settings save in this browser only until a sitewide settings table is intentionally added.</div>
       </div>
     </div>
+
+
 
     <div class="card span-12 no-print collapsible-card collapsed" id="financials" style="scroll-margin-top:185px;">
       <div class="card-header">
@@ -501,6 +547,7 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
+
     <div class="card span-12 no-print collapsible-card collapsed" id="inventory-audit" style="scroll-margin-top:185px;">
       <div class="card-header">
         <h2>Inventory Audit / Movement History</h2>
@@ -544,9 +591,11 @@ header .header-actions .btn.secondary.active {
       </div>
     </div>
 
-    <div class="card span-12 no-print collapsible-card collapsed" id="future-todos-card" style="scroll-margin-top:185px;">
-      
-<section class="grid no-print" id="payment-options">
+    
+
+  </section>
+
+  <section class="grid no-print" id="payment-options">
     <div class="card span-12 collapsible-card collapsed" id="payment-methods-card" style="scroll-margin-top:185px;">
       <div class="card-header">
         <h2>Payment Methods Manager</h2>
@@ -880,6 +929,7 @@ async function loadReports(){
   setStatus(warnings.length ? `Reports loaded with limited access to: ${warnings.join(", ")}.` : "Reports loaded successfully with shared Supabase financials.", warnings.length ? "bad" : "good");
 }
 
+
 function orderDateValue(order){
   const raw = order?.created_at || order?.order_date || order?.date || order?.submitted_at || order?.created || null;
   if (!raw) return null;
@@ -1101,6 +1151,7 @@ function renderDetailedOrders(orders){
     </tr>`;
   }).join("");
 }
+
 
 function itemProductName(item){
   return cleanText(item?.product_name || item?.name || item?.display_name || item?.product_key || item?.sku || item?.product_id) || "Unknown Product";
@@ -1520,6 +1571,7 @@ function renderProductSalesReport(orders){
   }).join("");
 }
 
+
 function readJsonStorage(key, fallback){
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch(e) { return fallback; }
 }
@@ -1895,6 +1947,7 @@ function renderPSTPaymentMethodsAdmin(){
     });
   });
 }
+
 
 // PST_REPORTS_PATCH_V32_ALL_CARDS_COLLAPSIBLE
 // PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX
