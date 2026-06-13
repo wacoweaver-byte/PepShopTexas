@@ -1,3 +1,4 @@
+<!-- PST_REPORTS_PATCH_V42_DETAILED_ORDERS_NO_SCROLL_TOTAL_VISIBLE -->
 <!-- PST_REPORTS_PATCH_V40_CLEAN_REMOVE_FUTURE_TODOS_ONLY -->
 <!-- PST_REPORTS_PATCH_V36_BUILD_SALES_REPORT -->
 <!-- PST_REPORTS_PATCH_V35_SALES_REPORT -->
@@ -246,6 +247,56 @@ header .header-actions .btn.secondary.active {
 @media(max-width:850px){.reports-jumpbar{top:118px}.reports-jumpbar-title{width:100%}.reports-jumpbar-links{width:100%}.reports-jumpbar a{flex:1 1 auto}}
 @media print{.reports-jumpbar,.collapse-toggle,.section-backtop{display:none!important}.card.collapsible-card .card-body{display:block!important}}
 
+
+/* PST_REPORTS_PATCH_V42_DETAILED_ORDERS_NO_SCROLL_TOTAL_VISIBLE */
+#order-report-card .detail-report-table {
+  min-width: 0 !important;
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+#order-report-card .detail-report-table th,
+#order-report-card .detail-report-table td {
+  padding: 9px 7px !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+#order-report-card .detail-report-table th:nth-child(1),
+#order-report-card .detail-report-table td:nth-child(1) { width: 13%; }
+#order-report-card .detail-report-table th:nth-child(2),
+#order-report-card .detail-report-table td:nth-child(2) { width: 18%; }
+#order-report-card .detail-report-table th:nth-child(3),
+#order-report-card .detail-report-table td:nth-child(3) { width: 18%; }
+#order-report-card .detail-report-table th:nth-child(4),
+#order-report-card .detail-report-table td:nth-child(4) { width: 8%; }
+#order-report-card .detail-report-table th:nth-child(5),
+#order-report-card .detail-report-table td:nth-child(5) { width: 7%; }
+#order-report-card .detail-report-table th:nth-child(6),
+#order-report-card .detail-report-table td:nth-child(6) { width: 12%; }
+#order-report-card .detail-report-table th:nth-child(7),
+#order-report-card .detail-report-table td:nth-child(7) {
+  width: 9%;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+#order-report-card .detail-report-table th:nth-child(8),
+#order-report-card .detail-report-table td:nth-child(8) { width: 7%; white-space: nowrap !important; }
+#order-report-card .detail-report-table th:nth-child(9),
+#order-report-card .detail-report-table td:nth-child(9) { width: 8%; white-space: nowrap !important; }
+#order-report-card .detail-report-table .pill {
+  padding: 4px 7px !important;
+  font-size: 11px !important;
+  line-height: 1.1 !important;
+}
+@media(max-width:900px) {
+  #order-report-card .detail-report-table th,
+  #order-report-card .detail-report-table td {
+    font-size: 11px !important;
+    padding: 7px 5px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -412,7 +463,7 @@ header .header-actions .btn.secondary.active {
         </div>
         <div class="table-wrap">
           <table class="detail-report-table">
-            <thead><tr><th>Date</th><th>Order #</th><th>Customer</th><th>Status</th><th>Payment</th><th>Revenue Class</th><th>Tax</th><th>Shipping</th><th>Total</th></tr></thead>
+            <thead><tr><th>Date</th><th>Order #</th><th>Customer</th><th>Status</th><th>Payment</th><th>Revenue Class</th><th>Total</th><th>Tax</th><th>Shipping</th></tr></thead>
             <tbody id="detailedOrdersBody"><tr><td colspan="9" class="muted">Loading detailed orders...</td></tr></tbody>
           </table>
         </div>
@@ -1145,9 +1196,9 @@ function renderDetailedOrders(orders){
       <td>${safe(displayOrderStatus(norm(orderStatus(order))))}</td>
       <td>${safe(String(paymentStatus(order)).replaceAll("_"," "))}</td>
       <td>${revenueClassBadge(order)}</td>
+      <td><strong>${money(orderTotal(order))}</strong></td>
       <td>${money(orderTax(order))}</td>
       <td>${money(orderShipping(order))}</td>
-      <td><strong>${money(orderTotal(order))}</strong></td>
     </tr>`;
   }).join("");
 }
