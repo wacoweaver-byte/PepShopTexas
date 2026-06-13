@@ -1,0 +1,1532 @@
+<!-- PST_CUSTOMERS_ADMIN_V2_MATCH_ORDERS_HEADER -->
+<!DOCTYPE html>
+<!-- PST_CUSTOMERS_ADMIN_V1_SAFE_CUSTOMER_DATABASE -->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pep Shop Texas | Customer Database</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --blue:#003f9e;
+  --black:#050505;
+  --white:#ffffff;
+  --line:#e6e6e6;
+  --soft:#f7f7f7;
+  --muted:#5b6470;
+  --good:#147a32;
+  --bad:#b00020;
+  --warn:#a35b00;
+  --shadow:0 12px 34px rgba(0,0,0,.08);
+  --font:'Montserrat', Arial, Helvetica, sans-serif;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:#f5f7fb;
+  color:#111;
+  font-family:Arial, Helvetica, sans-serif;
+}
+header {
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+.page-head {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+}
+h1 {
+  margin:0 0 8px;
+  font-family:var(--font);
+  font-size:34px;
+  line-height:1;
+  text-transform:uppercase;
+}
+.subhead {
+  margin:0;
+  color:#4b5563;
+  font-size:14px;
+  line-height:1.45;
+  max-width:860px;
+}
+.notice {
+  background:#fff7e6;
+  border:1px solid #ffd58a;
+  color:#5b3700;
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:13px;
+  line-height:1.45;
+  font-weight:800;
+  margin:14px 0 20px;
+}
+.notice strong { color:#111; }
+.panel {
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:18px;
+}
+.panel h2 {
+  margin:0 0 12px;
+  font-family:var(--font);
+  text-transform:uppercase;
+  font-size:18px;
+}
+.controls-grid {
+  display:grid;
+  grid-template-columns:repeat(6, minmax(0, 1fr));
+  gap:10px;
+}
+.control {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.control label {
+  font-size:11px;
+  font-weight:900;
+  color:#4b5563;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.control input,
+.control select {
+  width:100%;
+  min-height:40px;
+  border:1px solid #cfd7e3;
+  border-radius:8px;
+  padding:8px 10px;
+  font-size:14px;
+  background:#fff;
+}
+.button-row {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-top:12px;
+}
+button,
+.btn {
+  border:1px solid var(--blue);
+  background:var(--blue);
+  color:#fff;
+  border-radius:8px;
+  padding:10px 13px;
+  font-weight:900;
+  text-transform:uppercase;
+  cursor:pointer;
+  text-decoration:none;
+  font-size:12px;
+}
+button.secondary {
+  background:#fff;
+  color:var(--blue);
+}
+button.danger {
+  background:var(--bad);
+  border-color:var(--bad);
+}
+button:disabled {
+  opacity:.55;
+  cursor:not-allowed;
+}
+.stats-grid {
+  display:grid;
+  grid-template-columns:repeat(5, minmax(0, 1fr));
+  gap:12px;
+}
+.stat-card {
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:14px;
+  padding:14px;
+}
+.stat-card span {
+  display:block;
+  color:#6b7280;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.stat-card strong {
+  display:block;
+  margin-top:6px;
+  font-size:24px;
+  font-family:var(--font);
+}
+.column-toggles {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.column-toggles label {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:800;
+  background:#fff;
+}
+.table-wrap {
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  max-height:680px;
+}
+table {
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  min-width:1450px;
+}
+th, td {
+  border-bottom:1px solid var(--line);
+  border-right:1px solid #f0f0f0;
+  padding:10px 12px;
+  text-align:left;
+  vertical-align:top;
+  font-size:13px;
+  white-space:nowrap;
+}
+th {
+  position:sticky;
+  top:0;
+  background:#f8fafc;
+  z-index:5;
+  font-family:var(--font);
+  text-transform:uppercase;
+  font-size:11px;
+  letter-spacing:.04em;
+  cursor:pointer;
+}
+td.wrap-text {
+  white-space:normal;
+  min-width:220px;
+}
+.badge {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:25px;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.badge.good {
+  background:#edf8f0;
+  color:var(--good);
+  border:1px solid #bfe8c8;
+}
+.badge.bad {
+  background:#fff0f0;
+  color:var(--bad);
+  border:1px solid #ffb8c0;
+}
+.badge.warn {
+  background:#fff7e6;
+  color:var(--warn);
+  border:1px solid #ffd58a;
+}
+.badge.neutral {
+  background:#f3f4f6;
+  color:#4b5563;
+  border:1px solid #d1d5db;
+}
+.status-line {
+  margin-top:10px;
+  font-size:13px;
+  font-weight:800;
+  color:#4b5563;
+}
+.error {
+  color:var(--bad);
+}
+.success {
+  color:var(--good);
+}
+.email-output {
+  width:100%;
+  min-height:110px;
+  border:1px solid #cfd7e3;
+  border-radius:10px;
+  padding:10px;
+  font-size:13px;
+  resize:vertical;
+}
+.modal-backdrop {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.62);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:10000;
+}
+.modal-backdrop.active { display:flex; }
+.modal {
+  width:min(760px, 100%);
+  background:#fff;
+  border-radius:16px;
+  border:1px solid var(--line);
+  box-shadow:0 22px 70px rgba(0,0,0,.35);
+  padding:20px;
+  max-height:88vh;
+  overflow:auto;
+}
+.modal h2 {
+  margin:0 0 10px;
+  font-family:var(--font);
+  text-transform:uppercase;
+}
+.detail-grid {
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:10px;
+  margin-top:12px;
+}
+.detail-box {
+  border:1px solid var(--line);
+  background:#f8fafc;
+  border-radius:10px;
+  padding:10px;
+}
+.detail-box strong {
+  display:block;
+  font-size:11px;
+  text-transform:uppercase;
+  color:#4b5563;
+  margin-bottom:5px;
+}
+@media(max-width:1000px) {
+  .controls-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .stats-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .page-head { flex-direction:column; }
+}
+@media(max-width:560px) {
+  .controls-grid,
+  .stats-grid,
+  .detail-grid { grid-template-columns:1fr; }
+  h1 { font-size:28px; }
+}
+
+/* PST_CUSTOMERS_ADMIN_V2_MATCH_ORDERS_HEADER */
+/* PST UNIFIED ADMIN HEADER - APPROVED LOGO + MATCHING FONT/SIZE */
+header .topbar {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+header .brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+header .pst-master-admin-logo {
+  height: 54px !important;
+  width: auto !important;
+  max-width: 230px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+header .pst-master-page-label {
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.15 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+header .actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn {
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 10px 13px !important;
+  border-radius: 10px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+}
+header .actions .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+header .actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+header .actions .btn.danger {
+  background: #b42318 !important;
+  color: #ffffff !important;
+  border: 1px solid #b42318 !important;
+}
+@media (max-width: 640px) {
+  header .topbar {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+  header .actions {
+    justify-content: flex-start !important;
+  }
+  header .pst-master-admin-logo {
+    height: 46px !important;
+    max-width: 200px !important;
+  }
+  header .pst-master-page-label {
+    font-size: 15px !important;
+    white-space: normal !important;
+  }
+}
+
+
+
+/* PST FINAL UNIFIED ADMIN LAYOUT - COPIED FROM ORDERS MANAGEMENT */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
+}
+header .topbar {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+header .brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+header .pst-master-admin-logo {
+  height: 54px !important;
+  width: auto !important;
+  max-width: 230px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+header .pst-master-page-label {
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.15 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+header .actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn {
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 10px 13px !important;
+  border-radius: 10px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+}
+header .actions .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+header .actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+header .actions .btn.danger {
+  background: #b42318 !important;
+  color: #ffffff !important;
+  border: 1px solid #b42318 !important;
+}
+main {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 22px 18px 54px !important;
+}
+.page-title {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin-bottom: 16px !important;
+}
+main > h1,
+.page-title h1 {
+  margin: 0 0 6px !important;
+  font-size: clamp(24px, 3vw, 36px) !important;
+  line-height: 1.15 !important;
+  color: #101820 !important;
+  font-weight: 900 !important;
+}
+.subtitle {
+  margin: 0 !important;
+  color: #667085 !important;
+  line-height: 1.4 !important;
+}
+@media (max-width: 700px) {
+  header .topbar {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+  header .actions {
+    justify-content: flex-start !important;
+  }
+  header .pst-master-admin-logo {
+    height: 46px !important;
+    max-width: 200px !important;
+  }
+  header .pst-master-page-label {
+    font-size: 15px !important;
+    white-space: normal !important;
+  }
+}
+
+
+/* PST SHARED ADMIN HEADER RULE - VERIFIED 2026-06-08 */
+header .pst-master-admin-logo {
+  height: 54px !important;
+  max-width: 230px !important;
+}
+
+header .pst-master-page-label {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* PST SHARED ADMIN ACTIVE NAV RULE - VERIFIED 2026-06-08 */
+header .actions .btn.secondary.active,
+header .header-actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
+/* PST FINAL UNIFIED ADMIN LAYOUT - COPIED FROM ORDERS MANAGEMENT */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
+}
+header .topbar {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+header .brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+header .pst-master-admin-logo {
+  height: 54px !important;
+  width: auto !important;
+  max-width: 230px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+header .pst-master-page-label {
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.15 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+header .actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn {
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 10px 13px !important;
+  border-radius: 10px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+}
+header .actions .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+header .actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+header .actions .btn.danger {
+  background: #b42318 !important;
+  color: #ffffff !important;
+  border: 1px solid #b42318 !important;
+}
+main {
+  max-width: 1540px !important;
+  margin: 0 auto !important;
+  padding: 22px 18px 54px !important;
+}
+.page-title {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin-bottom: 16px !important;
+}
+main > h1,
+.page-title h1 {
+  margin: 0 0 6px !important;
+  font-size: clamp(24px, 3vw, 36px) !important;
+  line-height: 1.15 !important;
+  color: #101820 !important;
+  font-weight: 900 !important;
+}
+.subtitle {
+  margin: 0 !important;
+  color: #667085 !important;
+  line-height: 1.4 !important;
+}
+@media (max-width: 700px) {
+  header .topbar {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+  header .actions {
+    justify-content: flex-start !important;
+  }
+  header .pst-master-admin-logo {
+    height: 46px !important;
+    max-width: 200px !important;
+  }
+  header .pst-master-page-label {
+    font-size: 15px !important;
+    white-space: normal !important;
+  }
+}
+
+
+/* PST SHARED ADMIN HEADER RULE - VERIFIED 2026-06-08 */
+header .pst-master-admin-logo {
+  height: 54px !important;
+  max-width: 230px !important;
+}
+
+header .pst-master-page-label {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* PST SHARED ADMIN ACTIVE NAV RULE - VERIFIED 2026-06-08 */
+header .actions .btn.secondary.active,
+header .header-actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
+/* PST SHARED ADMIN HEADER RULE - VERIFIED 2026-06-08 */
+header .pst-master-admin-logo {
+  height: 54px !important;
+  max-width: 230px !important;
+}
+
+header .pst-master-page-label {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* PST SHARED ADMIN ACTIVE NAV RULE - VERIFIED 2026-06-08 */
+header .actions .btn.secondary.active,
+header .header-actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
+/* PST SHARED ADMIN ACTIVE NAV RULE - VERIFIED 2026-06-08 */
+header .actions .btn.secondary.active,
+header .header-actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
+/* Customers page body/layout matched to admin pages */
+body {
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--light);
+  color:var(--dark);
+}
+main {
+  max-width:1540px !important;
+  margin:0 auto !important;
+  padding:22px 18px 54px !important;
+}
+.page-head {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:16px;
+}
+.page-head h1 {
+  margin:0 0 6px !important;
+  font-size:clamp(24px,3vw,36px) !important;
+  line-height:1.15 !important;
+  color:#101820 !important;
+  font-weight:900 !important;
+  font-family:Arial,Helvetica,sans-serif !important;
+  text-transform:none !important;
+}
+.subhead {
+  margin:0 !important;
+  color:#667085 !important;
+  line-height:1.4 !important;
+}
+#adminStatus {
+  display:none !important;
+}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <img class="pst-master-admin-logo" src="assets/icons/pst-approved-logo.png" alt="Pep Shop Texas logo">
+      <div class="pst-master-page-label">Customer Database</div>
+    </div>
+    <div class="actions">
+      <!-- PST SHARED ADMIN NAV VERIFIED 2026-06-08 -->
+      <a class="btn secondary" href="admin.html">Orders</a>
+      <a class="btn secondary" href="inventory.html">Inventory</a>
+      <a class="btn secondary" href="products.html">Products</a>
+      <a class="btn secondary" href="discounts.html">Discounts</a>
+      <a class="btn secondary" href="promotions.html">Promotions</a>
+      <a class="btn secondary" href="reports.html">Reports</a>
+      <a class="btn secondary active" href="customers.html">Customers</a>
+      <a class="btn secondary" href="index.html">Website</a>
+      <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="page-head">
+    <div>
+      <h1>Customer Database</h1>
+      <p class="subhead">
+        Admin-only customer view for contact information, order summary, promotion filtering, and email blast list building.
+        This page intentionally blocks full credit card, bank, account, routing, token, and payment credential fields.
+      </p>
+    </div>
+    <div class="button-row" style="margin-top:0;">
+      <button id="refreshBtn">Refresh</button>
+      <button id="exportCsvBtn" class="secondary">Export CSV</button>
+    </div>
+  </section>
+
+  <div class="notice">
+    <strong>Payment privacy rule:</strong>
+    full card numbers, bank account numbers, routing numbers, payment tokens, authorization IDs, and saved payment credentials are never displayed by this page.
+    Only safe last-four fields such as <code>card_last4</code>, <code>cc_last4</code>, <code>bank_last4</code>, or <code>account_last4</code> are allowed if those columns exist.
+  </div>
+
+  <section class="panel">
+    <h2>Filters</h2>
+    <div class="controls-grid">
+      <div class="control">
+        <label for="searchInput">Search</label>
+        <input id="searchInput" placeholder="Name, email, phone, city, notes..." />
+      </div>
+      <div class="control">
+        <label for="subscriptionFilter">Email Subscription</label>
+        <select id="subscriptionFilter">
+          <option value="all">All customers</option>
+          <option value="subscribed">Subscribed / eligible</option>
+          <option value="opted_out">Opted out</option>
+          <option value="unknown">Unknown / not offered</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="promoFilter">Promotion Segment</label>
+        <select id="promoFilter">
+          <option value="all">All customers</option>
+          <option value="no_orders">No orders yet</option>
+          <option value="first_time">1 order</option>
+          <option value="repeat">2+ orders</option>
+          <option value="vip">5+ orders or $500+</option>
+          <option value="inactive_60">No order in 60+ days</option>
+          <option value="inactive_90">No order in 90+ days</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="minOrders">Min Orders</label>
+        <input id="minOrders" type="number" min="0" step="1" placeholder="0" />
+      </div>
+      <div class="control">
+        <label for="minSpent">Min Spent</label>
+        <input id="minSpent" type="number" min="0" step="1" placeholder="0" />
+      </div>
+      <div class="control">
+        <label for="cityFilter">City / State</label>
+        <input id="cityFilter" placeholder="Waco, TX..." />
+      </div>
+    </div>
+    <div class="button-row">
+      <button id="applyFiltersBtn">Apply Filters</button>
+      <button id="clearFiltersBtn" class="secondary">Clear Filters</button>
+      <button id="copyEmailListBtn" class="secondary">Copy Eligible Emails</button>
+      <button id="openBlastModalBtn" class="secondary">Email Blast List</button>
+    </div>
+    <div class="status-line" id="filterStatus"></div>
+  </section>
+
+  <section class="stats-grid" aria-label="Customer statistics">
+    <div class="stat-card"><span>Total Customers</span><strong id="statTotal">0</strong></div>
+    <div class="stat-card"><span>Filtered</span><strong id="statFiltered">0</strong></div>
+    <div class="stat-card"><span>Eligible Emails</span><strong id="statEligible">0</strong></div>
+    <div class="stat-card"><span>Opted Out</span><strong id="statOptedOut">0</strong></div>
+    <div class="stat-card"><span>Total Revenue</span><strong id="statRevenue">$0.00</strong></div>
+  </section>
+
+  <section class="panel">
+    <h2>Column Visibility</h2>
+    <div class="column-toggles" id="columnToggles"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Customers</h2>
+    <div class="table-wrap">
+      <table id="customersTable">
+        <thead>
+          <tr id="tableHead"></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="status-line" id="loadStatus">Loading customers...</div>
+  </section>
+</main>
+
+<div class="modal-backdrop" id="blastModal">
+  <div class="modal">
+    <h2>Email Blast Eligible List</h2>
+    <p class="subhead">
+      This list excludes customers who appear opted out. Use your email platform’s unsubscribe handling and do not manually re-add opted-out customers.
+    </p>
+    <textarea class="email-output" id="emailOutput" readonly></textarea>
+    <div class="button-row">
+      <button id="copyBlastEmailsBtn">Copy Emails</button>
+      <button id="downloadBlastEmailsBtn" class="secondary">Download TXT</button>
+      <button id="closeBlastModalBtn" class="secondary">Close</button>
+    </div>
+    <div class="status-line" id="blastStatus"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="customerModal">
+  <div class="modal">
+    <h2 id="modalCustomerName">Customer</h2>
+    <p class="subhead" id="modalCustomerEmail"></p>
+    <div class="detail-grid" id="modalDetails"></div>
+    <div class="button-row">
+      <button id="closeCustomerModalBtn" class="secondary">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const SAFE_LAST4_FIELDS = new Set([
+  "card_last4", "cc_last4", "credit_card_last4", "bank_last4", "account_last4", "checking_last4", "ach_last4", "payment_last4"
+]);
+
+const BLOCKED_PAYMENT_FIELD_PATTERNS = [
+  /card/i, /credit/i, /cc_/i, /bank/i, /account/i, /routing/i, /token/i, /payment_method/i,
+  /stripe/i, /square/i, /paypal/i, /cashapp/i, /venmo/i, /authorization/i, /auth/i,
+  /cvv/i, /cvc/i, /exp/i, /expiry/i, /iban/i, /swift/i
+];
+
+const DEFAULT_COLUMNS = [
+  { key:"name", label:"Customer", visible:true },
+  { key:"email", label:"Email", visible:true },
+  { key:"phone", label:"Phone", visible:true },
+  { key:"subscription", label:"Email Status", visible:true },
+  { key:"order_count", label:"Orders", visible:true },
+  { key:"total_spent", label:"Total Spent", visible:true },
+  { key:"last_order_date", label:"Last Order", visible:true },
+  { key:"city_state", label:"City / State", visible:true },
+  { key:"created_at", label:"Created", visible:true },
+  { key:"card_last4", label:"Card Last 4", visible:false },
+  { key:"bank_last4", label:"Bank Last 4", visible:false },
+  { key:"tags", label:"Tags / Segment", visible:true },
+  { key:"notes", label:"Notes", visible:false }
+];
+
+let rawProfiles = [];
+let rawOrders = [];
+let customers = [];
+let filteredCustomers = [];
+let columns = JSON.parse(JSON.stringify(DEFAULT_COLUMNS));
+let sortState = { key:"created_at", dir:"desc" };
+
+function $(id){ return document.getElementById(id); }
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[c]));
+}
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function money(value) {
+  const n = Number(value || 0);
+  return n.toLocaleString(undefined, { style:"currency", currency:"USD" });
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+}
+
+function daysSince(value) {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
+function pick(obj, keys) {
+  for (const key of keys) {
+    if (obj && obj[key] !== undefined && obj[key] !== null && String(obj[key]).trim() !== "") return obj[key];
+  }
+  return "";
+}
+
+function maskLast4(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (!digits) return "";
+  return "•••• " + digits.slice(-4);
+}
+
+function safePaymentLast4(profile, keys) {
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(profile || {}, key)) {
+      return maskLast4(profile[key]);
+    }
+  }
+  return "";
+}
+
+function isBlockedRawField(key) {
+  if (SAFE_LAST4_FIELDS.has(key)) return false;
+  return BLOCKED_PAYMENT_FIELD_PATTERNS.some(pattern => pattern.test(key));
+}
+
+function deriveSubscription(profile) {
+  const boolOptOut = pick(profile, ["marketing_opt_out", "email_opt_out", "newsletter_opt_out", "unsubscribe", "unsubscribed", "opted_out"]);
+  const boolOptIn = pick(profile, ["marketing_opt_in", "email_opt_in", "newsletter_opt_in", "subscribed", "email_subscribed", "subscribe"]);
+
+  if (boolOptOut === true || String(boolOptOut).toLowerCase() === "true" || String(boolOptOut).toLowerCase() === "yes") {
+    return { status:"opted_out", label:"Opted Out", className:"bad", eligible:false };
+  }
+
+  if (boolOptIn === true || String(boolOptIn).toLowerCase() === "true" || String(boolOptIn).toLowerCase() === "yes") {
+    return { status:"subscribed", label:"Subscribed", className:"good", eligible:true };
+  }
+
+  // If you do not offer subscription yet, this is safer than assuming consent.
+  return { status:"unknown", label:"Unknown", className:"warn", eligible:false };
+}
+
+function buildCustomerRows() {
+  const orderByEmail = new Map();
+  const orderByUserId = new Map();
+
+  for (const order of rawOrders) {
+    const email = normalizeEmail(pick(order, ["customer_email", "email", "billing_email"]));
+    const userId = String(pick(order, ["user_id", "customer_id", "profile_id"]));
+    const bucketKey = email || userId || "unknown";
+
+    const total = Number(pick(order, ["total_amount", "grand_total", "order_total", "total", "amount"]) || 0);
+    const orderDate = pick(order, ["created_at", "order_date", "placed_at", "updated_at"]);
+    const orderStatus = String(pick(order, ["status", "order_status"]) || "").toLowerCase();
+
+    function addToMap(map, key) {
+      if (!key) return;
+      if (!map.has(key)) {
+        map.set(key, { count:0, spent:0, last:null, statuses:[] });
+      }
+      const item = map.get(key);
+      item.count += 1;
+      if (!["cancelled", "canceled", "refunded", "void"].includes(orderStatus)) item.spent += total;
+      if (orderDate && (!item.last || new Date(orderDate) > new Date(item.last))) item.last = orderDate;
+      if (orderStatus) item.statuses.push(orderStatus);
+    }
+
+    addToMap(orderByEmail, email);
+    addToMap(orderByUserId, userId);
+  }
+
+  const rows = rawProfiles.map(profile => {
+    const email = normalizeEmail(pick(profile, ["email", "customer_email"]));
+    const userId = String(pick(profile, ["user_id", "id", "customer_id", "profile_id"]));
+    const orderSummary = orderByEmail.get(email) || orderByUserId.get(userId) || { count:0, spent:0, last:null, statuses:[] };
+    const subscription = deriveSubscription(profile);
+
+    const firstName = pick(profile, ["first_name", "firstname", "given_name"]);
+    const lastName = pick(profile, ["last_name", "lastname", "family_name"]);
+    const fullName = pick(profile, ["full_name", "name"]) || [firstName, lastName].filter(Boolean).join(" ") || "Customer";
+
+    const city = pick(profile, ["city", "billing_city", "shipping_city"]);
+    const state = pick(profile, ["state", "billing_state", "shipping_state"]);
+    const cityState = [city, state].filter(Boolean).join(", ");
+
+    const tags = [];
+    if (orderSummary.count === 0) tags.push("No Orders");
+    if (orderSummary.count === 1) tags.push("First-Time");
+    if (orderSummary.count >= 2) tags.push("Repeat");
+    if (orderSummary.count >= 5 || orderSummary.spent >= 500) tags.push("VIP");
+    const inactiveDays = daysSince(orderSummary.last);
+    if (inactiveDays !== null && inactiveDays >= 90) tags.push("Inactive 90+");
+    else if (inactiveDays !== null && inactiveDays >= 60) tags.push("Inactive 60+");
+
+    return {
+      id: userId || email,
+      name: fullName,
+      email,
+      phone: pick(profile, ["phone", "phone_number", "mobile", "billing_phone"]),
+      subscription: subscription.label,
+      subscription_status: subscription.status,
+      subscription_class: subscription.className,
+      email_eligible: subscription.eligible && !!email,
+      order_count: orderSummary.count,
+      total_spent: orderSummary.spent,
+      last_order_date: orderSummary.last,
+      city_state: cityState,
+      created_at: pick(profile, ["created_at", "inserted_at", "registered_at"]),
+      card_last4: safePaymentLast4(profile, ["card_last4", "cc_last4", "credit_card_last4", "payment_last4"]),
+      bank_last4: safePaymentLast4(profile, ["bank_last4", "account_last4", "checking_last4", "ach_last4"]),
+      tags: tags.join(", "),
+      notes: pick(profile, ["admin_notes", "notes", "customer_notes"]),
+      raw: profile
+    };
+  });
+
+  // Add order emails that do not yet have a customer profile.
+  const profileEmails = new Set(rows.map(r => r.email).filter(Boolean));
+  for (const [email, summary] of orderByEmail.entries()) {
+    if (!email || profileEmails.has(email)) continue;
+    rows.push({
+      id: email,
+      name:"Customer",
+      email,
+      phone:"",
+      subscription:"Unknown",
+      subscription_status:"unknown",
+      subscription_class:"warn",
+      email_eligible:false,
+      order_count:summary.count,
+      total_spent:summary.spent,
+      last_order_date:summary.last,
+      city_state:"",
+      created_at:"",
+      card_last4:"",
+      bank_last4:"",
+      tags:summary.count >= 2 ? "Repeat" : "Order Email Only",
+      notes:"No customer profile row found; built from orders table.",
+      raw:{ email }
+    });
+  }
+
+  customers = rows;
+}
+
+async function checkAdminAccess() {
+  const { data:{ session } } = await supabaseClient.auth.getSession();
+  if (!session || !session.user) {
+    $("adminStatus").textContent = "Not logged in";
+    $("loadStatus").innerHTML = '<span class="error">Admin login required. Open login.html and sign in first.</span>';
+    return false;
+  }
+
+  const email = normalizeEmail(session.user.email);
+  $("adminStatus").textContent = "Signed in: " + email;
+
+  const { data, error } = await supabaseClient
+    .from("admin_users")
+    .select("email")
+    .ilike("email", email)
+    .limit(1);
+
+  if (error) {
+    $("loadStatus").innerHTML = '<span class="error">Could not verify admin access: ' + escapeHtml(error.message) + '</span>';
+    return false;
+  }
+
+  if (!data || data.length === 0) {
+    $("loadStatus").innerHTML = '<span class="error">Access denied. This email is not listed in admin_users.</span>';
+    return false;
+  }
+
+  $("adminStatus").textContent = "Admin: " + email;
+  return true;
+}
+
+async function loadCustomers() {
+  $("loadStatus").textContent = "Loading customers...";
+  const isAdmin = await checkAdminAccess();
+  if (!isAdmin) return;
+
+  const [profilesResult, ordersResult] = await Promise.all([
+    supabaseClient.from("customer_profiles").select("*").order("created_at", { ascending:false }),
+    supabaseClient.from("orders").select("*").order("created_at", { ascending:false })
+  ]);
+
+  if (profilesResult.error) {
+    $("loadStatus").innerHTML = '<span class="error">Customer profile load failed: ' + escapeHtml(profilesResult.error.message) + '</span>';
+    return;
+  }
+
+  if (ordersResult.error) {
+    $("loadStatus").innerHTML = '<span class="error">Order summary load failed: ' + escapeHtml(ordersResult.error.message) + '</span>';
+    return;
+  }
+
+  rawProfiles = (profilesResult.data || []).map(stripUnsafeFields);
+  rawOrders = ordersResult.data || [];
+
+  buildCustomerRows();
+  applyFilters();
+  $("loadStatus").textContent = "Loaded " + customers.length + " customer records.";
+}
+
+function stripUnsafeFields(profile) {
+  const clean = {};
+  for (const [key, value] of Object.entries(profile || {})) {
+    if (isBlockedRawField(key)) continue;
+    clean[key] = value;
+  }
+
+  // Explicitly re-allow only payment last-four fields if they exist.
+  for (const key of SAFE_LAST4_FIELDS) {
+    if (Object.prototype.hasOwnProperty.call(profile || {}, key)) {
+      clean[key] = profile[key];
+    }
+  }
+
+  return clean;
+}
+
+function applyFilters() {
+  const search = $("searchInput").value.trim().toLowerCase();
+  const subscription = $("subscriptionFilter").value;
+  const promo = $("promoFilter").value;
+  const minOrders = Number($("minOrders").value || 0);
+  const minSpent = Number($("minSpent").value || 0);
+  const city = $("cityFilter").value.trim().toLowerCase();
+
+  filteredCustomers = customers.filter(c => {
+    const haystack = [
+      c.name, c.email, c.phone, c.city_state, c.tags, c.notes
+    ].join(" ").toLowerCase();
+
+    if (search && !haystack.includes(search)) return false;
+    if (city && !String(c.city_state || "").toLowerCase().includes(city)) return false;
+    if (subscription !== "all" && c.subscription_status !== subscription) return false;
+    if (Number(c.order_count || 0) < minOrders) return false;
+    if (Number(c.total_spent || 0) < minSpent) return false;
+
+    const inactive = daysSince(c.last_order_date);
+
+    if (promo === "no_orders" && c.order_count !== 0) return false;
+    if (promo === "first_time" && c.order_count !== 1) return false;
+    if (promo === "repeat" && c.order_count < 2) return false;
+    if (promo === "vip" && !(c.order_count >= 5 || c.total_spent >= 500)) return false;
+    if (promo === "inactive_60" && !(inactive !== null && inactive >= 60)) return false;
+    if (promo === "inactive_90" && !(inactive !== null && inactive >= 90)) return false;
+
+    return true;
+  });
+
+  sortRows();
+  renderStats();
+  renderTable();
+  $("filterStatus").textContent = "Showing " + filteredCustomers.length + " of " + customers.length + " customers.";
+}
+
+function sortRows() {
+  const { key, dir } = sortState;
+  filteredCustomers.sort((a,b) => {
+    let av = a[key], bv = b[key];
+
+    if (key.includes("date") || key === "created_at") {
+      av = av ? new Date(av).getTime() : 0;
+      bv = bv ? new Date(bv).getTime() : 0;
+    }
+
+    if (typeof av === "number" || typeof bv === "number") {
+      av = Number(av || 0);
+      bv = Number(bv || 0);
+      return dir === "asc" ? av - bv : bv - av;
+    }
+
+    av = String(av || "").toLowerCase();
+    bv = String(bv || "").toLowerCase();
+    return dir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+}
+
+function renderStats() {
+  const eligible = filteredCustomers.filter(c => c.email_eligible).length;
+  const optedOut = filteredCustomers.filter(c => c.subscription_status === "opted_out").length;
+  const revenue = filteredCustomers.reduce((sum,c) => sum + Number(c.total_spent || 0), 0);
+
+  $("statTotal").textContent = customers.length;
+  $("statFiltered").textContent = filteredCustomers.length;
+  $("statEligible").textContent = eligible;
+  $("statOptedOut").textContent = optedOut;
+  $("statRevenue").textContent = money(revenue);
+}
+
+function renderColumnToggles() {
+  const holder = $("columnToggles");
+  holder.innerHTML = columns.map(col => `
+    <label>
+      <input type="checkbox" data-col="${escapeHtml(col.key)}" ${col.visible ? "checked" : ""}>
+      ${escapeHtml(col.label)}
+    </label>
+  `).join("");
+
+  holder.querySelectorAll("input[type='checkbox']").forEach(input => {
+    input.addEventListener("change", () => {
+      const col = columns.find(c => c.key === input.dataset.col);
+      if (col) col.visible = input.checked;
+      renderTable();
+    });
+  });
+}
+
+function renderTable() {
+  const visibleColumns = columns.filter(c => c.visible);
+  $("tableHead").innerHTML = visibleColumns.map(col => `
+    <th data-key="${escapeHtml(col.key)}">${escapeHtml(col.label)} ${sortState.key === col.key ? (sortState.dir === "asc" ? "▲" : "▼") : ""}</th>
+  `).join("") + "<th>Actions</th>";
+
+  $("tableHead").querySelectorAll("th[data-key]").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.dataset.key;
+      if (sortState.key === key) sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+      else sortState = { key, dir:"asc" };
+      applyFilters();
+    });
+  });
+
+  if (filteredCustomers.length === 0) {
+    $("tableBody").innerHTML = `<tr><td colspan="${visibleColumns.length + 1}">No matching customers.</td></tr>`;
+    return;
+  }
+
+  $("tableBody").innerHTML = filteredCustomers.map((c, index) => `
+    <tr>
+      ${visibleColumns.map(col => renderCell(c, col.key)).join("")}
+      <td><button class="secondary" data-view-index="${index}">View</button></td>
+    </tr>
+  `).join("");
+
+  $("tableBody").querySelectorAll("[data-view-index]").forEach(btn => {
+    btn.addEventListener("click", () => openCustomerModal(filteredCustomers[Number(btn.dataset.viewIndex)]));
+  });
+}
+
+function renderCell(c, key) {
+  let value = c[key];
+
+  if (key === "subscription") {
+    return `<td><span class="badge ${escapeHtml(c.subscription_class)}">${escapeHtml(c.subscription)}</span></td>`;
+  }
+
+  if (key === "total_spent") value = money(value);
+  if (key === "created_at" || key === "last_order_date") value = formatDate(value);
+
+  const wrapClass = ["notes", "tags"].includes(key) ? "wrap-text" : "";
+  return `<td class="${wrapClass}">${escapeHtml(value || "")}</td>`;
+}
+
+function getEligibleEmails() {
+  return filteredCustomers
+    .filter(c => c.email_eligible && c.email)
+    .map(c => c.email)
+    .filter((email, index, arr) => arr.indexOf(email) === index)
+    .sort();
+}
+
+async function copyText(text) {
+  await navigator.clipboard.writeText(text);
+}
+
+function exportCsv() {
+  const visibleColumns = columns.filter(c => c.visible);
+  const headers = visibleColumns.map(c => c.label);
+  const rows = filteredCustomers.map(c => visibleColumns.map(col => {
+    let value = c[col.key];
+    if (col.key === "total_spent") value = Number(value || 0).toFixed(2);
+    if (col.key === "created_at" || col.key === "last_order_date") value = formatDate(value);
+    return csvEscape(value);
+  }));
+
+  const csv = [headers.map(csvEscape).join(","), ...rows.map(r => r.join(","))].join("\n");
+  downloadFile("pst_customers_safe_export.csv", csv, "text/csv");
+}
+
+function csvEscape(value) {
+  const s = String(value ?? "");
+  return '"' + s.replace(/"/g, '""') + '"';
+}
+
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function openBlastModal() {
+  const emails = getEligibleEmails();
+  $("emailOutput").value = emails.join(", ");
+  $("blastStatus").textContent = emails.length + " eligible email(s). Opted-out and unknown-consent customers are excluded.";
+  $("blastModal").classList.add("active");
+}
+
+function closeBlastModal() {
+  $("blastModal").classList.remove("active");
+}
+
+function openCustomerModal(c) {
+  $("modalCustomerName").textContent = c.name || "Customer";
+  $("modalCustomerEmail").textContent = c.email || "No email on file";
+
+  const safeDetails = [
+    ["Customer ID", c.id],
+    ["Phone", c.phone],
+    ["Email Status", c.subscription],
+    ["Orders", c.order_count],
+    ["Total Spent", money(c.total_spent)],
+    ["Last Order", formatDate(c.last_order_date)],
+    ["Created", formatDate(c.created_at)],
+    ["City / State", c.city_state],
+    ["Card Last 4", c.card_last4],
+    ["Bank Last 4", c.bank_last4],
+    ["Tags", c.tags],
+    ["Notes", c.notes]
+  ];
+
+  $("modalDetails").innerHTML = safeDetails.map(([label, value]) => `
+    <div class="detail-box">
+      <strong>${escapeHtml(label)}</strong>
+      <span>${escapeHtml(value || "")}</span>
+    </div>
+  `).join("");
+
+  $("customerModal").classList.add("active");
+}
+
+function closeCustomerModal() {
+  $("customerModal").classList.remove("active");
+}
+
+function wireEvents() {
+  $("refreshBtn").addEventListener("click", loadCustomers);
+  $("applyFiltersBtn").addEventListener("click", applyFilters);
+  $("clearFiltersBtn").addEventListener("click", () => {
+    ["searchInput", "minOrders", "minSpent", "cityFilter"].forEach(id => $(id).value = "");
+    $("subscriptionFilter").value = "all";
+    $("promoFilter").value = "all";
+    applyFilters();
+  });
+
+  ["searchInput", "cityFilter"].forEach(id => {
+    $(id).addEventListener("input", () => applyFilters());
+  });
+  ["subscriptionFilter", "promoFilter", "minOrders", "minSpent"].forEach(id => {
+    $(id).addEventListener("change", () => applyFilters());
+  });
+
+  $("copyEmailListBtn").addEventListener("click", async () => {
+    const emails = getEligibleEmails();
+    await copyText(emails.join(", "));
+    $("filterStatus").textContent = "Copied " + emails.length + " eligible email(s).";
+  });
+
+  $("exportCsvBtn").addEventListener("click", exportCsv);
+  $("openBlastModalBtn").addEventListener("click", openBlastModal);
+  $("copyBlastEmailsBtn").addEventListener("click", async () => {
+    await copyText($("emailOutput").value);
+    $("blastStatus").textContent = "Copied email blast list.";
+  });
+  $("downloadBlastEmailsBtn").addEventListener("click", () => {
+    downloadFile("pst_email_blast_eligible_emails.txt", $("emailOutput").value, "text/plain");
+  });
+  $("closeBlastModalBtn").addEventListener("click", closeBlastModal);
+  $("closeCustomerModalBtn").addEventListener("click", closeCustomerModal);
+
+  $("blastModal").addEventListener("click", e => { if (e.target.id === "blastModal") closeBlastModal(); });
+  $("customerModal").addEventListener("click", e => { if (e.target.id === "customerModal") closeCustomerModal(); });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderColumnToggles();
+  wireEvents();
+  loadCustomers();
+});
+</script>
+
+<script>
+/* PST_CUSTOMERS_ADMIN_V2_SIGNOUT_HANDLER */
+document.addEventListener("DOMContentLoaded", function(){
+  var btn = document.getElementById("signOutBtn");
+  if (btn && !btn.dataset.boundSignout) {
+    btn.dataset.boundSignout = "true";
+    btn.addEventListener("click", async function(){
+      try {
+        await supabaseClient.auth.signOut();
+        window.location.href = "login.html";
+      } catch (err) {
+        alert("Sign out failed: " + (err && err.message ? err.message : err));
+      }
+    });
+  }
+});
+</script>
+
+</body>
+</html>
