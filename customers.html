@@ -1,5 +1,6 @@
 <!-- PST_CUSTOMERS_ADMIN_V3_FIX_LOADING_ADMIN_STATUS -->
 <!-- PST_CUSTOMERS_ADMIN_V2_MATCH_ORDERS_HEADER -->
+<!-- PST_CUSTOMERS_ADMIN_V4_RESEARCH_ROLE_COLUMN -->
 <!DOCTYPE html>
 <!-- PST_CUSTOMERS_ADMIN_V1_SAFE_CUSTOMER_DATABASE -->
 <html lang="en">
@@ -197,7 +198,7 @@ table {
   width:100%;
   border-collapse:separate;
   border-spacing:0;
-  min-width:1450px;
+  min-width:1580px;
 }
 th, td {
   border-bottom:1px solid var(--line);
@@ -973,6 +974,7 @@ const DEFAULT_COLUMNS = [
   { key:"email", label:"Email", visible:true },
   { key:"phone", label:"Phone", visible:true },
   { key:"subscription", label:"Email Status", visible:true },
+  { key:"research_role", label:"Research Role", visible:true },
   { key:"order_count", label:"Orders", visible:true },
   { key:"total_spent", label:"Total Spent", visible:true },
   { key:"last_order_date", label:"Last Order", visible:true },
@@ -1135,6 +1137,8 @@ function buildCustomerRows() {
       subscription: subscription.label,
       subscription_status: subscription.status,
       subscription_class: subscription.className,
+      research_role: pick(profile, ["research_role", "researcher_type", "organization_type", "customer_type"]),
+      research_role_confirmed_at: pick(profile, ["research_role_confirmed_at", "research_role_at"]),
       email_eligible: subscription.eligible && !!email,
       order_count: orderSummary.count,
       total_spent: orderSummary.spent,
@@ -1264,7 +1268,7 @@ function applyFilters() {
 
   filteredCustomers = customers.filter(c => {
     const haystack = [
-      c.name, c.email, c.phone, c.city_state, c.tags, c.notes
+      c.name, c.email, c.phone, c.research_role, c.city_state, c.tags, c.notes
     ].join(" ").toLowerCase();
 
     if (search && !haystack.includes(search)) return false;
@@ -1385,7 +1389,7 @@ function renderCell(c, key) {
   if (key === "total_spent") value = money(value);
   if (key === "created_at" || key === "last_order_date") value = formatDate(value);
 
-  const wrapClass = ["notes", "tags"].includes(key) ? "wrap-text" : "";
+  const wrapClass = ["notes", "tags", "research_role"].includes(key) ? "wrap-text" : "";
   return `<td class="${wrapClass}">${escapeHtml(value || "")}</td>`;
 }
 
@@ -1451,6 +1455,8 @@ function openCustomerModal(c) {
     ["Customer ID", c.id],
     ["Phone", c.phone],
     ["Email Status", c.subscription],
+    ["Research Role", c.research_role],
+    ["Research Role Confirmed", formatDate(c.research_role_confirmed_at)],
     ["Orders", c.order_count],
     ["Total Spent", money(c.total_spent)],
     ["Last Order", formatDate(c.last_order_date)],

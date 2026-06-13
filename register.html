@@ -1,4 +1,5 @@
 <!-- PST_REGISTER_PATCH_V2_MARKETING_OPT_IN -->
+<!-- PST_REGISTER_PATCH_V3_RESEARCH_ROLE_REQUIRED -->
 <!DOCTYPE html>
 <!-- PST_REGISTER_PATCH_V1_SAME_AS_BILLING -->
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Create Account | Pep Shop Texas</title><style>
@@ -8,7 +9,7 @@
 const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-</script></head><body><div class="top-strip"><span>Research purposes only — not for human consumption</span><span>Support: support@pepshoptexas.com</span></div><header><nav class="nav"><a class="brand" href="index.html">P<span>S</span>T</a><div class="menu"><a href="index.html">Home</a><a href="register.html">Create Account</a><a href="login.html">Login</a><a href="account.html">My Account</a><a href="admin.html">Admin</a></div></nav></header><main class="wrap"><section class="auth-card"><h1 class="section-title">Create Account</h1><div class="underline"></div><p class="small">Create your Pep Shop Texas customer account. Products are listed for research purposes only.</p><form id="registerForm" class="grid"><div><label>First Name</label><input name="first_name" required></div><div><label>Last Name</label><input name="last_name" required></div><div><label>Email Address</label><input name="email" type="email" required></div><div><label>Phone Number</label><input name="phone" type="tel"></div><div><label>Username</label><input name="username" required></div><div><label for="password">Password</label><div class="password-wrap"><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required><button class="password-toggle" type="button" data-toggle-password="password" aria-label="Show password">Show</button></div></div><div><label>Billing Address</label><input name="billing_address" required></div><div><label>Billing City</label><input name="billing_city" required></div><div><label>Billing State</label><input name="billing_state" required></div><div><label>Billing ZIP</label><input name="billing_zip" required></div><div class="full"><label class="check-row"><input type="checkbox" id="sameAsBilling" name="same_as_billing"> Shipping address is the same as billing address.</label></div><div><label>Shipping Address</label><input name="shipping_address" required></div><div><label>Shipping City</label><input name="shipping_city" required></div><div><label>Shipping State</label><input name="shipping_state" required></div><div><label>Shipping ZIP</label><input name="shipping_zip" required></div><div class="full"><label class="check-row"><input type="checkbox" name="age" required> I confirm I am at least 18 years old.</label><label class="check-row"><input type="checkbox" name="research" required> I understand products are sold for research purposes only and are not for human consumption.</label><label class="check-row"><input type="checkbox" name="tos" required> I agree to the Terms of Service.</label><label class="check-row"><input type="checkbox" name="marketing_opt_in" id="marketingOptIn"> I agree to receive Pep Shop Texas updates, promotions, and product availability emails. I understand I can unsubscribe at any time.</label></div><div class="full actions"><button class="btn primary" type="submit">Create Account</button><a class="btn secondary" href="login.html">Already have an account?</a></div></form><div id="notice" class="notice"></div></section></main><script>
+</script></head><body><div class="top-strip"><span>Research purposes only — not for human consumption</span><span>Support: support@pepshoptexas.com</span></div><header><nav class="nav"><a class="brand" href="index.html">P<span>S</span>T</a><div class="menu"><a href="index.html">Home</a><a href="register.html">Create Account</a><a href="login.html">Login</a><a href="account.html">My Account</a><a href="admin.html">Admin</a></div></nav></header><main class="wrap"><section class="auth-card"><h1 class="section-title">Create Account</h1><div class="underline"></div><p class="small">Create your Pep Shop Texas customer account. Products are listed for research purposes only.</p><form id="registerForm" class="grid"><div><label>First Name</label><input name="first_name" required></div><div><label>Last Name</label><input name="last_name" required></div><div><label>Email Address</label><input name="email" type="email" required></div><div><label>Phone Number</label><input name="phone" type="tel"></div><div><label>Username</label><input name="username" required></div><div><label for="password">Password</label><div class="password-wrap"><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required><button class="password-toggle" type="button" data-toggle-password="password" aria-label="Show password">Show</button></div></div><div class="full"><label>Research Role / Organization Type</label><select name="research_role" required><option value="">Select one</option><option value="Independent Researcher">Independent Researcher</option><option value="Laboratory / Research Facility">Laboratory / Research Facility</option><option value="Healthcare / Medical Office">Healthcare / Medical Office</option><option value="Compounding / Formulation Business">Compounding / Formulation Business</option><option value="Academic / University Research">Academic / University Research</option><option value="Biotech / Pharmaceutical Research">Biotech / Pharmaceutical Research</option><option value="Other Research-Related Use">Other Research-Related Use</option></select></div><div><label>Billing Address</label><input name="billing_address" required></div><div><label>Billing City</label><input name="billing_city" required></div><div><label>Billing State</label><input name="billing_state" required></div><div><label>Billing ZIP</label><input name="billing_zip" required></div><div class="full"><label class="check-row"><input type="checkbox" id="sameAsBilling" name="same_as_billing"> Shipping address is the same as billing address.</label></div><div><label>Shipping Address</label><input name="shipping_address" required></div><div><label>Shipping City</label><input name="shipping_city" required></div><div><label>Shipping State</label><input name="shipping_state" required></div><div><label>Shipping ZIP</label><input name="shipping_zip" required></div><div class="full"><label class="check-row"><input type="checkbox" name="age" required> I confirm I am at least 18 years old.</label><label class="check-row"><input type="checkbox" name="research" required> I confirm that this account and any purchases are for research purposes only.</label><label class="check-row"><input type="checkbox" name="tos" required> I agree to the Terms of Service.</label><label class="check-row"><input type="checkbox" name="marketing_opt_in" id="marketingOptIn"> I agree to receive Pep Shop Texas updates, promotions, and product availability emails. I understand I can unsubscribe at any time.</label></div><div class="full actions"><button class="btn primary" type="submit">Create Account</button><a class="btn secondary" href="login.html">Already have an account?</a></div></form><div id="notice" class="notice"></div></section></main><script>
 
 function setupPasswordToggles(){
   document.querySelectorAll('[data-toggle-password]').forEach(function(btn){
@@ -90,7 +91,8 @@ registerForm.addEventListener('submit', async (e) => {
         data: {
           first_name: f.get('first_name'),
           last_name: f.get('last_name'),
-          username: f.get('username')
+          username: f.get('username'),
+          research_role: f.get('research_role')
         }
       }
     });
@@ -108,6 +110,8 @@ registerForm.addEventListener('submit', async (e) => {
         email,
         phone: f.get('phone'),
         username: f.get('username'),
+        research_role: f.get('research_role'),
+        research_role_confirmed_at: new Date().toISOString(),
         billing_address: f.get('billing_address'),
         billing_city: f.get('billing_city'),
         billing_state: f.get('billing_state'),
@@ -119,12 +123,12 @@ registerForm.addEventListener('submit', async (e) => {
         account_status: 'active',
         age_confirmed: true,
         research_use_acknowledged: true,
-        tos_accepted: true
-      ,
+        tos_accepted: true,
         marketing_opt_in: f.get('marketing_opt_in') === 'on',
         marketing_opt_out: false,
         marketing_opt_in_at: f.get('marketing_opt_in') === 'on' ? new Date().toISOString() : null,
-        marketing_source: f.get('marketing_opt_in') === 'on' ? 'registration' : null,};
+        marketing_source: f.get('marketing_opt_in') === 'on' ? 'registration' : null
+      };
 
       const { error: profileError } = await pstSupabaseClient
         .from('customer_profiles')
