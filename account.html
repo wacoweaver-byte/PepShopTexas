@@ -1,3 +1,4 @@
+<!-- PST_ACCOUNT_PATCH_V2_EMAIL_PREFERENCES_OPT_OUT -->
 <!DOCTYPE html>
 <!-- PST_ACCOUNT_PATCH_V1_EDIT_PROFILE -->
 <html lang="en">
@@ -75,6 +76,63 @@ header { background:#fff; border-bottom:1px solid var(--line); position:sticky; 
   .item-line { grid-template-columns:1fr; }
   .form-grid { grid-template-columns:1fr; }
 }
+
+/* PST_ACCOUNT_PATCH_V2_EMAIL_PREFERENCES_OPT_OUT */
+.email-pref-box {
+  border-top:1px solid var(--line);
+  margin-top:18px;
+  padding-top:18px;
+}
+.email-pref-box h3 {
+  margin:0 0 8px;
+  font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif;
+  text-transform:uppercase;
+  font-size:24px;
+}
+.email-pref-copy {
+  color:#444;
+  font-size:14px;
+  line-height:1.45;
+  margin:0 0 12px;
+}
+.email-pref-check {
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  border:1px solid var(--line);
+  background:#f7f7f7;
+  border-radius:10px;
+  padding:12px;
+  font-weight:800;
+  line-height:1.4;
+}
+.email-pref-check input {
+  width:20px;
+  height:20px;
+  margin-top:1px;
+  flex:0 0 auto;
+}
+.email-pref-small {
+  display:block;
+  margin-top:5px;
+  color:#555;
+  font-weight:700;
+  font-size:12px;
+}
+.email-pref-status {
+  display:none;
+  margin-top:10px;
+  border-radius:8px;
+  padding:10px 12px;
+  font-weight:900;
+  line-height:1.35;
+  font-size:13px;
+}
+.email-pref-status.active { display:block; }
+.email-pref-status.success { background:#edf8f0; border:1px solid #bfe8c8; color:#147a32; }
+.email-pref-status.error { background:#fff0f0; border:1px solid #ffb8c0; color:#b00020; }
+.email-pref-status.info { background:#f4f8ff; border:1px solid #d9e7ff; color:#153f76; }
+
 </style>
 </head>
 <body>
@@ -112,6 +170,7 @@ header { background:#fff; border-bottom:1px solid var(--line); position:sticky; 
         <div class="profile-row"><strong>Phone</strong><span id="profilePhone">—</span></div>
         <div class="profile-row"><strong>Billing Address</strong><span id="profileBillingAddress">—</span></div>
         <div class="profile-row"><strong>Shipping Address</strong><span id="profileShippingAddress">—</span></div>
+        <div class="profile-row"><strong>Email Preferences</strong><span id="profileEmailPreference">—</span></div>
         <div class="btn-row">
           <button class="btn primary" type="button" id="editProfileBtn">Edit Profile</button>
           <a class="btn" href="index.html#az">Shop Peptides</a>
@@ -144,6 +203,25 @@ header { background:#fff; border-bottom:1px solid var(--line); position:sticky; 
           <button class="btn" type="button" id="cancelEditBtn">Cancel</button>
         </div>
       </form>
+
+      <div class="email-pref-box" id="emailPreferencesBox">
+        <h3>Email Preferences</h3>
+        <p class="email-pref-copy">
+          Control whether you receive Pep Shop Texas updates, promotions, and product availability emails.
+        </p>
+        <label class="email-pref-check">
+          <input id="marketingOptInCheckbox" type="checkbox">
+          <span>
+            I want to receive Pep Shop Texas updates, promotions, and product availability emails.
+            <span class="email-pref-small">You can turn this off at any time from this account page.</span>
+          </span>
+        </label>
+        <div class="btn-row">
+          <button class="btn primary" type="button" id="saveEmailPrefsBtn">Save Email Preferences</button>
+        </div>
+        <div class="email-pref-status" id="emailPrefsStatus"></div>
+      </div>
+
     </aside>
 
     <section class="card">
@@ -251,6 +329,7 @@ function updateProfileDisplay(profile, user) {
   document.getElementById("profilePhone").textContent = getProfileValue(profile, "phone") || "—";
   document.getElementById("profileBillingAddress").innerHTML = billingAddressFromProfile(profile);
   document.getElementById("profileShippingAddress").innerHTML = shippingAddressFromProfile(profile);
+  updateEmailPreferenceDisplay(profile);
 }
 
 function copyBillingToShipping() {
@@ -280,6 +359,121 @@ function setEditMode(active) {
   document.getElementById("profileForm")?.classList.toggle("active", !!active);
   if (active) populateProfileForm(pstCurrentProfile, pstCurrentUser);
 }
+
+
+function deriveMarketingPreference(profile) {
+  const optOut = getProfileValue(profile, "marketing_opt_out", "email_opt_out", "newsletter_opt_out", "unsubscribed");
+  const optIn = getProfileValue(profile, "marketing_opt_in", "email_opt_in", "newsletter_opt_in", "subscribed");
+
+  if (optOut === true || String(optOut).toLowerCase() === "true" || String(optOut).toLowerCase() === "yes") {
+    return { checked:false, label:"Opted out of promotional emails." };
+  }
+
+  if (optIn === true || String(optIn).toLowerCase() === "true" || String(optIn).toLowerCase() === "yes") {
+    return { checked:true, label:"Subscribed to promotional emails." };
+  }
+
+  return { checked:false, label:"Not subscribed to promotional emails." };
+}
+
+function updateEmailPreferenceDisplay(profile) {
+  const pref = deriveMarketingPreference(profile);
+  const checkbox = document.getElementById("marketingOptInCheckbox");
+  const display = document.getElementById("profileEmailPreference");
+
+  if (checkbox) checkbox.checked = !!pref.checked;
+  if (display) display.textContent = pref.label;
+}
+
+function setEmailPrefsStatus(message, type = "info") {
+  const el = document.getElementById("emailPrefsStatus");
+  if (!el) return;
+  el.className = "email-pref-status active " + type;
+  el.innerHTML = message;
+}
+
+async function saveEmailPreferences() {
+  if (!pstCurrentUser) {
+    setEmailPrefsStatus("You must be logged in to update email preferences.", "error");
+    return;
+  }
+
+  const btn = document.getElementById("saveEmailPrefsBtn");
+  const checkbox = document.getElementById("marketingOptInCheckbox");
+  const optedIn = !!(checkbox && checkbox.checked);
+  const now = new Date().toISOString();
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Saving...";
+  }
+
+  setEmailPrefsStatus("Saving email preferences...", "info");
+
+  try {
+    const payload = {
+      user_id: pstCurrentUser.id,
+      email: pstCurrentUser.email || getProfileValue(pstCurrentProfile, "email") || "",
+      marketing_opt_in: optedIn,
+      marketing_opt_out: !optedIn,
+      marketing_source: optedIn ? "account_preferences_opt_in" : "account_preferences_opt_out"
+    };
+
+    if (optedIn) {
+      payload.marketing_opt_in_at = now;
+      payload.marketing_opt_out_at = null;
+    } else {
+      payload.marketing_opt_out_at = now;
+    }
+
+    let result = await pstAccountSupabase
+      .from("customer_profiles")
+      .update(payload)
+      .eq("user_id", pstCurrentUser.id)
+      .select("*")
+      .maybeSingle();
+
+    if (result.error) throw result.error;
+
+    if (!result.data) {
+      const insertPayload = {
+        ...payload,
+        first_name: pstCurrentUser.user_metadata?.first_name || "",
+        last_name: pstCurrentUser.user_metadata?.last_name || "",
+        username: pstCurrentUser.user_metadata?.username || "",
+        account_status: "active"
+      };
+
+      const insertResult = await pstAccountSupabase
+        .from("customer_profiles")
+        .insert(insertPayload)
+        .select("*")
+        .maybeSingle();
+
+      if (insertResult.error) throw insertResult.error;
+      result = insertResult;
+    }
+
+    pstCurrentProfile = result.data || { ...(pstCurrentProfile || {}), ...payload };
+    updateEmailPreferenceDisplay(pstCurrentProfile);
+    updateProfileDisplay(pstCurrentProfile, pstCurrentUser);
+
+    setEmailPrefsStatus(
+      optedIn
+        ? "Email preferences saved. You are subscribed to updates."
+        : "Email preferences saved. You are opted out of promotional emails.",
+      "success"
+    );
+  } catch (err) {
+    setEmailPrefsStatus("Email preferences could not be saved. " + pstEsc(err.message || err), "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Save Email Preferences";
+    }
+  }
+}
+
 
 async function loadAccount() {
   setStatus("Loading your account...", "info");
@@ -511,6 +705,7 @@ function reorder(orderId) {
 }
 
 function wireProfileEditor() {
+  document.getElementById("saveEmailPrefsBtn")?.addEventListener("click", saveEmailPreferences);
   document.getElementById("editProfileBtn")?.addEventListener("click", () => setEditMode(true));
   document.getElementById("cancelEditBtn")?.addEventListener("click", () => setEditMode(false));
   document.getElementById("profileForm")?.addEventListener("submit", saveProfile);
