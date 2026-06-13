@@ -1,3 +1,4 @@
+<!-- PST_CUSTOMERS_ADMIN_V3_FIX_LOADING_ADMIN_STATUS -->
 <!-- PST_CUSTOMERS_ADMIN_V2_MATCH_ORDERS_HEADER -->
 <!DOCTYPE html>
 <!-- PST_CUSTOMERS_ADMIN_V1_SAFE_CUSTOMER_DATABASE -->
@@ -826,6 +827,7 @@ main {
   </div>
 </header>
 
+<div id="adminStatus" style="display:none;">Checking admin access...</div>
 <main>
   <section class="page-head">
     <div>
@@ -990,6 +992,16 @@ let columns = JSON.parse(JSON.stringify(DEFAULT_COLUMNS));
 let sortState = { key:"created_at", dir:"desc" };
 
 function $(id){ return document.getElementById(id); }
+
+function safeSetText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+function safeSetHtml(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = value;
+}
+
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, c => ({
@@ -1169,13 +1181,13 @@ function buildCustomerRows() {
 async function checkAdminAccess() {
   const { data:{ session } } = await supabaseClient.auth.getSession();
   if (!session || !session.user) {
-    $("adminStatus").textContent = "Not logged in";
+    safeSetText("adminStatus", "Not logged in");
     $("loadStatus").innerHTML = '<span class="error">Admin login required. Open login.html and sign in first.</span>';
     return false;
   }
 
   const email = normalizeEmail(session.user.email);
-  $("adminStatus").textContent = "Signed in: " + email;
+  safeSetText("adminStatus", "Signed in: " + email);
 
   const { data, error } = await supabaseClient
     .from("admin_users")
@@ -1193,7 +1205,7 @@ async function checkAdminAccess() {
     return false;
   }
 
-  $("adminStatus").textContent = "Admin: " + email;
+  safeSetText("adminStatus", "Admin: " + email);
   return true;
 }
 
@@ -1524,6 +1536,28 @@ document.addEventListener("DOMContentLoaded", function(){
         alert("Sign out failed: " + (err && err.message ? err.message : err));
       }
     });
+  }
+});
+</script>
+
+
+<script>
+/* PST_CUSTOMERS_ADMIN_V3_ERROR_DISPLAY */
+window.addEventListener("error", function(event) {
+  var el = document.getElementById("loadStatus");
+  if (el) {
+    el.innerHTML = '<span class="error">Customer page script error: ' +
+      String(event.message || 'Unknown error') +
+      '</span>';
+  }
+});
+window.addEventListener("unhandledrejection", function(event) {
+  var el = document.getElementById("loadStatus");
+  var reason = event && event.reason ? (event.reason.message || event.reason) : 'Unknown promise error';
+  if (el) {
+    el.innerHTML = '<span class="error">Customer page load error: ' +
+      String(reason) +
+      '</span>';
   }
 });
 </script>
