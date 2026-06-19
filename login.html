@@ -1,4 +1,4 @@
-<!-- PST_LOGIN_PATCH_V2_RETURN_URL_CART_RESTORE -->
+<!-- PST_LOGIN_PATCH_V3_FORGOT_PASSWORD_LINK -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,11 +34,12 @@ input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6p
 #successPanel{display:none;margin-top:20px;padding:18px;border:1px solid #bfe8c8;background:#edf8f0;border-radius:8px}
 #successPanel h2{margin:0 0 10px;font-size:22px;text-transform:uppercase}
 .raw-link{display:block;margin-top:14px;color:#003f9e;font-weight:900;word-break:break-all}
-
 .password-wrap{position:relative;margin-bottom:16px}
 .password-wrap input{padding-right:86px;margin-bottom:0}
 .password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:#f4f8ff;color:var(--blue);font-weight:900;border-radius:5px;padding:7px 9px;cursor:pointer;text-transform:uppercase;font-size:12px}
 .password-toggle:hover{background:#e8f1ff}
+.forgot-row{margin-top:10px;font-size:13px;font-weight:900}
+.forgot-row a{color:var(--blue);text-transform:uppercase;text-decoration:none}
 @media(max-width:720px){.menu{display:none}.wrap,.nav{padding-left:18px;padding-right:18px}.top-strip{display:none}.actions{display:grid}.btn{width:100%}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -78,6 +79,10 @@ input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6p
         <button class="password-toggle" type="button" data-toggle-password="password" aria-label="Show password">Show</button>
       </div>
 
+      <div class="forgot-row">
+        <a href="./forgot-password.html">Forgot your password?</a>
+      </div>
+
       <div class="actions">
         <button id="loginBtn" class="btn primary" type="submit">Login</button>
         <button class="btn secondary" type="button" onclick="goRegister()">Create Account</button>
@@ -103,7 +108,6 @@ const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-
 function getLoginReturnUrl(){
   const params = new URLSearchParams(window.location.search);
   const rawReturn = params.get("return") || params.get("redirect") || "";
@@ -112,7 +116,6 @@ function getLoginReturnUrl(){
   let decoded = rawReturn;
   try { decoded = decodeURIComponent(rawReturn); } catch (_) {}
 
-  // Safety: allow only local site paths/pages, not external redirects.
   if (/^https?:\/\//i.test(decoded) || decoded.startsWith("//")) {
     return "./index.html?login=success";
   }
@@ -126,8 +129,6 @@ function continueAfterLogin(){
   const target = getLoginReturnUrl();
   window.location.href = target;
 }
-
-
 
 function setupPasswordToggles(){
   document.querySelectorAll('[data-toggle-password]').forEach(function(btn){
