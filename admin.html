@@ -1,3 +1,4 @@
+<!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
 <!DOCTYPE html>
 <!-- PST_ADMIN_PATCH_V13_DB_AUDIT_LOG -->
@@ -1193,29 +1194,76 @@ header .header-actions .btn.secondary.active {
     const oldUrl = cleanValue(order.tracking_url);
     const newUrl = cleanValue(updates.tracking_url);
 
-    if(oldPS === "paid" && newPS !== "paid") return true;
-    if(["cancelled","rejected"].includes(newOS)) return true;
+    // Delivered and Complete are fulfillment recordkeeping states. They no longer require override by themselves.
+    // The protected cases are money/inventory risk: refund/cancel/reject or moving backwards from picked/shipped stages.
+    if(oldPS === "paid" && ["refunded","failed"].includes(newPS)) return true;
+    if(["cancelled","canceled","rejected","refunded"].includes(newOS)) return true;
 
     const oldRank = orderStatusRank[oldOS] ?? 0;
     const newRank = orderStatusRank[newOS] ?? 0;
-
-    // Complete is the final locked state: any change after Complete requires Admin Override.
-    if(oldOS === "complete"){
-      return oldOS !== newOS || oldPS !== newPS || oldCarrier !== newCarrier || oldTracking !== newTracking || oldUrl !== newUrl;
-    }
-
-    if(["packed","shipped","delivered","complete"].includes(oldOS) && newRank < oldRank) return true;
-
-    if(["shipped","delivered","complete"].includes(oldOS) && (oldCarrier !== newCarrier || oldTracking !== newTracking || oldUrl !== newUrl)) return true;
+    if(["packed","shipped"].includes(oldOS) && newRank < oldRank) return true;
+    if(["shipped"].includes(oldOS) && (oldCarrier !== newCarrier || oldTracking !== newTracking || oldUrl !== newUrl)) return true;
     return false;
+  }
+  function inventorySensitiveOrderChange(order, updates){
+    const oldOS = norm(orderStatus(order));
+    const newOS = norm(updates.order_status || oldOS);
+    const oldPS = norm(paymentStatus(order));
+    const newPS = norm(updates.payment_status || oldPS);
+    const inventoryWasTouched = order.inventory_deducted === true || order.inventory_restored === true;
+    const paidOrFulfilled = oldPS === "paid" || ["processing","packed","shipped","delivered","complete","completed"].includes(oldOS);
+    const cancellationLike = ["cancelled","canceled","rejected","refunded"].includes(newOS);
+    const refundLike = ["refunded","failed"].includes(newPS) && oldPS === "paid";
+    return (inventoryWasTouched || paidOrFulfilled) && (cancellationLike || refundLike);
+  }
+  function inventorySensitiveReason(order, updates){
+    const newOS = norm(updates.order_status || orderStatus(order));
+    const newPS = norm(updates.payment_status || paymentStatus(order));
+    if(["cancelled","canceled"].includes(newOS)) return "cancel order / possible inventory restoration";
+    if(newOS === "rejected") return "reject order / possible inventory restoration";
+    if(newOS === "refunded" || newPS === "refunded") return "refund order / inventory-money risk";
+    return "inventory-sensitive order change";
+  }
+  async function confirmAdminPasswordForProtectedAction(reason){
+    const email = cleanValue(currentUser?.email);
+    if(!email) throw new Error("Admin password confirmation failed: no logged-in admin email was found.");
+    const password = await askAdminPassword(reason, email);
+    if(!password) throw new Error("Protected action cancelled. Admin password was not entered.");
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if(error) throw new Error("Admin password confirmation failed. Protected action was blocked.");
+    return true;
+  }
+  function askAdminPassword(reason, email){
+    return new Promise(resolve => {
+      const overlay = document.createElement("div");
+      overlay.style.cssText = "position:fixed;inset:0;z-index:10000;background:rgba(16,24,32,.72);display:flex;align-items:center;justify-content:center;padding:18px;";
+      overlay.innerHTML = `
+        <div style="width:min(440px,96vw);background:#fff;border-radius:16px;border:1px solid #d9e2ec;box-shadow:0 26px 80px rgba(0,0,0,.35);padding:18px;">
+          <h3 style="margin:0 0 8px;color:#b42318;font-size:20px;">Admin Password Required</h3>
+          <p style="margin:0 0 12px;line-height:1.45;color:#344054;font-weight:700;">This action affects inventory or refund/cancellation risk: <strong>${esc(reason)}</strong>.</p>
+          <p style="margin:0 0 12px;color:#667085;font-size:13px;">Confirm as ${esc(email)}.</p>
+          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:900;color:#667085;margin-bottom:5px;">Admin Password</label>
+          <input id="protectedAdminPasswordInput" type="password" autocomplete="current-password" style="width:100%;border:1px solid #d9e2ec;border-radius:10px;padding:12px;font-size:16px;" />
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+            <button id="protectedAdminCancelBtn" type="button" class="btn secondary">Cancel</button>
+            <button id="protectedAdminConfirmBtn" type="button" class="btn danger">Confirm</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      const input = overlay.querySelector("#protectedAdminPasswordInput");
+      const cleanup = value => { overlay.remove(); resolve(value); };
+      overlay.querySelector("#protectedAdminCancelBtn").addEventListener("click", () => cleanup(""));
+      overlay.querySelector("#protectedAdminConfirmBtn").addEventListener("click", () => cleanup(input.value));
+      input.addEventListener("keydown", e => { if(e.key === "Enter") cleanup(input.value); if(e.key === "Escape") cleanup(""); });
+      setTimeout(() => input.focus(), 50);
+    });
   }
   function lockBannerMarkup(order){
     if(!isOrderLocked(order)) return "";
-    return `<div class="lock-banner"><strong>🔒 Locked Order</strong>This order is protected because ${esc(lockReason(order))}. Safe forward progress is allowed, but risky changes require an Admin Override reason.</div>`;
+    return `<div class="lock-banner"><strong>🔒 Protected Order</strong>This order is protected because ${esc(lockReason(order))}. Delivered and Complete do not require override. Cancellation/refund/restock or other inventory-sensitive changes require the logged-in admin password.</div>`;
   }
   function overrideMarkup(order){
-    if(!isOrderLocked(order)) return "";
-    return `<div class="override-panel full"><label class="override-check"><input id="adminOverrideCheck" type="checkbox" />Admin Override — allow a protected/risky change</label><textarea id="adminOverrideReason" placeholder="Required only for risky protected changes. Example: Correcting wrong tracking number, approved cancellation, payment correction, etc."></textarea></div>`;
+    return "";
   }
 
   /* PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT */
@@ -1367,11 +1415,6 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, no_tracking_required: trackingNotRequired, no_tracking_reason: trackingReason || null, last_admin_actor: adminDisplayName(), last_admin_actor_email: cleanValue(currentUser?.email), updated_at: now };
 
     if(isRiskyLockedChange(order, updates)){
-      const overrideChecked = $("adminOverrideCheck")?.checked;
-      const overrideReason = cleanValue($("adminOverrideReason")?.value);
-      if(!overrideChecked || !overrideReason){
-        throw new Error("This order is locked. Check Admin Override and enter a reason before making this protected change.");
-      }
       updates.last_admin_actor = adminDisplayName();
       updates.last_admin_actor_email = cleanValue(currentUser?.email);
     }
@@ -1494,6 +1537,9 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
   async function saveOrder(order){
     try{
       const updates = buildUpdatesFromForm(order);
+      if(inventorySensitiveOrderChange(order, updates)){
+        await confirmAdminPasswordForProtectedAction(inventorySensitiveReason(order, updates));
+      }
       const emailTypes = detectCustomerEmailTypes(order, updates);
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
@@ -1694,6 +1740,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       setStatus(`Deleting ${selectedOrders.length} selected test order(s)...`);
       let restoreResult = { restored:0, failed:0 };
       if(shouldRestore){
+        await confirmAdminPasswordForProtectedAction('restore selected test order quantities back into inventory');
         setStatus('Restoring inventory from selected test orders...');
         restoreResult = await restoreInventoryForDeletedTestOrders(selectedOrders);
       }
