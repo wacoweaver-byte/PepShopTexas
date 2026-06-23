@@ -654,6 +654,68 @@ header .header-actions .btn.secondary.active {
   function removeNoTrackingToken(text){ return cleanValue(text).replace(new RegExp("\\s*" + NO_TRACKING_REQUIRED_TOKEN.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&"), "gi"), "").trim(); }
   function rawAdminNotes(order){ return cleanValue(order.admin_note || order.admin_notes || ""); }
   function noTrackingRequired(order){ return order.no_tracking_required === true || String(order.no_tracking_required).toLowerCase() === "true"; }
+  const PST_NO_TRACKING_REASON_OPTIONS = [
+    "Local delivery",
+    "Hand delivery",
+    "Customer pickup",
+    "Carrier did not provide tracking",
+    "Replacement shipment",
+    "Admin-approved shipping exception",
+    "Other — custom reason required"
+  ];
+  const PST_NO_TRACKING_OTHER_OPTION = "Other — custom reason required";
+  function noTrackingReasonLabel(value){
+    const text = cleanValue(value);
+    if(!text) return "";
+    const lower = text.toLowerCase();
+    const exact = PST_NO_TRACKING_REASON_OPTIONS.find(option => option.toLowerCase() === lower);
+    if(exact) return exact;
+    if(lower.startsWith("other:")) return PST_NO_TRACKING_OTHER_OPTION;
+    return PST_NO_TRACKING_OTHER_OPTION;
+  }
+  function noTrackingCustomReason(value){
+    const text = cleanValue(value);
+    if(!text) return "";
+    if(text.toLowerCase().startsWith("other:")) return text.replace(/^other:\s*/i, "").trim();
+    if(PST_NO_TRACKING_REASON_OPTIONS.some(option => option.toLowerCase() === text.toLowerCase())) return "";
+    return text;
+  }
+  function buildNoTrackingReason(choice, custom){
+    const selected = cleanValue(choice);
+    const note = cleanValue(custom);
+    if(!selected) return "";
+    if(selected === PST_NO_TRACKING_OTHER_OPTION) return note ? `Other: ${note}` : "";
+    return selected;
+  }
+  function noTrackingCustomerMessage(reason){
+    const text = cleanValue(reason);
+    const base = text.toLowerCase().startsWith("other:") ? cleanValue(text.replace(/^other:\s*/i, "")) : text;
+    const messages = {
+      "Local delivery": "Tracking is not available because this order was arranged for local delivery.",
+      "Hand delivery": "Tracking is not available because this order was hand delivered.",
+      "Customer pickup": "Tracking is not available because this order was picked up by the customer.",
+      "Carrier did not provide tracking": "Tracking is not available because the carrier did not provide a tracking number.",
+      "Replacement shipment": "Tracking is not available because this was processed as a replacement shipment.",
+      "Admin-approved shipping exception": "Tracking is not available due to an approved shipping exception."
+    };
+    return messages[base] || (base ? `Tracking is not available for this shipment. Reason: ${base}` : "Tracking is not available for this shipment.");
+  }
+  function noTrackingFormValues(order={}){
+    const existing = cleanValue(order.no_tracking_reason || "");
+    const choiceEl = $("editNoTrackingReasonChoice");
+    const customEl = $("editNoTrackingReasonCustom");
+    const choice = cleanValue(choiceEl?.value) || noTrackingReasonLabel(existing);
+    const custom = cleanValue(customEl?.value) || noTrackingCustomReason(existing);
+    const reason = buildNoTrackingReason(choice, custom);
+    return { choice, custom, reason, message: noTrackingCustomerMessage(reason) };
+  }
+  function noTrackingReasonSelectMarkup(order={}){
+    const existing = cleanValue(order.no_tracking_reason || "");
+    const selected = noTrackingReasonLabel(existing);
+    const custom = noTrackingCustomReason(existing);
+    const options = [`<option value="">Select reason...</option>`].concat(PST_NO_TRACKING_REASON_OPTIONS.map(option => `<option value="${esc(option)}" ${selected === option ? "selected" : ""}>${esc(option)}</option>`));
+    return `<div class="field"><label for="editNoTrackingReasonChoice">No Tracking Reason</label><select id="editNoTrackingReasonChoice">${options.join("")}</select></div><div class="field" id="editNoTrackingCustomWrap" style="${selected === PST_NO_TRACKING_OTHER_OPTION ? "" : "display:none"}"><label for="editNoTrackingReasonCustom">Custom Reason</label><input id="editNoTrackingReasonCustom" value="${esc(custom)}" placeholder="Enter customer-safe reason" /></div>`;
+  }
   function setNoTrackingToken(text, enabled){ const clean = removeNoTrackingToken(text); return enabled ? `${NO_TRACKING_REQUIRED_TOKEN}${clean ? "\n" + clean : ""}` : clean; }
   function pill(value){ const v = norm(value); return `<span class="pill ${esc(v)}">${esc(v.replaceAll("_"," "))}</span>`; }
   function orderNumber(order){ return cleanValue(order.order_number) || (order.order_sequence_number ? `PST-O${order.order_sequence_number}` : "") || cleanValue(order.order_no) || order.id || "—"; }
@@ -1487,12 +1549,12 @@ header .header-actions .btn.secondary.active {
           <div class="field"><label for="editTracking">Tracking Number</label><input id="editTracking" value="${esc(tracking)}" placeholder="Tracking number" /></div>
           <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
           <div class="field full"><label class="tracking-exception-check"><input id="editNoTrackingRequired" type="checkbox" ${noTrackingRequired(order) ? "checked" : ""} /> No tracking required for this order</label></div>
-          <div class="field full"><label for="editNoTrackingReason">No Tracking Reason</label><input id="editNoTrackingReason" value="${esc(order.no_tracking_reason || "")}" placeholder="Optional reason if tracking is not required" /></div>
+          <div class="field full"><div class="edit-grid">${noTrackingReasonSelectMarkup(order)}</div></div>
           <div class="field full"><label>Internal Admin Audit Log</label>${orderAuditLogMarkup(order)}</div>
           ${overrideMarkup(order)}
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
-        <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required. Missing tracking will stay on the attention dashboard until one of those is done.</div>
+        <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required and select a reason. If no tracking is required, the shipped email can still be sent without a tracking link.</div>
       </div>
       <div class="detail-section"><h3>Email Preview / Manual Resend</h3><div class="email-box"><h4>Preview before manually sending</h4><p>Payment marked Paid still sends automatically and moves the order to Processing. Use these buttons only when you intentionally need to preview or resend a customer email.</p><div style="display:grid;gap:8px">${previewableManualEmailTypes().map(emailType => `<div class="email-action-group"><strong>${esc(emailTypeLabel(emailType))}</strong><div class="email-action-buttons"><button class="btn secondary preview-email-action" data-email-type="${esc(emailType)}" type="button">Preview</button><button class="btn secondary email-action" data-email-type="${esc(emailType)}" type="button">Send</button></div></div>`).join("")}</div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
       <div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
@@ -1503,6 +1565,10 @@ header .header-actions .btn.secondary.active {
     $("reloadDetailBtn").addEventListener("click", loadOrders);
     $("printFulfillmentBtn").addEventListener("click", () => printFulfillmentSheet(order));
     $("saveOrderBtn").addEventListener("click", () => saveOrder(order));
+    $("editNoTrackingReasonChoice")?.addEventListener("change", () => {
+      const wrap = $("editNoTrackingCustomWrap");
+      if(wrap) wrap.style.display = $("editNoTrackingReasonChoice")?.value === PST_NO_TRACKING_OTHER_OPTION ? "" : "none";
+    });
     document.querySelectorAll(".preview-email-action").forEach(btn => btn.addEventListener("click", () => openEmailPreview(order, btn.dataset.emailType, false)));
     document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false, { skipPreview:true })));
   }
@@ -1514,7 +1580,8 @@ header .header-actions .btn.secondary.active {
     const tracking = $("editTracking").value.trim();
     const url = $("editTrackingUrl").value.trim();
     const trackingNotRequired = !!$("editNoTrackingRequired")?.checked;
-    const trackingReason = cleanValue($("editNoTrackingReason")?.value);
+    const noTrackingInfo = noTrackingFormValues(order);
+    const trackingReason = trackingNotRequired ? noTrackingInfo.reason : "";
 
     // Payment accepted should automatically advance a newly paid order into Processing.
     // Do not move backwards or override higher fulfillment stages like Packed/Shipped/Delivered.
@@ -1524,6 +1591,7 @@ header .header-actions .btn.secondary.active {
     }
 
     if(["shipped","delivered","complete","completed"].includes(norm(os)) && (!carrier || !tracking) && !trackingNotRequired) throw new Error("Tracking is required for shipped/delivered/complete orders unless No tracking required is checked.");
+    if(["shipped","delivered","complete","completed"].includes(norm(os)) && trackingNotRequired && !trackingReason) throw new Error("Select a no-tracking reason before saving a shipped/delivered/complete order without tracking.");
     const now = new Date().toISOString();
     const changes = [];
 if(norm(orderStatus(order)) !== norm(os)) {
@@ -1709,6 +1777,9 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     const email = customerEmail(order);
     const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
     const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
+    const noTrackingRequiredForEmail = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
+    const noTrackingInfo = noTrackingFormValues(order);
+    const shippedNoTrackingNote = type === "order_shipped" && noTrackingRequiredForEmail && !trackingNumber ? noTrackingInfo.message : "";
     return {
       type,
       originalType: type,
@@ -1723,8 +1794,11 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       total: orderTotal(order),
       carrier,
       trackingNumber,
-      trackingUrl: $("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url),
-      statusNote: type === "order_received" ? (paymentInstructions(order) || customerFacingStatusNote(type)) : customerFacingStatusNote(type),
+      trackingUrl: trackingNumber ? ($("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url)) : "",
+      noTrackingRequired: noTrackingRequiredForEmail,
+      noTrackingReason: noTrackingInfo.reason,
+      noTrackingMessage: noTrackingInfo.message,
+      statusNote: shippedNoTrackingNote || (type === "order_received" ? (paymentInstructions(order) || customerFacingStatusNote(type)) : customerFacingStatusNote(type)),
       paymentMethod: paymentMethod(order),
       paymentStatus: paymentStatus(order),
       paymentInstructions: paymentInstructions(order),
@@ -1744,12 +1818,22 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     return data;
   }
 
+  function validateShippedEmailReady(order, actionLabel="sending"){
+    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
+    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
+    const noTrackingChecked = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
+    const noTrackingInfo = noTrackingFormValues(order);
+    if(trackingNumber && carrier) return true;
+    if(noTrackingChecked && noTrackingInfo.reason) return true;
+    if(noTrackingChecked && !noTrackingInfo.reason){ alert(`Select a no-tracking reason before ${actionLabel} a shipped email.`); return false; }
+    alert(`Carrier and tracking number are required before ${actionLabel} a shipped email, unless No tracking required is checked and a reason is selected.`);
+    return false;
+  }
+
   async function openEmailPreview(order, type, automatic=false){
     const email = customerEmail(order);
     if(!email){ alert("This order does not have a customer email address."); return; }
-    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
-    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before previewing a shipped email."); return; }
+    if(type === "order_shipped" && !validateShippedEmailReady(order, "previewing")) return;
     setEmailPreviewLoading(email, emailTypeLabel(type));
     setStatus("Generating email preview...");
     try{
@@ -1773,9 +1857,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
   async function sendOrderEmail(order, type, automatic=false, options={}){
     const email = customerEmail(order);
     if(!email){ alert("This order does not have a customer email address."); return; }
-    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
-    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before sending a shipped email."); return; }
+    if(type === "order_shipped" && !validateShippedEmailReady(order, "sending")) return;
     if(!options.skipPreview && (emailTypeNeedsPreview(type) || options.previewFirst)){
       return openEmailPreview(order, type, automatic);
     }
