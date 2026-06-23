@@ -1812,23 +1812,26 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     const ids = selectedOrdersArray();
     if(!ids.length){ alert("Select one or more orders first."); return; }
     if(updates.order_status === "shipped" && !confirm("Bulk marking as shipped does not add tracking numbers. Continue only if tracking was already added or you will mark No Tracking Required afterward.")) return;
-    setStatus("Saving bulk updates...");
+
     const payload = { ...updates, updated_at: new Date().toISOString() };
+    const selectedOrders = ids.map(id => allOrders.find(o => String(o.id) === String(id))).filter(Boolean);
+    const protectedOrders = selectedOrders.filter(order => inventorySensitiveOrderChange(order, payload));
+
+    if(protectedOrders.length){
+      const reason = `${protectedOrders.length} selected order(s): ${inventorySensitiveReason(protectedOrders[0], payload)}`;
+      await confirmAdminPasswordForProtectedAction(reason);
+    }
+
+    setStatus("Saving bulk updates...");
     let failed = 0;
-    let skippedLocked = 0;
     for(const id of ids){
       try{
         const order = allOrders.find(o => String(o.id) === String(id));
-        if(order && isRiskyLockedChange(order, payload)){
-          skippedLocked++;
-          continue;
-        }
         await safeUpdateOrder(id, payload, order);
       } catch(e){ console.error(e); failed++; }
     }
     await loadOrders();
-    const extra = skippedLocked ? ` ${skippedLocked} locked order(s) were skipped because they require single-order Admin Override.` : "";
-    setStatus(failed ? `${message} ${failed} order(s) could not be updated.${extra}` : `${message}${extra}`, failed ? "bad" : "good");
+    setStatus(failed ? `${message} ${failed} order(s) could not be updated.` : message, failed ? "bad" : "good");
   }
 
   function wireEvents(){
