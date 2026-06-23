@@ -587,6 +587,7 @@ header .header-actions .btn.secondary.active {
           <button class="btn secondary" id="bulkProcessingBtn" type="button">Processing</button>
           <button class="btn secondary" id="bulkPackedBtn" type="button">Packed</button>
           <button class="btn secondary" id="bulkDeliveredBtn" type="button">Delivered</button>
+          <button class="btn secondary" id="bulkCompleteBtn" type="button">Complete</button>
           <button class="btn warning" id="bulkShippedBtn" type="button">Shipped</button>
           <button class="btn secondary" id="bulkNoTrackingBtn" type="button">No Tracking Req.</button>
           <button class="btn danger" id="bulkRejectedBtn" type="button">Reject</button>
@@ -2077,6 +2078,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     $("bulkProcessingBtn").addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
     $("bulkPackedBtn").addEventListener("click", () => bulkUpdate({ order_status:"packed", status:"packed" }, "Selected orders marked packed."));
     $("bulkDeliveredBtn").addEventListener("click", () => bulkUpdate({ order_status:"delivered", status:"delivered" }, "Selected orders marked delivered."));
+    $("bulkCompleteBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"complete", status:"complete" }, "Selected orders marked complete."));
     $("bulkShippedBtn").addEventListener("click", () => bulkUpdate({ order_status:"shipped", status:"shipped" }, "Selected orders marked shipped."));
     $("bulkNoTrackingBtn")?.addEventListener("click", bulkSetNoTrackingRequired);
     $("bulkRejectedBtn").addEventListener("click", () => bulkUpdate({ order_status:"rejected", status:"rejected" }, "Selected orders marked rejected."));
