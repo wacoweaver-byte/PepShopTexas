@@ -132,6 +132,7 @@ header { background:#fff; border-bottom:1px solid var(--line); position:sticky; 
 
       <div id="profileView" class="profile-view">
         <div class="profile-row"><strong>Name</strong><span id="profileName">—</span></div>
+        <div class="profile-row"><strong>Customer #</strong><span id="profileCustomerNumber">—</span></div>
         <div class="profile-row"><strong>Email</strong><span id="profileEmail">—</span></div>
         <div class="profile-row"><strong>Username</strong><span id="profileUsername">—</span></div>
         <div class="profile-row"><strong>Phone</strong><span id="profilePhone">—</span></div>
@@ -236,6 +237,13 @@ function setStatus(message, type = "info") {
   el.innerHTML = message;
 }
 
+
+function pstCustomerNumber(value) {
+  const clean = String(value ?? "").trim();
+  if (!clean || clean === "0" || clean.toLowerCase() === "null" || clean.toLowerCase() === "undefined") return "—";
+  return clean.startsWith("PST-C") ? clean : `PST-C${clean}`;
+}
+
 function getProfileValue(profile, ...keys) {
   if (!profile) return "";
   for (const key of keys) {
@@ -300,6 +308,8 @@ function populateProfileForm(profile, user) {
 function updateProfileDisplay(profile, user) {
   const name = [getProfileValue(profile, "first_name"), getProfileValue(profile, "last_name")].filter(Boolean).join(" ");
   document.getElementById("profileName").textContent = name || "Customer";
+  const customerNumEl = document.getElementById("profileCustomerNumber");
+  if (customerNumEl) customerNumEl.textContent = pstCustomerNumber(getProfileValue(profile, "customer_number"));
   document.getElementById("profileEmail").textContent = getProfileValue(profile, "email") || (user && user.email) || "—";
   document.getElementById("profileUsername").textContent = getProfileValue(profile, "username") || "—";
   document.getElementById("profilePhone").textContent = getProfileValue(profile, "phone") || "—";
