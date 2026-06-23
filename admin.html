@@ -464,6 +464,59 @@ header .header-actions .btn.secondary.active {
 .audit-scrollbox .audit-line-detail{margin-top:3px;line-height:1.25;font-size:11px;color:#344054;}
 .audit-scrollbox .audit-empty{font-size:12px;color:var(--muted);padding:8px;}
 
+
+/* PST_ADMIN_PATCH_V16_INVENTORY_RESTORE_VISUAL_STATUS */
+.inventory-restore-banner{
+  margin:12px 0 0;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(15,138,59,.25);
+  background:rgba(15,138,59,.075);
+  color:#0f5f2a;
+  line-height:1.45;
+  font-size:14px;
+}
+.inventory-restore-banner strong{display:block;margin-bottom:4px;}
+.inventory-pending-banner{
+  margin:12px 0 0;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(183,121,31,.28);
+  background:#fff8e6;
+  color:#7a4a00;
+  line-height:1.45;
+  font-size:14px;
+}
+.inventory-pending-banner strong{display:block;margin-bottom:4px;}
+.inventory-restored-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:6px;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  border:1px solid rgba(15,138,59,.25);
+  color:#0f5f2a;
+  background:rgba(15,138,59,.09);
+}
+.inventory-restore-needed-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:6px;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  border:1px solid rgba(183,121,31,.28);
+  color:#7a4a00;
+  background:#fff8e6;
+}
+
 </style>
 </head>
 <body>
@@ -1049,7 +1102,7 @@ header .header-actions .btn.secondary.active {
         <td>${pill(paymentStatus(order))}</td>
         <td>${paymentMethodPill(order)}</td>
         <td>${track ? `<strong>${esc(track)}</strong><div class="muted">${esc(order.tracking_carrier || order.carrier || "Carrier not set")}</div>` : `<span class="muted">Not added</span>`}</td>
-        <td>${attentionReason(order)}</td>
+        <td>${inventoryRestoreCompactMarkup(order)}${attentionReason(order)}</td>
       </tr>`;
     }).join("");
     document.querySelectorAll("tr.order-row").forEach(row => row.addEventListener("click", () => { const order = allOrders.find(o => String(o.id) === String(row.dataset.orderId)); if(order) renderOrderDetail(order); }));
@@ -1243,6 +1296,37 @@ header .header-actions .btn.secondary.active {
     if(newOS === "refunded" || newPS === "refunded") return "Inventory restored after order refund";
     return "Inventory restored by admin status change";
   }
+
+  function orderInventoryDeducted(order){
+    return order.inventory_deducted === true || String(order.inventory_deducted).toLowerCase() === "true";
+  }
+  function orderInventoryRestored(order){
+    return order.inventory_restored === true || String(order.inventory_restored).toLowerCase() === "true";
+  }
+  function closedInventoryReturnStatus(order){
+    const os = norm(orderStatus(order));
+    const closedReturnStatus = ["cancelled","canceled","rejected","refunded"].includes(os);
+    if(!closedReturnStatus || !orderInventoryDeducted(order)) return "";
+    if(orderInventoryRestored(order)) return "restored";
+    return "restore_needed";
+  }
+  function inventoryRestoreVisualMarkup(order){
+    const status = closedInventoryReturnStatus(order);
+    if(status === "restored"){
+      const restoredAt = esc(fmtDate(order.inventory_restored_at));
+      return `<div class="inventory-restore-banner"><strong>Inventory Restored</strong>Product quantity from this cancelled/rejected/refunded order has already been returned to inventory.${restoredAt !== "—" ? ` Restored: ${restoredAt}.` : ""}</div>`;
+    }
+    if(status === "restore_needed"){
+      return `<div class="inventory-pending-banner"><strong>Inventory Restore Needed</strong>This order deducted inventory, but the product quantity has not been returned yet.</div>`;
+    }
+    return "";
+  }
+  function inventoryRestoreCompactMarkup(order){
+    const status = closedInventoryReturnStatus(order);
+    if(status === "restored") return `<div class="inventory-restored-pill">Inventory Restored</div>`;
+    if(status === "restore_needed") return `<div class="inventory-restore-needed-pill">Restore Needed</div>`;
+    return "";
+  }
   async function restoreInventoryForOrderIfNeeded(order, updates){
     if(!inventoryRestoreNeeded(order, updates)) return { attempted:false, restored:false, message:"Inventory restore not needed." };
     const reason = inventoryRestoreReason(order, updates);
@@ -1378,7 +1462,7 @@ header .header-actions .btn.secondary.active {
     detail.innerHTML = `
       <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Fulfillment Sheet</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
       <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
-      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3><div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
+      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
       ${paymentInstructionsMarkup(order)}
       <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Fulfillment:</strong> Use Print Fulfillment Sheet after the order is received, paid, or moved to Processing. It opens a clean packing sheet with customer address, item/SKU rows, quantity checks, and final verification boxes.</div></div>
       <div class="detail-section"><h3>Update Order</h3>
