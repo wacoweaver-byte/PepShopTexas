@@ -1,3 +1,4 @@
+<!-- PST_ADMIN_PATCH_V17_CUSTOMER_ORDER_REFUND_NUMBERS -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
 <!DOCTYPE html>
@@ -517,6 +518,13 @@ header .header-actions .btn.secondary.active {
   background:#fff8e6;
 }
 
+/* PST_ADMIN_PATCH_V17_CUSTOMER_ORDER_REFUND_NUMBERS */
+.reference-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid rgba(0,119,200,.22);color:#003f9e;background:rgba(0,119,200,.08);margin-top:4px;}
+.reference-pill.refund{border-color:rgba(183,121,31,.28);color:#7a4a00;background:#fff8e6;}
+.reference-pill.legacy{border-color:#d1d5db;color:#4b5563;background:#f3f4f6;}
+.refund-reference-banner{margin:12px 0 0;padding:12px;border-radius:12px;border:1px solid rgba(0,119,200,.22);background:rgba(0,119,200,.055);color:#24445c;line-height:1.45;font-size:14px;}
+.refund-reference-banner strong{display:block;margin-bottom:4px;}
+
 </style>
 </head>
 <body>
@@ -648,7 +656,12 @@ header .header-actions .btn.secondary.active {
   function noTrackingRequired(order){ return order.no_tracking_required === true || String(order.no_tracking_required).toLowerCase() === "true"; }
   function setNoTrackingToken(text, enabled){ const clean = removeNoTrackingToken(text); return enabled ? `${NO_TRACKING_REQUIRED_TOKEN}${clean ? "\n" + clean : ""}` : clean; }
   function pill(value){ const v = norm(value); return `<span class="pill ${esc(v)}">${esc(v.replaceAll("_"," "))}</span>`; }
-  function orderNumber(order){ return order.order_number || order.order_no || order.id || "—"; }
+  function orderNumber(order){ return cleanValue(order.order_number) || (order.order_sequence_number ? `PST-O${order.order_sequence_number}` : "") || cleanValue(order.order_no) || order.id || "—"; }
+  function legacyOrderNumber(order){ const legacy = cleanValue(order.legacy_order_number); return legacy && legacy !== orderNumber(order) ? legacy : ""; }
+  function customerReferenceNumber(order){ const profile = profileOf(order); const n = cleanValue(order.customer_number || profile.customer_number); return n ? `PST-C${n}` : ""; }
+  function refundReferenceNumber(order){ const n = cleanValue(order.refund_number); return n ? `PST-R${n}` : ""; }
+  function refundReferenceMarkup(order){ const ref = refundReferenceNumber(order); if(!ref) return ""; const status = cleanValue(order.refund_status) || "pending"; const amount = Number(order.refund_amount || 0) ? money(order.refund_amount) : money(orderTotal(order)); const requested = order.refund_requested_at ? `<br>Requested: ${esc(fmtDate(order.refund_requested_at))}` : ""; const issued = order.refund_issued_at ? `<br>Issued: ${esc(fmtDate(order.refund_issued_at))}` : ""; return `<div class="refund-reference-banner"><strong>Refund Reference ${esc(ref)}</strong>Status: ${esc(status)} · Amount: ${amount}${requested}${issued}</div>`; }
+  function compactReferenceMarkup(order){ const customerRef = customerReferenceNumber(order); const refundRef = refundReferenceNumber(order); const legacyRef = legacyOrderNumber(order); return `${customerRef ? `<span class="reference-pill">${esc(customerRef)}</span>` : ""}${refundRef ? `<span class="reference-pill refund">${esc(refundRef)}</span>` : ""}${legacyRef ? `<span class="reference-pill legacy">Legacy ${esc(legacyRef)}</span>` : ""}`; }
   function orderTotal(order){ return order.total ?? order.total_amount ?? order.order_total ?? order.grand_total ?? 0; }
   function orderSubtotal(order){ return order.subtotal ?? order.subtotal_amount ?? 0; }
   function orderDiscount(order){ return order.discount_amount ?? order.discount ?? 0; }
@@ -1074,7 +1087,7 @@ header .header-actions .btn.secondary.active {
     const g = adminDashboardGroupFilter;
     const now = new Date();
     filteredOrders = allOrders.filter(order => {
-      const hay = [orderNumber(order), customerName(order), customerEmail(order), customerPhone(order), order.tracking_number, order.carrier, order.tracking_carrier, order.admin_note, order.customer_notes, paymentMethod(order)].join(" ").toLowerCase();
+      const hay = [orderNumber(order), legacyOrderNumber(order), customerReferenceNumber(order), refundReferenceNumber(order), customerName(order), customerEmail(order), customerPhone(order), order.tracking_number, order.carrier, order.tracking_carrier, order.admin_note, order.customer_notes, paymentMethod(order)].join(" ").toLowerCase();
       if(q && !hay.includes(q)) return false;
       if(s && norm(orderStatus(order)) !== s) return false;
       if(p && norm(paymentStatus(order)) !== p) return false;
@@ -1094,9 +1107,9 @@ header .header-actions .btn.secondary.active {
       const track = order.tracking_number || order.tracking || "";
       return `<tr class="order-row ${activeOrderId===order.id?"active":""}" data-order-id="${id}">
         <td onclick="event.stopPropagation()"><input class="row-check" type="checkbox" data-check-id="${id}" ${selectedOrderIds.has(String(order.id))?"checked":""}></td>
-        <td><strong>#${esc(String(orderNumber(order)))}</strong><div class="muted">${esc((order.items||[]).length)} item row(s)</div></td>
+        <td><strong>${esc(String(orderNumber(order)))}</strong><div class="muted">${esc((order.items||[]).length)} item row(s)</div>${legacyOrderNumber(order) ? `<div class="muted">Legacy: ${esc(legacyOrderNumber(order))}</div>` : ""}${refundReferenceNumber(order) ? `<div>${compactReferenceMarkup(order).replace(/<span class="reference-pill">[^<]*<\/span>/, "")}</div>` : ""}</td>
         <td>${esc(fmtDate(order.created_at || order.order_date))}</td>
-        <td><strong>${esc(customerName(order))}</strong><div class="muted">${esc(customerEmail(order) || "No email")}</div></td>
+        <td><strong>${esc(customerName(order))}</strong><div class="muted">${esc(customerEmail(order) || "No email")}</div>${customerReferenceNumber(order) ? `<div><span class="reference-pill">${esc(customerReferenceNumber(order))}</span></div>` : ""}</td>
         <td><strong>${money(orderTotal(order))}</strong></td>
         <td>${pill(orderStatus(order))}</td>
         <td>${pill(paymentStatus(order))}</td>
@@ -1461,8 +1474,8 @@ header .header-actions .btn.secondary.active {
     const detail = $("detailCard");
     detail.innerHTML = `
       <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Fulfillment Sheet</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
-      <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
-      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
+      <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Customer #</strong>${esc(customerReferenceNumber(order) || "—")}</div><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
+      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}${refundReferenceMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Order #</strong>${esc(orderNumber(order))}</div><div class="kv"><strong>Legacy Order #</strong>${esc(legacyOrderNumber(order) || "—")}</div><div class="kv"><strong>Refund #</strong>${esc(refundReferenceNumber(order) || "—")}</div><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
       ${paymentInstructionsMarkup(order)}
       <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Fulfillment:</strong> Use Print Fulfillment Sheet after the order is received, paid, or moved to Processing. It opens a clean packing sheet with customer address, item/SKU rows, quantity checks, and final verification boxes.</div></div>
       <div class="detail-section"><h3>Update Order</h3>
