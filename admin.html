@@ -1224,6 +1224,37 @@ header .header-actions .btn.secondary.active {
     if(newOS === "refunded" || newPS === "refunded") return "refund order / inventory-money risk";
     return "inventory-sensitive order change";
   }
+  function inventoryRestoreNeeded(order, updates){
+    const oldOS = norm(orderStatus(order));
+    const newOS = norm(updates.order_status || oldOS);
+    const oldPS = norm(paymentStatus(order));
+    const newPS = norm(updates.payment_status || oldPS);
+    const inventoryDeducted = order.inventory_deducted === true || String(order.inventory_deducted).toLowerCase() === "true";
+    const inventoryRestored = order.inventory_restored === true || String(order.inventory_restored).toLowerCase() === "true";
+    const cancellationLike = ["cancelled","canceled","rejected","refunded"].includes(newOS);
+    const refundLike = newPS === "refunded" && oldPS === "paid";
+    return inventoryDeducted && !inventoryRestored && (cancellationLike || refundLike);
+  }
+  function inventoryRestoreReason(order, updates){
+    const newOS = norm(updates.order_status || orderStatus(order));
+    const newPS = norm(updates.payment_status || paymentStatus(order));
+    if(["cancelled","canceled"].includes(newOS)) return "Inventory restored after order cancellation";
+    if(newOS === "rejected") return "Inventory restored after order rejection";
+    if(newOS === "refunded" || newPS === "refunded") return "Inventory restored after order refund";
+    return "Inventory restored by admin status change";
+  }
+  async function restoreInventoryForOrderIfNeeded(order, updates){
+    if(!inventoryRestoreNeeded(order, updates)) return { attempted:false, restored:false, message:"Inventory restore not needed." };
+    const reason = inventoryRestoreReason(order, updates);
+    const { data, error } = await supabaseClient.rpc("restore_inventory_for_order", {
+      p_order_id: order.id,
+      p_reason: `${reason} by ${adminDisplayName()}`
+    });
+    if(error) throw new Error(`Order was saved, but inventory restore failed: ${error.message || error}`);
+    if(data && data.success === false) throw new Error(`Order was saved, but inventory restore failed: ${data.message || data.reason || "Unknown restore error"}`);
+    await appendAdminAudit(order, `${reason}. ${data?.message || "Inventory restore request completed."}`);
+    return { attempted:true, restored:true, data, message:data?.message || "Inventory restored." };
+  }
   async function confirmAdminPasswordForProtectedAction(reason){
     const email = cleanValue(currentUser?.email);
     if(!email) throw new Error("Admin password confirmation failed: no logged-in admin email was found.");
@@ -1544,6 +1575,8 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
 
+      const restoreResult = await restoreInventoryForOrderIfNeeded(order, updates);
+
       const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
       const previewTypes = emailTypes.filter(emailTypeNeedsPreview);
@@ -1553,13 +1586,13 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
           for(const emailType of automaticTypes){
             await sendOrderEmail(mergedForEmail, emailType, true, { skipPreview:true, auditAutomatic:true });
           }
-          setStatus("Order updates saved and automatic customer email notification(s) sent.", "good");
+          setStatus(restoreResult.attempted ? "Order updates saved, inventory restored, and automatic customer email notification(s) sent." : "Order updates saved and automatic customer email notification(s) sent.", "good");
         }catch(emailError){
           console.error(emailError);
           setStatus(`Order saved, but customer email failed: ${emailError.message || emailError}`, "bad");
         }
       }else{
-        setStatus("Order updates saved.", "good");
+        setStatus(restoreResult.attempted ? "Order updates saved and inventory restored." : "Order updates saved.", "good");
       }
 
       await loadOrders();
@@ -1567,10 +1600,10 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       await renderOrderDetail(fresh);
 
       if(previewTypes.length){
-        setStatus(`Order saved. Preview required before sending: ${previewTypes.map(emailTypeLabel).join(", ")}.`, "good");
+        setStatus(`${restoreResult.attempted ? "Order saved and inventory restored" : "Order saved"}. Preview required before sending: ${previewTypes.map(emailTypeLabel).join(", ")}.`, "good");
         setTimeout(() => openEmailPreview(fresh, previewTypes[0], true), 250);
       }else if(!emailTypes.length){
-        setStatus("Order updates saved. No customer-facing status email was needed.", "good");
+        setStatus(restoreResult.attempted ? "Order updates saved and inventory restored. No customer-facing status email was needed." : "Order updates saved. No customer-facing status email was needed.", "good");
       }
     }catch(error){ console.error(error); setStatus(error.message || "Could not save order updates.", "bad"); alert(error.message || "Could not save order updates."); }
   }
@@ -1824,14 +1857,20 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
 
     setStatus("Saving bulk updates...");
     let failed = 0;
+    let restored = 0;
     for(const id of ids){
       try{
         const order = allOrders.find(o => String(o.id) === String(id));
         await safeUpdateOrder(id, payload, order);
+        if(order && inventoryRestoreNeeded(order, payload)){
+          await restoreInventoryForOrderIfNeeded(order, payload);
+          restored++;
+        }
       } catch(e){ console.error(e); failed++; }
     }
     await loadOrders();
-    setStatus(failed ? `${message} ${failed} order(s) could not be updated.` : message, failed ? "bad" : "good");
+    const restoreText = restored ? ` Inventory restored for ${restored} order(s).` : "";
+    setStatus(failed ? `${message} ${failed} order(s) could not be updated.${restoreText}` : `${message}${restoreText}`, failed ? "bad" : "good");
   }
 
   function wireEvents(){
