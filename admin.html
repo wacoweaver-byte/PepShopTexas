@@ -1061,16 +1061,323 @@ header .actions button.btn {
 }
 </style>
 
+
+
+<style id="pst-admin-inventory-shell-final">
+/* PST_ADMIN_INVENTORY_MIRROR_FINAL
+   One admin shell copied across every admin page.
+   Scope: header, admin page container, page titles, card/section headings, basic typography only.
+   Does not modify page scripts or page-specific business logic.
+*/
+:root {
+  --pst-admin-font: Arial, Helvetica, sans-serif;
+  --pst-admin-blue: #003f9e;
+  --pst-admin-accent: #0085d5;
+  --pst-admin-text: #101820;
+  --pst-admin-muted: #596579;
+  --pst-admin-line: #d9e2ec;
+  --pst-admin-shell-width: 1500px;
+  --pst-admin-x: 18px;
+}
+html, body {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+body, input, select, textarea, button {
+  font-family: var(--pst-admin-font) !important;
+}
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--pst-admin-line) !important;
+  font-family: var(--pst-admin-font) !important;
+  overflow: visible !important;
+}
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: var(--pst-admin-shell-width) !important;
+  min-height: 92px !important;
+  margin: 0 auto !important;
+  padding: 14px var(--pst-admin-x) !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: 390px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 22px !important;
+  row-gap: 10px !important;
+  background: #ffffff !important;
+}
+header .brand,
+header .pst-admin-brand-lock {
+  grid-column: 1 !important;
+  width: 390px !important;
+  min-width: 390px !important;
+  max-width: 390px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 132px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 22px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--pst-admin-muted) !important;
+  text-decoration: none !important;
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  line-height: 1.15 !important;
+  overflow: visible !important;
+}
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-width: 0 !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  color: var(--pst-admin-muted) !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: 21px !important;
+  font-weight: 400 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+header .actions,
+header .pst-admin-actions-lock {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 6px 0 0 !important;
+  box-sizing: border-box !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .pst-admin-actions-lock a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock button.btn {
+  flex: 0 0 auto !important;
+  min-width: auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--pst-admin-line) !important;
+  background: #ffffff !important;
+  color: var(--pst-admin-text) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  background: var(--pst-admin-accent) !important;
+  border-color: var(--pst-admin-accent) !important;
+  color: #ffffff !important;
+}
+main,
+.admin-main,
+.page-wrap,
+.wrap,
+.container,
+.admin-container,
+.dashboard,
+.content {
+  max-width: var(--pst-admin-shell-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: var(--pst-admin-x) !important;
+  padding-right: var(--pst-admin-x) !important;
+  box-sizing: border-box !important;
+}
+main {
+  padding-top: 22px !important;
+  padding-bottom: 60px !important;
+}
+.page-title,
+.title-row,
+.page-head,
+.admin-page-head {
+  max-width: var(--pst-admin-shell-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: 16px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+h1,
+.page-title h1,
+.title-row h1,
+.page-head h1,
+.admin-page-head h1 {
+  margin: 0 0 6px !important;
+  color: var(--pst-admin-text) !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: clamp(26px, 3vw, 38px) !important;
+  font-weight: 400 !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+h2, h3,
+.card h2,
+.card h3,
+.panel h2,
+.panel h3,
+.section-title,
+.box-title,
+.settings-title {
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+.subtitle,
+.page-subtitle,
+.help-text,
+p, li, td, input, select, textarea {
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 400 !important;
+}
+label,
+th,
+.badge,
+.status,
+.empty-state,
+.small-label,
+.meta-label,
+.form-field label,
+.order-meta strong,
+.profile-row strong {
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+strong { font-weight: 500 !important; }
+@media (max-width: 1180px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+    padding: 12px var(--pst-admin-x) !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    grid-column: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    grid-column: 1 !important;
+    width: 100% !important;
+  }
+}
+@media (max-width: 640px) {
+  :root { --pst-admin-x: 14px; }
+  header .brand,
+  header .pst-admin-brand-lock {
+    height: 54px !important;
+    min-height: 54px !important;
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    column-gap: 14px !important;
+  }
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 112px !important;
+    height: 54px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+  }
+  header .pst-master-page-label {
+    height: 54px !important;
+    min-height: 54px !important;
+    font-size: 18px !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 14px !important;
+    font-size: 15px !important;
+  }
+  h1,
+  .page-title h1,
+  .title-row h1,
+  .page-head h1,
+  .admin-page-head h1 {
+    font-size: 30px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header>
   <div class="topbar pst-admin-topbar-lock">
-    <div class="brand pst-admin-brand-lock">
+    <a class="brand pst-admin-brand-lock" href="admin.html" aria-label="Pep Shop Texas Admin Home">
       <img class="pst-master-admin-logo" src="assets/icons/pst-logo-extracted.jpg?v=2" alt="Pep Shop Texas logo">
-      <div class="pst-master-page-label">Orders Management</div>
-    </div>
-    <div class="actions pst-admin-actions-lock">
-      <!-- PST SHARED ADMIN HEADER FINAL LOCKED V3 -->
+      <span class="pst-master-page-label">Orders Management</span>
+    </a>
+    <nav class="actions pst-admin-actions-lock" aria-label="Admin navigation">
       <a class="btn secondary active" href="admin.html">Orders</a>
       <a class="btn secondary" href="inventory.html">Inventory</a>
       <a class="btn secondary" href="products.html">Products</a>
@@ -1078,9 +1385,8 @@ header .actions button.btn {
       <a class="btn secondary" href="promotions.html">Promotions</a>
       <a class="btn secondary" href="reports.html">Reports</a>
       <a class="btn secondary" href="customers.html">Customers</a>
-      <a class="btn secondary" href="index.html">Website</a>
-      <button class="btn secondary" id="refreshBtn" type="button" onclick="window.location.reload()">Refresh</button>
-    </div>
+      <a class="btn secondary" href="index.html">View Site</a>
+    </nav>
   </div>
 </header>
 
