@@ -1874,6 +1874,10 @@ strong { font-weight: 500 !important; }
         <select id="incomingProductSelect"><option value="">Loading products...</option></select>
       </div>
       <div class="field">
+        <label>Date Ordered</label>
+        <input id="incomingOrderDate" type="date" />
+      </div>
+      <div class="field">
         <label>Ordered Qty (Vials)</label>
         <input id="incomingQty" type="number" min="1" step="1" placeholder="10" />
       </div>
@@ -1911,7 +1915,7 @@ strong { font-weight: 500 !important; }
       </div>
       <button class="btn success" id="addIncomingBtn" type="button">Add Incoming</button>
     </div>
-    <div class="incoming-note" id="incomingInventoryNote">Entry timestamp is stored when you add the incoming order. Expected arrival defaults to order date + 21 days. Enter kit cost per 10-vial kit; cost per vial and total paid calculate automatically. Receiving an order adds that quantity into Current Vials and records an inventory movement.</div>
+    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival defaults to Date Ordered + 21 days. Enter kit cost per 10-vial kit; cost per vial and total paid calculate automatically. Receiving an order adds that quantity into Current Vials and records an inventory movement.</div>
     <div class="incoming-table-wrap">
       <table class="incoming-table">
         <thead>
@@ -2437,6 +2441,7 @@ function startIncomingOrderFromReorder(productId, suggestedQty) {
     qtyEl.value = String(qty);
   }
   if (statusEl) statusEl.value = "ordered";
+  setIncomingOrderDateToday(false);
   setIncomingUserField(true);
   syncIncomingTotalCostField();
 
@@ -2757,6 +2762,28 @@ async function persistIncomingRows() {
   if (!incomingUsesSupabase) saveIncomingLocalRows(incomingInventoryRows);
 }
 
+function incomingOrderDateISO() {
+  const value = $("incomingOrderDate")?.value;
+  if (value) {
+    const parts = value.split("-").map(Number);
+    if (parts.length === 3 && parts.every(Number.isFinite)) {
+      return new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0).toISOString();
+    }
+  }
+  return new Date().toISOString();
+}
+
+function setIncomingOrderDateToday(force=false) {
+  const el = $("incomingOrderDate");
+  if (!el) return;
+  if (!force && el.value) return;
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  el.value = `${yyyy}-${mm}-${dd}`;
+}
+
 async function addIncomingInventory() {
   const product = selectedIncomingProduct();
   const qty = Number($("incomingQty")?.value || 0);
@@ -2766,7 +2793,7 @@ async function addIncomingInventory() {
   const unitCost = kitCost > 0 ? kitCost / PST_KIT_VIAL_COUNT : 0;
   const shippingCost = Number($("incomingShippingCost")?.value || 0);
   const totalCost = ((qty / PST_KIT_VIAL_COUNT) * kitCost) + shippingCost;
-  const orderedAt = new Date().toISOString();
+  const orderedAt = incomingOrderDateISO();
   const expectedArrival = addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString();
   const row = {
     id: crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}`,
@@ -2810,6 +2837,7 @@ async function addIncomingInventory() {
   if ($("incomingSupplier")) $("incomingSupplier").value = "";
   if ($("incomingTracking")) $("incomingTracking").value = "";
   if ($("incomingNotes")) $("incomingNotes").value = "";
+  setIncomingOrderDateToday(true);
   setIncomingUserField(true);
   setStatus(`Incoming order added for ${row.product_name}: ${qty} vial(s).`, "good");
   await loadIncomingInventory();
@@ -3309,6 +3337,7 @@ function wireEvents() {
     const el = $(id);
     if (el) el.addEventListener("input", syncIncomingTotalCostField);
   });
+  setIncomingOrderDateToday(false);
   if ($("addIncomingBtn")) $("addIncomingBtn")?.addEventListener("click", addIncomingInventory);
   if ($("toggleIncomingAuditBtn")) $("toggleIncomingAuditBtn")?.addEventListener("click", () => {
     incomingAuditVisible = !incomingAuditVisible;
