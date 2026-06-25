@@ -2058,6 +2058,7 @@ const PST_INCOMING_MIGRATION_KEY = "pst_incoming_inventory_migrated_to_supabase_
 let salesByInventoryId = {};
 let movementByInventoryId = {};
 let reorderSalesLoadError = "";
+let productCatalogLabelLookup = null;
 
 
 const $ = id => document.getElementById(id);
@@ -2132,6 +2133,87 @@ const DEFAULT_KIT_VIAL_COUNT = 10;
 
 function normTextKey(value) {
   return String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function doseMatchKey(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/micrograms?|mcg|µg/g, "mcg")
+    .replace(/milligrams?|mg/g, "mg")
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function incomingCatalogAliasKeys(item) {
+  const values = [
+    item?.product_key,
+    item?.sku,
+    item?.display_name,
+    item?.name,
+    item?.strength,
+    [item?.display_name, item?.strength].filter(Boolean).join(" ")
+  ];
+  const keys = values.map(normTextKey).filter(Boolean);
+  const combined = values.join(" ").toLowerCase();
+  const dose = doseMatchKey(item?.strength || combined.match(/\b\d+(?:\.\d+)?\s*(?:mg|mcg|µg|micrograms?|milligrams?)\b/i)?.[0] || "");
+
+  if (combined.includes("glow") || (combined.includes("bpc") && combined.includes("ghk") && (combined.includes("tb") || combined.includes("nad")))) {
+    keys.push(normTextKey(`glow blend ${dose}`), normTextKey(`glow ${dose}`), normTextKey("glow blend"), normTextKey("glow"));
+  }
+  if (combined.includes("wolverine") || (combined.includes("bpc") && combined.includes("tb") && !combined.includes("ghk"))) {
+    keys.push(normTextKey(`wolverine stack ${dose}`), normTextKey(`wolverine ${dose}`), normTextKey("wolverine stack"), normTextKey("wolverine"));
+  }
+  if (combined.includes("klow") || (combined.includes("kpv") && combined.includes("bpc") && combined.includes("tb"))) {
+    keys.push(normTextKey(`klow blend ${dose}`), normTextKey(`klow ${dose}`), normTextKey("klow blend"), normTextKey("klow"));
+  }
+
+  return Array.from(new Set(keys.filter(Boolean)));
+}
+
+async function loadProductCatalogLabelLookup() {
+  try {
+    const { data, error } = await db
+      .from("product_catalog")
+      .select("*");
+
+    if (error) throw error;
+
+    const lookup = {};
+    (data || []).forEach(product => {
+      incomingCatalogAliasKeys(product).forEach(key => {
+        if (!lookup[key]) lookup[key] = product;
+      });
+    });
+    productCatalogLabelLookup = lookup;
+    return lookup;
+  } catch (err) {
+    console.warn("Product catalog labels unavailable for inventory dropdown; using inventory labels only.", err);
+    productCatalogLabelLookup = {};
+    return productCatalogLabelLookup;
+  }
+}
+
+function productCatalogForInventoryItem(item) {
+  const lookup = productCatalogLabelLookup || {};
+  for (const key of incomingCatalogAliasKeys(item)) {
+    if (lookup[key]) return lookup[key];
+  }
+  return null;
+}
+
+function mergeInventoryCatalogLabel(item) {
+  const catalog = productCatalogForInventoryItem(item);
+  if (!catalog) return { ...item };
+
+  return {
+    ...item,
+    _catalog_product_key: catalog.product_key || item.product_key || null,
+    _catalog_display_name: catalog.display_name || item.display_name || null,
+    _catalog_strength: catalog.strength || item.strength || null,
+    display_name: catalog.display_name || item.display_name,
+    strength: catalog.strength || item.strength,
+    category: catalog.category || item.category,
+    is_active: catalog.is_active !== false && item.is_active !== false,
+  };
 }
 
 function orderActiveStatus(order) {
@@ -2527,9 +2609,10 @@ function incomingRowOpen(row) {
 
 function incomingProductLabel(item) {
   if (!item) return "Product";
-  const sku = String(item.product_key || item.sku || "").trim();
-  const display = String(item.display_name || sku || item.id || "Product").trim();
-  const strength = String(item.strength || "").trim();
+  const catalog = productCatalogForInventoryItem(item) || {};
+  const sku = String(catalog.product_key || item._catalog_product_key || item.product_key || item.sku || "").trim();
+  const display = String(catalog.display_name || item._catalog_display_name || item.display_name || sku || item.id || "Product").trim();
+  const strength = String(catalog.strength || item._catalog_strength || item.strength || "").trim();
   const fullLabel = strength && !display.toLowerCase().includes(strength.toLowerCase()) ? `${display} ${strength}` : display;
   return sku ? `${fullLabel} — ${sku}` : fullLabel;
 }
@@ -2798,7 +2881,7 @@ async function addIncomingInventory() {
   const row = {
     id: crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}`,
     product_id: product.id,
-    product_key: product.product_key || null,
+    product_key: product._catalog_product_key || product.product_key || null,
     product_name: incomingProductLabel(product),
     ordered_quantity: qty,
     kit_cost: Number.isFinite(kitCost) ? kitCost : 0,
@@ -2887,6 +2970,7 @@ async function receiveIncomingInventory(id) {
 
 async function loadInventory() {
   setStatus("Loading inventory...");
+  await loadProductCatalogLabelLookup();
   const { data, error } = await db
     .from("product_inventory")
     .select("*")
@@ -2894,7 +2978,7 @@ async function loadInventory() {
 
   if (error) throw error;
 
-  allItems = (data || []).map(item => ({ ...item }));
+  allItems = (data || []).map(item => mergeInventoryCatalogLabel(item));
   await loadReorderSales();
   populateCategoryFilter();
   applyFilters();
