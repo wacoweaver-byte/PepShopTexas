@@ -79,75 +79,6 @@ tr.dirty { background:#fffaf0; }
 .status-pill { display:inline-block; padding:5px 8px; border-radius:999px; font-size:11px; font-weight:900; text-transform:uppercase; white-space:nowrap; }
 .active-pill { background:#edf8f0; color:var(--green); }
 .inactive-pill { background:#fff0f0; color:var(--red); }
-.preview-cell { min-width:230px; }
-.dynamic-label {
-  width:230px;
-  min-height:300px;
-  border:1px solid #d8e0ea;
-  border-radius:16px;
-  background:linear-gradient(180deg,#f6f6f6 0%,#ffffff 45%,#e8eef5 100%);
-  box-shadow:0 8px 24px rgba(0,0,0,.12);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  padding:16px 8px;
-}
-.dynamic-label-main {
-  width:175px;
-  min-height:220px;
-  padding:14px 9px 0;
-  text-align:center;
-  background:#fff;
-  position:relative;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-}
-.dynamic-label-logo {
-  font-family:var(--pst-brand-font);
-  font-size:42px;
-  letter-spacing:.5px;
-  line-height:.85;
-}
-.dynamic-label-logo span { color:var(--blue); }
-.dynamic-label-sub {
-  font-size:9px;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  margin:7px 0 12px;
-  color:#101820;
-  border-top:2px solid var(--blue);
-  padding-top:5px;
-}
-.dynamic-label-name {
-  font-weight:900;
-  text-transform:uppercase;
-  font-size:21px;
-  line-height:1.05;
-  margin:0 auto 9px;
-  color:#fff;
-  background:var(--blue);
-  padding:8px 4px;
-  border-radius:4px;
-}
-.dynamic-label-strength {
-  color:#fff;
-  background:var(--blue);
-  font-weight:900;
-  font-size:18px;
-  padding:6px 10px;
-  border-radius:4px;
-  display:inline-block;
-}
-.dynamic-label-foot {
-  margin-top:11px;
-  font-size:9px;
-  color:#111;
-  font-weight:900;
-}
-.dynamic-label-stripe {
-  display:none;
-}
 .note { font-size:12px; color:var(--muted); line-height:1.35; }
 @media(max-width:1150px) {
   .card-head { grid-template-columns:1fr; }
@@ -428,31 +359,6 @@ header .header-actions .btn.secondary.active {
 
 
 
-/* PST_PRODUCTS_PATCH_V18_IMAGE_PREVIEW_AND_LABEL_CENTER */
-.preview-cell {
-  min-width: 122px !important;
-  width: 122px !important;
-  text-align: center !important;
-}
-.pst-product-thumb-wrap {
-  display: grid !important;
-  justify-items: center !important;
-  gap: 8px !important;
-}
-.pst-product-thumb {
-  width: 88px !important;
-  height: auto !important;
-  border-radius: 10px !important;
-  box-shadow: 0 6px 16px rgba(0,0,0,.12) !important;
-  display: block !important;
-  cursor: zoom-in !important;
-}
-.pst-preview-btn {
-  min-height: 30px !important;
-  padding: 6px 9px !important;
-  border-radius: 8px !important;
-  font-size: 11px !important;
-}
 .pst-image-preview-overlay {
   position: fixed !important;
   inset: 0 !important;
@@ -1657,7 +1563,6 @@ strong { font-weight: 500 !important; }
       </div>
 
       <div class="product-admin-scroll-nav" aria-label="Product admin quick navigation">
-        <button type="button" data-scroll-col="preview">Label</button>
         <button type="button" data-scroll-col="product_key">Item # / SKU</button>
         <button type="button" data-scroll-col="display_name">Name</button>
         <button type="button" data-scroll-col="strength">Strength</button>
@@ -1681,7 +1586,6 @@ strong { font-weight: 500 !important; }
         <table>
           <thead>
             <tr>
-              <th>Dynamic Label Preview</th>
               <th>Item # / SKU</th>
               <th>Display Name</th>
               <th>Strength</th>
@@ -1708,7 +1612,7 @@ strong { font-weight: 500 !important; }
             </tr>
           </thead>
           <tbody id="productsBody">
-            <tr><td colspan="25" class="note">Loading products...</td></tr>
+            <tr><td colspan="23" class="note">Loading products...</td></tr>
           </tbody>
         </table>
       </div>
@@ -2128,22 +2032,14 @@ function applyFilters() {
 function renderTable() {
   const body = $("productsBody");
   if (!filteredProducts.length) {
-    body.innerHTML = `<tr><td colspan="24" class="note">No products match current filters. Click “Import products.json” or “Add Product.”</td></tr>`;
+    body.innerHTML = `<tr><td colspan="23" class="note">No products match current filters. Click “Import products.json” or “Add Product.”</td></tr>`;
     return;
   }
 
   body.innerHTML = filteredProducts.map(product => {
     const dirty = dirtyIds.has(product.id) ? "dirty" : "";
-    const previewSrc = makePSTTemplateOverlayDataUrlForAdmin(product);
-    const previewTitle = esc(product.display_name || product.product_key || "Product");
     return `
       <tr data-id="${product.id}" class="${dirty}">
-        <td class="preview-cell">
-          <div class="pst-product-thumb-wrap">
-            <img class="pst-product-thumb" loading="lazy" data-live-label-thumb="${product.id}" src="${previewSrc}" alt="PST dynamic label-line vial preview" data-preview-src="${previewSrc}" data-preview-title="${previewTitle}">
-            <button class="btn secondary pst-preview-btn" type="button" data-live-label-button="${product.id}" data-preview-src="${previewSrc}" data-preview-title="${previewTitle}">Preview</button>
-          </div>
-        </td>
         <td><input class="med" data-field="product_key" value="${esc(product.product_key || "")}" placeholder="Item # / SKU" title="System identity used by Products, Inventory, Orders, and Reports"></td>
         <td><input class="med" data-field="display_name" value="${esc(product.display_name || "")}"></td>
         <td><input class="short" data-field="strength" value="${esc(product.strength || "")}"></td>
@@ -2248,27 +2144,8 @@ function getRowData(id) {
 }
 
 
-/* V23: Refresh the visible vial preview from the editable label fields immediately.
-   This makes Label Line 1/2/3 + Label Dose the true label layout override,
-   while Display Name remains the storefront/cart name. */
 function refreshRowDynamicLabelPreview(id) {
-  const data = getRowData(id);
-  if (!data) return;
-
-  const src = makePSTTemplateOverlayDataUrlForAdmin(data);
-  const title = data.display_name || data.product_key || "Product";
-  const img = document.querySelector(`[data-live-label-thumb="${pstCssEscape(id)}"]`);
-  const btn = document.querySelector(`[data-live-label-button="${pstCssEscape(id)}"]`);
-
-  if (img) {
-    img.src = src;
-    img.dataset.previewSrc = src;
-    img.dataset.previewTitle = title;
-  }
-  if (btn) {
-    btn.dataset.previewSrc = src;
-    btn.dataset.previewTitle = title;
-  }
+  // Preview images are intentionally disabled to keep Products Management fast.
 }
 
 async function saveRow(id) {
@@ -2746,9 +2623,7 @@ function setupProductAdminScrollNav() {
       const field = btn.dataset.scrollCol;
       let target = null;
 
-      if (field === "preview") {
-        target = document.querySelector(".preview-cell");
-      } else if (field === "save") {
+      if (field === "save") {
         target = document.querySelector(".row-save");
       } else {
         target = document.querySelector(`[data-field="${field}"]`);
