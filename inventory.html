@@ -571,12 +571,18 @@ header .header-actions .btn.secondary.active {
 .incoming-audit { display:none; margin-top:8px; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:#fbfcff; color:#333; font-size:12px; line-height:1.4; white-space:pre-wrap; }
 .incoming-audit.open { display:block; }
 .incoming-actions { display:flex; flex-wrap:wrap; gap:6px; }
+.incoming-edit-panel { background:#fbfcff; border:1px solid var(--line); border-radius:12px; padding:12px; }
+.incoming-edit-grid { display:grid; grid-template-columns:repeat(8,minmax(110px,1fr)); gap:10px; align-items:end; }
+.incoming-edit-grid label { display:block; font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:900; letter-spacing:.05em; }
+.incoming-edit-grid input, .incoming-edit-grid select { margin-top:5px; }
+.incoming-edit-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
 .incoming-summary-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; padding:14px; border-bottom:1px solid var(--line); background:#fff; }
 .incoming-stat { border:1px solid var(--line); border-radius:12px; padding:11px; background:#fbfcff; }
 .incoming-stat strong { display:block; font-size:22px; color:var(--blue); line-height:1; margin-bottom:6px; }
 .incoming-stat span { color:var(--muted); font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; }
 @media(max-width:1150px){ .incoming-form-grid { grid-template-columns:1fr 1fr; } .incoming-summary-grid { grid-template-columns:1fr 1fr; } }
-@media(max-width:640px){ .incoming-form-grid,.incoming-summary-grid { grid-template-columns:1fr; } }
+@media(max-width:1100px){ .incoming-edit-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:640px){ .incoming-form-grid,.incoming-summary-grid,.incoming-edit-grid { grid-template-columns:1fr; } }
 
 
 /* PST_INVENTORY_PATCH_V14_COLLAPSIBLE_DASHBOARD */
@@ -2052,6 +2058,7 @@ let dirtyIds = new Set();
 let incomingInventoryRows = [];
 let incomingUsesSupabase = false;
 let incomingAuditVisible = false;
+let editingIncomingId = null;
 const PST_INCOMING_LEAD_DAYS = 21;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 const PST_INCOMING_MIGRATION_KEY = "pst_incoming_inventory_migrated_to_supabase_v1";
@@ -2576,6 +2583,25 @@ function fmtShortDate(value) {
   return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
 }
 
+function incomingDateInputValue(value) {
+  const d = value ? new Date(value) : new Date();
+  if (Number.isNaN(d.getTime())) return "";
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function incomingDateISOFromInput(value, fallback) {
+  if (value) {
+    const parts = String(value).split("-").map(Number);
+    if (parts.length === 3 && parts.every(Number.isFinite)) {
+      return new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0).toISOString();
+    }
+  }
+  return fallback || new Date().toISOString();
+}
+
 function addDays(value, days) {
   const d = value ? new Date(value) : new Date();
   if (Number.isNaN(d.getTime())) return new Date();
@@ -2600,6 +2626,13 @@ function incomingStatusLabel(value) {
 function incomingStatusPill(value) {
   const v = String(value || "ordered").toLowerCase();
   return `<span class="incoming-pill incoming-${esc(v)}">${esc(incomingStatusLabel(v))}</span>`;
+}
+
+function incomingStatusOptions(current) {
+  const selected = String(current || "ordered").toLowerCase();
+  return ["ordered", "in_transit", "issue_shorted", "received", "cancelled"]
+    .map(value => `<option value="${value}" ${selected === value ? "selected" : ""}>${esc(incomingStatusLabel(value))}</option>`)
+    .join("");
 }
 
 function incomingRowOpen(row) {
@@ -2741,6 +2774,30 @@ function incomingAuditText(row) {
   return lines.join("\n");
 }
 
+function incomingEditRowHTML(row) {
+  const id = esc(row.id);
+  return `<tr class="incoming-edit-row" data-editing-incoming-id="${id}">
+    <td colspan="10">
+      <div class="incoming-edit-panel">
+        <div class="incoming-edit-grid">
+          <label>Date Ordered<input data-incoming-edit="${id}" data-field="ordered_at" type="date" value="${esc(incomingDateInputValue(row.ordered_at || row.created_at))}"></label>
+          <label>Qty Ordered<input data-incoming-edit="${id}" data-field="ordered_quantity" type="number" min="1" step="1" value="${esc(Number(row.ordered_quantity || 0))}"></label>
+          <label>Kit Cost<input data-incoming-edit="${id}" data-field="kit_cost" type="number" min="0" step="0.01" value="${esc(incomingKitCost(row) || "")}"></label>
+          <label>Ship / Fees<input data-incoming-edit="${id}" data-field="shipping_cost" type="number" min="0" step="0.01" value="${esc(incomingShippingCost(row) || "")}"></label>
+          <label>Supplier<input data-incoming-edit="${id}" data-field="supplier_name" type="text" value="${esc(row.supplier_name || row.supplier || "")}"></label>
+          <label>Tracking<input data-incoming-edit="${id}" data-field="tracking_number" type="text" value="${esc(row.tracking_number || "")}"></label>
+          <label>Status<select data-incoming-edit="${id}" data-field="status">${incomingStatusOptions(row.status)}</select></label>
+          <label>User / Note<input data-incoming-edit="${id}" data-field="notes" type="text" value="${esc(row.notes || "")}"></label>
+        </div>
+        <div class="incoming-edit-actions">
+          <button class="btn primary save-incoming-edit-btn" data-incoming-id="${id}" type="button">Save Changes</button>
+          <button class="btn secondary close-incoming-edit-btn" type="button">Close</button>
+        </div>
+      </div>
+    </td>
+  </tr>`;
+}
+
 function renderIncomingInventory() {
   populateIncomingProductSelect();
   const body = $("incomingInventoryBody");
@@ -2783,7 +2840,7 @@ function renderIncomingInventory() {
     const shipCost = incomingShippingCost(row);
     const totalCost = incomingTotalCost(row);
     const auditClass = incomingAuditVisible ? "incoming-audit open" : "incoming-audit";
-    return `<tr data-incoming-id="${esc(row.id)}">
+    const baseRow = `<tr data-incoming-id="${esc(row.id)}">
       <td><strong>${esc(row.product_name || row.display_name || row.product_key || "Product")}</strong><div class="note">${esc(row.product_key || "")}</div></td>
       <td><strong>${esc(qty)}</strong></td>
       <td>${esc(fmtShortDate(orderedAt))}<div class="note">Static entry timestamp</div></td>
@@ -2795,6 +2852,7 @@ function renderIncomingInventory() {
       <td>${esc(row.notes || "—")}</td>
       <td>
         <div class="incoming-actions">
+          <button class="btn secondary edit-incoming-btn" data-incoming-id="${esc(row.id)}" type="button">Edit</button>
           <button class="btn success receive-incoming-btn" data-incoming-id="${esc(row.id)}" type="button" ${isReceived || isCancelled ? "disabled" : ""}>Receive</button>
           <button class="btn warning transit-incoming-btn" data-incoming-id="${esc(row.id)}" type="button" ${isReceived || isCancelled ? "disabled" : ""}>In Transit</button>
           <button class="btn danger cancel-incoming-btn" data-incoming-id="${esc(row.id)}" type="button" ${isReceived || isCancelled ? "disabled" : ""}>Cancel</button>
@@ -2803,8 +2861,25 @@ function renderIncomingInventory() {
         <div class="${auditClass}" id="incomingAudit_${esc(row.id)}">${esc(incomingAuditText(row))}</div>
       </td>
     </tr>`;
+    return editingIncomingId && String(editingIncomingId) === String(row.id)
+      ? baseRow + incomingEditRowHTML(row)
+      : baseRow;
   }).join("");
 
+  document.querySelectorAll(".edit-incoming-btn").forEach(btn => btn.addEventListener("click", () => {
+    editingIncomingId = btn.dataset.incomingId;
+    renderIncomingInventory();
+  }));
+  document.querySelectorAll(".save-incoming-edit-btn").forEach(btn => btn.addEventListener("click", () => {
+    saveIncomingEdit(btn.dataset.incomingId).catch(err => {
+      console.error("Incoming order edit failed:", err);
+      setStatus(err.message || "Incoming order edit failed.", "bad");
+    });
+  }));
+  document.querySelectorAll(".close-incoming-edit-btn").forEach(btn => btn.addEventListener("click", () => {
+    editingIncomingId = null;
+    renderIncomingInventory();
+  }));
   document.querySelectorAll(".receive-incoming-btn").forEach(btn => btn.addEventListener("click", () => receiveIncomingInventory(btn.dataset.incomingId)));
   document.querySelectorAll(".transit-incoming-btn").forEach(btn => btn.addEventListener("click", () => updateIncomingStatus(btn.dataset.incomingId, "in_transit")));
   document.querySelectorAll(".cancel-incoming-btn").forEach(btn => btn.addEventListener("click", () => updateIncomingStatus(btn.dataset.incomingId, "cancelled")));
@@ -2929,6 +3004,7 @@ async function addIncomingInventory() {
 async function updateIncomingStatus(id, status) {
   const row = incomingInventoryRows.find(r => String(r.id) === String(id));
   if (!row) return;
+  if (status === "cancelled" && !confirm("Cancel this incoming order? This will not change physical inventory.")) return;
   const next = { ...row, status, updated_at: new Date().toISOString(), audit_note: `${row.audit_note || ""}\nStatus changed to ${incomingStatusLabel(status)} on ${new Date().toLocaleString()} by ${currentUser?.email || "Admin"}.`.trim() };
   if (incomingUsesSupabase) {
     const { error } = await db.from("incoming_inventory").update({ status: next.status, updated_at: next.updated_at, audit_note: next.audit_note }).eq("id", id);
@@ -2938,6 +3014,101 @@ async function updateIncomingStatus(id, status) {
     saveIncomingLocalRows(incomingInventoryRows);
   }
   setStatus(`Incoming order marked ${incomingStatusLabel(status)}.`, "good");
+  await loadIncomingInventory();
+}
+
+function incomingEditField(id, field) {
+  return Array.from(document.querySelectorAll("[data-incoming-edit]"))
+    .find(el => String(el.dataset.incomingEdit) === String(id) && el.dataset.field === field) || null;
+}
+
+async function saveIncomingEdit(id) {
+  const row = incomingInventoryRows.find(r => String(r.id) === String(id));
+  if (!row) return;
+
+  const qty = Number(incomingEditField(id, "ordered_quantity")?.value || 0);
+  if (!Number.isFinite(qty) || qty <= 0) {
+    alert("Qty Ordered must be greater than zero.");
+    return;
+  }
+
+  const orderedAt = incomingDateISOFromInput(incomingEditField(id, "ordered_at")?.value, row.ordered_at || row.created_at || new Date().toISOString());
+  const kitCost = Number(incomingEditField(id, "kit_cost")?.value || 0);
+  const shippingCost = Number(incomingEditField(id, "shipping_cost")?.value || 0);
+  const status = String(incomingEditField(id, "status")?.value || row.status || "ordered").toLowerCase();
+  const originalStatus = String(row.status || "ordered").toLowerCase();
+  const supplierName = cleanText(incomingEditField(id, "supplier_name")?.value || "");
+  const trackingNumber = cleanText(incomingEditField(id, "tracking_number")?.value || "");
+  const notes = cleanText(incomingEditField(id, "notes")?.value || "");
+  const expectedArrival = addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString();
+  const unitCost = kitCost > 0 ? kitCost / PST_KIT_VIAL_COUNT : 0;
+  const totalCost = ((qty / PST_KIT_VIAL_COUNT) * kitCost) + shippingCost;
+  const now = new Date().toISOString();
+
+  if (originalStatus !== "received" && status === "received") {
+    alert("Use the Receive button to mark an order received so physical inventory is updated correctly.");
+    return;
+  }
+
+  if (originalStatus === "received" && status !== "received") {
+    alert("This order has already been received into physical inventory. Keep it marked Received, then create a Physical Inventory adjustment if stock needs correction.");
+    return;
+  }
+
+  if (originalStatus === "received" && Number(row.ordered_quantity || 0) !== qty && !confirm("This order was already received. Saving changes will update the purchase order record only; physical inventory will not be adjusted automatically.")) {
+    return;
+  }
+
+  if (status === "cancelled" && originalStatus !== "cancelled" && !confirm("Save this order as cancelled? This will not change physical inventory.")) {
+    return;
+  }
+
+  const changes = [];
+  if (Number(row.ordered_quantity || 0) !== qty) changes.push(`quantity ${row.ordered_quantity || 0} -> ${qty}`);
+  if (incomingDateInputValue(row.ordered_at || row.created_at) !== incomingDateInputValue(orderedAt)) changes.push(`date ${fmtShortDate(row.ordered_at || row.created_at)} -> ${fmtShortDate(orderedAt)}`);
+  if (incomingKitCost(row) !== kitCost) changes.push(`kit cost ${incomingMoney(incomingKitCost(row))} -> ${incomingMoney(kitCost)}`);
+  if (incomingShippingCost(row) !== shippingCost) changes.push(`ship/fees ${incomingMoney(incomingShippingCost(row))} -> ${incomingMoney(shippingCost)}`);
+  if (String(row.status || "ordered").toLowerCase() !== status) changes.push(`status ${incomingStatusLabel(row.status)} -> ${incomingStatusLabel(status)}`);
+  if (String(row.supplier_name || row.supplier || "") !== supplierName) changes.push(`supplier updated`);
+  if (String(row.tracking_number || "") !== trackingNumber) changes.push(`tracking updated`);
+  if (String(row.notes || "") !== notes) changes.push(`user/note updated`);
+
+  const audit = `${row.audit_note || ""}\nIncoming order edited on ${new Date().toLocaleString()} by ${currentUser?.email || "Admin"}: ${changes.length ? changes.join("; ") : "saved without field changes"}. Expected arrival now ${fmtShortDate(expectedArrival)}.`.trim();
+  const updates = {
+    ordered_quantity: qty,
+    kit_cost: Number.isFinite(kitCost) ? kitCost : 0,
+    kit_vial_count: PST_KIT_VIAL_COUNT,
+    cost_per_unit: Number.isFinite(unitCost) ? unitCost : 0,
+    shipping_cost: Number.isFinite(shippingCost) ? shippingCost : 0,
+    total_cost: Number.isFinite(totalCost) ? totalCost : 0,
+    supplier_name: supplierName || null,
+    tracking_number: trackingNumber || null,
+    status,
+    notes: notes || null,
+    ordered_at: orderedAt,
+    expected_arrival_date: expectedArrival,
+    updated_at: now,
+    audit_note: audit
+  };
+
+  if (originalStatus === "received") {
+    updates.received_quantity = qty;
+  }
+
+  if (incomingUsesSupabase) {
+    const { error } = await db
+      .from("incoming_inventory")
+      .update(updates)
+      .eq("id", id)
+      .select("*");
+    if (error) throw error;
+  } else {
+    incomingInventoryRows = incomingInventoryRows.map(r => String(r.id) === String(id) ? { ...r, ...updates } : r);
+    saveIncomingLocalRows(incomingInventoryRows);
+  }
+
+  editingIncomingId = null;
+  setStatus("Incoming order updated.", "good");
   await loadIncomingInventory();
 }
 
