@@ -1080,7 +1080,6 @@ header .actions button.btn {
       <a class="btn secondary" href="customers.html">Customers</a>
       <a class="btn secondary" href="index.html">Website</a>
       <button class="btn secondary" id="refreshBtn" type="button" onclick="window.location.reload()">Refresh</button>
-      <button class="btn danger" id="signOutBtn" type="button">Sign Out</button>
     </div>
   </div>
 </header>
@@ -2732,7 +2731,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
         alert(error.message || "Could not send previewed email.");
       }
     });
-    $("signOutBtn").addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
+    const signOutButton = $("signOutBtn"); if (signOutButton) signOutButton.addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
     ["searchInput","statusFilter","paymentFilter","dateFilter","attentionFilter"].forEach(id => { const el=$(id); if(el) el.addEventListener(id==="searchInput"?"input":"change", () => { clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); }); });
     $("clearFiltersBtn").addEventListener("click", () => { $("searchInput").value=""; $("statusFilter").value=""; $("paymentFilter").value=""; $("dateFilter").value=""; if($("attentionFilter")) $("attentionFilter").value=""; clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); });
     $("selectAllOrders").addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(String(o.id))); else filteredOrders.forEach(o=>selectedOrderIds.delete(String(o.id))); renderOrders(); renderSelectedCount(); });
