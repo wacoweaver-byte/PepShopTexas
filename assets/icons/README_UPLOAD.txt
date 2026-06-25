@@ -24,3 +24,8 @@ https://www.pepshoptexas.com/assets/icons/favicon.ico
 https://www.pepshoptexas.com/assets/icons/apple-touch-icon.png
 https://www.pepshoptexas.com/assets/icons/android-chrome-192x192.png
 https://www.pepshoptexas.com/assets/icons/site.webmanifest
+
+Included official horizontal logo files restored for site header/footer/email:
+- pst-logo-extracted.jpg
+- pst-approved-logo.png
+- pst-logo-extracted.png
