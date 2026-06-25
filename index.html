@@ -4099,6 +4099,24 @@ footer a,
 }
 </style>
 
+
+<style id="pst-detail-meta-format-final">
+/* PST detail metadata label/value formatting fix */
+#product-detail .pst-detail-meta-grid .pst-detail-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  line-height: 1.25 !important;
+}
+#product-detail .pst-detail-meta-grid .pst-detail-meta strong {
+  font-weight: 500 !important;
+  text-transform: none !important;
+  margin: 0 !important;
+}
+#product-detail .pst-detail-meta-grid .pst-detail-meta span {
+  font-weight: 400 !important;
+}
+</style>
 </head>
 <spanody>
 <header>
@@ -4193,11 +4211,11 @@ footer a,
       <h2 id="selectedName"></h2>
       <p id="selectedResearchHighlight" class="research-highlight" style="display:none;"></p>
       <p id="selectedDescription">Catalog detail with PST artwork, vial inventory, documentation status, and checkout options.</p>
-      <div class="detail-grid">
-        <div><span>Strength</span><spanr><span id="selectedStrength"></span></div>
-        <div><span>Price</span><spanr><span id="selectedPrice">Price loading...</span></div>
-        <div><span>Purity</span><spanr><span id="selectedPurity"></span></div>
-        <div><span>Inventory</span><spanr><span id="selectedInventory"></span></div>
+      <div class="detail-grid pst-detail-meta-grid">
+        <div class="pst-detail-meta"><strong>Strength:</strong> <span id="selectedStrength"></span></div>
+        <div class="pst-detail-meta"><strong>Price:</strong> <span id="selectedPrice">Price loading...</span></div>
+        <div class="pst-detail-meta"><strong>Purity:</strong> <span id="selectedPurity"></span></div>
+        <div class="pst-detail-meta"><strong>Inventory:</strong> <span id="selectedInventory"></span></div>
       </div>
       <div class="product-detail-action-row">
         <spanutton class="btn primary" id="selectedAddButton">Add to Cart</spanutton>
@@ -5232,6 +5250,30 @@ function pstCanonicalInventoryMatchKey(value) {
     .trim();
 }
 
+
+function pstBlendInventoryAliasKeys(value) {
+  const normalized = pstNormalizeInventoryKey(value);
+  const mgTokens = (normalized.match(/\b\d+(?:\.\d+)?\s*MG\b/g) || []).join(" ");
+  const aliases = [];
+
+  if (/\bGLOW\b/.test(normalized) || (/\bBPC\b/.test(normalized) && /\bGHK\b/.test(normalized) && (/\bTB\b/.test(normalized) || /\bTB500\b/.test(normalized) || /\bTB4\b/.test(normalized)))) {
+    aliases.push(("GLOW BPC TB GHK " + mgTokens).replace(/\s+/g, " ").trim());
+    aliases.push(("GLOW BLEND " + mgTokens).replace(/\s+/g, " ").trim());
+  }
+
+  if (/\bWOLVERINE\b/.test(normalized) || (/\bBPC\b/.test(normalized) && (/\bTB\b/.test(normalized) || /\bTB500\b/.test(normalized)) && !/\bGHK\b/.test(normalized))) {
+    aliases.push(("WOLVERINE BPC TB " + mgTokens).replace(/\s+/g, " ").trim());
+    aliases.push(("WOLVERINE STACK " + mgTokens).replace(/\s+/g, " ").trim());
+  }
+
+  if (/\bKLOW\b/.test(normalized) || (/\bKPV\b/.test(normalized) && /\bBPC\b/.test(normalized) && (/\bTB\b/.test(normalized) || /\bTB500\b/.test(normalized)))) {
+    aliases.push(("KLOW KPV BPC TB " + mgTokens).replace(/\s+/g, " ").trim());
+    aliases.push(("KLOW BLEND " + mgTokens).replace(/\s+/g, " ").trim());
+  }
+
+  return aliases.filter(Boolean);
+}
+
 function pstInventoryCandidateKeys(product) {
   if (!product) return [];
   return [
@@ -5258,6 +5300,10 @@ function pstFindInventoryOverlayItem(inventoryOverlay, product) {
   for (const candidate of candidates) {
     const canonical = pstCanonicalInventoryMatchKey(candidate);
     if (canonical && canonicalMap[canonical]) return canonicalMap[canonical];
+    const aliasKeys = pstBlendInventoryAliasKeys(candidate);
+    for (const aliasKey of aliasKeys) {
+      if (aliasKey && canonicalMap[aliasKey]) return canonicalMap[aliasKey];
+    }
   }
 
   return null;
@@ -5284,12 +5330,14 @@ async function loadInventoryOverlay() {
       const rawKey = item.product_key;
       const normalizedKey = pstNormalizeInventoryKey(rawKey);
       const canonicalKey = pstCanonicalInventoryMatchKey(rawKey);
+      const aliasKeys = pstBlendInventoryAliasKeys(rawKey);
 
       acc[rawKey] = item;
       if (normalizedKey) acc[normalizedKey] = item;
 
       acc.__canonical = acc.__canonical || {};
       if (canonicalKey) acc.__canonical[canonicalKey] = item;
+      aliasKeys.forEach(aliasKey => { acc.__canonical[aliasKey] = item; });
 
       return acc;
     }, {});
@@ -5584,11 +5632,15 @@ async function loadProducts() {
     if (inv && inv.is_active === false) return;
 
     // Pricing authority: Inventory Management -> Supabase product_inventory.price.
-    // Product catalog may provide display fields, but it is not a public price fallback.
+    // If inventory row matching temporarily fails, keep the catalog price as a display fallback instead of showing "Price loading...".
+    const catalogPrice = Number(p.price || 0);
     p.price = 0;
     if (inv && inv.price !== null && inv.price !== undefined && inv.price !== "") {
       p.price = Number(inv.price || 0);
       p._priceSource = "product_inventory";
+    } else if (catalogPrice > 0) {
+      p.price = catalogPrice;
+      p._priceSource = "product_catalog_fallback";
     } else {
       p._priceSource = "unavailable-no-inventory-price";
     }
