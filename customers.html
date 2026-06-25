@@ -2285,23 +2285,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-<script>
-/* PST_CUSTOMERS_ADMIN_V2_SIGNOUT_HANDLER */
-document.addEventListener("DOMContentLoaded", function(){
-  var btn = document.getElementById("signOutBtn");
-  if (btn && !btn.dataset.boundSignout) {
-    btn.dataset.boundSignout = "true";
-    btn.addEventListener("click", async function(){
-      try {
-        await supabaseClient.auth.signOut();
-        window.location.href = "login.html";
-      } catch (err) {
-        alert("Sign out failed: " + (err && err.message ? err.message : err));
-      }
-    });
-  }
-});
-</script>
 
 
 <script>

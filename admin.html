@@ -2731,7 +2731,6 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
         alert(error.message || "Could not send previewed email.");
       }
     });
-    const signOutButton = $("signOutBtn"); if (signOutButton) signOutButton.addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
     ["searchInput","statusFilter","paymentFilter","dateFilter","attentionFilter"].forEach(id => { const el=$(id); if(el) el.addEventListener(id==="searchInput"?"input":"change", () => { clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); }); });
     $("clearFiltersBtn").addEventListener("click", () => { $("searchInput").value=""; $("statusFilter").value=""; $("paymentFilter").value=""; $("dateFilter").value=""; if($("attentionFilter")) $("attentionFilter").value=""; clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); });
     $("selectAllOrders").addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(String(o.id))); else filteredOrders.forEach(o=>selectedOrderIds.delete(String(o.id))); renderOrders(); renderSelectedCount(); });

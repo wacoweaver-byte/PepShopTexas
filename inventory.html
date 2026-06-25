@@ -2982,10 +2982,6 @@ function setupInventoryDashboardNavigation() {
 
 function wireEvents() {
   $("refreshBtn").addEventListener("click", loadInventory);
-  $("signOutBtn").addEventListener("click", async () => {
-    await db.auth.signOut();
-    window.location.href = "index.html";
-  });
 
   $("searchInput").addEventListener("input", applyFilters);
   $("statusFilter").addEventListener("change", applyFilters);

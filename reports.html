@@ -145,7 +145,7 @@
     @media(max-width:1100px){.span-8,.span-6,.span-4{grid-column:span 12}.stat-grid{grid-template-columns:1fr 1fr}.ops-grid{grid-template-columns:1fr}}
     @media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.pst-master-admin-logo{height:46px;max-width:200px}.pst-master-page-label{font-size:15px;white-space:normal}.page-title{flex-direction:column}.stat-grid{grid-template-columns:1fr}.resource{grid-template-columns:1fr}.resource .btn{width:100%}}
     @media print{
-      header,.actions,.print-actions,#refreshBtn,#signOutBtn,.no-print{display:none!important}
+      header,.actions,.print-actions,#refreshBtn,.no-print{display:none!important}
       body{background:#fff!important;color:#000!important}
       main{max-width:none!important;padding:0!important;margin:0!important}
       .status{display:none!important}
@@ -2670,7 +2670,6 @@ async function init(){
     setPresetDateInputs("last7");
     $("saveTaxSettingsBtn")?.addEventListener("click", saveTaxSettings);
     $("resetTaxSettingsBtn")?.addEventListener("click", () => { fillTaxForm(PST_DEFAULT_TAX_SETTINGS); saveTaxSettings(); });
-    $("signOutBtn")?.addEventListener("click", async () => { await supabaseClient.auth.signOut(); window.location.href = "index.html"; });
     const isAdmin = await checkAdminAccess();
     if (isAdmin) { await loadTaxSettings(); await loadReports(); }
   }catch(error){
