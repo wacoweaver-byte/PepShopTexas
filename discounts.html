@@ -7,6 +7,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Pep Shop Texas | Discount Admin</title>
+<!-- PST_OFFICIAL_ICON_SET_V2 -->
+<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico?v=2">
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png?v=2">
+<link rel="manifest" href="assets/icons/site.webmanifest?v=2">
+<meta name="theme-color" content="#ffffff">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -579,13 +588,72 @@ header .header-actions .btn.secondary.active {
   .discount-fieldset .edit-grid { grid-template-columns: 1fr !important; }
 }
 
+
+
+/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
+   Purpose: standardize font hierarchy and logo display across public/admin pages.
+   Keep actions/prices readable without the heavy all-bold/Impact look.
+*/
+:root {
+  --pst-ui-font: Arial, Helvetica, sans-serif;
+}
+body, input, button, select, textarea {
+  font-family: var(--pst-ui-font) !important;
+}
+.brand, .logo, .logo-mark {
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+}
+.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
+  display: block !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+.brand-logo-img, .account-logo-img {
+  width: clamp(155px, 18vw, 220px) !important;
+  max-width: 100% !important;
+}
+.pst-master-admin-logo {
+  width: clamp(150px, 16vw, 210px) !important;
+  max-width: 100% !important;
+}
+.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
+.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
+.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
+.product-title, .discount-title, .customer-title, h1, h2, h3 {
+  font-family: var(--pst-ui-font) !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+.page-title {
+  font-weight: 600 !important;
+  text-transform: none !important;
+}
+.menu, .menu a, .account-status, .account-status a, .account-status button,
+.btn, button, label, th, .profile-row strong, .order-meta strong,
+.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
+  font-weight: 600 !important;
+}
+p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
+.email-pref-copy, .security-copy, .footer-disclaimer {
+  font-weight: 400 !important;
+}
+strong {
+  font-weight: 600 !important;
+}
+@media(max-width:560px) {
+  .brand-logo-img, .account-logo-img {
+    width: clamp(135px, 42vw, 170px) !important;
+  }
+}
 </style>
 </head>
 <body>
 <header>
   <div class="topbar">
     <div class="brand">
-      <img class="pst-master-admin-logo" src="assets/icons/pst-approved-logo.png" alt="Pep Shop Texas logo">
+      <img class="pst-master-admin-logo" src="assets/icons/pst-logo-extracted.jpg?v=2" alt="Pep Shop Texas logo">
       <div class="pst-master-page-label">Discount Management</div>
     </div>
     <div class="actions">

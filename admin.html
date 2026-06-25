@@ -1,4 +1,3 @@
-<!-- PST_ADMIN_PATCH_V17_CUSTOMER_ORDER_REFUND_NUMBERS -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
 <!DOCTYPE html>
@@ -19,6 +18,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pep Shop Texas | Orders Management</title>
+<!-- PST_OFFICIAL_ICON_SET_V2 -->
+<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico?v=2">
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png?v=2">
+<link rel="manifest" href="assets/icons/site.webmanifest?v=2">
+<meta name="theme-color" content="#ffffff">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}header{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--border);box-shadow:0 3px 18px rgba(16,24,32,.04)}.topbar{max-width:1540px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;text-transform:uppercase}.brand-mark{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#004a7c);color:#fff;display:grid;place-items:center;font-size:16px}.brand small{display:block;color:#596579;font-size:12px;line-height:1.2;font-weight:700;text-transform:none}.actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.btn,a.btn,button.btn{min-height:40px;padding:10px 13px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:14px}.btn.secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}.btn.success{background:var(--success)}.btn.warning{background:var(--warning)}.btn.danger{background:var(--danger)}.btn:disabled{opacity:.55;cursor:not-allowed}main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}h1{margin:0 0 6px;font-size:clamp(24px,3vw,36px)}h2{margin:0;font-size:18px}.subtitle{margin:0;color:var(--muted);line-height:1.4}.status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted);min-height:42px}.status.good{color:var(--success);border-color:rgba(15,138,59,.25);background:rgba(15,138,59,.06)}.status.bad{color:var(--danger);border-color:rgba(180,35,24,.25);background:rgba(180,35,24,.06)}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.card-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.card-body{padding:16px}.filters{display:grid;grid-template-columns:1.15fr .72fr .72fr .72fr .72fr auto;gap:10px;width:100%;align-items:end}.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted)}input,select,textarea{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}textarea{min-height:84px;resize:vertical}.bulk-bar{padding:12px 16px;border-bottom:1px solid var(--border);background:#f9fbfd;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}.bulk-left{display:flex;align-items:center;gap:8px;font-weight:900}.bulk-left input,.row-check{width:18px;height:18px;min-height:18px;cursor:pointer}.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bulk-actions .btn{padding:8px 10px;min-height:35px;font-size:13px}.table-wrap{overflow:auto;resize:vertical;min-height:360px;height:520px;max-height:78vh;position:relative}
@@ -518,20 +526,72 @@ header .header-actions .btn.secondary.active {
   background:#fff8e6;
 }
 
-/* PST_ADMIN_PATCH_V17_CUSTOMER_ORDER_REFUND_NUMBERS */
-.reference-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid rgba(0,119,200,.22);color:#003f9e;background:rgba(0,119,200,.08);margin-top:4px;}
-.reference-pill.refund{border-color:rgba(183,121,31,.28);color:#7a4a00;background:#fff8e6;}
-.reference-pill.legacy{border-color:#d1d5db;color:#4b5563;background:#f3f4f6;}
-.refund-reference-banner{margin:12px 0 0;padding:12px;border-radius:12px;border:1px solid rgba(0,119,200,.22);background:rgba(0,119,200,.055);color:#24445c;line-height:1.45;font-size:14px;}
-.refund-reference-banner strong{display:block;margin-bottom:4px;}
 
+
+/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
+   Purpose: standardize font hierarchy and logo display across public/admin pages.
+   Keep actions/prices readable without the heavy all-bold/Impact look.
+*/
+:root {
+  --pst-ui-font: Arial, Helvetica, sans-serif;
+}
+body, input, button, select, textarea {
+  font-family: var(--pst-ui-font) !important;
+}
+.brand, .logo, .logo-mark {
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+}
+.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
+  display: block !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+.brand-logo-img, .account-logo-img {
+  width: clamp(155px, 18vw, 220px) !important;
+  max-width: 100% !important;
+}
+.pst-master-admin-logo {
+  width: clamp(150px, 16vw, 210px) !important;
+  max-width: 100% !important;
+}
+.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
+.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
+.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
+.product-title, .discount-title, .customer-title, h1, h2, h3 {
+  font-family: var(--pst-ui-font) !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+.page-title {
+  font-weight: 600 !important;
+  text-transform: none !important;
+}
+.menu, .menu a, .account-status, .account-status a, .account-status button,
+.btn, button, label, th, .profile-row strong, .order-meta strong,
+.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
+  font-weight: 600 !important;
+}
+p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
+.email-pref-copy, .security-copy, .footer-disclaimer {
+  font-weight: 400 !important;
+}
+strong {
+  font-weight: 600 !important;
+}
+@media(max-width:560px) {
+  .brand-logo-img, .account-logo-img {
+    width: clamp(135px, 42vw, 170px) !important;
+  }
+}
 </style>
 </head>
 <body>
 <header>
   <div class="topbar">
     <div class="brand">
-      <img class="pst-master-admin-logo" src="assets/icons/pst-approved-logo.png" alt="Pep Shop Texas logo">
+      <img class="pst-master-admin-logo" src="assets/icons/pst-logo-extracted.jpg?v=2" alt="Pep Shop Texas logo">
       <div class="pst-master-page-label">Orders Management</div>
     </div>
     <div class="actions">
@@ -587,7 +647,6 @@ header .header-actions .btn.secondary.active {
           <button class="btn secondary" id="bulkProcessingBtn" type="button">Processing</button>
           <button class="btn secondary" id="bulkPackedBtn" type="button">Packed</button>
           <button class="btn secondary" id="bulkDeliveredBtn" type="button">Delivered</button>
-          <button class="btn secondary" id="bulkCompleteBtn" type="button">Complete</button>
           <button class="btn warning" id="bulkShippedBtn" type="button">Shipped</button>
           <button class="btn secondary" id="bulkNoTrackingBtn" type="button">No Tracking Req.</button>
           <button class="btn danger" id="bulkRejectedBtn" type="button">Reject</button>
@@ -655,76 +714,9 @@ header .header-actions .btn.secondary.active {
   function removeNoTrackingToken(text){ return cleanValue(text).replace(new RegExp("\\s*" + NO_TRACKING_REQUIRED_TOKEN.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&"), "gi"), "").trim(); }
   function rawAdminNotes(order){ return cleanValue(order.admin_note || order.admin_notes || ""); }
   function noTrackingRequired(order){ return order.no_tracking_required === true || String(order.no_tracking_required).toLowerCase() === "true"; }
-  const PST_NO_TRACKING_REASON_OPTIONS = [
-    "Local delivery",
-    "Hand delivery",
-    "Customer pickup",
-    "Carrier did not provide tracking",
-    "Replacement shipment",
-    "Admin-approved shipping exception",
-    "Other — custom reason required"
-  ];
-  const PST_NO_TRACKING_OTHER_OPTION = "Other — custom reason required";
-  function noTrackingReasonLabel(value){
-    const text = cleanValue(value);
-    if(!text) return "";
-    const lower = text.toLowerCase();
-    const exact = PST_NO_TRACKING_REASON_OPTIONS.find(option => option.toLowerCase() === lower);
-    if(exact) return exact;
-    if(lower.startsWith("other:")) return PST_NO_TRACKING_OTHER_OPTION;
-    return PST_NO_TRACKING_OTHER_OPTION;
-  }
-  function noTrackingCustomReason(value){
-    const text = cleanValue(value);
-    if(!text) return "";
-    if(text.toLowerCase().startsWith("other:")) return text.replace(/^other:\s*/i, "").trim();
-    if(PST_NO_TRACKING_REASON_OPTIONS.some(option => option.toLowerCase() === text.toLowerCase())) return "";
-    return text;
-  }
-  function buildNoTrackingReason(choice, custom){
-    const selected = cleanValue(choice);
-    const note = cleanValue(custom);
-    if(!selected) return "";
-    if(selected === PST_NO_TRACKING_OTHER_OPTION) return note ? `Other: ${note}` : "";
-    return selected;
-  }
-  function noTrackingCustomerMessage(reason){
-    const text = cleanValue(reason);
-    const base = text.toLowerCase().startsWith("other:") ? cleanValue(text.replace(/^other:\s*/i, "")) : text;
-    const messages = {
-      "Local delivery": "Tracking is not available because this order was arranged for local delivery.",
-      "Hand delivery": "Tracking is not available because this order was hand delivered.",
-      "Customer pickup": "Tracking is not available because this order was picked up by the customer.",
-      "Carrier did not provide tracking": "Tracking is not available because the carrier did not provide a tracking number.",
-      "Replacement shipment": "Tracking is not available because this was processed as a replacement shipment.",
-      "Admin-approved shipping exception": "Tracking is not available due to an approved shipping exception."
-    };
-    return messages[base] || (base ? `Tracking is not available for this shipment. Reason: ${base}` : "Tracking is not available for this shipment.");
-  }
-  function noTrackingFormValues(order={}){
-    const existing = cleanValue(order.no_tracking_reason || "");
-    const choiceEl = $("editNoTrackingReasonChoice");
-    const customEl = $("editNoTrackingReasonCustom");
-    const choice = cleanValue(choiceEl?.value) || noTrackingReasonLabel(existing);
-    const custom = cleanValue(customEl?.value) || noTrackingCustomReason(existing);
-    const reason = buildNoTrackingReason(choice, custom);
-    return { choice, custom, reason, message: noTrackingCustomerMessage(reason) };
-  }
-  function noTrackingReasonSelectMarkup(order={}){
-    const existing = cleanValue(order.no_tracking_reason || "");
-    const selected = noTrackingReasonLabel(existing);
-    const custom = noTrackingCustomReason(existing);
-    const options = [`<option value="">Select reason...</option>`].concat(PST_NO_TRACKING_REASON_OPTIONS.map(option => `<option value="${esc(option)}" ${selected === option ? "selected" : ""}>${esc(option)}</option>`));
-    return `<div class="field"><label for="editNoTrackingReasonChoice">No Tracking Reason</label><select id="editNoTrackingReasonChoice">${options.join("")}</select></div><div class="field" id="editNoTrackingCustomWrap" style="${selected === PST_NO_TRACKING_OTHER_OPTION ? "" : "display:none"}"><label for="editNoTrackingReasonCustom">Custom Reason</label><input id="editNoTrackingReasonCustom" value="${esc(custom)}" placeholder="Enter customer-safe reason" /></div>`;
-  }
   function setNoTrackingToken(text, enabled){ const clean = removeNoTrackingToken(text); return enabled ? `${NO_TRACKING_REQUIRED_TOKEN}${clean ? "\n" + clean : ""}` : clean; }
   function pill(value){ const v = norm(value); return `<span class="pill ${esc(v)}">${esc(v.replaceAll("_"," "))}</span>`; }
-  function orderNumber(order){ return cleanValue(order.order_number) || (order.order_sequence_number ? `PST-O${order.order_sequence_number}` : "") || cleanValue(order.order_no) || order.id || "—"; }
-  function legacyOrderNumber(order){ const legacy = cleanValue(order.legacy_order_number); return legacy && legacy !== orderNumber(order) ? legacy : ""; }
-  function customerReferenceNumber(order){ const profile = profileOf(order); const n = cleanValue(order.customer_number || profile.customer_number); return n ? `PST-C${n}` : ""; }
-  function refundReferenceNumber(order){ const n = cleanValue(order.refund_number); return n ? `PST-R${n}` : ""; }
-  function refundReferenceMarkup(order){ const ref = refundReferenceNumber(order); if(!ref) return ""; const status = cleanValue(order.refund_status) || "pending"; const amount = Number(order.refund_amount || 0) ? money(order.refund_amount) : money(orderTotal(order)); const requested = order.refund_requested_at ? `<br>Requested: ${esc(fmtDate(order.refund_requested_at))}` : ""; const issued = order.refund_issued_at ? `<br>Issued: ${esc(fmtDate(order.refund_issued_at))}` : ""; return `<div class="refund-reference-banner"><strong>Refund Reference ${esc(ref)}</strong>Status: ${esc(status)} · Amount: ${amount}${requested}${issued}</div>`; }
-  function compactReferenceMarkup(order){ const customerRef = customerReferenceNumber(order); const refundRef = refundReferenceNumber(order); const legacyRef = legacyOrderNumber(order); return `${customerRef ? `<span class="reference-pill">${esc(customerRef)}</span>` : ""}${refundRef ? `<span class="reference-pill refund">${esc(refundRef)}</span>` : ""}${legacyRef ? `<span class="reference-pill legacy">Legacy ${esc(legacyRef)}</span>` : ""}`; }
+  function orderNumber(order){ return order.order_number || order.order_no || order.id || "—"; }
   function orderTotal(order){ return order.total ?? order.total_amount ?? order.order_total ?? order.grand_total ?? 0; }
   function orderSubtotal(order){ return order.subtotal ?? order.subtotal_amount ?? 0; }
   function orderDiscount(order){ return order.discount_amount ?? order.discount ?? 0; }
@@ -1150,7 +1142,7 @@ header .header-actions .btn.secondary.active {
     const g = adminDashboardGroupFilter;
     const now = new Date();
     filteredOrders = allOrders.filter(order => {
-      const hay = [orderNumber(order), legacyOrderNumber(order), customerReferenceNumber(order), refundReferenceNumber(order), customerName(order), customerEmail(order), customerPhone(order), order.tracking_number, order.carrier, order.tracking_carrier, order.admin_note, order.customer_notes, paymentMethod(order)].join(" ").toLowerCase();
+      const hay = [orderNumber(order), customerName(order), customerEmail(order), customerPhone(order), order.tracking_number, order.carrier, order.tracking_carrier, order.admin_note, order.customer_notes, paymentMethod(order)].join(" ").toLowerCase();
       if(q && !hay.includes(q)) return false;
       if(s && norm(orderStatus(order)) !== s) return false;
       if(p && norm(paymentStatus(order)) !== p) return false;
@@ -1170,9 +1162,9 @@ header .header-actions .btn.secondary.active {
       const track = order.tracking_number || order.tracking || "";
       return `<tr class="order-row ${activeOrderId===order.id?"active":""}" data-order-id="${id}">
         <td onclick="event.stopPropagation()"><input class="row-check" type="checkbox" data-check-id="${id}" ${selectedOrderIds.has(String(order.id))?"checked":""}></td>
-        <td><strong>${esc(String(orderNumber(order)))}</strong><div class="muted">${esc((order.items||[]).length)} item row(s)</div>${legacyOrderNumber(order) ? `<div class="muted">Legacy: ${esc(legacyOrderNumber(order))}</div>` : ""}${refundReferenceNumber(order) ? `<div>${compactReferenceMarkup(order).replace(/<span class="reference-pill">[^<]*<\/span>/, "")}</div>` : ""}</td>
+        <td><strong>#${esc(String(orderNumber(order)))}</strong><div class="muted">${esc((order.items||[]).length)} item row(s)</div></td>
         <td>${esc(fmtDate(order.created_at || order.order_date))}</td>
-        <td><strong>${esc(customerName(order))}</strong><div class="muted">${esc(customerEmail(order) || "No email")}</div>${customerReferenceNumber(order) ? `<div><span class="reference-pill">${esc(customerReferenceNumber(order))}</span></div>` : ""}</td>
+        <td><strong>${esc(customerName(order))}</strong><div class="muted">${esc(customerEmail(order) || "No email")}</div></td>
         <td><strong>${money(orderTotal(order))}</strong></td>
         <td>${pill(orderStatus(order))}</td>
         <td>${pill(paymentStatus(order))}</td>
@@ -1537,8 +1529,8 @@ header .header-actions .btn.secondary.active {
     const detail = $("detailCard");
     detail.innerHTML = `
       <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Fulfillment Sheet</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
-      <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Customer #</strong>${esc(customerReferenceNumber(order) || "—")}</div><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
-      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}${refundReferenceMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Order #</strong>${esc(orderNumber(order))}</div>${legacyOrderNumber(order) ? `<div class="kv"><strong>Legacy Order #</strong>${esc(legacyOrderNumber(order))}</div>` : ""}<div class="kv"><strong>Refund #</strong>${esc(refundReferenceNumber(order) || "—")}</div><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
+      <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
+      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
       ${paymentInstructionsMarkup(order)}
       <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Fulfillment:</strong> Use Print Fulfillment Sheet after the order is received, paid, or moved to Processing. It opens a clean packing sheet with customer address, item/SKU rows, quantity checks, and final verification boxes.</div></div>
       <div class="detail-section"><h3>Update Order</h3>
@@ -1550,12 +1542,12 @@ header .header-actions .btn.secondary.active {
           <div class="field"><label for="editTracking">Tracking Number</label><input id="editTracking" value="${esc(tracking)}" placeholder="Tracking number" /></div>
           <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
           <div class="field full"><label class="tracking-exception-check"><input id="editNoTrackingRequired" type="checkbox" ${noTrackingRequired(order) ? "checked" : ""} /> No tracking required for this order</label></div>
-          <div class="field full"><div class="edit-grid">${noTrackingReasonSelectMarkup(order)}</div></div>
+          <div class="field full"><label for="editNoTrackingReason">No Tracking Reason</label><input id="editNoTrackingReason" value="${esc(order.no_tracking_reason || "")}" placeholder="Optional reason if tracking is not required" /></div>
           <div class="field full"><label>Internal Admin Audit Log</label>${orderAuditLogMarkup(order)}</div>
           ${overrideMarkup(order)}
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
-        <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required and select a reason. If no tracking is required, the shipped email can still be sent without a tracking link.</div>
+        <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required. Missing tracking will stay on the attention dashboard until one of those is done.</div>
       </div>
       <div class="detail-section"><h3>Email Preview / Manual Resend</h3><div class="email-box"><h4>Preview before manually sending</h4><p>Payment marked Paid still sends automatically and moves the order to Processing. Use these buttons only when you intentionally need to preview or resend a customer email.</p><div style="display:grid;gap:8px">${previewableManualEmailTypes().map(emailType => `<div class="email-action-group"><strong>${esc(emailTypeLabel(emailType))}</strong><div class="email-action-buttons"><button class="btn secondary preview-email-action" data-email-type="${esc(emailType)}" type="button">Preview</button><button class="btn secondary email-action" data-email-type="${esc(emailType)}" type="button">Send</button></div></div>`).join("")}</div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
       <div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
@@ -1566,10 +1558,6 @@ header .header-actions .btn.secondary.active {
     $("reloadDetailBtn").addEventListener("click", loadOrders);
     $("printFulfillmentBtn").addEventListener("click", () => printFulfillmentSheet(order));
     $("saveOrderBtn").addEventListener("click", () => saveOrder(order));
-    $("editNoTrackingReasonChoice")?.addEventListener("change", () => {
-      const wrap = $("editNoTrackingCustomWrap");
-      if(wrap) wrap.style.display = $("editNoTrackingReasonChoice")?.value === PST_NO_TRACKING_OTHER_OPTION ? "" : "none";
-    });
     document.querySelectorAll(".preview-email-action").forEach(btn => btn.addEventListener("click", () => openEmailPreview(order, btn.dataset.emailType, false)));
     document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false, { skipPreview:true })));
   }
@@ -1581,8 +1569,7 @@ header .header-actions .btn.secondary.active {
     const tracking = $("editTracking").value.trim();
     const url = $("editTrackingUrl").value.trim();
     const trackingNotRequired = !!$("editNoTrackingRequired")?.checked;
-    const noTrackingInfo = noTrackingFormValues(order);
-    const trackingReason = trackingNotRequired ? noTrackingInfo.reason : "";
+    const trackingReason = cleanValue($("editNoTrackingReason")?.value);
 
     // Payment accepted should automatically advance a newly paid order into Processing.
     // Do not move backwards or override higher fulfillment stages like Packed/Shipped/Delivered.
@@ -1592,7 +1579,6 @@ header .header-actions .btn.secondary.active {
     }
 
     if(["shipped","delivered","complete","completed"].includes(norm(os)) && (!carrier || !tracking) && !trackingNotRequired) throw new Error("Tracking is required for shipped/delivered/complete orders unless No tracking required is checked.");
-    if(["shipped","delivered","complete","completed"].includes(norm(os)) && trackingNotRequired && !trackingReason) throw new Error("Select a no-tracking reason before saving a shipped/delivered/complete order without tracking.");
     const now = new Date().toISOString();
     const changes = [];
 if(norm(orderStatus(order)) !== norm(os)) {
@@ -1778,9 +1764,6 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     const email = customerEmail(order);
     const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
     const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    const noTrackingRequiredForEmail = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
-    const noTrackingInfo = noTrackingFormValues(order);
-    const shippedNoTrackingNote = type === "order_shipped" && noTrackingRequiredForEmail && !trackingNumber ? noTrackingInfo.message : "";
     return {
       type,
       originalType: type,
@@ -1795,11 +1778,8 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       total: orderTotal(order),
       carrier,
       trackingNumber,
-      trackingUrl: trackingNumber ? ($("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url)) : "",
-      noTrackingRequired: noTrackingRequiredForEmail,
-      noTrackingReason: noTrackingInfo.reason,
-      noTrackingMessage: noTrackingInfo.message,
-      statusNote: shippedNoTrackingNote || (type === "order_received" ? (paymentInstructions(order) || customerFacingStatusNote(type)) : customerFacingStatusNote(type)),
+      trackingUrl: $("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url),
+      statusNote: type === "order_received" ? (paymentInstructions(order) || customerFacingStatusNote(type)) : customerFacingStatusNote(type),
       paymentMethod: paymentMethod(order),
       paymentStatus: paymentStatus(order),
       paymentInstructions: paymentInstructions(order),
@@ -1819,22 +1799,12 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     return data;
   }
 
-  function validateShippedEmailReady(order, actionLabel="sending"){
-    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
-    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    const noTrackingChecked = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
-    const noTrackingInfo = noTrackingFormValues(order);
-    if(trackingNumber && carrier) return true;
-    if(noTrackingChecked && noTrackingInfo.reason) return true;
-    if(noTrackingChecked && !noTrackingInfo.reason){ alert(`Select a no-tracking reason before ${actionLabel} a shipped email.`); return false; }
-    alert(`Carrier and tracking number are required before ${actionLabel} a shipped email, unless No tracking required is checked and a reason is selected.`);
-    return false;
-  }
-
   async function openEmailPreview(order, type, automatic=false){
     const email = customerEmail(order);
     if(!email){ alert("This order does not have a customer email address."); return; }
-    if(type === "order_shipped" && !validateShippedEmailReady(order, "previewing")) return;
+    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
+    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
+    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before previewing a shipped email."); return; }
     setEmailPreviewLoading(email, emailTypeLabel(type));
     setStatus("Generating email preview...");
     try{
@@ -1858,7 +1828,9 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
   async function sendOrderEmail(order, type, automatic=false, options={}){
     const email = customerEmail(order);
     if(!email){ alert("This order does not have a customer email address."); return; }
-    if(type === "order_shipped" && !validateShippedEmailReady(order, "sending")) return;
+    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
+    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
+    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before sending a shipped email."); return; }
     if(!options.skipPreview && (emailTypeNeedsPreview(type) || options.previewFirst)){
       return openEmailPreview(order, type, automatic);
     }
@@ -2078,7 +2050,6 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     $("bulkProcessingBtn").addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
     $("bulkPackedBtn").addEventListener("click", () => bulkUpdate({ order_status:"packed", status:"packed" }, "Selected orders marked packed."));
     $("bulkDeliveredBtn").addEventListener("click", () => bulkUpdate({ order_status:"delivered", status:"delivered" }, "Selected orders marked delivered."));
-    $("bulkCompleteBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"complete", status:"complete" }, "Selected orders marked complete."));
     $("bulkShippedBtn").addEventListener("click", () => bulkUpdate({ order_status:"shipped", status:"shipped" }, "Selected orders marked shipped."));
     $("bulkNoTrackingBtn")?.addEventListener("click", bulkSetNoTrackingRequired);
     $("bulkRejectedBtn").addEventListener("click", () => bulkUpdate({ order_status:"rejected", status:"rejected" }, "Selected orders marked rejected."));
