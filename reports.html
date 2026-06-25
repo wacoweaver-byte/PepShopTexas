@@ -995,6 +995,67 @@ header .pst-admin-actions-lock .btn.primary {
 }
 </style>
 
+
+<style>
+/* PST_ADMIN_HEADER_BUTTON_ALIGNMENT_FINAL
+   Fixes header button drift caused by extra Refresh/Sign Out utility buttons.
+   Header is now identical on all admin pages and cannot overlap the title.
+*/
+header .pst-admin-topbar-lock,
+header .topbar {
+  display: grid !important;
+  grid-template-columns: 420px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 20px !important;
+  row-gap: 10px !important;
+}
+header .pst-admin-brand-lock,
+header .brand {
+  grid-column: 1 !important;
+}
+header .pst-admin-actions-lock,
+header .actions {
+  grid-column: 2 !important;
+  justify-content: flex-start !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding-bottom: 2px !important;
+}
+header .pst-master-page-label {
+  font-weight: 400 !important;
+}
+header .pst-admin-actions-lock .btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn {
+  font-weight: 500 !important;
+}
+@media (max-width: 1500px) {
+  header .pst-admin-topbar-lock,
+  header .topbar {
+    grid-template-columns: 1fr !important;
+    min-height: 144px !important;
+    align-items: start !important;
+  }
+  header .pst-admin-brand-lock,
+  header .brand {
+    grid-column: 1 !important;
+  }
+  header .pst-admin-actions-lock,
+  header .actions {
+    grid-column: 1 !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}
+@media (max-width: 640px) {
+  header .pst-admin-topbar-lock,
+  header .topbar {
+    min-height: 136px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header>
