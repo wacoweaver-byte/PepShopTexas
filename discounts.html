@@ -2084,8 +2084,8 @@ function setupDiscountDashboardNavigation() {
 async function init() {
   try {
     setupDiscountDashboardNavigation();
-    $("refreshBtn").addEventListener("click", loadDiscountCodes);
-    $("createDiscountBtn").addEventListener("click", createDiscountCode);
+    $("refreshBtn")?.addEventListener("click", loadDiscountCodes);
+    $("createDiscountBtn")?.addEventListener("click", createDiscountCode);
     $("newDiscountBtn")?.addEventListener("click", resetDiscountForm);
     ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin"].forEach(id => {
       const el = $(id);

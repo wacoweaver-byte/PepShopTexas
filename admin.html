@@ -2550,9 +2550,9 @@ header .pst-admin-actions-lock .btn.primary {
     if(window.matchMedia && window.matchMedia("(max-width:1100px)").matches){
       detail.scrollIntoView({ behavior:"smooth", block:"start" });
     }
-    $("reloadDetailBtn").addEventListener("click", loadOrders);
-    $("printFulfillmentBtn").addEventListener("click", () => printFulfillmentSheet(order));
-    $("saveOrderBtn").addEventListener("click", () => saveOrder(order));
+    $("reloadDetailBtn")?.addEventListener("click", loadOrders);
+    $("printFulfillmentBtn")?.addEventListener("click", () => printFulfillmentSheet(order));
+    $("saveOrderBtn")?.addEventListener("click", () => saveOrder(order));
     document.querySelectorAll(".preview-email-action").forEach(btn => btn.addEventListener("click", () => openEmailPreview(order, btn.dataset.emailType, false)));
     document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false, { skipPreview:true })));
   }

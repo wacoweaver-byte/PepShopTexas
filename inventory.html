@@ -3287,14 +3287,14 @@ function setupInventoryDashboardNavigation() {
 
 
 function wireEvents() {
-  $("refreshBtn").addEventListener("click", loadInventory);
+  $("refreshBtn")?.addEventListener("click", loadInventory);
 
-  $("searchInput").addEventListener("input", applyFilters);
-  $("statusFilter").addEventListener("change", applyFilters);
-  $("categoryFilter").addEventListener("change", applyFilters);
-  $("activeFilter").addEventListener("change", applyFilters);
+  $("searchInput")?.addEventListener("input", applyFilters);
+  $("statusFilter")?.addEventListener("change", applyFilters);
+  $("categoryFilter")?.addEventListener("change", applyFilters);
+  $("activeFilter")?.addEventListener("change", applyFilters);
 
-  $("clearFiltersBtn").addEventListener("click", () => {
+  $("clearFiltersBtn")?.addEventListener("click", () => {
     $("searchInput").value = "";
     $("statusFilter").value = "";
     $("categoryFilter").value = "";
@@ -3302,21 +3302,21 @@ function wireEvents() {
     applyFilters();
   });
 
-  if ($("reorderRange")) $("reorderRange").addEventListener("change", async () => { await loadReorderSales(); renderReorderReview(); });
-  if ($("refreshReorderBtn")) $("refreshReorderBtn").addEventListener("click", async () => { await loadReorderSales(); renderReorderReview(); });
-  if ($("refreshIncomingBtn")) $("refreshIncomingBtn").addEventListener("click", loadIncomingInventory);
+  if ($("reorderRange")) $("reorderRange")?.addEventListener("change", async () => { await loadReorderSales(); renderReorderReview(); });
+  if ($("refreshReorderBtn")) $("refreshReorderBtn")?.addEventListener("click", async () => { await loadReorderSales(); renderReorderReview(); });
+  if ($("refreshIncomingBtn")) $("refreshIncomingBtn")?.addEventListener("click", loadIncomingInventory);
   ["incomingQty","incomingKitCost","incomingShippingCost"].forEach(id => {
     const el = $(id);
     if (el) el.addEventListener("input", syncIncomingTotalCostField);
   });
-  if ($("addIncomingBtn")) $("addIncomingBtn").addEventListener("click", addIncomingInventory);
-  if ($("toggleIncomingAuditBtn")) $("toggleIncomingAuditBtn").addEventListener("click", () => {
+  if ($("addIncomingBtn")) $("addIncomingBtn")?.addEventListener("click", addIncomingInventory);
+  if ($("toggleIncomingAuditBtn")) $("toggleIncomingAuditBtn")?.addEventListener("click", () => {
     incomingAuditVisible = !incomingAuditVisible;
     $("toggleIncomingAuditBtn").textContent = incomingAuditVisible ? "Hide Audit Trail" : "Show Audit Trail";
     renderIncomingInventory();
   });
 
-  $("selectAll").addEventListener("change", e => {
+  $("selectAll")?.addEventListener("change", e => {
     const visible = filteredItems.map(i => i.id);
     if (e.target.checked) visible.forEach(id => selectedIds.add(id));
     else visible.forEach(id => selectedIds.delete(id));
@@ -3324,14 +3324,14 @@ function wireEvents() {
     renderSelectedCount();
   });
 
-  $("importProductsBtn").addEventListener("click", importProductsJson);
-  $("saveDirtyBtn").addEventListener("click", saveDirtyRows);
-  $("bulkReceiveBtn").addEventListener("click", () => bulkUpdate("received"));
-  $("bulkRemoveBtn").addEventListener("click", () => bulkUpdate("removed"));
-  $("bulkSetBtn").addEventListener("click", () => bulkUpdate("set_exact"));
-  $("bulkOutBtn").addEventListener("click", () => bulkUpdate("out_of_stock"));
-  $("bulkActiveBtn").addEventListener("click", () => bulkUpdate("active"));
-  $("bulkInactiveBtn").addEventListener("click", () => bulkUpdate("inactive"));
+  $("importProductsBtn")?.addEventListener("click", importProductsJson);
+  $("saveDirtyBtn")?.addEventListener("click", saveDirtyRows);
+  $("bulkReceiveBtn")?.addEventListener("click", () => bulkUpdate("received"));
+  $("bulkRemoveBtn")?.addEventListener("click", () => bulkUpdate("removed"));
+  $("bulkSetBtn")?.addEventListener("click", () => bulkUpdate("set_exact"));
+  $("bulkOutBtn")?.addEventListener("click", () => bulkUpdate("out_of_stock"));
+  $("bulkActiveBtn")?.addEventListener("click", () => bulkUpdate("active"));
+  $("bulkInactiveBtn")?.addEventListener("click", () => bulkUpdate("inactive"));
 }
 
 async function init() {

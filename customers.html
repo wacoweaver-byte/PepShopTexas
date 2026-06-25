@@ -2546,9 +2546,9 @@ function closeCustomerModal() {
 }
 
 function wireEvents() {
-  $("refreshBtn").addEventListener("click", loadCustomers);
-  $("applyFiltersBtn").addEventListener("click", applyFilters);
-  $("clearFiltersBtn").addEventListener("click", () => {
+  $("refreshBtn")?.addEventListener("click", loadCustomers);
+  $("applyFiltersBtn")?.addEventListener("click", applyFilters);
+  $("clearFiltersBtn")?.addEventListener("click", () => {
     ["searchInput", "minOrders", "minSpent", "cityFilter"].forEach(id => $(id).value = "");
     $("subscriptionFilter").value = "all";
     $("promoFilter").value = "all";
@@ -2556,32 +2556,32 @@ function wireEvents() {
   });
 
   ["searchInput", "cityFilter"].forEach(id => {
-    $(id).addEventListener("input", () => applyFilters());
+    $(id)?.addEventListener("input", () => applyFilters());
   });
   ["subscriptionFilter", "promoFilter", "minOrders", "minSpent"].forEach(id => {
-    $(id).addEventListener("change", () => applyFilters());
+    $(id)?.addEventListener("change", () => applyFilters());
   });
 
-  $("copyEmailListBtn").addEventListener("click", async () => {
+  $("copyEmailListBtn")?.addEventListener("click", async () => {
     const emails = getEligibleEmails();
     await copyText(emails.join(", "));
     $("filterStatus").textContent = "Copied " + emails.length + " eligible email(s).";
   });
 
-  $("exportCsvBtn").addEventListener("click", exportCsv);
-  $("openBlastModalBtn").addEventListener("click", openBlastModal);
-  $("copyBlastEmailsBtn").addEventListener("click", async () => {
+  $("exportCsvBtn")?.addEventListener("click", exportCsv);
+  $("openBlastModalBtn")?.addEventListener("click", openBlastModal);
+  $("copyBlastEmailsBtn")?.addEventListener("click", async () => {
     await copyText($("emailOutput").value);
     $("blastStatus").textContent = "Copied email blast list.";
   });
-  $("downloadBlastEmailsBtn").addEventListener("click", () => {
+  $("downloadBlastEmailsBtn")?.addEventListener("click", () => {
     downloadFile("pst_email_blast_eligible_emails.txt", $("emailOutput").value, "text/plain");
   });
-  $("closeBlastModalBtn").addEventListener("click", closeBlastModal);
-  $("closeCustomerModalBtn").addEventListener("click", closeCustomerModal);
+  $("closeBlastModalBtn")?.addEventListener("click", closeBlastModal);
+  $("closeCustomerModalBtn")?.addEventListener("click", closeCustomerModal);
 
-  $("blastModal").addEventListener("click", e => { if (e.target.id === "blastModal") closeBlastModal(); });
-  $("customerModal").addEventListener("click", e => { if (e.target.id === "customerModal") closeCustomerModal(); });
+  $("blastModal")?.addEventListener("click", e => { if (e.target.id === "blastModal") closeBlastModal(); });
+  $("customerModal")?.addEventListener("click", e => { if (e.target.id === "customerModal") closeCustomerModal(); });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
