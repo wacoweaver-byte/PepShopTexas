@@ -3022,7 +3022,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
 
   function wireEvents(){
     setupAdminDashboardNavigation();
-    $("refreshBtn").addEventListener("click", loadOrders);
+    $("refreshBtn")?.addEventListener("click", loadOrders);
     $("closeEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
     $("cancelEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
     $("emailPreviewModal")?.addEventListener("click", (event) => { if(event.target?.id === "emailPreviewModal") closeEmailPreview(); });
@@ -3038,17 +3038,17 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       }
     });
     ["searchInput","statusFilter","paymentFilter","dateFilter","attentionFilter"].forEach(id => { const el=$(id); if(el) el.addEventListener(id==="searchInput"?"input":"change", () => { clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); }); });
-    $("clearFiltersBtn").addEventListener("click", () => { $("searchInput").value=""; $("statusFilter").value=""; $("paymentFilter").value=""; $("dateFilter").value=""; if($("attentionFilter")) $("attentionFilter").value=""; clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); });
-    $("selectAllOrders").addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(String(o.id))); else filteredOrders.forEach(o=>selectedOrderIds.delete(String(o.id))); renderOrders(); renderSelectedCount(); });
-    $("bulkPaidBtn").addEventListener("click", () => bulkUpdate({ payment_status:"paid" }, "Selected orders marked paid."));
-    $("bulkProcessingBtn").addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
-    $("bulkPackedBtn").addEventListener("click", () => bulkUpdate({ order_status:"packed", status:"packed" }, "Selected orders marked packed."));
-    $("bulkDeliveredBtn").addEventListener("click", () => bulkUpdate({ order_status:"delivered", status:"delivered" }, "Selected orders marked delivered."));
-    $("bulkShippedBtn").addEventListener("click", () => bulkUpdate({ order_status:"shipped", status:"shipped" }, "Selected orders marked shipped."));
+    $("clearFiltersBtn")?.addEventListener("click", () => { if($("searchInput")) $("searchInput").value=""; if($("statusFilter")) $("statusFilter").value=""; if($("paymentFilter")) $("paymentFilter").value=""; if($("dateFilter")) $("dateFilter").value=""; if($("attentionFilter")) $("attentionFilter").value=""; clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); });
+    $("selectAllOrders")?.addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(String(o.id))); else filteredOrders.forEach(o=>selectedOrderIds.delete(String(o.id))); renderOrders(); renderSelectedCount(); });
+    $("bulkPaidBtn")?.addEventListener("click", () => bulkUpdate({ payment_status:"paid" }, "Selected orders marked paid."));
+    $("bulkProcessingBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
+    $("bulkPackedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"packed", status:"packed" }, "Selected orders marked packed."));
+    $("bulkDeliveredBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"delivered", status:"delivered" }, "Selected orders marked delivered."));
+    $("bulkShippedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"shipped", status:"shipped" }, "Selected orders marked shipped."));
     $("bulkNoTrackingBtn")?.addEventListener("click", bulkSetNoTrackingRequired);
-    $("bulkRejectedBtn").addEventListener("click", () => bulkUpdate({ order_status:"rejected", status:"rejected" }, "Selected orders marked rejected."));
+    $("bulkRejectedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"rejected", status:"rejected" }, "Selected orders marked rejected."));
     $("bulkDeleteTestBtn")?.addEventListener("click", bulkDeleteSelectedTestOrders);
-    $("bulkClearBtn").addEventListener("click", () => { selectedOrderIds.clear(); renderOrders(); renderSelectedCount(); });
+    $("bulkClearBtn")?.addEventListener("click", () => { selectedOrderIds.clear(); renderOrders(); renderSelectedCount(); });
   }
 
 async function init(){
