@@ -1284,6 +1284,221 @@ header .pst-admin-actions-lock .btn.danger {
     font-size: 15px !important;
   }
 }
+
+
+/* PST ADMIN HEADER FINAL HARD LOCK V4 - NO OVERLAP / SAME PLACEMENT / LIGHTER TYPE */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  min-height: 92px !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 92px !important;
+  margin: 0 !important;
+  padding: 14px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 22px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+header .brand,
+header .pst-admin-brand-lock {
+  flex: 0 0 390px !important;
+  width: 390px !important;
+  min-width: 390px !important;
+  max-width: 390px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 132px 1fr !important;
+  column-gap: 22px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-decoration: none !important;
+}
+
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+}
+
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 21px !important;
+  font-weight: 500 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: #596579 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+
+header .actions,
+header .pst-admin-actions-lock {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 6px 0 0 !important;
+  box-sizing: border-box !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
+
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .pst-admin-actions-lock a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock button.btn {
+  flex: 0 0 auto !important;
+  min-width: auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  background: #0085d5 !important;
+  color: #ffffff !important;
+  border-color: #0085d5 !important;
+}
+
+@media (max-width: 1180px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    gap: 14px !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    flex-basis: 350px !important;
+    width: 350px !important;
+    min-width: 350px !important;
+    max-width: 350px !important;
+    grid-template-columns: 120px 1fr !important;
+    column-gap: 18px !important;
+  }
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 120px !important;
+    height: 58px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+  }
+  header .pst-master-page-label {
+    font-size: 19px !important;
+    font-weight: 500 !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 15px !important;
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  header { overflow: visible !important; }
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    min-height: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+    overflow: visible !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex-basis: auto !important;
+    grid-template-columns: 120px minmax(0, 1fr) !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    width: 100% !important;
+    height: 46px !important;
+  }
+}
 </style>
 
 </head>
