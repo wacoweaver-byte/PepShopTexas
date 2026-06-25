@@ -2894,7 +2894,37 @@ async function loadInventory() {
 
   if (error) throw error;
 
-  allItems = (data || []).map(item => ({ ...item }));
+  let catalogByKey = {};
+  try {
+    const { data: catalogRows, error: catalogError } = await db
+      .from("product_catalog")
+      .select("product_key,display_name,strength,category,blend_stack,is_active")
+      .limit(2000);
+
+    if (!catalogError && Array.isArray(catalogRows)) {
+      catalogByKey = catalogRows.reduce((acc, row) => {
+        const key = String(row.product_key || "").trim().toLowerCase();
+        if (key) acc[key] = row;
+        return acc;
+      }, {});
+    }
+  } catch (err) {
+    console.warn("Product catalog overlay for inventory display skipped:", err && err.message ? err.message : err);
+  }
+
+  allItems = (data || []).map(item => {
+    const catalog = catalogByKey[String(item.product_key || "").trim().toLowerCase()];
+    return catalog ? {
+      ...item,
+      display_name: catalog.display_name || item.display_name,
+      strength: catalog.strength || item.strength,
+      category: catalog.category || item.category,
+      blend_stack: catalog.blend_stack === true || item.blend_stack === true,
+      catalog_display_name: catalog.display_name || "",
+      catalog_strength: catalog.strength || "",
+      catalog_category: catalog.category || ""
+    } : { ...item };
+  });
   await loadReorderSales();
   populateCategoryFilter();
   applyFilters();
