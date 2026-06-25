@@ -4440,10 +4440,48 @@ function scrollProductDetailIntoView() {
 }
 
 
+let pstProductDetailScrollTimers = [];
+let pstProductDetailUserScrolling = false;
+
+function pstClearProductDetailScrollTimers() {
+  pstProductDetailScrollTimers.forEach(clearTimeout);
+  pstProductDetailScrollTimers = [];
+}
+
+function pstScheduleProductDetailScroll(fn, delay) {
+  const timer = setTimeout(function() {
+    pstProductDetailScrollTimers = pstProductDetailScrollTimers.filter(function(item) {
+      return item !== timer;
+    });
+    if (!pstProductDetailUserScrolling) fn();
+  }, delay);
+  pstProductDetailScrollTimers.push(timer);
+}
+
+function pstMarkProductDetailUserScrolling() {
+  pstProductDetailUserScrolling = true;
+  window.pstProductDetailUserScrolling = true;
+  pstClearProductDetailScrollTimers();
+  clearTimeout(window.__pstProductDetailUserScrollReset);
+  window.__pstProductDetailUserScrollReset = setTimeout(function() {
+    pstProductDetailUserScrolling = false;
+    window.pstProductDetailUserScrolling = false;
+  }, 900);
+}
+
+window.pstClearProductDetailScrollTimers = pstClearProductDetailScrollTimers;
+window.pstScheduleProductDetailScroll = pstScheduleProductDetailScroll;
+window.pstProductDetailUserScrolling = pstProductDetailUserScrolling;
+
+window.addEventListener("touchstart", pstClearProductDetailScrollTimers, { passive: true });
+window.addEventListener("touchmove", pstMarkProductDetailUserScrolling, { passive: true });
+window.addEventListener("wheel", pstMarkProductDetailUserScrolling, { passive: true });
+
 
 function pstScrollProductDetailMobileSafe(target) {
   const detail = target || document.getElementById("product-detail");
   if (!detail) return;
+  if (pstProductDetailUserScrolling) return;
 
   const getTarget = () => (
     detail.querySelector(".detail-vial") ||
@@ -4465,11 +4503,11 @@ function pstScrollProductDetailMobileSafe(target) {
   };
 
   requestAnimationFrame(() => {
+    if (pstProductDetailUserScrolling) return;
+    pstClearProductDetailScrollTimers();
     doScroll("smooth");
-    setTimeout(() => doScroll("smooth"), 80);
-    setTimeout(() => doScroll("auto"), 220);
-    setTimeout(() => doScroll("auto"), 420);
-    setTimeout(() => doScroll("auto"), 700);
+    pstScheduleProductDetailScroll(() => doScroll("smooth"), 80);
+    pstScheduleProductDetailScroll(() => doScroll("auto"), 220);
   });
 }
 
@@ -4510,7 +4548,9 @@ function selectProduct(key) {
   setTimeout(equalizeProductDetailHeights, 120);
 
   equalizeProductDetailHeights();
-  setTimeout(function(){ pstScrollProductDetailMobileSafe(document.getElementById("product-detail")); }, 40);
+  pstScheduleProductDetailScroll(function(){
+    pstScrollProductDetailMobileSafe(document.getElementById("product-detail"));
+  }, 40);
   setTimeout(equalizeProductDetailHeights, 120);
 }
 
@@ -7835,16 +7875,21 @@ pstSetPriceElement("selectedPrice", p);
         detail;
 
       const doProductDetailScroll = (behavior) => {
+        if (window.pstProductDetailUserScrolling) return;
         const target = getScrollTarget();
         const y = target.getBoundingClientRect().top + window.pageYOffset - 2;
         window.scrollTo({ top: Math.max(y, 0), behavior: behavior || "smooth" });
       };
 
       requestAnimationFrame(() => {
+        if (window.pstProductDetailUserScrolling) return;
+        if (typeof window.pstClearProductDetailScrollTimers === "function") {
+          window.pstClearProductDetailScrollTimers();
+        }
         doProductDetailScroll("smooth");
-        setTimeout(() => doProductDetailScroll("auto"), 120);
-        setTimeout(() => doProductDetailScroll("auto"), 360);
-        setTimeout(() => doProductDetailScroll("auto"), 700);
+        if (typeof window.pstScheduleProductDetailScroll === "function") {
+          window.pstScheduleProductDetailScroll(() => doProductDetailScroll("auto"), 120);
+        }
       });
     }
   };
