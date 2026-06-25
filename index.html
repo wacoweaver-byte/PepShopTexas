@@ -3971,11 +3971,63 @@ document.addEventListener("DOMContentLoaded", function(){
 }
 </style>
 
+
+
+<style>
+/* PST_VISUAL_WEIGHT_CLEANUP_V1
+   Reduces unnecessary bold text on customer-facing homepage sections.
+   Keeps logo, primary nav, buttons, section titles, prices, and badges strong.
+*/
+.home-showcase-title,
+.home-static-promotion h3,
+.home-static-promotion p,
+.home-promo-code-pill,
+.home-mini-product-body h3,
+.home-mini-product-body p,
+.peptide-list a,
+.faq-item,
+.faq-item strong,
+.terms-list,
+.terms-list li,
+#research p,
+#research-library-preview p,
+#contact p,
+footer p,
+footer a,
+.footer-disclaimer,
+.detail-card p,
+.detail-grid div,
+.detail-grid strong,
+.search-result-name,
+.search-result-meta {
+  font-weight: 400 !important;
+}
+
+.peptide-list a {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.faq-item strong,
+footer h4,
+.section-title,
+.stack-price,
+.home-mini-price,
+.btn,
+.menu a,
+.cart-button,
+.cart-count,
+.inventory-status,
+.pst-sale-current,
+.pst-sale-label {
+  font-weight: 800 !important;
+}
+</style>
 </head>
 <body>
 <header>
   <nav class="nav">
-    <a class="logo-mark" href="#home"><img class="header-logo-img" src="assets/icons/pst-logo-extracted.jpg" alt="Pep Shop Texas"></a>
+    <a class="logo-mark" href="#home"><img class="header-logo-img" src="assets/icons/pst-logo-extracted.jpg?v=2" alt="Pep Shop Texas"></a>
 
     <div class="site-search">
       <input id="productSearch" type="text" placeholder="Search peptides or stacks..." autocomplete="off" autocapitalize="none" spellcheck="false">
@@ -4184,7 +4236,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 <footer>
   <div class="footer-inner">
-    <div><img class="footer-logo-img" src="assets/icons/pst-logo-extracted.jpg" alt="Pep Shop Texas"><p>Premium research peptides delivered with quality, purity, and integrity.</p><p class="footer-disclaimer">Images displayed throughout this website are representative renderings and may not reflect the exact appearance of products received. Actual products may utilize standardized Pep Shop Texas production labels and packaging.</p></div>
+    <div><img class="footer-logo-img" src="assets/icons/pst-logo-extracted.jpg?v=2" alt="Pep Shop Texas"><p>Premium research peptides delivered with quality, purity, and integrity.</p><p class="footer-disclaimer">Images displayed throughout this website are representative renderings and may not reflect the exact appearance of products received. Actual products may utilize standardized Pep Shop Texas production labels and packaging.</p></div>
     <div><h4>Customer Service</h4><a href="shipping.html">Shipping & Returns</a><a href="legal.html#ruo">Research</a>
 <a href="#faq">FAQ</a><a href="legal.html#terms">Terms of Service</a><a href="privacy.html">Privacy Policy</a></div>
     <div><h4>Contact Us</h4><a href="mailto:support@pepshoptexas.com">support@pepshoptexas.com</a><a href="admin.html" style="font-size:12px;color:#777">Admin Login</a></div>
