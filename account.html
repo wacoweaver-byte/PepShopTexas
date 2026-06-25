@@ -5,7 +5,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>My Account | Pep Shop Texas</title>
-<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png?v=2">
+<link rel="manifest" href="assets/icons/site.webmanifest?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -24,8 +28,8 @@ a { color:var(--blue); font-weight:900; text-decoration:none; }
 .top-strip { background:#050505; color:#fff; font-size:13px; font-weight:800; text-transform:uppercase; display:flex; justify-content:space-between; gap:20px; padding:9px 36px; }
 header { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20; }
 .nav { max-width:1180px; margin:auto; padding:18px 28px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
-.brand { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; font-size:30px; color:#111; text-transform:uppercase; letter-spacing:.5px; }
-.brand span { color:var(--blue); }
+.brand { display:flex; align-items:center; text-decoration:none; }
+.account-logo-img { width:220px; max-width:100%; height:auto; display:block; }
 .menu { display:flex; gap:18px; align-items:center; text-transform:uppercase; font-weight:900; font-size:14px; flex-wrap:wrap; }
 .wrap { max-width:1180px; margin:auto; padding:30px 28px; }
 .page-title { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:48px; margin:0 0 10px; }
@@ -98,6 +102,10 @@ header { background:#fff; border-bottom:1px solid var(--line); position:sticky; 
   .item-line { grid-template-columns:1fr; }
   .form-grid { grid-template-columns:1fr; }
 }
+
+@media(max-width:560px) {
+  .account-logo-img { width:170px; }
+}
 </style>
 </head>
 <body>
@@ -109,7 +117,7 @@ header { background:#fff; border-bottom:1px solid var(--line); position:sticky; 
 
 <header>
   <nav class="nav">
-    <a class="brand" href="index.html">Pep Shop <span>Texas</span></a>
+    <a class="brand" href="index.html" aria-label="Pep Shop Texas home"><img class="account-logo-img" src="assets/icons/pst-logo-extracted.jpg" alt="Pep Shop Texas"></a>
     <div class="menu">
       <a href="index.html">Home</a>
       <a href="index.html#az">Shop Peptides</a>
