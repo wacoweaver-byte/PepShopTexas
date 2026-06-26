@@ -4100,12 +4100,18 @@ footer a,
 </style>
 
 
+
+
 <style id="pst-centered-brand-header-v1">
-/* PST CENTERED BRAND HEADER - large centered logo, nav links underneath */
+/* PST CENTERED BRAND HEADER - horizontal gray bands: darker top, softer middle, lighter bottom */
 header {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.58) 100%),
-    linear-gradient(90deg, #eceeef 0%, #f6f7f8 48%, #ffffff 100%) !important;
+  background: linear-gradient(
+    180deg,
+    #d9dcdf 0%,
+    #e3e5e7 38%,
+    #f0f1f2 68%,
+    #ffffff 100%
+  ) !important;
   border-bottom: 0 !important;
   box-shadow: 0 10px 28px rgba(0,0,0,.045) !important;
   position: sticky !important;
@@ -4116,7 +4122,7 @@ header {
 header::after {
   content: "";
   display: block;
-  height: 16px;
+  height: 18px;
   pointer-events: none;
   background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #ffffff 100%);
 }
@@ -4133,6 +4139,7 @@ header::after {
     "menu menu menu" !important;
   align-items: center !important;
   gap: 12px 24px !important;
+  background: transparent !important;
 }
 
 .logo-mark {
@@ -4165,9 +4172,9 @@ header::after {
 }
 
 .site-search input {
-  background: rgba(255,255,255,.84) !important;
-  border-color: rgba(0,0,0,.12) !important;
-  box-shadow: 0 8px 20px rgba(0,0,0,.035) !important;
+  background: rgba(255,255,255,.86) !important;
+  border-color: rgba(0,0,0,.14) !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,.04) !important;
 }
 
 .account-status {
@@ -4198,7 +4205,7 @@ header::after {
   justify-self: center !important;
   width: min(100%, 960px) !important;
   padding-top: 12px !important;
-  border-top: 1px solid rgba(0,0,0,.07) !important;
+  border-top: 1px solid rgba(0,0,0,.08) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -4233,6 +4240,16 @@ header::after {
 @media (max-width: 980px) {
   html {
     scroll-padding-top: 190px !important;
+  }
+
+  header {
+    background: linear-gradient(
+      180deg,
+      #dde0e3 0%,
+      #e8eaec 42%,
+      #f4f5f6 74%,
+      #ffffff 100%
+    ) !important;
   }
 
   .nav {
@@ -4289,6 +4306,16 @@ header::after {
     scroll-padding-top: 205px !important;
   }
 
+  header {
+    background: linear-gradient(
+      180deg,
+      #e0e3e6 0%,
+      #eceeef 46%,
+      #f7f7f8 78%,
+      #ffffff 100%
+    ) !important;
+  }
+
   .nav {
     padding: 14px 14px 7px !important;
   }
@@ -4311,6 +4338,8 @@ header::after {
   }
 }
 </style>
+
+
 
 </head>
 <spanody>
