@@ -4327,6 +4327,58 @@ header::after {
 }
 </style>
 
+
+<style id="pst-product-detail-hero-v1">
+/* Static product-detail hero image below the centered brand header */
+.product-detail-hero-photo {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto 22px !important;
+  padding: 0 34px !important;
+  display: none !important;
+}
+
+#product-detail.active .product-detail-hero-photo {
+  display: block !important;
+}
+
+.product-detail-hero-photo-inner {
+  width: 100% !important;
+  overflow: hidden !important;
+  border-radius: 0 0 18px 18px !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f7f8 100%) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.06) !important;
+}
+
+.product-detail-hero-photo img {
+  width: 100% !important;
+  height: auto !important;
+  display: block !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+}
+
+.product-detail-hero-caption {
+  margin: 8px 0 0 !important;
+  color: #666 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  text-align: center !important;
+}
+
+@media(max-width: 760px) {
+  .product-detail-hero-photo {
+    padding: 0 14px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .product-detail-hero-photo-inner {
+    border-radius: 0 0 12px 12px !important;
+  }
+}
+</style>
+
 </head>
 <spanody>
 <header>
@@ -4412,6 +4464,13 @@ header::after {
   </article>
 </section>
 <section id="product-detail" class="section wrap product-detail">
+  <div class="product-detail-hero-photo" aria-label="Pep Shop Texas product presentation">
+    <div class="product-detail-hero-photo-inner">
+      <img src="assets/images/pst-product-detail-vials-hero.png?v=1" alt="Pep Shop Texas research product vial presentation">
+    </div>
+    <div class="product-detail-hero-caption">Product imagery is representative. Actual products use standardized Pep Shop Texas research-use labeling and packaging.</div>
+  </div>
+
     <div>
       <div class="detail-vial">
         <img id="selectedImage" alt="Selected product vial">
