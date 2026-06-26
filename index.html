@@ -4330,36 +4330,50 @@ header::after {
 
 
 
-<style id="pst-visible-product-hero-photo-v2">
-/* PST cropped vial banner directly under header */
+
+
+
+
+<style id="pst-compact-vial-hero-v1">
+/* PST compact vial hero: slightly larger than stack-card vials, not full-page huge */
 .pst-product-hero-banner {
   width: 100% !important;
   background: #ffffff !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  padding: 14px 18px 18px !important;
+  margin: 0 auto !important;
 }
 
 .pst-product-hero-banner-inner {
-  width: 100% !important;
-  max-width: none !important;
+  width: min(760px, 92vw) !important;
+  max-width: 760px !important;
   margin: 0 auto !important;
   overflow: hidden !important;
   background: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,.045) !important;
 }
 
 .pst-product-hero-banner img {
   display: block !important;
   width: 100% !important;
-  max-width: 100% !important;
   height: auto !important;
+  max-height: 225px !important;
   object-fit: contain !important;
   object-position: center center !important;
 }
 
 @media(max-width: 760px) {
+  .pst-product-hero-banner {
+    padding: 10px 12px 14px !important;
+  }
+
+  .pst-product-hero-banner-inner {
+    width: min(94vw, 620px) !important;
+    border-radius: 10px !important;
+  }
+
   .pst-product-hero-banner img {
-    width: 100% !important;
-    height: auto !important;
+    max-height: 170px !important;
   }
 }
 </style>
@@ -4402,9 +4416,13 @@ header::after {
 
 <section class="pst-product-hero-banner" aria-label="Pep Shop Texas product presentation">
   <div class="pst-product-hero-banner-inner">
-    <img src="assets/images/pst-product-detail-vials-hero-cropped.webp?v=1" alt="Pep Shop Texas research product vial presentation">
+    <img src="assets/images/pst-product-detail-vials-hero-balanced-crop.webp?v=2" alt="Pep Shop Texas research product vial presentation">
   </div>
 </section>
+
+
+
+
 
 
 
