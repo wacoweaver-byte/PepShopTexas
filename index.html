@@ -3949,19 +3949,19 @@ strong {
 }
 .pst-vial-label-layer {
   position: absolute;
-  left: 28.4%;
-  top: 37.2%;
-  width: 31.8%;
-  height: 28.8%;
+  left: 25%;
+  top: 34.5%;
+  width: 50%;
+  height: 43%;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 3.8% 4.3% 3.8%;
+  padding: 4.8% 5.2% 4.4%;
   color: #060606;
   border-radius: 4px;
-  transform: perspective(720px) rotateY(2.5deg) scaleX(.9);
+  transform: perspective(720px) rotateY(-1deg) scaleX(.98);
   transform-origin: center;
   overflow: hidden;
   box-shadow: none;
@@ -3987,9 +3987,9 @@ strong {
   opacity: .42;
 }
 .pst-vial-logo {
-  width: 76%;
+  width: 86%;
   height: auto;
-  max-height: 16%;
+  max-height: 20%;
   object-fit: contain;
   mix-blend-mode: multiply;
   flex: 0 0 auto;
@@ -4024,10 +4024,10 @@ strong {
   transform: perspective(340px) rotateY(-4deg) scaleX(.92);
 }
 .pst-vial-rule {
-  width: 76%;
+  width: 90%;
   height: 1.2%;
   min-height: 1px;
-  margin: 2.4% 0 3.2%;
+  margin: 3% 0 5%;
   background: #0754ba;
   border-radius: 999px;
   flex: 0 0 auto;
@@ -4045,7 +4045,7 @@ strong {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.8%;
+  gap: 3%;
 }
 .pst-vial-line {
   max-width: 100%;
@@ -4069,8 +4069,8 @@ strong {
 }
 .pst-vial-dose {
   max-width: 100%;
-  margin-top: 1.2%;
-  padding: 2.2% 5.5%;
+  margin-top: 2.2%;
+  padding: 3.2% 8%;
   border-radius: 999px;
   background: #0754ba;
   color: #fff;
@@ -4087,8 +4087,8 @@ strong {
   flex: 0 0 auto;
   position: relative;
   z-index: 2;
-  margin-top: 2%;
-  font-size: clamp(2.5px, calc(var(--pst-vial-w) * .01), 4px);
+  margin-top: 4%;
+  font-size: clamp(3px, calc(var(--pst-vial-w) * .018), 7px);
   line-height: 1.22;
   font-weight: 700;
   color: #111;
@@ -4370,10 +4370,10 @@ footer a,
   margin: auto !important;
 }
 .pst-vial-label-layer {
-  left: 28.4% !important;
-  top: 37.2% !important;
-  width: 31.8% !important;
-  height: 28.8% !important;
+  left: 25% !important;
+  top: 34.5% !important;
+  width: 50% !important;
+  height: 43% !important;
   background: transparent !important;
   box-shadow: none !important;
 }
@@ -5717,28 +5717,28 @@ function pstBuildLabelRows(product) {
 function pstVialFontScale(text, role) {
   const len = pstOverlayClean(text).length;
   if (role === "main") {
-    if (len > 34) return ".028";
-    if (len > 28) return ".032";
-    if (len > 22) return ".037";
-    if (len > 16) return ".044";
-    return ".052";
+    if (len > 34) return ".045";
+    if (len > 28) return ".052";
+    if (len > 22) return ".061";
+    if (len > 16) return ".075";
+    return ".09";
   }
   if (role === "dose") {
-    if (len > 28) return ".022";
-    if (len > 22) return ".025";
-    if (len > 16) return ".029";
-    return ".034";
+    if (len > 28) return ".035";
+    if (len > 22) return ".042";
+    if (len > 16) return ".052";
+    return ".065";
   }
-  if (len > 34) return ".02";
-  if (len > 26) return ".024";
-  if (len > 18) return ".028";
-  return ".033";
+  if (len > 34) return ".032";
+  if (len > 26) return ".038";
+  if (len > 18) return ".046";
+  return ".056";
 }
 
 function pstVialTextStyle(text, role) {
   const scale = pstVialFontScale(text, role);
   const min = role === "main" ? 5 : role === "dose" ? 4 : 4;
-  const max = role === "main" ? 18 : role === "dose" ? 12 : 11;
+  const max = role === "main" ? 34 : role === "dose" ? 22 : 20;
   return `font-size:clamp(${min}px, calc(var(--pst-vial-w) * ${scale}), ${max}px);`;
 }
 
