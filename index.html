@@ -3949,10 +3949,10 @@ strong {
 }
 .pst-vial-label-layer {
   position: absolute;
-  left: 30%;
-  top: 39.2%;
-  width: 40%;
-  height: 37.2%;
+  left: 34.2%;
+  top: 38.8%;
+  width: 31.6%;
+  height: 31.8%;
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -3960,13 +3960,11 @@ strong {
   text-align: center;
   padding: 4.6% 4.8% 4.2%;
   color: #060606;
-  border-radius: 48% / 8%;
-  transform: perspective(720px) rotateY(-4deg) scaleX(.94);
+  border-radius: 4px;
+  transform: perspective(720px) rotateY(-3deg) scaleX(.92);
   transform-origin: center;
   overflow: hidden;
-  box-shadow:
-    inset 10px 0 14px rgba(255,255,255,.42),
-    inset -12px 0 16px rgba(0,0,0,.09);
+  box-shadow: none;
 }
 .pst-vial-label-layer::before,
 .pst-vial-label-layer::after {
@@ -3978,21 +3976,22 @@ strong {
 }
 .pst-vial-label-layer::before {
   background:
-    linear-gradient(90deg, rgba(0,0,0,.13) 0%, transparent 18%, transparent 78%, rgba(0,0,0,.08) 100%),
-    radial-gradient(ellipse at 50% 42%, rgba(255,255,255,.46) 0%, rgba(255,255,255,.18) 28%, transparent 58%);
+    linear-gradient(90deg, rgba(0,0,0,.07) 0%, transparent 21%, transparent 76%, rgba(0,0,0,.05) 100%),
+    radial-gradient(ellipse at 50% 42%, rgba(255,255,255,.24) 0%, rgba(255,255,255,.08) 30%, transparent 58%);
   mix-blend-mode: multiply;
-  opacity: .46;
+  opacity: .28;
 }
 .pst-vial-label-layer::after {
-  background: linear-gradient(102deg, transparent 10%, rgba(255,255,255,.36) 42%, transparent 56%);
+  background: linear-gradient(102deg, transparent 12%, rgba(255,255,255,.22) 42%, transparent 55%);
   mix-blend-mode: screen;
-  opacity: .68;
+  opacity: .42;
 }
 .pst-vial-logo {
-  width: 78%;
+  width: 72%;
   height: auto;
-  max-height: 12%;
+  max-height: 18%;
   object-fit: contain;
+  mix-blend-mode: multiply;
   flex: 0 0 auto;
 }
 .pst-vial-logo-word {
@@ -4088,7 +4087,7 @@ strong {
   flex: 0 0 auto;
   position: relative;
   z-index: 2;
-  margin-top: 3.8%;
+  margin-top: 3%;
   font-size: clamp(3px, calc(var(--pst-vial-w) * .013), 5px);
   line-height: 1.22;
   font-weight: 700;
@@ -4326,19 +4325,62 @@ footer a,
 }
 .pst-vial-art img.pst-vial-logo {
   display: block !important;
-  width: 60% !important;
-  max-width: 60% !important;
+  width: 72% !important;
+  max-width: 72% !important;
   height: auto !important;
-  max-height: 12% !important;
+  max-height: 18% !important;
   object-fit: contain !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  mix-blend-mode: multiply !important;
 }
 .detail-vial .pst-vial-art,
 .home-mini-product-image .pst-vial-art,
 .stack-card > .pst-vial-art,
 .tx-image-wrap .pst-vial-art {
   flex: 0 0 auto !important;
+}
+</style>
+<style>
+/* Vial detail alignment and final overlay corrections */
+#product-detail.product-detail.active {
+  align-items: stretch !important;
+}
+#product-detail > div:first-child {
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+}
+#product-detail .detail-vial {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 18px !important;
+  overflow: hidden !important;
+}
+#product-detail .detail-card {
+  height: 100% !important;
+}
+#product-detail .detail-vial .pst-vial-art {
+  --pst-vial-w: min(320px, 72vw);
+  margin: auto !important;
+}
+.pst-vial-label-layer {
+  left: 34.2% !important;
+  top: 38.8% !important;
+  width: 31.6% !important;
+  height: 31.8% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+@media(max-width: 700px) {
+  #product-detail .detail-vial .pst-vial-art {
+    --pst-vial-w: min(210px, 56vw);
+  }
 }
 </style>
 </head>
@@ -5712,8 +5754,7 @@ function pstVialArtHTML(product, variant = "card") {
     <div class="pst-vial-art ${variantClass}" role="img" aria-label="${pstEsc(label || "Product vial")}">
       <img class="pst-vial-base" src="${PST_VIAL_BASE_SRC}" alt="" loading="lazy">
       <div class="pst-vial-label-layer" aria-hidden="true">
-        <div class="pst-vial-logo-word">P<span>S</span>T</div>
-        <div class="pst-vial-logo-sub">PEP SHOP TEXAS</div>
+        <img class="pst-vial-logo" src="${PST_VIAL_LOGO_SRC}" alt="">
         <div class="pst-vial-rule"></div>
         <div class="pst-vial-copy">
           <div class="pst-vial-line pst-vial-line--main" style="${pstVialTextStyle(main, "main")}">${pstEsc(main)}</div>
