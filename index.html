@@ -3923,6 +3923,137 @@ strong {
     width: clamp(135px, 42vw, 170px) !important;
   }
 }
+
+/* Reusable photoreal vial with live product label overlay */
+.pst-vial-art {
+  --pst-vial-w: 176px;
+  position: relative;
+  width: var(--pst-vial-w);
+  max-width: 100%;
+  aspect-ratio: 2 / 3;
+  margin: 0 auto;
+  display: block;
+  isolation: isolate;
+  filter: drop-shadow(0 18px 24px rgba(0,0,0,.16));
+}
+.pst-vial-art--mini { --pst-vial-w: 74px; filter: drop-shadow(0 9px 10px rgba(0,0,0,.13)); }
+.pst-vial-art--card { --pst-vial-w: 154px; }
+.pst-vial-art--detail { --pst-vial-w: min(360px, 78vw); }
+.pst-vial-base {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 1;
+}
+.pst-vial-label-layer {
+  position: absolute;
+  left: 27.4%;
+  top: 37.4%;
+  width: 45.6%;
+  height: 42.4%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 5.8% 5.2% 4.6%;
+  color: #060606;
+  transform: perspective(700px) rotateY(-1.5deg);
+  transform-origin: center;
+  overflow: hidden;
+}
+.pst-vial-logo {
+  width: 82%;
+  height: auto;
+  max-height: 17%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  flex: 0 0 auto;
+}
+.pst-vial-rule {
+  width: 84%;
+  height: 1.2%;
+  min-height: 1px;
+  margin: 4.2% 0 6%;
+  background: #0754ba;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.pst-vial-copy {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3.2%;
+}
+.pst-vial-line {
+  max-width: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  line-height: .96;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.pst-vial-line--main {
+  color: #030303;
+  letter-spacing: 0;
+}
+.pst-vial-line--sub {
+  color: #202020;
+  line-height: 1.02;
+  font-weight: 800;
+}
+.pst-vial-dose {
+  max-width: 100%;
+  margin-top: 2.4%;
+  padding: 3.4% 7%;
+  border-radius: 999px;
+  background: #0754ba;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.24);
+  overflow-wrap: anywhere;
+}
+.pst-vial-fine {
+  flex: 0 0 auto;
+  margin-top: 5.2%;
+  font-size: clamp(3px, calc(var(--pst-vial-w) * .025), 9px);
+  line-height: 1.22;
+  font-weight: 700;
+  color: #111;
+}
+.pst-vial-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(100deg, transparent 18%, rgba(255,255,255,.32) 34%, transparent 47%),
+    linear-gradient(260deg, transparent 45%, rgba(0,0,0,.06) 70%, transparent 87%);
+  mix-blend-mode: screen;
+  opacity: .76;
+}
+.home-mini-product-image .pst-vial-art { margin-top: 4px; }
+.stack-card > .pst-vial-art,
+.tx-image-wrap .pst-vial-art {
+  margin: 12px auto;
+}
+.detail-vial .pst-vial-art {
+  --pst-vial-w: min(360px, 78vw);
+}
+@media(max-width: 700px) {
+  .detail-vial .pst-vial-art { --pst-vial-w: min(220px, 58vw); }
+  .pst-vial-art--card { --pst-vial-w: 132px; }
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -4117,6 +4248,36 @@ footer a,
   font-weight: 400 !important;
 }
 </style>
+<style>
+.pst-vial-art img.pst-vial-base {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.pst-vial-art img.pst-vial-logo {
+  display: block !important;
+  width: 82% !important;
+  max-width: 82% !important;
+  height: auto !important;
+  max-height: 17% !important;
+  object-fit: contain !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.detail-vial .pst-vial-art,
+.home-mini-product-image .pst-vial-art,
+.stack-card > .pst-vial-art,
+.tx-image-wrap .pst-vial-art {
+  flex: 0 0 auto !important;
+}
+</style>
 </head>
 <spanody>
 <header>
@@ -4204,7 +4365,7 @@ footer a,
 <section id="product-detail" class="section wrap product-detail">
     <div>
       <div class="detail-vial">
-        <img id="selectedImage" alt="Selected product vial">
+        <div id="selectedVialArt" class="pst-vial-art pst-vial-art--detail" role="img" aria-label="Selected product vial"></div>
       </div>
     </div>
     <div class="detail-card">
@@ -4361,8 +4522,7 @@ function encodeImagePath(path) {
 }
 
 function resolveImagePath(data) {
-  if (data && typeof makeDynamicPSTLabelDataUrl === "function") return makeDynamicPSTLabelDataUrl(data);
-  return "";
+  return PST_VIAL_BASE_SRC || "";
 }
 
 function showDetail(data, type, key) {
@@ -4372,9 +4532,11 @@ function showDetail(data, type, key) {
   if (typeof pstSetDetailTitle === "function") pstSetDetailTitle(data); else document.getElementById("selectedName").textContent = data.display;
 
   const img = document.getElementById("selectedImage");
-  img.alt = (data.display || "Selected product") + " " + (data.strength || "");
-  img.onerror = null;
-  img.src = pstProductImageSrc(data);
+  if (img) {
+    img.alt = (data.display || "Selected product") + " " + (data.strength || "");
+    img.onerror = null;
+  }
+  if (typeof pstRenderDetailVial === "function") pstRenderDetailVial(data);
 
   document.getElementById("selectedDescription").textContent = data.description || "Catalog detail with PST artwork, vial inventory, documentation status, and checkout options.";
   document.getElementById("selectedStrength").textContent = data.strength || "TBD";
@@ -4553,9 +4715,9 @@ function selectProduct(key) {
   if (inventoryEl) inventoryEl.textContent = (p.inventory || 0) + " vials";
   if (priceEl) priceEl.innerHTML = pstPublicPriceHTML(p);
   if (imageEl) {
-    imageEl.src = pstProductImageSrc(p);
     imageEl.alt = p.display + " " + p.strength;
   }
+  pstRenderDetailVial(p);
 
   const addBtn = document.getElementById("selectedAddButton");
   if (addBtn) addBtn.onclick = function() { addProductToCart(key); };
@@ -5350,7 +5512,9 @@ async function loadInventoryOverlay() {
 
 
 
-const PST_VIAL_BASE_DATA_URL = window.PST_VIAL_BASE_DATA_URL || "";
+const PST_VIAL_BASE_SRC = "assets/pst-blank-vial.png";
+const PST_VIAL_LOGO_SRC = "assets/pst-logo.jpeg";
+const PST_VIAL_BASE_DATA_URL = window.PST_VIAL_BASE_DATA_URL || PST_VIAL_BASE_SRC;
 
 function pstOverlayClean(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
@@ -5445,6 +5609,65 @@ function pstBuildLabelRows(product) {
   });
 }
 
+function pstVialFontScale(text, role) {
+  const len = pstOverlayClean(text).length;
+  if (role === "main") {
+    if (len > 34) return ".082";
+    if (len > 28) return ".092";
+    if (len > 22) return ".104";
+    if (len > 16) return ".12";
+    return ".145";
+  }
+  if (role === "dose") {
+    if (len > 28) return ".054";
+    if (len > 22) return ".061";
+    if (len > 16) return ".07";
+    return ".082";
+  }
+  if (len > 34) return ".052";
+  if (len > 26) return ".061";
+  if (len > 18) return ".07";
+  return ".081";
+}
+
+function pstVialTextStyle(text, role) {
+  const scale = pstVialFontScale(text, role);
+  const min = role === "main" ? 8 : role === "dose" ? 7 : 6;
+  const max = role === "main" ? 44 : role === "dose" ? 26 : 24;
+  return `font-size:clamp(${min}px, calc(var(--pst-vial-w) * ${scale}), ${max}px);`;
+}
+
+function pstVialArtHTML(product, variant = "card") {
+  const parts = pstLabelParts(product || {});
+  const main = pstOverlayClean(parts.line1 || pstRawName(product || {}));
+  const detailLines = [parts.line2, parts.line3].map(pstOverlayClean).filter(Boolean);
+  const dose = pstOverlayClean(parts.dose || (product && product.strength) || "");
+  const label = [main].concat(detailLines, dose).filter(Boolean).join(" ");
+  const variantClass = variant === "mini" ? "pst-vial-art--mini" : variant === "detail" ? "pst-vial-art--detail" : "pst-vial-art--card";
+
+  return `
+    <div class="pst-vial-art ${variantClass}" role="img" aria-label="${pstEsc(label || "Product vial")}">
+      <img class="pst-vial-base" src="${PST_VIAL_BASE_SRC}" alt="" loading="lazy">
+      <div class="pst-vial-label-layer" aria-hidden="true">
+        <img class="pst-vial-logo" src="${PST_VIAL_LOGO_SRC}" alt="">
+        <div class="pst-vial-rule"></div>
+        <div class="pst-vial-copy">
+          <div class="pst-vial-line pst-vial-line--main" style="${pstVialTextStyle(main, "main")}">${pstEsc(main)}</div>
+          ${detailLines.map(line => `<div class="pst-vial-line pst-vial-line--sub" style="${pstVialTextStyle(line, "sub")}">${pstEsc(line)}</div>`).join("")}
+          ${dose ? `<div class="pst-vial-dose" style="${pstVialTextStyle(dose, "dose")}">${pstEsc(dose)}</div>` : ""}
+        </div>
+        <div class="pst-vial-fine">For Research Purposes Only<br>Not for Human/Animal Use</div>
+      </div>
+      <div class="pst-vial-shine" aria-hidden="true"></div>
+    </div>`;
+}
+
+function pstRenderDetailVial(product) {
+  const detailVial = document.querySelector("#product-detail .detail-vial");
+  if (!detailVial) return;
+  detailVial.innerHTML = pstVialArtHTML(product, "detail");
+}
+
 function makePSTTemplateOverlayDataUrl(product) {
   const rows = pstBuildLabelRows(product);
 
@@ -5483,11 +5706,11 @@ function makePSTTemplateOverlayDataUrl(product) {
 }
 
 function makeDynamicPSTLabelDataUrl(product) {
-  return makePSTTemplateOverlayDataUrl(product);
+  return PST_VIAL_BASE_SRC;
 }
 
 function pstProductImageSrc(product) {
-  return makeDynamicPSTLabelDataUrl(product);
+  return PST_VIAL_BASE_SRC;
 }
 
 
@@ -5652,9 +5875,9 @@ async function loadProducts() {
     p.limitedStockThreshold = inv ? Number(inv.limited_stock_threshold || 10) : 25;
     p.isActive = true;
 
-    if (p.useDynamicLabel && !p.imageData) {
-      p.imageData = makeDynamicPSTLabelDataUrl(p);
-      p.file = p.imageData;
+    if (p.useDynamicLabel) {
+      p.imageData = "";
+      p.file = "";
     }
 
     productData[p.key] = p;
@@ -5696,13 +5919,12 @@ async function loadProducts() {
 
 
 function homeMiniProductCard(product) {
-  const image = product.imageData || product.file || "";
   const subtitle = product.strength || product.series || "";
   const key = product.productKey || product.key || "";
   return `
     <article class="home-mini-product" onclick='selectProduct(${JSON.stringify(key)})'>
       <div class="home-mini-product-image">
-        ${image ? `<img src="${pstEsc(image)}" alt="${pstEsc(product.display || product.key || "Product")}">` : ""}
+        ${pstVialArtHTML(product, "mini")}
       </div>
       <div class="home-mini-product-body">
         <h3>${pstEsc(product.display || product.key || "Product")}</h3>
@@ -5717,7 +5939,7 @@ function homeMiniStackCard(stack) {
   return `
     <article class="home-mini-product" onclick='selectProduct(${JSON.stringify(key)})'>
       <div class="home-mini-product-image">
-        ${stack.imageData ? `<img src="${pstEsc(stack.imageData)}" alt="${pstEsc(stack.display || "Blend / Stack")}">` : ""}
+        ${pstVialArtHTML(stack, "mini")}
       </div>
       <div class="home-mini-product-body">
         <h3>${pstEsc(stack.display || "Blend / Stack")}</h3>
@@ -5821,7 +6043,7 @@ function productCard(p, badge) {
   const subtitle = p.series || p.strength || "";
   return `
     <article class="stack-card">
-      <img src="${pstEsc(pstProductImageSrc(p))}" alt="${pstEsc(p.display)}">
+      ${pstVialArtHTML(p, "card")}
       <div class="stack-card-body">
         <span class="badge">${pstEsc(badge)}</span>
         <h3>${pstEsc(p.display)}</h3>
@@ -5879,7 +6101,7 @@ function rebuildTXSeries() {
   const tx = Object.values(productData).filter(p => (p.display || "").startsWith("PST-TX")).sort((a,b) => a.display.localeCompare(b.display));
   grid.innerHTML = tx.map(p => `
     <article class="tx-card">
-      <div class="tx-image-wrap"><img src="${pstEsc(pstProductImageSrc(p))}" alt="${pstEsc(p.display)} ${pstEsc(p.strength)}"></div>
+      <div class="tx-image-wrap">${pstVialArtHTML(p, "card")}</div>
       <div class="tx-card-body">
         <span class="tx-badge">${pstEsc(formula[p.display] || "Research Formula")}</span>
         <h3>${pstEsc(p.display)} <span class="tx-strength-inline">${pstEsc(p.strength)}</span></h3>
@@ -5915,9 +6137,9 @@ set("selectedInventory", Number(p.inventory || 0) + " vials");
 
   const img = document.getElementById("selectedImage") || document.getElementById("selectedLabel") || document.getElementById("selectedVial") || document.querySelector("#product-detail img");
   if (img) {
-    img.src = pstProductImageSrc(p);
     img.alt = (p.display || "") + " " + (p.strength || "");
   }
+  pstRenderDetailVial(p);
 
   const btn = document.getElementById("selectedAddButton");
   if (btn) btn.onclick = () => addProductToCart(key);
@@ -6386,7 +6608,7 @@ function productCard(p, badge) {
   const disabled = Number(p.inventory || 0) <= 0 || !pstHasLivePrice(p.price);
   return `
     <article class="stack-card">
-      <img src="${pstEsc(pstProductImageSrc(p))}" alt="${pstEsc(p.display)}">
+      ${pstVialArtHTML(p, "card")}
       <div class="stack-card-body">
         <span class="badge">${pstEsc(badge)}</span>
         <h3>${pstEsc(p.display)}</h3>
@@ -6431,7 +6653,7 @@ function rebuildTXSeries() {
     const disabled = Number(p.inventory || 0) <= 0 || !pstHasLivePrice(p.price);
     return `
     <article class="tx-card">
-      <div class="tx-image-wrap"><img src="${pstEsc(pstProductImageSrc(p))}" alt="${pstEsc(p.display)} ${pstEsc(p.strength)}"></div>
+      <div class="tx-image-wrap">${pstVialArtHTML(p, "card")}</div>
       <div class="tx-card-body">
         <span class="tx-badge">${pstEsc(formula[p.display] || "Research Formula")}</span>
         <h3>${pstEsc(p.display)} <span class="tx-strength-inline">${pstEsc(p.strength)}</span></h3>
@@ -6474,9 +6696,9 @@ set("selectedInventory", getInventoryStatusText(p.inventory));
 
   const img = document.getElementById("selectedImage") || document.getElementById("selectedLabel") || document.getElementById("selectedVial") || document.querySelector("#product-detail img");
   if (img) {
-    img.src = pstProductImageSrc(p);
     img.alt = (p.display || "") + " " + (p.strength || "");
   }
+  pstRenderDetailVial(p);
 
   const btn = document.getElementById("selectedAddButton");
   if (btn) {
@@ -7910,9 +8132,9 @@ pstSetPriceElement("selectedPrice", p);
 
     const img = document.getElementById("selectedImage") || document.querySelector("#product-detail img");
     if (img) {
-      img.src = pstProductImageSrc(p);
       img.alt = (p.display || key || "Selected product") + " " + (p.strength || "");
     }
+    pstRenderDetailVial(p);
 
     const btn = document.getElementById("selectedAddButton");
     if (btn) btn.onclick = function () {
