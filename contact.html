@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Contact | PEP Shop Texas</title>
-  <link rel="stylesheet" href="styles.css?v=4">
-  <script type="module" src="app.js?v=4"></script>
+  <link rel="stylesheet" href="styles.css?v=5">
+  <script type="module" src="app.js?v=5"></script>
 </head>
 <body>
   <header class="site-header compact-header">
@@ -17,8 +17,8 @@
       <a href="contact.html">CONTACT</a>
       <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
     </nav>
-    <form class="search" role="search" data-product-search-form">
-      <input type="search" placeholder="Search peptides..." autocomplete="off">
+    <form class="search" role="search" action="products.html" method="get" data-product-search-form>
+      <input name="search" type="search" placeholder="Search peptides..." autocomplete="off">
       <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
     </form>
   </header>
