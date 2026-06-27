@@ -3,35 +3,299 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Products | PEP Shop Texas</title>
-  <link rel="stylesheet" href="styles.css?v=7">
+  <title>Products Management | PEP Shop Texas</title>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=7"></script>
+  <style>
+    :root { --blue:#0077c8; --dark:#101820; --light:#f5f8fb; --border:#d9e2ec; --muted:#667085; --danger:#b42318; --success:#0f8a3b; --white:#fff; --shadow:0 10px 30px rgba(16,24,32,.08); }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--dark); background: var(--light); }
+    a { color: inherit; text-decoration: none; }
+    header { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid var(--border); box-shadow: 0 3px 18px rgba(16,24,32,.04); }
+    .topbar { max-width: 1540px; margin: 0 auto; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .brand { display: flex; align-items: center; gap: 16px; font-weight: 900; }
+    .brand-mark { display: grid; place-items: center; width: 46px; height: 46px; color: #fff; background: linear-gradient(135deg, var(--blue), #004a7c); border-radius: 12px; }
+    .brand small { display: block; color: var(--muted); font-weight: 800; }
+    .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .btn { min-height: 40px; padding: 10px 13px; border: 1px solid transparent; border-radius: 10px; color: #fff; background: var(--blue); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+    .btn.secondary { color: var(--dark); background: #fff; border-color: var(--border); }
+    .btn.secondary.active { color: #fff; background: var(--blue); border-color: var(--blue); }
+    .btn.danger { background: var(--danger); }
+    .btn.success { background: var(--success); }
+    main { max-width: 1540px; margin: 0 auto; padding: 22px 18px 54px; }
+    .page-title { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    h1 { margin: 0 0 6px; font-size: clamp(24px, 3vw, 36px); }
+    .subtitle { margin: 0; color: var(--muted); line-height: 1.4; }
+    .status { margin: 12px 0 18px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); background: #fff; }
+    .status.good { color: var(--success); background: rgba(15,138,59,.06); border-color: rgba(15,138,59,.25); }
+    .status.bad { color: var(--danger); background: rgba(180,35,24,.06); border-color: rgba(180,35,24,.25); }
+    .grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(380px, .9fr); gap: 18px; align-items: start; }
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+    .card-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .card-body { padding: 16px; }
+    .toolbar { display: grid; grid-template-columns: 1fr 180px; gap: 10px; width: 100%; }
+    input, select, textarea { width: 100%; min-height: 40px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 10px; font: inherit; color: var(--dark); background: #fff; }
+    textarea { min-height: 86px; resize: vertical; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+    .table-wrap { overflow: auto; max-height: 70vh; }
+    table { width: 100%; border-collapse: collapse; min-width: 820px; }
+    th, td { padding: 11px 10px; border-bottom: 1px solid var(--border); text-align: left; font-size: 14px; vertical-align: middle; }
+    th { color: var(--muted); background: #fbfcfe; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    tr { cursor: pointer; }
+    tr:hover, tr.active { background: #f7fbff; }
+    .pill { display: inline-flex; padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 900; background: rgba(0,119,200,.08); color: var(--blue); }
+    .pill.off { background: rgba(180,35,24,.08); color: var(--danger); }
+    .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .full { grid-column: 1 / -1; }
+    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .check { display: flex; align-items: center; gap: 8px; color: var(--dark); text-transform: none; letter-spacing: 0; }
+    .check input { width: 18px; min-height: 18px; }
+    .empty { padding: 28px; color: var(--muted); text-align: center; }
+    @media (max-width: 1050px) { .grid, .toolbar { grid-template-columns: 1fr; } .topbar { align-items: flex-start; flex-direction: column; } .actions { justify-content: flex-start; } }
+  </style>
 </head>
-<body data-page="products">
-  <header class="site-header compact-header">
-    <a class="brand" href="index.html"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
-    <nav class="main-nav">
-      <a href="products.html">PEPTIDES A-Z</a>
-      <a href="products.html?category=Blend">TOP STACKS</a>
-      <a href="faq.html">FAQ</a>
-      <a href="contact.html">CONTACT</a>
-      <a href="account.html">ACCOUNT</a>
-      <a href="admin.html">ADMIN</a>
-      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
-    </nav>
-    <form class="search" role="search" action="products.html" method="get" data-product-search-form>
-      <input name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
-    </form>
+<body>
+  <header>
+    <div class="topbar">
+      <a class="brand" href="admin.html">
+        <span class="brand-mark">PST</span>
+        <span>PEP Shop Texas <small>Products Management</small></span>
+      </a>
+      <nav class="actions" aria-label="Admin navigation">
+        <a class="btn secondary" href="admin.html">Orders</a>
+        <a class="btn secondary" href="inventory.html">Inventory</a>
+        <a class="btn secondary active" href="products.html">Products</a>
+        <a class="btn secondary" href="discounts.html">Discounts</a>
+        <a class="btn secondary" href="customers.html">Customers</a>
+        <a class="btn secondary" href="catalog.html">Storefront Catalog</a>
+        <button class="btn danger" type="button" id="logoutBtn">Logout</button>
+      </nav>
+    </div>
   </header>
-  <main class="catalog-page">
-    <section class="page-heading"><p>Research products</p><h1>Peptides A-Z</h1></section>
-    <section class="catalog-toolbar">
-      <input type="search" data-catalog-search placeholder="Filter products...">
-      <select data-category-filter aria-label="Filter by category"><option value="">All categories</option></select>
+
+  <main>
+    <section class="page-title">
+      <div>
+        <h1>Products Management</h1>
+        <p class="subtitle">Edit storefront product catalog data from Supabase.</p>
+      </div>
+      <button class="btn" type="button" id="refreshBtn">Refresh</button>
     </section>
-    <section class="catalog-grid" data-catalog-grid><p class="loading-row">Loading products...</p></section>
+
+    <div id="status" class="status">Checking admin access...</div>
+
+    <section class="grid" id="adminGrid" style="display:none;">
+      <article class="card">
+        <div class="card-header">
+          <h2>Catalog Products</h2>
+          <div class="toolbar">
+            <input id="searchInput" type="search" placeholder="Search products...">
+            <select id="categoryFilter"><option value="">All categories</option></select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Product</th><th>Strength</th><th>Category</th><th>Price</th><th>Inventory</th><th>Status</th></tr>
+            </thead>
+            <tbody id="productRows"><tr><td colspan="6" class="empty">Loading products...</td></tr></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header"><h2 id="editorTitle">Select a Product</h2></div>
+        <div class="card-body" id="editorBody">
+          <p class="subtitle">Choose a product from the table to edit its customer-facing catalog details.</p>
+        </div>
+      </article>
+    </section>
   </main>
+
+  <script>
+    const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,testing_statement,sort_name,hot_peptide,label_line_1,label_line_2,label_line_3,label_dose,sale_enabled,sale_price,sale_label";
+    let products = [];
+    let activeProduct = null;
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+    const money = (value) => "$" + Number(value || 0).toFixed(2);
+
+    function setStatus(message, type = "") {
+      $("status").className = "status " + type;
+      $("status").textContent = message;
+    }
+
+    async function requireAdmin() {
+      const { data: userData, error } = await db.auth.getUser();
+      const user = userData?.user;
+      if (error || !user) {
+        window.location.href = "login.html?redirect=products.html";
+        return null;
+      }
+      const { data: admin, error: adminError } = await db
+        .from("admin_users")
+        .select("user_id,email,is_active")
+        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (adminError || !admin) {
+        setStatus("Admin access is required for this page.", "bad");
+        return null;
+      }
+      return user;
+    }
+
+    async function loadProducts() {
+      setStatus("Loading products...");
+      const { data, error } = await db.from("product_catalog").select(PRODUCT_FIELDS).order("sort_name", { ascending: true, nullsFirst: false }).order("display_name", { ascending: true });
+      if (error) throw error;
+      products = data || [];
+      populateCategories();
+      renderRows();
+      setStatus(`Loaded ${products.length} products.`, "good");
+    }
+
+    function populateCategories() {
+      const categories = [...new Set(products.map(product => product.category).filter(Boolean))].sort();
+      $("categoryFilter").innerHTML = `<option value="">All categories</option>${categories.map(category => `<option value="${esc(category)}">${esc(category)}</option>`).join("")}`;
+    }
+
+    function filteredProducts() {
+      const query = $("searchInput").value.trim().toLowerCase();
+      const category = $("categoryFilter").value;
+      return products.filter(product => {
+        const haystack = [product.product_key, product.display_name, product.strength, product.category, product.series].filter(Boolean).join(" ").toLowerCase();
+        return (!query || haystack.includes(query)) && (!category || product.category === category);
+      });
+    }
+
+    function renderRows() {
+      const rows = filteredProducts();
+      $("productRows").innerHTML = rows.length ? rows.map(product => `
+        <tr data-product-id="${product.id}" class="${activeProduct?.id === product.id ? "active" : ""}">
+          <td><strong>${esc(product.display_name)}</strong><div class="subtitle">${esc(product.product_key)}</div></td>
+          <td>${esc(product.strength || "")}</td>
+          <td>${esc(product.category || "")}</td>
+          <td>${money(product.sale_enabled && product.sale_price ? product.sale_price : product.price)}</td>
+          <td>${Number(product.current_inventory || 0)}</td>
+          <td><span class="pill ${product.is_active ? "" : "off"}">${product.is_active ? "Active" : "Inactive"}</span></td>
+        </tr>
+      `).join("") : `<tr><td colspan="6" class="empty">No products match that filter.</td></tr>`;
+      document.querySelectorAll("[data-product-id]").forEach(row => {
+        row.addEventListener("click", () => {
+          activeProduct = products.find(product => product.id === row.dataset.productId);
+          renderRows();
+          renderEditor();
+        });
+      });
+    }
+
+    function value(name) {
+      return document.querySelector(`[name="${name}"]`)?.value ?? "";
+    }
+
+    function checked(name) {
+      return document.querySelector(`[name="${name}"]`)?.checked ?? false;
+    }
+
+    function renderEditor() {
+      if (!activeProduct) return;
+      $("editorTitle").textContent = activeProduct.display_name || "Edit Product";
+      $("editorBody").innerHTML = `
+        <form id="productForm">
+          <div class="edit-grid">
+            <label>Product Key<input name="product_key" value="${esc(activeProduct.product_key)}" readonly></label>
+            <label>Sort Name<input name="sort_name" value="${esc(activeProduct.sort_name || "")}"></label>
+            <label>Display Name<input name="display_name" value="${esc(activeProduct.display_name || "")}" required></label>
+            <label>Strength<input name="strength" value="${esc(activeProduct.strength || "")}"></label>
+            <label>Category<input name="category" value="${esc(activeProduct.category || "")}"></label>
+            <label>Series<input name="series" value="${esc(activeProduct.series || "")}"></label>
+            <label>Price<input name="price" type="number" step="0.01" value="${Number(activeProduct.price || 0)}"></label>
+            <label>Inventory<input name="current_inventory" type="number" step="1" value="${Number(activeProduct.current_inventory || 0)}"></label>
+            <label>Low Stock Threshold<input name="low_stock_threshold" type="number" step="1" value="${Number(activeProduct.low_stock_threshold || 5)}"></label>
+            <label>Limited Stock Threshold<input name="limited_stock_threshold" type="number" step="1" value="${Number(activeProduct.limited_stock_threshold || 10)}"></label>
+            <label>Sale Price<input name="sale_price" type="number" step="0.01" value="${activeProduct.sale_price ?? ""}"></label>
+            <label>Sale Label<input name="sale_label" value="${esc(activeProduct.sale_label || "")}"></label>
+            <label class="full">Description<textarea name="description">${esc(activeProduct.description || "")}</textarea></label>
+            <label class="full">Research Notes<textarea name="research_notes">${esc(activeProduct.research_notes || "")}</textarea></label>
+            <label class="full">Testing Statement<textarea name="testing_statement">${esc(activeProduct.testing_statement || "")}</textarea></label>
+            <label>Label Line 1<input name="label_line_1" value="${esc(activeProduct.label_line_1 || "")}"></label>
+            <label>Label Line 2<input name="label_line_2" value="${esc(activeProduct.label_line_2 || "")}"></label>
+            <label>Label Line 3<input name="label_line_3" value="${esc(activeProduct.label_line_3 || "")}"></label>
+            <label>Label Dose<input name="label_dose" value="${esc(activeProduct.label_dose || "")}"></label>
+            <div class="full checks">
+              ${["is_active","featured","blend_stack","hot_peptide","sale_enabled"].map(name => `<label class="check"><input name="${name}" type="checkbox" ${activeProduct[name] ? "checked" : ""}> ${name.replaceAll("_", " ")}</label>`).join("")}
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+            <button class="btn success" type="submit">Save Product</button>
+            <a class="btn secondary" href="product.html?key=${encodeURIComponent(activeProduct.product_key)}">View Storefront Page</a>
+          </div>
+        </form>
+      `;
+      $("productForm").addEventListener("submit", saveProduct);
+    }
+
+    async function saveProduct(event) {
+      event.preventDefault();
+      if (!activeProduct) return;
+      const payload = {
+        sort_name: value("sort_name").trim() || null,
+        display_name: value("display_name").trim(),
+        strength: value("strength").trim() || null,
+        category: value("category").trim() || null,
+        series: value("series").trim() || null,
+        price: Number(value("price") || 0),
+        current_inventory: Number(value("current_inventory") || 0),
+        low_stock_threshold: Number(value("low_stock_threshold") || 5),
+        limited_stock_threshold: Number(value("limited_stock_threshold") || 10),
+        sale_price: value("sale_price") === "" ? null : Number(value("sale_price")),
+        sale_label: value("sale_label").trim() || null,
+        description: value("description").trim() || null,
+        research_notes: value("research_notes").trim() || null,
+        testing_statement: value("testing_statement").trim() || null,
+        label_line_1: value("label_line_1").trim() || null,
+        label_line_2: value("label_line_2").trim() || null,
+        label_line_3: value("label_line_3").trim() || null,
+        label_dose: value("label_dose").trim() || null,
+        is_active: checked("is_active"),
+        featured: checked("featured"),
+        blend_stack: checked("blend_stack"),
+        hot_peptide: checked("hot_peptide"),
+        sale_enabled: checked("sale_enabled"),
+        updated_at: new Date().toISOString()
+      };
+      setStatus("Saving product...");
+      const { data, error } = await db.from("product_catalog").update(payload).eq("id", activeProduct.id).select(PRODUCT_FIELDS).single();
+      if (error) {
+        setStatus(error.message || "Product could not be saved.", "bad");
+        return;
+      }
+      products = products.map(product => product.id === data.id ? data : product);
+      activeProduct = data;
+      renderRows();
+      renderEditor();
+      setStatus("Product saved.", "good");
+    }
+
+    $("searchInput").addEventListener("input", renderRows);
+    $("categoryFilter").addEventListener("change", renderRows);
+    $("refreshBtn").addEventListener("click", loadProducts);
+    $("logoutBtn").addEventListener("click", async () => { await db.auth.signOut(); window.location.href = "login.html"; });
+
+    (async function init() {
+      try {
+        const user = await requireAdmin();
+        if (!user) return;
+        $("adminGrid").style.display = "grid";
+        await loadProducts();
+      } catch (error) {
+        setStatus(error.message || "Could not load products management.", "bad");
+      }
+    })();
+  </script>
 </body>
 </html>

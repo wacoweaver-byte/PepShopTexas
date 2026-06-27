@@ -45,7 +45,7 @@ function setupGlobalSearch() {
       event.preventDefault();
       const input = form.querySelector("input[type='search']");
       const query = input?.value.trim() || "";
-      window.location.href = query ? `products.html?search=${encodeURIComponent(query)}` : "products.html";
+      window.location.href = query ? `catalog.html?search=${encodeURIComponent(query)}` : "catalog.html";
     });
   });
 }
@@ -225,7 +225,7 @@ async function renderCartPage() {
   const summaryNode = document.querySelector("[data-cart-summary]");
   const cart = readCart();
   if (!cart.length) {
-    itemsNode.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Add products from the catalog to begin an order.</p><a class="primary-action" href="products.html">Browse Products</a></div>`;
+    itemsNode.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Add products from the catalog to begin an order.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>`;
     summaryNode.innerHTML = summaryHtml([]);
     return;
   }

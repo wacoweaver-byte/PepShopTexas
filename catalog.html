@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cart | PEP Shop Texas</title>
+  <title>Products | PEP Shop Texas</title>
   <link rel="stylesheet" href="styles.css?v=7">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=7"></script>
 </head>
-<body data-page="cart">
+<body data-page="products">
   <header class="site-header compact-header">
     <a class="brand" href="index.html"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
     <nav class="main-nav">
@@ -25,12 +25,13 @@
       <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
     </form>
   </header>
-  <main class="cart-page">
-    <section class="page-heading"><p>Shopping cart</p><h1>Your Cart</h1></section>
-    <section class="cart-layout">
-      <div class="cart-items" data-cart-items></div>
-      <aside class="cart-summary" data-cart-summary></aside>
+  <main class="catalog-page">
+    <section class="page-heading"><p>Research products</p><h1>Peptides A-Z</h1></section>
+    <section class="catalog-toolbar">
+      <input type="search" data-catalog-search placeholder="Filter products...">
+      <select data-category-filter aria-label="Filter by category"><option value="">All categories</option></select>
     </section>
+    <section class="catalog-grid" data-catalog-grid><p class="loading-row">Loading products...</p></section>
   </main>
 </body>
 </html>
