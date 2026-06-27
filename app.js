@@ -4,21 +4,40 @@ const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 
-const supabase = window.supabase?.createClient
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-  : null;
+let pstSupabaseClient = null;
 const params = new URLSearchParams(window.location.search);
 
-setupGlobalSearch();
-bindCartButtons();
-refreshCartCount();
+boot();
 
-const page = document.body.dataset.page;
-if (page === "home") renderHome();
-if (page === "products") renderCatalog();
-if (page === "product-detail") renderProductDetail();
-if (page === "cart") renderCartPage();
-if (page === "login") setupLoginPage();
+async function boot() {
+  setupGlobalSearch();
+  bindCartButtons();
+  refreshCartCount();
+
+  try {
+    pstSupabaseClient = await waitForSupabaseClient();
+  } catch (error) {
+    showProductLoadError(error);
+    return;
+  }
+
+  const page = document.body.dataset.page;
+  if (page === "home") renderHome();
+  if (page === "products") renderCatalog();
+  if (page === "product-detail") renderProductDetail();
+  if (page === "cart") renderCartPage();
+  if (page === "login") setupLoginPage();
+}
+
+async function waitForSupabaseClient() {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    if (window.supabase?.createClient) {
+      return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  throw new Error("Supabase did not load. Check connection and refresh.");
+}
 
 function setupGlobalSearch() {
   document.querySelectorAll("[data-product-search-form]").forEach((form) => {
@@ -32,10 +51,23 @@ function setupGlobalSearch() {
 }
 
 function requireSupabaseClient() {
-  if (!supabase) {
+  if (!pstSupabaseClient) {
     throw new Error("Product loading script did not start. Please refresh the page.");
   }
-  return supabase;
+  return pstSupabaseClient;
+}
+
+function showProductLoadError(error) {
+  const message = escapeHtml(error.message || error);
+  document.querySelectorAll("[data-home-list]").forEach((list) => {
+    list.innerHTML = `<li class="loading-row">Unable to load products: ${message}</li>`;
+  });
+  const grid = document.querySelector("[data-catalog-grid]");
+  if (grid) grid.innerHTML = `<p class="loading-row">Unable to load products: ${message}</p>`;
+  const detail = document.querySelector("[data-product-detail]");
+  if (detail) detail.innerHTML = `<p class="loading-row">Unable to load product: ${message}</p>`;
+  const cart = document.querySelector("[data-cart-items]");
+  if (cart) cart.innerHTML = `<p class="loading-row">Unable to load cart: ${message}</p>`;
 }
 
 function setupLoginPage() {
