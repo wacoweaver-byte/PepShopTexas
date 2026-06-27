@@ -1,12 +1,12 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase?.createClient
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
 const params = new URLSearchParams(window.location.search);
 
 setupGlobalSearch();
@@ -31,6 +31,13 @@ function setupGlobalSearch() {
   });
 }
 
+function requireSupabaseClient() {
+  if (!supabase) {
+    throw new Error("Product loading script did not start. Please refresh the page.");
+  }
+  return supabase;
+}
+
 function setupLoginPage() {
   const form = document.querySelector("[data-login-form]");
   const message = document.querySelector("[data-auth-message]");
@@ -43,7 +50,8 @@ function setupLoginPage() {
     const password = String(formData.get("password") || "");
 
     message.textContent = "Signing in...";
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const client = requireSupabaseClient();
+    const { error } = await client.auth.signInWithPassword({ email, password });
     if (error) {
       message.textContent = error.message;
       return;
@@ -53,7 +61,8 @@ function setupLoginPage() {
 }
 
 async function requireUser(redirectTarget) {
-  const { data, error } = await supabase.auth.getUser();
+  const client = requireSupabaseClient();
+  const { data, error } = await client.auth.getUser();
   if (error || !data?.user) {
     const redirect = encodeURIComponent(redirectTarget || window.location.pathname.split("/").pop() || "account.html");
     window.location.href = `login.html?redirect=${redirect}`;
@@ -63,12 +72,14 @@ async function requireUser(redirectTarget) {
 }
 
 async function signOut() {
-  await supabase.auth.signOut();
+  const client = requireSupabaseClient();
+  await client.auth.signOut();
   window.location.href = "login.html";
 }
 
 async function getProducts() {
-  const { data, error } = await supabase
+  const client = requireSupabaseClient();
+  const { data, error } = await client
     .from("product_catalog")
     .select(PRODUCT_FIELDS)
     .eq("is_active", true)
@@ -79,7 +90,8 @@ async function getProducts() {
 }
 
 async function getProduct(productKey) {
-  const { data, error } = await supabase
+  const client = requireSupabaseClient();
+  const { data, error } = await client
     .from("product_catalog")
     .select(PRODUCT_FIELDS)
     .eq("is_active", true)
