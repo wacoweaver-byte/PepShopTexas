@@ -4100,9 +4100,8 @@ footer a,
 </style>
 
 
-
 <style id="pst-centered-brand-header-v1">
-/* PST RESPONSIVE CENTERED HEADER - fixed tablet/window overlap */
+/* PST HEADER CLEANUP: centered logo, links underneath, responsive, no vial hero/photo strip */
 header {
   background: linear-gradient(
     180deg,
@@ -4249,7 +4248,6 @@ header::after {
   background: transparent !important;
 }
 
-/* Tablet / not-fullscreen desktop */
 @media (max-width: 1120px) {
   html {
     scroll-padding-top: 210px !important;
@@ -4302,7 +4300,6 @@ header::after {
   }
 }
 
-/* Phone */
 @media (max-width: 640px) {
   html {
     scroll-padding-top: 230px !important;
@@ -4360,45 +4357,6 @@ header::after {
 }
 </style>
 
-
-
-<style id="pst-compact-vial-hero-final">
-/* PST compact vial hero - exact user-provided crop */
-.pst-product-hero-banner {
-  width: 100% !important;
-  background: #ffffff !important;
-  padding: 12px 18px 16px !important;
-  margin: 0 auto !important;
-}
-
-.pst-product-hero-banner-inner {
-  width: min(760px, 92vw) !important;
-  max-width: 760px !important;
-  margin: 0 auto !important;
-  overflow: visible !important;
-  background: #ffffff !important;
-  border-radius: 10px !important;
-}
-
-.pst-product-hero-banner img {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-  object-fit: contain !important;
-  object-position: center center !important;
-}
-
-@media(max-width: 760px) {
-  .pst-product-hero-banner {
-    padding: 10px 12px 14px !important;
-  }
-
-  .pst-product-hero-banner-inner {
-    width: min(94vw, 640px) !important;
-  }
-}
-</style>
-
 </head>
 <spanody>
 <header>
@@ -4434,13 +4392,6 @@ header::after {
     </div>
   </nav>
 </header>
-
-<section class="pst-product-hero-banner" aria-label="Pep Shop Texas product presentation">
-  <div class="pst-product-hero-banner-inner">
-    <img src="assets/images/pst-product-detail-vials-hero.png?v=1" alt="Pep Shop Texas research product vial presentation">
-  </div>
-</section>
-
 <div class="cart-panel" id="cartPanel">
   <h2>Cart</h2>
   <div id="cartItems"><p>Your cart is empty.</p></div>
