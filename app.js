@@ -150,7 +150,7 @@ async function renderHome() {
 function fillHomeList(name, products) {
   const list = document.querySelector(`[data-home-list="${name}"]`);
   list.innerHTML = products.slice(0, 5).map((product) => `
-    <li><a href="${productUrl(product)}"><span>${escapeHtml(productTitle(product))}</span><strong>${priceHtml(product)}</strong><span>&gt;</span></a></li>
+    <li><a href="${productUrl(product)}"><span>${saleText(product)}${escapeHtml(productTitle(product))}</span><strong>${priceHtml(product)}</strong><span>&gt;</span></a></li>
   `).join("");
 }
 
@@ -199,6 +199,7 @@ async function renderProductDetail() {
     shell.innerHTML = `
       <div class="product-info">
         <p class="eyebrow">${escapeHtml(product.category || "Research product")}</p>
+        ${saleBadge(product)}
         <h1>${escapeHtml(product.display_name)}</h1>
         <p class="strength">${escapeHtml(product.strength || "")}</p>
         <div class="price-line">${priceHtml(product)}</div>
@@ -250,7 +251,7 @@ function productCard(product) {
   return `
     <article class="catalog-card">
       <a class="catalog-card-main" href="${productUrl(product)}">
-        <div><p>${escapeHtml(product.category || "Research product")}</p><h2>${escapeHtml(product.display_name)}</h2><span>${escapeHtml(product.strength || "")}</span><strong>${priceHtml(product)}</strong></div>
+        <div><p>${escapeHtml(product.category || "Research product")}</p>${saleBadge(product)}<h2>${escapeHtml(product.display_name)}</h2><span>${escapeHtml(product.strength || "")}</span><strong>${priceHtml(product)}</strong></div>
       </a>
       <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>
     </article>
@@ -357,6 +358,16 @@ function priceHtml(product) {
   const regular = formatMoney(product.price);
   if (product.sale_enabled && product.sale_price) return `<span class="sale-price">${formatMoney(product.sale_price)}</span> <s>${regular}</s>`;
   return regular;
+}
+
+function saleBadge(product) {
+  if (!product.sale_enabled) return "";
+  return `<span class="sale-badge">${escapeHtml(product.sale_label || "Sale")}</span>`;
+}
+
+function saleText(product) {
+  if (!product.sale_enabled) return "";
+  return `${escapeHtml(product.sale_label || "Sale")}: `;
 }
 
 function formatMoney(value) {

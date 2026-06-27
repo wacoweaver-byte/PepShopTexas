@@ -115,7 +115,7 @@
     const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
     const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,testing_statement,sort_name,hot_peptide,label_line_1,label_line_2,label_line_3,label_dose,sale_enabled,sale_price,sale_label";
+    const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,hot_peptide,sale_enabled,sale_price,sale_label";
     let products = [];
     let activeProduct = null;
 
@@ -167,7 +167,7 @@
       const query = $("searchInput").value.trim().toLowerCase();
       const category = $("categoryFilter").value;
       return products.filter(product => {
-        const haystack = [product.product_key, product.display_name, product.strength, product.category, product.series].filter(Boolean).join(" ").toLowerCase();
+        const haystack = [product.product_key, product.display_name, product.strength, product.category].filter(Boolean).join(" ").toLowerCase();
         return (!query || haystack.includes(query)) && (!category || product.category === category);
       });
     }
@@ -207,27 +207,24 @@
       $("editorBody").innerHTML = `
         <form id="productForm">
           <div class="edit-grid">
-            <label>Product Key<input name="product_key" value="${esc(activeProduct.product_key)}" readonly></label>
+            <label>Product Key<input name="product_key" value="${esc(activeProduct.product_key || "")}" readonly></label>
             <label>Sort Name<input name="sort_name" value="${esc(activeProduct.sort_name || "")}"></label>
             <label>Display Name<input name="display_name" value="${esc(activeProduct.display_name || "")}" required></label>
             <label>Strength<input name="strength" value="${esc(activeProduct.strength || "")}"></label>
             <label>Category<input name="category" value="${esc(activeProduct.category || "")}"></label>
-            <label>Series<input name="series" value="${esc(activeProduct.series || "")}"></label>
             <label>Price<input name="price" type="number" step="0.01" value="${Number(activeProduct.price || 0)}"></label>
             <label>Inventory<input name="current_inventory" type="number" step="1" value="${Number(activeProduct.current_inventory || 0)}"></label>
-            <label>Low Stock Threshold<input name="low_stock_threshold" type="number" step="1" value="${Number(activeProduct.low_stock_threshold || 5)}"></label>
-            <label>Limited Stock Threshold<input name="limited_stock_threshold" type="number" step="1" value="${Number(activeProduct.limited_stock_threshold || 10)}"></label>
             <label>Sale Price<input name="sale_price" type="number" step="0.01" value="${activeProduct.sale_price ?? ""}"></label>
-            <label>Sale Label<input name="sale_label" value="${esc(activeProduct.sale_label || "")}"></label>
+            <label>Sale Label<input name="sale_label" value="${esc(activeProduct.sale_label || "")}" placeholder="Sale"></label>
             <label class="full">Description<textarea name="description">${esc(activeProduct.description || "")}</textarea></label>
             <label class="full">Research Notes<textarea name="research_notes">${esc(activeProduct.research_notes || "")}</textarea></label>
             <label class="full">Testing Statement<textarea name="testing_statement">${esc(activeProduct.testing_statement || "")}</textarea></label>
-            <label>Label Line 1<input name="label_line_1" value="${esc(activeProduct.label_line_1 || "")}"></label>
-            <label>Label Line 2<input name="label_line_2" value="${esc(activeProduct.label_line_2 || "")}"></label>
-            <label>Label Line 3<input name="label_line_3" value="${esc(activeProduct.label_line_3 || "")}"></label>
-            <label>Label Dose<input name="label_dose" value="${esc(activeProduct.label_dose || "")}"></label>
             <div class="full checks">
-              ${["is_active","featured","blend_stack","hot_peptide","sale_enabled"].map(name => `<label class="check"><input name="${name}" type="checkbox" ${activeProduct[name] ? "checked" : ""}> ${name.replaceAll("_", " ")}</label>`).join("")}
+              <label class="check"><input name="is_active" type="checkbox" ${activeProduct.is_active ? "checked" : ""}> Visible to customers</label>
+              <label class="check"><input name="featured" type="checkbox" ${activeProduct.featured ? "checked" : ""}> Featured</label>
+              <label class="check"><input name="hot_peptide" type="checkbox" ${activeProduct.hot_peptide ? "checked" : ""}> Hot peptide</label>
+              <label class="check"><input name="blend_stack" type="checkbox" ${activeProduct.blend_stack ? "checked" : ""}> Top stack / blend</label>
+              <label class="check"><input name="sale_enabled" type="checkbox" ${activeProduct.sale_enabled ? "checked" : ""}> Sale enabled</label>
             </div>
           </div>
           <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
@@ -247,20 +244,13 @@
         display_name: value("display_name").trim(),
         strength: value("strength").trim() || null,
         category: value("category").trim() || null,
-        series: value("series").trim() || null,
         price: Number(value("price") || 0),
         current_inventory: Number(value("current_inventory") || 0),
-        low_stock_threshold: Number(value("low_stock_threshold") || 5),
-        limited_stock_threshold: Number(value("limited_stock_threshold") || 10),
         sale_price: value("sale_price") === "" ? null : Number(value("sale_price")),
         sale_label: value("sale_label").trim() || null,
         description: value("description").trim() || null,
         research_notes: value("research_notes").trim() || null,
         testing_statement: value("testing_statement").trim() || null,
-        label_line_1: value("label_line_1").trim() || null,
-        label_line_2: value("label_line_2").trim() || null,
-        label_line_3: value("label_line_3").trim() || null,
-        label_dose: value("label_dose").trim() || null,
         is_active: checked("is_active"),
         featured: checked("featured"),
         blend_stack: checked("blend_stack"),
