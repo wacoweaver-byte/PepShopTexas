@@ -4,7 +4,7 @@ const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
-const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,image_file,image_data,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
+const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,label_line_1,label_line_2,label_line_3,label_dose,sale_enabled,sale_price,sale_label";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const params = new URLSearchParams(window.location.search);
@@ -116,7 +116,7 @@ async function renderProductDetail() {
     const product = await getProduct(productKey);
     document.title = `${productTitle(product)} | PEP Shop Texas`;
     shell.innerHTML = `
-      <div class="product-media">${productImage(product)}</div>
+      <div class="product-media">${vialMockup(product)}</div>
       <div class="product-info">
         <p class="eyebrow">${escapeHtml(product.category || "Research product")}</p>
         <h1>${escapeHtml(product.display_name)}</h1>
@@ -170,7 +170,6 @@ function productCard(product) {
   return `
     <article class="catalog-card">
       <a class="catalog-card-main" href="${productUrl(product)}">
-        <div class="catalog-image">${productImage(product)}</div>
         <div><p>${escapeHtml(product.category || "Research product")}</p><h2>${escapeHtml(product.display_name)}</h2><span>${escapeHtml(product.strength || "")}</span><strong>${priceHtml(product)}</strong></div>
       </a>
       <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>
@@ -237,7 +236,6 @@ function refreshCartCount() {
 function cartRow({ product, quantity }) {
   return `
     <article class="cart-row">
-      <div class="cart-thumb">${productImage(product)}</div>
       <div><h2><a href="${productUrl(product)}">${escapeHtml(productTitle(product))}</a></h2><p>${priceHtml(product)}</p></div>
       <input type="number" min="1" value="${quantity}" data-cart-qty="${escapeAttribute(product.product_key)}">
       <strong>${formatMoney(unitPrice(product) * quantity)}</strong>
@@ -292,10 +290,28 @@ function stockText(product) {
   return "In stock";
 }
 
-function productImage(product) {
-  const src = product.image_data || product.image_file;
-  if (src) return `<img src="${escapeAttribute(src)}" alt="${escapeAttribute(productTitle(product))}">`;
-  return `<div class="image-placeholder"><span>PST</span><small>${escapeHtml(product.strength || "Research")}</small></div>`;
+function vialMockup(product) {
+  const line1 = product.label_line_1 || product.display_name || "PST";
+  const line2 = product.label_line_2 || product.category || "PEP SHOP";
+  const line3 = product.label_line_3 || "TEXAS";
+  const dose = product.label_dose || product.strength || "Research";
+
+  return `
+    <div class="vial-mockup" aria-label="${escapeAttribute(productTitle(product))} vial label">
+      <div class="vial-cap"></div>
+      <div class="vial-neck"></div>
+      <div class="vial-bottle">
+        <div class="vial-label">
+          <strong>PST</strong>
+          <span>PEP SHOP</span>
+          <small>TEXAS</small>
+          <em>${escapeHtml(line1)}</em>
+          <b>${escapeHtml(dose)}</b>
+          <i>${escapeHtml(line2)}${line3 ? ` · ${escapeHtml(line3)}` : ""}</i>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function escapeHtml(value) {
