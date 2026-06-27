@@ -4,7 +4,7 @@ const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
-const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,label_line_1,label_line_2,label_line_3,label_dose,sale_enabled,sale_price,sale_label";
+const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const params = new URLSearchParams(window.location.search);
@@ -69,7 +69,7 @@ async function renderHome() {
 function fillHomeList(name, products) {
   const list = document.querySelector(`[data-home-list="${name}"]`);
   list.innerHTML = products.slice(0, 5).map((product) => `
-    <li><a href="${productUrl(product)}"><span>${escapeHtml(productTitle(product))}</span><strong>${priceHtml(product)}</strong><span>›</span></a></li>
+    <li><a href="${productUrl(product)}"><span>${escapeHtml(productTitle(product))}</span><strong>${priceHtml(product)}</strong><span>&gt;</span></a></li>
   `).join("");
 }
 
@@ -116,7 +116,6 @@ async function renderProductDetail() {
     const product = await getProduct(productKey);
     document.title = `${productTitle(product)} | PEP Shop Texas`;
     shell.innerHTML = `
-      <div class="product-media">${vialMockup(product)}</div>
       <div class="product-info">
         <p class="eyebrow">${escapeHtml(product.category || "Research product")}</p>
         <h1>${escapeHtml(product.display_name)}</h1>
@@ -288,30 +287,6 @@ function stockText(product) {
   if (count <= 0) return "Out of stock";
   if (count <= 10) return "Limited stock";
   return "In stock";
-}
-
-function vialMockup(product) {
-  const line1 = product.label_line_1 || product.display_name || "PST";
-  const line2 = product.label_line_2 || product.category || "PEP SHOP";
-  const line3 = product.label_line_3 || "TEXAS";
-  const dose = product.label_dose || product.strength || "Research";
-
-  return `
-    <div class="vial-mockup" aria-label="${escapeAttribute(productTitle(product))} vial label">
-      <div class="vial-cap"></div>
-      <div class="vial-neck"></div>
-      <div class="vial-bottle">
-        <div class="vial-label">
-          <strong>PST</strong>
-          <span>PEP SHOP</span>
-          <small>TEXAS</small>
-          <em>${escapeHtml(line1)}</em>
-          <b>${escapeHtml(dose)}</b>
-          <i>${escapeHtml(line2)}${line3 ? ` · ${escapeHtml(line3)}` : ""}</i>
-        </div>
-      </div>
-    </div>
-  `;
 }
 
 function escapeHtml(value) {
