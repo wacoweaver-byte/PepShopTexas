@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Products Management | PEP Shop Texas</title>
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root { --blue:#0077c8; --dark:#101820; --light:#f5f8fb; --border:#d9e2ec; --muted:#667085; --danger:#b42318; --success:#0f8a3b; --white:#fff; --shadow:0 10px 30px rgba(16,24,32,.08); }
     * { box-sizing: border-box; }
@@ -129,19 +129,18 @@
     }
 
     async function requireAdmin() {
-      const { data: userData, error } = await db.auth.getUser();
-      const user = userData?.user;
-      if (error || !user) {
+      const { data: sessionData, error: sessionError } = await db.auth.getSession();
+      const user = sessionData?.session?.user;
+      if (sessionError || !user) {
         window.location.href = "login.html?redirect=products.html";
         return null;
       }
       const { data: admin, error: adminError } = await db
         .from("admin_users")
-        .select("user_id,email,is_active")
+        .select("*")
         .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-        .eq("is_active", true)
         .maybeSingle();
-      if (adminError || !admin) {
+      if (adminError || !admin || !(admin.is_active === true || admin.active === true || admin.is_admin === true || admin.email === user.email)) {
         setStatus("Admin access is required for this page.", "bad");
         return null;
       }
