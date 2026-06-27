@@ -9,30 +9,22 @@
 </head>
 <body data-page="product-detail">
   <header class="site-header compact-header">
-    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
-      <span class="brand-main">PEP SHOP</span>
-      <span class="brand-sub">TEXAS</span>
-    </a>
-    <nav class="main-nav" aria-label="Main navigation">
+    <a class="brand" href="index.html"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
+    <nav class="main-nav">
       <a href="products.html">PEPTIDES A-Z</a>
       <a href="products.html?category=Blend">TOP STACKS</a>
       <a href="faq.html">FAQ</a>
       <a href="contact.html">CONTACT</a>
+      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
     </nav>
     <form class="search" role="search" data-product-search-form>
-      <label class="sr-only" for="site-search">Search peptides</label>
-      <input id="site-search" type="search" placeholder="Search peptides..." autocomplete="off">
-      <button type="submit" aria-label="Search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
-      </button>
+      <input type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
     </form>
   </header>
-
   <main class="detail-page">
     <a class="back-link" href="products.html">‹ Back to products</a>
-    <section class="detail-shell" data-product-detail>
-      <p class="loading-row">Loading product...</p>
-    </section>
+    <section class="detail-shell" data-product-detail><p class="loading-row">Loading product...</p></section>
   </main>
 </body>
 </html>

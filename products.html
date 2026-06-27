@@ -9,41 +9,26 @@
 </head>
 <body data-page="products">
   <header class="site-header compact-header">
-    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
-      <span class="brand-main">PEP SHOP</span>
-      <span class="brand-sub">TEXAS</span>
-    </a>
-    <nav class="main-nav" aria-label="Main navigation">
+    <a class="brand" href="index.html"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
+    <nav class="main-nav">
       <a href="products.html">PEPTIDES A-Z</a>
       <a href="products.html?category=Blend">TOP STACKS</a>
       <a href="faq.html">FAQ</a>
       <a href="contact.html">CONTACT</a>
+      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
     </nav>
     <form class="search" role="search" data-product-search-form>
-      <label class="sr-only" for="site-search">Search peptides</label>
-      <input id="site-search" type="search" placeholder="Search peptides..." autocomplete="off">
-      <button type="submit" aria-label="Search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
-      </button>
+      <input type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
     </form>
   </header>
-
   <main class="catalog-page">
-    <section class="page-heading">
-      <p>Research products</p>
-      <h1>Peptides A-Z</h1>
-    </section>
-
-    <section class="catalog-toolbar" aria-label="Catalog filters">
+    <section class="page-heading"><p>Research products</p><h1>Peptides A-Z</h1></section>
+    <section class="catalog-toolbar">
       <input type="search" data-catalog-search placeholder="Filter products...">
-      <select data-category-filter aria-label="Filter by category">
-        <option value="">All categories</option>
-      </select>
+      <select data-category-filter aria-label="Filter by category"><option value="">All categories</option></select>
     </section>
-
-    <section class="catalog-grid" data-catalog-grid>
-      <p class="loading-row">Loading products...</p>
-    </section>
+    <section class="catalog-grid" data-catalog-grid><p class="loading-row">Loading products...</p></section>
   </main>
 </body>
 </html>

@@ -2,58 +2,30 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
-
-const PRODUCT_FIELDS = [
-  "id",
-  "product_key",
-  "display_name",
-  "strength",
-  "category",
-  "series",
-  "description",
-  "research_notes",
-  "price",
-  "current_inventory",
-  "is_active",
-  "featured",
-  "blend_stack",
-  "image_file",
-  "image_data",
-  "testing_statement",
-  "sort_name",
-  "created_at",
-  "updated_at",
-  "hot_peptide",
-  "sale_enabled",
-  "sale_price",
-  "sale_label"
-].join(",");
+const CART_KEY = "pst_cart_v1";
+const SUPPORT_EMAIL = "support@pepshoptexas.com";
+const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,image_file,image_data,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const params = new URLSearchParams(window.location.search);
 
 setupGlobalSearch();
+bindCartButtons();
+refreshCartCount();
 
-if (document.body.dataset.page === "home") {
-  renderHome();
-}
-
-if (document.body.dataset.page === "products") {
-  renderCatalog();
-}
-
-if (document.body.dataset.page === "product-detail") {
-  renderProductDetail();
-}
+const page = document.body.dataset.page;
+if (page === "home") renderHome();
+if (page === "products") renderCatalog();
+if (page === "product-detail") renderProductDetail();
+if (page === "cart") renderCartPage();
 
 function setupGlobalSearch() {
   document.querySelectorAll("[data-product-search-form]").forEach((form) => {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const input = form.querySelector("input[type='search']");
-      const query = input.value.trim();
-      const suffix = query ? `?search=${encodeURIComponent(query)}` : "";
-      window.location.href = `products.html${suffix}`;
+      const query = input?.value.trim() || "";
+      window.location.href = query ? `products.html?search=${encodeURIComponent(query)}` : "products.html";
     });
   });
 }
@@ -65,12 +37,8 @@ async function getProducts() {
     .eq("is_active", true)
     .order("sort_name", { ascending: true, nullsFirst: false })
     .order("display_name", { ascending: true });
-
-  if (error) {
-    throw error;
-  }
-
-  return data ?? [];
+  if (error) throw error;
+  return data || [];
 }
 
 async function getProduct(productKey) {
@@ -80,51 +48,29 @@ async function getProduct(productKey) {
     .eq("is_active", true)
     .eq("product_key", productKey)
     .single();
-
-  if (error) {
-    throw error;
-  }
-
+  if (error) throw error;
   return data;
 }
 
 async function renderHome() {
   try {
     const products = await getProducts();
-    const hot = products.filter((product) => product.hot_peptide || product.featured);
-    const stacks = products.filter((product) => product.blend_stack || product.category === "Blend");
+    const hot = products.filter((p) => p.hot_peptide || p.featured);
+    const stacks = products.filter((p) => p.blend_stack || p.category === "Blend");
     const newest = [...products].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
-    fillHomeList("hot", hot.length ? hot : products, "View");
-    fillHomeList("stacks", stacks.length ? stacks : products, "View");
-    fillHomeList("new", newest.length ? newest : products, "View");
+    fillHomeList("hot", hot.length ? hot : products);
+    fillHomeList("stacks", stacks.length ? stacks : products);
+    fillHomeList("new", newest.length ? newest : products);
   } catch (error) {
-    showListError("hot", error);
-    showListError("stacks", error);
-    showListError("new", error);
+    document.querySelectorAll("[data-home-list]").forEach((list) => list.innerHTML = `<li class="loading-row">${escapeHtml(error.message)}</li>`);
   }
 }
 
-function fillHomeList(name, products, label) {
+function fillHomeList(name, products) {
   const list = document.querySelector(`[data-home-list="${name}"]`);
-  if (!list) return;
-
   list.innerHTML = products.slice(0, 5).map((product) => `
-    <li>
-      <a href="${productUrl(product)}">
-        <span>${escapeHtml(productTitle(product))}</span>
-        <strong>${escapeHtml(label)}</strong>
-        <span aria-hidden="true">›</span>
-      </a>
-    </li>
+    <li><a href="${productUrl(product)}"><span>${escapeHtml(productTitle(product))}</span><strong>${priceHtml(product)}</strong><span>›</span></a></li>
   `).join("");
-}
-
-function showListError(name, error) {
-  const list = document.querySelector(`[data-home-list="${name}"]`);
-  if (list) {
-    list.innerHTML = `<li class="loading-row">Unable to load products: ${escapeHtml(error.message)}</li>`;
-  }
 }
 
 async function renderCatalog() {
@@ -134,34 +80,20 @@ async function renderCatalog() {
 
   try {
     const products = await getProducts();
-    const categories = [...new Set(products.map((product) => product.category).filter(Boolean))].sort();
-    const startingSearch = params.get("search") ?? "";
-    const startingCategory = params.get("category") ?? "";
-
-    searchInput.value = startingSearch;
-    categoryFilter.innerHTML = `<option value="">All categories</option>${categories.map((category) => (
-      `<option value="${escapeAttribute(category)}">${escapeHtml(category)}</option>`
-    )).join("")}`;
-    categoryFilter.value = startingCategory;
+    const categories = [...new Set(products.map((p) => p.category).filter(Boolean))].sort();
+    searchInput.value = params.get("search") || "";
+    categoryFilter.innerHTML = `<option value="">All categories</option>${categories.map((c) => `<option value="${escapeAttribute(c)}">${escapeHtml(c)}</option>`).join("")}`;
+    categoryFilter.value = params.get("category") || "";
 
     const draw = () => {
       const query = searchInput.value.trim().toLowerCase();
       const category = categoryFilter.value;
       const filtered = products.filter((product) => {
-        const haystack = [
-          product.display_name,
-          product.strength,
-          product.category,
-          product.series,
-          product.product_key
-        ].filter(Boolean).join(" ").toLowerCase();
-
+        const haystack = [product.display_name, product.strength, product.category, product.series, product.product_key].filter(Boolean).join(" ").toLowerCase();
         return (!query || haystack.includes(query)) && (!category || product.category === category);
       });
-
-      grid.innerHTML = filtered.length
-        ? filtered.map(productCard).join("")
-        : `<p class="loading-row">No active products match that filter.</p>`;
+      grid.innerHTML = filtered.length ? filtered.map(productCard).join("") : `<p class="loading-row">No active products match that filter.</p>`;
+      bindCartButtons();
     };
 
     searchInput.addEventListener("input", draw);
@@ -175,7 +107,6 @@ async function renderCatalog() {
 async function renderProductDetail() {
   const shell = document.querySelector("[data-product-detail]");
   const productKey = params.get("key");
-
   if (!productKey) {
     shell.innerHTML = `<p class="loading-row">No product key was provided.</p>`;
     return;
@@ -185,38 +116,151 @@ async function renderProductDetail() {
     const product = await getProduct(productKey);
     document.title = `${productTitle(product)} | PEP Shop Texas`;
     shell.innerHTML = `
-      <div class="product-media">
-        ${productImage(product)}
-      </div>
+      <div class="product-media">${productImage(product)}</div>
       <div class="product-info">
         <p class="eyebrow">${escapeHtml(product.category || "Research product")}</p>
         <h1>${escapeHtml(product.display_name)}</h1>
         <p class="strength">${escapeHtml(product.strength || "")}</p>
         <div class="price-line">${priceHtml(product)}</div>
         <p class="stock">${stockText(product)}</p>
+        <div class="purchase-panel">
+          <label>Quantity <input type="number" min="1" max="${Math.max(Number(product.current_inventory || 1), 1)}" value="1" data-detail-qty></label>
+          <button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>
+          <a class="secondary-action" href="cart.html">View Cart</a>
+        </div>
         <p class="research-use">Research use only. Not for human consumption.</p>
-        ${product.description ? `<p>${escapeHtml(product.description)}</p>` : ""}
+        ${product.description ? `<section><h2>Description</h2><p>${escapeHtml(product.description)}</p></section>` : ""}
         ${product.research_notes ? `<section><h2>Research Notes</h2><p>${escapeHtml(product.research_notes)}</p></section>` : ""}
         ${product.testing_statement ? `<section><h2>Testing</h2><p>${escapeHtml(product.testing_statement)}</p></section>` : ""}
       </div>
     `;
+    bindCartButtons();
   } catch (error) {
     shell.innerHTML = `<p class="loading-row">Unable to load product: ${escapeHtml(error.message)}</p>`;
   }
 }
 
+async function renderCartPage() {
+  const itemsNode = document.querySelector("[data-cart-items]");
+  const summaryNode = document.querySelector("[data-cart-summary]");
+  const cart = readCart();
+  if (!cart.length) {
+    itemsNode.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Add products from the catalog to begin an order.</p><a class="primary-action" href="products.html">Browse Products</a></div>`;
+    summaryNode.innerHTML = summaryHtml([]);
+    return;
+  }
+
+  try {
+    const products = await getProducts();
+    const rows = cart.map((item) => {
+      const product = products.find((p) => p.product_key === item.key);
+      return product ? { product, quantity: item.quantity } : null;
+    }).filter(Boolean);
+
+    itemsNode.innerHTML = rows.map(cartRow).join("");
+    summaryNode.innerHTML = summaryHtml(rows);
+    bindCartPageButtons();
+  } catch (error) {
+    itemsNode.innerHTML = `<p class="loading-row">Unable to load cart: ${escapeHtml(error.message)}</p>`;
+    summaryNode.innerHTML = "";
+  }
+}
+
 function productCard(product) {
   return `
-    <a class="catalog-card" href="${productUrl(product)}">
-      <div class="catalog-image">${productImage(product)}</div>
-      <div>
-        <p>${escapeHtml(product.category || "Research product")}</p>
-        <h2>${escapeHtml(product.display_name)}</h2>
-        <span>${escapeHtml(product.strength || "")}</span>
-        <strong>${priceHtml(product)}</strong>
-      </div>
-    </a>
+    <article class="catalog-card">
+      <a class="catalog-card-main" href="${productUrl(product)}">
+        <div class="catalog-image">${productImage(product)}</div>
+        <div><p>${escapeHtml(product.category || "Research product")}</p><h2>${escapeHtml(product.display_name)}</h2><span>${escapeHtml(product.strength || "")}</span><strong>${priceHtml(product)}</strong></div>
+      </a>
+      <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>
+    </article>
   `;
+}
+
+function bindCartButtons() {
+  document.querySelectorAll("[data-add-to-cart]").forEach((button) => {
+    if (button.dataset.bound) return;
+    button.dataset.bound = "true";
+    button.addEventListener("click", () => {
+      const qtyInput = document.querySelector("[data-detail-qty]");
+      const quantity = Math.max(Number(qtyInput?.value || 1), 1);
+      addToCart(button.dataset.addToCart, quantity);
+      button.textContent = "Added";
+      setTimeout(() => button.textContent = "Add to Cart", 900);
+    });
+  });
+}
+
+function bindCartPageButtons() {
+  document.querySelectorAll("[data-cart-qty]").forEach((input) => {
+    input.addEventListener("change", () => setCartQuantity(input.dataset.cartQty, Number(input.value)));
+  });
+  document.querySelectorAll("[data-remove-cart]").forEach((button) => {
+    button.addEventListener("click", () => setCartQuantity(button.dataset.removeCart, 0));
+  });
+}
+
+function addToCart(key, quantity) {
+  const cart = readCart();
+  const existing = cart.find((item) => item.key === key);
+  if (existing) existing.quantity += quantity;
+  else cart.push({ key, quantity });
+  writeCart(cart);
+}
+
+function setCartQuantity(key, quantity) {
+  const next = readCart().map((item) => item.key === key ? { ...item, quantity } : item).filter((item) => item.quantity > 0);
+  writeCart(next);
+  renderCartPage();
+}
+
+function readCart() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed.filter((item) => item.key && item.quantity > 0) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  refreshCartCount();
+}
+
+function refreshCartCount() {
+  const count = readCart().reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+  document.querySelectorAll("[data-cart-count]").forEach((node) => node.textContent = String(count));
+}
+
+function cartRow({ product, quantity }) {
+  return `
+    <article class="cart-row">
+      <div class="cart-thumb">${productImage(product)}</div>
+      <div><h2><a href="${productUrl(product)}">${escapeHtml(productTitle(product))}</a></h2><p>${priceHtml(product)}</p></div>
+      <input type="number" min="1" value="${quantity}" data-cart-qty="${escapeAttribute(product.product_key)}">
+      <strong>${formatMoney(unitPrice(product) * quantity)}</strong>
+      <button data-remove-cart="${escapeAttribute(product.product_key)}">Remove</button>
+    </article>
+  `;
+}
+
+function summaryHtml(rows) {
+  const subtotal = rows.reduce((sum, row) => sum + unitPrice(row.product) * row.quantity, 0);
+  const body = encodeURIComponent(orderEmailBody(rows, subtotal));
+  return `
+    <h2>Order Summary</h2>
+    <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div>
+    <p>Checkout is not connected yet. Use this cart to prepare the order, then send it to support.</p>
+    <a class="primary-action ${rows.length ? "" : "disabled"}" href="mailto:${SUPPORT_EMAIL}?subject=PEP%20Shop%20Texas%20Order&body=${body}">Email Order</a>
+  `;
+}
+
+function orderEmailBody(rows, subtotal) {
+  if (!rows.length) return "Cart is empty.";
+  const lines = rows.map(({ product, quantity }) => `${quantity} x ${productTitle(product)} (${product.product_key}) - ${formatMoney(unitPrice(product) * quantity)}`);
+  return [`Research product order request:`, "", ...lines, "", `Subtotal: ${formatMoney(subtotal)}`].join("\n");
 }
 
 function productUrl(product) {
@@ -227,21 +271,22 @@ function productTitle(product) {
   return [product.display_name, product.strength].filter(Boolean).join(" ");
 }
 
+function unitPrice(product) {
+  return Number(product.sale_enabled && product.sale_price ? product.sale_price : product.price || 0);
+}
+
 function priceHtml(product) {
   const regular = formatMoney(product.price);
-  if (product.sale_enabled && product.sale_price) {
-    return `<span class="sale-price">${formatMoney(product.sale_price)}</span> <s>${regular}</s>`;
-  }
+  if (product.sale_enabled && product.sale_price) return `<span class="sale-price">${formatMoney(product.sale_price)}</span> <s>${regular}</s>`;
   return regular;
 }
 
 function formatMoney(value) {
-  const amount = Number(value ?? 0);
-  return amount.toLocaleString("en-US", { style: "currency", currency: "USD" });
+  return Number(value || 0).toLocaleString("en-US", { style: "currency", currency: "USD" });
 }
 
 function stockText(product) {
-  const count = Number(product.current_inventory ?? 0);
+  const count = Number(product.current_inventory || 0);
   if (count <= 0) return "Out of stock";
   if (count <= 10) return "Limited stock";
   return "In stock";
@@ -249,19 +294,12 @@ function stockText(product) {
 
 function productImage(product) {
   const src = product.image_data || product.image_file;
-  if (src) {
-    return `<img src="${escapeAttribute(src)}" alt="${escapeAttribute(productTitle(product))}">`;
-  }
+  if (src) return `<img src="${escapeAttribute(src)}" alt="${escapeAttribute(productTitle(product))}">`;
   return `<div class="image-placeholder"><span>PST</span><small>${escapeHtml(product.strength || "Research")}</small></div>`;
 }
 
 function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 }
 
 function escapeAttribute(value) {

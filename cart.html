@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Contact | PEP Shop Texas</title>
+  <title>Cart | PEP Shop Texas</title>
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="app.js"></script>
 </head>
-<body>
+<body data-page="cart">
   <header class="site-header compact-header">
     <a class="brand" href="index.html"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
     <nav class="main-nav">
@@ -17,23 +17,16 @@
       <a href="contact.html">CONTACT</a>
       <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
     </nav>
-    <form class="search" role="search" data-product-search-form">
+    <form class="search" role="search" data-product-search-form>
       <input type="search" placeholder="Search peptides..." autocomplete="off">
       <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
     </form>
   </header>
-  <main class="contact-page">
-    <section class="page-heading"><p>Support</p><h1>Contact PEP Shop Texas</h1></section>
-    <section class="contact-shell">
-      <div class="contact-primary">
-        <h2>Research Product Support</h2>
-        <p>For product questions, order support, or general help, send us a message and our team will follow up.</p>
-        <a class="contact-email" href="mailto:support@pepshoptexas.com">support@pepshoptexas.com</a>
-      </div>
-      <aside class="contact-card">
-        <h2>Research Use Only</h2>
-        <p>Products are intended for laboratory research use only. Not for human consumption or diagnostic procedures.</p>
-      </aside>
+  <main class="cart-page">
+    <section class="page-heading"><p>Shopping cart</p><h1>Your Cart</h1></section>
+    <section class="cart-layout">
+      <div class="cart-items" data-cart-items></div>
+      <aside class="cart-summary" data-cart-summary></aside>
     </section>
   </main>
 </body>
