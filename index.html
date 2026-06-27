@@ -3,26 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PEP Shop Texas Hero Mockup</title>
+  <title>PEP Shop Texas</title>
   <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
 </head>
-<body>
+<body data-page="home">
   <header class="site-header">
-    <a class="brand" href="#" aria-label="PEP Shop Texas home">
+    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
       <span class="brand-main">PEP SHOP</span>
       <span class="brand-sub">TEXAS</span>
     </a>
 
     <nav class="main-nav" aria-label="Main navigation">
-      <a href="#">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
-      <a href="#">RESEARCH LIBRARY <span aria-hidden="true">⌄</span></a>
-      <a href="#">FAQ</a>
-      <a href="#">CONTACT</a>
+      <a href="products.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
+      <a href="products.html?category=Blend">TOP STACKS <span aria-hidden="true">⌄</span></a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">CONTACT</a>
     </nav>
 
-    <form class="search" role="search">
+    <form class="search" role="search" data-product-search-form>
       <label class="sr-only" for="site-search">Search peptides</label>
-      <input id="site-search" type="search" placeholder="Search peptides...">
+      <input id="site-search" type="search" placeholder="Search peptides..." autocomplete="off">
       <button type="submit" aria-label="Search">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
@@ -35,26 +36,26 @@
     <section class="hero" aria-label="PEP Shop Texas research peptides hero"></section>
 
     <section class="quick-panel" aria-label="Primary links">
-      <a class="quick-link" href="#">
+      <a class="quick-link" href="products.html">
         <span class="quick-icon red">A<br>Z</span>
         <strong>PEPTIDES A-Z</strong>
         <span>Browse all peptides alphabetically</span>
       </a>
-      <a class="quick-link" href="#">
+      <a class="quick-link" href="products.html?category=Blend">
         <span class="quick-icon dark">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c2.9-.9 5.1-.4 7 1.5v12c-1.9-1.9-4.1-2.4-7-1.5v-12Zm16 0c-2.9-.9-5.1-.4-7 1.5v12c1.9-1.9 4.1-2.4 7-1.5v-12ZM11 7h2"/></svg>
         </span>
-        <strong>RESEARCH LIBRARY</strong>
-        <span>Guides, protocols, and research resources</span>
+        <strong>TOP STACKS</strong>
+        <span>Popular blend and stack products</span>
       </a>
-      <a class="quick-link" href="#">
+      <a class="quick-link" href="faq.html">
         <span class="quick-icon dark">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 9a3 3 0 1 1 4.6 2.53c-.88.52-1.6 1.13-1.6 2.47m0 3h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
         </span>
         <strong>FAQ</strong>
         <span>Answers to common questions</span>
       </a>
-      <a class="quick-link" href="#">
+      <a class="quick-link" href="contact.html">
         <span class="quick-icon red">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4V6Zm0 1 8 6 8-6"/></svg>
         </span>
@@ -66,37 +67,25 @@
     <section class="product-grid" aria-label="Featured peptide lists">
       <article class="list-card">
         <h2><span class="title-icon red-text">♦</span> HOT PEPTIDES</h2>
-        <p>Most sold in the last 7 days</p>
-        <ul>
-          <li><span>BPC-157 10mg</span><strong>42 sold</strong><span>›</span></li>
-          <li><span>TB-500 10mg</span><strong>37 sold</strong><span>›</span></li>
-          <li><span>GHK-Cu 50mg</span><strong>29 sold</strong><span>›</span></li>
-          <li><span>NAD+ 500mg</span><strong>21 sold</strong><span>›</span></li>
-          <li><span>CJC-1295 (No DAC) 10mg</span><strong>18 sold</strong><span>›</span></li>
+        <p>Featured active products</p>
+        <ul data-home-list="hot">
+          <li class="loading-row">Loading products...</li>
         </ul>
       </article>
 
       <article class="list-card">
         <h2><span class="title-icon">▱</span> TOP STACKS</h2>
-        <p>Popular peptide stacks</p>
-        <ul>
-          <li><span>Performance Stack</span><strong>32 sold</strong><span>›</span></li>
-          <li><span>Recovery Stack</span><strong>28 sold</strong><span>›</span></li>
-          <li><span>Longevity Stack</span><strong>24 sold</strong><span>›</span></li>
-          <li><span>Cutting Stack</span><strong>19 sold</strong><span>›</span></li>
-          <li><span>Healing Stack</span><strong>17 sold</strong><span>›</span></li>
+        <p>Popular blend and stack products</p>
+        <ul data-home-list="stacks">
+          <li class="loading-row">Loading products...</li>
         </ul>
       </article>
 
       <article class="list-card">
         <h2><span class="title-icon">★</span> NEW ARRIVALS</h2>
-        <p>Recently added peptides</p>
-        <ul>
-          <li><span>KPV 10mg</span><strong>15 sold</strong><span>›</span></li>
-          <li><span>Selank 10mg</span><strong>12 sold</strong><span>›</span></li>
-          <li><span>Semax 10mg</span><strong>11 sold</strong><span>›</span></li>
-          <li><span>MOTS-C 10mg</span><strong>9 sold</strong><span>›</span></li>
-          <li><span>Ibutamoren (MK-677) 15mg</span><strong>8 sold</strong><span>›</span></li>
+        <p>Recently added products</p>
+        <ul data-home-list="new">
+          <li class="loading-row">Loading products...</li>
         </ul>
       </article>
     </section>

@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Products | PEP Shop Texas</title>
+  <title>Product | PEP Shop Texas</title>
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="app.js"></script>
 </head>
-<body data-page="products">
+<body data-page="product-detail">
   <header class="site-header compact-header">
     <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
       <span class="brand-main">PEP SHOP</span>
@@ -28,21 +28,10 @@
     </form>
   </header>
 
-  <main class="catalog-page">
-    <section class="page-heading">
-      <p>Research products</p>
-      <h1>Peptides A-Z</h1>
-    </section>
-
-    <section class="catalog-toolbar" aria-label="Catalog filters">
-      <input type="search" data-catalog-search placeholder="Filter products...">
-      <select data-category-filter aria-label="Filter by category">
-        <option value="">All categories</option>
-      </select>
-    </section>
-
-    <section class="catalog-grid" data-catalog-grid>
-      <p class="loading-row">Loading products...</p>
+  <main class="detail-page">
+    <a class="back-link" href="products.html">‹ Back to products</a>
+    <section class="detail-shell" data-product-detail>
+      <p class="loading-row">Loading product...</p>
     </section>
   </main>
 </body>
