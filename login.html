@@ -1,265 +1,41 @@
-<!-- PST_LOGIN_PATCH_V3_FORGOT_PASSWORD_LINK -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login | Pep Shop Texas</title>
-<!-- PST_OFFICIAL_ICON_SET_V2 -->
-<link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico?v=2">
-<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg?v=2">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png?v=2">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png?v=2">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png?v=2">
-<link rel="manifest" href="assets/icons/site.webmanifest?v=2">
-<meta name="theme-color" content="#ffffff">
-
-<style>
-:root{--blue:#003f9e;--black:#050505;--line:#e6e6e6;--soft:#f7f7f7;--muted:#555}
-*{box-sizing:border-box}
-body{margin:0;background:#fff;color:#050505;font-family:Arial,Helvetica,sans-serif}
-.top-strip{background:#050505;color:#fff;font-size:13px;font-weight:800;text-transform:uppercase;display:flex;justify-content:space-between;gap:20px;padding:9px 36px}
-header{background:#fff;border-bottom:1px solid var(--line)}
-.nav{max-width:1280px;margin:auto;padding:14px 34px;display:flex;justify-content:space-between;align-items:center;gap:24px}
-.brand{font-family:Impact,'Arial Black',Arial,sans-serif;font-size:34px;text-decoration:none;color:#111;letter-spacing:.5px}
-.brand span{color:var(--blue)}
-.menu{display:flex;gap:22px;align-items:center;text-transform:uppercase;font-weight:900;font-size:14px}
-.menu a{color:#111;text-decoration:none}
-.menu a.active{color:var(--blue);border-bottom:2px solid var(--blue);padding-bottom:6px}
-.wrap{max-width:760px;margin:auto;padding:34px}
-.auth-card{border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 12px 35px rgba(0,0,0,.08);padding:30px}
-.section-title{font-family:Impact,'Arial Black',Arial,sans-serif;text-transform:uppercase;font-size:38px;margin:0}
-.underline{width:42px;height:4px;background:var(--blue);margin:8px 0 22px}
-label{font-size:12px;font-weight:900;text-transform:uppercase;color:#333;display:block;margin:0 0 6px}
-input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6px;font-size:15px;margin-bottom:16px}
-.btn{display:inline-block;border:2px solid var(--blue);border-radius:4px;padding:13px 26px;font-weight:900;text-transform:uppercase;cursor:pointer;text-decoration:none;text-align:center;background:#fff}
-.btn.primary{background:var(--blue);color:#fff}
-.btn.secondary{background:#fff;color:var(--blue)}
-.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
-.notice{display:none;margin:18px 0 0;padding:12px;border-radius:6px;font-weight:800;line-height:1.45}
-.notice.ok{display:block;background:#edf8f0;color:#147a32;border:1px solid #bfe8c8}
-.notice.err{display:block;background:#fff0f0;color:#b00020;border:1px solid #ffb8c0}
-.small{font-size:13px;color:#555;line-height:1.5}
-#successPanel{display:none;margin-top:20px;padding:18px;border:1px solid #bfe8c8;background:#edf8f0;border-radius:8px}
-#successPanel h2{margin:0 0 10px;font-size:22px;text-transform:uppercase}
-.raw-link{display:block;margin-top:14px;color:#003f9e;font-weight:900;word-break:break-all}
-.password-wrap{position:relative;margin-bottom:16px}
-.password-wrap input{padding-right:86px;margin-bottom:0}
-.password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:#f4f8ff;color:var(--blue);font-weight:900;border-radius:5px;padding:7px 9px;cursor:pointer;text-transform:uppercase;font-size:12px}
-.password-toggle:hover{background:#e8f1ff}
-.forgot-row{margin-top:10px;font-size:13px;font-weight:900}
-.forgot-row a{color:var(--blue);text-transform:uppercase;text-decoration:none}
-@media(max-width:720px){.menu{display:none}.wrap,.nav{padding-left:18px;padding-right:18px}.top-strip{display:none}.actions{display:grid}.btn{width:100%}}
-
-
-/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
-   Purpose: standardize font hierarchy and logo display across public/admin pages.
-   Keep actions/prices readable without the heavy all-bold/Impact look.
-*/
-:root {
-  --pst-ui-font: Arial, Helvetica, sans-serif;
-}
-body, input, button, select, textarea {
-  font-family: var(--pst-ui-font) !important;
-}
-.brand, .logo, .logo-mark {
-  display: inline-flex !important;
-  align-items: center !important;
-  text-decoration: none !important;
-}
-.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
-  display: block !important;
-  height: auto !important;
-  object-fit: contain !important;
-}
-.brand-logo-img, .account-logo-img {
-  width: clamp(155px, 18vw, 220px) !important;
-  max-width: 100% !important;
-}
-.pst-master-admin-logo {
-  width: clamp(150px, 16vw, 210px) !important;
-  max-width: 100% !important;
-}
-.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
-.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
-.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
-.product-title, .discount-title, .customer-title, h1, h2, h3 {
-  font-family: var(--pst-ui-font) !important;
-  font-weight: 600 !important;
-  letter-spacing: .01em !important;
-}
-.page-title {
-  font-weight: 600 !important;
-  text-transform: none !important;
-}
-.menu, .menu a, .account-status, .account-status a, .account-status button,
-.btn, button, label, th, .profile-row strong, .order-meta strong,
-.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
-  font-weight: 600 !important;
-}
-p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
-.email-pref-copy, .security-copy, .footer-disclaimer {
-  font-weight: 400 !important;
-}
-strong {
-  font-weight: 600 !important;
-}
-@media(max-width:560px) {
-  .brand-logo-img, .account-logo-img {
-    width: clamp(135px, 42vw, 170px) !important;
-  }
-}
-</style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login | PEP Shop Texas</title>
+  <link rel="stylesheet" href="styles.css?v=6">
+  <script type="module" src="app.js?v=6"></script>
 </head>
-<body>
-<div class="top-strip">
-  <span>Research purposes only — not for human consumption</span>
-  <span>Support: support@pepshoptexas.com</span>
-</div>
-
-<header>
-  <nav class="nav">
-    <a class="brand" href="./index.html" aria-label="Pep Shop Texas home"><img class="brand-logo-img" src="assets/icons/pst-logo-extracted.jpg?v=2" alt="Pep Shop Texas"></a>
-    <div class="menu">
-      <a href="./index.html">Home</a>
-      <a href="./register.html">Create Account</a>
-      <a class="active" href="./login.html">Login</a>
-      <a href="./account.html">My Account</a>
-      <a href="./admin.html">Admin</a>
-    </div>
-  </nav>
-</header>
-
-<main class="wrap">
-  <section class="auth-card">
-    <h1 class="section-title">Login</h1>
-    <div class="underline"></div>
-    <p class="small">Log in to your Pep Shop Texas customer account.</p>
-
-    <form id="loginForm">
-      <label>Email Address</label>
-      <input id="email" name="email" type="email" autocomplete="email" required>
-
-      <label for="password">Password</label>
-      <div class="password-wrap">
-        <input id="password" name="password" type="password" autocomplete="current-password" required>
-        <button class="password-toggle" type="button" data-toggle-password="password" aria-label="Show password">Show</button>
-      </div>
-
-      <div class="forgot-row">
-        <a href="./forgot-password.html">Forgot your password?</a>
-      </div>
-
-      <div class="actions">
-        <button id="loginBtn" class="btn primary" type="submit">Login</button>
-        <button class="btn secondary" type="button" onclick="goRegister()">Create Account</button>
-      </div>
+<body data-page="login">
+  <header class="site-header compact-header">
+    <a class="brand" href="index.html"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
+    <nav class="main-nav">
+      <a href="products.html">PEPTIDES A-Z</a>
+      <a href="products.html?category=Blend">TOP STACKS</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">CONTACT</a>
+      <a href="account.html">ACCOUNT</a>
+      <a href="admin.html">ADMIN</a>
+      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
+    </nav>
+    <form class="search" role="search" action="products.html" method="get" data-product-search-form>
+      <input name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
     </form>
+  </header>
 
-    <div id="notice" class="notice"></div>
-
-    <div id="successPanel">
-      <h2>Login Successful</h2>
-      <p class="small">You are logged in. Click a button below to continue.</p>
-      <div class="actions">
-        <button class="btn primary" type="button" onclick="goHome()">Go to Home Page</button>
-        <button class="btn secondary" type="button" onclick="goAccount()">My Account</button>
-      </div>
-      <a class="raw-link" id="returnLink" href="./index.html?login=success">Continue to previous page</a>
-    </div>
-  </section>
-</main>
-
-<script>
-const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
-const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-function getLoginReturnUrl(){
-  const params = new URLSearchParams(window.location.search);
-  const rawReturn = params.get("return") || params.get("redirect") || "";
-  if (!rawReturn) return "./index.html?login=success";
-
-  let decoded = rawReturn;
-  try { decoded = decodeURIComponent(rawReturn); } catch (_) {}
-
-  if (/^https?:\/\//i.test(decoded) || decoded.startsWith("//")) {
-    return "./index.html?login=success";
-  }
-
-  if (decoded.startsWith("./")) return decoded;
-  if (decoded.startsWith("/")) return "." + decoded;
-  return "./" + decoded.replace(/^\.?\//, "");
-}
-
-function continueAfterLogin(){
-  const target = getLoginReturnUrl();
-  window.location.href = target;
-}
-
-function setupPasswordToggles(){
-  document.querySelectorAll('[data-toggle-password]').forEach(function(btn){
-    const input = document.getElementById(btn.getAttribute('data-toggle-password'));
-    if (!input) return;
-    btn.addEventListener('click', function(){
-      const show = input.type === 'password';
-      input.type = show ? 'text' : 'password';
-      btn.textContent = show ? 'Hide' : 'Show';
-      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-    });
-  });
-}
-setupPasswordToggles();
-
-function goHome(){
-  continueAfterLogin();
-}
-function goAccount(){
-  window.location.href = "./account.html";
-}
-function goRegister(){
-  window.location.href = "./register.html";
-}
-function showNotice(message, type){
-  const el = document.getElementById('notice');
-  el.textContent = message;
-  el.className = 'notice ' + (type === 'ok' ? 'ok' : 'err');
-}
-
-document.getElementById('loginForm').addEventListener('submit', async function(e){
-  e.preventDefault();
-
-  const loginBtn = document.getElementById('loginBtn');
-  loginBtn.disabled = true;
-  loginBtn.textContent = 'Logging in...';
-
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-
-  try {
-    const result = await pstSupabaseClient.auth.signInWithPassword({ email, password });
-
-    if (result.error) {
-      showNotice(result.error.message, 'err');
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'Login';
-      return;
-    }
-
-    showNotice('Login successful. Returning you to checkout...', 'ok');
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('successPanel').style.display = 'block';
-    const returnLink = document.getElementById('returnLink');
-    if (returnLink) returnLink.href = getLoginReturnUrl();
-    setTimeout(continueAfterLogin, 450);
-
-  } catch (err) {
-    showNotice('Login failed: ' + (err.message || err), 'err');
-    loginBtn.disabled = false;
-    loginBtn.textContent = 'Login';
-  }
-});
-</script>
+  <main class="auth-page">
+    <section class="page-heading"><p>Account access</p><h1>Sign In</h1></section>
+    <section class="auth-shell">
+      <form class="auth-card" data-login-form>
+        <h2>Customer / Admin Login</h2>
+        <label>Email <input name="email" type="email" autocomplete="email" required></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="primary-action" type="submit">Sign In</button>
+        <p data-auth-message></p>
+      </form>
+    </section>
+  </main>
 </body>
 </html>

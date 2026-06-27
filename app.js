@@ -18,6 +18,7 @@ if (page === "home") renderHome();
 if (page === "products") renderCatalog();
 if (page === "product-detail") renderProductDetail();
 if (page === "cart") renderCartPage();
+if (page === "login") setupLoginPage();
 
 function setupGlobalSearch() {
   document.querySelectorAll("[data-product-search-form]").forEach((form) => {
@@ -28,6 +29,42 @@ function setupGlobalSearch() {
       window.location.href = query ? `products.html?search=${encodeURIComponent(query)}` : "products.html";
     });
   });
+}
+
+function setupLoginPage() {
+  const form = document.querySelector("[data-login-form]");
+  const message = document.querySelector("[data-auth-message]");
+  const redirectTo = params.get("redirect") || "account.html";
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(form);
+    const email = String(formData.get("email") || "").trim();
+    const password = String(formData.get("password") || "");
+
+    message.textContent = "Signing in...";
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      message.textContent = error.message;
+      return;
+    }
+    window.location.href = redirectTo;
+  });
+}
+
+async function requireUser(redirectTarget) {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data?.user) {
+    const redirect = encodeURIComponent(redirectTarget || window.location.pathname.split("/").pop() || "account.html");
+    window.location.href = `login.html?redirect=${redirect}`;
+    return null;
+  }
+  return data.user;
+}
+
+async function signOut() {
+  await supabase.auth.signOut();
+  window.location.href = "login.html";
 }
 
 async function getProducts() {
