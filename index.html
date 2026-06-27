@@ -4100,8 +4100,9 @@ footer a,
 </style>
 
 
+
 <style id="pst-centered-brand-header-v1">
-/* PST CENTERED BRAND HEADER - Level 1 gray top, softer middle, white bottom */
+/* PST RESPONSIVE CENTERED HEADER - fixed tablet/window overlap */
 header {
   background: linear-gradient(
     180deg,
@@ -4120,7 +4121,7 @@ header {
 header::after {
   content: "";
   display: block;
-  height: 18px;
+  height: 14px;
   pointer-events: none;
   background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #ffffff 100%);
 }
@@ -4129,14 +4130,14 @@ header::after {
   width: 100% !important;
   max-width: 1280px !important;
   margin: 0 auto !important;
-  padding: 22px 34px 10px !important;
+  padding: 18px 34px 8px !important;
   display: grid !important;
-  grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr) !important;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(120px, auto) auto !important;
   grid-template-areas:
-    "search logo tools"
-    "menu menu menu" !important;
+    "search logo account icons"
+    "menu menu menu menu" !important;
   align-items: center !important;
-  gap: 12px 24px !important;
+  gap: 10px 18px !important;
   background: transparent !important;
 }
 
@@ -4151,7 +4152,7 @@ header::after {
 }
 
 .header-logo-img {
-  width: clamp(275px, 31vw, 430px) !important;
+  width: clamp(260px, 28vw, 410px) !important;
   max-width: 100% !important;
   height: auto !important;
   display: block !important;
@@ -4163,46 +4164,59 @@ header::after {
   justify-self: start !important;
   align-self: center !important;
   width: min(340px, 100%) !important;
-  min-width: 240px !important;
+  min-width: 220px !important;
   max-width: 340px !important;
   flex: initial !important;
   order: initial !important;
 }
 
 .site-search input {
-  background: rgba(255,255,255,.88) !important;
+  background: rgba(255,255,255,.9) !important;
   border-color: rgba(0,0,0,.14) !important;
   box-shadow: 0 8px 20px rgba(0,0,0,.04) !important;
 }
 
 .account-status {
-  grid-area: tools !important;
+  grid-area: account !important;
   justify-self: end !important;
   align-self: center !important;
-  margin-right: 92px !important;
-  padding-top: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   flex: initial !important;
   order: initial !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  font-size: 13px !important;
+}
+
+.account-status a,
+.account-status button {
+  white-space: nowrap !important;
 }
 
 .nav-icons {
-  grid-area: tools !important;
+  grid-area: icons !important;
   justify-self: end !important;
   align-self: center !important;
   display: flex !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  gap: 14px !important;
-  margin-left: 0 !important;
+  gap: 12px !important;
+  margin: 0 !important;
   flex: initial !important;
   order: initial !important;
+  white-space: nowrap !important;
 }
 
 .menu {
   grid-area: menu !important;
   justify-self: center !important;
   width: min(100%, 960px) !important;
-  padding-top: 12px !important;
+  padding-top: 10px !important;
   border-top: 1px solid rgba(0,0,0,.08) !important;
   display: flex !important;
   align-items: center !important;
@@ -4235,34 +4249,25 @@ header::after {
   background: transparent !important;
 }
 
-@media (max-width: 980px) {
+/* Tablet / not-fullscreen desktop */
+@media (max-width: 1120px) {
   html {
-    scroll-padding-top: 190px !important;
-  }
-
-  header {
-    background: linear-gradient(
-      180deg,
-      #cfd3d6 0%,
-      #e3e5e7 45%,
-      #f4f5f6 76%,
-      #ffffff 100%
-    ) !important;
+    scroll-padding-top: 210px !important;
   }
 
   .nav {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr auto !important;
     grid-template-areas:
-      "logo"
-      "search"
-      "tools"
-      "menu" !important;
-    padding: 16px 20px 8px !important;
-    gap: 10px !important;
+      "logo logo"
+      "search search"
+      "account icons"
+      "menu menu" !important;
+    padding: 14px 28px 7px !important;
+    gap: 9px 14px !important;
   }
 
   .header-logo-img {
-    width: clamp(220px, 68vw, 340px) !important;
+    width: clamp(260px, 48vw, 390px) !important;
   }
 
   .site-search {
@@ -4274,8 +4279,10 @@ header::after {
 
   .account-status {
     justify-self: start !important;
-    margin-right: 0 !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
+    gap: 10px !important;
+    overflow-x: auto !important;
+    max-width: 100% !important;
   }
 
   .nav-icons {
@@ -4285,47 +4292,74 @@ header::after {
   .menu {
     width: 100% !important;
     justify-self: stretch !important;
-    justify-content: flex-start !important;
-    gap: 22px !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    padding: 10px 2px 5px !important;
-    -webkit-overflow-scrolling: touch !important;
+    justify-content: center !important;
+    gap: clamp(18px, 4vw, 38px) !important;
+    padding-top: 9px !important;
   }
 
   .menu a {
     font-size: 12px !important;
-    flex: 0 0 auto !important;
   }
 }
 
-@media (max-width: 520px) {
+/* Phone */
+@media (max-width: 640px) {
   html {
-    scroll-padding-top: 205px !important;
+    scroll-padding-top: 230px !important;
   }
 
   .nav {
-    padding: 14px 14px 7px !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-areas:
+      "logo logo"
+      "search search"
+      "account icons"
+      "menu menu" !important;
+    padding: 12px 14px 7px !important;
+    gap: 8px 10px !important;
   }
 
   .header-logo-img {
-    width: clamp(190px, 80vw, 280px) !important;
+    width: clamp(210px, 78vw, 310px) !important;
   }
 
   .account-status {
     font-size: 11px !important;
     gap: 7px !important;
+    white-space: nowrap !important;
   }
 
   .nav-icons {
-    gap: 8px !important;
+    gap: 7px !important;
+  }
+
+  .texas-flag-icon {
+    width: 28px !important;
+    height: 19px !important;
+  }
+
+  .cart-button {
+    font-size: 24px !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
   }
 
   .menu {
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
     gap: 18px !important;
+    padding: 9px 2px 5px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .menu a {
+    flex: 0 0 auto !important;
+    font-size: 12px !important;
   }
 }
 </style>
+
 
 
 <style id="pst-compact-vial-hero-final">
