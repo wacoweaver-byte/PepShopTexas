@@ -22,6 +22,8 @@ async function boot() {
     return;
   }
 
+  revealAdminLinksForAdmins();
+
   const page = document.body.dataset.page;
   if (page === "home") renderHome();
   if (page === "products") renderCatalog();
@@ -56,6 +58,28 @@ function requireSupabaseClient() {
     throw new Error("Product loading script did not start. Please refresh the page.");
   }
   return pstSupabaseClient;
+}
+
+async function revealAdminLinksForAdmins() {
+  const links = document.querySelectorAll("[data-admin-link]");
+  if (!links.length || !pstSupabaseClient) return;
+
+  try {
+    const { data: userData } = await pstSupabaseClient.auth.getUser();
+    const user = userData?.user;
+    if (!user) return;
+
+    const { data: admin } = await pstSupabaseClient
+      .from("admin_users")
+      .select("user_id,email,is_active,active,is_admin")
+      .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+      .maybeSingle();
+
+    const isAdmin = !!admin && (admin.is_active === true || admin.active === true || admin.is_admin === true);
+    if (isAdmin) links.forEach((link) => { link.hidden = false; });
+  } catch (error) {
+    console.warn("Admin link check failed", error);
+  }
 }
 
 function showProductLoadError(error) {
