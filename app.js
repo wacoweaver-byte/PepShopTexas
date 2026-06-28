@@ -7,6 +7,9 @@ const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,
 const EMAIL_FUNCTION_NAME = "send-order-email";
 const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
 const PAYMENT_LEGACY_STORAGE_KEY = "pst_payment_options_v1";
+const STANDARD_SHIPPING_RATE = 9.95;
+const TAX_RATES = { TX: 0.0825 };
+const DEFAULT_TAX_REGION = "TX";
 const DEFAULT_PAYMENT_METHODS = [
   { id:"pending", label:"Payment pending", enabled:true, account:"", instructions:"Your order will be reviewed and payment instructions will be confirmed before processing." },
   { id:"venmo", label:"Venmo", enabled:false, account:"", instructions:"Please include your order number in the Venmo note. Your order will remain pending until payment is verified." },
@@ -504,17 +507,20 @@ function cartRow({ product, quantity }) {
 }
 
 function summaryHtml(rows, context = {}) {
-  const subtotal = rows.reduce((sum, row) => sum + unitPrice(row.product) * row.quantity, 0);
   const profile = context.profile || {};
   const user = context.user || null;
   const paymentMethods = context.paymentMethods || enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
+  const totals = calculateCartTotals(rows, profile);
   const name = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.full_name || "";
   const email = profile.email || user?.email || "";
   const phone = profile.phone || "";
   const address = profile.shipping_address || profile.address || [profile.address1, profile.address2, profile.shipping_city || profile.city, profile.shipping_state || profile.state, profile.shipping_zip || profile.zip].filter(Boolean).join(", ");
   return `
     <h2>Order Summary</h2>
-    <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div>
+    <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(totals.subtotal)}</strong></div>
+    <div class="summary-line"><span>Shipping</span><strong>${formatMoney(totals.shipping)}</strong></div>
+    <div class="summary-line"><span>Tax ${escapeHtml(totals.taxLabel)}</span><strong>${formatMoney(totals.tax)}</strong></div>
+    <div class="summary-line summary-total"><span>Total</span><strong>${formatMoney(totals.total)}</strong></div>
     <p class="checkout-note">Submit your order to PEP Shop Texas. It will appear in Order Management for review and payment confirmation.</p>
     ${user ? checkoutFormHtml(rows, { name, email, phone, address, paymentMethods }) : `
       <p class="checkout-note">Log in or create an account before placing an order so it can be saved to your account.</p>
@@ -522,6 +528,37 @@ function summaryHtml(rows, context = {}) {
       <a class="secondary-action" href="register.html">Create Account</a>
     `}
   `;
+}
+
+function calculateCartTotals(rows, profile = {}) {
+  const subtotal = rows.reduce((sum, row) => sum + unitPrice(row.product) * row.quantity, 0);
+  const shipping = rows.length ? STANDARD_SHIPPING_RATE : 0;
+  const discount = 0;
+  const taxRegion = customerTaxRegion(profile);
+  const taxRate = TAX_RATES[taxRegion] || 0;
+  const tax = roundMoney(subtotal * taxRate);
+  const total = roundMoney(subtotal + shipping + tax - discount);
+  return {
+    subtotal: roundMoney(subtotal),
+    shipping,
+    discount,
+    tax,
+    total,
+    taxRate,
+    taxRegion,
+    taxLabel: taxRate ? `(${taxRegion} ${(taxRate * 100).toFixed(2)}%)` : ""
+  };
+}
+
+function customerTaxRegion(profile = {}) {
+  const rawState = profile.shipping_state || profile.state || profile.billing_state || DEFAULT_TAX_REGION;
+  const state = String(rawState || DEFAULT_TAX_REGION).trim().toUpperCase();
+  if (state === "TEXAS") return "TX";
+  return state || DEFAULT_TAX_REGION;
+}
+
+function roundMoney(value) {
+  return Math.round((Number(value) || 0) * 100) / 100;
 }
 
 async function getSignedInUser() {
@@ -660,11 +697,8 @@ async function handleCheckoutSubmit(event) {
     const selectedOption = form.querySelector("[name='payment_method']")?.selectedOptions?.[0];
     const paymentMethod = selectedOption?.dataset?.label || String(formData.get("payment_method") || "Payment pending");
     const paymentInstructions = selectedOption?.dataset?.instructions || "";
-    const subtotal = rows.reduce((sum, row) => sum + unitPrice(row.product) * row.quantity, 0);
-    const shipping = 0;
-    const tax = 0;
-    const discount = 0;
-    const total = subtotal + shipping + tax - discount;
+    const totals = calculateCartTotals(rows, profile);
+    const { subtotal, shipping, tax, discount, total, taxRate, taxRegion } = totals;
     const orderNumberValue = await nextOrderNumber();
     const now = new Date().toISOString();
     const customerName = accountCustomerName(profile, user);
@@ -696,6 +730,9 @@ async function handleCheckoutSubmit(event) {
       discount,
       shipping,
       tax,
+      tax_rate: taxRate,
+      tax_region: taxRegion,
+      tax_jurisdiction: taxRegion,
       total,
       source: "website_cart",
       created_at: now,
