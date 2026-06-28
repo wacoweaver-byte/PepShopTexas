@@ -604,10 +604,15 @@ async function handleCheckoutSubmit(event) {
     const shippingAddressValue = accountShippingAddress(profile);
     const customerNotes = String(formData.get("customer_notes") || "").trim();
     const paymentNote = paymentInstructions ? `Payment method selected: ${paymentMethod} | ${paymentInstructions}` : `Payment method selected: ${paymentMethod}`;
+    const orderId = crypto.randomUUID();
 
     const orderPayload = {
+      id: orderId,
       order_number: orderNumberValue,
       user_id: user.id,
+      customer_id: user.id,
+      customer_uuid: user.id,
+      profile_id: profile?.id || user.id,
       customer_name: customerName,
       customer_email: customerEmail,
       customer_phone: customerPhone,
@@ -628,9 +633,11 @@ async function handleCheckoutSubmit(event) {
       updated_at: now
     };
 
-    const order = await insertWithColumnFallback("orders", orderPayload, "*");
+    const order = await insertWithColumnFallback("orders", orderPayload);
     const itemPayloads = rows.map(({ product, quantity }) => ({
       order_id: order.id,
+      user_id: user.id,
+      customer_id: user.id,
       product_id: product.id,
       product_key: product.product_key,
       product_name: product.display_name,
@@ -693,14 +700,14 @@ function missingColumnFromError(error, tableName) {
   return "";
 }
 
-async function insertWithColumnFallback(tableName, payload, selectFields = "*") {
+async function insertWithColumnFallback(tableName, payload) {
   const client = requireSupabaseClient();
   const working = { ...payload };
   const maxAttempts = Object.keys(working).length + 5;
   const droppedColumns = [];
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const { data, error } = await client.from(tableName).insert(working).select(selectFields).single();
-    if (!error) return data;
+    const { error } = await client.from(tableName).insert(working);
+    if (!error) return working;
     const missing = missingColumnFromError(error, tableName);
     if (missing && Object.prototype.hasOwnProperty.call(working, missing)) {
       delete working[missing];
@@ -720,8 +727,8 @@ async function insertRowsWithColumnFallback(tableName, rows) {
   const maxAttempts = columnCount + 5;
   const droppedColumns = [];
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const { data, error } = await client.from(tableName).insert(working).select("*");
-    if (!error) return data || [];
+    const { error } = await client.from(tableName).insert(working);
+    if (!error) return working;
     const missing = missingColumnFromError(error, tableName);
     if (missing && working.some((row) => Object.prototype.hasOwnProperty.call(row, missing))) {
       working = working.map((row) => {
