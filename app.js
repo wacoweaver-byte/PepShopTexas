@@ -34,7 +34,7 @@ async function boot() {
     return;
   }
 
-  revealAdminLinksForAdmins();
+  setupHeaderAuthState();
 
   const page = document.body.dataset.page;
   if (page === "home") renderHome();
@@ -72,14 +72,29 @@ function requireSupabaseClient() {
   return pstSupabaseClient;
 }
 
-async function revealAdminLinksForAdmins() {
-  const links = document.querySelectorAll("[data-admin-link]");
-  if (!links.length || !pstSupabaseClient) return;
+async function setupHeaderAuthState() {
+  const adminLinks = document.querySelectorAll("[data-admin-link]");
+  const accountLinks = document.querySelectorAll(".main-nav a[href='account.html']");
+  if (!pstSupabaseClient) return;
 
   try {
     const { data: userData } = await pstSupabaseClient.auth.getUser();
     const user = userData?.user;
-    if (!user) return;
+    if (!user) {
+      accountLinks.forEach((link) => {
+        link.textContent = "LOGIN";
+        link.href = `login.html?redirect=${encodeURIComponent(currentPageForRedirect())}`;
+      });
+      adminLinks.forEach((link) => { link.hidden = true; });
+      return;
+    }
+
+    const profile = await getCustomerProfile(user);
+    const firstName = firstNameForHeader(profile, user);
+    accountLinks.forEach((link) => {
+      link.textContent = `Hello ${firstName}`;
+      link.href = "account.html";
+    });
 
     const { data: admin } = await pstSupabaseClient
       .from("admin_users")
@@ -88,10 +103,20 @@ async function revealAdminLinksForAdmins() {
       .maybeSingle();
 
     const isAdmin = !!admin && (admin.is_active === true || admin.active === true || admin.is_admin === true);
-    if (isAdmin) links.forEach((link) => { link.hidden = false; });
+    adminLinks.forEach((link) => { link.hidden = !isAdmin; });
   } catch (error) {
-    console.warn("Admin link check failed", error);
+    console.warn("Header account check failed", error);
   }
+}
+
+function currentPageForRedirect() {
+  const page = window.location.pathname.split("/").pop() || "index.html";
+  return `${page}${window.location.search || ""}`;
+}
+
+function firstNameForHeader(profile = {}, user = {}) {
+  const fullName = profile.first_name || profile.full_name || user.user_metadata?.first_name || user.user_metadata?.full_name || user.email || "there";
+  return String(fullName).trim().split(/\s+/)[0] || "there";
 }
 
 function showProductLoadError(error) {

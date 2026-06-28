@@ -335,6 +335,7 @@ body { background: #f7f9fb !important; color: #080b10 !important; }
   text-transform: uppercase !important;
 }
 .account-site-header .main-nav a { color: #fff !important; font-weight: 800 !important; }
+.account-site-header .main-nav #accountGreetingLink { text-transform: none !important; }
 .account-site-header .account-logout {
   min-height: 38px !important;
   padding: 0 13px !important;
@@ -394,6 +395,7 @@ body { background: #f7f9fb !important; color: #080b10 !important; }
     <a href="catalog.html?category=Stack">TOP STACKS</a>
     <a href="faq.html">FAQ</a>
     <a href="contact.html">CONTACT</a>
+    <a href="account.html" id="accountGreetingLink">ACCOUNT</a>
     <a href="admin.html" id="accountAdminLink" style="display:none;">ADMIN</a>
     <button class="account-logout" type="button" id="logoutBtn">LOGOUT</button>
   </nav>
@@ -536,6 +538,11 @@ function getProfileValue(profile, ...keys) {
 function formatAddress(line1, line2, city, state, zip) {
   const cityStateZip = [city, state, zip].filter(Boolean).join(" ");
   return [line1, line2, cityStateZip].filter(Boolean).map(pstEsc).join("<br>") || "—";
+}
+
+function accountFirstName(profile = {}, user = {}) {
+  const name = profile.first_name || profile.full_name || user.user_metadata?.first_name || user.user_metadata?.full_name || user.email || "there";
+  return String(name).trim().split(/\s+/)[0] || "there";
 }
 
 function billingAddressFromProfile(profile) {
@@ -759,13 +766,13 @@ async function loadAccount() {
 
   const { data: adminRecord } = await pstAccountSupabase
     .from("admin_users")
-    .select("user_id,email,is_active")
+    .select("user_id,email,is_active,active,is_admin")
     .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-    .eq("is_active", true)
     .maybeSingle();
 
   const accountAdminLink = document.getElementById("accountAdminLink");
-  if (accountAdminLink && adminRecord) accountAdminLink.style.display = "inline-block";
+  const isAdmin = !!adminRecord && (adminRecord.is_active === true || adminRecord.active === true || adminRecord.is_admin === true);
+  if (accountAdminLink) accountAdminLink.style.display = isAdmin ? "inline-block" : "none";
 
   const { data: profile, error: profileError } = await pstAccountSupabase
     .from("customer_profiles")
@@ -784,6 +791,9 @@ async function loadAccount() {
     last_name: user.user_metadata?.last_name || "",
     username: user.user_metadata?.username || ""
   };
+
+  const accountGreetingLink = document.getElementById("accountGreetingLink");
+  if (accountGreetingLink) accountGreetingLink.textContent = "Hello " + accountFirstName(pstCurrentProfile, user);
 
   updateProfileDisplay(pstCurrentProfile, user);
   populateProfileForm(pstCurrentProfile, user);
