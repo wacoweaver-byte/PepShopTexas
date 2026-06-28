@@ -3,6 +3,7 @@ const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
+const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,is_active,starts_at,ends_at,sort_order,accent_color";
 
 let pstSupabaseClient = null;
 const params = new URLSearchParams(window.location.search);
@@ -135,16 +136,73 @@ async function getProduct(productKey) {
 
 async function renderHome() {
   try {
-    const products = await getProducts();
+    const [products, promotions] = await Promise.all([getProducts(), getActivePromotions()]);
     const hot = products.filter((p) => p.hot_peptide || p.featured);
     const stacks = products.filter((p) => p.category === "Stack" || p.blend_stack);
     const newest = [...products].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    renderHomePromotion(promotions[0]);
     fillHomeList("hot", hot.length ? hot : products);
     fillHomeList("stacks", stacks.length ? stacks : products);
     fillHomeList("new", newest.length ? newest : products);
   } catch (error) {
     document.querySelectorAll("[data-home-list]").forEach((list) => list.innerHTML = `<li class="loading-row">${escapeHtml(error.message)}</li>`);
   }
+}
+
+async function getActivePromotions() {
+  const client = requireSupabaseClient();
+  const { data, error } = await client
+    .from("site_promotions")
+    .select(PROMOTION_FIELDS)
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true, nullsFirst: false });
+  if (error) {
+    console.warn("Promotions unavailable", error);
+    return [];
+  }
+  const now = Date.now();
+  return (data || []).filter((promo) => {
+    const starts = promo.starts_at ? new Date(promo.starts_at).getTime() : 0;
+    const ends = promo.ends_at ? new Date(promo.ends_at).getTime() : Infinity;
+    return starts <= now && now <= ends;
+  });
+}
+
+function renderHomePromotion(promo) {
+  const shell = document.querySelector("[data-home-promotion]");
+  if (!shell) return;
+  if (!promo) {
+    shell.hidden = true;
+    shell.innerHTML = "";
+    return;
+  }
+
+  const accent = validHexColor(promo.accent_color) || "#bd0000";
+  const buttonHref = escapeAttribute(promoButtonHref(promo));
+  const buttonText = promo.button_text || promoButtonText(promo);
+  shell.hidden = false;
+  shell.style.setProperty("--promo-accent", accent);
+  shell.innerHTML = `
+    <div class="promo-copy">
+      ${promo.badge ? `<span>${escapeHtml(promo.badge)}</span>` : ""}
+      <strong>${escapeHtml(promo.title || "Current Promotion")}</strong>
+      ${promo.body ? `<p>${escapeHtml(promo.body)}</p>` : ""}
+    </div>
+    ${promo.image_url ? `<img src="${escapeAttribute(promo.image_url)}" alt="">` : ""}
+    <a href="${buttonHref}">${escapeHtml(buttonText)}</a>
+  `;
+}
+
+function promoButtonHref(promo) {
+  const href = String(promo.button_link || "").trim();
+  if (!href) return "catalog.html";
+  return href;
+}
+
+function promoButtonText(promo) {
+  const href = String(promo.button_link || "").trim().toLowerCase();
+  if (href === "register.html" || href === "account.html") return "Create Account";
+  return href ? "Learn More" : "Browse Products";
 }
 
 function fillHomeList(name, products) {
@@ -387,4 +445,9 @@ function escapeHtml(value) {
 
 function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("`", "&#096;");
+}
+
+function validHexColor(value) {
+  const color = String(value || "").trim();
+  return /^#[0-9a-f]{6}$/i.test(color) ? color : "";
 }
