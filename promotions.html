@@ -206,8 +206,8 @@ header .pst-admin-actions-lock .btn.secondary {
 }
 header .actions .btn.secondary.active,
 header .pst-admin-actions-lock .btn.secondary.active {
-  background: #0077c8 !important;
-  border-color: #0077c8 !important;
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
   color: #ffffff !important;
 }
 header .actions .btn.danger,
@@ -411,8 +411,8 @@ header .pst-admin-actions-lock .btn.secondary {
 }
 header .actions .btn.secondary.active,
 header .pst-admin-actions-lock .btn.secondary.active {
-  background: #0077c8 !important;
-  border-color: #0077c8 !important;
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
   color: #ffffff !important;
 }
 header .actions .btn.danger,
@@ -1107,16 +1107,17 @@ header .pst-admin-brand-lock {
   line-height: 1.1 !important;
 }
 header .pst-admin-logo-mark {
-  display: grid !important;
+  display: inline-grid !important;
   place-items: center !important;
   width: 54px !important;
   height: 54px !important;
-  color: #ffffff !important;
-  background: linear-gradient(135deg, #0077c8, #004a7c) !important;
-  border-radius: 12px !important;
-  font-size: 19px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #d10000, #a00000) !important;
+  color: #fff !important;
+  font-size: 18px !important;
   font-weight: 900 !important;
-  letter-spacing: .02em !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
 }
 header .pst-admin-title-lock {
   display: grid !important;
@@ -1169,8 +1170,8 @@ header .pst-admin-actions-lock button.btn {
 header .pst-admin-actions-lock .btn.active,
 header .pst-admin-actions-lock .btn.primary {
   color: #ffffff !important;
-  background: #0077c8 !important;
-  border-color: #0077c8 !important;
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
 }
 @media (max-width: 980px) {
   header .pst-admin-topbar-lock { grid-template-columns: 1fr !important; align-items: start !important; }
@@ -1178,17 +1179,25 @@ header .pst-admin-actions-lock .btn.primary {
 }
 @media (max-width: 560px) {
   header .pst-admin-brand-lock { grid-template-columns: 46px minmax(0, 1fr) !important; }
-  header .pst-admin-logo-mark { width: 46px !important; height: 46px !important; font-size: 16px !important; }
-  header .pst-admin-title-lock strong { font-size: 18px !important; }
-  header .pst-admin-title-lock small { font-size: 13px !important; }
-  header .pst-admin-actions-lock .btn { min-height: 34px !important; padding: 8px 10px !important; font-size: 12px !important; }
+  header .pst-admin-logo-mark {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #d10000, #a00000) !important;
+  color: #fff !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
 }
 </style>
 </head><body><header>
   <div class="topbar pst-admin-topbar-lock">
     <a class="brand pst-admin-brand-lock" href="admin.html" aria-label="Pep Shop Texas Admin Home">
       <span class="pst-admin-logo-mark">PST</span>
-      <span class="pst-admin-title-lock"><strong>PEP Shop Texas</strong><small>Promotions Management</small></span>
+      <span class="pst-admin-title-lock"><strong>PEP Shop Texas</strong><small>Promotions</small></span>
     </a>
     <nav class="actions pst-admin-actions-lock" aria-label="Admin navigation">
       <a class="btn secondary" href="admin.html">Orders</a>
@@ -1201,7 +1210,7 @@ header .pst-admin-actions-lock .btn.primary {
       <a class="btn secondary" href="index.html">View Site</a>
     </nav>
   </div>
-</header><main><h1>Promotions</h1><p>Create homepage promotions with controlled styling, active dates, links, images, and live preview.</p><div id="status" class="status">Checking admin access...</div><div class="grid"><section class="card"><h2>Create / Edit Promotion</h2><div class="card-body"><div class="fields"><div class="field full"><label>Promotion ID</label><select id="promoSelect"><option value="">New promotion</option></select></div><div class="field"><label>Title</label><input id="title"></div><div class="field"><label>Badge / Label</label><input id="badge" placeholder="Limited Time"></div><div class="field full"><label>Body</label><textarea id="body"></textarea></div><div class="field"><label>Button Text</label><input id="button_text"></div><div class="field"><label>Button Link</label><input id="button_link" placeholder="register.html"></div><div class="field"><label>Linked Discount Code</label><select id="discount_id"><option value="">No linked discount</option></select><div class="field-note">Dropdown pulls from Discount Manager. No manual code typing.</div></div><div class="field"><label>Auto-Apply After Account Creation</label><select id="auto_apply_discount"><option value="false">No</option><option value="true">Yes</option></select></div><div class="field full"><label>Image URL</label><input id="image_url"></div><div class="field"><label>Start Date/Time</label><input id="starts_at" type="datetime-local"></div><div class="field"><label>End Date/Time</label><input id="ends_at" type="datetime-local"></div><div class="field"><label>Sort Order</label><input id="sort_order" type="number" value="100"></div><div class="field"><label>Alignment</label><select id="text_align"><option>center</option><option>left</option><option>right</option></select></div><div class="field"><label>Title Size</label><input id="title_size" type="number" value="28"></div><div class="field"><label>Body Size</label><input id="body_size" type="number" value="15"></div><div class="field"><label>Text Color</label><input id="text_color" type="color" value="#101820"></div><div class="field"><label>Background</label><input id="background_color" type="color" value="#ffffff"></div><div class="field"><label>Accent Color</label><input id="accent_color" type="color" value="#003f9e"></div><div class="field full"><label>Formatting</label><div class="inline"><label><input id="is_active" type="checkbox"> Active</label><label><input id="title_bold" type="checkbox" checked> Title Bold</label><label><input id="title_italic" type="checkbox"> Title Italic</label><label><input id="title_underline" type="checkbox"> Title Underline</label><label><input id="body_bold" type="checkbox"> Body Bold</label><label><input id="body_italic" type="checkbox"> Body Italic</label><label><input id="body_underline" type="checkbox"> Body Underline</label></div></div><div class="field full"><div class="inline"><button class="btn success" id="saveBtn">Save Promotion</button><button class="btn secondary" id="newBtn">New</button><button class="btn danger" id="deleteBtn">Delete</button></div></div></div></div></section><section class="card"><h2>Live Preview</h2><div class="card-body"><div id="preview" class="preview"></div></div></section><section class="card full"><h2>Saved Promotions</h2><div class="card-body"><div id="promoList" class="list"></div></div></section></div></main><script>
+</header><main><div id="status" class="status">Checking admin access...</div><div class="grid"><section class="card"><h2>Create / Edit Promotion</h2><div class="card-body"><div class="fields"><div class="field full"><label>Promotion ID</label><select id="promoSelect"><option value="">New promotion</option></select></div><div class="field"><label>Title</label><input id="title"></div><div class="field"><label>Badge / Label</label><input id="badge" placeholder="Limited Time"></div><div class="field full"><label>Body</label><textarea id="body"></textarea></div><div class="field"><label>Button Text</label><input id="button_text"></div><div class="field"><label>Button Link</label><input id="button_link" placeholder="register.html"></div><div class="field"><label>Linked Discount Code</label><select id="discount_id"><option value="">No linked discount</option></select><div class="field-note">Dropdown pulls from Discount Manager. No manual code typing.</div></div><div class="field"><label>Auto-Apply After Account Creation</label><select id="auto_apply_discount"><option value="false">No</option><option value="true">Yes</option></select></div><div class="field full"><label>Image URL</label><input id="image_url"></div><div class="field"><label>Start Date/Time</label><input id="starts_at" type="datetime-local"></div><div class="field"><label>End Date/Time</label><input id="ends_at" type="datetime-local"></div><div class="field"><label>Sort Order</label><input id="sort_order" type="number" value="100"></div><div class="field"><label>Alignment</label><select id="text_align"><option>center</option><option>left</option><option>right</option></select></div><div class="field"><label>Title Size</label><input id="title_size" type="number" value="28"></div><div class="field"><label>Body Size</label><input id="body_size" type="number" value="15"></div><div class="field"><label>Text Color</label><input id="text_color" type="color" value="#101820"></div><div class="field"><label>Background</label><input id="background_color" type="color" value="#ffffff"></div><div class="field"><label>Accent Color</label><input id="accent_color" type="color" value="#003f9e"></div><div class="field full"><label>Formatting</label><div class="inline"><label><input id="is_active" type="checkbox"> Active</label><label><input id="title_bold" type="checkbox" checked> Title Bold</label><label><input id="title_italic" type="checkbox"> Title Italic</label><label><input id="title_underline" type="checkbox"> Title Underline</label><label><input id="body_bold" type="checkbox"> Body Bold</label><label><input id="body_italic" type="checkbox"> Body Italic</label><label><input id="body_underline" type="checkbox"> Body Underline</label></div></div><div class="field full"><div class="inline"><button class="btn success" id="saveBtn">Save Promotion</button><button class="btn secondary" id="newBtn">New</button><button class="btn danger" id="deleteBtn">Delete</button></div></div></div></div></section><section class="card"><h2>Live Preview</h2><div class="card-body"><div id="preview" class="preview"></div></div></section><section class="card full"><h2>Saved Promotions</h2><div class="card-body"><div id="promoList" class="list"></div></div></section></div></main><script>
 const PST_SUPABASE_URL='https://ucejjztsbmrogiteivxl.supabase.co';const PST_SUPABASE_PUBLISHABLE_KEY='sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX';const db=window.supabase.createClient(PST_SUPABASE_URL,PST_SUPABASE_PUBLISHABLE_KEY);let currentUser=null,promos=[],discounts=[];const $=id=>document.getElementById(id);function setStatus(m,t=''){const statusEl=document.getElementById('status');if(statusEl){statusEl.textContent=m;statusEl.className='status '+t}else{console.log(m)}}function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function isoLocal(v){if(!v)return'';const d=new Date(v);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)}function fromLocal(v){return v?new Date(v).toISOString():null}
 function discountLabel(d){
  const code=String(d?.code||'').toUpperCase();

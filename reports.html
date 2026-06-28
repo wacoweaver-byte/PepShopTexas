@@ -500,8 +500,8 @@ header .pst-admin-actions-lock .btn.secondary {
 }
 header .actions .btn.secondary.active,
 header .pst-admin-actions-lock .btn.secondary.active {
-  background: #0077c8 !important;
-  border-color: #0077c8 !important;
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
   color: #ffffff !important;
 }
 header .actions .btn.danger,
@@ -705,8 +705,8 @@ header .pst-admin-actions-lock .btn.secondary {
 }
 header .actions .btn.secondary.active,
 header .pst-admin-actions-lock .btn.secondary.active {
-  background: #0077c8 !important;
-  border-color: #0077c8 !important;
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
   color: #ffffff !important;
 }
 header .actions .btn.danger,
@@ -1401,16 +1401,17 @@ header .pst-admin-brand-lock {
   line-height: 1.1 !important;
 }
 header .pst-admin-logo-mark {
-  display: grid !important;
+  display: inline-grid !important;
   place-items: center !important;
   width: 54px !important;
   height: 54px !important;
-  color: #ffffff !important;
-  background: linear-gradient(135deg, #0077c8, #004a7c) !important;
-  border-radius: 12px !important;
-  font-size: 19px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #d10000, #a00000) !important;
+  color: #fff !important;
+  font-size: 18px !important;
   font-weight: 900 !important;
-  letter-spacing: .02em !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
 }
 header .pst-admin-title-lock {
   display: grid !important;
@@ -1463,8 +1464,8 @@ header .pst-admin-actions-lock button.btn {
 header .pst-admin-actions-lock .btn.active,
 header .pst-admin-actions-lock .btn.primary {
   color: #ffffff !important;
-  background: #0077c8 !important;
-  border-color: #0077c8 !important;
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
 }
 @media (max-width: 980px) {
   header .pst-admin-topbar-lock { grid-template-columns: 1fr !important; align-items: start !important; }
@@ -1472,10 +1473,18 @@ header .pst-admin-actions-lock .btn.primary {
 }
 @media (max-width: 560px) {
   header .pst-admin-brand-lock { grid-template-columns: 46px minmax(0, 1fr) !important; }
-  header .pst-admin-logo-mark { width: 46px !important; height: 46px !important; font-size: 16px !important; }
-  header .pst-admin-title-lock strong { font-size: 18px !important; }
-  header .pst-admin-title-lock small { font-size: 13px !important; }
-  header .pst-admin-actions-lock .btn { min-height: 34px !important; padding: 8px 10px !important; font-size: 12px !important; }
+  header .pst-admin-logo-mark {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #d10000, #a00000) !important;
+  color: #fff !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
 }
 </style>
 </head>
@@ -1484,7 +1493,7 @@ header .pst-admin-actions-lock .btn.primary {
   <div class="topbar pst-admin-topbar-lock">
     <a class="brand pst-admin-brand-lock" href="admin.html" aria-label="Pep Shop Texas Admin Home">
       <span class="pst-admin-logo-mark">PST</span>
-      <span class="pst-admin-title-lock"><strong>PEP Shop Texas</strong><small>Reports Management</small></span>
+      <span class="pst-admin-title-lock"><strong>PEP Shop Texas</strong><small>Reports & Site Operations</small></span>
     </a>
     <nav class="actions pst-admin-actions-lock" aria-label="Admin navigation">
       <a class="btn secondary" href="admin.html">Orders</a>
@@ -1500,16 +1509,10 @@ header .pst-admin-actions-lock .btn.primary {
 </header>
 
 <main>
-  <section class="page-title">
-    <div>
-      <h1>Reports & Site Operations</h1>
-      <p class="subtitle">Read-only admin hub for quick reports, platform links, and Pep Shop Texas operating notes.</p>
-    </div>
-    <div class="print-actions">
+  <div class="print-actions">
       <a class="btn secondary" id="financialsJumpBtn" href="#financials">Financials / Expenses</a>
       <button class="btn secondary" type="button" onclick="window.print()">Print / Save PDF</button>
     </div>
-  </section>
 
   <div id="statusLine" class="status">Checking admin access...</div>
 
