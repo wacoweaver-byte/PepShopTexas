@@ -480,6 +480,28 @@ async function getCustomerProfile(user) {
   return data || { user_id: user.id, email: user.email };
 }
 
+function accountCustomerName(profile = {}, user = {}) {
+  return [profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.full_name || user.user_metadata?.full_name || user.email || "Customer";
+}
+
+function accountCustomerEmail(profile = {}, user = {}) {
+  return profile.email || user.email || "";
+}
+
+function accountCustomerPhone(profile = {}) {
+  return profile.phone || "";
+}
+
+function accountShippingAddress(profile = {}) {
+  return profile.shipping_address || profile.address || [
+    profile.address1,
+    profile.address2,
+    profile.shipping_city || profile.city,
+    profile.shipping_state || profile.state,
+    profile.shipping_zip || profile.zip
+  ].filter(Boolean).join(", ");
+}
+
 function normalizePaymentMethods(row) {
   let methods = null;
   if (Array.isArray(row)) methods = row;
@@ -553,6 +575,7 @@ async function handleCheckoutSubmit(event) {
 
     const user = await requireUser("cart.html");
     if (!user) return;
+    const profile = await getCustomerProfile(user);
 
     const cart = readCart();
     if (!cart.length) throw new Error("Your cart is empty.");
@@ -575,45 +598,31 @@ async function handleCheckoutSubmit(event) {
     const total = subtotal + shipping + tax - discount;
     const orderNumberValue = await nextOrderNumber();
     const now = new Date().toISOString();
-    const customerName = String(formData.get("customer_name") || "").trim();
-    const customerEmail = String(formData.get("customer_email") || user.email || "").trim();
-    const customerPhone = String(formData.get("customer_phone") || "").trim();
-    const shippingAddressValue = String(formData.get("shipping_address") || "").trim();
+    const customerName = accountCustomerName(profile, user);
+    const customerEmail = accountCustomerEmail(profile, user);
+    const customerPhone = accountCustomerPhone(profile);
+    const shippingAddressValue = accountShippingAddress(profile);
     const customerNotes = String(formData.get("customer_notes") || "").trim();
     const paymentNote = paymentInstructions ? `Payment method selected: ${paymentMethod} | ${paymentInstructions}` : `Payment method selected: ${paymentMethod}`;
 
     const orderPayload = {
       order_number: orderNumberValue,
       user_id: user.id,
-      customer_id: user.id,
       customer_name: customerName,
-      name: customerName,
       customer_email: customerEmail,
-      email: customerEmail,
       customer_phone: customerPhone,
-      phone: customerPhone,
       shipping_address: shippingAddressValue,
-      address: shippingAddressValue,
       status: "pending",
       order_status: "pending",
       payment_status: "pending",
       payment_method: paymentMethod,
-      selected_payment_method: paymentMethod,
       payment_instructions_snapshot: paymentInstructions,
       customer_notes: [customerNotes, paymentNote].filter(Boolean).join("\n\n"),
-      notes: [customerNotes, paymentNote].filter(Boolean).join("\n\n"),
       subtotal,
-      subtotal_amount: subtotal,
       discount,
-      discount_amount: discount,
       shipping,
-      shipping_amount: shipping,
       tax,
-      tax_amount: tax,
       total,
-      total_amount: total,
-      grand_total: total,
-      order_total: total,
       source: "website_cart",
       created_at: now,
       updated_at: now
@@ -624,22 +633,12 @@ async function handleCheckoutSubmit(event) {
       order_id: order.id,
       product_id: product.id,
       product_key: product.product_key,
-      sku: product.product_key,
-      product_sku: product.product_key,
-      item_number: product.product_key,
       product_name: product.display_name,
-      name: product.display_name,
-      display_name: product.display_name,
       product_strength: product.strength || "",
-      strength: product.strength || "",
       product_category: product.category || "",
-      category: product.category || "",
       quantity,
-      qty: quantity,
       unit_price: unitPrice(product),
-      price: unitPrice(product),
       line_total: unitPrice(product) * quantity,
-      total: unitPrice(product) * quantity,
       created_at: now,
       updated_at: now
     }));
@@ -683,6 +682,8 @@ function missingColumnFromError(error, tableName) {
   const patterns = [
     new RegExp(`column\\s+${tableName}\\.([a-zA-Z0-9_]+)\\s+does\\s+not\\s+exist`, "i"),
     new RegExp(`column\\s+\\"?([a-zA-Z0-9_]+)\\"?\\s+of\\s+relation\\s+\\"?${tableName}\\"?\\s+does\\s+not\\s+exist`, "i"),
+    new RegExp(`Could not find the ['"]([a-zA-Z0-9_]+)['"] column of ['"]${tableName}['"]`, "i"),
+    new RegExp(`Could not find ['"]([a-zA-Z0-9_]+)['"] in the schema cache`, "i"),
     /Could not find the ['"]([a-zA-Z0-9_]+)['"] column/i
   ];
   for (const pattern of patterns) {
@@ -695,24 +696,30 @@ function missingColumnFromError(error, tableName) {
 async function insertWithColumnFallback(tableName, payload, selectFields = "*") {
   const client = requireSupabaseClient();
   const working = { ...payload };
-  for (let attempt = 0; attempt < 16; attempt += 1) {
+  const maxAttempts = Object.keys(working).length + 5;
+  const droppedColumns = [];
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const { data, error } = await client.from(tableName).insert(working).select(selectFields).single();
     if (!error) return data;
     const missing = missingColumnFromError(error, tableName);
     if (missing && Object.prototype.hasOwnProperty.call(working, missing)) {
       delete working[missing];
+      droppedColumns.push(missing);
       continue;
     }
     throw error;
   }
-  throw new Error(`Could not submit ${tableName}; too many column mismatches.`);
+  throw new Error(`Could not submit ${tableName}; Supabase kept rejecting columns (${droppedColumns.join(", ")}).`);
 }
 
 async function insertRowsWithColumnFallback(tableName, rows) {
   if (!rows.length) return [];
   const client = requireSupabaseClient();
   let working = rows.map((row) => ({ ...row }));
-  for (let attempt = 0; attempt < 16; attempt += 1) {
+  const columnCount = Object.keys(working[0] || {}).length;
+  const maxAttempts = columnCount + 5;
+  const droppedColumns = [];
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const { data, error } = await client.from(tableName).insert(working).select("*");
     if (!error) return data || [];
     const missing = missingColumnFromError(error, tableName);
@@ -722,11 +729,12 @@ async function insertRowsWithColumnFallback(tableName, rows) {
         delete next[missing];
         return next;
       });
+      droppedColumns.push(missing);
       continue;
     }
     throw error;
   }
-  throw new Error(`Could not submit ${tableName}; too many column mismatches.`);
+  throw new Error(`Could not submit ${tableName}; Supabase kept rejecting columns (${droppedColumns.join(", ")}).`);
 }
 
 async function sendOrderReceivedEmail(order, context = {}) {
@@ -771,10 +779,7 @@ function checkoutFormHtml(rows, context) {
   const methods = context.paymentMethods.length ? context.paymentMethods : enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
   return `
     <form class="checkout-form" data-checkout-form>
-      <label>Contact Name <input name="customer_name" required value="${escapeAttribute(context.name || "")}" autocomplete="name"></label>
-      <label>Email <input name="customer_email" type="email" required value="${escapeAttribute(context.email || "")}" autocomplete="email"></label>
-      <label>Phone <input name="customer_phone" value="${escapeAttribute(context.phone || "")}" autocomplete="tel"></label>
-      <label>Ship To <textarea name="shipping_address" required autocomplete="shipping street-address">${escapeHtml(context.address || "")}</textarea></label>
+      <p class="account-checkout-note">This order will use the contact email and shipping details saved on your account.</p>
       <label>Payment Method <select name="payment_method">${methods.map((method) => `<option value="${escapeAttribute(method.id)}" data-label="${escapeAttribute(method.label)}" data-instructions="${escapeAttribute(paymentInstructionsText(method))}">${escapeHtml(method.label)}</option>`).join("")}</select></label>
       <p class="payment-instructions" data-payment-instructions></p>
       <label>Order Notes <textarea name="customer_notes" placeholder="Optional notes for support"></textarea></label>
