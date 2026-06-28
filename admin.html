@@ -2879,8 +2879,14 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
 
   async function makeEmailPayload(order, type){
     const email = customerEmail(order);
-    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
-    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
+    const noTracking = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
+    const noTrackingReason = cleanValue($("editNoTrackingReason")?.value || order.no_tracking_reason || "");
+    let carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
+    let trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
+    if(type === "order_shipped" && noTracking && (!carrier || !trackingNumber)){
+      carrier = carrier || "No tracking required";
+      trackingNumber = trackingNumber || noTrackingReason || "No tracking required";
+    }
     return {
       type,
       originalType: type,
@@ -2896,7 +2902,11 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       carrier,
       trackingNumber,
       trackingUrl: $("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url),
-      statusNote: type === "order_received" ? (paymentInstructions(order) || customerFacingStatusNote(type)) : customerFacingStatusNote(type),
+      noTrackingRequired: noTracking,
+      no_tracking_required: noTracking,
+      noTrackingReason,
+      no_tracking_reason: noTrackingReason,
+      statusNote: type === "order_shipped" && noTracking ? `No tracking is required for this order${noTrackingReason ? ": " + noTrackingReason : "."}` : (type === "order_received" ? (paymentInstructions(order) || customerFacingStatusNote(type)) : customerFacingStatusNote(type)),
       paymentMethod: paymentMethod(order),
       paymentStatus: paymentStatus(order),
       paymentInstructions: paymentInstructions(order),
@@ -2921,7 +2931,8 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     if(!email){ alert("This order does not have a customer email address."); return; }
     const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
     const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before previewing a shipped email."); return; }
+    const noTracking = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
+    if(type === "order_shipped" && (!carrier || !trackingNumber) && !noTracking){ alert("Carrier and tracking number are required before previewing a shipped email unless No tracking required is checked."); return; }
     setEmailPreviewLoading(email, emailTypeLabel(type));
     setStatus("Generating email preview...");
     try{
@@ -2947,7 +2958,8 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     if(!email){ alert("This order does not have a customer email address."); return; }
     const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
     const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    if(type === "order_shipped" && (!carrier || !trackingNumber)){ alert("Carrier and tracking number are required before sending a shipped email."); return; }
+    const noTracking = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
+    if(type === "order_shipped" && (!carrier || !trackingNumber) && !noTracking){ alert("Carrier and tracking number are required before sending a shipped email unless No tracking required is checked."); return; }
     if(!options.skipPreview && (emailTypeNeedsPreview(type) || options.previewFirst)){
       return openEmailPreview(order, type, automatic);
     }
