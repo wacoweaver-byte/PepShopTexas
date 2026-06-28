@@ -3367,8 +3367,11 @@ async function saveRow(id) {
     blend_stack: data.category === "Stack",
     updated_at: data.updated_at
   };
-  const catalogKey = original._catalog_product_key || original.product_key;
-  const { error: catalogError } = await db.from("product_catalog").update(catalogUpdates).eq("product_key", catalogKey);
+  const catalogKeys = [...new Set([original._catalog_product_key, original.product_key].map(cleanText).filter(Boolean))];
+  const catalogQuery = db.from("product_catalog").update(catalogUpdates);
+  const { error: catalogError } = catalogKeys.length > 1
+    ? await catalogQuery.in("product_key", catalogKeys)
+    : await catalogQuery.eq("product_key", catalogKeys[0] || original.product_key);
   if (catalogError) throw catalogError;
 
   if (movementType && quantityChange !== 0) {
