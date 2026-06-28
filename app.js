@@ -222,7 +222,8 @@ async function renderCatalog() {
     const categories = [...new Set(products.map((p) => p.category).filter(Boolean))].sort();
     searchInput.value = params.get("search") || "";
     categoryFilter.innerHTML = `<option value="">All categories</option>${categories.map((c) => `<option value="${escapeAttribute(c)}">${escapeHtml(c)}</option>`).join("")}`;
-    categoryFilter.value = "";
+    const requestedCategory = params.get("category") || "";
+    categoryFilter.value = categories.includes(requestedCategory) ? requestedCategory : "";
 
     const draw = () => {
       const query = searchInput.value.trim().toLowerCase();
