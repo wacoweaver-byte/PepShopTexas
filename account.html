@@ -842,7 +842,7 @@ function reorder(orderId) {
 
   const cartItems = items.map(item => {
     const productId = item.product_id || "";
-    const isStack = String(productId).startsWith("stack:") || item.product_category === "Stack / Blend";
+    const isStack = String(productId).startsWith("stack:") || item.product_category === "Stack";
     return {
       id: String(productId).startsWith("product:") || String(productId).startsWith("stack:") ? productId : "product:" + productId,
       key: isStack ? undefined : productId,

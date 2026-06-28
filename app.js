@@ -137,7 +137,7 @@ async function renderHome() {
   try {
     const products = await getProducts();
     const hot = products.filter((p) => p.hot_peptide || p.featured);
-    const stacks = products.filter((p) => p.blend_stack || p.category === "Blend");
+    const stacks = products.filter((p) => p.category === "Stack" || p.blend_stack);
     const newest = [...products].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
     fillHomeList("hot", hot.length ? hot : products);
     fillHomeList("stacks", stacks.length ? stacks : products);

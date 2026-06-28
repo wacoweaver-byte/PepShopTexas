@@ -2066,6 +2066,7 @@ let salesByInventoryId = {};
 let movementByInventoryId = {};
 let reorderSalesLoadError = "";
 let productCatalogLabelLookup = null;
+const CATEGORY_OPTIONS = ["Peptide", "Blend", "Stack"];
 
 
 const $ = id => document.getElementById(id);
@@ -2082,6 +2083,12 @@ function esc(v) {
 }
 
 function money(v) { return Number(v || 0).toFixed(2); }
+
+function categoryOptions(current) {
+  const cleanCurrent = cleanText(current);
+  const options = cleanCurrent && !CATEGORY_OPTIONS.includes(cleanCurrent) ? [cleanCurrent, ...CATEGORY_OPTIONS] : CATEGORY_OPTIONS;
+  return `<option value="">Uncategorized</option>` + options.map(category => `<option value="${esc(category)}" ${category === cleanCurrent ? "selected" : ""}>${esc(category)}</option>`).join("");
+}
 
 function cleanText(v) { return String(v ?? "").trim(); }
 function titleCaseName(v) {
@@ -3203,7 +3210,7 @@ function renderTable() {
           <strong>${esc(item.display_name || item.product_key)}</strong>
           <span>${esc(item.product_key)}</span>
         </td>
-        <td><input data-field="category" value="${esc(item.category || "")}"></td>
+        <td><select data-field="category">${categoryOptions(item.category)}</select></td>
         <td><input data-field="strength" value="${esc(item.strength || "")}"></td>
         <td><input class="price" data-field="price" type="number" step="0.01" value="${money(item.price)}"></td>
         <td><input class="num" data-field="current_inventory" type="number" step="1" min="0" value="${Number(item.current_inventory || 0)}"></td>
@@ -3342,12 +3349,25 @@ async function saveRow(id) {
     limited_stock_threshold: Number(data.limited_stock_threshold || 10),
     status_override: data.status_override || null,
     is_active: data.is_active !== false,
+    blend_stack: data.category === "Stack",
     admin_note: note || null,
     updated_at: data.updated_at
   };
 
   const { error } = await db.from("product_inventory").update(updates).eq("id", id);
   if (error) throw error;
+
+  const catalogUpdates = {
+    category: data.category || null,
+    strength: data.strength || null,
+    price: Number(data.price || 0),
+    current_inventory: Number(data.current_inventory || 0),
+    is_active: data.is_active !== false,
+    blend_stack: data.category === "Stack",
+    updated_at: data.updated_at
+  };
+  const { error: catalogError } = await db.from("product_catalog").update(catalogUpdates).eq("product_key", original.product_key);
+  if (catalogError) throw catalogError;
 
   if (movementType && quantityChange !== 0) {
     await logMovement(original, movementType, quantityChange, previousQty, newQty, note);
@@ -3465,7 +3485,7 @@ async function importProductsJson() {
   const rows = products.map(p => ({
     product_key: p.key,
     display_name: p.display || p.key,
-    category: p.category || (p.blendStack ? "Stack / Blend" : "Peptide"),
+    category: p.category || (p.blendStack ? "Stack" : "Peptide"),
     strength: p.strength || null,
     price: Number(p.price || 0),
     current_inventory: Number(p.inventory || 0),
