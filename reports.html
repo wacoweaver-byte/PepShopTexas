@@ -1667,7 +1667,7 @@ header .pst-admin-actions-lock .btn.primary {
     </div>
 
     <div class="card span-4 no-print collapsible-card collapsed" id="inventory-watch-card" style="scroll-margin-top:185px;">
-      <div class="card-header"><h2>Inventory Watch</h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill warn">Needs Review</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="inventory-watch-card" aria-expanded="false">Open</button></div></div>
+      <div class="card-header"><h2>Inventory Watch</h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill warn" id="inventoryWatchBadge" hidden>Needs Review</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="inventory-watch-card" aria-expanded="false">Open</button></div></div>
       <div class="card-body">
         <div class="stat-grid" style="grid-template-columns:1fr;">
           <div class="stat"><strong id="statLowStock">—</strong><span>Low / Limited Stock</span></div>
@@ -2774,6 +2774,7 @@ function renderProductSalesReport(orders){
   const count = $("productSalesCount");
   if (!body) return;
   const rows = productSalesWithInventory(orders);
+  updateInventoryWatchBadge(rows);
   if (count) count.textContent = `${rows.length} product${rows.length === 1 ? "" : "s"} · ${PST_REORDER_LEAD_DAYS}-day lead-time logic`;
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="10" class="muted">No product item rows found for this range.</td></tr>`;
@@ -2796,6 +2797,19 @@ function renderProductSalesReport(orders){
       <td>${riskBadge(row.reorderStatus)}</td>
     </tr>`;
   }).join("");
+}
+
+function updateInventoryWatchBadge(rows){
+  const badge = $("inventoryWatchBadge");
+  if (!badge) return;
+  const leadTimeRisks = (rows || []).filter(row => ["critical","reorder"].includes(row.reorderStatus?.key));
+  badge.hidden = leadTimeRisks.length === 0;
+  badge.textContent = leadTimeRisks.length
+    ? `Needs Review (${leadTimeRisks.length})`
+    : "Needs Review";
+  badge.title = leadTimeRisks.length
+    ? `${leadTimeRisks.length} product${leadTimeRisks.length === 1 ? "" : "s"} projected to run out within the ${PST_REORDER_LEAD_DAYS}-day lead time.`
+    : "";
 }
 
 
