@@ -750,8 +750,8 @@ async function sendOrderReceivedEmail(order, context = {}) {
     const { data: sessionData } = await client.auth.getSession();
     const token = sessionData?.session?.access_token || SUPABASE_KEY;
     const payload = {
-      type: "order_received",
-      originalType: "order_received",
+      type: "order_placed",
+      originalType: "order_placed",
       to: context.customerEmail || order.customer_email || order.email,
       customerName: context.customerName || order.customer_name || order.name || "Customer",
       orderNumber: order.order_number || order.id,

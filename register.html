@@ -195,6 +195,25 @@ registerForm.addEventListener('submit', async (e) => {
       throw error;
     }
 
+    try {
+      await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
+        },
+        body: JSON.stringify({
+          type: 'account_created',
+          to: email,
+          customer_email: email,
+          customer_name: [profileData.first_name, profileData.last_name].filter(Boolean).join(' '),
+          ...profileData
+        })
+      });
+    } catch (emailError) {
+      console.warn('Account created email did not send', emailError);
+    }
+
     showNotice('notice', 'Account created. Check your email to confirm your account, then log in.', 'ok');
     e.target.reset();
   } catch (err) {
