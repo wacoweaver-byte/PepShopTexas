@@ -73,7 +73,6 @@ function requireSupabaseClient() {
 }
 
 async function setupHeaderAuthState() {
-  const adminLinks = document.querySelectorAll("[data-admin-link]");
   const accountLinks = document.querySelectorAll(".main-nav a[href='account.html']");
   if (!pstSupabaseClient) return;
 
@@ -85,7 +84,7 @@ async function setupHeaderAuthState() {
         link.textContent = "LOGIN";
         link.href = `login.html?redirect=${encodeURIComponent(currentPageForRedirect())}`;
       });
-      adminLinks.forEach((link) => { link.hidden = true; });
+      setHeaderAdminLink(false);
       return;
     }
 
@@ -98,10 +97,23 @@ async function setupHeaderAuthState() {
 
     const admin = await getAdminRecordForUser(user);
     const isAdmin = !!admin && (admin.is_active === true || admin.active === true || admin.is_admin === true);
-    adminLinks.forEach((link) => { link.hidden = !isAdmin; });
+    setHeaderAdminLink(isAdmin);
   } catch (error) {
     console.warn("Header account check failed", error);
   }
+}
+
+function setHeaderAdminLink(isAdmin) {
+  document.querySelectorAll("[data-admin-link]").forEach((link) => link.remove());
+  if (!isAdmin) return;
+  document.querySelectorAll(".main-nav").forEach((nav) => {
+    const cartLink = nav.querySelector(".cart-link");
+    const adminLink = document.createElement("a");
+    adminLink.href = "admin.html";
+    adminLink.textContent = "ADMIN";
+    adminLink.dataset.adminLink = "true";
+    nav.insertBefore(adminLink, cartLink || null);
+  });
 }
 
 async function getAdminRecordForUser(user) {
@@ -282,6 +294,8 @@ async function renderCatalog() {
   const grid = document.querySelector("[data-catalog-grid]");
   const searchInput = document.querySelector("[data-catalog-search]");
   const categoryFilter = document.querySelector("[data-category-filter]");
+  const heading = document.querySelector(".page-heading h1");
+  const eyebrow = document.querySelector(".page-heading p");
 
   try {
     const products = await getProducts();
@@ -298,6 +312,7 @@ async function renderCatalog() {
         const haystack = [product.display_name, product.strength, product.category, product.series, product.product_key].filter(Boolean).join(" ").toLowerCase();
         return (!query || haystack.includes(query)) && (!category || product.category === category);
       });
+      updateCatalogHeading({ heading, eyebrow, category, query: searchInput.value.trim(), count: filtered.length });
       grid.innerHTML = filtered.length ? filtered.map(productCard).join("") : `<p class="loading-row">No active products match that filter.</p>`;
       bindCartButtons();
     };
@@ -310,16 +325,25 @@ async function renderCatalog() {
   }
 }
 
+function updateCatalogHeading({ heading, eyebrow, category, query, count }) {
+  if (!heading || !eyebrow) return;
+  const label = category ? `${category}s` : "Peptides A-Z";
+  heading.textContent = query ? `Search: ${query}` : label;
+  eyebrow.textContent = category || query ? `${count} research product${count === 1 ? "" : "s"}` : "Research products";
+}
+
 async function renderProductDetail() {
   const shell = document.querySelector("[data-product-detail]");
   const productKey = params.get("key");
-  if (!productKey) {
-    shell.innerHTML = `<p class="loading-row">No product key was provided.</p>`;
+  const legacyId = params.get("id");
+  const requestedProduct = productKey || legacyId;
+  if (!requestedProduct) {
+    shell.innerHTML = `<p class="loading-row">No product was provided.</p>`;
     return;
   }
 
   try {
-    const product = await getProduct(productKey);
+    const product = productKey ? await getProduct(productKey) : await getLegacyProduct(legacyId);
     document.title = `${productTitle(product)} | PEP Shop Texas`;
     shell.innerHTML = `
       <div class="product-info">
@@ -344,6 +368,21 @@ async function renderProductDetail() {
   } catch (error) {
     shell.innerHTML = `<p class="loading-row">Unable to load product: ${escapeHtml(error.message)}</p>`;
   }
+}
+
+async function getLegacyProduct(value) {
+  const requested = normalizeProductLookup(value);
+  const products = await getProducts();
+  const product = products.find((item) => {
+    const candidates = [item.id, item.product_key, productTitle(item), item.display_name].map(normalizeProductLookup);
+    return candidates.includes(requested);
+  });
+  if (!product) throw new Error("That product link is no longer active. Please browse the catalog.");
+  return product;
+}
+
+function normalizeProductLookup(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 async function renderCartPage() {
