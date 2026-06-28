@@ -545,6 +545,16 @@ function accountFirstName(profile = {}, user = {}) {
   return String(name).trim().split(/\s+/)[0] || "there";
 }
 
+async function accountAdminRecordForUser(user) {
+  const checks = [
+    pstAccountSupabase.from("admin_users").select("*").eq("user_id", user.id).maybeSingle(),
+    pstAccountSupabase.from("admin_users").select("*").eq("email", user.email).maybeSingle()
+  ];
+  const results = await Promise.allSettled(checks);
+  const rows = results.filter((result) => result.status === "fulfilled" && result.value?.data).map((result) => result.value.data);
+  return rows.find((row) => row && (row.is_active === true || row.active === true || row.is_admin === true || row.email === user.email)) || null;
+}
+
 function billingAddressFromProfile(profile) {
   if (!profile) return "—";
   return formatAddress(
@@ -764,14 +774,9 @@ async function loadAccount() {
   const user = session.user;
   pstCurrentUser = user;
 
-  const { data: adminRecord } = await pstAccountSupabase
-    .from("admin_users")
-    .select("user_id,email,is_active,active,is_admin")
-    .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-    .maybeSingle();
-
+  const adminRecord = await accountAdminRecordForUser(user);
   const accountAdminLink = document.getElementById("accountAdminLink");
-  const isAdmin = !!adminRecord && (adminRecord.is_active === true || adminRecord.active === true || adminRecord.is_admin === true);
+  const isAdmin = !!adminRecord && (adminRecord.is_active === true || adminRecord.active === true || adminRecord.is_admin === true || adminRecord.email === user.email);
   if (accountAdminLink) accountAdminLink.style.display = isAdmin ? "inline-block" : "none";
 
   const { data: profile, error: profileError } = await pstAccountSupabase

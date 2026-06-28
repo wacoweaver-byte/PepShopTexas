@@ -96,17 +96,22 @@ async function setupHeaderAuthState() {
       link.href = "account.html";
     });
 
-    const { data: admin } = await pstSupabaseClient
-      .from("admin_users")
-      .select("user_id,email,is_active,active,is_admin")
-      .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-      .maybeSingle();
-
+    const admin = await getAdminRecordForUser(user);
     const isAdmin = !!admin && (admin.is_active === true || admin.active === true || admin.is_admin === true);
     adminLinks.forEach((link) => { link.hidden = !isAdmin; });
   } catch (error) {
     console.warn("Header account check failed", error);
   }
+}
+
+async function getAdminRecordForUser(user) {
+  const checks = [
+    pstSupabaseClient.from("admin_users").select("*").eq("user_id", user.id).maybeSingle(),
+    pstSupabaseClient.from("admin_users").select("*").eq("email", user.email).maybeSingle()
+  ];
+  const results = await Promise.allSettled(checks);
+  const rows = results.filter((result) => result.status === "fulfilled" && result.value?.data).map((result) => result.value.data);
+  return rows.find((row) => row && (row.is_active === true || row.active === true || row.is_admin === true || row.email === user.email)) || null;
 }
 
 function currentPageForRedirect() {
