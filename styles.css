@@ -120,6 +120,16 @@ a { color: inherit; text-decoration: none; }
 .cart-summary h2, .empty-cart h2, .contact-primary h2, .contact-card h2 { margin: 0 0 14px; font-size: 24px; }
 .cart-summary p, .empty-cart p, .contact-primary p, .contact-card p { color: var(--muted); line-height: 1.55; }
 .summary-line { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.checkout-note { margin: 12px 0; font-size: 14px; }
+.checkout-form { display: grid; gap: 12px; margin-top: 14px; }
+.checkout-form label { display: grid; gap: 6px; color: var(--ink); font-size: 13px; font-weight: 800; }
+.checkout-form input, .checkout-form select, .checkout-form textarea { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; }
+.checkout-form input, .checkout-form select { height: 42px; padding: 0 12px; }
+.checkout-form textarea { min-height: 78px; resize: vertical; padding: 10px 12px; line-height: 1.35; }
+.payment-instructions { margin: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #f7f9fb; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.checkout-status { min-height: 20px; margin: 0; color: var(--muted); font-size: 13px; font-weight: 800; }
+.checkout-status.good { color: #0f6b3d; }
+.checkout-status.bad { color: var(--red); }
 .contact-shell { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 24px; }
 .faq-shell { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .faq-card { min-width: 0; padding: 22px; background: rgba(255,255,255,.96); border: 1px solid #e1e5eb; border-radius: 8px; box-shadow: 0 10px 28px rgba(18,26,38,.10); }

@@ -4,6 +4,18 @@ const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,is_active,starts_at,ends_at,sort_order,accent_color";
+const EMAIL_FUNCTION_NAME = "send-order-email";
+const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
+const PAYMENT_LEGACY_STORAGE_KEY = "pst_payment_options_v1";
+const DEFAULT_PAYMENT_METHODS = [
+  { id:"pending", label:"Payment pending", enabled:true, account:"", instructions:"Your order will be reviewed and payment instructions will be confirmed before processing." },
+  { id:"venmo", label:"Venmo", enabled:false, account:"", instructions:"Please include your order number in the Venmo note. Your order will remain pending until payment is verified." },
+  { id:"zelle", label:"Zelle", enabled:false, account:"", instructions:"Please send payment by Zelle and include your order number if possible. Your order will remain pending until payment is verified." },
+  { id:"bitcoin", label:"Bitcoin", enabled:false, account:"", instructions:"Send the exact order total. Your order will remain pending until the transaction is confirmed." },
+  { id:"credit_card", label:"Credit Card", enabled:false, account:"", instructions:"Credit card payment instructions will be provided after order review. Your order will remain pending until payment is verified." },
+  { id:"apple_pay", label:"Apple Pay", enabled:false, account:"", instructions:"Send payment using Apple Cash / Apple Pay and include your order number. Your order will remain pending until payment is verified." },
+  { id:"google_pay", label:"Google Pay", enabled:false, account:"", instructions:"Send payment using Google Pay and include your order number. Your order will remain pending until payment is verified." }
+];
 
 let pstSupabaseClient = null;
 const params = new URLSearchParams(window.location.search);
@@ -315,14 +327,15 @@ async function renderCartPage() {
   }
 
   try {
-    const products = await getProducts();
+    const [products, user, paymentMethods] = await Promise.all([getProducts(), getSignedInUser(), getPaymentMethods()]);
+    const profile = user ? await getCustomerProfile(user) : null;
     const rows = cart.map((item) => {
       const product = products.find((p) => p.product_key === item.key);
       return product ? { product, quantity: item.quantity } : null;
     }).filter(Boolean);
 
     itemsNode.innerHTML = rows.map(cartRow).join("");
-    summaryNode.innerHTML = summaryHtml(rows);
+    summaryNode.innerHTML = summaryHtml(rows, { user, profile, paymentMethods });
     bindCartPageButtons();
   } catch (error) {
     itemsNode.innerHTML = `<p class="loading-row">Unable to load cart: ${escapeHtml(error.message)}</p>`;
@@ -362,6 +375,19 @@ function bindCartPageButtons() {
   document.querySelectorAll("[data-remove-cart]").forEach((button) => {
     button.addEventListener("click", () => setCartQuantity(button.dataset.removeCart, 0));
   });
+  const form = document.querySelector("[data-checkout-form]");
+  if (form) {
+    form.addEventListener("submit", handleCheckoutSubmit);
+    const select = form.querySelector("[name='payment_method']");
+    const instructions = form.querySelector("[data-payment-instructions]");
+    const syncPaymentInstructions = () => {
+      const option = select?.selectedOptions?.[0];
+      const text = option?.dataset?.instructions || "";
+      if (instructions) instructions.textContent = text;
+    };
+    select?.addEventListener("change", syncPaymentInstructions);
+    syncPaymentInstructions();
+  }
 }
 
 function addToCart(key, quantity) {
@@ -408,21 +434,354 @@ function cartRow({ product, quantity }) {
   `;
 }
 
-function summaryHtml(rows) {
+function summaryHtml(rows, context = {}) {
   const subtotal = rows.reduce((sum, row) => sum + unitPrice(row.product) * row.quantity, 0);
-  const body = encodeURIComponent(orderEmailBody(rows, subtotal));
+  const profile = context.profile || {};
+  const user = context.user || null;
+  const paymentMethods = context.paymentMethods || enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
+  const name = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.full_name || "";
+  const email = profile.email || user?.email || "";
+  const phone = profile.phone || "";
+  const address = profile.shipping_address || profile.address || [profile.address1, profile.address2, profile.shipping_city || profile.city, profile.shipping_state || profile.state, profile.shipping_zip || profile.zip].filter(Boolean).join(", ");
   return `
     <h2>Order Summary</h2>
     <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div>
-    <p>Checkout is not connected yet. Use this cart to prepare the order, then send it to support.</p>
-    <a class="primary-action ${rows.length ? "" : "disabled"}" href="mailto:${SUPPORT_EMAIL}?subject=PEP%20Shop%20Texas%20Order&body=${body}">Email Order</a>
+    <p class="checkout-note">Submit your order to PEP Shop Texas. It will appear in Order Management for review and payment confirmation.</p>
+    ${user ? checkoutFormHtml(rows, { name, email, phone, address, paymentMethods }) : `
+      <p class="checkout-note">Log in or create an account before placing an order so it can be saved to your account.</p>
+      <a class="primary-action ${rows.length ? "" : "disabled"}" href="login.html?redirect=cart.html">Log In to Checkout</a>
+      <a class="secondary-action" href="register.html">Create Account</a>
+    `}
   `;
 }
 
-function orderEmailBody(rows, subtotal) {
-  if (!rows.length) return "Cart is empty.";
-  const lines = rows.map(({ product, quantity }) => `${quantity} x ${productTitle(product)} (${product.product_key}) - ${formatMoney(unitPrice(product) * quantity)}`);
-  return [`Research product order request:`, "", ...lines, "", `Subtotal: ${formatMoney(subtotal)}`].join("\n");
+async function getSignedInUser() {
+  if (!pstSupabaseClient) return null;
+  try {
+    const { data } = await pstSupabaseClient.auth.getUser();
+    return data?.user || null;
+  } catch {
+    return null;
+  }
+}
+
+async function getCustomerProfile(user) {
+  if (!user) return null;
+  const client = requireSupabaseClient();
+  const { data, error } = await client
+    .from("customer_profiles")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (error) {
+    console.warn("Customer profile unavailable", error);
+    return { user_id: user.id, email: user.email };
+  }
+  return data || { user_id: user.id, email: user.email };
+}
+
+function normalizePaymentMethods(row) {
+  let methods = null;
+  if (Array.isArray(row)) methods = row;
+  else if (row && Array.isArray(row.payment_methods)) methods = row.payment_methods;
+  else if (row?.payment_methods && typeof row.payment_methods === "string") {
+    try { methods = JSON.parse(row.payment_methods); } catch {}
+  }
+
+  const defaults = DEFAULT_PAYMENT_METHODS.map((method) => ({ ...method }));
+  const byId = Object.fromEntries(defaults.map((method) => [method.id, method]));
+  (methods || []).forEach((method) => {
+    const id = String(method.id || method.key || "").trim();
+    if (!id || !byId[id]) return;
+    byId[id] = {
+      ...byId[id],
+      ...method,
+      enabled: method.enabled === true || String(method.enabled || "").toLowerCase() === "true",
+      account: String(method.account || method.handle || method.wallet || method.value || "").trim(),
+      instructions: String(method.instructions || method.note || method.notes || byId[id].instructions || "").trim()
+    };
+  });
+  return defaults.map((method) => byId[method.id]);
+}
+
+function enabledPaymentMethods(methods) {
+  const enabled = normalizePaymentMethods(methods).filter((method) => method.enabled);
+  return enabled.length ? enabled : [DEFAULT_PAYMENT_METHODS[0]];
+}
+
+async function getPaymentMethods() {
+  let settings = DEFAULT_PAYMENT_METHODS.map((method) => ({ ...method }));
+  try {
+    const local = localStorage.getItem(PAYMENT_OPTIONS_STORAGE_KEY) || localStorage.getItem(PAYMENT_LEGACY_STORAGE_KEY);
+    if (local) settings = normalizePaymentMethods(JSON.parse(local));
+  } catch {}
+
+  try {
+    const client = requireSupabaseClient();
+    const { data, error } = await client
+      .from("site_payment_options")
+      .select("payment_methods, venmo_enabled, venmo_handle, venmo_note")
+      .eq("id", 1)
+      .maybeSingle();
+    if (!error && data) settings = normalizePaymentMethods(data);
+  } catch (error) {
+    console.warn("Payment methods unavailable", error);
+  }
+
+  return enabledPaymentMethods(settings);
+}
+
+function paymentInstructionsText(method = {}) {
+  const accountLine = method.account ? `${method.accountLabel || "Send payment to"}: ${method.account}` : "";
+  return [accountLine, method.instructions || ""].filter(Boolean).join(" | ");
+}
+
+async function handleCheckoutSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = form.querySelector("[data-checkout-status]");
+  const button = form.querySelector("button[type='submit']");
+  const setStatus = (message, tone = "") => {
+    if (!status) return;
+    status.textContent = message;
+    status.className = `checkout-status ${tone}`.trim();
+  };
+
+  try {
+    if (button) { button.disabled = true; button.textContent = "Submitting..."; }
+    setStatus("Submitting order...");
+
+    const user = await requireUser("cart.html");
+    if (!user) return;
+
+    const cart = readCart();
+    if (!cart.length) throw new Error("Your cart is empty.");
+
+    const products = await getProducts();
+    const rows = cart.map((item) => {
+      const product = products.find((p) => p.product_key === item.key);
+      return product ? { product, quantity: Number(item.quantity || 1) } : null;
+    }).filter(Boolean);
+    if (!rows.length) throw new Error("The products in your cart are no longer available.");
+
+    const formData = new FormData(form);
+    const selectedOption = form.querySelector("[name='payment_method']")?.selectedOptions?.[0];
+    const paymentMethod = selectedOption?.dataset?.label || String(formData.get("payment_method") || "Payment pending");
+    const paymentInstructions = selectedOption?.dataset?.instructions || "";
+    const subtotal = rows.reduce((sum, row) => sum + unitPrice(row.product) * row.quantity, 0);
+    const shipping = 0;
+    const tax = 0;
+    const discount = 0;
+    const total = subtotal + shipping + tax - discount;
+    const orderNumberValue = await nextOrderNumber();
+    const now = new Date().toISOString();
+    const customerName = String(formData.get("customer_name") || "").trim();
+    const customerEmail = String(formData.get("customer_email") || user.email || "").trim();
+    const customerPhone = String(formData.get("customer_phone") || "").trim();
+    const shippingAddressValue = String(formData.get("shipping_address") || "").trim();
+    const customerNotes = String(formData.get("customer_notes") || "").trim();
+    const paymentNote = paymentInstructions ? `Payment method selected: ${paymentMethod} | ${paymentInstructions}` : `Payment method selected: ${paymentMethod}`;
+
+    const orderPayload = {
+      order_number: orderNumberValue,
+      user_id: user.id,
+      customer_id: user.id,
+      customer_name: customerName,
+      name: customerName,
+      customer_email: customerEmail,
+      email: customerEmail,
+      customer_phone: customerPhone,
+      phone: customerPhone,
+      shipping_address: shippingAddressValue,
+      address: shippingAddressValue,
+      status: "pending",
+      order_status: "pending",
+      payment_status: "pending",
+      payment_method: paymentMethod,
+      selected_payment_method: paymentMethod,
+      payment_instructions_snapshot: paymentInstructions,
+      customer_notes: [customerNotes, paymentNote].filter(Boolean).join("\n\n"),
+      notes: [customerNotes, paymentNote].filter(Boolean).join("\n\n"),
+      subtotal,
+      subtotal_amount: subtotal,
+      discount,
+      discount_amount: discount,
+      shipping,
+      shipping_amount: shipping,
+      tax,
+      tax_amount: tax,
+      total,
+      total_amount: total,
+      grand_total: total,
+      order_total: total,
+      source: "website_cart",
+      created_at: now,
+      updated_at: now
+    };
+
+    const order = await insertWithColumnFallback("orders", orderPayload, "*");
+    const itemPayloads = rows.map(({ product, quantity }) => ({
+      order_id: order.id,
+      product_id: product.id,
+      product_key: product.product_key,
+      sku: product.product_key,
+      product_sku: product.product_key,
+      item_number: product.product_key,
+      product_name: product.display_name,
+      name: product.display_name,
+      display_name: product.display_name,
+      product_strength: product.strength || "",
+      strength: product.strength || "",
+      product_category: product.category || "",
+      category: product.category || "",
+      quantity,
+      qty: quantity,
+      unit_price: unitPrice(product),
+      price: unitPrice(product),
+      line_total: unitPrice(product) * quantity,
+      total: unitPrice(product) * quantity,
+      created_at: now,
+      updated_at: now
+    }));
+
+    await insertRowsWithColumnFallback("order_items", itemPayloads);
+    await sendOrderReceivedEmail({ ...order, items: itemPayloads }, { customerName, customerEmail, paymentMethod, paymentInstructions });
+
+    writeCart([]);
+    setStatus(`Order ${order.order_number || orderNumberValue} submitted. It is now in Order Management.`, "good");
+    form.innerHTML = `
+      <h3>Order Submitted</h3>
+      <p class="checkout-status good">Order ${escapeHtml(order.order_number || orderNumberValue)} is now in Order Management.</p>
+      <a class="primary-action" href="account.html">View My Account</a>
+    `;
+    const itemsNode = document.querySelector("[data-cart-items]");
+    if (itemsNode) itemsNode.innerHTML = `<div class="empty-cart"><h2>Order submitted</h2><p>Your cart has been cleared.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>`;
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "Could not submit order.", "bad");
+    if (button) { button.disabled = false; button.textContent = "Place Order"; }
+  }
+}
+
+async function nextOrderNumber() {
+  const client = requireSupabaseClient();
+  const { data } = await client
+    .from("orders")
+    .select("order_number,created_at")
+    .like("order_number", "PST-O%")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  const max = (data || []).reduce((highest, row) => {
+    const match = String(row.order_number || "").match(/^PST-O(\d+)$/i);
+    return match ? Math.max(highest, Number(match[1])) : highest;
+  }, 100000);
+  return `PST-O${String(max + 1).padStart(6, "0")}`;
+}
+
+function missingColumnFromError(error, tableName) {
+  const msg = String(error?.message || error || "");
+  const patterns = [
+    new RegExp(`column\\s+${tableName}\\.([a-zA-Z0-9_]+)\\s+does\\s+not\\s+exist`, "i"),
+    new RegExp(`column\\s+\\"?([a-zA-Z0-9_]+)\\"?\\s+of\\s+relation\\s+\\"?${tableName}\\"?\\s+does\\s+not\\s+exist`, "i"),
+    /Could not find the ['"]([a-zA-Z0-9_]+)['"] column/i
+  ];
+  for (const pattern of patterns) {
+    const match = msg.match(pattern);
+    if (match?.[1]) return match[1];
+  }
+  return "";
+}
+
+async function insertWithColumnFallback(tableName, payload, selectFields = "*") {
+  const client = requireSupabaseClient();
+  const working = { ...payload };
+  for (let attempt = 0; attempt < 16; attempt += 1) {
+    const { data, error } = await client.from(tableName).insert(working).select(selectFields).single();
+    if (!error) return data;
+    const missing = missingColumnFromError(error, tableName);
+    if (missing && Object.prototype.hasOwnProperty.call(working, missing)) {
+      delete working[missing];
+      continue;
+    }
+    throw error;
+  }
+  throw new Error(`Could not submit ${tableName}; too many column mismatches.`);
+}
+
+async function insertRowsWithColumnFallback(tableName, rows) {
+  if (!rows.length) return [];
+  const client = requireSupabaseClient();
+  let working = rows.map((row) => ({ ...row }));
+  for (let attempt = 0; attempt < 16; attempt += 1) {
+    const { data, error } = await client.from(tableName).insert(working).select("*");
+    if (!error) return data || [];
+    const missing = missingColumnFromError(error, tableName);
+    if (missing && working.some((row) => Object.prototype.hasOwnProperty.call(row, missing))) {
+      working = working.map((row) => {
+        const next = { ...row };
+        delete next[missing];
+        return next;
+      });
+      continue;
+    }
+    throw error;
+  }
+  throw new Error(`Could not submit ${tableName}; too many column mismatches.`);
+}
+
+async function sendOrderReceivedEmail(order, context = {}) {
+  try {
+    const client = requireSupabaseClient();
+    const { data: sessionData } = await client.auth.getSession();
+    const token = sessionData?.session?.access_token || SUPABASE_KEY;
+    const payload = {
+      type: "order_received",
+      originalType: "order_received",
+      to: context.customerEmail || order.customer_email || order.email,
+      customerName: context.customerName || order.customer_name || order.name || "Customer",
+      orderNumber: order.order_number || order.id,
+      orderDate: order.created_at,
+      subtotal: order.subtotal ?? order.subtotal_amount ?? 0,
+      discount: order.discount ?? order.discount_amount ?? 0,
+      shipping: order.shipping ?? order.shipping_amount ?? 0,
+      tax: order.tax ?? order.tax_amount ?? 0,
+      total: order.total ?? order.total_amount ?? order.grand_total ?? 0,
+      statusNote: context.paymentInstructions || "Your order has been received and is pending payment/processing.",
+      paymentMethod: context.paymentMethod || order.payment_method || "Payment pending",
+      paymentStatus: order.payment_status || "pending",
+      paymentInstructions: context.paymentInstructions || order.payment_instructions_snapshot || "",
+      items: (order.items || []).map((item) => ({
+        name: item.product_name || item.name || item.product_key || "Item",
+        quantity: item.quantity || item.qty || 1,
+        price: item.unit_price || item.price || 0,
+        total: item.line_total || item.total || null
+      }))
+    };
+    await fetch(`${SUPABASE_URL}/functions/v1/${EMAIL_FUNCTION_NAME}`, {
+      method: "POST",
+      headers: { "Content-Type":"application/json", "Authorization":`Bearer ${token}` },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    console.warn("Order received email did not send", error);
+  }
+}
+
+function checkoutFormHtml(rows, context) {
+  const methods = context.paymentMethods.length ? context.paymentMethods : enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
+  return `
+    <form class="checkout-form" data-checkout-form>
+      <label>Contact Name <input name="customer_name" required value="${escapeAttribute(context.name || "")}" autocomplete="name"></label>
+      <label>Email <input name="customer_email" type="email" required value="${escapeAttribute(context.email || "")}" autocomplete="email"></label>
+      <label>Phone <input name="customer_phone" value="${escapeAttribute(context.phone || "")}" autocomplete="tel"></label>
+      <label>Ship To <textarea name="shipping_address" required autocomplete="shipping street-address">${escapeHtml(context.address || "")}</textarea></label>
+      <label>Payment Method <select name="payment_method">${methods.map((method) => `<option value="${escapeAttribute(method.id)}" data-label="${escapeAttribute(method.label)}" data-instructions="${escapeAttribute(paymentInstructionsText(method))}">${escapeHtml(method.label)}</option>`).join("")}</select></label>
+      <p class="payment-instructions" data-payment-instructions></p>
+      <label>Order Notes <textarea name="customer_notes" placeholder="Optional notes for support"></textarea></label>
+      <button class="primary-action" type="submit" ${rows.length ? "" : "disabled"}>Place Order</button>
+      <p class="checkout-status" data-checkout-status></p>
+    </form>
+  `;
 }
 
 function productUrl(product) {
