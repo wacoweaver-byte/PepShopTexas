@@ -2086,8 +2086,9 @@ function money(v) { return Number(v || 0).toFixed(2); }
 
 function categoryOptions(current) {
   const cleanCurrent = cleanText(current);
-  const options = cleanCurrent && !CATEGORY_OPTIONS.includes(cleanCurrent) ? [cleanCurrent, ...CATEGORY_OPTIONS] : CATEGORY_OPTIONS;
-  return `<option value="">Uncategorized</option>` + options.map(category => `<option value="${esc(category)}" ${category === cleanCurrent ? "selected" : ""}>${esc(category)}</option>`).join("");
+  const selected = cleanCurrent || "Peptide";
+  const options = selected && !CATEGORY_OPTIONS.includes(selected) ? [selected, ...CATEGORY_OPTIONS] : CATEGORY_OPTIONS;
+  return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category)}</option>`).join("");
 }
 
 function cleanText(v) { return String(v ?? "").trim(); }
@@ -2225,7 +2226,7 @@ function mergeInventoryCatalogLabel(item) {
     _catalog_strength: catalog.strength || item.strength || null,
     display_name: catalog.display_name || item.display_name,
     strength: catalog.strength || item.strength,
-    category: catalog.category || item.category,
+    category: item.category || catalog.category,
     is_active: catalog.is_active !== false && item.is_active !== false,
   };
 }
@@ -3366,7 +3367,8 @@ async function saveRow(id) {
     blend_stack: data.category === "Stack",
     updated_at: data.updated_at
   };
-  const { error: catalogError } = await db.from("product_catalog").update(catalogUpdates).eq("product_key", original.product_key);
+  const catalogKey = original._catalog_product_key || original.product_key;
+  const { error: catalogError } = await db.from("product_catalog").update(catalogUpdates).eq("product_key", catalogKey);
   if (catalogError) throw catalogError;
 
   if (movementType && quantityChange !== 0) {

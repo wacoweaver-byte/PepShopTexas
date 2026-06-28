@@ -203,8 +203,9 @@
 
     function categoryOptions(current) {
       const cleanCurrent = String(current || "").trim();
-      const options = cleanCurrent && !CATEGORY_OPTIONS.includes(cleanCurrent) ? [cleanCurrent, ...CATEGORY_OPTIONS] : CATEGORY_OPTIONS;
-      return `<option value="">Uncategorized</option>${options.map(category => `<option value="${esc(category)}" ${category === cleanCurrent ? "selected" : ""}>${esc(category)}</option>`).join("")}`;
+      const selected = cleanCurrent || "Peptide";
+      const options = selected && !CATEGORY_OPTIONS.includes(selected) ? [selected, ...CATEGORY_OPTIONS] : CATEGORY_OPTIONS;
+      return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category)}</option>`).join("");
     }
 
     function renderEditor() {
