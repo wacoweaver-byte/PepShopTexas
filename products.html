@@ -55,6 +55,15 @@
     .check { display: flex; align-items: center; gap: 8px; color: var(--dark); text-transform: none; letter-spacing: 0; }
     .check input { width: 18px; min-height: 18px; }
     .empty { padding: 28px; color: var(--muted); text-align: center; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(3,6,10,.62); }
+    .modal-backdrop.open { display: flex; }
+    .modal { width: min(560px, 100%); max-height: calc(100vh - 36px); overflow: auto; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 22px 70px rgba(3,6,10,.32); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid var(--border); }
+    .modal-header h2 { margin: 0; font-size: 22px; }
+    .modal-body { padding: 16px; }
+    .generated-id { display: grid; gap: 4px; padding: 12px; background: #f7f9fb; border: 1px solid var(--border); border-radius: 10px; }
+    .generated-id span { color: var(--muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+    .generated-id strong { font-size: 24px; letter-spacing: .04em; }
     @media (max-width: 1050px) { .grid, .toolbar { grid-template-columns: 1fr; } .topbar { align-items: flex-start; flex-direction: column; } .actions { justify-content: flex-start; } }
   </style>
 <style id="pst-admin-header-unified-v1">
@@ -203,10 +212,42 @@ header .pst-admin-actions-lock .btn.primary {
 
   <main>
     <div class="admin-page-actions">
-      <button class="btn" type="button" id="refreshBtn">Refresh</button>
+      <button class="btn" type="button" id="newProductBtn">Add Product</button>
+      <button class="btn secondary" type="button" id="refreshBtn">Refresh</button>
     </div>
 
     <div id="status" class="status">Checking admin access...</div>
+
+    <div class="modal-backdrop" id="newProductModal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="newProductTitle">
+        <div class="modal-header">
+          <h2 id="newProductTitle">Add Product</h2>
+          <button class="btn secondary" type="button" id="closeNewProductBtn">Close</button>
+        </div>
+        <div class="modal-body">
+          <form id="newProductForm">
+            <div class="edit-grid">
+              <div class="generated-id full"><span>New item number</span><strong id="newProductKeyPreview">PSTP100001</strong></div>
+              <label>What is it?<select name="category" id="newProductCategory"></select></label>
+              <label>Product Name<input name="display_name" required placeholder="AOD-9604"></label>
+              <label>Dose<input name="strength" placeholder="10 mg"></label>
+              <label>Starting Quantity<input name="current_inventory" type="number" min="0" step="1" value="0"></label>
+              <label>Price<input name="price" type="number" min="0" step="0.01" value="0.00"></label>
+              <label class="full">Description<textarea name="description" placeholder="Optional customer-facing description"></textarea></label>
+              <div class="full checks">
+                <label class="check"><input name="is_active" type="checkbox" checked> Visible to customers</label>
+                <label class="check"><input name="featured" type="checkbox"> Featured</label>
+                <label class="check"><input name="hot_peptide" type="checkbox"> Hot peptide</label>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+              <button class="btn success" type="submit">Create Product</button>
+              <button class="btn secondary" type="button" id="cancelNewProductBtn">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <section class="grid" id="adminGrid" style="display:none;">
       <article class="card">
@@ -333,6 +374,110 @@ header .pst-admin-actions-lock .btn.primary {
       return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category)}</option>`).join("");
     }
 
+    function nextProductNumber() {
+      const maxExisting = products.reduce((max, product) => {
+        const match = String(product.product_key || "").match(/^PSTP(\d+)$/i);
+        return match ? Math.max(max, Number(match[1])) : max;
+      }, 100000);
+      return `PSTP${String(maxExisting + 1).padStart(6, "0")}`;
+    }
+
+    function openNewProductModal() {
+      const modal = $("newProductModal");
+      const form = $("newProductForm");
+      if (!modal || !form) return;
+      form.reset();
+      form.elements.category.innerHTML = CATEGORY_OPTIONS.map(category => `<option value="${esc(category)}">${esc(category)}</option>`).join("");
+      form.elements.current_inventory.value = "0";
+      form.elements.price.value = "0.00";
+      form.elements.is_active.checked = true;
+      $("newProductKeyPreview").textContent = nextProductNumber();
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+      form.elements.category.focus();
+    }
+
+    function closeNewProductModal() {
+      const modal = $("newProductModal");
+      if (!modal) return;
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    async function createProduct(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const productKey = nextProductNumber();
+      const category = form.elements.category.value.trim() || "Peptide";
+      const displayName = form.elements.display_name.value.trim();
+      const strength = form.elements.strength.value.trim() || null;
+      const currentInventory = Number(form.elements.current_inventory.value || 0);
+      const price = Number(form.elements.price.value || 0);
+      const now = new Date().toISOString();
+
+      if (!displayName) {
+        setStatus("Product name is required.", "bad");
+        return;
+      }
+
+      const catalogPayload = {
+        product_key: productKey,
+        display_name: displayName,
+        sort_name: displayName,
+        strength,
+        category,
+        description: form.elements.description.value.trim() || null,
+        research_notes: null,
+        testing_statement: null,
+        price,
+        current_inventory: currentInventory,
+        is_active: form.elements.is_active.checked,
+        featured: form.elements.featured.checked,
+        blend_stack: category === "Stack",
+        hot_peptide: form.elements.hot_peptide.checked,
+        sale_enabled: false,
+        sale_price: null,
+        sale_label: null,
+        created_at: now,
+        updated_at: now
+      };
+
+      setStatus(`Creating ${productKey}...`);
+      const { data, error } = await db.from("product_catalog").insert(catalogPayload).select(PRODUCT_FIELDS).single();
+      if (error) {
+        setStatus(error.message || "Product could not be created.", "bad");
+        return;
+      }
+
+      const inventoryPayload = {
+        product_key: productKey,
+        display_name: displayName,
+        category,
+        strength,
+        price,
+        current_inventory: currentInventory,
+        low_stock_threshold: 5,
+        limited_stock_threshold: 10,
+        is_active: form.elements.is_active.checked,
+        featured: form.elements.featured.checked,
+        blend_stack: category === "Stack",
+        updated_at: now
+      };
+      const { error: inventoryError } = await db.from("product_inventory").upsert(inventoryPayload, { onConflict: "product_key" });
+      if (inventoryError) {
+        setStatus(`${productKey} was created in catalog, but inventory sync failed: ${inventoryError.message}`, "bad");
+      } else {
+        setStatus(`${productKey} created.`, "good");
+      }
+
+      products = [...products, data].sort((a, b) => String(a.sort_name || a.display_name || "").localeCompare(String(b.sort_name || b.display_name || "")));
+      activeProduct = data;
+      closeNewProductModal();
+      populateCategories();
+      renderRows();
+      renderEditor();
+    }
+
     function renderEditor() {
       if (!activeProduct) return;
       $("editorTitle").textContent = activeProduct.display_name || "Edit Product";
@@ -405,6 +550,13 @@ header .pst-admin-actions-lock .btn.primary {
 
     $("searchInput").addEventListener("input", renderRows);
     $("categoryFilter").addEventListener("change", renderRows);
+    $("newProductBtn").addEventListener("click", openNewProductModal);
+    $("closeNewProductBtn").addEventListener("click", closeNewProductModal);
+    $("cancelNewProductBtn").addEventListener("click", closeNewProductModal);
+    $("newProductModal").addEventListener("click", (event) => {
+      if (event.target.id === "newProductModal") closeNewProductModal();
+    });
+    $("newProductForm").addEventListener("submit", createProduct);
     $("refreshBtn").addEventListener("click", loadProducts);
     $("logoutBtn")?.addEventListener("click", async () => { await db.auth.signOut(); window.location.href = "login.html"; });
 
