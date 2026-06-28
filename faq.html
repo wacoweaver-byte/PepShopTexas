@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FAQ | PEP Shop Texas</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#bd0000">
+  <link rel="stylesheet" href="styles.css?v=12">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js?v=12"></script>
+</head>
+<body>
+  <header class="site-header compact-header">
+    <a class="brand" href="index.html" aria-label="PEP Shop Texas home"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
+    <nav class="main-nav">
+      <a href="catalog.html">PEPTIDES A-Z</a>
+      <a href="catalog.html?category=Stack">TOP STACKS</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">CONTACT</a>
+      <a href="account.html">ACCOUNT</a>
+      <a href="admin.html">ADMIN</a>
+      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
+    </nav>
+    <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
+      <input name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
+    </form>
+  </header>
+
+  <main class="faq-page">
+    <section class="page-heading">
+      <p>Support</p>
+      <h1>FAQ</h1>
+    </section>
+
+    <section class="faq-shell" aria-label="Frequently asked questions">
+      <article class="faq-card">
+        <h2>Are these products for human consumption?</h2>
+        <p>No. Products are listed for laboratory research use only and are not for human consumption, diagnostic use, or therapeutic use.</p>
+      </article>
+      <article class="faq-card">
+        <h2>Where can I browse products?</h2>
+        <p>Use the Peptides A-Z catalog to view all active products, or Top Stacks to see products categorized as stacks.</p>
+        <div class="faq-actions">
+          <a href="catalog.html">Peptides A-Z</a>
+          <a href="catalog.html?category=Stack">Top Stacks</a>
+        </div>
+      </article>
+      <article class="faq-card">
+        <h2>How do I contact support?</h2>
+        <p>Email support for order questions, product questions, or account help.</p>
+        <div class="faq-actions"><a href="mailto:support@pepshoptexas.com">support@pepshoptexas.com</a></div>
+      </article>
+      <article class="faq-card">
+        <h2>How do I view my account?</h2>
+        <p>Log in to your account page to view profile details, account security, and order information when available.</p>
+        <div class="faq-actions"><a href="account.html">My Account</a></div>
+      </article>
+      <article class="faq-card">
+        <h2>How are promotions handled?</h2>
+        <p>Active promotions may appear on the homepage and can be managed from the admin promotions area.</p>
+      </article>
+      <article class="faq-card">
+        <h2>Do you ship orders?</h2>
+        <p>Shipping information is provided during order handling. For help with a specific order, contact support.</p>
+        <div class="faq-actions"><a href="shipping.html">Shipping Info</a></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="trust-bar">
+    <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
+    <div><span><strong>QUALITY</strong>Third-party tested</span></div>
+    <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
+    <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
+  </footer>
+</body>
+</html>
