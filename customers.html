@@ -1989,6 +1989,50 @@ header .pst-admin-actions-lock .btn.primary {
   box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
 }
 </style>
+<style id="pst-admin-red-button-overrides">
+:root {
+  --blue: #bd0000 !important;
+  --pst-blue: #bd0000 !important;
+  --pst-admin-blue: #bd0000 !important;
+  --pst-admin-accent: #bd0000 !important;
+}
+header .actions .btn.active,
+header .actions .btn.primary,
+header .header-actions .btn.active,
+header .header-actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+.admin-dashboard-nav .btn.active,
+.admin-dashboard-nav .btn[aria-pressed="true"],
+.inventory-jump-link.active,
+.inventory-jump-link[aria-pressed="true"],
+.inventory-collapse-toggle.active,
+.inventory-collapse-toggle[aria-expanded="true"],
+.collapse-toggle.active,
+.collapse-toggle[aria-expanded="true"],
+.reports-jumpbar a.active,
+.reports-jumpbar a[aria-pressed="true"],
+.btn.primary,
+.btn.active,
+.btn[aria-pressed="true"],
+.btn.secondary.active,
+button.btn.primary,
+a.btn.primary {
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
+  color: #ffffff !important;
+}
+.btn:not(.secondary):not(.danger):not(.success):not(.warning) {
+  background-color: #bd0000;
+  border-color: #bd0000;
+  color: #ffffff;
+}
+button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
+  background-color: #bd0000;
+  border-color: #bd0000;
+  color: #ffffff;
+}
+</style>
 </head>
 <body>
 <header>

@@ -2618,6 +2618,50 @@ header .pst-admin-actions-lock .btn.primary {
   }
 }
 </style>
+<style id="pst-admin-red-button-overrides">
+:root {
+  --blue: #bd0000 !important;
+  --pst-blue: #bd0000 !important;
+  --pst-admin-blue: #bd0000 !important;
+  --pst-admin-accent: #bd0000 !important;
+}
+header .actions .btn.active,
+header .actions .btn.primary,
+header .header-actions .btn.active,
+header .header-actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+.admin-dashboard-nav .btn.active,
+.admin-dashboard-nav .btn[aria-pressed="true"],
+.inventory-jump-link.active,
+.inventory-jump-link[aria-pressed="true"],
+.inventory-collapse-toggle.active,
+.inventory-collapse-toggle[aria-expanded="true"],
+.collapse-toggle.active,
+.collapse-toggle[aria-expanded="true"],
+.reports-jumpbar a.active,
+.reports-jumpbar a[aria-pressed="true"],
+.btn.primary,
+.btn.active,
+.btn[aria-pressed="true"],
+.btn.secondary.active,
+button.btn.primary,
+a.btn.primary {
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
+  color: #ffffff !important;
+}
+.btn:not(.secondary):not(.danger):not(.success):not(.warning) {
+  background-color: #bd0000;
+  border-color: #bd0000;
+  color: #ffffff;
+}
+button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
+  background-color: #bd0000;
+  border-color: #bd0000;
+  color: #ffffff;
+}
+</style>
 </head><body><div class="sheet">
       <div class="top"><div><div class="brand">PEP SHOP TEXAS</div><div class="sub">Order Fulfillment Sheet</div><div class="small">Generated: ${esc(generated)}</div></div><div><div class="sub">Order</div><div class="order-no">#${esc(orderNumber(order))}</div></div></div>
       <div class="grid"><div class="box"><h3>Customer / Ship To</h3><p><strong>${esc(customerName(order))}</strong><br>${esc(shippingAddress(order))}<br>${esc(customerEmail(order) || "No email")}<br>${esc(customerPhone(order))}</p></div><div class="box"><h3>Order Snapshot</h3><div class="line"><span>Date</span><strong>${esc(fmtDate(order.created_at || order.order_date))}</strong></div><div class="line"><span>Order Status</span><span class="pill">${esc(String(orderStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Payment Status</span><span class="pill">${esc(String(paymentStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Shipping</span><strong>${money(orderShipping(order))}</strong></div><div class="line"><span>Total</span><strong>${money(orderTotal(order))}</strong></div></div></div>
