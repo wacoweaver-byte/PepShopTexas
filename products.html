@@ -45,6 +45,9 @@
     table { width: 100%; border-collapse: collapse; min-width: 820px; }
     th, td { padding: 11px 10px; border-bottom: 1px solid var(--border); text-align: left; font-size: 14px; vertical-align: middle; }
     th { color: var(--muted); background: #fbfcfe; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    .sort-btn { display: inline-flex; align-items: center; gap: 5px; padding: 0; color: inherit; background: transparent; border: 0; font: inherit; font-size: inherit; font-weight: 900; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
+    .sort-btn::after { content: "↕"; color: #98a2b3; font-size: 11px; }
+    .sort-btn.active::after { content: attr(data-sort-symbol); color: var(--blue); }
     tr { cursor: pointer; }
     tr:hover, tr.active { background: #f7fbff; }
     .pill { display: inline-flex; padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 900; background: rgba(0,119,200,.08); color: var(--blue); }
@@ -315,7 +318,14 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Product</th><th>Strength</th><th>Category</th><th>Price</th><th>Inventory</th><th>Status</th></tr>
+              <tr>
+                <th><button class="sort-btn" type="button" data-sort-field="display_name">Product</button></th>
+                <th><button class="sort-btn" type="button" data-sort-field="strength">Strength</button></th>
+                <th><button class="sort-btn" type="button" data-sort-field="category">Category</button></th>
+                <th><button class="sort-btn" type="button" data-sort-field="price">Price</button></th>
+                <th><button class="sort-btn" type="button" data-sort-field="current_inventory">Inventory</button></th>
+                <th><button class="sort-btn" type="button" data-sort-field="is_active">Status</button></th>
+              </tr>
             </thead>
             <tbody id="productRows"><tr><td colspan="6" class="empty">Loading products...</td></tr></tbody>
           </table>
@@ -339,6 +349,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     let products = [];
     let activeProduct = null;
     let inventoryCostsByProductKey = {};
+    let productSort = { field: "display_name", direction: "asc" };
 
     const $ = (id) => document.getElementById(id);
     const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
@@ -427,10 +438,43 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       return products.filter(product => {
         const haystack = [product.product_key, product.display_name, product.strength, product.category].filter(Boolean).join(" ").toLowerCase();
         return (!query || haystack.includes(query)) && (!category || product.category === category);
+      }).sort(compareProductsForSort);
+    }
+
+    function productSortValue(product, field) {
+      if (field === "price") return Number(product.sale_enabled && product.sale_price ? product.sale_price : product.price || 0);
+      if (field === "current_inventory") return Number(product.current_inventory || 0);
+      if (field === "is_active") return product.is_active ? 1 : 0;
+      return String(product[field] || "").toLowerCase();
+    }
+
+    function compareProductsForSort(a, b) {
+      const direction = productSort.direction === "desc" ? -1 : 1;
+      const aValue = productSortValue(a, productSort.field);
+      const bValue = productSortValue(b, productSort.field);
+      let result = 0;
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        result = aValue - bValue;
+      } else {
+        result = String(aValue).localeCompare(String(bValue), undefined, { numeric: true, sensitivity: "base" });
+      }
+      if (result === 0 && productSort.field !== "display_name") {
+        result = String(a.display_name || "").localeCompare(String(b.display_name || ""), undefined, { numeric: true, sensitivity: "base" });
+      }
+      return result * direction;
+    }
+
+    function updateSortButtons() {
+      document.querySelectorAll("[data-sort-field]").forEach(button => {
+        const active = button.dataset.sortField === productSort.field;
+        button.classList.toggle("active", active);
+        button.dataset.sortSymbol = productSort.direction === "asc" ? "↑" : "↓";
+        button.setAttribute("aria-sort", active ? (productSort.direction === "asc" ? "ascending" : "descending") : "none");
       });
     }
 
     function renderRows() {
+      updateSortButtons();
       const rows = filteredProducts();
       $("productRows").innerHTML = rows.length ? rows.map(product => `
         <tr data-product-id="${product.id}" class="${activeProduct?.id === product.id ? "active" : ""}">
@@ -739,6 +783,16 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
 
     $("searchInput").addEventListener("input", renderRows);
     $("categoryFilter").addEventListener("change", renderRows);
+    document.querySelectorAll("[data-sort-field]").forEach(button => {
+      button.addEventListener("click", () => {
+        const field = button.dataset.sortField;
+        productSort = {
+          field,
+          direction: productSort.field === field && productSort.direction === "asc" ? "desc" : "asc"
+        };
+        renderRows();
+      });
+    });
     $("newProductBtn").addEventListener("click", openNewProductModal);
     $("closeNewProductBtn").addEventListener("click", closeNewProductModal);
     $("cancelNewProductBtn").addEventListener("click", closeNewProductModal);
