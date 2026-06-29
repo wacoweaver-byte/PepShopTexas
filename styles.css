@@ -115,10 +115,12 @@ a { color: inherit; text-decoration: none; }
 
 .cart-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
 .cart-items { display: grid; gap: 12px; }
-.cart-row { display: grid; grid-template-columns: minmax(0, 1fr) 86px 100px 86px; gap: 14px; align-items: center; padding: 14px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+.cart-row { display: grid; grid-template-columns: minmax(0, 1fr) 86px 100px 116px; gap: 14px; align-items: center; padding: 14px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
 .cart-row h2 { margin: 0 0 6px; font-size: 17px; }
 .cart-row p { margin: 0; color: var(--red); font-weight: 900; }
 .cart-row button { color: var(--ink); background: #fff; border: 1px solid var(--line); }
+.cart-row .cart-remove-button { justify-self: stretch; width: 100%; color: #fff; background: var(--red); border-color: var(--red); text-align: center; }
+.cart-row .cart-remove-button:hover { filter: brightness(.94); }
 .cart-summary, .empty-cart, .contact-primary, .contact-card { padding: 24px; }
 .cart-summary h2, .empty-cart h2, .contact-primary h2, .contact-card h2 { margin: 0 0 14px; font-size: 24px; }
 .cart-summary p, .empty-cart p, .contact-primary p, .contact-card p { color: var(--muted); line-height: 1.55; }
@@ -190,4 +192,22 @@ a { color: inherit; text-decoration: none; }
   .cart-row { grid-template-columns: minmax(0,1fr); }
   .cart-row input, .cart-row strong, .cart-row button { grid-column: 1; }
   .trust-bar { grid-template-columns: 1fr; width: 100%; min-height: 0; padding: 20px 24px; }
+}
+
+.cart-row button,
+.cart-row .cart-remove-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  color: #fff !important;
+  background: var(--red) !important;
+  border-color: var(--red) !important;
+  text-align: center !important;
+}
+
+.cart-row button:hover,
+.cart-row .cart-remove-button:hover {
+  filter: brightness(.94);
 }
