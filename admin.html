@@ -1868,7 +1868,12 @@ header .pst-admin-actions-lock .btn.primary {
     if(!card) return;
     card.classList.toggle("collapsed", !open);
     const btn = card.querySelector("[data-admin-collapse-target]");
-    if(btn) btn.textContent = open ? "Collapse" : "Open";
+    if(btn){
+      btn.textContent = open ? "Collapse" : "Open";
+      btn.classList.toggle("active", !!open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      btn.setAttribute("aria-pressed", open ? "true" : "false");
+    }
     syncAdminJumpLinkState();
   }
   function toggleAdminCard(targetId){
@@ -1912,7 +1917,13 @@ header .pst-admin-actions-lock .btn.primary {
     });
     document.querySelectorAll("[data-admin-collapse-target]").forEach(btn => {
       const target = $(btn.dataset.adminCollapseTarget);
-      if(target) btn.textContent = target.classList.contains("collapsed") ? "Open" : "Collapse";
+      if(target){
+        const open = !target.classList.contains("collapsed");
+        btn.textContent = open ? "Collapse" : "Open";
+        btn.classList.toggle("active", open);
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        btn.setAttribute("aria-pressed", open ? "true" : "false");
+      }
     });
   }
   function toggleAdminCardFromJump(btn){
@@ -2633,6 +2644,9 @@ header .pst-admin-actions-lock .btn.active,
 header .pst-admin-actions-lock .btn.primary,
 .admin-dashboard-nav .btn.active,
 .admin-dashboard-nav .btn[aria-pressed="true"],
+.collapsible-card:not(.collapsed) .card-toggle-btn,
+.card-toggle-btn.active,
+.card-toggle-btn[aria-expanded="true"],
 .inventory-jump-link.active,
 .inventory-jump-link[aria-pressed="true"],
 .inventory-collapse-toggle.active,
