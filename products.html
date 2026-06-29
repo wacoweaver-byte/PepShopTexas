@@ -338,6 +338,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,hot_peptide,sale_enabled,sale_price,sale_label";
     let products = [];
     let activeProduct = null;
+    let inventoryCostsByProductKey = {};
 
     const $ = (id) => document.getElementById(id);
     const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
@@ -373,9 +374,46 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       const { data, error } = await db.from("product_catalog").select(PRODUCT_FIELDS).order("sort_name", { ascending: true, nullsFirst: false }).order("display_name", { ascending: true });
       if (error) throw error;
       products = data || [];
+      await loadInventoryCosts();
       populateCategories();
       renderRows();
       setStatus(`Loaded ${products.length} products.`, "good");
+    }
+
+    async function loadInventoryCosts() {
+      inventoryCostsByProductKey = {};
+      try {
+        const [{ data: inventoryRows, error: inventoryError }, { data: incomingRows, error: incomingError }] = await Promise.all([
+          db.from("product_inventory").select("*"),
+          db.from("incoming_inventory").select("*")
+        ]);
+        if (inventoryError) throw inventoryError;
+        (inventoryRows || []).forEach(row => rememberInventoryCost(row, row.product_key));
+        if (!incomingError) {
+          (incomingRows || []).forEach(row => rememberInventoryCost(row, row.product_key));
+          (incomingRows || []).forEach(row => {
+            const inventoryRow = (inventoryRows || []).find(item => String(item.id) === String(row.product_id || row.inventory_id || row.product_inventory_id));
+            if (inventoryRow?.product_key) rememberInventoryCost(row, inventoryRow.product_key);
+          });
+        }
+      } catch (error) {
+        console.warn("Inventory costs unavailable for product margin display.", error);
+      }
+    }
+
+    function rememberInventoryCost(row, productKey) {
+      const key = String(productKey || "").trim();
+      if (!key) return;
+      const cost = Number(row?.cost_per_unit ?? row?.unit_cost ?? row?.cost_basis ?? row?.vial_cost ?? row?.per_vial_cost ?? 0);
+      if (!Number.isFinite(cost) || cost <= 0) return;
+      const existing = inventoryCostsByProductKey[key];
+      if (!existing || new Date(row?.updated_at || row?.received_at || row?.ordered_at || 0) >= new Date(existing.date || 0)) {
+        inventoryCostsByProductKey[key] = { cost, date: row?.updated_at || row?.received_at || row?.ordered_at || null };
+      }
+    }
+
+    function savedInventoryCost(product) {
+      return inventoryCostsByProductKey[String(product?.product_key || "").trim()]?.cost || 0;
     }
 
     function populateCategories() {
@@ -443,16 +481,19 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
 
     function updateProfitMargin(form) {
       if (!form?.elements?.profit_margin) return;
-      const cost = form.elements.cost_basis?.value;
+      const manualCost = form.elements.cost_basis?.value;
+      const savedCost = form.dataset.savedCost || "";
+      const cost = manualCost || savedCost;
       const price = form.elements.price?.value;
       const salePrice = form.elements.sale_price?.value;
       const regularMargin = profitMarginPercent(cost, price);
       const saleMargin = salePrice === undefined || salePrice === "" ? null : profitMarginPercent(cost, salePrice);
       if (regularMargin === null) {
-        form.elements.profit_margin.value = "Enter cost and price";
+        form.elements.profit_margin.value = savedCost || manualCost ? "Enter price" : "No saved cost";
         return;
       }
-      const parts = [`Regular ${regularMargin.toFixed(1)}%`];
+      const source = manualCost ? "Manual" : "Inventory";
+      const parts = [`${source} cost ${money(cost)}`, `Regular ${regularMargin.toFixed(1)}%`];
       if (saleMargin !== null) parts.push(`Sale ${saleMargin.toFixed(1)}%`);
       form.elements.profit_margin.value = parts.join(" / ");
     }
@@ -469,7 +510,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       if (!form) return;
       const costInput = form.elements.cost_basis;
       const priceInput = form.elements.price;
-      const retailPrice = retailPriceFromCost(costInput?.value);
+      const retailPrice = retailPriceFromCost(costInput?.value || form.dataset.savedCost);
       if (!retailPrice) {
         setStatus("Enter a vial cost greater than 0 first.", "bad");
         costInput?.focus();
@@ -520,6 +561,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       const strength = form.elements.strength.value.trim() || null;
       const currentInventory = Number(form.elements.current_inventory.value || 0);
       const price = Number(form.elements.price.value || 0);
+      const costPerUnit = Number(form.elements.cost_basis?.value || 0);
       const now = new Date().toISOString();
 
       if (!displayName) {
@@ -568,12 +610,16 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         is_active: form.elements.is_active.checked,
         featured: form.elements.featured.checked,
         blend_stack: category === "Stack",
+        cost_per_unit: Number.isFinite(costPerUnit) && costPerUnit > 0 ? costPerUnit : null,
         updated_at: now
       };
       const { error: inventoryError } = await db.from("product_inventory").upsert(inventoryPayload, { onConflict: "product_key" });
       if (inventoryError) {
         setStatus(`${productKey} was created in catalog, but inventory sync failed: ${inventoryError.message}`, "bad");
       } else {
+        if (Number.isFinite(costPerUnit) && costPerUnit > 0) {
+          inventoryCostsByProductKey[productKey] = { cost: costPerUnit, date: now };
+        }
         setStatus(`${productKey} created.`, "good");
       }
 
@@ -587,9 +633,10 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
 
     function renderEditor() {
       if (!activeProduct) return;
+      const inventoryCost = savedInventoryCost(activeProduct);
       $("editorTitle").textContent = activeProduct.display_name || "Edit Product";
       $("editorBody").innerHTML = `
-        <form id="productForm">
+        <form id="productForm" data-saved-cost="${inventoryCost || ""}">
           <div class="edit-grid">
             <label>Product Key<input name="product_key" value="${esc(activeProduct.product_key || "")}" readonly></label>
             <label>Sort Name<input name="sort_name" value="${esc(activeProduct.sort_name || "")}"></label>
@@ -598,10 +645,10 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
             <label>Category<select name="category">${categoryOptions(activeProduct.category)}</select></label>
             <label>Price<input name="price" type="number" step="0.01" value="${Number(activeProduct.price || 0)}"></label>
             <div class="full margin-tool">
-              <label>Vial Cost<input name="cost_basis" type="number" min="0" step="0.01" placeholder="13.80"></label>
+              <label>Vial Cost Override<input name="cost_basis" type="number" min="0" step="0.01" placeholder="${inventoryCost ? money(inventoryCost) + " saved" : "No saved cost"}"></label>
               <button class="btn secondary" type="button" id="editMarginPriceBtn">Apply 80% Margin</button>
-              <label class="full">Current Profit %<input name="profit_margin" value="Enter cost and price" readonly></label>
-              <p class="margin-note full">Formula: cost / 0.20. This updates the regular price field; sale price remains separate.</p>
+              <label class="full">Current Profit %<input name="profit_margin" value="${inventoryCost ? "Calculating..." : "No saved cost"}" readonly></label>
+              <p class="margin-note full">${inventoryCost ? `Using saved inventory cost of ${money(inventoryCost)} per vial. ` : "No saved inventory cost found yet. "}Override only if you need to test a different cost. Formula: cost / 0.20.</p>
             </div>
             <label>Inventory<input name="current_inventory" type="number" step="1" value="${Number(activeProduct.current_inventory || 0)}"></label>
             <label>Sale Price<input name="sale_price" type="number" step="0.01" value="${activeProduct.sale_price ?? ""}"></label>
@@ -632,6 +679,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       if (!activeProduct) return;
       const form = event.currentTarget;
       const category = value("category", form).trim() || null;
+      const costPerUnit = Number(value("cost_basis", form) || form.dataset.savedCost || 0);
       const payload = {
         sort_name: value("sort_name", form).trim() || null,
         display_name: value("display_name", form).trim(),
@@ -661,11 +709,32 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         setStatus(error.message || "Product could not be saved.", "bad");
         return;
       }
+      const inventoryPayload = {
+        product_key: data.product_key,
+        display_name: data.display_name,
+        category: data.category,
+        strength: data.strength,
+        price: data.price,
+        current_inventory: data.current_inventory,
+        is_active: data.is_active,
+        featured: data.featured,
+        blend_stack: data.blend_stack,
+        cost_per_unit: Number.isFinite(costPerUnit) && costPerUnit > 0 ? costPerUnit : null,
+        updated_at: data.updated_at
+      };
+      const { error: inventoryError } = await db.from("product_inventory").upsert(inventoryPayload, { onConflict: "product_key" });
       products = products.map(product => product.id === data.id ? data : product);
       activeProduct = data;
+      if (!inventoryError && inventoryPayload.cost_per_unit) {
+        inventoryCostsByProductKey[String(data.product_key || "").trim()] = { cost: inventoryPayload.cost_per_unit, date: data.updated_at };
+      }
       renderRows();
       renderEditor();
-      setStatus("Product saved.", "good");
+      if (inventoryError) {
+        setStatus(`Product saved, but inventory cost sync failed: ${inventoryError.message}`, "bad");
+      } else {
+        setStatus("Product saved.", "good");
+      }
     }
 
     $("searchInput").addEventListener("input", renderRows);

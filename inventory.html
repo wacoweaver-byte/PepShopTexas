@@ -3293,7 +3293,10 @@ async function receiveIncomingInventory(id) {
   const previousQty = Number(item.current_inventory || 0);
   const newQty = previousQty + qty;
   const now = new Date().toISOString();
-  const { error: invError } = await db.from("product_inventory").update({ current_inventory:newQty, updated_at:now }).eq("id", item.id);
+  const incomingUnitCost = Number(row.cost_per_unit ?? row.unit_cost ?? 0);
+  const inventoryUpdate = { current_inventory:newQty, updated_at:now };
+  if (Number.isFinite(incomingUnitCost) && incomingUnitCost > 0) inventoryUpdate.cost_per_unit = incomingUnitCost;
+  const { error: invError } = await db.from("product_inventory").update(inventoryUpdate).eq("id", item.id);
   if (invError) throw invError;
   await logMovement(item, "incoming_received", qty, previousQty, newQty, `Received incoming order: ${row.product_name || item.display_name || item.product_key} · ${qty} vial(s). Total cost: ${incomingMoney(incomingTotalCost(row))}. Incoming ID: ${row.id}`);
   const audit = `${row.audit_note || ""}\nReceived ${qty} vial(s) into inventory on ${new Date().toLocaleString()} by ${currentUser?.email || "Admin"}. Previous stock ${previousQty}; new stock ${newQty}.`.trim();
