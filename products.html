@@ -722,6 +722,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           </div>
           <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
             <button class="btn success" type="submit">Save Product</button>
+            <button class="btn secondary" type="button" id="cancelEditBtn">Cancel</button>
             <a class="btn secondary" href="product.html?key=${encodeURIComponent(activeProduct.product_key)}">View Storefront Page</a>
           </div>
         </form>
@@ -729,6 +730,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       $("productForm").addEventListener("submit", saveProduct);
       bindProfitMargin($("productForm"));
       $("editMarginPriceBtn").addEventListener("click", () => applyMarginPrice($("productForm")));
+      $("cancelEditBtn").addEventListener("click", hideProductEditor);
     }
 
     async function saveProduct(event) {
