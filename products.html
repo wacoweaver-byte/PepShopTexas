@@ -51,6 +51,9 @@
     .pill.off { background: rgba(180,35,24,.08); color: var(--danger); }
     .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .full { grid-column: 1 / -1; }
+    .margin-tool { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; }
+    .margin-tool label { min-width: 0; }
+    .margin-note { margin: 0; color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1.35; }
     .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .check { display: flex; align-items: center; gap: 8px; color: var(--dark); text-transform: none; letter-spacing: 0; }
     .check input { width: 18px; min-height: 18px; }
@@ -277,6 +280,11 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
               <label>Dose<input name="strength" placeholder="10 mg"></label>
               <label>Starting Quantity<input name="current_inventory" type="number" min="0" step="1" value="0"></label>
               <label>Price<input name="price" type="number" min="0" step="0.01" value="0.00"></label>
+              <div class="full margin-tool">
+                <label>Vial Cost<input name="cost_basis" type="number" min="0" step="0.01" placeholder="13.80"></label>
+                <button class="btn secondary" type="button" id="newMarginPriceBtn">Apply 80% Margin</button>
+                <p class="margin-note full">Formula: cost / 0.20. This fills the regular price; sale pricing still works separately.</p>
+              </div>
               <label class="full">Description<textarea name="description" placeholder="Optional customer-facing description"></textarea></label>
               <div class="full checks">
                 <label class="check"><input name="is_active" type="checkbox" checked> Visible to customers</label>
@@ -418,6 +426,26 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category)}</option>`).join("");
     }
 
+    function retailPriceFromCost(cost, margin = 0.80) {
+      const numericCost = Number(cost);
+      if (!Number.isFinite(numericCost) || numericCost <= 0) return null;
+      return numericCost / (1 - margin);
+    }
+
+    function applyMarginPrice(form) {
+      if (!form) return;
+      const costInput = form.elements.cost_basis;
+      const priceInput = form.elements.price;
+      const retailPrice = retailPriceFromCost(costInput?.value);
+      if (!retailPrice) {
+        setStatus("Enter a vial cost greater than 0 first.", "bad");
+        costInput?.focus();
+        return;
+      }
+      priceInput.value = retailPrice.toFixed(2);
+      setStatus(`Retail price set to ${money(retailPrice)} for an 80% margin.`, "good");
+    }
+
     function nextProductNumber() {
       const maxExisting = products.reduce((max, product) => {
         const match = String(product.product_key || "").match(/^PSTP(\d+)$/i);
@@ -534,6 +562,11 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
             <label>Strength<input name="strength" value="${esc(activeProduct.strength || "")}"></label>
             <label>Category<select name="category">${categoryOptions(activeProduct.category)}</select></label>
             <label>Price<input name="price" type="number" step="0.01" value="${Number(activeProduct.price || 0)}"></label>
+            <div class="full margin-tool">
+              <label>Vial Cost<input name="cost_basis" type="number" min="0" step="0.01" placeholder="13.80"></label>
+              <button class="btn secondary" type="button" id="editMarginPriceBtn">Apply 80% Margin</button>
+              <p class="margin-note full">Formula: cost / 0.20. This updates the regular price field; sale price remains separate.</p>
+            </div>
             <label>Inventory<input name="current_inventory" type="number" step="1" value="${Number(activeProduct.current_inventory || 0)}"></label>
             <label>Sale Price<input name="sale_price" type="number" step="0.01" value="${activeProduct.sale_price ?? ""}"></label>
             <label>Sale Label<input name="sale_label" value="${esc(activeProduct.sale_label || "")}" placeholder="Sale"></label>
@@ -554,6 +587,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         </form>
       `;
       $("productForm").addEventListener("submit", saveProduct);
+      $("editMarginPriceBtn").addEventListener("click", () => applyMarginPrice($("productForm")));
     }
 
     async function saveProduct(event) {
@@ -605,6 +639,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     $("newProductModal").addEventListener("click", (event) => {
       if (event.target.id === "newProductModal") closeNewProductModal();
     });
+    $("newMarginPriceBtn").addEventListener("click", () => applyMarginPrice($("newProductForm")));
     $("newProductForm").addEventListener("submit", createProduct);
     $("refreshBtn").addEventListener("click", loadProducts);
     $("logoutBtn")?.addEventListener("click", async () => { await db.auth.signOut(); window.location.href = "login.html"; });
