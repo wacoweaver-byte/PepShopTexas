@@ -54,6 +54,7 @@
     .margin-tool { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; }
     .margin-tool label { min-width: 0; }
     .margin-note { margin: 0; color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1.35; }
+    input[readonly] { color: var(--dark); background: #f6f8fb; }
     .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .check { display: flex; align-items: center; gap: 8px; color: var(--dark); text-transform: none; letter-spacing: 0; }
     .check input { width: 18px; min-height: 18px; }
@@ -283,6 +284,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
               <div class="full margin-tool">
                 <label>Vial Cost<input name="cost_basis" type="number" min="0" step="0.01" placeholder="13.80"></label>
                 <button class="btn secondary" type="button" id="newMarginPriceBtn">Apply 80% Margin</button>
+                <label class="full">Current Profit %<input name="profit_margin" value="Enter cost and price" readonly></label>
                 <p class="margin-note full">Formula: cost / 0.20. This fills the regular price; sale pricing still works separately.</p>
               </div>
               <label class="full">Description<textarea name="description" placeholder="Optional customer-facing description"></textarea></label>
@@ -432,6 +434,37 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       return numericCost / (1 - margin);
     }
 
+    function profitMarginPercent(cost, price) {
+      const numericCost = Number(cost);
+      const numericPrice = Number(price);
+      if (!Number.isFinite(numericCost) || numericCost <= 0 || !Number.isFinite(numericPrice) || numericPrice <= 0) return null;
+      return ((numericPrice - numericCost) / numericPrice) * 100;
+    }
+
+    function updateProfitMargin(form) {
+      if (!form?.elements?.profit_margin) return;
+      const cost = form.elements.cost_basis?.value;
+      const price = form.elements.price?.value;
+      const salePrice = form.elements.sale_price?.value;
+      const regularMargin = profitMarginPercent(cost, price);
+      const saleMargin = salePrice === undefined || salePrice === "" ? null : profitMarginPercent(cost, salePrice);
+      if (regularMargin === null) {
+        form.elements.profit_margin.value = "Enter cost and price";
+        return;
+      }
+      const parts = [`Regular ${regularMargin.toFixed(1)}%`];
+      if (saleMargin !== null) parts.push(`Sale ${saleMargin.toFixed(1)}%`);
+      form.elements.profit_margin.value = parts.join(" / ");
+    }
+
+    function bindProfitMargin(form) {
+      if (!form) return;
+      ["cost_basis", "price", "sale_price"].forEach(name => {
+        form.elements[name]?.addEventListener("input", () => updateProfitMargin(form));
+      });
+      updateProfitMargin(form);
+    }
+
     function applyMarginPrice(form) {
       if (!form) return;
       const costInput = form.elements.cost_basis;
@@ -443,6 +476,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         return;
       }
       priceInput.value = retailPrice.toFixed(2);
+      updateProfitMargin(form);
       setStatus(`Retail price set to ${money(retailPrice)} for an 80% margin.`, "good");
     }
 
@@ -463,6 +497,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       form.elements.current_inventory.value = "0";
       form.elements.price.value = "0.00";
       form.elements.is_active.checked = true;
+      updateProfitMargin(form);
       $("newProductKeyPreview").textContent = nextProductNumber();
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
@@ -565,6 +600,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
             <div class="full margin-tool">
               <label>Vial Cost<input name="cost_basis" type="number" min="0" step="0.01" placeholder="13.80"></label>
               <button class="btn secondary" type="button" id="editMarginPriceBtn">Apply 80% Margin</button>
+              <label class="full">Current Profit %<input name="profit_margin" value="Enter cost and price" readonly></label>
               <p class="margin-note full">Formula: cost / 0.20. This updates the regular price field; sale price remains separate.</p>
             </div>
             <label>Inventory<input name="current_inventory" type="number" step="1" value="${Number(activeProduct.current_inventory || 0)}"></label>
@@ -587,6 +623,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         </form>
       `;
       $("productForm").addEventListener("submit", saveProduct);
+      bindProfitMargin($("productForm"));
       $("editMarginPriceBtn").addEventListener("click", () => applyMarginPrice($("productForm")));
     }
 
@@ -639,6 +676,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     $("newProductModal").addEventListener("click", (event) => {
       if (event.target.id === "newProductModal") closeNewProductModal();
     });
+    bindProfitMargin($("newProductForm"));
     $("newMarginPriceBtn").addEventListener("click", () => applyMarginPrice($("newProductForm")));
     $("newProductForm").addEventListener("submit", createProduct);
     $("refreshBtn").addEventListener("click", loadProducts);
