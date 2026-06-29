@@ -70,6 +70,7 @@
     .resource strong{display:block;margin-bottom:4px}
     .resource p{margin:0;color:var(--muted);font-size:13px;line-height:1.35}
     .pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid transparent;white-space:nowrap}
+    .pill[hidden], #inventoryWatchBadge[hidden]{display:none!important}
     .pill.good{color:var(--success);background:rgba(15,138,59,.1);border-color:rgba(15,138,59,.18)}
     .pill.warn{color:var(--warning);background:rgba(183,121,31,.1);border-color:rgba(183,121,31,.18)}
     .pill.info{color:var(--blue);background:rgba(0,119,200,.1);border-color:rgba(0,119,200,.18)}
@@ -2803,7 +2804,9 @@ function updateInventoryWatchBadge(rows){
   const badge = $("inventoryWatchBadge");
   if (!badge) return;
   const leadTimeRisks = (rows || []).filter(row => ["critical","reorder"].includes(row.reorderStatus?.key));
-  badge.hidden = leadTimeRisks.length === 0;
+  const needsReview = leadTimeRisks.length > 0;
+  badge.hidden = !needsReview;
+  badge.style.display = needsReview ? "inline-flex" : "none";
   badge.textContent = leadTimeRisks.length
     ? `Needs Review (${leadTimeRisks.length})`
     : "Needs Review";
