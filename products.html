@@ -403,12 +403,12 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       });
     }
 
-    function value(name) {
-      return document.querySelector(`[name="${name}"]`)?.value ?? "";
+    function value(name, form = document) {
+      return form.querySelector(`[name="${name}"]`)?.value ?? "";
     }
 
-    function checked(name) {
-      return document.querySelector(`[name="${name}"]`)?.checked ?? false;
+    function checked(name, form = document) {
+      return form.querySelector(`[name="${name}"]`)?.checked ?? false;
     }
 
     function categoryOptions(current) {
@@ -559,26 +559,31 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     async function saveProduct(event) {
       event.preventDefault();
       if (!activeProduct) return;
-      const category = value("category").trim() || null;
+      const form = event.currentTarget;
+      const category = value("category", form).trim() || null;
       const payload = {
-        sort_name: value("sort_name").trim() || null,
-        display_name: value("display_name").trim(),
-        strength: value("strength").trim() || null,
+        sort_name: value("sort_name", form).trim() || null,
+        display_name: value("display_name", form).trim(),
+        strength: value("strength", form).trim() || null,
         category,
-        price: Number(value("price") || 0),
-        current_inventory: Number(value("current_inventory") || 0),
-        sale_price: value("sale_price") === "" ? null : Number(value("sale_price")),
-        sale_label: value("sale_label").trim() || null,
-        description: value("description").trim() || null,
-        research_notes: value("research_notes").trim() || null,
-        testing_statement: value("testing_statement").trim() || null,
-        is_active: checked("is_active"),
-        featured: checked("featured"),
+        price: Number(value("price", form) || 0),
+        current_inventory: Number(value("current_inventory", form) || 0),
+        sale_price: value("sale_price", form) === "" ? null : Number(value("sale_price", form)),
+        sale_label: value("sale_label", form).trim() || null,
+        description: value("description", form).trim() || null,
+        research_notes: value("research_notes", form).trim() || null,
+        testing_statement: value("testing_statement", form).trim() || null,
+        is_active: checked("is_active", form),
+        featured: checked("featured", form),
         blend_stack: category === "Stack",
-        hot_peptide: checked("hot_peptide"),
-        sale_enabled: checked("sale_enabled"),
+        hot_peptide: checked("hot_peptide", form),
+        sale_enabled: checked("sale_enabled", form),
         updated_at: new Date().toISOString()
       };
+      if (!payload.display_name) {
+        setStatus("Display name is required before saving.", "bad");
+        return;
+      }
       setStatus("Saving product...");
       const { data, error } = await db.from("product_catalog").update(payload).eq("id", activeProduct.id).select(PRODUCT_FIELDS).single();
       if (error) {
