@@ -34,6 +34,8 @@
     .status.good { color: var(--success); background: rgba(15,138,59,.06); border-color: rgba(15,138,59,.25); }
     .status.bad { color: var(--danger); background: rgba(180,35,24,.06); border-color: rgba(180,35,24,.25); }
     .grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(380px, .9fr); gap: 18px; align-items: start; }
+    .grid.editor-hidden { grid-template-columns: minmax(0, 1fr); }
+    .grid.editor-hidden #productEditorCard { display: none; }
     .card { background: #fff; border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
     .card-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
     .card-body { padding: 16px; }
@@ -306,8 +308,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       </div>
     </div>
 
-    <section class="grid" id="adminGrid" style="display:none;">
-      <article class="card">
+    <section class="grid editor-hidden" id="adminGrid" style="display:none;">
+      <article class="card" id="productEditorCard">
         <div class="card-header">
           <h2>Catalog Products</h2>
           <div class="toolbar">
@@ -427,6 +429,18 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       return inventoryCostsByProductKey[String(product?.product_key || "").trim()]?.cost || 0;
     }
 
+    function showProductEditor() {
+      $("adminGrid")?.classList.remove("editor-hidden");
+    }
+
+    function hideProductEditor() {
+      activeProduct = null;
+      $("adminGrid")?.classList.add("editor-hidden");
+      $("editorTitle").textContent = "Select a Product";
+      $("editorBody").innerHTML = `<p class="subtitle">Choose a product from the table to edit its customer-facing catalog details.</p>`;
+      renderRows();
+    }
+
     function populateCategories() {
       const categories = [...new Set(products.map(product => product.category).filter(Boolean))].sort();
       $("categoryFilter").innerHTML = `<option value="">All categories</option>${categories.map(category => `<option value="${esc(category)}">${esc(category)}</option>`).join("")}`;
@@ -490,6 +504,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         row.addEventListener("click", () => {
           activeProduct = products.find(product => product.id === row.dataset.productId);
           renderRows();
+          showProductEditor();
           renderEditor();
         });
       });
@@ -668,11 +683,9 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       }
 
       products = [...products, data].sort((a, b) => String(a.sort_name || a.display_name || "").localeCompare(String(b.sort_name || b.display_name || "")));
-      activeProduct = data;
       closeNewProductModal();
       populateCategories();
-      renderRows();
-      renderEditor();
+      hideProductEditor();
     }
 
     function renderEditor() {
@@ -768,17 +781,15 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       };
       const { error: inventoryError } = await db.from("product_inventory").upsert(inventoryPayload, { onConflict: "product_key" });
       products = products.map(product => product.id === data.id ? data : product);
-      activeProduct = data;
       if (!inventoryError && inventoryPayload.cost_per_unit) {
         inventoryCostsByProductKey[String(data.product_key || "").trim()] = { cost: inventoryPayload.cost_per_unit, date: data.updated_at };
       }
-      renderRows();
-      renderEditor();
       if (inventoryError) {
         setStatus(`Product saved, but inventory cost sync failed: ${inventoryError.message}`, "bad");
       } else {
         setStatus("Product saved.", "good");
       }
+      hideProductEditor();
     }
 
     $("searchInput").addEventListener("input", renderRows);
