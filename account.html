@@ -396,7 +396,6 @@ body { background: #f7f9fb !important; color: #080b10 !important; }
     <a href="faq.html">FAQ</a>
     <a href="contact.html">CONTACT</a>
     <a href="account.html" id="accountGreetingLink">ACCOUNT</a>
-    <a href="admin.html" id="accountAdminLink" style="display:none;">ADMIN</a>
     <button class="account-logout" type="button" id="logoutBtn">LOGOUT</button>
   </nav>
   <form class="search" role="search" action="catalog.html" method="get">
@@ -775,9 +774,20 @@ async function loadAccount() {
   pstCurrentUser = user;
 
   const adminRecord = await accountAdminRecordForUser(user);
-  const accountAdminLink = document.getElementById("accountAdminLink");
+  const existingAdminLink = document.getElementById("accountAdminLink");
+  if (existingAdminLink) existingAdminLink.remove();
   const isAdmin = !!adminRecord && (adminRecord.is_active === true || adminRecord.active === true || adminRecord.is_admin === true || adminRecord.email === user.email);
-  if (accountAdminLink) accountAdminLink.style.display = isAdmin ? "inline-block" : "none";
+  if (isAdmin) {
+    const nav = document.querySelector(".account-site-header .main-nav");
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (nav && logoutBtn) {
+      const adminLink = document.createElement("a");
+      adminLink.href = "admin.html";
+      adminLink.id = "accountAdminLink";
+      adminLink.textContent = "ADMIN";
+      nav.insertBefore(adminLink, logoutBtn);
+    }
+  }
 
   const { data: profile, error: profileError } = await pstAccountSupabase
     .from("customer_profiles")

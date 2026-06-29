@@ -1,99 +1,71 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pep Shop Texas | Shipping & Returns Editor</title>
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#bd0000"><style>
-:root{--blue:#003f9e;--dark:#101820;--line:#e6e6e6;--soft:#f7f9fc;--muted:#596579}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--soft);color:var(--dark);line-height:1.55}header{background:#fff;border-bottom:1px solid var(--line);padding:22px}main{max-width:1000px;margin:0 auto;padding:24px}h1,h2{margin-top:0;color:var(--blue)}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin:18px 0;box-shadow:0 10px 28px rgba(0,0,0,.05)}.editor-note{background:#fff8e6;border:1px solid #f1d48a;border-radius:12px;padding:14px;margin:16px 0;color:#6b4b00;font-weight:700}.editable{border:2px dashed #c9d7ea;border-radius:12px;padding:18px;background:#fff}.editable:focus{outline:3px solid rgba(0,63,158,.18);border-color:var(--blue)}a{color:var(--blue);font-weight:700}.back{display:inline-block;margin-top:12px;text-decoration:none}.small{color:var(--muted);font-size:13px}
-
-/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
-   Purpose: standardize font hierarchy and logo display across public/admin pages.
-   Keep actions/prices readable without the heavy all-bold/Impact look.
-*/
-:root {
-  --pst-ui-font: Arial, Helvetica, sans-serif;
-}
-body, input, button, select, textarea {
-  font-family: var(--pst-ui-font) !important;
-}
-.brand, .logo, .logo-mark {
-  display: inline-flex !important;
-  align-items: center !important;
-  text-decoration: none !important;
-}
-.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
-  display: block !important;
-  height: auto !important;
-  object-fit: contain !important;
-}
-.brand-logo-img, .account-logo-img {
-  width: clamp(155px, 18vw, 220px) !important;
-  max-width: 100% !important;
-}
-.pst-master-admin-logo {
-  width: clamp(150px, 16vw, 210px) !important;
-  max-width: 100% !important;
-}
-.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
-.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
-.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
-.product-title, .discount-title, .customer-title, h1, h2, h3 {
-  font-family: var(--pst-ui-font) !important;
-  font-weight: 600 !important;
-  letter-spacing: .01em !important;
-}
-.page-title {
-  font-weight: 600 !important;
-  text-transform: none !important;
-}
-.menu, .menu a, .account-status, .account-status a, .account-status button,
-.btn, button, label, th, .profile-row strong, .order-meta strong,
-.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
-  font-weight: 600 !important;
-}
-p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
-.email-pref-copy, .security-copy, .footer-disclaimer {
-  font-weight: 400 !important;
-}
-strong {
-  font-weight: 600 !important;
-}
-@media(max-width:560px) {
-  .brand-logo-img, .account-logo-img {
-    width: clamp(135px, 42vw, 170px) !important;
-  }
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shipping & Returns | PEP Shop Texas</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#bd0000">
+  <link rel="stylesheet" href="styles.css?v=19">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js?v=22"></script>
 </head>
 <body>
-<header><a class="brand" href="index.html" aria-label="Pep Shop Texas home"><img class="brand-logo-img" src="assets/icons/pst-logo-extracted.jpg?v=2" alt="Pep Shop Texas"></a><h1>Shipping & Returns</h1><a class="back" href="index.html">← Back to Website</a></header>
-<main>
-<div class="editor-note">Editable page: click inside the dashed policy area, make changes, then save this HTML file with your editor and re-upload it as <strong>shipping.html</strong>.</div>
-<section class="card">
-<h2>Policy Content</h2>
-<div class="editable" contenteditable="true">
-<h2>Shipping</h2>
-<p>Orders ship from Central Texas after payment has been confirmed.</p>
-<p>Typical processing time is 1–2 business days, excluding weekends and holidays.</p>
-<p>Available shipping options may include standard, 3-day, or 2-day shipping depending on carrier availability and checkout selections.</p>
-<p>Tracking information will be provided when available. Carrier delays, weather delays, and address issues are outside the control of Pep Shop Texas.</p>
+  <header class="site-header compact-header">
+    <a class="brand" href="index.html" aria-label="PEP Shop Texas home"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="catalog.html">PEPTIDES A-Z</a>
+      <a href="catalog.html?category=Stack">TOP STACKS</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">CONTACT</a>
+      <a href="account.html">ACCOUNT</a>
+      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
+    </nav>
+    <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
+      <input name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
+    </form>
+  </header>
 
-<h2>Returns</h2>
-<p>Due to product handling, storage, and research-product integrity concerns, returns are not accepted once an order has shipped.</p>
-<p>If an order arrives damaged, missing an item, or incorrect, contact Pep Shop Texas within 48 hours of delivery so the issue can be reviewed.</p>
-<p>Damaged, missing, or incorrect item concerns are reviewed case by case.</p>
+  <main class="faq-page">
+    <section class="page-heading">
+      <p>Policy</p>
+      <h1>Shipping & Returns</h1>
+    </section>
 
-<h2>Contact</h2>
-<p>For shipping or order questions, contact Pep Shop Texas through the contact information listed on the website. Please include your order number when available.</p>
-</div>
-</section>
-<section class="card small"><p><strong>Owner note:</strong> This page is intentionally simple so you can edit the text directly. The public page visitors will only see the policy content and layout.</p></section>
-</main>
+    <section class="faq-shell" aria-label="Shipping and returns policy">
+      <article class="faq-card">
+        <h2>Shipping</h2>
+        <p>Orders ship from Central Texas after payment has been confirmed.</p>
+        <p>Typical processing time is 1-2 business days, excluding weekends and holidays.</p>
+        <p>Available shipping options may include standard, 3-day, or 2-day shipping depending on carrier availability and checkout selections.</p>
+        <p>Tracking information will be provided when available. Carrier delays, weather delays, and address issues are outside the control of PEP Shop Texas.</p>
+      </article>
+
+      <article class="faq-card">
+        <h2>Returns</h2>
+        <p>Due to product handling, storage, and research-product integrity concerns, returns are not accepted once an order has shipped.</p>
+        <p>If an order arrives damaged, missing an item, or incorrect, contact PEP Shop Texas within 48 hours of delivery so the issue can be reviewed.</p>
+        <p>Damaged, missing, or incorrect item concerns are reviewed case by case.</p>
+      </article>
+
+      <article class="faq-card">
+        <h2>Contact</h2>
+        <p>For shipping or order questions, contact PEP Shop Texas support. Please include your order number when available.</p>
+        <div class="faq-actions"><a href="mailto:support@pepshoptexas.com">support@pepshoptexas.com</a></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="trust-bar">
+    <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
+    <div><span><strong>QUALITY</strong>Third-party tested</span></div>
+    <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
+    <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
+  </footer>
 </body>
 </html>

@@ -1489,7 +1489,7 @@ header .pst-admin-actions-lock .btn.primary {
 }
 </style>
 </head>
-<body>
+<body class="admin-auth-pending">
 <header>
   <div class="topbar pst-admin-topbar-lock">
     <a class="brand pst-admin-brand-lock" href="admin.html" aria-label="Pep Shop Texas Admin Home">
@@ -2001,6 +2001,7 @@ header .pst-admin-actions-lock .btn.primary {
     const rows = results.filter(r => r.status === "fulfilled" && r.value?.data).map(r => r.value.data);
     const admin = rows.find(r => r && (r.is_active === true || r.active === true || r.is_admin === true || r.email === currentUser.email));
     if(!admin){ setStatus("Access denied. This login is not listed as an active Pep Shop Texas admin.", "bad"); return false; }
+    document.body.classList.remove("admin-auth-pending");
     setStatus(`Admin access confirmed for ${currentUser.email}.`, "good");
     return true;
   }
@@ -2635,6 +2636,25 @@ header .pst-admin-actions-lock .btn.primary {
   --pst-blue: #bd0000 !important;
   --pst-admin-blue: #bd0000 !important;
   --pst-admin-accent: #bd0000 !important;
+}
+body.admin-auth-pending header {
+  display: none !important;
+}
+body.admin-auth-pending main {
+  max-width: 560px !important;
+  padding-top: 88px !important;
+}
+body.admin-auth-pending main > :not(#statusLine) {
+  display: none !important;
+}
+body.admin-auth-pending #statusLine {
+  margin: 0 !important;
+  padding: 18px 20px !important;
+  text-align: center !important;
+  color: #596579 !important;
+  background: #fff !important;
+  border: 1px solid #d9e2ec !important;
+  box-shadow: 0 10px 30px rgba(16,24,32,.08) !important;
 }
 header .actions .btn.active,
 header .actions .btn.primary,
