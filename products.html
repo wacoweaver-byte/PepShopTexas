@@ -44,9 +44,16 @@
     textarea { min-height: 86px; resize: vertical; }
     label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
     .table-wrap { overflow: auto; max-height: 70vh; }
-    table { width: 100%; border-collapse: collapse; min-width: 820px; }
+    table { width: 100%; border-collapse: collapse; table-layout: auto; min-width: 0; }
     th, td { padding: 11px 10px; border-bottom: 1px solid var(--border); text-align: left; font-size: 14px; vertical-align: middle; }
     th { position: sticky; top: 0; z-index: 5; color: var(--muted); background: #fbfcfe; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; box-shadow: 0 1px 0 var(--border); }
+    th:nth-child(1), td:nth-child(1) { width: 28%; }
+    th:nth-child(2), td:nth-child(2) { width: 10%; white-space: nowrap; }
+    th:nth-child(3), td:nth-child(3) { width: 18%; white-space: nowrap; }
+    th:nth-child(4), td:nth-child(4) { width: 14%; white-space: nowrap; }
+    th:nth-child(5), td:nth-child(5) { width: 10%; white-space: nowrap; }
+    th:nth-child(6), td:nth-child(6) { width: 10%; white-space: nowrap; }
+    th:nth-child(7), td:nth-child(7) { width: 10%; white-space: nowrap; }
     .sort-btn { display: inline-flex; align-items: center; gap: 5px; padding: 0; color: inherit; background: transparent; border: 0; font: inherit; font-size: inherit; font-weight: 900; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
     .sort-btn::after { content: "↕"; color: #98a2b3; font-size: 11px; }
     .sort-btn.active::after { content: attr(data-sort-symbol); color: var(--blue); }
@@ -322,8 +329,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
             <thead>
               <tr>
                 <th><button class="sort-btn" type="button" data-sort-field="display_name">Product</button></th>
-                <th><button class="sort-btn" type="button" data-sort-field="product_key">Item #</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="strength">Strength</button></th>
+                <th><button class="sort-btn" type="button" data-sort-field="product_key">Item #</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="category">Category</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="price">Price</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="current_inventory">Inventory</button></th>
@@ -494,8 +501,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       $("productRows").innerHTML = rows.length ? rows.map(product => `
         <tr data-product-id="${product.id}" class="${activeProduct?.id === product.id ? "active" : ""}">
           <td><strong>${esc(product.display_name)}</strong></td>
-          <td><strong>${esc(product.product_key || "")}</strong></td>
           <td>${esc(product.strength || "")}</td>
+          <td><strong>${esc(product.product_key || "")}</strong></td>
           <td>${esc(product.category || "")}</td>
           <td>${money(product.sale_enabled && product.sale_price ? product.sale_price : product.price)}</td>
           <td>${Number(product.current_inventory || 0)}</td>
