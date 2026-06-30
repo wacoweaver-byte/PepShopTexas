@@ -321,10 +321,10 @@ async function renderCatalog() {
     const draw = () => {
       const query = searchInput.value.trim().toLowerCase();
       const category = categoryFilter.value;
-      const filtered = products.filter((product) => {
+      const filtered = sortProductsForCatalog(products.filter((product) => {
         const haystack = [product.display_name, product.strength, product.category, product.series, product.product_key].filter(Boolean).join(" ").toLowerCase();
         return (!query || haystack.includes(query)) && (!category || product.category === category);
-      });
+      }));
       updateCatalogHeading({ heading, eyebrow, category, query: searchInput.value.trim(), count: filtered.length });
       grid.innerHTML = filtered.length ? filtered.map(productCard).join("") : `<p class="loading-row">No active products match that filter.</p>`;
       bindCartButtons();
