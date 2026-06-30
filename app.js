@@ -468,7 +468,7 @@ function productCard(group) {
         <h2><a href="${productUrl(selected)}" data-catalog-link>${escapeHtml(selected.display_name)}</a></h2>
         ${hasVariants ? catalogVariantSelect(variants, selected) : `<span>${escapeHtml(selected.strength || "")}</span>`}
         <span class="catalog-stock ${stockClass(selected)}" data-catalog-stock>${stockText(selected)}</span>
-        <span class="catalog-price-line"><strong data-catalog-price>${priceHtml(selected)}</strong><span class="stock-dot ${stockClass(selected)}" data-catalog-stock-dot aria-hidden="true"></span></span>
+        <strong data-catalog-price>${priceHtml(selected)}</strong>
       </div>
       <button class="card-cart-button" data-add-to-cart="${escapeAttribute(selected.product_key)}">Add to Cart</button>
     </article>
@@ -507,7 +507,6 @@ function bindCatalogVariantSelectors() {
       const link = card.querySelector("[data-catalog-link]");
       const sale = card.querySelector("[data-catalog-sale]");
       const stock = card.querySelector("[data-catalog-stock]");
-      const stockDot = card.querySelector("[data-catalog-stock-dot]");
       const price = card.querySelector("[data-catalog-price]");
       const button = card.querySelector("[data-add-to-cart]");
       if (link) link.href = option.dataset.href || link.href;
@@ -516,7 +515,6 @@ function bindCatalogVariantSelectors() {
         stock.textContent = option.dataset.stockText || "";
         stock.className = `catalog-stock ${option.dataset.stockClass || ""}`.trim();
       }
-      if (stockDot) stockDot.className = `stock-dot ${option.dataset.stockClass || ""}`.trim();
       if (price) price.innerHTML = option.dataset.price || "";
       if (button) button.dataset.addToCart = option.value;
     });
