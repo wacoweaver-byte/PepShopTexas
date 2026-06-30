@@ -197,10 +197,20 @@ async function getProducts() {
     .from("product_catalog")
     .select(PRODUCT_FIELDS)
     .eq("is_active", true)
-    .order("sort_name", { ascending: true, nullsFirst: false })
-    .order("display_name", { ascending: true });
+    .order("display_name", { ascending: true })
+    .order("strength", { ascending: true, nullsFirst: false });
   if (error) throw error;
-  return data || [];
+  return sortProductsForCatalog(data || []);
+}
+
+function sortProductsForCatalog(products) {
+  return [...products].sort((a, b) => {
+    const nameCompare = String(a.display_name || "").localeCompare(String(b.display_name || ""), undefined, { numeric: true, sensitivity: "base" });
+    if (nameCompare) return nameCompare;
+    const strengthCompare = String(a.strength || "").localeCompare(String(b.strength || ""), undefined, { numeric: true, sensitivity: "base" });
+    if (strengthCompare) return strengthCompare;
+    return String(a.product_key || "").localeCompare(String(b.product_key || ""), undefined, { numeric: true, sensitivity: "base" });
+  });
 }
 
 async function getProduct(productKey) {
