@@ -215,14 +215,32 @@ function sortProductsForCatalog(products) {
 
 async function getProduct(productKey) {
   const client = requireSupabaseClient();
+  const resolvedKey = await resolveProductKey(productKey);
   const { data, error } = await client
     .from("product_catalog")
     .select(PRODUCT_FIELDS)
     .eq("is_active", true)
-    .eq("product_key", productKey)
+    .eq("product_key", resolvedKey)
     .single();
   if (error) throw error;
   return data;
+}
+
+async function resolveProductKey(productKey) {
+  const key = String(productKey || "").trim();
+  if (!key || /^PSTP\d+$/i.test(key)) return key;
+  try {
+    const client = requireSupabaseClient();
+    const { data, error } = await client
+      .from("product_key_aliases")
+      .select("new_product_key")
+      .eq("old_product_key", key)
+      .maybeSingle();
+    if (!error && data?.new_product_key) return data.new_product_key;
+  } catch (error) {
+    console.warn("Product key alias lookup failed", error);
+  }
+  return key;
 }
 
 async function renderHome() {
@@ -408,9 +426,11 @@ async function renderCartPage() {
   try {
     const [products, user, paymentMethods] = await Promise.all([cart.length ? getProducts() : Promise.resolve([]), getSignedInUser(), getPaymentMethods()]);
     const profile = user ? await getCustomerProfile(user) : null;
+    const keyAliases = await productKeyAliasesForCart(cart);
     const rows = cart.map((item) => {
-      const product = products.find((p) => p.product_key === item.key);
-      return product ? { product, quantity: item.quantity } : null;
+      const resolvedKey = keyAliases[item.key] || item.key;
+      const product = products.find((p) => p.product_key === resolvedKey);
+      return product ? { product, quantity: item.quantity, cartKey: item.key } : null;
     }).filter(Boolean);
 
     if (!cart.length) {
@@ -570,13 +590,14 @@ function refreshCartCount() {
   document.querySelectorAll("[data-cart-count]").forEach((node) => node.textContent = String(count));
 }
 
-function cartRow({ product, quantity }) {
+function cartRow({ product, quantity, cartKey }) {
+  const key = cartKey || product.product_key;
   return `
     <article class="cart-row">
       <div><h2><a href="${productUrl(product)}">${escapeHtml(productTitle(product))}</a></h2><p>${priceHtml(product)}</p></div>
-      <input type="number" min="1" value="${quantity}" data-cart-qty="${escapeAttribute(product.product_key)}">
+      <input type="number" min="1" value="${quantity}" data-cart-qty="${escapeAttribute(key)}">
       <strong>${formatMoney(unitPrice(product) * quantity)}</strong>
-      <button class="cart-remove-button" data-remove-cart="${escapeAttribute(product.product_key)}">Remove</button>
+      <button class="cart-remove-button" data-remove-cart="${escapeAttribute(key)}">Remove</button>
     </article>
   `;
 }
@@ -765,8 +786,10 @@ async function handleCheckoutSubmit(event) {
     if (!cart.length) throw new Error("Your cart is empty.");
 
     const products = await getProducts();
+    const keyAliases = await productKeyAliasesForCart(cart);
     const rows = cart.map((item) => {
-      const product = products.find((p) => p.product_key === item.key);
+      const resolvedKey = keyAliases[item.key] || item.key;
+      const product = products.find((p) => p.product_key === resolvedKey);
       return product ? { product, quantity: Number(item.quantity || 1) } : null;
     }).filter(Boolean);
     if (!rows.length) throw new Error("The products in your cart are no longer available.");
@@ -978,6 +1001,23 @@ function checkoutFormHtml(rows, context) {
       <p class="checkout-status" data-checkout-status></p>
     </form>
   `;
+}
+
+async function productKeyAliasesForCart(cart) {
+  const legacyKeys = [...new Set(cart.map((item) => String(item.key || "").trim()).filter((key) => key && !/^PSTP\d+$/i.test(key)))];
+  if (!legacyKeys.length) return {};
+  try {
+    const client = requireSupabaseClient();
+    const { data, error } = await client
+      .from("product_key_aliases")
+      .select("old_product_key,new_product_key")
+      .in("old_product_key", legacyKeys);
+    if (error) throw error;
+    return Object.fromEntries((data || []).map((row) => [row.old_product_key, row.new_product_key]));
+  } catch (error) {
+    console.warn("Cart product key alias lookup failed", error);
+    return {};
+  }
 }
 
 function productUrl(product) {
