@@ -39,8 +39,8 @@ a { color: inherit; text-decoration: none; }
 .search button { display: grid; place-items: center; width: 34px; height: 34px; color: #fff; background: transparent; border: 0; cursor: pointer; }
 .search svg, .quick-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-.hero { display: block; margin: 0; padding: 0; background: none; line-height: 0; text-align: center; }
-.hero img { display: block; width: auto; max-width: 100%; height: auto; margin: 0 auto; }
+.hero { margin: 0; padding: 0; line-height: 0; background: none; }
+.hero img { display: block; width: 100%; height: auto; margin: 0; }
 .quick-panel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: min(var(--page-width), calc(100% - 48px)); min-height: 0; margin: 18px auto 22px; padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
 .quick-link { display: grid; align-content: center; justify-items: center; min-width: 0; min-height: 172px; padding: 22px 18px; text-align: center; background: rgba(255,255,255,.96); border: 1px solid #e1e5eb; border-radius: 8px; box-shadow: var(--soft-shadow); }
 .quick-link + .quick-link { border-left: 1px solid #e1e5eb; }
@@ -161,8 +161,8 @@ a { color: inherit; text-decoration: none; }
   .brand-sub { font-size: 12px; }
   .main-nav { gap: 10px 16px; font-size: 13px; }
   .search { justify-self: stretch; width: 100%; max-width: 360px; }
-  .hero { display: block; margin: 0; padding: 0; background: none; line-height: 0; text-align: center; }
-.hero img { display: block; width: auto; max-width: 100%; height: auto; margin: 0 auto; }
+  .hero { margin: 0; padding: 0; line-height: 0; background: none; }
+.hero img { display: block; width: 100%; height: auto; margin: 0; }
   .quick-panel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: min(var(--page-width), calc(100% - 48px)); min-height: 0; margin: 18px auto 22px; padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
   .quick-link, .quick-link:nth-child(even), .quick-link:nth-child(n+3) { min-height: 128px; padding: 16px 10px; border: 1px solid #e1e5eb; border-radius: 8px; }
   .quick-link:nth-child(odd), .quick-link:nth-child(even), .quick-link:nth-child(-n+2) { border: 1px solid #e1e5eb; }
