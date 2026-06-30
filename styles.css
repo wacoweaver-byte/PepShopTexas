@@ -85,7 +85,7 @@ a { color: inherit; text-decoration: none; }
 .catalog-toolbar { display: grid; grid-template-columns: minmax(0,1fr) 220px; gap: 14px; margin-bottom: 22px; }
 .catalog-toolbar input, .catalog-toolbar select, .purchase-panel input, .cart-row input { height: 42px; padding: 0 12px; color: var(--ink); font: inherit; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
 .catalog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.catalog-card { display: grid; gap: 10px; padding: 14px; }
+.catalog-card { position: relative; display: grid; gap: 10px; padding: 14px; }
 .catalog-card-main { display: block; }
 .catalog-card p { margin: 0 0 5px; color: var(--muted); font-size: 12px; font-weight: 700; }
 .sale-badge { display: inline-flex; align-items: center; width: max-content; margin: 0 0 6px; padding: 4px 8px; color: #fff; background: var(--red); border-radius: 999px; font-size: 11px; font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: .03em; }
@@ -96,11 +96,12 @@ a { color: inherit; text-decoration: none; }
 .catalog-dose { display: grid; gap: 5px; max-width: 180px; margin: 0 0 10px; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
 .catalog-dose span { margin: 0; font-size: 11px; }
 .catalog-dose select { width: 100%; height: 36px; padding: 0 9px; color: var(--ink); font: inherit; font-size: 13px; font-weight: 800; background: #fff; border: 1px solid var(--line); border-radius: 8px; text-transform: none; letter-spacing: 0; }
-.catalog-card .catalog-stock { display: inline-grid; width: max-content; margin: 0 0 10px; padding: 5px 8px; font-size: 11px; font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: .03em; border-radius: 999px; }
+.catalog-card .catalog-stock { position: absolute; top: 12px; right: 12px; display: inline-grid; width: max-content; max-width: calc(100% - 24px); padding: 5px 8px; font-size: 11px; font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: .03em; border-radius: 999px; }
 .catalog-card .catalog-stock.available { color: #0c3b22; background: #e8f6ee; }
 .catalog-card .catalog-stock.limited { color: #7a3f00; background: #fff3d6; }
 .catalog-card .catalog-stock.out { color: #8a1f17; background: #fde8e7; }
 .catalog-card strong, .price-line { font-size: 17px; font-weight: 900; }
+.catalog-card [data-catalog-price] { display: block; width: max-content; margin-top: 2px; }
 .card-cart-button, .primary-action, .secondary-action, .cart-row button, .contact-email { display: inline-grid; place-items: center; min-height: 44px; padding: 0 16px; font: inherit; font-weight: 900; border-radius: 8px; cursor: pointer; }
 .card-cart-button { justify-self: start; min-height: 34px; padding: 0 12px; font-size: 13px; border-radius: 6px; }
 .card-cart-button, .primary-action, .contact-email { color: #fff; background: var(--red); border: 1px solid var(--red); }
