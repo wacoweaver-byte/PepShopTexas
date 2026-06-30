@@ -325,8 +325,10 @@ async function renderCatalog() {
         const haystack = [product.display_name, product.strength, product.category, product.series, product.product_key].filter(Boolean).join(" ").toLowerCase();
         return (!query || haystack.includes(query)) && (!category || product.category === category);
       }));
-      updateCatalogHeading({ heading, eyebrow, category, query: searchInput.value.trim(), count: filtered.length });
-      grid.innerHTML = filtered.length ? filtered.map(productCard).join("") : `<p class="loading-row">No active products match that filter.</p>`;
+      const groups = groupCatalogProducts(filtered);
+      updateCatalogHeading({ heading, eyebrow, category, query: searchInput.value.trim(), count: groups.length });
+      grid.innerHTML = groups.length ? groups.map(productCard).join("") : `<p class="loading-row">No active products match that filter.</p>`;
+      bindCatalogVariantSelectors();
       bindCartButtons();
     };
 
@@ -424,15 +426,79 @@ async function renderCartPage() {
   }
 }
 
-function productCard(product) {
+function groupCatalogProducts(products) {
+  const groups = new Map();
+  products.forEach((product) => {
+    const key = String(product.display_name || product.product_key || "").trim().toLowerCase();
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(product);
+  });
+  return [...groups.values()].map(sortProductsForCatalog);
+}
+
+function productCard(group) {
+  const variants = Array.isArray(group) ? group : [group];
+  const selected = variants[0];
+  const hasVariants = variants.length > 1;
   return `
-    <article class="catalog-card">
-      <a class="catalog-card-main" href="${productUrl(product)}">
-        <div><p>${escapeHtml(product.category || "Research product")}</p>${saleBadge(product)}<h2>${escapeHtml(product.display_name)}</h2><span>${escapeHtml(product.strength || "")}</span><span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span><strong>${priceHtml(product)}</strong></div>
-      </a>
-      <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>
+    <article class="catalog-card" data-catalog-card>
+      <div class="catalog-card-main">
+        <p>${escapeHtml(selected.category || "Research product")}</p>
+        <span data-catalog-sale>${saleBadge(selected)}</span>
+        <h2><a href="${productUrl(selected)}" data-catalog-link>${escapeHtml(selected.display_name)}</a></h2>
+        ${hasVariants ? catalogVariantSelect(variants, selected) : `<span>${escapeHtml(selected.strength || "")}</span>`}
+        <span class="catalog-stock ${stockClass(selected)}" data-catalog-stock>${stockText(selected)}</span>
+        <strong data-catalog-price>${priceHtml(selected)}</strong>
+      </div>
+      <button class="card-cart-button" data-add-to-cart="${escapeAttribute(selected.product_key)}">Add to Cart</button>
     </article>
   `;
+}
+
+function catalogVariantSelect(variants, selected) {
+  return `
+    <label class="catalog-dose">
+      <span>Dose</span>
+      <select data-catalog-variant-select>
+        ${variants.map((product) => `
+          <option value="${escapeAttribute(product.product_key)}"
+            ${product.product_key === selected.product_key ? "selected" : ""}
+            data-href="${escapeAttribute(productUrl(product))}"
+            data-price="${escapeAttribute(priceHtml(product))}"
+            data-stock-text="${escapeAttribute(stockText(product))}"
+            data-stock-class="${escapeAttribute(stockClass(product))}"
+            data-sale="${escapeAttribute(saleBadge(product))}">
+            ${escapeHtml(product.strength || product.product_key)}
+          </option>
+        `).join("")}
+      </select>
+    </label>
+  `;
+}
+
+function bindCatalogVariantSelectors() {
+  document.querySelectorAll("[data-catalog-variant-select]").forEach((select) => {
+    if (select.dataset.bound) return;
+    select.dataset.bound = "true";
+    select.addEventListener("change", () => {
+      const card = select.closest("[data-catalog-card]");
+      const option = select.selectedOptions[0];
+      if (!card || !option) return;
+      const link = card.querySelector("[data-catalog-link]");
+      const sale = card.querySelector("[data-catalog-sale]");
+      const stock = card.querySelector("[data-catalog-stock]");
+      const price = card.querySelector("[data-catalog-price]");
+      const button = card.querySelector("[data-add-to-cart]");
+      if (link) link.href = option.dataset.href || link.href;
+      if (sale) sale.innerHTML = option.dataset.sale || "";
+      if (stock) {
+        stock.textContent = option.dataset.stockText || "";
+        stock.className = `catalog-stock ${option.dataset.stockClass || ""}`.trim();
+      }
+      if (price) price.innerHTML = option.dataset.price || "";
+      if (button) button.dataset.addToCart = option.value;
+    });
+  });
 }
 
 function bindCartButtons() {
