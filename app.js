@@ -471,8 +471,9 @@ function productCard(group) {
 }
 
 function catalogDoseOptions(variants) {
+  const singleClass = variants.length === 1 ? " single-dose" : "";
   return `
-    <div class="catalog-dose-options">
+    <div class="catalog-dose-options${singleClass}">
       ${variants.map((product) => `
         <div class="catalog-dose-option">
           <a class="catalog-dose-name" href="${productUrl(product)}">${escapeHtml(product.strength || product.product_key)}</a>
