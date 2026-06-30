@@ -428,7 +428,7 @@ function productCard(product) {
   return `
     <article class="catalog-card">
       <a class="catalog-card-main" href="${productUrl(product)}">
-        <div><p>${escapeHtml(product.category || "Research product")}</p>${saleBadge(product)}<h2>${escapeHtml(product.display_name)}</h2><span>${escapeHtml(product.strength || "")}</span><strong>${priceHtml(product)}</strong></div>
+        <div><p>${escapeHtml(product.category || "Research product")}</p>${saleBadge(product)}<h2>${escapeHtml(product.display_name)}</h2><span>${escapeHtml(product.strength || "")}</span><span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span><strong>${priceHtml(product)}</strong></div>
       </a>
       <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>
     </article>
@@ -951,6 +951,13 @@ function stockText(product) {
   if (count <= 0) return "Out of stock";
   if (count <= 10) return "Limited stock";
   return "In stock";
+}
+
+function stockClass(product) {
+  const count = Number(product.current_inventory || 0);
+  if (count <= 0) return "out";
+  if (count <= 10) return "limited";
+  return "available";
 }
 
 function escapeHtml(value) {
