@@ -467,7 +467,24 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       if (field === "price") return Number(product.sale_enabled && product.sale_price ? product.sale_price : product.price || 0);
       if (field === "current_inventory") return Number(product.current_inventory || 0);
       if (field === "is_active") return product.is_active ? 1 : 0;
+      if (field === "strength") return doseSortValue(product.strength);
       return String(product[field] || "").toLowerCase();
+    }
+
+    function doseSortValue(value) {
+      const matches = String(value || "").match(/\d+(?:\.\d+)?/g);
+      if (!matches) return Number.POSITIVE_INFINITY;
+      return matches.reduce((sum, part) => sum + Number(part || 0), 0);
+    }
+
+    function compareText(a, b) {
+      return String(a || "").localeCompare(String(b || ""), undefined, { numeric: true, sensitivity: "base" });
+    }
+
+    function compareStrength(a, b) {
+      const doseCompare = doseSortValue(a) - doseSortValue(b);
+      if (doseCompare) return doseCompare;
+      return compareText(a, b);
     }
 
     function compareProductsForSort(a, b) {
@@ -478,10 +495,17 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       if (typeof aValue === "number" && typeof bValue === "number") {
         result = aValue - bValue;
       } else {
-        result = String(aValue).localeCompare(String(bValue), undefined, { numeric: true, sensitivity: "base" });
+        result = compareText(aValue, bValue);
       }
-      if (result === 0 && productSort.field !== "display_name") {
-        result = String(a.display_name || "").localeCompare(String(b.display_name || ""), undefined, { numeric: true, sensitivity: "base" });
+      if (result === 0) {
+        if (productSort.field === "display_name") {
+          result = compareStrength(a.strength, b.strength);
+        } else if (productSort.field !== "strength") {
+          result = compareText(a.display_name, b.display_name);
+        }
+      }
+      if (result === 0 && productSort.field !== "product_key") {
+        result = compareText(a.product_key, b.product_key);
       }
       return result * direction;
     }
@@ -691,7 +715,13 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         setStatus(`${productKey} created.`, "good");
       }
 
-      products = [...products, data].sort((a, b) => String(a.sort_name || a.display_name || "").localeCompare(String(b.sort_name || b.display_name || "")));
+      products = [...products, data].sort((a, b) => {
+        const nameCompare = compareText(a.display_name, b.display_name);
+        if (nameCompare) return nameCompare;
+        const strengthCompare = compareStrength(a.strength, b.strength);
+        if (strengthCompare) return strengthCompare;
+        return compareText(a.product_key, b.product_key);
+      });
       closeNewProductModal();
       populateCategories();
       hideProductEditor();
