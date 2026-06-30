@@ -478,7 +478,6 @@ function productCard(group) {
 function catalogVariantSelect(variants, selected) {
   return `
     <label class="catalog-dose">
-      <span>Dose</span>
       <select data-catalog-variant-select>
         ${variants.map((product) => `
           <option value="${escapeAttribute(product.product_key)}"
