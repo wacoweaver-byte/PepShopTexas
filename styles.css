@@ -39,7 +39,7 @@ a { color: inherit; text-decoration: none; }
 .search button { display: grid; place-items: center; width: 34px; height: 34px; color: #fff; background: transparent; border: 0; cursor: pointer; }
 .search svg, .quick-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-.hero { height: 360px; background: url("pst-hero-recreated-final-1536x360.png") center top / cover no-repeat; }
+.hero { height: 480px; background: url("pst-hero-final-natural-crop.png") center top / cover no-repeat; }
 .quick-panel { display: grid; grid-template-columns: repeat(4, 1fr); width: min(var(--page-width), calc(100% - 48px)); min-height: 180px; margin: -1px auto 22px; padding: 24px 28px 20px; background: rgba(255,255,255,.96); border-radius: 8px; box-shadow: var(--soft-shadow); }
 .quick-link { display: grid; align-content: center; justify-items: center; min-width: 0; padding: 0 28px; text-align: center; }
 .quick-link + .quick-link { border-left: 1px solid var(--line); }
@@ -176,7 +176,7 @@ a { color: inherit; text-decoration: none; }
   .search { justify-self: stretch; width: 100%; max-width: 360px; }
   .hero {
     height: auto;
-    aspect-ratio: 1536 / 360;
+    aspect-ratio: 1536 / 480;
     background-color: #fff;
     background-size: contain;
   }
