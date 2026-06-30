@@ -321,8 +321,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           <table>
             <thead>
               <tr>
-                <th><button class="sort-btn" type="button" data-sort-field="product_key">Item #</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="display_name">Product</button></th>
+                <th><button class="sort-btn" type="button" data-sort-field="product_key">Item #</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="strength">Strength</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="category">Category</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="price">Price</button></th>
@@ -493,8 +493,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       const rows = filteredProducts();
       $("productRows").innerHTML = rows.length ? rows.map(product => `
         <tr data-product-id="${product.id}" class="${activeProduct?.id === product.id ? "active" : ""}">
-          <td><strong>${esc(product.product_key || "")}</strong></td>
           <td><strong>${esc(product.display_name)}</strong></td>
+          <td><strong>${esc(product.product_key || "")}</strong></td>
           <td>${esc(product.strength || "")}</td>
           <td>${esc(product.category || "")}</td>
           <td>${money(product.sale_enabled && product.sale_price ? product.sale_price : product.price)}</td>
