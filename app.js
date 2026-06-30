@@ -204,13 +204,32 @@ async function getProducts() {
 }
 
 function sortProductsForCatalog(products) {
-  return [...products].sort((a, b) => {
-    const nameCompare = String(a.display_name || "").localeCompare(String(b.display_name || ""), undefined, { numeric: true, sensitivity: "base" });
-    if (nameCompare) return nameCompare;
-    const strengthCompare = String(a.strength || "").localeCompare(String(b.strength || ""), undefined, { numeric: true, sensitivity: "base" });
-    if (strengthCompare) return strengthCompare;
-    return String(a.product_key || "").localeCompare(String(b.product_key || ""), undefined, { numeric: true, sensitivity: "base" });
-  });
+  return [...products].sort(compareProductsForCatalog);
+}
+
+function compareProductsForCatalog(a, b) {
+  const nameCompare = compareCatalogText(a?.display_name, b?.display_name);
+  if (nameCompare) return nameCompare;
+  const strengthCompare = compareDoseStrength(a?.strength, b?.strength);
+  if (strengthCompare) return strengthCompare;
+  return compareCatalogText(a?.product_key, b?.product_key);
+}
+
+function compareCatalogText(a, b) {
+  return String(a || "").localeCompare(String(b || ""), undefined, { numeric: true, sensitivity: "base" });
+}
+
+function compareDoseStrength(a, b) {
+  const aValue = doseSortValue(a);
+  const bValue = doseSortValue(b);
+  if (aValue !== bValue) return aValue - bValue;
+  return compareCatalogText(a, b);
+}
+
+function doseSortValue(value) {
+  const matches = String(value || "").match(/\d+(?:\.\d+)?/g);
+  if (!matches) return Number.POSITIVE_INFINITY;
+  return matches.reduce((sum, part) => sum + Number(part || 0), 0);
 }
 
 async function getProduct(productKey) {
@@ -452,7 +471,9 @@ function groupCatalogProducts(products) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(product);
   });
-  return [...groups.values()].map(sortProductsForCatalog);
+  return [...groups.values()]
+    .map(sortProductsForCatalog)
+    .sort((a, b) => compareProductsForCatalog(a[0], b[0]));
 }
 
 function productCard(group) {
