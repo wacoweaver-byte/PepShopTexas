@@ -466,7 +466,7 @@ function productCard(group) {
         <p>${escapeHtml(selected.category || "Research product")}</p>
         <span data-catalog-sale>${saleBadge(selected)}</span>
         <h2><a href="${productUrl(selected)}" data-catalog-link>${escapeHtml(selected.display_name)}</a></h2>
-        ${hasVariants ? catalogVariantSelect(variants, selected) : `<span>${escapeHtml(selected.strength || "")}</span>`}
+        ${hasVariants ? catalogVariantSelect(variants, selected) : `<span class="catalog-strength">${escapeHtml(selected.strength || "")}</span><span class="catalog-dose-spacer" aria-hidden="true"></span>`}
         <span class="catalog-stock ${stockClass(selected)}" data-catalog-stock>${stockText(selected)}</span>
         <strong data-catalog-price>${priceHtml(selected)}</strong>
       </div>
