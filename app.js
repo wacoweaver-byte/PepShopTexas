@@ -392,21 +392,20 @@ async function renderCartPage() {
   const itemsNode = document.querySelector("[data-cart-items]");
   const summaryNode = document.querySelector("[data-cart-summary]");
   const cart = readCart();
-  if (!cart.length) {
-    itemsNode.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Add products from the catalog to begin an order.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>`;
-    summaryNode.innerHTML = summaryHtml([]);
-    return;
-  }
 
   try {
-    const [products, user, paymentMethods] = await Promise.all([getProducts(), getSignedInUser(), getPaymentMethods()]);
+    const [products, user, paymentMethods] = await Promise.all([cart.length ? getProducts() : Promise.resolve([]), getSignedInUser(), getPaymentMethods()]);
     const profile = user ? await getCustomerProfile(user) : null;
     const rows = cart.map((item) => {
       const product = products.find((p) => p.product_key === item.key);
       return product ? { product, quantity: item.quantity } : null;
     }).filter(Boolean);
 
-    itemsNode.innerHTML = rows.map(cartRow).join("");
+    if (!cart.length) {
+      itemsNode.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Add products from the catalog to begin an order.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>`;
+    } else {
+      itemsNode.innerHTML = rows.map(cartRow).join("");
+    }
     summaryNode.innerHTML = summaryHtml(rows, { user, profile, paymentMethods });
     bindCartPageButtons();
   } catch (error) {
@@ -501,7 +500,7 @@ function cartRow({ product, quantity }) {
       <div><h2><a href="${productUrl(product)}">${escapeHtml(productTitle(product))}</a></h2><p>${priceHtml(product)}</p></div>
       <input type="number" min="1" value="${quantity}" data-cart-qty="${escapeAttribute(product.product_key)}">
       <strong>${formatMoney(unitPrice(product) * quantity)}</strong>
-      <button data-remove-cart="${escapeAttribute(product.product_key)}">Remove</button>
+      <button class="cart-remove-button" data-remove-cart="${escapeAttribute(product.product_key)}">Remove</button>
     </article>
   `;
 }
@@ -522,7 +521,10 @@ function summaryHtml(rows, context = {}) {
     <div class="summary-line"><span>Tax ${escapeHtml(totals.taxLabel)}</span><strong>${formatMoney(totals.tax)}</strong></div>
     <div class="summary-line summary-total"><span>Total</span><strong>${formatMoney(totals.total)}</strong></div>
     <p class="checkout-note">Submit your order to PEP Shop Texas. It will appear in Order Management for review and payment confirmation.</p>
-    ${user ? checkoutFormHtml(rows, { name, email, phone, address, paymentMethods }) : `
+    ${!rows.length ? `
+      <p class="checkout-note">${user ? "You are signed in. Add products to your cart when you are ready to place an order." : "Add products to your cart, then log in or create an account to place the order."}</p>
+      <a class="primary-action" href="catalog.html">Browse Products</a>
+    ` : user ? checkoutFormHtml(rows, { name, email, phone, address, paymentMethods }) : `
       <p class="checkout-note">Log in or create an account before placing an order so it can be saved to your account.</p>
       <a class="primary-action ${rows.length ? "" : "disabled"}" href="login.html?redirect=cart.html">Log In to Checkout</a>
       <a class="secondary-action" href="register.html">Create Account</a>
