@@ -193,5 +193,33 @@ a { color: inherit; text-decoration: none; }
   .catalog-dose-options, .catalog-dose-options.single-dose { grid-template-columns: minmax(0, 1fr); }
   .catalog-dose-option { width: 100%; }
 }
-
+/* Keep catalog dose tiles side by side at the approved tile size. */
+.catalog-dose-options,
+.catalog-dose-options.single-dose {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16px;
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+.catalog-dose-option {
+  flex: 0 0 258px;
+  width: 258px;
+  min-height: 222px;
+}
+@media (max-width: 620px) {
+  .catalog-dose-options,
+  .catalog-dose-options.single-dose {
+    display: flex;
+    grid-template-columns: none;
+  }
+  .catalog-dose-option {
+    flex-basis: 258px;
+    width: 258px;
+  }
+}
 
