@@ -176,3 +176,20 @@ a { color: inherit; text-decoration: none; }
   .cart-row input, .cart-row strong, .cart-row button { grid-column: 1; }
   .trust-bar { grid-template-columns: 1fr; width: 100%; min-height: 0; padding: 20px 24px; }
 }
+/* Catalog dose cards: keep multi-size options side by side. */
+.catalog-card { position: relative; }
+.catalog-card [data-catalog-sale]:empty { display: none; }
+.catalog-dose-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; align-items: stretch; margin-top: 8px; }
+.catalog-dose-options.single-dose { grid-template-columns: minmax(150px, 220px); }
+.catalog-dose-option { display: grid; grid-template-rows: auto auto auto 44px; align-content: start; gap: 7px; min-width: 0; padding: 10px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+.catalog-dose-name { color: var(--ink); font-size: 14px; font-weight: 900; line-height: 1.2; }
+.catalog-card .catalog-stock { display: inline-grid; width: max-content; max-width: 100%; margin: 0; padding: 5px 8px; font-size: 11px; font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: .03em; border-radius: 999px; }
+.catalog-card .catalog-stock.available { color: #0c3b22; background: #e8f6ee; }
+.catalog-card .catalog-stock.limited { color: #7a3f00; background: #fff3d6; }
+.catalog-card .catalog-stock.out { color: #8a1f17; background: #fde8e7; }
+.catalog-dose-option strong { display: block; width: max-content; }
+.catalog-dose-option .card-cart-button { align-self: end; justify-self: stretch; width: 100%; height: 44px; min-height: 0; }
+@media (max-width: 520px) {
+  .catalog-dose-options { grid-template-columns: 1fr; }
+}
+
