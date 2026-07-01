@@ -3,57 +3,60 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shipping & Returns | PEP Shop Texas</title>
+  <title>Shipping | PEP Shop Texas</title>
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="styles.css?v=19">
+  <link rel="stylesheet" href="styles.css?v=45">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=22"></script>
+  <script defer src="app.js?v=39"></script>
 </head>
 <body>
-  <header class="site-header compact-header">
-    <a class="brand" href="index.html" aria-label="PEP Shop Texas home"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
+      <span class="brand-main">PEP SHOP</span>
+      <span class="brand-sub">TEXAS</span>
+    </a>
     <nav class="main-nav" aria-label="Main navigation">
-      <a href="catalog.html">PEPTIDES A-Z</a>
-      <a href="catalog.html?category=Stack">TOP STACKS</a>
+      <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">&#8964;</span></a>
+      <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">&#8964;</span></a>
       <a href="faq.html">FAQ</a>
       <a href="contact.html">CONTACT</a>
       <a href="account.html">ACCOUNT</a>
       <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
     </nav>
     <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
-      <input name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
+      <label class="sr-only" for="site-search">Search peptides</label>
+      <input id="site-search" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+      </button>
     </form>
   </header>
 
-  <main class="faq-page">
-    <section class="page-heading">
+  <main class="faq-page policy-page">
+    <section class="page-heading policy-heading">
       <p>Policy</p>
-      <h1>Shipping & Returns</h1>
     </section>
 
-    <section class="faq-shell" aria-label="Shipping and returns policy">
-      <article class="faq-card">
+    <section class="faq-shell policy-shell" aria-label="Shipping">
+      <article class="faq-card policy-card">
         <h2>Shipping</h2>
         <p>Orders ship from Central Texas after payment has been confirmed.</p>
-        <p>Typical processing time is 1-2 business days, excluding weekends and holidays.</p>
+        <p>Typical processing time is 1–2 business days, excluding weekends and holidays.</p>
         <p>Available shipping options may include standard, 3-day, or 2-day shipping depending on carrier availability and checkout selections.</p>
         <p>Tracking information will be provided when available. Carrier delays, weather delays, and address issues are outside the control of PEP Shop Texas.</p>
       </article>
-
-      <article class="faq-card">
+<article class="faq-card policy-card">
         <h2>Returns</h2>
         <p>Due to product handling, storage, and research-product integrity concerns, returns are not accepted once an order has shipped.</p>
         <p>If an order arrives damaged, missing an item, or incorrect, contact PEP Shop Texas within 48 hours of delivery so the issue can be reviewed.</p>
         <p>Damaged, missing, or incorrect item concerns are reviewed case by case.</p>
       </article>
-
-      <article class="faq-card">
+<article class="faq-card policy-card">
         <h2>Contact</h2>
         <p>For shipping or order questions, contact PEP Shop Texas support. Please include your order number when available.</p>
         <div class="faq-actions"><a href="mailto:support@pepshoptexas.com">support@pepshoptexas.com</a></div>
@@ -61,11 +64,26 @@
     </section>
   </main>
 
-  <footer class="trust-bar">
+  <footer class="site-footer">
+  <div class="trust-bar">
     <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
     <div><span><strong>QUALITY</strong>Third-party tested</span></div>
     <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
     <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
-  </footer>
+  </div>
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <strong>Pep Shop Texas</strong>
+      <span>Research-use catalog. Not for human or veterinary use.</span>
+    </div>
+    <nav class="site-footer-links" aria-label="Footer policies">
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="shipping.html">Shipping</a>
+      <a href="returns.html">Returns</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</footer>
 </body>
 </html>

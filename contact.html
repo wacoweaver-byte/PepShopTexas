@@ -4,33 +4,44 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Contact | PEP Shop Texas</title>
-    <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000"><link rel="stylesheet" href="styles.css?v=19">
+  <meta name="theme-color" content="#bd0000">
+  <link rel="stylesheet" href="styles.css?v=45">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=22"></script>
+  <script defer src="app.js?v=39"></script>
 </head>
 <body>
-  <header class="site-header compact-header">
-    <a class="brand" href="index.html"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
-    <nav class="main-nav">
-      <a href="catalog.html">PEPTIDES A-Z</a>
-      <a href="catalog.html?category=Stack">TOP STACKS</a>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
+      <span class="brand-main">PEP SHOP</span>
+      <span class="brand-sub">TEXAS</span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">&#8964;</span></a>
+      <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">&#8964;</span></a>
       <a href="faq.html">FAQ</a>
       <a href="contact.html">CONTACT</a>
       <a href="account.html">ACCOUNT</a>
       <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
     </nav>
     <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
-      <input name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
+      <label class="sr-only" for="site-search">Search peptides</label>
+      <input id="site-search" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+      </button>
     </form>
   </header>
+
   <main class="contact-page">
-    <section class="page-heading"><p>Support</p><h1>Contact PEP Shop Texas</h1></section>
+    <section class="page-heading policy-heading">
+      <p>Support</p>
+    </section>
+
     <section class="contact-shell">
       <div class="contact-primary">
         <h2>Research Product Support</h2>
@@ -43,5 +54,27 @@
       </aside>
     </section>
   </main>
+
+  <footer class="site-footer">
+  <div class="trust-bar">
+    <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
+    <div><span><strong>QUALITY</strong>Third-party tested</span></div>
+    <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
+    <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
+  </div>
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <strong>Pep Shop Texas</strong>
+      <span>Research-use catalog. Not for human or veterinary use.</span>
+    </div>
+    <nav class="site-footer-links" aria-label="Footer policies">
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="shipping.html">Shipping</a>
+      <a href="returns.html">Returns</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</footer>
 </body>
 </html>

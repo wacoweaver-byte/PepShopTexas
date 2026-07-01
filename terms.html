@@ -1,170 +1,115 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pep Shop Texas | Terms</title>
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#bd0000"><style>
-
-:root {
-  --blue:#003f9e;
-  --black:#050505;
-  --white:#ffffff;
-  --line:#e6e6e6;
-  --soft:#f7f9fc;
-  --muted:#555;
-  --danger:#b00020;
-}
-* { box-sizing:border-box; }
-body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#fff; color:#111; }
-.top-strip {
-  background:#050505; color:#fff; font-size:13px; font-weight:900; text-transform:uppercase;
-  display:flex; justify-content:space-between; gap:20px; padding:9px 36px;
-}
-header { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20; }
-.nav { max-width:1180px; margin:auto; padding:14px 34px; display:flex; justify-content:space-between; align-items:center; gap:24px; }
-.logo-mark { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-decoration:none; color:#111; font-size:36px; letter-spacing:1px; }
-.logo-mark span { color:var(--blue); }
-.menu { display:flex; gap:22px; align-items:center; text-transform:uppercase; font-weight:900; font-size:14px; flex-wrap:wrap; }
-.menu a { color:#111; text-decoration:none; white-space:nowrap; }
-.menu a.active { color:var(--blue); border-bottom:2px solid var(--blue); padding-bottom:6px; }
-.wrap { max-width:1000px; margin:auto; padding:0 34px; }
-.hero { background:linear-gradient(135deg,#06111f 0%,#0f2748 52%,#003f9e 100%); color:#fff; padding:62px 0; }
-.kicker {
-  display:inline-block; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22);
-  padding:8px 12px; border-radius:999px; text-transform:uppercase; font-weight:900; font-size:12px; letter-spacing:1.2px;
-}
-.hero h1 { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:clamp(40px,7vw,78px); line-height:.92; margin:18px 0 14px; }
-.hero p { max-width:800px; color:rgba(255,255,255,.88); font-size:18px; line-height:1.55; }
-.section { padding:40px 0; }
-.policy-card {
-  border:1px solid var(--line); border-radius:16px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.06);
-  padding:28px; margin-bottom:18px;
-}
-h2 { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:34px; margin:0 0 10px; }
-h3 { text-transform:uppercase; color:var(--blue); margin:24px 0 8px; }
-p, li { color:#333; line-height:1.62; }
-ul { padding-left:22px; }
-.notice {
-  background:#f4f8ff; border:1px solid #d9e7ff; color:#153f76; border-radius:12px; padding:15px; font-weight:800; line-height:1.5;
-}
-.warning {
-  background:#fff0f0; border:1px solid #ffb8c0; color:var(--danger); border-radius:12px; padding:15px; font-weight:800; line-height:1.5;
-}
-.btn {
-  display:inline-block; border:2px solid var(--blue); background:var(--blue); color:#fff; border-radius:8px;
-  padding:12px 18px; font-weight:900; text-transform:uppercase; text-decoration:none; margin-top:10px;
-}
-footer { background:#fff; border-top:1px solid var(--line); margin-top:30px; }
-.footer-inner { max-width:1180px; margin:auto; padding:34px; display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:30px; }
-footer h4 { text-transform:uppercase; color:var(--blue); margin:0 0 12px; }
-footer a { display:block; color:#222; text-decoration:none; margin:8px 0; }
-.bottom { background:var(--blue); color:#fff; text-align:center; padding:14px; font-weight:800; }
-@media(max-width:820px) {
-  .top-strip { display:none; }
-  .nav { flex-direction:column; align-items:flex-start; }
-  .footer-inner { grid-template-columns:1fr; }
-}
-
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Terms | PEP Shop Texas</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#bd0000">
+  <link rel="stylesheet" href="styles.css?v=45">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js?v=39"></script>
 </head>
 <body>
-<div class="top-strip">
-  <span>Research use only</span>
-  <span>Not for human or veterinary use</span>
-  <span>Not medical advice</span>
-</div>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
+      <span class="brand-main">PEP SHOP</span>
+      <span class="brand-sub">TEXAS</span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">&#8964;</span></a>
+      <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">&#8964;</span></a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">CONTACT</a>
+      <a href="account.html">ACCOUNT</a>
+      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
+    </nav>
+    <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
+      <label class="sr-only" for="site-search">Search peptides</label>
+      <input id="site-search" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+      </button>
+    </form>
+  </header>
 
-<header>
-  <nav class="nav">
-    <a class="logo-mark" href="index.html">P<span>S</span>T</a>
-    <div class="menu">
-      <a href="index.html">Home</a>
-      <a href="index.html#az">Peptides A-Z</a>
-      <a href="index.html#featured">Featured</a>
-      <a href="research-library.html">Research</a>
-      <a href="contact.html" >Contact</a>
-    </div>
-  </nav>
-</header>
+  <main class="faq-page policy-page">
+    <section class="page-heading policy-heading">
+      <p>Policies</p>
+    </section>
 
-<section class="hero">
-  <div class="wrap">
-    <span class="kicker">Pep Shop Texas Policies</span>
-    <h1>Terms of Use</h1>
-    <p>Terms for website access, account use, research-use product listings, and order handling.</p>
+    <section class="faq-shell policy-shell" aria-label="Terms">
+      <article class="faq-card policy-card">
+        <h2>Terms of Use</h2>
+        <p>Important: Pep Shop Texas products and information are provided for research-use context only. Products are not for human or veterinary use. This website does not provide medical advice.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Acceptance of Terms</h2>
+        <p>By accessing this website, creating an account, or placing an order, you agree to these Terms of Use and all posted policies.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Research-Use-Only Products</h2>
+        <p>Products listed by Pep Shop Texas are offered for research-use context only. Products are not intended for human use, veterinary use, diagnostic use, therapeutic use, cosmetic use, food use, or household use.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>No Medical Advice</h2>
+        <p>Website content, product descriptions, product names, research notes, images, and customer communications are not medical advice and should not be interpreted as treatment guidance, dosing guidance, health advice, or a recommendation for human or animal use.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Customer Responsibility</h2>
+        <p>Customers are responsible for understanding and complying with all applicable laws, regulations, institutional rules, and safety requirements related to purchase, possession, handling, storage, and use of research materials.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Age Requirement</h2>
+        <p>Customers must be at least 18 years old to use this website or place an order.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Product Information and Testing</h2>
+        <p>Batch-specific third-party testing documentation may be available when listed. Pep Shop Texas does not make a blanket purity guarantee unless a matching lot-specific document is listed for the product and batch.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Orders and Payment</h2>
+        <p>Orders may be reviewed, rejected, cancelled, or held pending payment verification. Order acceptance is not final until inventory, payment status, and order details are confirmed.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Inventory and Availability</h2>
+        <p>Product availability may change. If inventory changes before checkout completion, the order may be blocked or adjusted. If an order cannot be fulfilled, Pep Shop Texas may cancel or reject the order and restore inventory when applicable.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Product Images</h2>
+        <p>Product images, vial renderings, label designs, and packaging visuals are representative only and may not reflect the final product, lot, batch, label, cap color, or documentation.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Policy Changes</h2>
+        <p>Pep Shop Texas may update these terms at any time. Continued use of the website means you accept the updated terms.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+  <div class="trust-bar">
+    <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
+    <div><span><strong>QUALITY</strong>Third-party tested</span></div>
+    <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
+    <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
   </div>
-</section>
-
-<main class="section">
-  <div class="wrap">
-    
-<div class="policy-card">
-  <h2>Terms of Use</h2>
-  <div class="warning">
-    Important: Pep Shop Texas products and information are provided for research-use context only. Products are not for human or veterinary use. This website does not provide medical advice.
-  </div>
-
-  <h3>1. Acceptance of Terms</h3>
-  <p>By accessing this website, creating an account, or placing an order, you agree to these Terms of Use and all posted policies.</p>
-
-  <h3>2. Research-Use-Only Products</h3>
-  <p>Products listed by Pep Shop Texas are offered for research-use context only. Products are not intended for human use, veterinary use, diagnostic use, therapeutic use, cosmetic use, food use, or household use.</p>
-
-  <h3>3. No Medical Advice</h3>
-  <p>Website content, product descriptions, product names, research notes, images, and customer communications are not medical advice and should not be interpreted as treatment guidance, dosing guidance, health advice, or a recommendation for human or animal use.</p>
-
-  <h3>4. Customer Responsibility</h3>
-  <p>Customers are responsible for understanding and complying with all applicable laws, regulations, institutional rules, and safety requirements related to purchase, possession, handling, storage, and use of research materials.</p>
-
-  <h3>5. Age Requirement</h3>
-  <p>Customers must be at least 18 years old to use this website or place an order.</p>
-
-  <h3>6. Product Information and Testing</h3>
-  <p>Batch-specific third-party testing documentation may be available when listed. Pep Shop Texas does not make a blanket purity guarantee unless a matching lot-specific document is listed for the product and batch.</p>
-
-  <h3>7. Orders and Payment</h3>
-  <p>Orders may be reviewed, rejected, cancelled, or held pending payment verification. Order acceptance is not final until inventory, payment status, and order details are confirmed.</p>
-
-  <h3>8. Inventory and Availability</h3>
-  <p>Product availability may change. If inventory changes before checkout completion, the order may be blocked or adjusted. If an order cannot be fulfilled, Pep Shop Texas may cancel or reject the order and restore inventory when applicable.</p>
-
-  <h3>9. Product Images</h3>
-  <p>Product images, vial renderings, label designs, and packaging visuals are representative only and may not reflect the final product, lot, batch, label, cap color, or documentation.</p>
-
-  <h3>10. Policy Changes</h3>
-  <p>Pep Shop Texas may update these terms at any time. Continued use of the website means you accept the updated terms.</p>
-</div>
-
-  </div>
-</main>
-
-<footer>
-  <div class="footer-inner">
-    <div>
-      <h4>Pep Shop Texas</h4>
-      <p>Research-use catalog and product information. Not for human or veterinary use. Not medical advice.</p>
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <strong>Pep Shop Texas</strong>
+      <span>Research-use catalog. Not for human or veterinary use.</span>
     </div>
-    <div>
-      <h4>Resources</h4>
-      <a href="research-library.html">Research Library</a>
-      <a href="contact.html">Contact</a>
-      <a href="index.html#faq">FAQ</a>
-    </div>
-    <div>
-      <h4>Policies</h4>
+    <nav class="site-footer-links" aria-label="Footer policies">
       <a href="terms.html">Terms</a>
       <a href="privacy.html">Privacy</a>
       <a href="shipping.html">Shipping</a>
       <a href="returns.html">Returns</a>
-    </div>
+      <a href="contact.html">Contact</a>
+    </nav>
   </div>
-  <div class="bottom">© Pep Shop Texas. Research use only. Not for human or veterinary use.</div>
 </footer>
 </body>
 </html>

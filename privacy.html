@@ -1,113 +1,134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Privacy Policy | Pep Shop Texas</title>
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#bd0000"><link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-:root{--blue:#003f9e;--black:#050505;--line:#e6e6e6;--soft:#f7f9fb;--muted:#555;--font:'Montserrat',Arial,Helvetica,sans-serif}*{box-sizing:border-box}body{margin:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;line-height:1.6}header{border-bottom:1px solid var(--line);background:#fff}.nav{max-width:1180px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px}.logo{font-family:var(--font);font-weight:900;text-transform:uppercase;color:#111;text-decoration:none;font-size:24px}.logo span{color:var(--blue)}.nav a.btn{border:2px solid var(--blue);color:var(--blue);padding:10px 16px;border-radius:4px;text-decoration:none;font-weight:900;text-transform:uppercase;font-size:13px}.hero{background:linear-gradient(180deg,#fff 0%,#f4f8ff 100%);border-bottom:1px solid var(--line)}.wrap{max-width:980px;margin:0 auto;padding:34px 24px}.hero h1{font-family:var(--font);font-size:clamp(34px,5vw,58px);line-height:1;margin:0 0 10px;text-transform:uppercase}.hero p{margin:0;color:var(--muted);font-weight:700}.policy{max-width:980px;margin:0 auto;padding:28px 24px 60px}.card{border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.05);padding:26px}.card h2{font-family:var(--font);color:var(--blue);text-transform:uppercase;font-size:20px;margin:28px 0 8px}.card h2:first-child{margin-top:0}.card p,.card li{color:#333}.card ul{padding-left:22px}.effective{font-weight:900;color:#111}.notice{background:#f4f8ff;border:1px solid #d9e7ff;border-radius:10px;padding:14px 16px;font-weight:700;color:#153f76}footer{border-top:1px solid var(--line);padding:18px 24px;text-align:center;color:#555;font-size:13px}
-
-/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
-   Purpose: standardize font hierarchy and logo display across public/admin pages.
-   Keep actions/prices readable without the heavy all-bold/Impact look.
-*/
-:root {
-  --pst-ui-font: Arial, Helvetica, sans-serif;
-}
-body, input, button, select, textarea {
-  font-family: var(--pst-ui-font) !important;
-}
-.brand, .logo, .logo-mark {
-  display: inline-flex !important;
-  align-items: center !important;
-  text-decoration: none !important;
-}
-.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
-  display: block !important;
-  height: auto !important;
-  object-fit: contain !important;
-}
-.brand-logo-img, .account-logo-img {
-  width: clamp(155px, 18vw, 220px) !important;
-  max-width: 100% !important;
-}
-.pst-master-admin-logo {
-  width: clamp(150px, 16vw, 210px) !important;
-  max-width: 100% !important;
-}
-.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
-.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
-.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
-.product-title, .discount-title, .customer-title, h1, h2, h3 {
-  font-family: var(--pst-ui-font) !important;
-  font-weight: 600 !important;
-  letter-spacing: .01em !important;
-}
-.page-title {
-  font-weight: 600 !important;
-  text-transform: none !important;
-}
-.menu, .menu a, .account-status, .account-status a, .account-status button,
-.btn, button, label, th, .profile-row strong, .order-meta strong,
-.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
-  font-weight: 600 !important;
-}
-p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
-.email-pref-copy, .security-copy, .footer-disclaimer {
-  font-weight: 400 !important;
-}
-strong {
-  font-weight: 600 !important;
-}
-@media(max-width:560px) {
-  .brand-logo-img, .account-logo-img {
-    width: clamp(135px, 42vw, 170px) !important;
-  }
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy | PEP Shop Texas</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#bd0000">
+  <link rel="stylesheet" href="styles.css?v=45">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js?v=39"></script>
 </head>
 <body>
-<header><div class="nav"><a class="logo" href="index.html" aria-label="Pep Shop Texas home"><img class="brand-logo-img" src="assets/icons/pst-logo-extracted.jpg?v=2" alt="Pep Shop Texas"></a><a class="btn" href="index.html">Back to Website</a></div></header>
-<section class="hero"><div class="wrap"><h1>Privacy Policy</h1><p class="effective">Effective Date: June 11, 2026</p></div></section>
-<main class="policy"><div class="card">
-<div class="notice">Pep Shop Texas respects customer privacy. This policy explains what information may be collected, how it is used, and how customers may contact us with privacy questions.</div>
-<h2>Information We Collect</h2>
-<p>We may collect information customers provide directly, including name, email address, phone number, account login information, shipping details, order details, and messages submitted through the website.</p>
-<h2>Account and Order Information</h2>
-<p>When customers create an account or place an order, information may be stored so the website can process orders, show order history, support reorders, manage customer service, and send order-related notifications.</p>
-<h2>Payment Information</h2>
-<p>Pep Shop Texas may display manual payment options or payment instructions. We do not intentionally publish full sensitive payment credentials on customer-facing pages. Payment confirmations may be manually reviewed before an order is marked paid.</p>
-<h2>Email and Order Notifications</h2>
-<p>We may use customer contact information to send order confirmations, payment updates, processing updates, shipping updates, delivery updates, and customer service messages.</p>
-<h2>Website Storage, Cookies, and Local Storage</h2>
-<p>The website may use browser storage, cookies, or similar technologies to support cart behavior, login sessions, checkout flow, account access, and site functionality.</p>
-<h2>Service Providers and Database Storage</h2>
-<p>Customer, account, order, and administrative information may be stored using third-party website infrastructure and database services, including Supabase, hosting providers, email services, and related tools used to operate the website.</p>
-<h2>How We Use Information</h2>
-<ul><li>To create and manage customer accounts.</li><li>To process, review, and fulfill orders.</li><li>To communicate order status and support requests.</li><li>To manage inventory, shipping, discounts, and internal operations.</li><li>To protect the website from fraud, abuse, unauthorized access, or misuse.</li></ul>
-<h2>Research-Use and Compliance</h2>
-<p>Products and information on the website may be presented for research-related purposes only where applicable. Customers are responsible for reviewing all product, legal, and compliance notices shown during registration, checkout, and product review.</p>
-<h2>Information Sharing</h2>
-<p>We do not sell customer personal information. Information may be shared only as needed to operate the website, process orders, provide customer service, comply with legal obligations, prevent fraud, or work with service providers supporting the business.</p>
-<h2>Data Security</h2>
-<p>We use reasonable administrative and technical safeguards to protect information. No website, database, or online transmission can be guaranteed completely secure.</p>
-<h2>Data Retention</h2>
-<p>We may retain account, order, audit, and communication records as needed for business operations, customer support, compliance, fraud prevention, and recordkeeping.</p>
-<h2>Customer Choices</h2>
-<p>Customers may contact Pep Shop Texas to request updates, corrections, or questions about personal information associated with their account or orders.</p>
-<h2>Policy Updates</h2>
-<p>This Privacy Policy may be updated from time to time. Updates will be posted on this page with a revised effective date.</p>
-<h2>Contact</h2>
-<p>For privacy questions, account questions, or order-support requests, contact Pep Shop Texas through the contact information provided on the website.</p>
-</div></main>
-<footer>© 2026 Pep Shop Texas. All rights reserved.</footer>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
+      <span class="brand-main">PEP SHOP</span>
+      <span class="brand-sub">TEXAS</span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">&#8964;</span></a>
+      <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">&#8964;</span></a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">CONTACT</a>
+      <a href="account.html">ACCOUNT</a>
+      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
+    </nav>
+    <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
+      <label class="sr-only" for="site-search">Search peptides</label>
+      <input id="site-search" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+      </button>
+    </form>
+  </header>
+
+  <main class="faq-page policy-page">
+    <section class="page-heading policy-heading">
+      <p>Policies</p>
+    </section>
+
+    <section class="faq-shell policy-shell" aria-label="Privacy">
+      <article class="faq-card policy-card">
+        <h2>Privacy Policy</h2>
+        <p>Pep Shop Texas respects customer privacy. This policy explains what information may be collected, how it is used, and how customers may contact us with privacy questions.</p>
+        <p>Effective Date: June 11, 2026</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Information We Collect</h2>
+        <p>We may collect information customers provide directly, including name, email address, phone number, account login information, shipping details, order details, and messages submitted through the website.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Account and Order Information</h2>
+        <p>When customers create an account or place an order, information may be stored so the website can process orders, show order history, support reorders, manage customer service, and send order-related notifications.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Payment Information</h2>
+        <p>Pep Shop Texas may display manual payment options or payment instructions. Payment confirmations may be manually reviewed before an order is marked paid.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Email and Order Notifications</h2>
+        <p>We may use customer contact information to send order confirmations, payment updates, processing updates, shipping updates, delivery updates, and customer service messages.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Website Storage</h2>
+        <p>The website may use browser storage, cookies, or similar technologies to support cart behavior, login sessions, checkout flow, account access, and site functionality.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Service Providers and Database Storage</h2>
+        <p>Customer, account, order, and administrative information may be stored using third-party website infrastructure and database services, including Supabase, hosting providers, email services, and related tools used to operate the website.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>How We Use Information</h2>
+        <ul>
+          <li>To create and manage customer accounts.</li>
+          <li>To process, review, and fulfill orders.</li>
+          <li>To communicate order status and support requests.</li>
+          <li>To manage inventory, shipping, discounts, and internal operations.</li>
+          <li>To protect the website from fraud, abuse, unauthorized access, or misuse.</li>
+        </ul>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Information Sharing</h2>
+        <p>We do not sell customer personal information. Information may be shared only as needed to operate the website, process orders, provide customer service, comply with legal obligations, prevent fraud, or work with service providers supporting the business.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Data Security</h2>
+        <p>We use reasonable administrative and technical safeguards to protect information. No website, database, or online transmission can be guaranteed completely secure.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Data Retention</h2>
+        <p>We may retain account, order, audit, and communication records as needed for business operations, customer support, compliance, fraud prevention, and recordkeeping.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Customer Choices</h2>
+        <p>Customers may contact Pep Shop Texas to request updates, corrections, or questions about personal information associated with their account or orders.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Policy Updates</h2>
+        <p>This Privacy Policy may be updated from time to time. Updates will be posted on this page with a revised effective date.</p>
+      </article>
+<article class="faq-card policy-card">
+        <h2>Contact</h2>
+        <p>For privacy questions, account questions, or order-support requests, contact Pep Shop Texas through the contact information provided on the website.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+  <div class="trust-bar">
+    <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
+    <div><span><strong>QUALITY</strong>Third-party tested</span></div>
+    <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
+    <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
+  </div>
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <strong>Pep Shop Texas</strong>
+      <span>Research-use catalog. Not for human or veterinary use.</span>
+    </div>
+    <nav class="site-footer-links" aria-label="Footer policies">
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="shipping.html">Shipping</a>
+      <a href="returns.html">Returns</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</footer>
 </body>
 </html>
