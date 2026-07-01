@@ -264,7 +264,7 @@ async function resolveProductKey(productKey) {
 
 async function renderHome() {
   try {
-    const [products, promotions, currentUser] = await Promise.all([getProducts(), getActivePromotions(), getCurrentUser()]);
+    const [products, promotions, currentUser] = await Promise.all([getProducts(), getActivePromotions(), getSignedInUser()]);
     const hot = products.filter((p) => p.hot_peptide || p.featured);
     const stacks = products.filter((p) => p.category === "Stack" || p.blend_stack);
     const newest = [...products].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
@@ -1081,4 +1081,5 @@ function validHexColor(value) {
   const color = String(value || "").trim();
   return /^#[0-9a-f]{6}$/i.test(color) ? color : "";
 }
+
 
