@@ -162,13 +162,14 @@ a { color: inherit; text-decoration: none; }
   .search { justify-self: stretch; width: 100%; max-width: 360px; }
   .hero { margin: 0; padding: 0; line-height: 0; background: none; }
 .hero img { display: block; width: 100%; height: auto; margin: 0; }
-  .quick-panel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: min(var(--page-width), calc(100% - 48px)); min-height: 0; margin: 18px auto 22px; padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
+  .quick-panel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: calc(100% - 24px); min-height: 0; margin: 18px auto 22px; padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
   .quick-link, .quick-link:nth-child(even), .quick-link:nth-child(n+3) { min-height: 128px; padding: 16px 10px; border: 1px solid #e1e5eb; border-radius: 8px; }
   .quick-link:nth-child(odd), .quick-link:nth-child(even), .quick-link:nth-child(-n+2) { border: 1px solid #e1e5eb; }
   .quick-icon { width: 46px; height: 46px; margin-bottom: 9px; font-size: 20px; }
   .quick-link strong { margin-bottom: 4px; font-size: 15px; }
   .quick-link > span:last-child { font-size: 12px; line-height: 1.25; }
   .promo-band, .product-grid, .catalog-page, .detail-page, .cart-page, .contact-page, .faq-page { width: calc(100% - 24px); }
+  .product-grid { grid-template-columns: 1fr; gap: 18px; }
   .promo-band { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
   .promo-band a { justify-self: start; }
   .catalog-toolbar, .detail-shell, .purchase-panel, .cart-layout, .contact-shell, .faq-shell { grid-template-columns: 1fr; }
@@ -1439,5 +1440,73 @@ a { color: inherit; text-decoration: none; }
   .site-footer-links {
     justify-content: flex-start;
     gap: 10px 16px;
+  }
+}
+
+/* =========================================================
+   PST V2 stabilization overrides
+   Purpose: preserve current desktop/catalog/product/cart styles while
+   correcting homepage/mobile regressions caused by earlier layered patches.
+   Keep this section at the very bottom of styles.css.
+   ========================================================= */
+@media (max-width: 760px) {
+  .hero,
+  .hero img {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .hero img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+  }
+
+  .quick-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: calc(100% - 24px) !important;
+    gap: 12px !important;
+    margin: 18px auto 22px !important;
+  }
+
+  .quick-link {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 150px !important;
+    padding: 16px 10px !important;
+  }
+
+  .quick-link strong {
+    font-size: 15px !important;
+    line-height: 1.18 !important;
+  }
+
+  .quick-link > span:last-child {
+    font-size: 13px !important;
+    line-height: 1.28 !important;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr !important;
+    width: calc(100% - 24px) !important;
+    gap: 18px !important;
+  }
+
+  .list-card {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .quick-panel {
+    width: calc(100% - 20px) !important;
+    gap: 10px !important;
+  }
+
+  .quick-link {
+    min-height: 142px !important;
   }
 }
