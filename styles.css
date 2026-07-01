@@ -593,3 +593,116 @@ a { color: inherit; text-decoration: none; }
   0% { box-shadow: 0 0 0 0 rgba(12,59,34,.28); }
   100% { box-shadow: 0 0 0 7px rgba(12,59,34,0); }
 }
+
+/* PST mobile header containment repair
+   Fixes catalog/header overflow caused by nav staying on one long row. */
+@media (max-width: 900px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .site-header {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    padding: 22px 14px 18px;
+    gap: 18px;
+    overflow: hidden;
+  }
+
+  .brand {
+    order: 1;
+    display: grid;
+    justify-items: center;
+    width: min(78vw, 330px) !important;
+    max-width: 100%;
+    margin: 0 auto;
+    transform: none !important;
+  }
+
+  .brand-main {
+    font-size: clamp(34px, 9.5vw, 54px);
+    line-height: .95;
+    letter-spacing: .06em;
+    text-align: center;
+  }
+
+  .brand-main::before,
+  .brand-main::after {
+    width: clamp(42px, 13vw, 72px);
+    bottom: -12px;
+  }
+
+  .brand-sub {
+    margin-top: 10px;
+    font-size: clamp(15px, 4vw, 23px);
+    letter-spacing: clamp(8px, 2.8vw, 16px);
+    transform: none !important;
+    text-align: center;
+  }
+
+  .main-nav {
+    order: 2;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    gap: 10px 18px;
+    padding: 0 4px;
+    font-size: clamp(12px, 3.2vw, 15px);
+    line-height: 1.15;
+    white-space: normal !important;
+    overflow: visible;
+  }
+
+  .main-nav a {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+
+  .main-nav a[href*="account"] {
+    max-width: 112px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cart-link span {
+    min-width: 22px;
+    height: 22px;
+    margin-left: 5px;
+  }
+
+  .search {
+    order: 3;
+    width: min(100%, 760px) !important;
+    max-width: 100% !important;
+    justify-self: auto;
+  }
+}
+
+@media (max-width: 430px) {
+  .site-header {
+    padding-inline: 12px;
+    gap: 16px;
+  }
+
+  .main-nav {
+    gap: 9px 14px;
+    font-size: 13px;
+  }
+
+  .main-nav a[href*="account"] {
+    max-width: 92px;
+  }
+}
