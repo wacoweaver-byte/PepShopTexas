@@ -422,8 +422,8 @@ async function renderProductDetail() {
         <div class="price-line">${priceHtml(product)}</div>
         <p class="stock">${stockText(product)}</p>
         <div class="purchase-panel">
-          <label>Quantity <input type="number" min="1" max="${Math.max(Number(product.current_inventory || 1), 1)}" value="1" data-detail-qty></label>
-          <button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>
+          <label>Quantity <input type="number" min="1" max="${Math.max(Number(product.current_inventory || 1), 1)}" value="1" data-detail-qty ${Number(product.current_inventory || 0) <= 0 ? "disabled" : ""}></label>
+          <button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out of Stock" : "Add to Cart"}</button>
           <a class="secondary-action" href="cart.html">View Cart</a>
         </div>
         <p class="research-use">Research use only. Not for human consumption.</p>
@@ -517,7 +517,7 @@ function catalogDoseOptions(variants) {
           <a class="catalog-dose-name" href="${productUrl(product)}">${escapeHtml(product.strength || product.product_key)}</a>
           <strong>${priceHtml(product)}</strong>
           <span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span>
-          <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>
+          <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out" : "Add to Cart"}</button>
         </div>
       `).join("")}
     </div>
@@ -526,14 +526,14 @@ function catalogDoseOptions(variants) {
 
 function bindCartButtons() {
   document.querySelectorAll("[data-add-to-cart]").forEach((button) => {
+    if (button.disabled || button.getAttribute("aria-disabled") === "true") return;
     if (button.dataset.bound) return;
     button.dataset.bound = "true";
     button.addEventListener("click", () => {
+      if (button.disabled || button.getAttribute("aria-disabled") === "true") return;
       const qtyInput = document.querySelector("[data-detail-qty]");
       const quantity = Math.max(Number(qtyInput?.value || 1), 1);
-
       addToCart(button.dataset.addToCart, quantity);
-
       button.classList.add("is-added");
       button.innerHTML = "✓ Added";
       button.setAttribute("aria-label", "Added to cart");
@@ -769,6 +769,19 @@ function paymentInstructionsText(method = {}) {
   return [accountLine, method.instructions || ""].filter(Boolean).join(" | ");
 }
 
+function unavailableCartRows(rows) {
+  return rows.filter((row) => Number(row.product?.current_inventory || 0) <= 0);
+}
+
+function insufficientCartRows(rows) {
+  return rows.filter((row) => Number(row.quantity || 0) > Number(row.product?.current_inventory || 0));
+}
+
+function unavailableCartMessage(rows) {
+  if (!rows.length) return "";
+  return rows.map((row) => `${productTitle(row.product)} (${stockText(row.product)})`).join(", ");
+}
+
 async function handleCheckoutSubmit(event) {
   event.preventDefault();
   const form = event.currentTarget;
@@ -799,6 +812,16 @@ async function handleCheckoutSubmit(event) {
       return product ? { product, quantity: Number(item.quantity || 1) } : null;
     }).filter(Boolean);
     if (!rows.length) throw new Error("The products in your cart are no longer available.");
+
+    const unavailable = unavailableCartRows(rows);
+    if (unavailable.length) {
+      throw new Error(`The following item is currently out of stock and cannot be ordered: ${unavailableCartMessage(unavailable)}. Please remove it from your cart before checkout.`);
+    }
+
+    const insufficient = insufficientCartRows(rows);
+    if (insufficient.length) {
+      throw new Error(`The requested quantity is higher than available inventory for: ${unavailableCartMessage(insufficient)}. Please update your cart quantity before checkout.`);
+    }
 
     const formData = new FormData(form);
     const selectedOption = form.querySelector("[name='payment_method']")?.selectedOptions?.[0];
