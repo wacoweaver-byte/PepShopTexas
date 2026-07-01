@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --black: #05080c;
   --ink: #080b10;
   --muted: #515761;
@@ -152,7 +152,6 @@ a { color: inherit; text-decoration: none; }
   .search { width: 230px; }
 }
 
- param($m) $m.Value -replace '\.quick-panel \{ grid-template-columns: repeat\(2, 1fr\); margin-top: 0; \}', '.quick-panel { grid-template-columns: repeat(2, 1fr); margin-top: 18px; }' -replace '\.quick-link \{ padding: 24px 18px; \}', '.quick-link { padding: 22px 18px; }' -replace '\.quick-link \+ \.quick-link \{ border-left: 0; \}', '.quick-link + .quick-link { border-left: 1px solid #e1e5eb; }' -replace '\.quick-link:nth-child\(even\) \{ border-left: 1px solid var\(--line\); \}', '.quick-link:nth-child(even) { border-left: 1px solid #e1e5eb; }' -replace '\.quick-link:nth-child\(n\+3\) \{ border-top: 1px solid var\(--line\); \}', '.quick-link:nth-child(n+3) { border-top: 1px solid #e1e5eb; }' 
 
 @media (max-width: 760px) {
   .site-header { grid-template-columns: 1fr; justify-items: center; padding: 12px 14px; }
