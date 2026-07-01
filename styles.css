@@ -1321,3 +1321,49 @@ a { color: inherit; text-decoration: none; }
 .product-info .primary-action[data-added="true"] {
   font-size: 12px !important;
 }
+
+
+/* PST out-of-stock disabled button state: gray, centered, not clickable */
+.catalog-dose-option .card-cart-button:disabled,
+.catalog-dose-option .card-cart-button[aria-disabled="true"],
+.purchase-panel .primary-action:disabled,
+.purchase-panel .primary-action[aria-disabled="true"],
+.product-info .primary-action:disabled,
+.product-info .primary-action[aria-disabled="true"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 52px !important;
+  width: auto !important;
+  height: 25px !important;
+  padding: 0 10px !important;
+  color: #6f7680 !important;
+  background: #eceff3 !important;
+  border: 1px solid #c9ced6 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.catalog-dose-option .card-cart-button:disabled::before,
+.catalog-dose-option .card-cart-button[aria-disabled="true"]::before {
+  content: "Out" !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+.purchase-panel .primary-action:disabled,
+.purchase-panel .primary-action[aria-disabled="true"],
+.product-info .primary-action:disabled,
+.product-info .primary-action[aria-disabled="true"] {
+  min-width: 96px !important;
+  height: 30px !important;
+  font-size: 12px !important;
+}
