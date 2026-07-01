@@ -50,6 +50,40 @@
       overflow: hidden;
     }
 
+
+    /* Center the text-logo block. External CSS can offset .brand; force it back to true center. */
+    .site-header {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center !important;
+    }
+
+    .site-header .brand {
+      position: relative !important;
+      left: auto !important;
+      right: auto !important;
+      transform: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: fit-content !important;
+      max-width: calc(100% - 24px) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      text-align: center !important;
+    }
+
+    .site-header .brand-main,
+    .site-header .brand-sub {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 100% !important;
+      text-align: center !important;
+    }
+
     .brand,
     .brand-main,
     .brand-sub {
