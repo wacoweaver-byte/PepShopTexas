@@ -1,4 +1,4 @@
-const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+﻿const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
@@ -264,11 +264,11 @@ async function resolveProductKey(productKey) {
 
 async function renderHome() {
   try {
-    const [products, promotions] = await Promise.all([getProducts(), getActivePromotions()]);
+    const [products, promotions, currentUser] = await Promise.all([getProducts(), getActivePromotions(), getCurrentUser()]);
     const hot = products.filter((p) => p.hot_peptide || p.featured);
     const stacks = products.filter((p) => p.category === "Stack" || p.blend_stack);
     const newest = [...products].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-    renderHomePromotion(promotions[0]);
+    renderHomePromotion(firstVisiblePromotion(promotions, currentUser));
     fillHomeList("hot", hot.length ? hot : products);
     fillHomeList("stacks", stacks.length ? stacks : products);
     fillHomeList("new", newest.length ? newest : products);
@@ -296,6 +296,23 @@ async function getActivePromotions() {
   });
 }
 
+function firstVisiblePromotion(promotions, user) {
+  return (promotions || []).find((promo) => shouldShowPromotion(promo, user));
+}
+
+function shouldShowPromotion(promo, user) {
+  if (!promo) return false;
+  if (!user) return true;
+  return !isAccountCreationPromotion(promo);
+}
+
+function isAccountCreationPromotion(promo) {
+  const href = String(promo.button_link || "").trim().toLowerCase();
+  const button = String(promo.button_text || "").trim().toLowerCase();
+  const title = String(promo.title || "").trim().toLowerCase();
+  const body = String(promo.body || "").trim().toLowerCase();
+  return href.includes("register.html") || href.includes("login.html") || button.includes("create account") || title.includes("welcome") || body.includes("create an account");
+}
 function renderHomePromotion(promo) {
   const shell = document.querySelector("[data-home-promotion]");
   if (!shell) return;
@@ -1064,3 +1081,4 @@ function validHexColor(value) {
   const color = String(value || "").trim();
   return /^#[0-9a-f]{6}$/i.test(color) ? color : "";
 }
+
