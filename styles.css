@@ -1272,3 +1272,52 @@ a { color: inherit; text-decoration: none; }
 .catalog-dose-option .card-cart-button[data-added="true"]::before {
   content: "Added";
 }
+
+
+/* PST final Added state: black button with centered checkmark */
+.catalog-dose-option .card-cart-button.is-added,
+.catalog-dose-option .card-cart-button.added,
+.catalog-dose-option .card-cart-button[data-added="true"],
+.purchase-panel .primary-action.is-added,
+.purchase-panel .primary-action.added,
+.purchase-panel .primary-action[data-added="true"],
+.product-info .primary-action.is-added,
+.product-info .primary-action.added,
+.product-info .primary-action[data-added="true"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  min-width: 74px !important;
+  width: auto !important;
+  height: 28px !important;
+  padding: 0 12px !important;
+  color: #fff !important;
+  background: #07090c !important;
+  border-color: #07090c !important;
+  box-shadow: 0 0 0 3px rgba(7,9,12,.12) !important;
+  transform: none !important;
+  pointer-events: none;
+}
+
+.catalog-dose-option .card-cart-button.is-added::before,
+.catalog-dose-option .card-cart-button.added::before,
+.catalog-dose-option .card-cart-button[data-added="true"]::before {
+  content: "✓ Added" !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+.purchase-panel .primary-action.is-added,
+.purchase-panel .primary-action.added,
+.purchase-panel .primary-action[data-added="true"],
+.product-info .primary-action.is-added,
+.product-info .primary-action.added,
+.product-info .primary-action[data-added="true"] {
+  font-size: 12px !important;
+}

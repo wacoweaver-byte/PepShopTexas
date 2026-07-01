@@ -1,4 +1,4 @@
-const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+﻿const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
@@ -535,7 +535,7 @@ function bindCartButtons() {
       addToCart(button.dataset.addToCart, quantity);
 
       button.classList.add("is-added");
-      button.textContent = "Added";
+      button.innerHTML = "✓ Added";
       button.setAttribute("aria-label", "Added to cart");
     });
   });
