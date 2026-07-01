@@ -176,63 +176,85 @@ a { color: inherit; text-decoration: none; }
   .cart-row input, .cart-row strong, .cart-row button { grid-column: 1; }
   .trust-bar { grid-template-columns: 1fr; width: 100%; min-height: 0; padding: 20px 24px; }
 }
-/* Catalog dose cards: keep every dose option the same tile size. */
+/* Catalog dose cards: keep them horizontal, smaller, and compact enough to fit without scroll. */
 .catalog-card { position: relative; }
 .catalog-card [data-catalog-sale]:empty { display: none; }
-.catalog-dose-options { display: grid; grid-template-columns: repeat(auto-fit, 258px); gap: 16px; align-items: stretch; justify-content: start; margin-top: 12px; }
-.catalog-dose-options.single-dose { grid-template-columns: 258px; }
-.catalog-dose-option { display: grid; grid-template-rows: auto auto auto 66px; align-content: start; gap: 14px; width: 258px; min-height: 222px; min-width: 0; padding: 16px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
-.catalog-dose-name { color: var(--ink); font-size: 20px; font-weight: 900; line-height: 1.15; }
-.catalog-card .catalog-stock { display: inline-grid; width: max-content; max-width: 100%; margin: 0; padding: 7px 14px; font-size: 13px; font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: .03em; border-radius: 999px; }
+.catalog-dose-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+  gap: 10px;
+  align-items: stretch;
+  justify-content: start;
+  margin-top: 10px;
+}
+.catalog-dose-options.single-dose {
+  grid-template-columns: minmax(136px, 160px);
+}
+.catalog-dose-option {
+  display: grid;
+  grid-template-rows: auto auto auto 34px;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+  min-height: 156px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.catalog-dose-name {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.catalog-card .catalog-stock {
+  display: inline-grid;
+  width: max-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 5px 10px;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  border-radius: 999px;
+}
 .catalog-card .catalog-stock.available { color: #0c3b22; background: #e8f6ee; }
 .catalog-card .catalog-stock.limited { color: #7a3f00; background: #fff3d6; }
 .catalog-card .catalog-stock.out { color: #8a1f17; background: #fde8e7; }
-.catalog-dose-option strong { display: block; width: max-content; font-size: 24px; }
-.catalog-dose-option .card-cart-button { align-self: end; justify-self: stretch; width: 100%; height: 66px; min-height: 0; font-size: 16px; }
-@media (max-width: 620px) {
-  .catalog-dose-options, .catalog-dose-options.single-dose { grid-template-columns: minmax(0, 1fr); }
-  .catalog-dose-option { width: 100%; }
-}
-/* Keep catalog dose tiles side by side at the approved tile size. */
-.catalog-dose-options,
-.catalog-dose-options.single-dose {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 16px;
-  align-items: stretch;
-  justify-content: flex-start;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 2px;
-  -webkit-overflow-scrolling: touch;
-}
-.catalog-dose-option {
-  flex: 0 0 258px;
-  width: 258px;
-  min-height: 222px;
-}
-@media (max-width: 620px) {
-  .catalog-dose-options,
-  .catalog-dose-options.single-dose {
-    display: flex;
-    grid-template-columns: none;
-  }
-  .catalog-dose-option {
-    flex-basis: 258px;
-    width: 258px;
-  }
-}
-/* Smaller Add to Cart buttons inside catalog dose tiles. */
-.catalog-dose-option {
-  grid-template-rows: auto auto auto 38px;
+.catalog-dose-option strong {
+  display: block;
+  width: max-content;
+  font-size: 14px;
+  line-height: 1.05;
 }
 .catalog-dose-option .card-cart-button {
+  align-self: end;
   justify-self: start;
-  width: 145px;
-  height: 38px;
+  width: 112px;
+  height: 34px;
   min-height: 0;
-  padding: 0 12px;
-  font-size: 13px;
+  padding: 0 10px;
+  font-size: 12px;
   border-radius: 6px;
 }
+@media (max-width: 620px) {
+  .catalog-dose-options {
+    grid-template-columns: repeat(auto-fit, minmax(124px, 1fr));
+    gap: 8px;
+  }
+  .catalog-dose-options.single-dose {
+    grid-template-columns: minmax(124px, 150px);
+  }
+  .catalog-dose-option {
+    min-height: 146px;
+    padding: 10px;
+  }
+  .catalog-dose-name { font-size: 11px; }
+  .catalog-dose-option strong { font-size: 13px; }
+  .catalog-dose-option .card-cart-button { width: 100px; height: 32px; font-size: 11px; }
+}
+
 
