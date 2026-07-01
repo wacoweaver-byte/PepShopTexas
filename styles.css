@@ -706,3 +706,126 @@ a { color: inherit; text-decoration: none; }
     max-width: 92px;
   }
 }
+
+/* PST desktop header restore
+   Keeps the phone header stacked, but restores PC/tablet-wide layouts to one horizontal row. */
+@media (min-width: 901px) {
+  .site-header {
+    display: grid !important;
+    grid-template-columns: 170px minmax(0, 1fr) 258px !important;
+    align-items: center !important;
+    justify-items: stretch !important;
+    gap: 18px !important;
+    min-height: 80px !important;
+    padding: 0 clamp(24px, 3vw, 56px) !important;
+    overflow: visible !important;
+  }
+
+  .brand {
+    order: initial !important;
+    justify-self: start !important;
+    width: 150px !important;
+    max-width: 150px !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .brand-main {
+    font-size: 25px !important;
+    line-height: 1 !important;
+    letter-spacing: 1px !important;
+    text-align: center !important;
+  }
+
+  .brand-main::before,
+  .brand-main::after {
+    width: 34px !important;
+    bottom: -10px !important;
+  }
+
+  .brand-sub {
+    margin-top: 6px !important;
+    font-size: 12px !important;
+    letter-spacing: 7px !important;
+    transform: none !important;
+    text-align: center !important;
+  }
+
+  .main-nav {
+    order: initial !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: clamp(10px, 1.25vw, 18px) !important;
+    padding: 0 !important;
+    font-size: clamp(12px, 1.05vw, 14px) !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  .main-nav a {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+  }
+
+  .main-nav a[href*="account"] {
+    max-width: 118px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .cart-link span {
+    min-width: 20px !important;
+    height: 20px !important;
+    margin-left: 4px !important;
+    font-size: 11px !important;
+  }
+
+  .search {
+    order: initial !important;
+    justify-self: end !important;
+    width: 258px !important;
+    max-width: 258px !important;
+    height: 42px !important;
+  }
+}
+
+/* Slightly tighter desktop header for narrower laptops/windows. */
+@media (min-width: 901px) and (max-width: 1180px) {
+  .site-header {
+    grid-template-columns: 150px minmax(0, 1fr) 220px !important;
+    gap: 12px !important;
+    padding-inline: 18px !important;
+  }
+
+  .brand {
+    width: 138px !important;
+    max-width: 138px !important;
+  }
+
+  .brand-main {
+    font-size: 23px !important;
+  }
+
+  .brand-sub {
+    font-size: 11px !important;
+    letter-spacing: 6px !important;
+  }
+
+  .main-nav {
+    gap: 10px !important;
+    font-size: 12px !important;
+  }
+
+  .search {
+    width: 220px !important;
+    max-width: 220px !important;
+  }
+}
