@@ -153,28 +153,208 @@ a { color: inherit; text-decoration: none; }
 }
 
 
-@media (max-width: 760px) {
-  .site-header { grid-template-columns: 1fr; justify-items: center; padding: 12px 14px; }
-  .brand { width: 150px; }
-  .brand-main { font-size: 25px; }
-  .brand-sub { font-size: 12px; }
-  .main-nav { gap: 10px 16px; font-size: 13px; }
-  .search { justify-self: stretch; width: 100%; max-width: 360px; }
-  .hero { margin: 0; padding: 0; line-height: 0; background: none; }
-.hero img { display: block; width: 100%; height: auto; margin: 0; }
-  .quick-panel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: min(var(--page-width), calc(100% - 48px)); min-height: 0; margin: 18px auto 22px; padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
-  .quick-link, .quick-link:nth-child(even), .quick-link:nth-child(n+3) { min-height: 128px; padding: 16px 10px; border: 1px solid #e1e5eb; border-radius: 8px; }
-  .quick-link:nth-child(odd), .quick-link:nth-child(even), .quick-link:nth-child(-n+2) { border: 1px solid #e1e5eb; }
-  .quick-icon { width: 46px; height: 46px; margin-bottom: 9px; font-size: 20px; }
-  .quick-link strong { margin-bottom: 4px; font-size: 15px; }
-  .quick-link > span:last-child { font-size: 12px; line-height: 1.25; }
-  .promo-band, .product-grid, .catalog-page, .detail-page, .cart-page, .contact-page, .faq-page { width: calc(100% - 24px); }
-  .promo-band { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
+@media (max-width: 900px) {
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .site-header {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    align-items: center;
+    gap: 14px;
+    min-height: 0;
+    padding: 14px 16px 16px;
+    text-align: center;
+  }
+
+  .brand {
+    width: 184px;
+    justify-self: center;
+    margin: 0 auto;
+  }
+
+  .brand-main {
+    font-size: 28px;
+  }
+
+  .brand-sub {
+    margin-top: 7px;
+    font-size: 13px;
+    letter-spacing: 8px;
+    transform: none;
+  }
+
+  .main-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 16px;
+    width: 100%;
+    max-width: 560px;
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: normal;
+  }
+
+  .main-nav a {
+    flex: 0 0 auto;
+  }
+
+  .cart-link span {
+    min-width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+
+  .search {
+    justify-self: center;
+    width: min(100%, 390px);
+    max-width: 390px;
+  }
+
+  .hero {
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    background: none;
+  }
+
+  .hero img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 0;
+  }
+
+  .quick-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    width: calc(100% - 24px);
+    margin: 16px auto 20px;
+  }
+
+  .quick-link,
+  .quick-link:nth-child(even),
+  .quick-link:nth-child(n+3),
+  .quick-link:nth-child(odd),
+  .quick-link:nth-child(-n+2) {
+    min-width: 0;
+    min-height: 132px;
+    padding: 16px 10px;
+    border: 1px solid #e1e5eb;
+    border-radius: 8px;
+  }
+
+  .quick-icon {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 9px;
+    font-size: 20px;
+  }
+
+  .quick-link strong {
+    margin-bottom: 4px;
+    font-size: 15px;
+    line-height: 1.1;
+  }
+
+  .quick-link > span:last-child {
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .promo-band,
+  .product-grid,
+  .catalog-page,
+  .detail-page,
+  .cart-page,
+  .contact-page,
+  .faq-page {
+    width: calc(100% - 24px);
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .list-card {
+    width: 100%;
+    min-width: 0;
+    padding: 18px 18px 20px;
+  }
+
+  .list-card h2 {
+    font-size: 19px;
+  }
+
+  .promo-band {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+
   .promo-band a { justify-self: start; }
-  .catalog-toolbar, .detail-shell, .purchase-panel, .cart-layout, .contact-shell, .faq-shell { grid-template-columns: 1fr; }
+
+  .catalog-toolbar,
+  .detail-shell,
+  .purchase-panel,
+  .cart-layout,
+  .contact-shell,
+  .faq-shell {
+    grid-template-columns: 1fr;
+  }
+
   .cart-row { grid-template-columns: minmax(0,1fr); }
-  .cart-row input, .cart-row strong, .cart-row button { grid-column: 1; }
-  .trust-bar { grid-template-columns: 1fr; width: 100%; min-height: 0; padding: 20px 24px; }
+  .cart-row input,
+  .cart-row strong,
+  .cart-row button { grid-column: 1; }
+
+  .trust-bar {
+    grid-template-columns: 1fr;
+    width: 100%;
+    min-height: 0;
+    padding: 20px 24px;
+  }
+}
+
+@media (max-width: 430px) {
+  .site-header {
+    padding-inline: 12px;
+  }
+
+  .main-nav {
+    gap: 10px 13px;
+    font-size: 12px;
+  }
+
+  .quick-panel {
+    gap: 12px;
+    width: calc(100% - 20px);
+  }
+
+  .quick-link,
+  .quick-link:nth-child(even),
+  .quick-link:nth-child(n+3),
+  .quick-link:nth-child(odd),
+  .quick-link:nth-child(-n+2) {
+    min-height: 124px;
+    padding: 14px 8px;
+  }
+
+  .quick-link strong {
+    font-size: 14px;
+  }
+
+  .quick-link > span:last-child {
+    font-size: 11px;
+  }
 }
 /* Catalog dose cards: keep them horizontal, smaller, and compact enough to fit without scroll. */
 .catalog-card { position: relative; }
