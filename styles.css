@@ -595,8 +595,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* PST mobile header containment repair
-   Fixes catalog/header overflow caused by nav staying on one long row. */
-@media (max-width: 900px) {
+   Applies ONLY to phone/mobile widths. Desktop/tablet stays horizontal. */
+@media (max-width: 760px) {
   html,
   body {
     width: 100%;
@@ -708,8 +708,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* PST desktop header restore
-   Keeps the phone header stacked, but restores PC/tablet-wide layouts to one horizontal row. */
-@media (min-width: 901px) {
+   Restores desktop/tablet-wide layouts to one horizontal row. */
+@media (min-width: 761px) {
   .site-header {
     display: grid !important;
     grid-template-columns: 170px minmax(0, 1fr) 258px !important;
@@ -798,7 +798,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Slightly tighter desktop header for narrower laptops/windows. */
-@media (min-width: 901px) and (max-width: 1180px) {
+@media (min-width: 761px) and (max-width: 1180px) {
   .site-header {
     grid-template-columns: 150px minmax(0, 1fr) 220px !important;
     gap: 12px !important;
