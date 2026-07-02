@@ -244,6 +244,25 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
+
+<style id="pst-products-table-left-padding-fix">
+/* PST products table left padding fix: gives the first column breathing room on mobile and desktop. */
+#catalogProductsCard table th:first-child,
+#catalogProductsCard table td:first-child {
+  padding-left: 18px !important;
+}
+
+#catalogProductsCard table th:first-child .sort-btn {
+  padding-left: 0 !important;
+}
+
+@media (max-width: 640px) {
+  #catalogProductsCard table th:first-child,
+  #catalogProductsCard table td:first-child {
+    padding-left: 20px !important;
+  }
+}
+</style>
 </head>
 <body>
   <header>
