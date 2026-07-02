@@ -2170,6 +2170,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <button class="btn warning" id="bulkRemoveBtn" type="button">Remove</button>
         <button class="btn secondary" id="bulkSetBtn" type="button">Set Exact</button>
         <button class="btn danger" id="bulkOutBtn" type="button">Out of Stock</button>
+        <button class="btn success" id="bulkActiveBtn" type="button">Turn On</button>
+        <button class="btn danger" id="bulkInactiveBtn" type="button">Turn Off</button>
       </div>
     </div>
 
@@ -2189,7 +2191,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
             <th>Low Alert</th>
             <th>Limited Alert</th>
             <th>Stock Status</th>
-            <th>Website Visibility</th>
+            <th>Active On Site</th>
             <th>Reason / Note</th>
             <th>Save</th>
           </tr>
@@ -2386,7 +2388,7 @@ function mergeInventoryCatalogLabel(item) {
     display_name: catalog.display_name || item.display_name,
     strength: catalog.strength || item.strength,
     category: item.category || catalog.category,
-    is_active: catalog.is_active !== false,
+    is_active: catalog.is_active !== false && item.is_active !== false,
   };
 }
 
@@ -3394,6 +3396,10 @@ function renderTable() {
         </td>
         <td>
           ${activePill(item.is_active !== false)}
+          <select data-field="is_active">
+            <option value="true" ${item.is_active !== false ? "selected" : ""}>Yes - show on site</option>
+            <option value="false" ${item.is_active === false ? "selected" : ""}>No - hide from site</option>
+          </select>
         </td>
         <td><input class="reason" data-field="admin_note" placeholder="Reason/note" value="${esc(item.admin_note || "")}"></td>
         <td><button class="btn success row-save" data-id="${item.id}" type="button">Save</button></td>
@@ -3439,6 +3445,7 @@ function getRowData(id) {
     let value = input.value;
     if (["price"].includes(field)) value = Number(value || 0);
     if (["current_inventory","low_stock_threshold","limited_stock_threshold"].includes(field)) value = Number(value || 0);
+    if (field === "is_active") value = value === "true";
     if (field === "status_override" && value === "") value = null;
     data[field] = value;
   });
@@ -3506,6 +3513,7 @@ async function saveRow(id) {
     low_stock_threshold: Number(data.low_stock_threshold || 5),
     limited_stock_threshold: Number(data.limited_stock_threshold || 10),
     status_override: data.status_override || null,
+    is_active: data.is_active !== false,
     blend_stack: data.category === "Stack",
     admin_note: note || null,
     updated_at: data.updated_at
@@ -3519,6 +3527,7 @@ async function saveRow(id) {
     strength: data.strength || null,
     price: Number(data.price || 0),
     current_inventory: Number(data.current_inventory || 0),
+    is_active: data.is_active !== false,
     blend_stack: data.category === "Stack",
     updated_at: data.updated_at
   };
@@ -3604,11 +3613,21 @@ async function bulkUpdate(type) {
       updates.status_override = "out_of_stock";
     }
 
+    if (type === "active") {
+      updates.is_active = true;
+      movement = "turned_on";
+    }
+
+    if (type === "inactive") {
+      updates.is_active = false;
+      movement = "turned_off";
+    }
+
     const { error } = await db.from("product_inventory").update(updates).eq("id", id);
     if (error) throw error;
 
-    if (["received","removed","set_exact","out_of_stock"].includes(type)) {
-      await logMovement(item, movement, qtyChange, previousQty, newQty, note || null);
+    if (["received","removed","set_exact","out_of_stock","active","inactive"].includes(type)) {
+      await logMovement(item, movement, qtyChange, previousQty, newQty, note || (type === "active" ? "Product turned on / visible on site" : type === "inactive" ? "Product turned off / hidden from site" : null));
     }
   }
 
@@ -3784,6 +3803,8 @@ function wireEvents() {
   $("bulkRemoveBtn")?.addEventListener("click", () => bulkUpdate("removed"));
   $("bulkSetBtn")?.addEventListener("click", () => bulkUpdate("set_exact"));
   $("bulkOutBtn")?.addEventListener("click", () => bulkUpdate("out_of_stock"));
+  $("bulkActiveBtn")?.addEventListener("click", () => bulkUpdate("active"));
+  $("bulkInactiveBtn")?.addEventListener("click", () => bulkUpdate("inactive"));
 }
 
 async function init() {
