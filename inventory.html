@@ -1924,6 +1924,51 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
+
+<style id="pst-inventory-physical-table-compact-fit-v1">
+/* Physical Inventory table: product A-Z/strength sort, compact fitted fields, and Strength before Category. */
+#physicalInventoryCard table {
+  min-width: 1180px !important;
+  width: max-content !important;
+  table-layout: auto !important;
+}
+#physicalInventoryCard th,
+#physicalInventoryCard td {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+#physicalInventoryCard .name-cell {
+  min-width: 185px !important;
+  max-width: 225px !important;
+}
+#physicalInventoryCard .inventory-fit-input,
+#physicalInventoryCard .inventory-fit-select {
+  width: calc(var(--field-ch, 8ch) + 22px) !important;
+  min-width: calc(var(--field-ch, 8ch) + 22px) !important;
+  max-width: calc(var(--field-ch, 8ch) + 22px) !important;
+  padding-left: 9px !important;
+  padding-right: 9px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+#physicalInventoryCard select.inventory-fit-select {
+  padding-right: 28px !important;
+}
+#physicalInventoryCard .price.inventory-fit-input {
+  width: 86px !important;
+  min-width: 86px !important;
+  max-width: 86px !important;
+  text-align: right !important;
+}
+#physicalInventoryCard .reason {
+  min-width: 150px !important;
+  width: 150px !important;
+}
+@media (max-width: 760px) {
+  #physicalInventoryCard table {
+    min-width: 1120px !important;
+  }
+}
+</style>
 </head>
 <body>
 <header>
@@ -2179,8 +2224,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           <tr>
             <th></th>
             <th>Product</th>
-            <th>Category</th>
             <th>Strength</th>
+            <th>Category</th>
             <th>Price</th>
             <th>Current Vials</th>
             <th>Receive</th>
@@ -3349,10 +3394,50 @@ function applyFilters() {
       && (!status || itemStatus === status)
       && (!category || item.category === category)
       && (!active || String(item.is_active) === active);
-  });
+  }).sort(compareInventoryProductRows);
 
   renderTable();
   renderSelectedCount();
+}
+
+function inventoryStrengthSortValue(value) {
+  const text = String(value || "").toLowerCase();
+  const nums = text.match(/\d+(?:\.\d+)?/g);
+  if (!nums) return Number.POSITIVE_INFINITY;
+  return nums.reduce((total, part) => total + Number(part || 0), 0);
+}
+
+function compareInventoryText(a, b) {
+  return String(a || "").localeCompare(String(b || ""), undefined, { numeric: true, sensitivity: "base" });
+}
+
+function compareInventoryProductRows(a, b) {
+  const nameCompare = compareInventoryText(a?.display_name || a?.product_key, b?.display_name || b?.product_key);
+  if (nameCompare) return nameCompare;
+  const strengthCompare = inventoryStrengthSortValue(a?.strength) - inventoryStrengthSortValue(b?.strength);
+  if (strengthCompare) return strengthCompare;
+  const strengthTextCompare = compareInventoryText(a?.strength, b?.strength);
+  if (strengthTextCompare) return strengthTextCompare;
+  return compareInventoryText(a?.product_key, b?.product_key);
+}
+
+function inventoryChWidth(values, options = {}) {
+  const min = options.min ?? 3;
+  const max = options.max ?? 18;
+  const extra = options.extra ?? 2;
+  const longest = values.reduce((best, value) => Math.max(best, String(value ?? "").length), 0);
+  return Math.max(min, Math.min(max, longest + extra));
+}
+
+function inventoryColumnWidths(rows) {
+  return {
+    strength: inventoryChWidth(rows.map(item => item.strength || ""), { min: 5, max: 14, extra: 3 }),
+    category: inventoryChWidth([...rows.map(item => item.category || "Peptide"), "Peptide"], { min: 9, max: 12, extra: 4 }),
+    price: 7,
+    current: inventoryChWidth(rows.map(item => Number(item.current_inventory || 0)), { min: 3, max: 6, extra: 1 }),
+    qty: 4,
+    threshold: inventoryChWidth(rows.flatMap(item => [Number(item.low_stock_threshold || 5), Number(item.limited_stock_threshold || 10)]), { min: 3, max: 5, extra: 1 })
+  };
 }
 
 function renderTable() {
@@ -3361,6 +3446,8 @@ function renderTable() {
     body.innerHTML = `<tr><td colspan="15" class="note">No inventory items match the current filters. If this is your first time here, click “Import products.json.”</td></tr>`;
     return;
   }
+
+  const widths = inventoryColumnWidths(filteredItems);
 
   body.innerHTML = filteredItems.map(item => {
     const checked = selectedIds.has(item.id) ? "checked" : "";
@@ -3373,15 +3460,15 @@ function renderTable() {
           <strong>${esc(item.display_name || item.product_key)}</strong>
           <span>${esc(item.product_key)}</span>
         </td>
-        <td><select data-field="category">${categoryOptions(item.category)}</select></td>
-        <td><input data-field="strength" value="${esc(item.strength || "")}"></td>
-        <td><input class="price" data-field="price" type="number" step="0.01" value="${money(item.price)}"></td>
-        <td><input class="num" data-field="current_inventory" type="number" step="1" min="0" value="${Number(item.current_inventory || 0)}"></td>
-        <td><input class="qty" data-action="receive" type="number" step="1" min="0" placeholder="+"></td>
-        <td><input class="qty" data-action="remove" type="number" step="1" min="0" placeholder="-"></td>
-        <td><input class="qty" data-action="exact" type="number" step="1" min="0" placeholder="Set"></td>
-        <td><input class="num" data-field="low_stock_threshold" type="number" step="1" min="0" value="${Number(item.low_stock_threshold || 5)}"></td>
-        <td><input class="num" data-field="limited_stock_threshold" type="number" step="1" min="0" value="${Number(item.limited_stock_threshold || 10)}"></td>
+        <td><input class="inventory-fit-input" style="--field-ch:${widths.strength}ch" data-field="strength" value="${esc(item.strength || "")}"></td>
+        <td><select class="inventory-fit-select" style="--field-ch:${widths.category}ch" data-field="category">${categoryOptions(item.category)}</select></td>
+        <td><input class="price inventory-fit-input" style="--field-ch:${widths.price}ch" data-field="price" type="number" step="0.01" min="0" value="${money(item.price)}"></td>
+        <td><input class="num inventory-fit-input" style="--field-ch:${widths.current}ch" data-field="current_inventory" type="number" step="1" min="0" value="${Number(item.current_inventory || 0)}"></td>
+        <td><input class="qty inventory-fit-input" style="--field-ch:${widths.qty}ch" data-action="receive" type="number" step="1" min="0" placeholder="+"></td>
+        <td><input class="qty inventory-fit-input" style="--field-ch:${widths.qty}ch" data-action="remove" type="number" step="1" min="0" placeholder="-"></td>
+        <td><input class="qty inventory-fit-input" style="--field-ch:${widths.qty}ch" data-action="exact" type="number" step="1" min="0" placeholder="Set"></td>
+        <td><input class="num inventory-fit-input" style="--field-ch:${widths.threshold}ch" data-field="low_stock_threshold" type="number" step="1" min="0" value="${Number(item.low_stock_threshold || 5)}"></td>
+        <td><input class="num inventory-fit-input" style="--field-ch:${widths.threshold}ch" data-field="limited_stock_threshold" type="number" step="1" min="0" value="${Number(item.limited_stock_threshold || 10)}"></td>
         <td>
           ${stockPill(status)}
           <select data-field="status_override">
