@@ -407,7 +407,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     const $ = (id) => document.getElementById(id);
     const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
     const money = (value) => "$" + Number(value || 0).toFixed(2);
-    const CATEGORY_OPTIONS = ["Peptide", "Blend", "Stack"];
+    const CATEGORY_OPTIONS = ["Peptide", "Blend", "Stack", "Supply"];
 
     function setStatus(message, type = "") {
       $("status").className = "status " + type;
