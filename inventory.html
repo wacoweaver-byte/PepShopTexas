@@ -759,6 +759,55 @@ strong {
     width: clamp(135px, 42vw, 170px) !important;
   }
 }
+
+
+/* PST_INCOMING_MULTI_LINE_PO_V1 */
+.incoming-form-grid {
+  grid-template-columns: 1.2fr .55fr .7fr .7fr .75fr .9fr .9fr .8fr .9fr auto auto !important;
+}
+.incoming-line-preview {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: #ffffff;
+}
+.incoming-line-preview-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+  flex-wrap:wrap;
+}
+.incoming-line-preview-head strong { font-size:13px; }
+.incoming-line-preview-table {
+  width:100%;
+  min-width:720px !important;
+  border-collapse:collapse;
+}
+.incoming-line-preview-table th,
+.incoming-line-preview-table td {
+  padding:7px 8px;
+  border-bottom:1px solid var(--line);
+  font-size:12px;
+}
+.incoming-line-preview-table th {
+  position:static;
+  background:#fbfcff;
+}
+.incoming-po-summary {
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+}
+.incoming-line-remove {
+  min-height:26px !important;
+  height:26px !important;
+  padding:0 9px !important;
+  font-size:11px !important;
+  border-radius:999px !important;
+}
+@media(max-width:1150px){ .incoming-form-grid { grid-template-columns:1fr 1fr !important; } }
+@media(max-width:640px){ .incoming-form-grid { grid-template-columns:1fr !important; } }
 </style>
 
 <style>
@@ -2193,9 +2242,32 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <label>User</label>
         <input id="incomingNotes" type="text" placeholder="J.Weaver" />
       </div>
-      <button class="btn success" id="addIncomingBtn" type="button">Add Incoming</button>
+      <button class="btn secondary" id="addIncomingLineBtn" type="button">Add Line</button>
+      <button class="btn success" id="addIncomingBtn" type="button">Save Incoming Order</button>
     </div>
-    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival defaults to Date Ordered + 21 days. Enter kit cost per 10-vial kit; cost per vial and total paid calculate automatically. Receiving an order adds that quantity into Current Vials and records an inventory movement.</div>
+    <div class="incoming-line-preview" id="incomingDraftPreview">
+      <div class="incoming-line-preview-head">
+        <strong>Current Incoming Order Lines</strong>
+        <span class="incoming-po-summary" id="incomingDraftSummary">No lines added yet. Add one or more product lines, then save the incoming order.</span>
+      </div>
+      <div class="incoming-table-wrap">
+        <table class="incoming-line-preview-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Kits</th>
+              <th>Kit Cost</th>
+              <th>Shipping Share</th>
+              <th>Landed / Vial</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="incomingDraftBody"><tr><td colspan="7" class="note">No lines added yet.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival defaults to Date Ordered + 21 days. Add one or more product lines to the same incoming purchase order. Shipping/fees are allocated by kit count, and landed cost per vial includes the allocated shipping share.</div>
     <div class="incoming-table-wrap">
       <table class="incoming-table">
         <thead>
@@ -2331,6 +2403,7 @@ let incomingInventoryRows = [];
 let incomingUsesSupabase = false;
 let incomingAuditVisible = false;
 let editingIncomingId = null;
+let incomingDraftLines = [];
 const PST_INCOMING_LEAD_DAYS = 21;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 const PST_INCOMING_MIGRATION_KEY = "pst_incoming_inventory_migrated_to_supabase_v1";
@@ -3044,17 +3117,115 @@ function incomingTotalCost(row) {
   if (Number.isFinite(explicit) && explicit > 0) return explicit;
   return incomingProductCost(row) + incomingShippingCost(row);
 }
+function incomingKitsForQty(qty) {
+  const q = Number(qty || 0);
+  return q > 0 ? q / PST_KIT_VIAL_COUNT : 0;
+}
+
+function incomingLandedUnitCost(qty, kitCost, allocatedShipping) {
+  const q = Number(qty || 0);
+  const kits = incomingKitsForQty(q);
+  const productCost = kits * Number(kitCost || 0);
+  const landed = productCost + Number(allocatedShipping || 0);
+  return q > 0 && landed > 0 ? landed / q : 0;
+}
+
+function incomingDraftShippingAllocation(line, totalShipping, totalKits) {
+  const kits = incomingKitsForQty(line?.qty);
+  const ship = Number(totalShipping || 0);
+  const denominator = Number(totalKits || 0);
+  return ship > 0 && denominator > 0 ? ship * (kits / denominator) : 0;
+}
+
+function incomingDraftTotalKits(lines = incomingDraftLines) {
+  return (lines || []).reduce((sum, line) => sum + incomingKitsForQty(line.qty), 0);
+}
+
+function incomingDraftProductCost(lines = incomingDraftLines) {
+  return (lines || []).reduce((sum, line) => sum + (incomingKitsForQty(line.qty) * Number(line.kitCost || 0)), 0);
+}
+
 function syncIncomingTotalCostField() {
-  const qty = Number($("incomingQty")?.value || 0);
-  const kit = Number($("incomingKitCost")?.value || 0);
-  const shipping = Number($("incomingShippingCost")?.value || 0);
   const totalEl = $("incomingTotalCost");
   if (!totalEl) return;
-  const productCost = kit > 0 ? (qty / PST_KIT_VIAL_COUNT) * kit : 0;
+  const shipping = Number($("incomingShippingCost")?.value || 0);
+  const lines = incomingDraftLines.length ? incomingDraftLines : (() => {
+    const product = selectedIncomingProduct();
+    const qty = Number($("incomingQty")?.value || 0);
+    const kitCost = Number($("incomingKitCost")?.value || 0);
+    return product && qty > 0 ? [{ qty, kitCost }] : [];
+  })();
+  const productCost = incomingDraftProductCost(lines);
+  const totalKits = incomingDraftTotalKits(lines);
   const calc = productCost + shipping;
   totalEl.value = calc > 0 ? calc.toFixed(2) : "";
-  const perVial = kit > 0 ? kit / PST_KIT_VIAL_COUNT : 0;
-  totalEl.title = perVial > 0 ? `${incomingMoney(kit)} per 10-vial kit = ${incomingMoney(perVial)}/vial` : "Enter kit cost to auto-calculate cost per vial and total paid.";
+  totalEl.title = totalKits > 0
+    ? `${totalKits.toFixed(2)} kit(s). Shipping allocation: ${incomingMoney(shipping / totalKits)}/kit or ${incomingMoney(shipping / (totalKits * PST_KIT_VIAL_COUNT))}/vial.`
+    : "Add product lines to allocate shipping and calculate landed cost per vial.";
+  renderIncomingDraftLines();
+}
+
+function addIncomingDraftLine() {
+  const product = selectedIncomingProduct();
+  const qty = Number($("incomingQty")?.value || 0);
+  const kitCost = Number($("incomingKitCost")?.value || 0);
+  if (!product) { alert("Select a product before adding a line."); return; }
+  if (!Number.isFinite(qty) || qty <= 0) { alert("Enter an ordered quantity greater than zero."); return; }
+  if (!Number.isFinite(kitCost) || kitCost < 0) { alert("Enter a valid kit cost."); return; }
+  incomingDraftLines.push({
+    id: crypto?.randomUUID ? crypto.randomUUID() : `draft_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    productId: product.id,
+    productKey: product._catalog_product_key || product.product_key || null,
+    productName: incomingProductLabel(product),
+    qty,
+    kitCost
+  });
+  if ($("incomingProductSelect")) $("incomingProductSelect").value = "";
+  if ($("incomingQty")) $("incomingQty").value = "";
+  if ($("incomingKitCost")) $("incomingKitCost").value = "";
+  syncIncomingTotalCostField();
+  setStatus(`Added line to incoming order. ${incomingDraftLines.length} line(s) ready to save.`, "good");
+}
+
+function removeIncomingDraftLine(id) {
+  incomingDraftLines = incomingDraftLines.filter(line => String(line.id) !== String(id));
+  syncIncomingTotalCostField();
+}
+
+function clearIncomingDraftLines() {
+  incomingDraftLines = [];
+  renderIncomingDraftLines();
+}
+
+function renderIncomingDraftLines() {
+  const body = $("incomingDraftBody");
+  const summary = $("incomingDraftSummary");
+  if (!body) return;
+  const shipping = Number($("incomingShippingCost")?.value || 0);
+  const totalKits = incomingDraftTotalKits();
+  if (!incomingDraftLines.length) {
+    body.innerHTML = `<tr><td colspan="7" class="note">No lines added yet. Single-line orders can still be saved directly, or add multiple lines before saving.</td></tr>`;
+    if (summary) summary.textContent = "No lines added yet. Add one or more product lines, then save the incoming order.";
+    return;
+  }
+  body.innerHTML = incomingDraftLines.map(line => {
+    const kits = incomingKitsForQty(line.qty);
+    const allocatedShipping = incomingDraftShippingAllocation(line, shipping, totalKits);
+    const landedUnit = incomingLandedUnitCost(line.qty, line.kitCost, allocatedShipping);
+    return `<tr>
+      <td><strong>${esc(line.productName)}</strong><div class="note">${esc(line.productKey || "")}</div></td>
+      <td>${esc(line.qty)}</td>
+      <td>${kits.toFixed(2)}</td>
+      <td>${incomingMoney(line.kitCost)}</td>
+      <td>${incomingMoney(allocatedShipping)}</td>
+      <td><strong>${landedUnit > 0 ? incomingMoney(landedUnit) : "—"}</strong></td>
+      <td><button class="btn secondary incoming-line-remove" type="button" data-remove-incoming-line="${esc(line.id)}">Remove</button></td>
+    </tr>`;
+  }).join("");
+  const productCost = incomingDraftProductCost();
+  const totalPaid = productCost + shipping;
+  if (summary) summary.textContent = `${incomingDraftLines.length} line(s) · ${totalKits.toFixed(2)} kit(s) · Product ${incomingMoney(productCost)} · Shipping/fees ${incomingMoney(shipping)} · Total ${incomingMoney(totalPaid)}`;
+  document.querySelectorAll("[data-remove-incoming-line]").forEach(btn => btn.addEventListener("click", () => removeIncomingDraftLine(btn.dataset.removeIncomingLine)));
 }
 
 function incomingAuditText(row) {
@@ -3241,51 +3412,83 @@ function setIncomingOrderDateToday(force=false) {
 }
 
 async function addIncomingInventory() {
-  const product = selectedIncomingProduct();
-  const qty = Number($("incomingQty")?.value || 0);
-  if (!product) { alert("Select a product for the incoming order."); return; }
-  if (!qty || qty <= 0) { alert("Enter an ordered quantity greater than zero."); return; }
-  const kitCost = Number($("incomingKitCost")?.value || 0);
-  const unitCost = kitCost > 0 ? kitCost / PST_KIT_VIAL_COUNT : 0;
-  const shippingCost = Number($("incomingShippingCost")?.value || 0);
-  const totalCost = ((qty / PST_KIT_VIAL_COUNT) * kitCost) + shippingCost;
+  const enteredProduct = selectedIncomingProduct();
+  const enteredQty = Number($("incomingQty")?.value || 0);
+  const enteredKitCost = Number($("incomingKitCost")?.value || 0);
+  const lines = incomingDraftLines.length ? incomingDraftLines.slice() : (enteredProduct && enteredQty > 0 ? [{
+    id: crypto?.randomUUID ? crypto.randomUUID() : `draft_${Date.now()}`,
+    productId: enteredProduct.id,
+    productKey: enteredProduct._catalog_product_key || enteredProduct.product_key || null,
+    productName: incomingProductLabel(enteredProduct),
+    qty: enteredQty,
+    kitCost: enteredKitCost
+  }] : []);
+
+  if (!lines.length) { alert("Add at least one product line to the incoming order."); return; }
+  if (lines.some(line => !line.productId || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
+    alert("Every incoming line needs a product and ordered quantity greater than zero.");
+    return;
+  }
+
+  const totalShipping = Number($("incomingShippingCost")?.value || 0);
+  const totalKits = incomingDraftTotalKits(lines);
   const orderedAt = incomingOrderDateISO();
   const expectedArrival = addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString();
-  const row = {
-    id: crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}`,
-    product_id: product.id,
-    product_key: product._catalog_product_key || product.product_key || null,
-    product_name: incomingProductLabel(product),
-    ordered_quantity: qty,
-    kit_cost: Number.isFinite(kitCost) ? kitCost : 0,
-    kit_vial_count: PST_KIT_VIAL_COUNT,
-    cost_per_unit: Number.isFinite(unitCost) ? unitCost : 0,
-    shipping_cost: Number.isFinite(shippingCost) ? shippingCost : 0,
-    total_cost: Number.isFinite(totalCost) ? totalCost : 0,
-    supplier_name: $("incomingSupplier")?.value.trim() || null,
-    tracking_number: $("incomingTracking")?.value.trim() || null,
-    status: $("incomingStatus")?.value || "ordered",
-    notes: $("incomingNotes")?.value.trim() || shortLoggedInUserName() || null,
-    ordered_at: orderedAt,
-    expected_arrival_date: expectedArrival,
-    created_at: orderedAt,
-    updated_at: orderedAt,
-    created_by: currentUser?.id || null,
-    created_by_email: currentUser?.email || null,
-    audit_note: `Incoming order entered for ${qty} vial(s) by ${shortLoggedInUserName()}. Expected arrival ${fmtShortDate(expectedArrival)} using ${PST_INCOMING_LEAD_DAYS}-day lead time. Kit cost recorded: ${incomingMoney(kitCost)} per 10-vial kit (${incomingMoney(unitCost)}/vial). Total paid: ${incomingMoney(totalCost)} including ${incomingMoney(shippingCost)} ship/fees.`
-  };
+  const supplierName = $("incomingSupplier")?.value.trim() || null;
+  const trackingNumber = $("incomingTracking")?.value.trim() || null;
+  const status = $("incomingStatus")?.value || "ordered";
+  const userNote = $("incomingNotes")?.value.trim() || shortLoggedInUserName() || null;
+  const orderGroupId = crypto?.randomUUID ? crypto.randomUUID() : `po_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+  const rows = lines.map((line, index) => {
+    const qty = Number(line.qty || 0);
+    const kitCost = Number(line.kitCost || 0);
+    const kits = incomingKitsForQty(qty);
+    const allocatedShipping = incomingDraftShippingAllocation(line, totalShipping, totalKits);
+    const productCost = kits * kitCost;
+    const totalCost = productCost + allocatedShipping;
+    const unitCost = incomingLandedUnitCost(qty, kitCost, allocatedShipping);
+    return {
+      id: crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}_${index}`,
+      product_id: line.productId,
+      product_key: line.productKey || null,
+      product_name: line.productName,
+      ordered_quantity: qty,
+      kit_cost: Number.isFinite(kitCost) ? kitCost : 0,
+      kit_vial_count: PST_KIT_VIAL_COUNT,
+      cost_per_unit: Number.isFinite(unitCost) ? unitCost : 0,
+      shipping_cost: Number.isFinite(allocatedShipping) ? allocatedShipping : 0,
+      total_cost: Number.isFinite(totalCost) ? totalCost : 0,
+      supplier_name: supplierName,
+      tracking_number: trackingNumber,
+      status,
+      notes: userNote,
+      ordered_at: orderedAt,
+      expected_arrival_date: expectedArrival,
+      created_at: orderedAt,
+      updated_at: orderedAt,
+      created_by: currentUser?.id || null,
+      created_by_email: currentUser?.email || null,
+      audit_note: `Incoming purchase order ${orderGroupId}. Line ${index + 1} of ${lines.length}. Entered by ${shortLoggedInUserName()}. Qty ${qty} vial(s) (${kits.toFixed(2)} kit(s)). Kit cost ${incomingMoney(kitCost)} per 10-vial kit. Allocated shipping/fees ${incomingMoney(allocatedShipping)} from total PO shipping/fees ${incomingMoney(totalShipping)}. Landed cost ${incomingMoney(unitCost)}/vial. Expected arrival ${fmtShortDate(expectedArrival)} using ${PST_INCOMING_LEAD_DAYS}-day lead time.`
+    };
+  });
+
   if (incomingUsesSupabase) {
-    const { error } = await db.from("incoming_inventory").insert(normalizeIncomingRowForSupabase(row));
+    const payload = rows.map(row => normalizeIncomingRowForSupabase(row));
+    const { error } = await db.from("incoming_inventory").insert(payload);
     if (error) {
       console.warn("Incoming Supabase insert failed; falling back to local storage:", error);
       incomingUsesSupabase = false;
-      incomingInventoryRows.unshift(row);
+      incomingInventoryRows = [...rows, ...incomingInventoryRows];
       saveIncomingLocalRows(incomingInventoryRows);
     }
   } else {
-    incomingInventoryRows.unshift(row);
+    incomingInventoryRows = [...rows, ...incomingInventoryRows];
     saveIncomingLocalRows(incomingInventoryRows);
   }
+
+  clearIncomingDraftLines();
+  if ($("incomingProductSelect")) $("incomingProductSelect").value = "";
   if ($("incomingQty")) $("incomingQty").value = "";
   if ($("incomingKitCost")) $("incomingKitCost").value = "";
   if ($("incomingShippingCost")) $("incomingShippingCost").value = "";
@@ -3295,7 +3498,7 @@ async function addIncomingInventory() {
   if ($("incomingNotes")) $("incomingNotes").value = "";
   setIncomingOrderDateToday(true);
   setIncomingUserField(true);
-  setStatus(`Incoming order added for ${row.product_name}: ${qty} vial(s).`, "good");
+  setStatus(`Incoming purchase order saved with ${rows.length} line(s). Shipping/fees allocated across ${totalKits.toFixed(2)} kit(s).`, "good");
   await loadIncomingInventory();
 }
 
@@ -3889,7 +4092,7 @@ function wireEvents() {
   if ($("reorderRange")) $("reorderRange")?.addEventListener("change", async () => { await loadReorderSales(); renderReorderReview(); });
   if ($("refreshReorderBtn")) $("refreshReorderBtn")?.addEventListener("click", async () => { await loadReorderSales(); renderReorderReview(); });
   if ($("refreshIncomingBtn")) $("refreshIncomingBtn")?.addEventListener("click", loadIncomingInventory);
-  ["incomingQty","incomingKitCost","incomingShippingCost"].forEach(id => {
+  ["incomingProductSelect","incomingQty","incomingKitCost","incomingShippingCost"].forEach(id => {
     const el = $(id);
     if (el) el.addEventListener("input", syncIncomingTotalCostField);
   });
