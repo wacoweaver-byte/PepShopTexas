@@ -2385,347 +2385,112 @@ header .pst-admin-actions-lock .btn.primary {
     const strength = fulfillmentItemStrength(item);
     return strength && !name.toLowerCase().includes(strength.toLowerCase()) ? `${name} / ${strength}` : name;
   }
-  function fulfillmentSheetHtml(order){
+  
+  function packingSlipNoteText(order={}){
+    return cleanValue([order.packing_slip_note, order.packing_slip_notes, order.admin_note, order.admin_notes, order.notes].join("\n"));
+  }
+  function packingSlipPrinted(order={}){
+    const explicit = order.packing_slip_printed === true || String(order.packing_slip_printed).toLowerCase() === "true" || !!order.packing_slip_printed_at;
+    const notes = packingSlipNoteText(order).toLowerCase();
+    return explicit || notes.includes("packing slip printed");
+  }
+  function packingSlipPrintedAt(order={}){
+    return order.packing_slip_printed_at || order.packing_slip_printed_date || "";
+  }
+  function packingSlipStatusMarkup(order={}){
+    if(packingSlipPrinted(order)){
+      const when = packingSlipPrintedAt(order);
+      return `<div class="kv"><strong>Packing Slip</strong><span class="pill paid">Printed</span>${when ? `<div class="muted" style="margin-top:6px">${esc(fmtDate(when))}</div>` : ""}</div>`;
+    }
+    return `<div class="kv"><strong>Packing Slip</strong><span class="pill awaiting_payment">Not Printed</span><div class="muted" style="margin-top:6px">Print before marking Packed.</div></div>`;
+  }
+  function orderStatusOptions(order={}){
+    const printed = packingSlipPrinted(order);
+    const current = norm(orderStatus(order));
+    const alreadyPastPacked = ["packed","shipped","delivered","complete"].includes(current);
+    return orderStatuses.map(s => {
+      const disablePacked = s === "packed" && !printed && !alreadyPastPacked;
+      const label = disablePacked ? "packed — print slip first" : s.replaceAll("_"," ");
+      return `<option value="${s}" ${current===s?"selected":""} ${disablePacked?"disabled":""}>${label}</option>`;
+    }).join("");
+  }
+  function packingSlipHtml(order){
     const items = order.items || [];
-    const rows = items.length ? items.map((item, index) => {
+    const rows = items.length ? items.map((item) => {
       const name = item.product_name || item.name || item.display_name || item.product_key || "Item";
       const qty = item.quantity ?? item.qty ?? 1;
       const sku = fulfillmentItemSku(item) || "—";
       const strength = fulfillmentItemStrength(item) || "—";
-      const label = fulfillmentItemLabel(item);
-      return `<tr><td>${index + 1}</td><td><strong>${esc(name)}</strong><div class="small">Label: ${esc(label)}</div></td><td>${esc(strength)}</td><td>${esc(sku)}</td><td class="qty">${esc(qty)}</td><td class="check">□</td></tr>`;
-    }).join("") : `<tr><td colspan="6">No item rows found for this order.</td></tr>`;
+      return `<tr><td class="qty">${esc(qty)}</td><td>${esc(sku)}</td><td><strong>${esc(name)}</strong></td><td>${esc(strength)}</td></tr>`;
+    }).join("") : `<tr><td colspan="4">No item rows found for this order.</td></tr>`;
     const generated = new Date().toLocaleString();
-    return `<!doctype html><html><head><meta charset="utf-8"><title>Fulfillment Sheet #${esc(orderNumber(order))}</title><link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#bd0000"><style>
-      *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px;color:#101820;background:#fff}.sheet{max-width:900px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border-bottom:3px solid #101820;padding-bottom:14px;margin-bottom:16px}.brand{font-size:24px;font-weight:900;letter-spacing:.04em}.sub{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#667085;font-weight:900}.order-no{font-size:30px;font-weight:900;text-align:right}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.box{border:1px solid #d9e2ec;border-radius:10px;padding:12px;min-height:92px}.box h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#667085}.box p{margin:0;line-height:1.4}.line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #edf2f7;padding:4px 0}.line:last-child{border-bottom:0}.pill{display:inline-block;border:1px solid #d9e2ec;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:900;text-transform:capitalize}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #d9e2ec;padding:9px 8px;text-align:left;vertical-align:top}th{background:#f5f8fb;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#667085}.qty,.check{text-align:center;font-weight:900}.small{font-size:12px;color:#667085;margin-top:3px}.checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.checkitem{border:1px solid #d9e2ec;border-radius:10px;padding:9px;font-weight:800}.sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.sigline{border-top:1px solid #101820;padding-top:6px;font-size:12px;color:#667085}.footer{margin-top:16px;font-size:11px;color:#667085;text-align:center}@media print{body{padding:0}.sheet{max-width:none}.no-print{display:none}.box,th,td,.checkitem{break-inside:avoid}}
-    
-
-/* PST compact fixed-height internal admin audit log */
-.audit-scrollbox{
-  max-height:220px;
-  overflow-y:auto;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:#fbfcfe;
-  padding:6px;
-}
-.audit-scrollbox .audit-list{display:grid;gap:5px;}
-.audit-scrollbox .audit-item{
-  border:1px solid #e3eaf2;
-  background:#fff;
-  border-radius:8px;
-  padding:6px 8px;
-  font-size:11px;
-  line-height:1.25;
-}
-.audit-scrollbox .audit-item strong{display:inline;margin:0;font-size:11px;}
-.audit-scrollbox .audit-item .muted{font-size:10.5px;}
-.audit-scrollbox .audit-line-detail{margin-top:3px;line-height:1.25;font-size:11px;color:#344054;}
-.audit-scrollbox .audit-empty{font-size:12px;color:var(--muted);padding:8px;}
-
-
-
-/* PST ADMIN HEADER FINAL HARD LOCK V4 - NO OVERLAP / SAME PLACEMENT / LIGHTER TYPE */
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-  background: #ffffff !important;
-  border-bottom: 1px solid #d9e2ec !important;
-  min-height: 92px !important;
-  overflow: hidden !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-
-header .topbar,
-header .pst-admin-topbar-lock {
-  width: 100% !important;
-  max-width: none !important;
-  min-height: 92px !important;
-  margin: 0 !important;
-  padding: 14px 24px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 22px !important;
-  background: #ffffff !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-}
-
-header .brand,
-header .pst-admin-brand-lock {
-  flex: 0 0 390px !important;
-  width: 390px !important;
-  min-width: 390px !important;
-  max-width: 390px !important;
-  height: 64px !important;
-  min-height: 64px !important;
-  display: grid !important;
-  grid-template-columns: 132px 1fr !important;
-  column-gap: 22px !important;
-  align-items: center !important;
-  justify-content: start !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: visible !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  text-decoration: none !important;
-}
-
-header .pst-master-admin-logo,
-header img.pst-master-admin-logo,
-header .pst-admin-logo {
-  display: block !important;
-  width: 132px !important;
-  height: 64px !important;
-  min-width: 132px !important;
-  max-width: 132px !important;
-  min-height: 64px !important;
-  max-height: 64px !important;
-  object-fit: contain !important;
-  object-position: left center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  flex: none !important;
-}
-
-header .pst-master-page-label {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  height: 64px !important;
-  min-height: 64px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 21px !important;
-  font-weight: 500 !important;
-  line-height: 1.15 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: #596579 !important;
-  white-space: nowrap !important;
-  text-align: left !important;
-}
-
-header .actions,
-header .pst-admin-actions-lock {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  width: auto !important;
-  height: 52px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 10px !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
-  margin: 0 !important;
-  padding: 0 6px 0 0 !important;
-  box-sizing: border-box !important;
-}
-header .actions::-webkit-scrollbar,
-header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
-
-header .actions .btn,
-header .pst-admin-actions-lock .btn,
-header .actions a.btn,
-header .pst-admin-actions-lock a.btn,
-header .actions button.btn,
-header .pst-admin-actions-lock button.btn {
-  flex: 0 0 auto !important;
-  min-width: auto !important;
-  min-height: 46px !important;
-  height: 46px !important;
-  padding: 0 18px !important;
-  border-radius: 10px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 18px !important;
-  font-weight: 600 !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-  text-decoration: none !important;
-}
-
-header .actions .btn.secondary,
-header .pst-admin-actions-lock .btn.secondary {
-  background: #ffffff !important;
-  color: #101820 !important;
-  border: 1px solid #d9e2ec !important;
-}
-
-header .actions .btn.active,
-header .actions .btn.primary,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary {
-  background: #bd0000 !important;
-  color: #ffffff !important;
-  border-color: #bd0000 !important;
-}
-
-@media (max-width: 1180px) {
-  header .topbar,
-  header .pst-admin-topbar-lock {
-    gap: 14px !important;
-    padding-left: 18px !important;
-    padding-right: 18px !important;
-  }
-  header .brand,
-  header .pst-admin-brand-lock {
-    flex-basis: 350px !important;
-    width: 350px !important;
-    min-width: 350px !important;
-    max-width: 350px !important;
-    grid-template-columns: 120px 1fr !important;
-    column-gap: 18px !important;
-  }
-  header .pst-master-admin-logo,
-  header img.pst-master-admin-logo,
-  header .pst-admin-logo {
-    width: 120px !important;
-    height: 58px !important;
-    min-width: 120px !important;
-    max-width: 120px !important;
-    min-height: 58px !important;
-    max-height: 58px !important;
-  }
-  header .pst-master-page-label {
-    font-size: 19px !important;
-    font-weight: 500 !important;
-  }
-  header .actions .btn,
-  header .pst-admin-actions-lock .btn {
-    height: 44px !important;
-    min-height: 44px !important;
-    padding: 0 15px !important;
-    font-size: 16px !important;
-  }
-}
-
-@media (max-width: 760px) {
-  header { overflow: visible !important; }
-  header .topbar,
-  header .pst-admin-topbar-lock {
-    min-height: auto !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-    padding: 12px 14px !important;
-    overflow: visible !important;
-  }
-  header .brand,
-  header .pst-admin-brand-lock {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    flex-basis: auto !important;
-    grid-template-columns: 120px minmax(0, 1fr) !important;
-  }
-  header .actions,
-  header .pst-admin-actions-lock {
-    width: 100% !important;
-    height: 46px !important;
-  }
-}
-</style>
-<style id="pst-admin-red-button-overrides">
-:root {
-  --blue: #bd0000 !important;
-  --pst-blue: #bd0000 !important;
-  --pst-admin-blue: #bd0000 !important;
-  --pst-admin-accent: #bd0000 !important;
-}
-body.admin-auth-pending header {
-  display: none !important;
-}
-body.admin-auth-pending main {
-  max-width: 560px !important;
-  padding-top: 88px !important;
-}
-body.admin-auth-pending main > :not(#statusLine) {
-  display: none !important;
-}
-body.admin-auth-pending #statusLine {
-  margin: 0 !important;
-  padding: 18px 20px !important;
-  text-align: center !important;
-  color: #596579 !important;
-  background: #fff !important;
-  border: 1px solid #d9e2ec !important;
-  box-shadow: 0 10px 30px rgba(16,24,32,.08) !important;
-}
-header .actions .btn.active,
-header .actions .btn.primary,
-header .header-actions .btn.active,
-header .header-actions .btn.primary,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary,
-.admin-dashboard-nav .btn.active,
-.admin-dashboard-nav .btn[aria-pressed="true"],
-.collapsible-card:not(.collapsed) .card-toggle-btn,
-.card-toggle-btn.active,
-.card-toggle-btn[aria-expanded="true"],
-.inventory-jump-link.active,
-.inventory-jump-link[aria-pressed="true"],
-.inventory-collapse-toggle.active,
-.inventory-collapse-toggle[aria-expanded="true"],
-.collapse-toggle.active,
-.collapse-toggle[aria-expanded="true"],
-.reports-jumpbar a.active,
-.reports-jumpbar a[aria-pressed="true"],
-.btn.primary,
-.btn.active,
-.btn[aria-pressed="true"],
-.btn.secondary.active,
-button.btn.primary,
-a.btn.primary {
-  background: #bd0000 !important;
-  border-color: #bd0000 !important;
-  color: #ffffff !important;
-}
-.btn:not(.secondary):not(.danger):not(.success):not(.warning) {
-  background-color: #bd0000;
-  border-color: #bd0000;
-  color: #ffffff;
-}
-button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
-  background-color: #bd0000;
-  border-color: #bd0000;
-  color: #ffffff;
-}
-</style>
-</head><body><div class="sheet">
-      <div class="top"><div><div class="brand">PEP SHOP TEXAS</div><div class="sub">Order Fulfillment Sheet</div><div class="small">Generated: ${esc(generated)}</div></div><div><div class="sub">Order</div><div class="order-no">#${esc(orderNumber(order))}</div></div></div>
-      <div class="grid"><div class="box"><h3>Customer / Ship To</h3><p><strong>${esc(customerName(order))}</strong><br>${esc(shippingAddress(order))}<br>${esc(customerEmail(order) || "No email")}<br>${esc(customerPhone(order))}</p></div><div class="box"><h3>Order Snapshot</h3><div class="line"><span>Date</span><strong>${esc(fmtDate(order.created_at || order.order_date))}</strong></div><div class="line"><span>Order Status</span><span class="pill">${esc(String(orderStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Payment Status</span><span class="pill">${esc(String(paymentStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Shipping</span><strong>${money(orderShipping(order))}</strong></div><div class="line"><span>Total</span><strong>${money(orderTotal(order))}</strong></div></div></div>
-      <table><thead><tr><th>#</th><th>Product / Vial Label</th><th>Strength</th><th>SKU / Item</th><th>Qty</th><th>Picked</th></tr></thead><tbody>${rows}</tbody></table>
-      <div class="checklist"><div class="checkitem">□ Correct product/SKU pulled</div><div class="checkitem">□ Correct quantity pulled</div><div class="checkitem">□ Vial label checked</div><div class="checkitem">□ Lot/COA checked if applicable</div><div class="checkitem">□ Items protected in packaging</div><div class="checkitem">□ Packing slip/order sheet included</div><div class="checkitem">□ Shipping label matches customer address</div><div class="checkitem">□ Final package sealed</div></div>
-      <div class="grid"><div class="box"><h3>Fulfillment Notes</h3><p style="min-height:52px">&nbsp;</p></div><div class="box"><h3>Tracking / Carrier</h3><p>Carrier: ${esc(order.tracking_carrier || order.carrier || "—")}<br>Tracking: ${esc(order.tracking_number || order.tracking || "—")}</p></div></div>
-      <div class="sign"><div class="sigline">Packed by / Date</div><div class="sigline">Final check / Date</div></div><div class="footer">Internal fulfillment document only. Not a customer-facing marketing insert.</div>
+    return `<!doctype html><html><head><meta charset="utf-8"><title>Packing Slip #${esc(orderNumber(order))}</title>
+      <style>
+        *{box-sizing:border-box}
+        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:28px;color:#101820;background:#fff}
+        .slip{max-width:760px;margin:0 auto}
+        .top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:2px solid #101820;padding-bottom:14px;margin-bottom:18px}
+        .brand{font-size:22px;font-weight:800;letter-spacing:.03em}
+        .sub{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#667085;font-weight:700;margin-top:3px}
+        .order{text-align:right}
+        .order strong{display:block;font-size:24px;margin-bottom:4px}
+        .section{border:1px solid #d9e2ec;border-radius:10px;padding:13px;margin:12px 0}
+        .section h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#667085}
+        .section p{margin:0;line-height:1.45}
+        table{width:100%;border-collapse:collapse;margin-top:12px}
+        th,td{border:1px solid #d9e2ec;padding:9px 8px;text-align:left;vertical-align:top}
+        th{background:#f5f8fb;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#667085}
+        .qty{text-align:center;font-weight:800;width:64px}
+        .footer{margin-top:20px;border-top:1px solid #d9e2ec;padding-top:12px;text-align:center;font-size:12px;line-height:1.45;color:#667085}
+        .ruo{font-weight:800;color:#101820}
+        .meta{font-size:12px;color:#667085;margin-top:8px}
+        @media print{body{padding:0}.slip{max-width:none}.section,th,td{break-inside:avoid}}
+      </style>
+    </head><body><div class="slip">
+      <div class="top">
+        <div><div class="brand">PEP SHOP TEXAS</div><div class="sub">Research Products</div></div>
+        <div class="order"><strong>Order #${esc(orderNumber(order))}</strong><div>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="meta">Printed: ${esc(generated)}</div></div>
+      </div>
+      <div class="section"><h3>Ship To</h3><p>${esc(customerName(order))}<br>${esc(shippingAddress(order)).replace(/\n/g,"<br>")}</p></div>
+      <div class="section"><h3>Contents</h3><table><thead><tr><th>Qty</th><th>Item #</th><th>Product</th><th>Strength</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="footer"><div>Thank you for your order.</div><div class="ruo">Research Use Only</div><div>Not for human or veterinary use. Not medical advice.</div><div>support@pepshoptexas.com</div></div>
     </div><script>window.addEventListener('load',function(){setTimeout(function(){window.focus();window.print();},250);});<\/script></body></html>`;
   }
-  function printFulfillmentSheet(order){
+  async function markPackingSlipPrinted(order){
+    const now = new Date().toISOString();
+    const currentNotes = order.admin_notes || order.admin_note || "";
+    const line = auditLine("Packing slip printed");
+    const nextNotes = joinAuditNotes(currentNotes, line);
+    const updates = {
+      packing_slip_printed: true,
+      packing_slip_printed_at: now,
+      admin_notes: nextNotes,
+      admin_note: nextNotes,
+      updated_at: now
+    };
+    await safeUpdateOrder(order.id, updates, order);
+    return { ...order, ...updates };
+  }
+  function fulfillmentSheetHtml(order){
+    return packingSlipHtml(order);
+  }
+async function printFulfillmentSheet(order){
     const win = window.open("", "_blank", "width=960,height=900");
-    if(!win){ alert("Popup blocked. Allow popups for this site, then click Print Fulfillment Sheet again."); return; }
+    if(!win){ alert("Popup blocked. Allow popups for this site, then click Print Packing Slip again."); return; }
     win.document.open();
-    win.document.write(fulfillmentSheetHtml(order));
+    win.document.write(packingSlipHtml(order));
     win.document.close();
-    setStatus(`Fulfillment sheet opened for Order #${orderNumber(order)}.`, "good");
+    try{
+      const updatedOrder = await markPackingSlipPrinted(order);
+      Object.assign(order, updatedOrder);
+      setStatus(`Packing slip printed for Order #${orderNumber(order)}. You can now mark this order as Packed.`, "good");
+      await loadOrders();
+      const fresh = allOrders.find(o => String(o.id) === String(order.id)) || updatedOrder;
+      await renderOrderDetail(fresh);
+    }catch(error){
+      console.error(error);
+      setStatus(`Packing slip opened, but printed status could not be saved: ${error.message || error}`, "bad");
+    }
   }
 
   async function renderOrderDetail(order){
@@ -2737,14 +2502,14 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     const turl = trackingUrl(carrier, tracking, order.tracking_url);
     const detail = $("detailCard");
     detail.innerHTML = `
-      <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Fulfillment Sheet</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
+      <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Packing Slip</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
       <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
-      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
+      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div>${packingSlipStatusMarkup(order)}<div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
       ${paymentInstructionsMarkup(order)}
-      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Fulfillment:</strong> Use Print Fulfillment Sheet after the order is received, paid, or moved to Processing. It opens a clean packing sheet with customer address, item/SKU rows, quantity checks, and final verification boxes.</div></div>
+      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Packing Slip:</strong> Print the packing slip after payment is accepted. The order cannot be marked Packed until the packing slip has been printed.</div></div>
       <div class="detail-section"><h3>Update Order</h3>
         <div class="edit-grid">
-          <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatuses.map(s=>`<option value="${s}" ${norm(orderStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
+          <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatusOptions(order)}</select></div>
           <div class="field"><label for="editPaymentStatus">Payment Status</label><select id="editPaymentStatus">${paymentStatuses.map(s=>`<option value="${s}" ${norm(paymentStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
           <div class="field"><label>Payment Method</label><input value="${esc(paymentMethod(order))}" readonly /></div>
           <div class="field"><label for="editCarrier">Carrier</label><input id="editCarrier" value="${esc(carrier)}" placeholder="USPS, UPS, FedEx..." /></div>
@@ -2773,6 +2538,9 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
 
   function buildUpdatesFromForm(order={}){
     let os = $("editOrderStatus").value;
+    if(norm(os) === "packed" && !packingSlipPrinted(order) && !["packed","shipped","delivered","complete"].includes(norm(orderStatus(order)))){
+      throw new Error("Packing slip must be printed before this order can be marked Packed.");
+    }
     const ps = $("editPaymentStatus").value;
     const carrier = $("editCarrier").value.trim();
     const tracking = $("editTracking").value.trim();
