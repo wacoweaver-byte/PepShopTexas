@@ -4097,6 +4097,7 @@ function wireEvents() {
     if (el) el.addEventListener("input", syncIncomingTotalCostField);
   });
   setIncomingOrderDateToday(false);
+  if ($("addIncomingLineBtn")) $("addIncomingLineBtn")?.addEventListener("click", addIncomingDraftLine);
   if ($("addIncomingBtn")) $("addIncomingBtn")?.addEventListener("click", addIncomingInventory);
   if ($("toggleIncomingAuditBtn")) $("toggleIncomingAuditBtn")?.addEventListener("click", () => {
     incomingAuditVisible = !incomingAuditVisible;
