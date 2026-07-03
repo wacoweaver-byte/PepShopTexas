@@ -1749,7 +1749,33 @@ header .pst-admin-actions-lock .btn.primary {
   function customerName(order){ const p=profileOf(order); return order.customer_name || order.name || [p.first_name,p.last_name].filter(Boolean).join(" ") || p.full_name || "Customer"; }
   function customerEmail(order){ const p=profileOf(order); return order.customer_email || order.email || order.shipping_email || order.contact_email || order.billing_email || p.email || ""; }
   function customerPhone(order){ const p=profileOf(order); return order.customer_phone || order.phone || p.phone || "—"; }
-  function shippingAddress(order){ const p=profileOf(order); return order.shipping_address || order.address || p.shipping_address || p.address || [p.address1,p.address2,p.city,p.state,p.zip].filter(Boolean).join(", ") || "—"; }
+  function compactAddressValue(value){
+    if(!value) return "";
+    if(typeof value === "object") {
+      const line1 = cleanValue(value.line1 || value.address1 || value.street || value.street1 || value.address);
+      const line2 = cleanValue(value.line2 || value.address2 || value.apt || value.apartment || value.unit || value.suite);
+      const city = cleanValue(value.city);
+      const state = cleanValue(value.state || value.region || value.province);
+      const zip = cleanValue(value.zip || value.postal_code || value.postal || value.zip_code);
+      const cityStateZip = [city, [state, zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+      return [line1, line2, cityStateZip].filter(Boolean).join("\n");
+    }
+    return cleanValue(value);
+  }
+  function shippingAddress(order){
+    const p = profileOf(order);
+    const source = { ...p, ...order };
+    const direct = compactAddressValue(order.shipping_address || order.address || p.shipping_address || p.address);
+    const line1 = cleanValue(source.shipping_address_line1 || source.address_line1 || source.street_address || source.street || source.address1 || source.line1);
+    const line2 = cleanValue(source.shipping_address_line2 || source.address_line2 || source.apartment || source.apt || source.unit || source.suite || source.address2 || source.line2);
+    const city = cleanValue(source.shipping_city || source.city);
+    const state = cleanValue(source.shipping_state || source.state);
+    const zip = cleanValue(source.shipping_zip || source.shipping_postal_code || source.postal_code || source.zip_code || source.zip);
+    const firstLine = line1 || direct;
+    const cityStateZip = [city, [state, zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+    const lines = [firstLine, line2, cityStateZip].filter(Boolean);
+    return lines.length ? Array.from(new Set(lines)).join("\n") : "—";
+  }
   function trackingUrl(carrier, number, provided){ if(provided) return provided; if(!number) return ""; const n=encodeURIComponent(number); const c=String(carrier||"").toLowerCase(); if(c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${n}`; if(c.includes("ups")) return `https://www.ups.com/track?tracknum=${n}`; if(c.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${n}`; return ""; }
   function adminDisplayName(){ const email=cleanValue(currentUser?.email).toLowerCase(); if(email === "wacoweaver@gmail.com") return "Jimmie Weaver"; return cleanValue(currentUser?.user_metadata?.full_name) || cleanValue(currentUser?.email) || "Admin"; }
  function normalizeAdminNotes(text){
