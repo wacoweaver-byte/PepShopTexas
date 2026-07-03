@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V18_VENDOR_MANAGEMENT_LEAD_TIME -->
 <!-- PST_INVENTORY_PATCH_V17_COMPACT_SORTED_COLUMNS_SAFE -->
 <!-- PST_INVENTORY_PATCH_V16_PRICE_INPUT_AUTOFIT_FULL_RESTORE -->
 <!-- PST_INVENTORY_PATCH_V15_ADD_PROMOTIONS_NAV_LINK -->
@@ -808,6 +809,28 @@ strong {
 }
 @media(max-width:1150px){ .incoming-form-grid { grid-template-columns:1fr 1fr !important; } }
 @media(max-width:640px){ .incoming-form-grid { grid-template-columns:1fr !important; } }
+
+/* PST_INVENTORY_PATCH_V18_VENDOR_MANAGEMENT_LEAD_TIME */
+.vendor-card { margin: 18px 0; }
+.vendor-form-grid {
+  display:grid;
+  grid-template-columns: .7fr 1.2fr .9fr .9fr .7fr auto;
+  gap:10px;
+  align-items:end;
+  padding:14px;
+  border-bottom:1px solid var(--line);
+  background:#fbfcff;
+}
+.vendor-form-grid .full { grid-column: span 2; }
+.vendor-note { padding:10px 14px; color:var(--muted); font-size:13px; line-height:1.4; border-bottom:1px solid var(--line); }
+.vendor-table { width:100%; min-width:920px !important; border-collapse:collapse; }
+.vendor-table th, .vendor-table td { border-bottom:1px solid var(--line); padding:9px 7px; text-align:left; vertical-align:middle; font-size:13px; }
+.vendor-table th { background:#fff; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-size:11px; }
+.vendor-id-pill { display:inline-flex; align-items:center; justify-content:center; min-width:76px; padding:5px 8px; border-radius:999px; background:rgba(189,0,0,.08); color:#bd0000; font-size:11px; font-weight:900; }
+.vendor-inline-note { margin-top:4px; color:var(--muted); font-size:11px; line-height:1.25; }
+@media(max-width:1150px){ .vendor-form-grid { grid-template-columns:1fr 1fr; } .vendor-form-grid .full { grid-column:1 / -1; } }
+@media(max-width:640px){ .vendor-form-grid { grid-template-columns:1fr; } }
+
 </style>
 
 <style>
@@ -2113,6 +2136,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   <nav class="inventory-jumpbar" id="inventoryDashboardNav" aria-label="Inventory quick links">
     <span class="inventory-jumpbar-label">Jump To</span>
     <button class="btn secondary inventory-jump-link" type="button" data-inventory-target="reorderReviewCard" aria-pressed="false">Inventory Reorder Review</button>
+    <button class="btn secondary inventory-jump-link" type="button" data-inventory-target="vendorManagementCard" aria-pressed="false">Vendor Management</button>
     <button class="btn secondary inventory-jump-link" type="button" data-inventory-target="incomingInventoryCard" aria-pressed="false">Incoming Inventory / Purchase Orders / Order Entry</button>
     <button class="btn secondary inventory-jump-link" type="button" data-inventory-target="physicalInventoryCard" aria-pressed="false">Physical Inventory / Adjustments</button>
   </nav>
@@ -2122,7 +2146,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     <div class="card-head inventory-collapse-head" data-collapse-card="reorderReviewCard">
       <div>
         <h2 style="margin:0 0 5px;">Inventory Reorder Review</h2>
-        <p class="subtitle" style="font-size:13px;">Uses recent product sales velocity, a 21-day lead time, and stock depletion logic to flag items that may need reorder review.</p>
+        <p class="subtitle" style="font-size:13px;">Uses recent product sales velocity, vendor/default lead time, and stock depletion logic to flag items that may need reorder review.</p>
       </div>
       <div class="reorder-controls">
         <div class="field">
@@ -2162,7 +2186,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
             <th>Current Stock</th>
             <th>Qty Sold</th>
             <th>Avg / Day</th>
-            <th>21-Day Demand</th>
+            <th>Lead-Time Demand</th>
             <th>Days Remaining</th>
             <th>Stock Depletion</th>
             <th>Reorder Status</th>
@@ -2177,11 +2201,41 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
   </section>
 
+  <section class="card vendor-card inventory-dashboard-card collapsed" id="vendorManagementCard">
+    <div class="card-head inventory-collapse-head" data-collapse-card="vendorManagementCard">
+      <div>
+        <h2 style="margin:0 0 5px;">Vendor Management</h2>
+        <p class="subtitle" style="font-size:13px;">Add vendors, assign PST vendor IDs, store WhatsApp details, and set each vendor's standard shipping lead time.</p>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="refreshVendorsBtn" type="button">Refresh Vendors</button>
+        <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="vendorManagementCard" aria-expanded="false">Open</button>
+      </div>
+    </div>
+    <div class="vendor-form-grid">
+      <div class="field"><label>PST Vendor ID</label><input id="vendorPstId" type="text" placeholder="Auto" readonly></div>
+      <div class="field"><label>Company Name</label><input id="vendorCompanyName" type="text" placeholder="Vendor company" /></div>
+      <div class="field"><label>Contact Name</label><input id="vendorContactName" type="text" placeholder="Contact" /></div>
+      <div class="field"><label>WhatsApp</label><input id="vendorWhatsapp" type="text" placeholder="+86..." /></div>
+      <div class="field"><label>Standard Lead Time</label><input id="vendorLeadTime" type="number" min="0" step="1" value="10" /></div>
+      <div class="field full"><label>Address</label><input id="vendorAddress" type="text" placeholder="Company address" /></div>
+      <button class="btn success" id="addVendorBtn" type="button">Add Vendor</button>
+    </div>
+    <div class="vendor-note" id="vendorNote">Vendor records load from the Supabase vendors table. Run the vendor SQL setup once before using this section.</div>
+    <div class="incoming-table-wrap">
+      <table class="vendor-table">
+        <thead><tr><th>PST Vendor ID</th><th>Company</th><th>Contact</th><th>WhatsApp</th><th>Lead Time</th><th>Status</th></tr></thead>
+        <tbody id="vendorBody"><tr><td colspan="6" class="note">Loading vendors...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
+  </section>
+
   <section class="card incoming-card inventory-dashboard-card collapsed" id="incomingInventoryCard">
     <div class="card-head inventory-collapse-head" data-collapse-card="incomingInventoryCard">
       <div>
         <h2 style="margin:0 0 5px;">Incoming Inventory / Purchase Orders / Order Entry</h2>
-        <p class="subtitle" style="font-size:13px;">Track product already ordered, days on order, estimated 21-day arrival, and receive shipments directly into inventory.</p>
+        <p class="subtitle" style="font-size:13px;">Track product already ordered, days on order, vendor lead time, expected arrival, and receive shipments directly into inventory.</p>
       </div>
       <div class="actions">
         <button class="btn secondary" id="refreshIncomingBtn" type="button">Refresh Incoming</button>
@@ -2223,8 +2277,9 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <input id="incomingTotalCost" type="number" min="0" step="0.01" placeholder="Auto" readonly />
       </div>
       <div class="field">
-        <label>Supplier / Source</label>
-        <input id="incomingSupplier" type="text" placeholder="Supplier" />
+        <label>Vendor</label>
+        <select id="incomingVendorSelect"><option value="">Select vendor...</option></select>
+        <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div>
       </div>
       <div class="field">
         <label>Tracking #</label>
@@ -2267,7 +2322,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         </table>
       </div>
     </div>
-    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival defaults to Date Ordered + 21 days. Add one or more product lines to the same incoming purchase order. Shipping/fees are allocated by kit count, and landed cost per vial includes the allocated shipping share.</div>
+    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival uses the selected vendor standard lead time. Add one or more product lines to the same incoming purchase order. Shipping/fees are allocated by kit count, and landed cost per vial includes the allocated shipping share.</div>
     <div class="incoming-table-wrap">
       <table class="incoming-table">
         <thead>
@@ -2404,7 +2459,9 @@ let incomingUsesSupabase = false;
 let incomingAuditVisible = false;
 let editingIncomingId = null;
 let incomingDraftLines = [];
-const PST_INCOMING_LEAD_DAYS = 21;
+let vendors = [];
+let vendorsAvailable = false;
+const PST_INCOMING_LEAD_DAYS = 10;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 const PST_INCOMING_MIGRATION_KEY = "pst_incoming_inventory_migrated_to_supabase_v1";
 let salesByInventoryId = {};
@@ -2462,6 +2519,123 @@ function setIncomingUserField(force=false) {
   const el = $("incomingNotes");
   if (!el) return;
   if (force || !cleanText(el.value)) el.value = shortLoggedInUserName();
+}
+
+function nextVendorNumber() {
+  const maxExisting = vendors.reduce((max, vendor) => {
+    const match = String(vendor.pst_vendor_id || "").match(/^V(\d+)$/i);
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 0);
+  return `V${String(maxExisting + 1).padStart(5, "0")}`;
+}
+
+function vendorLabel(vendor) {
+  if (!vendor) return "";
+  return `${vendor.pst_vendor_id || "Vendor"} - ${vendor.company_name || "Unnamed Vendor"}`;
+}
+
+function selectedIncomingVendor() {
+  const id = $("incomingVendorSelect")?.value;
+  if (!id) return null;
+  return vendors.find(vendor => String(vendor.id) === String(id)) || null;
+}
+
+function vendorLeadDays(vendor = selectedIncomingVendor()) {
+  const lead = Number(vendor?.standard_shipping_lead_time ?? PST_INCOMING_LEAD_DAYS);
+  return Number.isFinite(lead) && lead >= 0 ? lead : PST_INCOMING_LEAD_DAYS;
+}
+
+function populateVendorDropdown() {
+  const select = $("incomingVendorSelect");
+  if (!select) return;
+  const current = select.value;
+  const activeVendors = vendors.filter(v => v.is_active !== false).sort((a,b) => cleanText(a.company_name).localeCompare(cleanText(b.company_name), undefined, { sensitivity:"base" }));
+  select.innerHTML = `<option value="">Select vendor...</option>` + activeVendors.map(vendor => `<option value="${esc(vendor.id)}">${esc(vendorLabel(vendor))}</option>`).join("");
+  if (current && activeVendors.some(v => String(v.id) === String(current))) select.value = current;
+  updateIncomingVendorInfo();
+}
+
+function updateIncomingVendorInfo() {
+  const vendor = selectedIncomingVendor();
+  const info = $("incomingVendorInfo");
+  if (info) {
+    info.textContent = vendor
+      ? `${vendor.contact_name || "No contact"} · WhatsApp ${vendor.whatsapp_number || "—"} · Lead time ${vendorLeadDays(vendor)} day(s)`
+      : "Lead time fills from vendor.";
+  }
+}
+
+function renderVendors() {
+  const body = $("vendorBody");
+  const note = $("vendorNote");
+  const pstId = $("vendorPstId");
+  if (pstId) pstId.value = nextVendorNumber();
+  populateVendorDropdown();
+  if (!body) return;
+  if (!vendorsAvailable) {
+    body.innerHTML = `<tr><td colspan="6" class="note">Vendor table is not ready. Run the vendor SQL setup first.</td></tr>`;
+    if (note) note.textContent = "Vendor records are not available yet. Run the vendor SQL setup in Supabase, then refresh this page.";
+    return;
+  }
+  if (note) note.textContent = `Loaded ${vendors.length} vendor${vendors.length === 1 ? "" : "s"}. Incoming purchase orders can now use vendor lead times.`;
+  if (!vendors.length) {
+    body.innerHTML = `<tr><td colspan="6" class="note">No vendors added yet.</td></tr>`;
+    return;
+  }
+  body.innerHTML = vendors.map(vendor => `
+    <tr>
+      <td><span class="vendor-id-pill">${esc(vendor.pst_vendor_id || "")}</span></td>
+      <td><strong>${esc(vendor.company_name || "")}</strong><div class="note">${esc(vendor.address || "")}</div></td>
+      <td>${esc(vendor.contact_name || "")}</td>
+      <td>${esc(vendor.whatsapp_number || "")}</td>
+      <td>${Number(vendor.standard_shipping_lead_time ?? PST_INCOMING_LEAD_DAYS)} day(s)</td>
+      <td>${vendor.is_active === false ? `<span class="status-pill inactive-pill">Inactive</span>` : `<span class="status-pill active-pill">Active</span>`}</td>
+    </tr>`).join("");
+}
+
+async function loadVendors() {
+  try {
+    const { data, error } = await db.from("vendors").select("*").order("company_name", { ascending:true });
+    if (error) throw error;
+    vendors = data || [];
+    vendorsAvailable = true;
+  } catch (err) {
+    console.warn("Vendor table not available yet.", err);
+    vendors = [];
+    vendorsAvailable = false;
+  }
+  renderVendors();
+}
+
+async function addVendor() {
+  if (!vendorsAvailable) {
+    alert("Vendor table is not ready. Run the vendor SQL setup in Supabase first.");
+    return;
+  }
+  const companyName = cleanText($("vendorCompanyName")?.value);
+  if (!companyName) {
+    alert("Company name is required.");
+    $("vendorCompanyName")?.focus();
+    return;
+  }
+  const lead = Number($("vendorLeadTime")?.value || PST_INCOMING_LEAD_DAYS);
+  const payload = {
+    pst_vendor_id: cleanText($("vendorPstId")?.value) || nextVendorNumber(),
+    company_name: companyName,
+    address: cleanText($("vendorAddress")?.value) || null,
+    contact_name: cleanText($("vendorContactName")?.value) || null,
+    whatsapp_number: cleanText($("vendorWhatsapp")?.value) || null,
+    standard_shipping_lead_time: Number.isFinite(lead) && lead >= 0 ? lead : PST_INCOMING_LEAD_DAYS,
+    is_active: true,
+    updated_at: new Date().toISOString()
+  };
+  const { data, error } = await db.from("vendors").insert(payload).select("*").single();
+  if (error) throw error;
+  vendors = [...vendors, data];
+  ["vendorCompanyName","vendorAddress","vendorContactName","vendorWhatsapp"].forEach(id => { if ($(id)) $(id).value = ""; });
+  if ($("vendorLeadTime")) $("vendorLeadTime").value = "10";
+  renderVendors();
+  setStatus(`${payload.pst_vendor_id} added: ${payload.company_name}.`, "good");
 }
 
 
@@ -3065,12 +3239,15 @@ function normalizeIncomingRowForSupabase(row) {
     cost_per_unit: Number(row.cost_per_unit ?? row.unit_cost ?? (kitCost > 0 ? kitCost / PST_KIT_VIAL_COUNT : 0)) || 0,
     shipping_cost: Number.isFinite(shippingCost) ? shippingCost : 0,
     total_cost: Number.isFinite(totalCost) ? totalCost : 0,
-    supplier_name: row.supplier_name || row.supplier || row.supplier_source || null,
+    supplier_name: row.supplier_name || row.vendor_name || row.supplier || row.supplier_source || null,
+    vendor_id: row.vendor_id || null,
+    vendor_name: row.vendor_name || row.supplier_name || row.supplier || row.supplier_source || null,
+    lead_time_days: Number(row.lead_time_days ?? PST_INCOMING_LEAD_DAYS) || PST_INCOMING_LEAD_DAYS,
     tracking_number: row.tracking_number || row.tracking || null,
     status: String(row.status || "ordered").toLowerCase(),
     notes: row.notes || row.user_name || null,
     ordered_at: orderedAt,
-    expected_arrival_date: row.expected_arrival_date || row.expected_arrival || addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString(),
+    expected_arrival_date: row.expected_arrival_date || row.expected_arrival || addDays(orderedAt, Number(row.lead_time_days ?? PST_INCOMING_LEAD_DAYS) || PST_INCOMING_LEAD_DAYS).toISOString(),
     received_at: row.received_at || null,
     received_quantity: Number(row.received_quantity || 0) || null,
     created_at: row.created_at || orderedAt,
@@ -3231,7 +3408,8 @@ function renderIncomingDraftLines() {
 function incomingAuditText(row) {
   const lines = [];
   lines.push(`Entered: ${fmtShortDate(row.ordered_at || row.created_at)} by ${row.created_by_email || "Admin"}`);
-  lines.push(`Expected arrival: ${fmtShortDate(row.expected_arrival_date)}`);
+  lines.push(`Expected arrival: ${fmtShortDate(row.expected_arrival_date)}${row.lead_time_days ? ` · Lead time: ${row.lead_time_days} day(s)` : ""}`);
+  if (row.vendor_name || row.supplier_name || row.supplier) lines.push(`Vendor: ${row.vendor_name || row.supplier_name || row.supplier}`);
   if (incomingTotalCost(row) > 0) {
     const kit = incomingKitCost(row);
     const kitText = kit > 0 ? `${incomingMoney(kit)}/10-vial kit · ` : "";
@@ -3253,7 +3431,7 @@ function incomingEditRowHTML(row) {
           <label>Qty Ordered<input data-incoming-edit="${id}" data-field="ordered_quantity" type="number" min="1" step="1" value="${esc(Number(row.ordered_quantity || 0))}"></label>
           <label>Kit Cost<input data-incoming-edit="${id}" data-field="kit_cost" type="number" min="0" step="0.01" value="${esc(incomingKitCost(row) || "")}"></label>
           <label>Ship / Fees<input data-incoming-edit="${id}" data-field="shipping_cost" type="number" min="0" step="0.01" value="${esc(incomingShippingCost(row) || "")}"></label>
-          <label>Supplier<input data-incoming-edit="${id}" data-field="supplier_name" type="text" value="${esc(row.supplier_name || row.supplier || "")}"></label>
+          <label>Vendor / Supplier<input data-incoming-edit="${id}" data-field="supplier_name" type="text" value="${esc(row.vendor_name || row.supplier_name || row.supplier || "")}"></label>
           <label>Tracking<input data-incoming-edit="${id}" data-field="tracking_number" type="text" value="${esc(row.tracking_number || "")}"></label>
           <label>Status<select data-incoming-edit="${id}" data-field="status">${incomingStatusOptions(row.status)}</select></label>
           <label>User / Note<input data-incoming-edit="${id}" data-field="notes" type="text" value="${esc(row.notes || "")}"></label>
@@ -3303,7 +3481,7 @@ function renderIncomingInventory() {
     const status = String(row.status || "ordered").toLowerCase();
     const isReceived = status === "received";
     const isCancelled = status === "cancelled";
-    const source = [row.supplier_name || row.supplier || "", row.tracking_number || ""].filter(Boolean).join(" / ") || "—";
+    const source = [row.vendor_name || row.supplier_name || row.supplier || "", row.tracking_number || ""].filter(Boolean).join(" / ") || "—";
     const kitCost = incomingKitCost(row);
     const unitCost = incomingCostPerUnit(row);
     const shipCost = incomingShippingCost(row);
@@ -3375,7 +3553,7 @@ async function loadIncomingInventory() {
     if ($("incomingInventoryNote")) {
       $("incomingInventoryNote").textContent = migrated
         ? "Incoming inventory is now shared through Supabase. Your previous local incoming inventory records were copied into the incoming_inventory table."
-        : "Incoming inventory is loading from Supabase incoming_inventory. These records are shared across admin users. Entry timestamp is static. Expected arrival defaults to +21 days.";
+        : "Incoming inventory is loading from Supabase incoming_inventory. These records are shared across admin users. Entry timestamp is static. Expected arrival uses vendor lead time when available.";
     }
   } catch (err) {
     incomingUsesSupabase = false;
@@ -3433,8 +3611,10 @@ async function addIncomingInventory() {
   const totalShipping = Number($("incomingShippingCost")?.value || 0);
   const totalKits = incomingDraftTotalKits(lines);
   const orderedAt = incomingOrderDateISO();
-  const expectedArrival = addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString();
-  const supplierName = $("incomingSupplier")?.value.trim() || null;
+  const vendor = selectedIncomingVendor();
+  const leadTimeDays = vendorLeadDays(vendor);
+  const expectedArrival = addDays(orderedAt, leadTimeDays).toISOString();
+  const supplierName = vendor?.company_name || null;
   const trackingNumber = $("incomingTracking")?.value.trim() || null;
   const status = $("incomingStatus")?.value || "ordered";
   const userNote = $("incomingNotes")?.value.trim() || shortLoggedInUserName() || null;
@@ -3460,6 +3640,9 @@ async function addIncomingInventory() {
       shipping_cost: Number.isFinite(allocatedShipping) ? allocatedShipping : 0,
       total_cost: Number.isFinite(totalCost) ? totalCost : 0,
       supplier_name: supplierName,
+      vendor_id: vendor?.id || null,
+      vendor_name: vendor?.company_name || supplierName,
+      lead_time_days: leadTimeDays,
       tracking_number: trackingNumber,
       status,
       notes: userNote,
@@ -3469,7 +3652,7 @@ async function addIncomingInventory() {
       updated_at: orderedAt,
       created_by: currentUser?.id || null,
       created_by_email: currentUser?.email || null,
-      audit_note: `Incoming purchase order ${orderGroupId}. Line ${index + 1} of ${lines.length}. Entered by ${shortLoggedInUserName()}. Qty ${qty} vial(s) (${kits.toFixed(2)} kit(s)). Kit cost ${incomingMoney(kitCost)} per 10-vial kit. Allocated shipping/fees ${incomingMoney(allocatedShipping)} from total PO shipping/fees ${incomingMoney(totalShipping)}. Landed cost ${incomingMoney(unitCost)}/vial. Expected arrival ${fmtShortDate(expectedArrival)} using ${PST_INCOMING_LEAD_DAYS}-day lead time.`
+      audit_note: `Incoming purchase order ${orderGroupId}. Line ${index + 1} of ${lines.length}. Vendor ${vendor ? vendorLabel(vendor) : "not selected"}. Entered by ${shortLoggedInUserName()}. Qty ${qty} vial(s) (${kits.toFixed(2)} kit(s)). Kit cost ${incomingMoney(kitCost)} per 10-vial kit. Allocated shipping/fees ${incomingMoney(allocatedShipping)} from total PO shipping/fees ${incomingMoney(totalShipping)}. Landed cost ${incomingMoney(unitCost)}/vial. Expected arrival ${fmtShortDate(expectedArrival)} using ${leadTimeDays}-day vendor lead time.`
     };
   });
 
@@ -3493,7 +3676,8 @@ async function addIncomingInventory() {
   if ($("incomingKitCost")) $("incomingKitCost").value = "";
   if ($("incomingShippingCost")) $("incomingShippingCost").value = "";
   if ($("incomingTotalCost")) $("incomingTotalCost").value = "";
-  if ($("incomingSupplier")) $("incomingSupplier").value = "";
+  if ($("incomingVendorSelect")) $("incomingVendorSelect").value = "";
+  updateIncomingVendorInfo();
   if ($("incomingTracking")) $("incomingTracking").value = "";
   if ($("incomingNotes")) $("incomingNotes").value = "";
   setIncomingOrderDateToday(true);
@@ -3541,7 +3725,8 @@ async function saveIncomingEdit(id) {
   const supplierName = cleanText(incomingEditField(id, "supplier_name")?.value || "");
   const trackingNumber = cleanText(incomingEditField(id, "tracking_number")?.value || "");
   const notes = cleanText(incomingEditField(id, "notes")?.value || "");
-  const expectedArrival = addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString();
+  const leadTimeDays = Number(row.lead_time_days ?? PST_INCOMING_LEAD_DAYS) || PST_INCOMING_LEAD_DAYS;
+  const expectedArrival = addDays(orderedAt, leadTimeDays).toISOString();
   const unitCost = kitCost > 0 ? kitCost / PST_KIT_VIAL_COUNT : 0;
   const totalCost = ((qty / PST_KIT_VIAL_COUNT) * kitCost) + shippingCost;
   const now = new Date().toISOString();
@@ -3583,6 +3768,9 @@ async function saveIncomingEdit(id) {
     shipping_cost: Number.isFinite(shippingCost) ? shippingCost : 0,
     total_cost: Number.isFinite(totalCost) ? totalCost : 0,
     supplier_name: supplierName || null,
+    vendor_id: row.vendor_id || null,
+    vendor_name: row.vendor_name || supplierName || null,
+    lead_time_days: leadTimeDays,
     tracking_number: trackingNumber || null,
     status,
     notes: notes || null,
@@ -4091,6 +4279,9 @@ function wireEvents() {
 
   if ($("reorderRange")) $("reorderRange")?.addEventListener("change", async () => { await loadReorderSales(); renderReorderReview(); });
   if ($("refreshReorderBtn")) $("refreshReorderBtn")?.addEventListener("click", async () => { await loadReorderSales(); renderReorderReview(); });
+  if ($("refreshVendorsBtn")) $("refreshVendorsBtn")?.addEventListener("click", loadVendors);
+  if ($("addVendorBtn")) $("addVendorBtn")?.addEventListener("click", () => addVendor().catch(err => { console.error("Vendor save failed:", err); setStatus(err.message || "Vendor could not be saved.", "bad"); }));
+  if ($("incomingVendorSelect")) $("incomingVendorSelect")?.addEventListener("change", updateIncomingVendorInfo);
   if ($("refreshIncomingBtn")) $("refreshIncomingBtn")?.addEventListener("click", loadIncomingInventory);
   ["incomingProductSelect","incomingQty","incomingKitCost","incomingShippingCost"].forEach(id => {
     const el = $(id);
@@ -4128,6 +4319,7 @@ async function init() {
     const ok = await checkAdmin();
     if (!ok) return;
     await loadInventory();
+    await loadVendors();
   } catch (err) {
     console.error(err);
     setStatus(err.message || "Inventory admin failed to load.", "bad");
