@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V20_SIMPLE_STOCK_FILTER -->
 <!-- PST_INVENTORY_PATCH_V20_INDEPENDENT_FILTERS -->
 <!-- PST_INVENTORY_PATCH_V19_PRICE_READONLY_FROM_PRODUCTS -->
 <!-- PST_INVENTORY_PATCH_V19_PRODUCT_FIELDS_READONLY -->
@@ -2408,8 +2409,6 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           <select id="statusFilter">
             <option value="">All stock statuses</option>
             <option value="in_stock">In Stock</option>
-            <option value="limited">Limited</option>
-            <option value="low">Low Stock</option>
             <option value="out_of_stock">Out of Stock</option>
           </select>
         </div>
@@ -3935,8 +3934,12 @@ function applyFilters() {
       itemPrice
     ].filter(Boolean).join(" ").toLowerCase();
 
+    const hasPhysicalStock = Number(item.current_inventory || 0) > 0;
+
     const matchesSearch = !search || searchText.includes(search);
-    const matchesStatus = !status || itemStatus === status;
+    const matchesStatus = !status
+      || (status === "in_stock" && hasPhysicalStock)
+      || (status === "out_of_stock" && !hasPhysicalStock);
     const matchesCategory = !category || itemCategory === category;
     const matchesActive = !active || String(itemActive) === active;
 
