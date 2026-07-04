@@ -1,4 +1,5 @@
 <!-- PST_INVENTORY_PATCH_V19_PRICE_READONLY_FROM_PRODUCTS -->
+<!-- PST_INVENTORY_PATCH_V19_PRODUCT_FIELDS_READONLY -->
 <!-- PST_INVENTORY_PATCH_V18_VENDOR_MANAGEMENT_LEAD_TIME -->
 <!-- PST_INVENTORY_PATCH_V17_COMPACT_SORTED_COLUMNS_SAFE -->
 <!-- PST_INVENTORY_PATCH_V16_PRICE_INPUT_AUTOFIT_FULL_RESTORE -->
@@ -2071,6 +2072,24 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   text-align: right !important;
 }
 
+#physicalInventoryCard .inventory-readonly-value {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 46px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  background: #f7f9fc !important;
+  color: #101820 !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+  cursor: default !important;
+}
+
+#physicalInventoryCard .inventory-readonly-value.inventory-price {
+  justify-content: flex-end !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
 #physicalInventoryCard .inventory-current,
 #physicalInventoryCard .inventory-alert,
 #physicalInventoryCard .inventory-action {
@@ -3919,9 +3938,9 @@ function renderTable() {
           <strong>${esc(item.display_name || item.product_key)}</strong>
           <span>${esc(item.product_key)}</span>
         </td>
-        <td><input class="inventory-strength" data-field="strength" value="${esc(item.strength || "")}"></td>
-        <td><select class="inventory-category" data-field="category">${categoryOptions(item.category)}</select></td>
-        <td><input class="price inventory-price inventory-price-readonly" type="text" readonly tabindex="-1" value="${money(item._catalog_price ?? item.price)}" title="Price is controlled in products.html"><span class="inventory-price-note">Products</span></td>
+        <td><span class="inventory-readonly-value inventory-strength" title="Strength is controlled in products.html">${esc(item._catalog_strength || item.strength || "")}</span></td>
+        <td><span class="inventory-readonly-value inventory-category" title="Category is controlled in products.html">${esc(item._catalog_category || item.category || "")}</span></td>
+        <td><span class="inventory-readonly-value inventory-price inventory-price-readonly" title="Price is controlled in products.html">${money(item._catalog_price ?? item.price)}</span><span class="inventory-price-note">Products</span></td>
         <td><input class="num inventory-current" data-field="current_inventory" type="number" step="1" min="0" value="${Number(item.current_inventory || 0)}"></td>
         <td><input class="qty inventory-action" data-action="receive" type="number" step="1" min="0" placeholder="+"></td>
         <td><input class="qty inventory-action" data-action="remove" type="number" step="1" min="0" placeholder="-"></td>
@@ -4044,13 +4063,10 @@ async function saveRow(id) {
   data.updated_at = new Date().toISOString();
 
   const updates = {
-    category: data.category || null,
-    strength: data.strength || null,
     current_inventory: Number(data.current_inventory || 0),
     low_stock_threshold: Number(data.low_stock_threshold || 5),
     limited_stock_threshold: Number(data.limited_stock_threshold || 10),
     status_override: data.status_override || null,
-    blend_stack: data.category === "Stack",
     admin_note: note || null,
     updated_at: data.updated_at
   };
@@ -4059,10 +4075,7 @@ async function saveRow(id) {
   if (error) throw error;
 
   const catalogUpdates = {
-    category: data.category || null,
-    strength: data.strength || null,
     current_inventory: Number(data.current_inventory || 0),
-    blend_stack: data.category === "Stack",
     updated_at: data.updated_at
   };
   const catalogKeys = [...new Set([original._catalog_product_key, original.product_key].map(cleanText).filter(Boolean))];
