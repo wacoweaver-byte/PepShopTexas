@@ -2,6 +2,7 @@ const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
+const ADMIN_ORDER_NOTIFICATION_EMAILS = ["wacoweaver@gmail.com"];
 const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,is_active,starts_at,ends_at,sort_order,accent_color";
 const EMAIL_FUNCTION_NAME = "send-order-email";
@@ -200,40 +201,7 @@ async function getProducts() {
     .order("display_name", { ascending: true })
     .order("strength", { ascending: true, nullsFirst: false });
   if (error) throw error;
-  return sortProductsForCatalog(await mergeInventoryStockSettings(data || []));
-}
-
-async function mergeInventoryStockSettings(products) {
-  if (!products.length) return products;
-
-  const client = requireSupabaseClient();
-  const keys = [...new Set(products.map((product) => String(product.product_key || "").trim()).filter(Boolean))];
-  if (!keys.length) return products;
-
-  try {
-    const { data, error } = await client
-      .from("product_inventory")
-      .select("product_key,current_inventory,low_stock_threshold,limited_stock_threshold,status_override")
-      .in("product_key", keys);
-
-    if (error) throw error;
-
-    const inventoryByKey = Object.fromEntries((data || []).map((row) => [String(row.product_key || "").trim(), row]));
-    return products.map((product) => {
-      const inventory = inventoryByKey[String(product.product_key || "").trim()];
-      if (!inventory) return product;
-      return {
-        ...product,
-        current_inventory: inventory.current_inventory ?? product.current_inventory,
-        low_stock_threshold: inventory.low_stock_threshold ?? product.low_stock_threshold,
-        limited_stock_threshold: inventory.limited_stock_threshold ?? product.limited_stock_threshold,
-        status_override: inventory.status_override ?? product.status_override
-      };
-    });
-  } catch (error) {
-    console.warn("Inventory stock settings unavailable; using catalog stock only.", error);
-    return products;
-  }
+  return sortProductsForCatalog(data || []);
 }
 
 function sortProductsForCatalog(products) {
@@ -1029,41 +997,107 @@ async function insertRowsWithColumnFallback(tableName, rows) {
 
 async function sendOrderReceivedEmail(order, context = {}) {
   try {
-    const client = requireSupabaseClient();
-    const { data: sessionData } = await client.auth.getSession();
-    const token = sessionData?.session?.access_token || SUPABASE_KEY;
-    const payload = {
+    const payload = buildOrderEmailPayload(order, context, {
       type: "order_placed",
       originalType: "order_placed",
       to: context.customerEmail || order.customer_email || order.email,
-      customerName: context.customerName || order.customer_name || order.name || "Customer",
-      orderNumber: order.order_number || order.id,
-      orderDate: order.created_at,
-      subtotal: order.subtotal ?? order.subtotal_amount ?? 0,
-      discount: order.discount ?? order.discount_amount ?? 0,
-      shipping: order.shipping ?? order.shipping_amount ?? 0,
-      tax: order.tax ?? order.tax_amount ?? 0,
-      total: order.total ?? order.total_amount ?? order.grand_total ?? 0,
-      statusNote: context.paymentInstructions || "Your order has been received and is pending payment/processing.",
-      paymentMethod: context.paymentMethod || order.payment_method || "Payment pending",
-      paymentStatus: order.payment_status || "pending",
-      paymentInstructions: context.paymentInstructions || order.payment_instructions_snapshot || "",
-      items: (order.items || []).map((item) => ({
-        name: item.product_name || item.name || item.product_key || "Item",
-        quantity: item.quantity || item.qty || 1,
-        price: item.unit_price || item.price || 0,
-        total: item.line_total || item.total || null
-      }))
-    };
-    await fetch(`${SUPABASE_URL}/functions/v1/${EMAIL_FUNCTION_NAME}`, {
-      method: "POST",
-      headers: { "Content-Type":"application/json", "Authorization":`Bearer ${token}` },
-      body: JSON.stringify(payload)
+      statusNote: context.paymentInstructions || "Your order has been received and is pending payment/processing."
     });
+
+    await postOrderEmailPayload(payload);
+    await sendAdminOrderNotificationEmail(order, context, payload);
   } catch (error) {
     console.warn("Order received email did not send", error);
   }
 }
+
+function buildOrderEmailPayload(order, context = {}, overrides = {}) {
+  return {
+    type: overrides.type || "order_placed",
+    originalType: overrides.originalType || overrides.type || "order_placed",
+    to: overrides.to || context.customerEmail || order.customer_email || order.email,
+    customerName: context.customerName || order.customer_name || order.name || "Customer",
+    customerEmail: context.customerEmail || order.customer_email || order.email || "",
+    orderNumber: order.order_number || order.id,
+    orderDate: order.created_at,
+    subtotal: order.subtotal ?? order.subtotal_amount ?? 0,
+    discount: order.discount ?? order.discount_amount ?? 0,
+    shipping: order.shipping ?? order.shipping_amount ?? 0,
+    tax: order.tax ?? order.tax_amount ?? 0,
+    total: order.total ?? order.total_amount ?? order.grand_total ?? 0,
+    statusNote: overrides.statusNote || context.paymentInstructions || "Your order has been received and is pending payment/processing.",
+    paymentMethod: context.paymentMethod || order.payment_method || "Payment pending",
+    paymentStatus: order.payment_status || "pending",
+    paymentInstructions: context.paymentInstructions || order.payment_instructions_snapshot || "",
+    items: (order.items || []).map((item) => ({
+      name: item.product_name || item.name || item.product_key || "Item",
+      quantity: item.quantity || item.qty || 1,
+      price: item.unit_price || item.price || 0,
+      total: item.line_total || item.total || null
+    })),
+    ...overrides
+  };
+}
+
+async function postOrderEmailPayload(payload) {
+  const client = requireSupabaseClient();
+  const { data: sessionData } = await client.auth.getSession();
+  const token = sessionData?.session?.access_token || SUPABASE_KEY;
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/${EMAIL_FUNCTION_NAME}`, {
+    method: "POST",
+    headers: { "Content-Type":"application/json", "Authorization":`Bearer ${token}` },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error(`Email function failed: ${response.status}${detail ? ` — ${detail}` : ""}`);
+  }
+}
+
+async function sendAdminOrderNotificationEmail(order, context = {}, customerPayload = null) {
+  const recipients = [...new Set((ADMIN_ORDER_NOTIFICATION_EMAILS || []).map((email) => String(email || "").trim()).filter(Boolean))];
+  if (!recipients.length) return;
+
+  const customerName = context.customerName || order.customer_name || order.name || "Customer";
+  const customerEmail = context.customerEmail || order.customer_email || order.email || "";
+  const orderNumber = order.order_number || order.id;
+  const paymentMethod = context.paymentMethod || order.payment_method || "Payment pending";
+  const total = order.total ?? order.total_amount ?? order.grand_total ?? 0;
+  const itemCount = (order.items || []).reduce((sum, item) => sum + Number(item.quantity || item.qty || 1), 0);
+
+  const adminStatusNote = [
+    `New order placed: ${orderNumber}`,
+    `Customer: ${customerName}${customerEmail ? ` (${customerEmail})` : ""}`,
+    `Payment method: ${paymentMethod}`,
+    `Total: ${formatMoney(total)}`,
+    `Items: ${itemCount}`
+  ].join("\n");
+
+  for (const recipient of recipients) {
+    const adminPayload = {
+      ...(customerPayload || buildOrderEmailPayload(order, context)),
+      type: "order_received",
+      originalType: "admin_new_order",
+      to: recipient,
+      adminNotification: true,
+      notificationType: "new_order",
+      subject: `New PST order ${orderNumber} — ${customerName}`,
+      statusNote: adminStatusNote,
+      paymentInstructions: context.paymentInstructions || order.payment_instructions_snapshot || "",
+      paymentMethod,
+      customerName,
+      customerEmail
+    };
+
+    try {
+      await postOrderEmailPayload(adminPayload);
+    } catch (error) {
+      console.warn(`Admin order notification did not send to ${recipient}`, error);
+    }
+  }
+}
+
 
 function checkoutFormHtml(rows, context) {
   const methods = context.paymentMethods.length ? context.paymentMethods : enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
@@ -1130,35 +1164,15 @@ function formatMoney(value) {
 
 function stockText(product) {
   const count = Number(product.current_inventory || 0);
-  const override = String(product.status_override || "").trim();
-
-  if (override === "out_of_stock" || count <= 0) return "Out of stock";
-  if (override === "in_stock") return "In stock";
-  if (override === "low") return "Low stock";
-  if (override === "limited") return "Limited stock";
-
-  const lowThreshold = Number(product.low_stock_threshold || 0);
-  const limitedThreshold = Number(product.limited_stock_threshold || 0);
-  if (lowThreshold > 0 && count <= lowThreshold) return "Low stock";
-  if (limitedThreshold > 0 && count <= limitedThreshold) return "Limited stock";
-
+  if (count <= 0) return "Out of stock";
+  if (count <= 10) return "Limited stock";
   return "In stock";
 }
 
 function stockClass(product) {
   const count = Number(product.current_inventory || 0);
-  const override = String(product.status_override || "").trim();
-
-  if (override === "out_of_stock" || count <= 0) return "out";
-  if (override === "in_stock") return "available";
-  if (override === "low") return "low";
-  if (override === "limited") return "limited";
-
-  const lowThreshold = Number(product.low_stock_threshold || 0);
-  const limitedThreshold = Number(product.limited_stock_threshold || 0);
-  if (lowThreshold > 0 && count <= lowThreshold) return "low";
-  if (limitedThreshold > 0 && count <= limitedThreshold) return "limited";
-
+  if (count <= 0) return "out";
+  if (count <= 10) return "limited";
   return "available";
 }
 
