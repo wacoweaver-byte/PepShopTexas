@@ -68,6 +68,39 @@ input[type="checkbox"] { width:18px; height:18px; min-height:18px; cursor:pointe
 .bulk { padding:12px 14px; background:#fbfcff; border-bottom:1px solid var(--line); display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:center; }
 .bulk-left { display:flex; align-items:center; gap:8px; font-weight:900; }
 .bulk-tools { display:grid; grid-template-columns:95px 95px 1fr repeat(6,auto); gap:8px; align-items:end; }
+.inventory-value-summary {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--line);
+}
+.inventory-value-card {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f7f9fc;
+}
+.inventory-value-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.inventory-value-card strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--dark);
+  font-size: 16px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .table-wrap { overflow:auto; max-height:calc(100vh - 300px); }
 table { width:100%; border-collapse:collapse; min-width:1460px; }
 th,td { border-bottom:1px solid var(--line); padding:9px 7px; text-align:left; vertical-align:middle; font-size:13px; }
@@ -92,10 +125,12 @@ tr.dirty { background:#fffaf0; }
   .card-head,.bulk { grid-template-columns:1fr; }
   .filters { grid-template-columns:1fr 1fr; }
   .bulk-tools { grid-template-columns:1fr 1fr; }
+  .inventory-value-summary { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
 }
 @media(max-width:640px) {
   .topbar { align-items:flex-start; flex-direction:column; }
   .filters,.bulk-tools { grid-template-columns:1fr; }
+  .inventory-value-summary { grid-template-columns: 1fr 1fr; }
 }
 
     .pst-admin-logo {
@@ -2470,6 +2505,33 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       </div>
     </div>
 
+    <div class="inventory-value-summary" aria-label="Selected inventory value summary">
+      <div class="inventory-value-card">
+        <span>Selected Products</span>
+        <strong id="selectedProductCount">0</strong>
+      </div>
+      <div class="inventory-value-card">
+        <span>Selected Vials</span>
+        <strong id="selectedVialCount">0</strong>
+      </div>
+      <div class="inventory-value-card">
+        <span>Potential Revenue</span>
+        <strong id="selectedRevenueValue">$0.00</strong>
+      </div>
+      <div class="inventory-value-card">
+        <span>Known Cost</span>
+        <strong id="selectedCostValue">$0.00</strong>
+      </div>
+      <div class="inventory-value-card">
+        <span>Estimated Profit</span>
+        <strong id="selectedProfitValue">$0.00</strong>
+      </div>
+      <div class="inventory-value-card">
+        <span>Margin</span>
+        <strong id="selectedMarginValue">—</strong>
+      </div>
+    </div>
+
     <div class="table-wrap">
       <table>
         <thead>
@@ -4062,11 +4124,14 @@ function renderTable() {
   });
 
   document.querySelectorAll("tbody input[data-field], tbody select[data-field]").forEach(input => {
-    input.addEventListener("change", e => {
+    const markDirtyAndRefreshSummary = e => {
       const id = e.target.closest("tr").dataset.id;
       dirtyIds.add(id);
       e.target.closest("tr").classList.add("dirty");
-    });
+      if (e.target.dataset.field === "current_inventory") renderSelectedCount();
+    };
+    input.addEventListener("change", markDirtyAndRefreshSummary);
+    input.addEventListener("input", markDirtyAndRefreshSummary);
   });
 
   document.querySelectorAll(".row-save").forEach(btn => {
@@ -4074,10 +4139,50 @@ function renderTable() {
   });
 }
 
+function formatCurrency(value) {
+  return Number(value || 0).toLocaleString("en-US", { style: "currency", currency: "USD" });
+}
+
+function inventoryPriceForSummary(item) {
+  return Number(item?._catalog_price ?? item?.price ?? 0) || 0;
+}
+
+function inventoryCostForSummary(item) {
+  return Number(item?.cost_per_unit ?? item?.unit_cost ?? item?.cost_basis ?? item?.vial_cost ?? item?.per_vial_cost ?? 0) || 0;
+}
+
+function inventoryQtyForSummary(item) {
+  const row = document.querySelector(`tr[data-id="${item.id}"]`);
+  const visibleValue = row?.querySelector('[data-field="current_inventory"]')?.value;
+  return Math.max(0, Number(visibleValue ?? item?.current_inventory ?? 0) || 0);
+}
+
 function renderSelectedCount() {
   $("selectedCount").textContent = selectedIds.size;
   const visible = filteredItems.map(i => i.id);
   $("selectAll").checked = visible.length > 0 && visible.every(id => selectedIds.has(id));
+
+  const selectedItems = allItems.filter(item => selectedIds.has(item.id));
+  const totals = selectedItems.reduce((sum, item) => {
+    const qty = inventoryQtyForSummary(item);
+    const price = inventoryPriceForSummary(item);
+    const cost = inventoryCostForSummary(item);
+    sum.products += 1;
+    sum.vials += qty;
+    sum.revenue += qty * price;
+    sum.cost += qty * cost;
+    return sum;
+  }, { products: 0, vials: 0, revenue: 0, cost: 0 });
+
+  const profit = totals.revenue - totals.cost;
+  const margin = totals.revenue > 0 ? `${((profit / totals.revenue) * 100).toFixed(1)}%` : "—";
+
+  if ($("selectedProductCount")) $("selectedProductCount").textContent = String(totals.products);
+  if ($("selectedVialCount")) $("selectedVialCount").textContent = String(totals.vials);
+  if ($("selectedRevenueValue")) $("selectedRevenueValue").textContent = formatCurrency(totals.revenue);
+  if ($("selectedCostValue")) $("selectedCostValue").textContent = formatCurrency(totals.cost);
+  if ($("selectedProfitValue")) $("selectedProfitValue").textContent = formatCurrency(profit);
+  if ($("selectedMarginValue")) $("selectedMarginValue").textContent = margin;
 }
 
 function getRowData(id) {
