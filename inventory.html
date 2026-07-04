@@ -725,6 +725,15 @@ table {
   line-height: 1.15;
   white-space: nowrap;
 }
+.managed-in-products-head {
+  text-align: center !important;
+  color: #596579 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em !important;
+  text-transform: none !important;
+  background: #ffffff !important;
+}
 
 
 
@@ -2458,6 +2467,11 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       <table>
         <thead>
           <tr>
+            <th colspan="2"></th>
+            <th colspan="3" class="managed-in-products-head">Managed in Products</th>
+            <th colspan="10"></th>
+          </tr>
+          <tr>
             <th></th>
             <th>Product</th>
             <th>Strength</th>
@@ -3970,7 +3984,7 @@ function renderTable() {
         </td>
         <td><span class="inventory-readonly-value inventory-strength" title="Strength is controlled in products.html">${esc(item._catalog_strength || item.strength || "")}</span></td>
         <td><span class="inventory-readonly-value inventory-category" title="Category is controlled in products.html">${esc(item._catalog_category || item.category || "")}</span></td>
-        <td><span class="inventory-readonly-value inventory-price inventory-price-readonly" title="Price is controlled in products.html">${money(item._catalog_price ?? item.price)}</span><span class="inventory-price-note">Products</span></td>
+        <td><span class="inventory-readonly-value inventory-price inventory-price-readonly" title="Price is controlled in products.html">${money(item._catalog_price ?? item.price)}</span></td>
         <td><input class="num inventory-current" data-field="current_inventory" type="number" step="1" min="0" value="${Number(item.current_inventory || 0)}"></td>
         <td><input class="qty inventory-action" data-action="receive" type="number" step="1" min="0" placeholder="+"></td>
         <td><input class="qty inventory-action" data-action="remove" type="number" step="1" min="0" placeholder="-"></td>
