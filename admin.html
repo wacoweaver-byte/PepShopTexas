@@ -2738,6 +2738,15 @@ header .pst-admin-actions-lock .btn.primary {
     return "";
   }
 
+  function inventoryMatchText(value){
+    return cleanValue(value)
+      .toLowerCase()
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ")
+      .replace(/[^a-z0-9]+/g, "")
+      .trim();
+  }
+
   function orderItemInventoryKeys(item={}){
     return [
       item.product_key,
@@ -2747,6 +2756,77 @@ header .pst-admin-actions-lock .btn.primary {
       item.item_no,
       item.product_id
     ].map(cleanValue).filter(Boolean);
+  }
+
+  function orderItemInventoryNames(item={}){
+    const display = orderItemDisplayName(item);
+    const withoutParen = display.replace(/\s*\([^)]*\)\s*/g, " ").trim();
+    const firstWord = withoutParen.split(/\s+/)[0] || "";
+    return [
+      display,
+      withoutParen,
+      firstWord,
+      item.product_name,
+      item.name,
+      item.display_name,
+      item.label_name
+    ].map(cleanValue).filter(Boolean);
+  }
+
+  function inventoryRowMatchesOrderItem(row={}, item={}){
+    const keys = orderItemInventoryKeys(item).map(inventoryMatchText).filter(Boolean);
+    const names = orderItemInventoryNames(item).map(inventoryMatchText).filter(Boolean);
+    const rowValues = [
+      row.product_key,
+      row.sku,
+      row.product_sku,
+      row.item_number,
+      row.item_no,
+      row.display_name,
+      row.product_name,
+      row.name,
+      row.label_name
+    ].map(inventoryMatchText).filter(Boolean);
+
+    if(keys.some(key => rowValues.includes(key))) return true;
+    if(names.some(name => rowValues.includes(name))) return true;
+
+    const rowDisplay = inventoryMatchText(row.display_name || row.product_name || row.name || "");
+    const itemDisplay = inventoryMatchText(orderItemDisplayName(item));
+    const itemBase = inventoryMatchText(orderItemDisplayName(item).replace(/\s*\([^)]*\)\s*/g, " "));
+    if(rowDisplay && itemBase && rowDisplay === itemBase) return true;
+    if(rowDisplay && itemDisplay && (itemDisplay.startsWith(rowDisplay) || rowDisplay.startsWith(itemBase))) return true;
+
+    return false;
+  }
+
+  async function findInventoryRowForOrderItem(item={}){
+    const keys = orderItemInventoryKeys(item);
+    if(keys.length){
+      const { data, error } = await supabaseClient
+        .from("product_inventory")
+        .select("*")
+        .in("product_key", keys)
+        .limit(1);
+      if(error) throw new Error(`Inventory lookup failed for ${orderItemDisplayName(item)}: ${error.message || error}`);
+      if((data || [])[0]) return (data || [])[0];
+    }
+
+    const { data: allInventory, error: allError } = await supabaseClient
+      .from("product_inventory")
+      .select("*");
+
+    if(allError) throw new Error(`Inventory lookup failed for ${orderItemDisplayName(item)}: ${allError.message || allError}`);
+
+    const matches = (allInventory || []).filter(row => inventoryRowMatchesOrderItem(row, item));
+    if(matches.length === 1) return matches[0];
+
+    if(matches.length > 1){
+      const exact = matches.find(row => inventoryMatchText(row.display_name || row.product_name || row.name) === inventoryMatchText(orderItemDisplayName(item).replace(/\s*\([^)]*\)\s*/g, " ")));
+      return exact || matches[0];
+    }
+
+    return null;
   }
 
   async function safeUpdateCatalogInventory(keys, newQty, now){
@@ -2804,17 +2884,9 @@ header .pst-admin-actions-lock .btn.primary {
         continue;
       }
 
-      const { data: inventoryRows, error: findError } = await supabaseClient
-        .from("product_inventory")
-        .select("*")
-        .in("product_key", keys)
-        .limit(1);
-
-      if(findError) throw new Error(`Inventory lookup failed for ${orderItemDisplayName(item)}: ${findError.message || findError}`);
-
-      const inv = (inventoryRows || [])[0];
+      const inv = await findInventoryRowForOrderItem(item);
       if(!inv){
-        results.push(`${orderItemDisplayName(item)}: inventory row not found`);
+        results.push(`${orderItemDisplayName(item)}: inventory row not found. Check that the order item has a matching Product Key/SKU or that Inventory has the same display name.`);
         failed++;
         continue;
       }
