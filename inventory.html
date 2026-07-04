@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V20_INDEPENDENT_FILTERS -->
 <!-- PST_INVENTORY_PATCH_V19_PRICE_READONLY_FROM_PRODUCTS -->
 <!-- PST_INVENTORY_PATCH_V19_PRODUCT_FIELDS_READONLY -->
 <!-- PST_INVENTORY_PATCH_V18_VENDOR_MANAGEMENT_LEAD_TIME -->
@@ -3895,25 +3896,51 @@ async function loadInventory() {
 
 function populateCategoryFilter() {
   const select = $("categoryFilter");
+  if (!select) return;
+
   const current = select.value;
-  const cats = [...new Set(allItems.map(i => i.category).filter(Boolean))].sort();
-  select.innerHTML = `<option value="">All categories</option>` + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
-  select.value = current;
+
+  const cats = [...new Set(
+    allItems
+      .map(i => i._catalog_category || i.category)
+      .filter(Boolean)
+  )].sort();
+
+  select.innerHTML =
+    `<option value="">All categories</option>` +
+    cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+
+  select.value = cats.includes(current) ? current : "";
 }
 
 function applyFilters() {
-  const search = $("searchInput").value.trim().toLowerCase();
-  const status = $("statusFilter").value;
-  const category = $("categoryFilter").value;
-  const active = $("activeFilter").value;
+  const search = $("searchInput")?.value.trim().toLowerCase() || "";
+  const status = $("statusFilter")?.value || "";
+  const category = $("categoryFilter")?.value || "";
+  const active = $("activeFilter")?.value || "";
 
   filteredItems = allItems.filter(item => {
-    const text = [item.product_key, item.display_name, item.category, item.strength, item.admin_note].filter(Boolean).join(" ").toLowerCase();
+    const itemCategory = item._catalog_category || item.category || "";
+    const itemStrength = item._catalog_strength || item.strength || "";
+    const itemPrice = item._catalog_price ?? item.price;
     const itemStatus = item.status_override || normalizeStatus(item);
-    return (!search || text.includes(search))
-      && (!status || itemStatus === status)
-      && (!category || item.category === category)
-      && (!active || String(item.is_active) === active);
+    const itemActive = item.is_active !== false;
+
+    const searchText = [
+      item.product_key,
+      item.display_name,
+      itemCategory,
+      itemStrength,
+      item.admin_note,
+      itemPrice
+    ].filter(Boolean).join(" ").toLowerCase();
+
+    const matchesSearch = !search || searchText.includes(search);
+    const matchesStatus = !status || itemStatus === status;
+    const matchesCategory = !category || itemCategory === category;
+    const matchesActive = !active || String(itemActive) === active;
+
+    return matchesSearch && matchesStatus && matchesCategory && matchesActive;
   }).sort(inventoryCompareItems);
 
   renderTable();
