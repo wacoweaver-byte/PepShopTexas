@@ -865,6 +865,13 @@ strong {
 @media(max-width:1150px){ .vendor-form-grid { grid-template-columns:1fr 1fr; } .vendor-form-grid .full { grid-column:1 / -1; } }
 @media(max-width:640px){ .vendor-form-grid { grid-template-columns:1fr; } }
 
+
+.inventory-target-row {
+  outline: 3px solid #0077c8 !important;
+  outline-offset: -3px !important;
+  background: #f0f8ff !important;
+}
+
 </style>
 
 <style>
@@ -3901,7 +3908,9 @@ async function loadInventory() {
   allItems = (data || []).map(item => mergeInventoryCatalogLabel(item));
   await loadReorderSales();
   populateCategoryFilter();
+  applyInventoryTargetFromUrl();
   applyFilters();
+  setTimeout(scrollToInventoryTargetFromUrl, 120);
   renderReorderReview();
   await loadIncomingInventory();
   setStatus(`Loaded ${allItems.length} inventory item${allItems.length === 1 ? "" : "s"}.`, "good");
@@ -3924,6 +3933,37 @@ function populateCategoryFilter() {
     cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
 
   select.value = cats.includes(current) ? current : "";
+}
+
+function inventoryTargetProductKeyFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return String(params.get("product_key") || params.get("key") || "").trim();
+}
+
+function applyInventoryTargetFromUrl() {
+  const targetKey = inventoryTargetProductKeyFromUrl();
+  if (!targetKey) return;
+
+  const searchInput = $("searchInput");
+  if (searchInput) searchInput.value = targetKey;
+
+  ["statusFilter", "categoryFilter", "activeFilter"].forEach(id => {
+    const field = $(id);
+    if (field) field.value = "";
+  });
+}
+
+function scrollToInventoryTargetFromUrl() {
+  const targetKey = inventoryTargetProductKeyFromUrl();
+  if (!targetKey) return;
+
+  const safeKey = CSS.escape(targetKey);
+  const row = document.querySelector(`[data-product-key="${safeKey}"]`);
+  if (!row) return;
+
+  row.scrollIntoView({ behavior: "smooth", block: "center" });
+  row.classList.add("inventory-target-row");
+  setTimeout(() => row.classList.remove("inventory-target-row"), 2600);
 }
 
 function applyFilters() {
@@ -3976,7 +4016,7 @@ function renderTable() {
     const dirty = dirtyIds.has(item.id) ? "dirty" : "";
     const status = item.status_override || normalizeStatus(item);
     return `
-      <tr data-id="${item.id}" class="${dirty}">
+      <tr data-id="${item.id}" data-product-key="${esc(item.product_key || "")}" class="${dirty}">
         <td><input type="checkbox" class="row-check" data-id="${item.id}" ${checked}></td>
         <td class="name-cell inventory-product-cell">
           <strong>${esc(item.display_name || item.product_key)}</strong>
