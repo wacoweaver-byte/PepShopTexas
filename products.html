@@ -791,7 +791,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
             <div class="product-inventory-readonly">
               <span>Current Inventory</span>
               <strong>${Number(activeProduct.current_inventory || 0)} vials</strong>
-              <a href="inventory.html">Manage in Inventory →</a>
+              <a href="inventory.html?product_key=${encodeURIComponent(activeProduct.product_key || "")}">Manage in Inventory →</a>
             </div>
             <label>Sale Price<input name="sale_price" type="number" step="0.01" value="${activeProduct.sale_price ?? ""}"></label>
             <label>Sale Label<input name="sale_label" value="${esc(activeProduct.sale_label || "")}" placeholder="Sale"></label>
