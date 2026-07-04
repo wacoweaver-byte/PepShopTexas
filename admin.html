@@ -1502,6 +1502,85 @@ header .pst-admin-actions-lock .btn.primary {
   color: #ffffff !important;
 }
 </style>
+
+<style id="pst-order-adjustment-v1">
+/* PST_ADMIN_PATCH_V17_ORDER_ADJUSTMENTS */
+.order-adjustment-wrap {
+  display: grid;
+  gap: 12px;
+}
+.order-adjustment-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+}
+.order-adjustment-table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+}
+.order-adjustment-table th,
+.order-adjustment-table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.order-adjustment-table th {
+  background: #fbfcfe;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.order-adjustment-table input {
+  min-height: 36px;
+  padding: 7px 8px;
+}
+.order-adjustment-qty {
+  width: 78px;
+  text-align: center;
+}
+.order-adjustment-money {
+  width: 108px;
+  text-align: right;
+}
+.order-adjustment-totals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
+  gap: 10px;
+}
+.order-adjustment-total-card {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fbfcfe;
+}
+.order-adjustment-total-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-weight: 700;
+}
+.order-adjustment-total-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.order-adjustment-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+@media(max-width:700px){
+  .order-adjustment-totals { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
 </head>
 <body class="admin-auth-pending">
 <header>
@@ -2138,6 +2217,253 @@ header .pst-admin-actions-lock .btn.primary {
   }
 
 
+  /* PST_ADMIN_PATCH_V17_ORDER_ADJUSTMENTS */
+  function roundOrderMoney(value){
+    return Math.round((Number(value) || 0) * 100) / 100;
+  }
+
+  function orderItemDisplayName(item){
+    return item.product_name || item.name || item.display_name || item.product_key || "Item";
+  }
+
+  function orderItemQty(item){
+    return Number(item.quantity ?? item.qty ?? 1) || 0;
+  }
+
+  function orderItemUnitPrice(item){
+    return Number(item.unit_price ?? item.price ?? 0) || 0;
+  }
+
+  function orderItemLineTotal(item){
+    const qty = orderItemQty(item);
+    const price = orderItemUnitPrice(item);
+    return Number(item.line_total ?? item.total ?? (qty * price)) || 0;
+  }
+
+  function orderAdjustmentMarkup(order){
+    const items = order.items || [];
+    if(!items.length){
+      return `<div class="detail-section"><h3>Adjust Order Pricing / Quantity</h3><div class="muted">No item rows were found for this order, so only shipping/discount/tax can be adjusted after item rows exist.</div></div>`;
+    }
+
+    const itemRows = items.map((item, idx) => {
+      const name = orderItemDisplayName(item);
+      const qty = orderItemQty(item);
+      const price = orderItemUnitPrice(item);
+      const line = orderItemLineTotal(item);
+      return `
+        <tr data-adjust-index="${idx}">
+          <td><strong>${esc(name)}</strong><div class="muted">${esc(item.product_key || item.sku || item.product_strength || item.strength || "")}</div></td>
+          <td><input class="order-adjustment-qty" data-adjust-field="quantity" type="number" step="1" min="0" value="${esc(qty)}" /></td>
+          <td><input class="order-adjustment-money" data-adjust-field="unit_price" type="number" step="0.01" min="0" value="${esc(Number(price).toFixed(2))}" /></td>
+          <td><strong data-adjust-line>${money(line)}</strong></td>
+        </tr>
+      `;
+    }).join("");
+
+    return `
+      <div class="detail-section" id="orderAdjustmentSection">
+        <h3>Adjust Order Pricing / Quantity</h3>
+        <div class="order-adjustment-wrap">
+          <div class="note"><strong>Order-specific adjustment:</strong> This changes only this order snapshot. It does not change product catalog pricing.</div>
+          <div class="order-adjustment-table-wrap">
+            <table class="order-adjustment-table">
+              <thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Line Total</th></tr></thead>
+              <tbody>${itemRows}</tbody>
+            </table>
+          </div>
+          <div class="edit-grid">
+            <div class="field"><label for="adjustShipping">Shipping</label><input id="adjustShipping" class="order-adjustment-money" type="number" step="0.01" min="0" value="${esc(Number(orderShipping(order)).toFixed(2))}" /></div>
+            <div class="field"><label for="adjustDiscount">Discount</label><input id="adjustDiscount" class="order-adjustment-money" type="number" step="0.01" min="0" value="${esc(Number(orderDiscount(order)).toFixed(2))}" /></div>
+            <div class="field"><label for="adjustTax">Tax</label><input id="adjustTax" class="order-adjustment-money" type="number" step="0.01" min="0" value="${esc(Number(orderTax(order)).toFixed(2))}" /></div>
+            <div class="field"><label for="adjustReason">Reason / Note Required</label><input id="adjustReason" type="text" placeholder="Example: waived shipping, corrected quantity, customer price adjustment..." /></div>
+          </div>
+          <div class="order-adjustment-totals">
+            <div class="order-adjustment-total-card"><span>Subtotal</span><strong id="adjustPreviewSubtotal">${money(orderSubtotal(order))}</strong></div>
+            <div class="order-adjustment-total-card"><span>Shipping</span><strong id="adjustPreviewShipping">${money(orderShipping(order))}</strong></div>
+            <div class="order-adjustment-total-card"><span>Discount</span><strong id="adjustPreviewDiscount">-${money(orderDiscount(order))}</strong></div>
+            <div class="order-adjustment-total-card"><span>Tax</span><strong id="adjustPreviewTax">${money(orderTax(order))}</strong></div>
+            <div class="order-adjustment-total-card"><span>Grand Total</span><strong id="adjustPreviewTotal">${money(orderTotal(order))}</strong></div>
+          </div>
+          <div class="order-adjustment-actions">
+            <button class="btn success" id="saveOrderAdjustmentBtn" type="button">Save Pricing / Quantity Adjustment</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function readOrderAdjustmentForm(order){
+    const items = (order.items || []).map((item, idx) => {
+      const row = document.querySelector(`[data-adjust-index="${idx}"]`);
+      const quantity = Math.max(0, Number(row?.querySelector('[data-adjust-field="quantity"]')?.value || 0));
+      const unitPrice = Math.max(0, Number(row?.querySelector('[data-adjust-field="unit_price"]')?.value || 0));
+      const lineTotal = roundOrderMoney(quantity * unitPrice);
+      return { item, idx, quantity, unitPrice, lineTotal };
+    });
+
+    const subtotal = roundOrderMoney(items.reduce((sum, row) => sum + row.lineTotal, 0));
+    const shipping = roundOrderMoney(Math.max(0, Number($("adjustShipping")?.value || 0)));
+    const discount = roundOrderMoney(Math.max(0, Number($("adjustDiscount")?.value || 0)));
+    const tax = roundOrderMoney(Math.max(0, Number($("adjustTax")?.value || 0)));
+    const total = roundOrderMoney(subtotal + shipping + tax - discount);
+    const reason = cleanValue($("adjustReason")?.value || "");
+
+    return { items, subtotal, shipping, discount, tax, total, reason };
+  }
+
+  function updateOrderAdjustmentPreview(order){
+    const form = readOrderAdjustmentForm(order);
+    form.items.forEach(row => {
+      const el = document.querySelector(`[data-adjust-index="${row.idx}"] [data-adjust-line]`);
+      if(el) el.textContent = money(row.lineTotal);
+    });
+    if($("adjustPreviewSubtotal")) $("adjustPreviewSubtotal").textContent = money(form.subtotal);
+    if($("adjustPreviewShipping")) $("adjustPreviewShipping").textContent = money(form.shipping);
+    if($("adjustPreviewDiscount")) $("adjustPreviewDiscount").textContent = `-${money(form.discount)}`;
+    if($("adjustPreviewTax")) $("adjustPreviewTax").textContent = money(form.tax);
+    if($("adjustPreviewTotal")) $("adjustPreviewTotal").textContent = money(form.total);
+    return form;
+  }
+
+  function initOrderAdjustment(order){
+    document.querySelectorAll("[data-adjust-field], #adjustShipping, #adjustDiscount, #adjustTax").forEach(input => {
+      input.addEventListener("input", () => updateOrderAdjustmentPreview(order));
+      input.addEventListener("change", () => updateOrderAdjustmentPreview(order));
+    });
+    updateOrderAdjustmentPreview(order);
+  }
+
+  function filterUpdatesToOrderItemColumns(updates, item){
+    const keys = new Set(Object.keys(item || {}));
+    const filtered = {};
+    Object.entries(updates || {}).forEach(([key, value]) => {
+      if(value !== undefined && keys.has(key)) filtered[key] = value;
+    });
+    return filtered;
+  }
+
+  async function safeUpdateOrderItem(item, updates){
+    let payload = filterUpdatesToOrderItemColumns(updates, item);
+    if(!Object.keys(payload).length) return;
+
+    let query = supabaseClient.from("order_items").update(payload);
+    if(item.id) query = query.eq("id", item.id);
+    else if(item.order_id && item.product_key) query = query.eq("order_id", item.order_id).eq("product_key", item.product_key);
+    else if(item.order_id && item.product_id) query = query.eq("order_id", item.order_id).eq("product_id", item.product_id);
+    else throw new Error("Could not identify the order item row to update.");
+
+    const { error } = await query;
+    if(!error) return;
+
+    const missing = missingColumnFromError(error);
+    if(missing && Object.prototype.hasOwnProperty.call(payload, missing)){
+      delete payload[missing];
+      if(Object.keys(payload).length) return safeUpdateOrderItem(item, payload);
+    }
+    throw error;
+  }
+
+  function orderAdjustmentChangeSummary(order, form){
+    const changes = [];
+    form.items.forEach(row => {
+      const oldQty = orderItemQty(row.item);
+      const oldPrice = orderItemUnitPrice(row.item);
+      const oldLine = orderItemLineTotal(row.item);
+      if(Number(oldQty) !== Number(row.quantity) || roundOrderMoney(oldPrice) !== roundOrderMoney(row.unitPrice)){
+        changes.push(`${orderItemDisplayName(row.item)}: qty ${oldQty} → ${row.quantity}, unit ${money(oldPrice)} → ${money(row.unitPrice)}, line ${money(oldLine)} → ${money(row.lineTotal)}`);
+      }
+    });
+
+    const totals = [
+      ["Subtotal", orderSubtotal(order), form.subtotal],
+      ["Shipping", orderShipping(order), form.shipping],
+      ["Discount", orderDiscount(order), form.discount],
+      ["Tax", orderTax(order), form.tax],
+      ["Grand total", orderTotal(order), form.total]
+    ];
+
+    totals.forEach(([label, oldValue, newValue]) => {
+      if(roundOrderMoney(oldValue) !== roundOrderMoney(newValue)) changes.push(`${label}: ${money(oldValue)} → ${money(newValue)}`);
+    });
+
+    return changes;
+  }
+
+  async function saveOrderAdjustment(order){
+    try{
+      const form = updateOrderAdjustmentPreview(order);
+      const changes = orderAdjustmentChangeSummary(order, form);
+      if(!changes.length){
+        alert("No pricing, quantity, shipping, discount, or tax changes were found.");
+        return;
+      }
+      if(!form.reason){
+        alert("Enter a reason/note for this order adjustment.");
+        $("adjustReason")?.focus();
+        return;
+      }
+
+      if(isOrderLocked(order)){
+        const ok = confirm("This order is locked. Save this pricing/quantity adjustment anyway?");
+        if(!ok) return;
+      }
+
+      setStatus("Saving order pricing / quantity adjustment...");
+
+      const now = new Date().toISOString();
+
+      for(const row of form.items){
+        const itemUpdates = {
+          quantity: row.quantity,
+          qty: row.quantity,
+          unit_price: row.unitPrice,
+          price: row.unitPrice,
+          line_total: row.lineTotal,
+          total: row.lineTotal,
+          updated_at: now
+        };
+        await safeUpdateOrderItem(row.item, itemUpdates);
+      }
+
+      const auditText = `Order adjusted by ${adminDisplayName()}: ${changes.join(" | ")} | Reason: ${form.reason}`;
+      const currentNotes = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+      const nextNotes = joinAuditNotes(currentNotes, auditLine(auditText));
+      const orderUpdates = {
+        subtotal: form.subtotal,
+        subtotal_amount: form.subtotal,
+        shipping: form.shipping,
+        shipping_amount: form.shipping,
+        discount: form.discount,
+        discount_amount: form.discount,
+        tax: form.tax,
+        tax_amount: form.tax,
+        total: form.total,
+        total_amount: form.total,
+        order_total: form.total,
+        grand_total: form.total,
+        admin_note: nextNotes,
+        admin_notes: nextNotes,
+        last_admin_actor: adminDisplayName(),
+        last_admin_actor_email: cleanValue(currentUser?.email),
+        updated_at: now
+      };
+
+      await safeUpdateOrder(order.id, orderUpdates, order);
+
+      setStatus("Order adjustment saved. Totals were recalculated for this order only.", "good");
+      await loadOrders();
+      const fresh = allOrders.find(o => String(o.id) === String(order.id));
+      if(fresh) await renderOrderDetail(fresh);
+    }catch(error){
+      console.error(error);
+      setStatus(error.message || "Could not save order adjustment.", "bad");
+      alert(error.message || "Could not save order adjustment.");
+    }
+  }
+
+
+
   function auditActionLabel(row){
     const type = cleanValue(row.action_type);
     const labels = {
@@ -2533,6 +2859,7 @@ async function printFulfillmentSheet(order){
       <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div>${packingSlipStatusMarkup(order)}<div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
       ${paymentInstructionsMarkup(order)}
       <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Packing Slip:</strong> Print the packing slip after payment is accepted. The order cannot be marked Packed until the packing slip has been printed.</div></div>
+      ${orderAdjustmentMarkup(order)}
       <div class="detail-section"><h3>Update Order</h3>
         <div class="edit-grid">
           <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatusOptions(order)}</select></div>
@@ -2557,6 +2884,8 @@ async function printFulfillmentSheet(order){
     }
     $("reloadDetailBtn")?.addEventListener("click", loadOrders);
     $("printFulfillmentBtn")?.addEventListener("click", () => printFulfillmentSheet(order));
+    initOrderAdjustment(order);
+    $("saveOrderAdjustmentBtn")?.addEventListener("click", () => saveOrderAdjustment(order));
     $("saveOrderBtn")?.addEventListener("click", () => saveOrder(order));
     document.querySelectorAll(".preview-email-action").forEach(btn => btn.addEventListener("click", () => openEmailPreview(order, btn.dataset.emailType, false)));
     document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false, { skipPreview:true })));
