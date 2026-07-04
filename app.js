@@ -1,4 +1,4 @@
-﻿const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
@@ -265,10 +265,11 @@ async function resolveProductKey(productKey) {
 async function renderHome() {
   try {
     const [products, promotions, currentUser] = await Promise.all([getProducts(), getActivePromotions(), getSignedInUser()]);
+    const isAdmin = currentUser ? await isAdminUser(currentUser) : false;
     const hot = products.filter((p) => p.hot_peptide || p.featured);
     const stacks = products.filter((p) => p.category === "Stack" || p.blend_stack);
     const newest = [...products].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-    renderHomePromotion(firstVisiblePromotion(promotions, currentUser));
+    renderHomePromotion(firstVisiblePromotion(promotions, currentUser, { isAdmin }), { isAdmin });
     fillHomeList("hot", hot.length ? hot : products);
     fillHomeList("stacks", stacks.length ? stacks : products);
     fillHomeList("new", newest.length ? newest : products);
@@ -296,14 +297,26 @@ async function getActivePromotions() {
   });
 }
 
-function firstVisiblePromotion(promotions, user) {
-  return (promotions || []).find((promo) => shouldShowPromotion(promo, user));
+function firstVisiblePromotion(promotions, user, context = {}) {
+  return (promotions || []).find((promo) => shouldShowPromotion(promo, user, context));
 }
 
-function shouldShowPromotion(promo, user) {
+function shouldShowPromotion(promo, user, context = {}) {
   if (!promo) return false;
+  if (context.isAdmin) return true;
   if (!user) return true;
   return !isAccountCreationPromotion(promo);
+}
+
+async function isAdminUser(user) {
+  if (!user) return false;
+  try {
+    const admin = await getAdminRecordForUser(user);
+    return !!admin && (admin.is_active === true || admin.active === true || admin.is_admin === true || admin.email === user.email);
+  } catch (error) {
+    console.warn("Admin promotion preview check failed", error);
+    return false;
+  }
 }
 
 function isAccountCreationPromotion(promo) {
@@ -313,7 +326,7 @@ function isAccountCreationPromotion(promo) {
   const body = String(promo.body || "").trim().toLowerCase();
   return href.includes("register.html") || href.includes("login.html") || button.includes("create account") || title.includes("welcome") || body.includes("create an account");
 }
-function renderHomePromotion(promo) {
+function renderHomePromotion(promo, context = {}) {
   const shell = document.querySelector("[data-home-promotion]");
   if (!shell) return;
   if (!promo) {
@@ -332,6 +345,7 @@ function renderHomePromotion(promo) {
       ${promo.badge ? `<span>${escapeHtml(promo.badge)}</span>` : ""}
       <strong>${escapeHtml(promo.title || "Current Promotion")}</strong>
       ${promo.body ? `<p>${escapeHtml(promo.body)}</p>` : ""}
+      ${context.isAdmin ? `<p class="admin-promo-preview-note">Admin preview: this promotion may not apply to your personal account.</p>` : ""}
     </div>
     ${promo.image_url ? `<img src="${escapeAttribute(promo.image_url)}" alt="">` : ""}
     <a href="${buttonHref}">${escapeHtml(buttonText)}</a>
