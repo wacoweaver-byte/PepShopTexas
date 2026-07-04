@@ -3944,6 +3944,9 @@ function applyInventoryTargetFromUrl() {
   const targetKey = inventoryTargetProductKeyFromUrl();
   if (!targetKey) return;
 
+  const physicalCard = $("physicalInventoryCard");
+  if (physicalCard) setInventoryCardOpen(physicalCard, true);
+
   const searchInput = $("searchInput");
   if (searchInput) searchInput.value = targetKey;
 
