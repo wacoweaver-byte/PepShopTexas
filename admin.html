@@ -581,6 +581,65 @@ strong {
     width: clamp(135px, 42vw, 170px) !important;
   }
 }
+
+/* PST_ADMIN_PATCH_V18_ORDER_INVENTORY_DEDUCTION */
+.inventory-deduct-banner{
+  margin:12px 0 0;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(15,138,59,.25);
+  background:rgba(15,138,59,.075);
+  color:#0f5f2a;
+  line-height:1.45;
+  font-size:14px;
+}
+.inventory-deduct-banner strong{display:block;margin-bottom:4px;}
+.inventory-deduct-needed-banner{
+  margin:12px 0 0;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(183,121,31,.28);
+  background:#fff8e6;
+  color:#7a4a00;
+  line-height:1.45;
+  font-size:14px;
+}
+.inventory-deduct-needed-banner strong{display:block;margin-bottom:4px;}
+.inventory-deduct-actions{
+  margin-top:10px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.inventory-deduct-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:6px;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  border:1px solid rgba(15,138,59,.25);
+  color:#0f5f2a;
+  background:rgba(15,138,59,.09);
+}
+.inventory-deduct-needed-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:6px;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  border:1px solid rgba(183,121,31,.28);
+  color:#7a4a00;
+  background:#fff8e6;
+}
+
 </style>
 
 <style>
@@ -2652,6 +2711,164 @@ header .pst-admin-actions-lock .btn.primary {
     if(orderInventoryRestored(order)) return "restored";
     return "restore_needed";
   }
+  
+  /* PST_ADMIN_PATCH_V18_ORDER_INVENTORY_DEDUCTION */
+  function orderNeedsInventoryDeduction(order, updates={}){
+    if(!order || orderInventoryDeducted(order)) return false;
+    if(orderInventoryRestored(order)) return false;
+    const newOS = norm(updates.order_status || updates.status || orderStatus(order));
+    const newPS = norm(updates.payment_status || paymentStatus(order));
+    return newPS === "paid" || ["processing","packed","shipped","delivered","complete","completed"].includes(newOS);
+  }
+
+  function orderInventoryDeductionVisualMarkup(order){
+    if(orderInventoryDeducted(order)){
+      const deductedAt = esc(fmtDate(order.inventory_deducted_at));
+      return `<div class="inventory-deduct-banner"><strong>Inventory Deducted</strong>Product quantity from this order has already been removed from inventory.${deductedAt !== "—" ? ` Deducted: ${deductedAt}.` : ""}</div>`;
+    }
+    if(orderNeedsInventoryDeduction(order)){
+      return `<div class="inventory-deduct-needed-banner"><strong>Inventory Deduction Needed</strong>This order is paid or fulfilled, but product quantity has not been removed from inventory yet.<div class="inventory-deduct-actions"><button class="btn warning" id="deductInventoryNowBtn" type="button">Deduct Inventory Now</button></div></div>`;
+    }
+    return "";
+  }
+
+  function inventoryDeductCompactMarkup(order){
+    if(orderInventoryDeducted(order)) return `<div class="inventory-deduct-pill">Inventory Deducted</div>`;
+    if(orderNeedsInventoryDeduction(order)) return `<div class="inventory-deduct-needed-pill">Deduct Needed</div>`;
+    return "";
+  }
+
+  function orderItemInventoryKeys(item={}){
+    return [
+      item.product_key,
+      item.sku,
+      item.product_sku,
+      item.item_number,
+      item.item_no,
+      item.product_id
+    ].map(cleanValue).filter(Boolean);
+  }
+
+  async function safeUpdateCatalogInventory(keys, newQty, now){
+    const uniqueKeys = [...new Set((keys || []).map(cleanValue).filter(Boolean))];
+    if(!uniqueKeys.length) return;
+    try{
+      const query = supabaseClient.from("product_catalog").update({ current_inventory: newQty, updated_at: now });
+      const { error } = uniqueKeys.length > 1
+        ? await query.in("product_key", uniqueKeys)
+        : await query.eq("product_key", uniqueKeys[0]);
+      if(error) console.warn("Catalog inventory sync failed:", error.message || error);
+    }catch(error){
+      console.warn("Catalog inventory sync failed:", error.message || error);
+    }
+  }
+
+  async function safeLogInventoryMovement(row, order, qtyChange, previousQty, newQty, reason){
+    try{
+      await supabaseClient.from("inventory_movements").insert({
+        product_id: row.id,
+        product_key: row.product_key,
+        movement_type: "order_deducted",
+        quantity_change: qtyChange,
+        previous_quantity: previousQty,
+        new_quantity: newQty,
+        admin_note: reason || null,
+        created_by: currentUser?.id || null,
+        created_by_email: currentUser?.email || null
+      });
+    }catch(error){
+      console.warn("Inventory movement log failed:", error.message || error);
+    }
+  }
+
+  async function deductInventoryForOrder(order, reason=""){
+    if(!order) throw new Error("No order selected.");
+    if(orderInventoryDeducted(order)) return { attempted:false, deducted:false, message:"Inventory was already deducted for this order." };
+
+    const items = Array.isArray(order.items) ? order.items : [];
+    if(!items.length) throw new Error("This order has no item rows to deduct from inventory.");
+
+    const now = new Date().toISOString();
+    const note = reason || `Order #${orderNumber(order)} inventory deduction by ${adminDisplayName()}`;
+    const results = [];
+    let failed = 0;
+
+    for(const item of items){
+      const qty = Math.max(0, Number(item.quantity ?? item.qty ?? 1) || 0);
+      if(qty <= 0) continue;
+
+      const keys = orderItemInventoryKeys(item);
+      if(!keys.length){
+        results.push(`${orderItemDisplayName(item)}: no product key found`);
+        failed++;
+        continue;
+      }
+
+      const { data: inventoryRows, error: findError } = await supabaseClient
+        .from("product_inventory")
+        .select("*")
+        .in("product_key", keys)
+        .limit(1);
+
+      if(findError) throw new Error(`Inventory lookup failed for ${orderItemDisplayName(item)}: ${findError.message || findError}`);
+
+      const inv = (inventoryRows || [])[0];
+      if(!inv){
+        results.push(`${orderItemDisplayName(item)}: inventory row not found`);
+        failed++;
+        continue;
+      }
+
+      const previousQty = Number(inv.current_inventory || 0);
+      const newQty = Math.max(0, previousQty - qty);
+      const updatePayload = {
+        current_inventory: newQty,
+        updated_at: now,
+        admin_note: note
+      };
+
+      const { error: updateError } = await supabaseClient
+        .from("product_inventory")
+        .update(updatePayload)
+        .eq("id", inv.id);
+
+      if(updateError) throw new Error(`Inventory deduction failed for ${orderItemDisplayName(item)}: ${updateError.message || updateError}`);
+
+      await safeUpdateCatalogInventory([inv.product_key, ...keys], newQty, now);
+      await safeLogInventoryMovement(inv, order, -qty, previousQty, newQty, note);
+      results.push(`${orderItemDisplayName(item)}: ${previousQty} → ${newQty} (-${qty})`);
+    }
+
+    if(failed){
+      throw new Error(`Inventory deduction incomplete: ${results.join(" | ")}`);
+    }
+
+    const currentNotes = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+    const auditText = `Inventory deducted by ${adminDisplayName()}: ${results.join(" | ")}. Reason: ${note}`;
+    const nextNotes = joinAuditNotes(currentNotes, auditLine(auditText));
+    const orderUpdates = {
+      inventory_deducted: true,
+      inventory_deducted_at: now,
+      inventory_restored: false,
+      inventory_restored_at: null,
+      admin_note: nextNotes,
+      admin_notes: nextNotes,
+      last_admin_actor: adminDisplayName(),
+      last_admin_actor_email: cleanValue(currentUser?.email),
+      updated_at: now
+    };
+
+    await safeUpdateOrder(order.id, orderUpdates, order);
+    return { attempted:true, deducted:true, message:`Inventory deducted. ${results.join(" | ")}`, results };
+  }
+
+  async function deductInventoryForOrderIfNeeded(order, updates={}){
+    if(!orderNeedsInventoryDeduction(order, updates)) return { attempted:false, deducted:false, message:"Inventory deduction not needed." };
+    const reason = `Order #${orderNumber(order)} reached ${norm(updates.order_status || updates.status || orderStatus(order)).replaceAll("_"," ")} / payment ${norm(updates.payment_status || paymentStatus(order)).replaceAll("_"," ")}`;
+    return await deductInventoryForOrder(order, reason);
+  }
+
+
   function inventoryRestoreVisualMarkup(order){
     const status = closedInventoryReturnStatus(order);
     if(status === "restored"){
@@ -2856,7 +3073,7 @@ async function printFulfillmentSheet(order){
     detail.innerHTML = `
       <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Packing Slip</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
       <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
-      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div>${packingSlipStatusMarkup(order)}<div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
+      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${orderInventoryDeductionVisualMarkup(order)}${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div>${packingSlipStatusMarkup(order)}<div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
       ${paymentInstructionsMarkup(order)}
       <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Packing Slip:</strong> Print the packing slip after payment is accepted. The order cannot be marked Packed until the packing slip has been printed.</div></div>
       ${orderAdjustmentMarkup(order)}
@@ -2886,6 +3103,22 @@ async function printFulfillmentSheet(order){
     $("printFulfillmentBtn")?.addEventListener("click", () => printFulfillmentSheet(order));
     initOrderAdjustment(order);
     $("saveOrderAdjustmentBtn")?.addEventListener("click", () => saveOrderAdjustment(order));
+    $("deductInventoryNowBtn")?.addEventListener("click", async () => {
+      try{
+        const reason = prompt("Reason/note for deducting inventory now:", `Manual deduction for order #${orderNumber(order)}`);
+        if(!reason || !reason.trim()) return;
+        setStatus("Deducting inventory for this order...");
+        const result = await deductInventoryForOrder(order, reason.trim());
+        setStatus(result.message || "Inventory deducted.", "good");
+        await loadOrders();
+        const fresh = allOrders.find(o => String(o.id) === String(order.id));
+        if(fresh) await renderOrderDetail(fresh);
+      }catch(error){
+        console.error(error);
+        setStatus(error.message || "Could not deduct inventory.", "bad");
+        alert(error.message || "Could not deduct inventory.");
+      }
+    });
     $("saveOrderBtn")?.addEventListener("click", () => saveOrder(order));
     document.querySelectorAll(".preview-email-action").forEach(btn => btn.addEventListener("click", () => openEmailPreview(order, btn.dataset.emailType, false)));
     document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false, { skipPreview:true })));
@@ -3059,9 +3292,10 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
 
-      const restoreResult = await restoreInventoryForOrderIfNeeded(order, updates);
+      const deductResult = await deductInventoryForOrderIfNeeded(order, updates);
+      const restoreResult = await restoreInventoryForOrderIfNeeded({ ...order, ...updates }, updates);
 
-      const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
+      const mergedForEmail = { ...order, ...updates, inventory_deducted: deductResult.deducted ? true : order.inventory_deducted, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
       const previewTypes = emailTypes.filter(emailTypeNeedsPreview);
 
@@ -3070,13 +3304,13 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
           for(const emailType of automaticTypes){
             await sendOrderEmail(mergedForEmail, emailType, true, { skipPreview:true, auditAutomatic:true });
           }
-          setStatus(restoreResult.attempted ? "Order updates saved, inventory restored, and automatic customer email notification(s) sent." : "Order updates saved and automatic customer email notification(s) sent.", "good");
+          setStatus(`${deductResult.attempted ? "Order updates saved, inventory deducted" : "Order updates saved"}${restoreResult.attempted ? ", inventory restored" : ""}, and automatic customer email notification(s) sent.`, "good");
         }catch(emailError){
           console.error(emailError);
           setStatus(`Order saved, but customer email failed: ${emailError.message || emailError}`, "bad");
         }
       }else{
-        setStatus(restoreResult.attempted ? "Order updates saved and inventory restored." : "Order updates saved.", "good");
+        setStatus(`${deductResult.attempted ? "Order updates saved and inventory deducted" : "Order updates saved"}${restoreResult.attempted ? " and inventory restored" : ""}.`, "good");
       }
 
       await loadOrders();
@@ -3084,10 +3318,10 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       await renderOrderDetail(fresh);
 
       if(previewTypes.length){
-        setStatus(`${restoreResult.attempted ? "Order saved and inventory restored" : "Order saved"}. Preview required before sending: ${previewTypes.map(emailTypeLabel).join(", ")}.`, "good");
+        setStatus(`${deductResult.attempted ? "Order saved and inventory deducted" : "Order saved"}${restoreResult.attempted ? " and inventory restored" : ""}. Preview required before sending: ${previewTypes.map(emailTypeLabel).join(", ")}.`, "good");
         setTimeout(() => openEmailPreview(fresh, previewTypes[0], true), 250);
       }else if(!emailTypes.length){
-        setStatus(restoreResult.attempted ? "Order updates saved and inventory restored. No customer-facing status email was needed." : "Order updates saved. No customer-facing status email was needed.", "good");
+        setStatus(`${deductResult.attempted ? "Order updates saved and inventory deducted" : "Order updates saved"}${restoreResult.attempted ? " and inventory restored" : ""}. No customer-facing status email was needed.`, "good");
       }
     }catch(error){ console.error(error); setStatus(error.message || "Could not save order updates.", "bad"); alert(error.message || "Could not save order updates."); }
   }
@@ -3353,20 +3587,26 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
 
     setStatus("Saving bulk updates...");
     let failed = 0;
+    let deducted = 0;
     let restored = 0;
     for(const id of ids){
       try{
         const order = allOrders.find(o => String(o.id) === String(id));
         await safeUpdateOrder(id, payload, order);
-        if(order && inventoryRestoreNeeded(order, payload)){
-          await restoreInventoryForOrderIfNeeded(order, payload);
+        if(order && orderNeedsInventoryDeduction(order, payload)){
+          await deductInventoryForOrderIfNeeded(order, payload);
+          deducted++;
+        }
+        if(order && inventoryRestoreNeeded({ ...order, ...payload }, payload)){
+          await restoreInventoryForOrderIfNeeded({ ...order, ...payload }, payload);
           restored++;
         }
       } catch(e){ console.error(e); failed++; }
     }
     await loadOrders();
+    const deductText = deducted ? ` Inventory deducted for ${deducted} order(s).` : "";
     const restoreText = restored ? ` Inventory restored for ${restored} order(s).` : "";
-    setStatus(failed ? `${message} ${failed} order(s) could not be updated.${restoreText}` : `${message}${restoreText}`, failed ? "bad" : "good");
+    setStatus(failed ? `${message} ${failed} order(s) could not be updated.${deductText}${restoreText}` : `${message}${deductText}${restoreText}`, failed ? "bad" : "good");
   }
 
   function wireEvents(){
@@ -3389,7 +3629,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     ["searchInput","statusFilter","paymentFilter","dateFilter","attentionFilter"].forEach(id => { const el=$(id); if(el) el.addEventListener(id==="searchInput"?"input":"change", () => { clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); }); });
     $("clearFiltersBtn")?.addEventListener("click", () => { if($("searchInput")) $("searchInput").value=""; if($("statusFilter")) $("statusFilter").value=""; if($("paymentFilter")) $("paymentFilter").value=""; if($("dateFilter")) $("dateFilter").value=""; if($("attentionFilter")) $("attentionFilter").value=""; clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); });
     $("selectAllOrders")?.addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(String(o.id))); else filteredOrders.forEach(o=>selectedOrderIds.delete(String(o.id))); renderOrders(); renderSelectedCount(); });
-    $("bulkPaidBtn")?.addEventListener("click", () => bulkUpdate({ payment_status:"paid" }, "Selected orders marked paid."));
+    $("bulkPaidBtn")?.addEventListener("click", () => bulkUpdate({ payment_status:"paid", order_status:"processing", status:"processing" }, "Selected orders marked paid and moved to processing."));
     $("bulkProcessingBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
     $("bulkPackedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"packed", status:"packed" }, "Selected orders marked packed."));
     $("bulkDeliveredBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"delivered", status:"delivered" }, "Selected orders marked delivered."));
