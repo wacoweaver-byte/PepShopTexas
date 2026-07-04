@@ -200,7 +200,40 @@ async function getProducts() {
     .order("display_name", { ascending: true })
     .order("strength", { ascending: true, nullsFirst: false });
   if (error) throw error;
-  return sortProductsForCatalog(data || []);
+  return sortProductsForCatalog(await mergeInventoryStockSettings(data || []));
+}
+
+async function mergeInventoryStockSettings(products) {
+  if (!products.length) return products;
+
+  const client = requireSupabaseClient();
+  const keys = [...new Set(products.map((product) => String(product.product_key || "").trim()).filter(Boolean))];
+  if (!keys.length) return products;
+
+  try {
+    const { data, error } = await client
+      .from("product_inventory")
+      .select("product_key,current_inventory,low_stock_threshold,limited_stock_threshold,status_override")
+      .in("product_key", keys);
+
+    if (error) throw error;
+
+    const inventoryByKey = Object.fromEntries((data || []).map((row) => [String(row.product_key || "").trim(), row]));
+    return products.map((product) => {
+      const inventory = inventoryByKey[String(product.product_key || "").trim()];
+      if (!inventory) return product;
+      return {
+        ...product,
+        current_inventory: inventory.current_inventory ?? product.current_inventory,
+        low_stock_threshold: inventory.low_stock_threshold ?? product.low_stock_threshold,
+        limited_stock_threshold: inventory.limited_stock_threshold ?? product.limited_stock_threshold,
+        status_override: inventory.status_override ?? product.status_override
+      };
+    });
+  } catch (error) {
+    console.warn("Inventory stock settings unavailable; using catalog stock only.", error);
+    return products;
+  }
 }
 
 function sortProductsForCatalog(products) {
@@ -1097,15 +1130,35 @@ function formatMoney(value) {
 
 function stockText(product) {
   const count = Number(product.current_inventory || 0);
-  if (count <= 0) return "Out of stock";
-  if (count <= 10) return "Limited stock";
+  const override = String(product.status_override || "").trim();
+
+  if (override === "out_of_stock" || count <= 0) return "Out of stock";
+  if (override === "in_stock") return "In stock";
+  if (override === "low") return "Low stock";
+  if (override === "limited") return "Limited stock";
+
+  const lowThreshold = Number(product.low_stock_threshold || 0);
+  const limitedThreshold = Number(product.limited_stock_threshold || 0);
+  if (lowThreshold > 0 && count <= lowThreshold) return "Low stock";
+  if (limitedThreshold > 0 && count <= limitedThreshold) return "Limited stock";
+
   return "In stock";
 }
 
 function stockClass(product) {
   const count = Number(product.current_inventory || 0);
-  if (count <= 0) return "out";
-  if (count <= 10) return "limited";
+  const override = String(product.status_override || "").trim();
+
+  if (override === "out_of_stock" || count <= 0) return "out";
+  if (override === "in_stock") return "available";
+  if (override === "low") return "low";
+  if (override === "limited") return "limited";
+
+  const lowThreshold = Number(product.low_stock_threshold || 0);
+  const limitedThreshold = Number(product.limited_stock_threshold || 0);
+  if (lowThreshold > 0 && count <= lowThreshold) return "low";
+  if (limitedThreshold > 0 && count <= limitedThreshold) return "limited";
+
   return "available";
 }
 
