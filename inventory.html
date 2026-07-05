@@ -3582,11 +3582,12 @@ function incomingDefaultKitCost() {
 }
 
 function incomingAutoKitCostForProduct(product = {}) {
+  const item = product || {};
   const unitCost = Number(
-    product.cost_per_unit ??
-    product._catalog_cost_per_unit ??
-    product.unit_cost ??
-    product.cost ??
+    item.cost_per_unit ??
+    item._catalog_cost_per_unit ??
+    item.unit_cost ??
+    item.cost ??
     0
   );
   return Number.isFinite(unitCost) && unitCost > 0 ? unitCost * PST_KIT_VIAL_COUNT : 0;
@@ -3595,7 +3596,7 @@ function incomingAutoKitCostForProduct(product = {}) {
 function incomingLineKitCost(line = {}) {
   const lineCost = Number(line.kitCost || 0);
   if (Number.isFinite(lineCost) && lineCost > 0) return lineCost;
-  const product = allItems.find(item => String(item.id) === String(line.productId));
+  const product = allItems.find(item => String(item.id) === String(line.productId)) || {};
   const autoCost = incomingAutoKitCostForProduct(product);
   if (autoCost > 0) return autoCost;
   return incomingDefaultKitCost();
