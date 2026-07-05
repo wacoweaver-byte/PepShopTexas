@@ -1,3 +1,4 @@
+<!-- PST_ADMIN_PATCH_V19_EXACT_INVENTORY_VARIANT_DEDUCTION -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
 <!DOCTYPE html>
@@ -2808,8 +2809,7 @@ header .pst-admin-actions-lock .btn.primary {
     if(!order || orderInventoryDeducted(order)) return false;
     if(orderInventoryRestored(order)) return false;
     const newOS = norm(updates.order_status || updates.status || orderStatus(order));
-    const newPS = norm(updates.payment_status || paymentStatus(order));
-    return newPS === "paid" || ["processing","packed","shipped","delivered","complete","completed"].includes(newOS);
+    return ["packed","shipped","delivered","complete","completed"].includes(newOS);
   }
 
   function orderInventoryDeductionVisualMarkup(order){
@@ -2818,7 +2818,7 @@ header .pst-admin-actions-lock .btn.primary {
       return `<div class="inventory-deduct-banner"><strong>Inventory Deducted</strong>Product quantity from this order has already been removed from inventory.${deductedAt !== "—" ? ` Deducted: ${deductedAt}.` : ""}</div>`;
     }
     if(orderNeedsInventoryDeduction(order)){
-      return `<div class="inventory-deduct-needed-banner"><strong>Inventory Deduction Needed</strong>This order is paid or fulfilled, but product quantity has not been removed from inventory yet.<div class="inventory-deduct-actions"><button class="btn warning" id="deductInventoryNowBtn" type="button">Deduct Inventory Now</button></div></div>`;
+      return `<div class="inventory-deduct-needed-banner"><strong>Inventory Deduction Needed</strong>This order has reached Packed/Shipped/Delivered/Complete, but product quantity has not been removed from inventory yet.<div class="inventory-deduct-actions"><button class="btn warning" id="deductInventoryNowBtn" type="button">Deduct Inventory Now</button></div></div>`;
     }
     return "";
   }
@@ -2844,19 +2844,24 @@ header .pst-admin-actions-lock .btn.primary {
       item.sku,
       item.product_sku,
       item.item_number,
-      item.item_no,
-      item.product_id
+      item.item_no
     ].map(cleanValue).filter(Boolean);
+  }
+
+  function orderItemCatalogId(item={}){
+    return cleanValue(item.product_id || item.catalog_id || item.catalog_product_id);
+  }
+
+  function orderItemStrengthValue(item={}){
+    return cleanValue(item.product_strength || item.strength || item.dose || item.size);
   }
 
   function orderItemInventoryNames(item={}){
     const display = orderItemDisplayName(item);
     const withoutParen = display.replace(/\s*\([^)]*\)\s*/g, " ").trim();
-    const firstWord = withoutParen.split(/\s+/)[0] || "";
     return [
       display,
       withoutParen,
-      firstWord,
       item.product_name,
       item.name,
       item.display_name,
@@ -2864,57 +2869,91 @@ header .pst-admin-actions-lock .btn.primary {
     ].map(cleanValue).filter(Boolean);
   }
 
+  function strengthMatchText(value){
+    return cleanValue(value).toLowerCase().replace(/\s+/g, "").replace(/milligrams?/g, "mg").replace(/milliliters?/g, "ml");
+  }
+
   function inventoryRowMatchesOrderItem(row={}, item={}){
     const keys = orderItemInventoryKeys(item).map(inventoryMatchText).filter(Boolean);
     const names = orderItemInventoryNames(item).map(inventoryMatchText).filter(Boolean);
+    const itemStrength = strengthMatchText(orderItemStrengthValue(item));
+    const rowStrength = strengthMatchText(row.strength || row.product_strength || row.dose || row.size);
     const rowValues = [
       row.product_key,
       row.sku,
       row.product_sku,
       row.item_number,
-      row.item_no,
-      row.display_name,
-      row.product_name,
-      row.name,
-      row.label_name
+      row.item_no
     ].map(inventoryMatchText).filter(Boolean);
 
     if(keys.some(key => rowValues.includes(key))) return true;
-    if(names.some(name => rowValues.includes(name))) return true;
 
     const rowDisplay = inventoryMatchText(row.display_name || row.product_name || row.name || "");
-    const itemDisplay = inventoryMatchText(orderItemDisplayName(item));
-    const itemBase = inventoryMatchText(orderItemDisplayName(item).replace(/\s*\([^)]*\)\s*/g, " "));
-    if(rowDisplay && itemBase && rowDisplay === itemBase) return true;
-    if(rowDisplay && itemDisplay && (itemDisplay.startsWith(rowDisplay) || rowDisplay.startsWith(itemBase))) return true;
+    const nameMatch = names.some(name => rowDisplay && name && rowDisplay === name);
+    if(nameMatch && itemStrength && rowStrength) return itemStrength === rowStrength;
+    if(nameMatch && !itemStrength) return true;
 
     return false;
   }
 
-  async function findInventoryRowForOrderItem(item={}){
-    const keys = orderItemInventoryKeys(item);
-    if(keys.length){
+  async function inventoryRowByProductKey(productKey, label){
+    const key = cleanValue(productKey);
+    if(!key) return null;
+    const { data, error } = await supabaseClient
+      .from("product_inventory")
+      .select("*")
+      .eq("product_key", key)
+      .limit(1);
+    if(error) throw new Error(`Inventory lookup failed for ${label || key}: ${error.message || error}`);
+    return (data || [])[0] || null;
+  }
+
+  async function catalogRowForOrderItem(item={}){
+    const catalogId = orderItemCatalogId(item);
+    if(!catalogId) return null;
+    try{
       const { data, error } = await supabaseClient
-        .from("product_inventory")
-        .select("*")
-        .in("product_key", keys)
-        .limit(1);
-      if(error) throw new Error(`Inventory lookup failed for ${orderItemDisplayName(item)}: ${error.message || error}`);
-      if((data || [])[0]) return (data || [])[0];
+        .from("product_catalog")
+        .select("id,product_key,display_name,strength")
+        .eq("id", catalogId)
+        .maybeSingle();
+      if(error) throw error;
+      return data || null;
+    }catch(error){
+      console.warn("Catalog lookup failed for order item", catalogId, error);
+      return null;
+    }
+  }
+
+  async function findInventoryRowForOrderItem(item={}){
+    const label = orderItemDisplayName(item);
+
+    const catalog = await catalogRowForOrderItem(item);
+    if(catalog?.product_key){
+      const byCatalogKey = await inventoryRowByProductKey(catalog.product_key, label);
+      if(byCatalogKey) return byCatalogKey;
+    }
+
+    const keys = orderItemInventoryKeys(item);
+    for(const key of keys){
+      const byKey = await inventoryRowByProductKey(key, label);
+      if(byKey) return byKey;
     }
 
     const { data: allInventory, error: allError } = await supabaseClient
       .from("product_inventory")
       .select("*");
 
-    if(allError) throw new Error(`Inventory lookup failed for ${orderItemDisplayName(item)}: ${allError.message || allError}`);
+    if(allError) throw new Error(`Inventory lookup failed for ${label}: ${allError.message || allError}`);
 
     const matches = (allInventory || []).filter(row => inventoryRowMatchesOrderItem(row, item));
     if(matches.length === 1) return matches[0];
 
     if(matches.length > 1){
-      const exact = matches.find(row => inventoryMatchText(row.display_name || row.product_name || row.name) === inventoryMatchText(orderItemDisplayName(item).replace(/\s*\([^)]*\)\s*/g, " ")));
-      return exact || matches[0];
+      const itemStrength = strengthMatchText(orderItemStrengthValue(item) || catalog?.strength);
+      const exactStrength = itemStrength ? matches.find(row => strengthMatchText(row.strength) === itemStrength) : null;
+      if(exactStrength) return exactStrength;
+      throw new Error(`Inventory lookup found multiple possible matches for ${label}. Add/confirm product_key on the order item or verify duplicate inventory names.`);
     }
 
     return null;
@@ -2969,15 +3008,9 @@ header .pst-admin-actions-lock .btn.primary {
       if(qty <= 0) continue;
 
       const keys = orderItemInventoryKeys(item);
-      if(!keys.length){
-        results.push(`${orderItemDisplayName(item)}: no product key found`);
-        failed++;
-        continue;
-      }
-
       const inv = await findInventoryRowForOrderItem(item);
       if(!inv){
-        results.push(`${orderItemDisplayName(item)}: inventory row not found. Check that the order item has a matching Product Key/SKU or that Inventory has the same display name.`);
+        results.push(`${orderItemDisplayName(item)} ${orderItemStrengthValue(item) ? `(${orderItemStrengthValue(item)})` : ""}: inventory row not found. Check that the order item has a matching catalog product, Product Key/SKU, name, and strength.`);
         failed++;
         continue;
       }
