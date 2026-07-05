@@ -514,7 +514,7 @@ header .header-actions .btn.secondary.active {
   max-height:420px;
 }
 .reorder-table {
-  min-width:1160px;
+  min-width:1280px;
 }
 .reorder-badge {
   display:inline-flex;
@@ -2319,6 +2319,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           <tr>
             <th class="reorder-select-cell"><input id="selectAllReorder" type="checkbox" title="Select all actionable reorder rows"></th>
             <th>Product</th>
+            <th>Strength</th>
             <th>Current Stock</th>
             <th>Qty Sold</th>
             <th>Avg / Day</th>
@@ -2330,7 +2331,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           </tr>
         </thead>
         <tbody id="reorderReviewBody">
-          <tr><td colspan="10" class="note">Loading reorder review...</td></tr>
+          <tr><td colspan="11" class="note">Loading reorder review...</td></tr>
         </tbody>
       </table>
     </div>
@@ -3189,7 +3190,7 @@ function renderReorderReview() {
   }
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="10" class="note">No inventory rows loaded.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="11" class="note">No inventory rows loaded.</td></tr>`;
     return;
   }
 
@@ -3204,6 +3205,7 @@ function renderReorderReview() {
       <tr>
         <td class="reorder-select-cell"><input class="reorder-select" type="checkbox" data-reorder-select-id="${esc(row.item.id)}" ${checked} ${disabled} title="${actionable ? "Select for purchase order draft" : "Healthy rows are not selected for reorder"}"></td>
         <td class="name-cell"><strong>${esc(name)}</strong><span>${esc(key)}</span></td>
+        <td><strong>${esc(row.item._catalog_strength || row.item.strength || row.item.dose || "—")}</strong></td>
         <td><strong>${Number(row.currentStock || 0)}</strong></td>
         <td>${Number(row.sales.qty || 0).toFixed(0)}</td>
         <td>${row.avgPerDay.toFixed(2)}</td>
