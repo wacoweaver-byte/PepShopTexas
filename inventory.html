@@ -3199,8 +3199,8 @@ function renderReorderReview() {
   });
 
   lastReorderRows = rows;
-  const actionableIds = new Set(rows.filter(row => row.status.rank <= 2).map(row => String(row.item.id)));
-  selectedReorderIds = new Set([...selectedReorderIds].filter(id => actionableIds.has(String(id))));
+  const selectableIds = new Set(rows.map(row => String(row.item.id)));
+  selectedReorderIds = new Set([...selectedReorderIds].filter(id => selectableIds.has(String(id))));
 
   const counts = rows.reduce((acc, row) => {
     // Header counts must match the same risk buckets shown in each line item.
@@ -3232,12 +3232,10 @@ function renderReorderReview() {
     const name = row.item.display_name || row.item.product_key || "Product";
     const key = row.item.product_key || "";
     const suggestedText = row.suggested > 0 ? `${row.suggested} vials` : "—";
-    const actionable = row.status.rank <= 2;
     const checked = selectedReorderIds.has(String(row.item.id)) ? "checked" : "";
-    const disabled = actionable ? "" : "disabled";
     return `
       <tr>
-        <td class="reorder-select-cell"><input class="reorder-select" type="checkbox" data-reorder-select-id="${esc(row.item.id)}" ${checked} ${disabled} title="${actionable ? "Select for purchase order draft" : "Healthy rows are not selected for reorder"}"></td>
+        <td class="reorder-select-cell"><input class="reorder-select" type="checkbox" data-reorder-select-id="${esc(row.item.id)}" ${checked} title="Select for purchase order draft"></td>
         <td class="name-cell"><strong>${esc(name)}</strong><span>${esc(key)}</span></td>
         <td><strong>${esc(row.item._catalog_strength || row.item.strength || row.item.dose || "—")}</strong></td>
         <td><strong>${Number(row.currentStock || 0)}</strong></td>
@@ -3276,15 +3274,14 @@ function updateReorderSelectionUI() {
   if ($("createReorderPOBtn")) $("createReorderPOBtn").disabled = selectedCount === 0;
   if ($("clearReorderSelectionBtn")) $("clearReorderSelectionBtn").disabled = selectedCount === 0;
 
-  const actionableRows = lastReorderRows.filter(row => row.status.rank <= 2);
-  const actionableIds = actionableRows.map(row => String(row.item.id));
+  const visibleIds = lastReorderRows.map(row => String(row.item.id));
   const selectAll = $("selectAllReorder");
   if (selectAll) {
-    const allSelected = actionableIds.length > 0 && actionableIds.every(id => selectedReorderIds.has(id));
-    const someSelected = actionableIds.some(id => selectedReorderIds.has(id));
+    const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedReorderIds.has(id));
+    const someSelected = visibleIds.some(id => selectedReorderIds.has(id));
     selectAll.checked = allSelected;
     selectAll.indeterminate = someSelected && !allSelected;
-    selectAll.disabled = actionableIds.length === 0;
+    selectAll.disabled = visibleIds.length === 0;
   }
 }
 
@@ -3295,9 +3292,9 @@ function clearReorderSelection() {
 }
 
 function addSelectedReorderRowsToIncomingDraft() {
-  const selectedRows = lastReorderRows.filter(row => selectedReorderIds.has(String(row.item.id)) && row.status.rank <= 2);
+  const selectedRows = lastReorderRows.filter(row => selectedReorderIds.has(String(row.item.id)));
   if (!selectedRows.length) {
-    alert("Select one or more Critical, Reorder Now, or Watch rows first.");
+    alert("Select one or more reorder rows first.");
     return;
   }
 
