@@ -211,39 +211,21 @@ async function mergeIncomingInventoryStatus(products = []) {
   try {
     const client = requireSupabaseClient();
     const { data, error } = await client
-      .from("incoming_inventory")
-      .select("product_key,product_name,ordered_quantity,received_quantity,status,expected_arrival_date")
-      .in("product_key", keys)
-      .in("status", ["ordered", "in_transit"]);
+      .from("product_incoming_status")
+      .select("product_key,incoming_quantity,incoming_status,incoming_expected_arrival_date")
+      .in("product_key", keys);
     if (error) throw error;
 
-    const byKey = new Map();
-    (data || []).forEach((row) => {
-      const key = String(row.product_key || "").trim();
-      if (!key) return;
-      const orderedQty = Number(row.ordered_quantity || 0);
-      const receivedQty = Number(row.received_quantity || 0);
-      const openQty = Math.max(0, orderedQty - receivedQty);
-      if (openQty <= 0) return;
-
-      const current = byKey.get(key) || { incoming_qty:0, statuses:new Set(), expected_dates:[] };
-      current.incoming_qty += openQty;
-      current.statuses.add(String(row.status || "ordered").toLowerCase());
-      if (row.expected_arrival_date) current.expected_dates.push(row.expected_arrival_date);
-      byKey.set(key, current);
-    });
+    const byKey = new Map((data || []).map((row) => [String(row.product_key || "").trim(), row]));
 
     return products.map((product) => {
       const incoming = byKey.get(product.product_key);
-      if (!incoming) return product;
-      const statuses = [...incoming.statuses];
-      const status = statuses.includes("in_transit") ? "in_transit" : "ordered";
-      const nextDate = incoming.expected_dates.sort()[0] || "";
+      if (!incoming || Number(incoming.incoming_quantity || 0) <= 0) return product;
       return {
         ...product,
-        incoming_quantity: incoming.incoming_qty,
-        incoming_status: status,
-        incoming_expected_arrival_date: nextDate
+        incoming_quantity: Number(incoming.incoming_quantity || 0),
+        incoming_status: String(incoming.incoming_status || "ordered").toLowerCase(),
+        incoming_expected_arrival_date: incoming.incoming_expected_arrival_date || ""
       };
     });
   } catch (error) {
