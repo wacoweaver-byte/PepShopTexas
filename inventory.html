@@ -2402,8 +2402,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <input id="incomingQty" type="number" min="1" step="1" placeholder="10" />
       </div>
       <div class="field">
-        <label>Kit Cost (10 vials)</label>
-        <input id="incomingKitCost" type="number" min="0" step="0.01" placeholder="50.00" />
+        <label>Kit Cost Override (10 vials)</label>
+        <input id="incomingKitCost" type="number" min="0" step="0.01" placeholder="Auto from inventory cost" />
       </div>
       <div class="field">
         <label>Ship / Fees</label>
@@ -2459,7 +2459,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         </table>
       </div>
     </div>
-    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival uses the selected vendor standard lead time. Add one or more product lines to the same incoming purchase order. Kit Cost means the supplier cost for one 10-vial kit. Changing the Kit Cost field applies that kit cost to current PO lines. Shipping/fees are allocated by kit count, and landed cost per vial includes the allocated shipping share.</div>
+    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival uses the selected vendor standard lead time. Add one or more product lines to the same incoming purchase order. Kit cost is auto-calculated from each product's cost per vial × 10. Use Kit Cost Override only when you need to override missing or unusual cost data. Shipping/fees are allocated by kit count, and landed cost per vial includes the allocated shipping share.</div>
     <div class="incoming-table-wrap">
       <table class="incoming-table">
         <thead>
@@ -3307,7 +3307,7 @@ function addSelectedReorderRowsToIncomingDraft() {
       productKey: product._catalog_product_key || product.product_key || null,
       productName: incomingProductLabel(product),
       qty,
-      kitCost: incomingDefaultKitCost()
+      kitCost: incomingAutoKitCostForProduct(product)
     });
   });
 
@@ -3322,7 +3322,7 @@ function addSelectedReorderRowsToIncomingDraft() {
     setTimeout(() => scrollInventoryToCard(card), 60);
   }
 
-  setStatus(`Added ${selectedRows.length} reorder line(s) to Incoming Inventory / Purchase Orders. PO quantities are full 10-vial kits only. Enter kit cost per 10-vial kit, vendor, tracking, and shipping/fees, then click Save Incoming Order.`, "good");
+  setStatus(`Added ${selectedRows.length} reorder line(s) to Incoming Inventory / Purchase Orders. PO quantities are full 10-vial kits only. Kit cost auto-fills from product cost per vial × 10. Enter vendor, tracking, and shipping/fees, then click Save Incoming Order.`, "good");
   setTimeout(() => $("incomingKitCost")?.focus(), 350);
 }
 
@@ -3577,9 +3577,23 @@ function incomingDefaultKitCost() {
   return Number.isFinite(value) && value > 0 ? value : 0;
 }
 
+function incomingAutoKitCostForProduct(product = {}) {
+  const unitCost = Number(
+    product.cost_per_unit ??
+    product._catalog_cost_per_unit ??
+    product.unit_cost ??
+    product.cost ??
+    0
+  );
+  return Number.isFinite(unitCost) && unitCost > 0 ? unitCost * PST_KIT_VIAL_COUNT : 0;
+}
+
 function incomingLineKitCost(line = {}) {
   const lineCost = Number(line.kitCost || 0);
   if (Number.isFinite(lineCost) && lineCost > 0) return lineCost;
+  const product = allItems.find(item => String(item.id) === String(line.productId));
+  const autoCost = incomingAutoKitCostForProduct(product);
+  if (autoCost > 0) return autoCost;
   return incomingDefaultKitCost();
 }
 
@@ -3630,7 +3644,8 @@ function addIncomingDraftLine() {
   const product = selectedIncomingProduct();
   const enteredQty = Number($("incomingQty")?.value || 0);
   const qty = incomingRoundQtyToFullKits(enteredQty);
-  const kitCost = Number($("incomingKitCost")?.value || 0);
+  const typedKitCost = Number($("incomingKitCost")?.value || 0);
+  const kitCost = typedKitCost > 0 ? typedKitCost : incomingAutoKitCostForProduct(product);
   if (!product) { alert("Select a product before adding a line."); return; }
   if (!Number.isFinite(enteredQty) || enteredQty <= 0) { alert("Enter an ordered quantity greater than zero."); return; }
   if (!Number.isFinite(kitCost) || kitCost < 0) { alert("Enter a valid kit cost."); return; }
@@ -3697,7 +3712,7 @@ function renderIncomingDraftLines() {
       <td><strong>${esc(line.productName)}</strong><div class="note">${esc(line.productKey || "")}</div></td>
       <td>${esc(line.qty)}</td>
       <td>${kits.toFixed(2)}</td>
-      <td><input type="number" min="0" step="0.01" value="${Number(effectiveKitCost || 0).toFixed(2)}" data-incoming-line-kit-cost="${esc(line.id)}" title="Kit cost for one 10-vial kit"></td>
+      <td><strong>${incomingMoney(effectiveKitCost)}</strong><div class="note">Auto from cost/vial × 10</div></td>
       <td>${incomingMoney(allocatedShipping)}</td>
       <td><strong>${landedUnit > 0 ? incomingMoney(landedUnit) : "—"}</strong></td>
       <td><button class="btn secondary incoming-line-remove" type="button" data-remove-incoming-line="${esc(line.id)}">Remove</button></td>
@@ -3707,9 +3722,6 @@ function renderIncomingDraftLines() {
   const totalPaid = productCost + shipping;
   if (summary) summary.textContent = `${incomingDraftLines.length} line(s) · ${totalKits.toFixed(2)} kit(s) · Product ${incomingMoney(productCost)} · Shipping/fees ${incomingMoney(shipping)} · Total ${incomingMoney(totalPaid)}`;
   document.querySelectorAll("[data-remove-incoming-line]").forEach(btn => btn.addEventListener("click", () => removeIncomingDraftLine(btn.dataset.removeIncomingLine)));
-  document.querySelectorAll("[data-incoming-line-kit-cost]").forEach(input => {
-    input.addEventListener("change", () => setIncomingDraftLineKitCost(input.dataset.incomingLineKitCost, input.value));
-  });
 }
 
 function incomingAuditText(row) {
@@ -3900,7 +3912,8 @@ async function addIncomingInventory() {
   const enteredProduct = selectedIncomingProduct();
   const rawEnteredQty = Number($("incomingQty")?.value || 0);
   const enteredQty = incomingRoundQtyToFullKits(rawEnteredQty);
-  const enteredKitCost = Number($("incomingKitCost")?.value || 0);
+  const typedEnteredKitCost = Number($("incomingKitCost")?.value || 0);
+  const enteredKitCost = typedEnteredKitCost > 0 ? typedEnteredKitCost : incomingAutoKitCostForProduct(enteredProduct);
   const lines = incomingDraftLines.length ? incomingDraftLines.slice() : (enteredProduct && enteredQty > 0 ? [{
     id: crypto?.randomUUID ? crypto.randomUUID() : `draft_${Date.now()}`,
     productId: enteredProduct.id,
@@ -4671,8 +4684,8 @@ function wireEvents() {
   });
   const incomingKitCostEl = $("incomingKitCost");
   if (incomingKitCostEl) {
-    incomingKitCostEl.addEventListener("input", applyIncomingHeaderKitCostToDraftLines);
-    incomingKitCostEl.addEventListener("change", applyIncomingHeaderKitCostToDraftLines);
+    incomingKitCostEl.addEventListener("input", syncIncomingTotalCostField);
+    incomingKitCostEl.addEventListener("change", syncIncomingTotalCostField);
   }
   setIncomingOrderDateToday(false);
   if ($("addIncomingLineBtn")) $("addIncomingLineBtn")?.addEventListener("click", addIncomingDraftLine);
