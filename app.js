@@ -209,14 +209,8 @@ async function mergeIncomingInventoryStatus(products = []) {
   if (!keys.length) return products;
 
   try {
-    const client = requireSupabaseClient();
-    const { data, error } = await client
-      .from("product_incoming_status")
-      .select("product_key,incoming_quantity,incoming_status,incoming_expected_arrival_date")
-      .in("product_key", keys);
-    if (error) throw error;
-
-    const byKey = new Map((data || []).map((row) => [String(row.product_key || "").trim(), row]));
+    const incomingRows = await fetchIncomingStatusRows(keys);
+    const byKey = new Map((incomingRows || []).map((row) => [String(row.product_key || "").trim(), row]));
 
     return products.map((product) => {
       const incoming = byKey.get(product.product_key);
@@ -232,6 +226,50 @@ async function mergeIncomingInventoryStatus(products = []) {
     console.warn("Incoming inventory status unavailable", error);
     return products;
   }
+}
+
+async function fetchIncomingStatusRows(keys = []) {
+  const client = requireSupabaseClient();
+
+  const viewResult = await client
+    .from("product_incoming_status")
+    .select("product_key,incoming_quantity,incoming_status,incoming_expected_arrival_date")
+    .in("product_key", keys);
+
+  if (!viewResult.error) return viewResult.data || [];
+
+  console.warn("Incoming status view unavailable; trying safe incoming inventory fallback", viewResult.error);
+
+  const rawResult = await client
+    .from("incoming_inventory")
+    .select("product_key,ordered_quantity,received_quantity,status,expected_arrival_date")
+    .in("product_key", keys)
+    .in("status", ["ordered", "in_transit"]);
+
+  if (rawResult.error) throw rawResult.error;
+
+  const byKey = new Map();
+  (rawResult.data || []).forEach((row) => {
+    const key = String(row.product_key || "").trim();
+    if (!key) return;
+    const orderedQty = Number(row.ordered_quantity || 0);
+    const receivedQty = Number(row.received_quantity || 0);
+    const openQty = Math.max(0, orderedQty - receivedQty);
+    if (openQty <= 0) return;
+
+    const current = byKey.get(key) || { product_key:key, incoming_quantity:0, statuses:new Set(), dates:[] };
+    current.incoming_quantity += openQty;
+    current.statuses.add(String(row.status || "ordered").toLowerCase());
+    if (row.expected_arrival_date) current.dates.push(row.expected_arrival_date);
+    byKey.set(key, current);
+  });
+
+  return [...byKey.values()].map((row) => ({
+    product_key: row.product_key,
+    incoming_quantity: row.incoming_quantity,
+    incoming_status: row.statuses.has("in_transit") ? "in_transit" : "ordered",
+    incoming_expected_arrival_date: row.dates.sort()[0] || ""
+  }));
 }
 
 function sortProductsForCatalog(products) {
@@ -273,7 +311,8 @@ async function getProduct(productKey) {
     .eq("product_key", resolvedKey)
     .single();
   if (error) throw error;
-  return data;
+  const merged = await mergeIncomingInventoryStatus(data ? [data] : []);
+  return merged[0] || data;
 }
 
 async function resolveProductKey(productKey) {
@@ -563,8 +602,8 @@ function catalogDoseOptions(variants) {
         <div class="catalog-dose-option">
           <a class="catalog-dose-name" href="${productUrl(product)}">${escapeHtml(product.strength || product.product_key)}</a>
           <strong>${priceHtml(product)}</strong>
-          <span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span>${productIncomingPill(product)}
-          <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out" : "Add to Cart"}</button>
+          <span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span>
+          <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out" : "Add to Cart"}</button>${productIncomingPill(product)}
         </div>
       `).join("")}
     </div>
@@ -1377,7 +1416,7 @@ function productIncomingPill(product = {}) {
   const label = productIncomingLabel(product);
   if (!label) return "";
   const text = label === "In transit" ? "In Transit" : "On Order";
-  return `<span class="catalog-incoming-pill" style="display:inline-flex;align-items:center;justify-content:center;margin-left:8px;padding:4px 9px;border-radius:999px;border:1px solid #d9e2ec;background:#f4f8ff;color:#003f9e;font-size:12px;font-weight:700;white-space:nowrap;">${escapeHtml(text)}</span>`;
+  return `<span class="catalog-incoming-pill" style="display:inline-flex;align-items:center;justify-content:center;margin-left:8px;padding:5px 10px;border-radius:999px;border:1px solid #003f9e;background:#f4f8ff;color:#003f9e;font-size:12px;font-weight:800;white-space:nowrap;text-transform:uppercase;">${escapeHtml(text)}</span>`;
 }
 
 function stockText(product) {
