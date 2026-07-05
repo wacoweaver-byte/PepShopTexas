@@ -2194,6 +2194,7 @@ const DEFAULT_COLUMNS = [
   { key:"research_role", label:"Research Role", visible:true },
   { key:"order_count", label:"Orders", visible:true },
   { key:"total_spent", label:"Total Spent", visible:true },
+  { key:"store_credit_balance", label:"Store Credit", visible:true },
   { key:"last_order_date", label:"Last Order", visible:true },
   { key:"city_state", label:"City / State", visible:true },
   { key:"created_at", label:"Created", visible:true },
@@ -2205,6 +2206,7 @@ const DEFAULT_COLUMNS = [
 
 let rawProfiles = [];
 let rawOrders = [];
+let rawCredits = [];
 let customers = [];
 let filteredCustomers = [];
 let columns = JSON.parse(JSON.stringify(DEFAULT_COLUMNS));
@@ -2297,6 +2299,24 @@ function deriveSubscription(profile) {
 function buildCustomerRows() {
   const orderByEmail = new Map();
   const orderByUserId = new Map();
+  const creditByEmail = new Map();
+  const creditByUserId = new Map();
+
+  for (const credit of rawCredits) {
+    const email = normalizeEmail(pick(credit, ["customer_email", "email"]));
+    const userId = String(pick(credit, ["user_id", "customer_id", "profile_id"]));
+    const remaining = Number(pick(credit, ["remaining_amount", "amount"]) || 0);
+    const status = String(pick(credit, ["status"]) || "").toLowerCase();
+    if (!["available", "active", ""].includes(status) || remaining <= 0) continue;
+
+    function addCredit(map, key) {
+      if (!key) return;
+      map.set(key, (map.get(key) || 0) + remaining);
+    }
+
+    addCredit(creditByEmail, email);
+    addCredit(creditByUserId, userId);
+  }
 
   for (const order of rawOrders) {
     const email = normalizeEmail(pick(order, ["customer_email", "email", "billing_email"]));
@@ -2327,6 +2347,7 @@ function buildCustomerRows() {
     const email = normalizeEmail(pick(profile, ["email", "customer_email"]));
     const userId = String(pick(profile, ["user_id", "id", "customer_id", "profile_id"]));
     const orderSummary = orderByEmail.get(email) || orderByUserId.get(userId) || { count:0, spent:0, last:null, statuses:[] };
+    const creditBalance = Number(creditByEmail.get(email) || creditByUserId.get(userId) || 0);
     const subscription = deriveSubscription(profile);
 
     const firstName = pick(profile, ["first_name", "firstname", "given_name"]);
@@ -2359,6 +2380,7 @@ function buildCustomerRows() {
       email_eligible: subscription.eligible && !!email,
       order_count: orderSummary.count,
       total_spent: orderSummary.spent,
+      store_credit_balance: creditBalance,
       last_order_date: orderSummary.last,
       city_state: cityState,
       created_at: pick(profile, ["created_at", "inserted_at", "registered_at"]),
@@ -2385,6 +2407,7 @@ function buildCustomerRows() {
       email_eligible:false,
       order_count:summary.count,
       total_spent:summary.spent,
+      store_credit_balance:Number(creditByEmail.get(email) || 0),
       last_order_date:summary.last,
       city_state:"",
       created_at:"",
@@ -2435,9 +2458,10 @@ async function loadCustomers() {
   const isAdmin = await checkAdminAccess();
   if (!isAdmin) return;
 
-  const [profilesResult, ordersResult] = await Promise.all([
+  const [profilesResult, ordersResult, creditsResult] = await Promise.all([
     supabaseClient.from("customer_profiles").select("*").order("created_at", { ascending:false }),
-    supabaseClient.from("orders").select("*").order("created_at", { ascending:false })
+    supabaseClient.from("orders").select("*").order("created_at", { ascending:false }),
+    supabaseClient.from("customer_credits").select("*").order("created_at", { ascending:false })
   ]);
 
   if (profilesResult.error) {
@@ -2448,6 +2472,13 @@ async function loadCustomers() {
   if (ordersResult.error) {
     $("loadStatus").innerHTML = '<span class="error">Order summary load failed: ' + escapeHtml(ordersResult.error.message) + '</span>';
     return;
+  }
+
+  if (creditsResult.error) {
+    console.warn("Store credit load failed", creditsResult.error);
+    rawCredits = [];
+  } else {
+    rawCredits = creditsResult.data || [];
   }
 
   rawProfiles = (profilesResult.data || []).map(stripUnsafeFields);
@@ -2603,7 +2634,7 @@ function renderCell(c, key) {
     return `<td><span class="badge ${escapeHtml(c.subscription_class)}">${escapeHtml(c.subscription)}</span></td>`;
   }
 
-  if (key === "total_spent") value = money(value);
+  if (key === "total_spent" || key === "store_credit_balance") value = money(value);
   if (key === "created_at" || key === "last_order_date") value = formatDate(value);
 
   const wrapClass = ["notes", "tags", "research_role"].includes(key) ? "wrap-text" : "";
@@ -2627,7 +2658,7 @@ function exportCsv() {
   const headers = visibleColumns.map(c => c.label);
   const rows = filteredCustomers.map(c => visibleColumns.map(col => {
     let value = c[col.key];
-    if (col.key === "total_spent") value = Number(value || 0).toFixed(2);
+    if (col.key === "total_spent" || col.key === "store_credit_balance") value = Number(value || 0).toFixed(2);
     if (col.key === "created_at" || col.key === "last_order_date") value = formatDate(value);
     return csvEscape(value);
   }));
@@ -2676,6 +2707,7 @@ function openCustomerModal(c) {
     ["Research Role Confirmed", formatDate(c.research_role_confirmed_at)],
     ["Orders", c.order_count],
     ["Total Spent", money(c.total_spent)],
+    ["Available Store Credit", money(c.store_credit_balance)],
     ["Last Order", formatDate(c.last_order_date)],
     ["Created", formatDate(c.created_at)],
     ["City / State", c.city_state],

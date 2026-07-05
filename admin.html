@@ -2299,6 +2299,97 @@ header .pst-admin-actions-lock .btn.primary {
     return Number(item.line_total ?? item.total ?? (qty * price)) || 0;
   }
 
+  function storeCreditIssueMarkup(order){
+    return `
+      <div class="detail-section" id="storeCreditSection">
+        <h3>Issue Store Credit</h3>
+        <div class="note"><strong>Account credit:</strong> Use this when you owe the customer value but do not want to issue a refund. The customer can choose to apply the credit during their next checkout.</div>
+        <div class="edit-grid" style="margin-top:12px">
+          <div class="field"><label for="creditAmount">Credit Amount</label><input id="creditAmount" type="number" step="0.01" min="0" placeholder="0.00" /></div>
+          <div class="field"><label>Customer Email</label><input value="${esc(customerEmail(order) || "—")}" readonly /></div>
+          <div class="field full"><label for="creditReason">Reason / Note Required</label><input id="creditReason" type="text" placeholder="Example: order adjustment credit, waived shipping after payment, goodwill credit..." /></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="issueStoreCreditBtn" type="button">Issue Store Credit</button></div>
+      </div>
+    `;
+  }
+
+  async function insertStoreCredit(payload){
+    let working = { ...payload };
+    const maxAttempts = Object.keys(working).length + 5;
+    for(let attempt = 0; attempt < maxAttempts; attempt += 1){
+      const { error } = await supabaseClient.from("customer_credits").insert(working);
+      if(!error) return working;
+      const missing = missingColumnFromError(error);
+      if(missing && Object.prototype.hasOwnProperty.call(working, missing)){
+        delete working[missing];
+        continue;
+      }
+      throw error;
+    }
+    throw new Error("Could not issue store credit; Supabase kept rejecting the credit row.");
+  }
+
+  async function issueStoreCredit(order){
+    try{
+      const amount = roundOrderMoney(Number($("creditAmount")?.value || 0));
+      const reason = cleanValue($("creditReason")?.value || "");
+      if(amount <= 0){
+        alert("Enter a credit amount greater than $0.00.");
+        $("creditAmount")?.focus();
+        return;
+      }
+      if(!reason){
+        alert("Enter a reason/note for this store credit.");
+        $("creditReason")?.focus();
+        return;
+      }
+
+      const email = cleanValue(customerEmail(order)).toLowerCase();
+      if(!email){
+        alert("This order does not have a customer email, so account credit cannot be issued safely.");
+        return;
+      }
+
+      const ok = confirm(`Issue ${money(amount)} store credit to ${email}?`);
+      if(!ok) return;
+
+      setStatus("Issuing store credit...");
+      const now = new Date().toISOString();
+      await insertStoreCredit({
+        id: crypto.randomUUID(),
+        user_id: cleanValue(order.user_id || order.customer_id || order.profile_id || ""),
+        customer_email: email,
+        customer_name: customerName(order),
+        amount,
+        remaining_amount: amount,
+        reason,
+        related_order_id: order.id,
+        related_order_number: orderNumber(order),
+        source: "admin_order_adjustment",
+        status: "available",
+        created_by: adminDisplayName(),
+        created_by_email: cleanValue(currentUser?.email),
+        created_at: now,
+        updated_at: now
+      });
+
+      const auditText = `Store credit issued by ${adminDisplayName()}: ${money(amount)} to ${email} | Reason: ${reason}`;
+      const currentNotes = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
+      const nextNotes = joinAuditNotes(currentNotes, auditLine(auditText));
+      await safeUpdateOrder(order.id, { admin_note: nextNotes, admin_notes: nextNotes, updated_at: now }, order).catch(()=>{});
+
+      setStatus(`Store credit issued: ${money(amount)} to ${email}.`, "good");
+      await loadOrders();
+      const fresh = allOrders.find(o => String(o.id) === String(order.id));
+      if(fresh) await renderOrderDetail(fresh);
+    }catch(error){
+      console.error(error);
+      setStatus(error.message || "Could not issue store credit.", "bad");
+      alert(error.message || "Could not issue store credit. Confirm the customer_credits table exists.");
+    }
+  }
+
   function orderAdjustmentMarkup(order){
     const items = order.items || [];
     if(!items.length){
@@ -3149,6 +3240,7 @@ async function printFulfillmentSheet(order){
       ${paymentInstructionsMarkup(order)}
       <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Packing Slip:</strong> Print the packing slip after payment is accepted. The order cannot be marked Packed until the packing slip has been printed.</div></div>
       ${orderAdjustmentMarkup(order)}
+      ${storeCreditIssueMarkup(order)}
       <div class="detail-section"><h3>Update Order</h3>
         <div class="edit-grid">
           <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatusOptions(order)}</select></div>
@@ -3175,6 +3267,7 @@ async function printFulfillmentSheet(order){
     $("printFulfillmentBtn")?.addEventListener("click", () => printFulfillmentSheet(order));
     initOrderAdjustment(order);
     $("saveOrderAdjustmentBtn")?.addEventListener("click", () => saveOrderAdjustment(order));
+    $("issueStoreCreditBtn")?.addEventListener("click", () => issueStoreCredit(order));
     $("deductInventoryNowBtn")?.addEventListener("click", async () => {
       try{
         const reason = prompt("Reason/note for deducting inventory now:", `Manual deduction for order #${orderNumber(order)}`);

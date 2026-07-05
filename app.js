@@ -476,6 +476,7 @@ async function renderCartPage() {
   try {
     const [products, user, paymentMethods] = await Promise.all([cart.length ? getProducts() : Promise.resolve([]), getSignedInUser(), getPaymentMethods()]);
     const profile = user ? await getCustomerProfile(user) : null;
+    const storeCredit = user ? await getAvailableStoreCredit(user, profile) : { balance:0, credits:[] };
     const keyAliases = await productKeyAliasesForCart(cart);
     const rows = cart.map((item) => {
       const resolvedKey = keyAliases[item.key] || item.key;
@@ -488,7 +489,7 @@ async function renderCartPage() {
     } else {
       itemsNode.innerHTML = rows.map(cartRow).join("");
     }
-    summaryNode.innerHTML = summaryHtml(rows, { user, profile, paymentMethods });
+    summaryNode.innerHTML = summaryHtml(rows, { user, profile, paymentMethods, storeCredit });
     bindCartPageButtons();
   } catch (error) {
     itemsNode.innerHTML = `<p class="loading-row">Unable to load cart: ${escapeHtml(error.message)}</p>`;
@@ -630,6 +631,7 @@ function summaryHtml(rows, context = {}) {
   const profile = context.profile || {};
   const user = context.user || null;
   const paymentMethods = context.paymentMethods || enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
+  const storeCredit = context.storeCredit || { balance:0, credits:[] };
   const totals = calculateCartTotals(rows, profile);
   const name = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.full_name || "";
   const email = profile.email || user?.email || "";
@@ -640,12 +642,13 @@ function summaryHtml(rows, context = {}) {
     <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(totals.subtotal)}</strong></div>
     <div class="summary-line"><span>Shipping</span><strong>${formatMoney(totals.shipping)}</strong></div>
     <div class="summary-line"><span>Tax ${escapeHtml(totals.taxLabel)}</span><strong>${formatMoney(totals.tax)}</strong></div>
-    <div class="summary-line summary-total"><span>Total</span><strong>${formatMoney(totals.total)}</strong></div>
+    ${storeCredit.balance > 0 ? `<div class="summary-line"><span>Available Store Credit</span><strong>${formatMoney(storeCredit.balance)}</strong></div>` : ""}
+    <div class="summary-line summary-total"><span>Total Before Store Credit</span><strong>${formatMoney(totals.total)}</strong></div>
     <p class="checkout-note">Submit your order to PEP Shop Texas. It will appear in Order Management for review and payment confirmation.</p>
     ${!rows.length ? `
       <p class="checkout-note">${user ? "You are signed in. Add products to your cart when you are ready to place an order." : "Add products to your cart, then log in or create an account to place the order."}</p>
       <a class="primary-action" href="catalog.html">Browse Products</a>
-    ` : user ? checkoutFormHtml(rows, { name, email, phone, address, paymentMethods }) : `
+    ` : user ? checkoutFormHtml(rows, { name, email, phone, address, paymentMethods, storeCredit, totals }) : `
       <p class="checkout-note">Log in or create an account before placing an order so it can be saved to your account.</p>
       <a class="primary-action ${rows.length ? "" : "disabled"}" href="login.html?redirect=cart.html">Log In to Checkout</a>
       <a class="secondary-action" href="register.html">Create Account</a>
@@ -682,6 +685,87 @@ function customerTaxRegion(profile = {}) {
 
 function roundMoney(value) {
   return Math.round((Number(value) || 0) * 100) / 100;
+}
+
+async function getAvailableStoreCredit(user, profile = {}) {
+  if (!user) return { balance:0, credits:[] };
+  try {
+    const client = requireSupabaseClient();
+    const email = accountCustomerEmail(profile || {}, user).toLowerCase();
+    let query = client
+      .from("customer_credits")
+      .select("*")
+      .eq("status", "available")
+      .gt("remaining_amount", 0)
+      .order("created_at", { ascending:true });
+
+    const filters = [`user_id.eq.${user.id}`];
+    if (email) filters.push(`customer_email.eq.${email}`);
+    query = query.or(filters.join(","));
+
+    const { data, error } = await query;
+    if (error) throw error;
+    const credits = (data || []).map((row) => ({
+      ...row,
+      remaining_amount: roundMoney(row.remaining_amount ?? row.amount ?? 0)
+    })).filter((row) => row.remaining_amount > 0);
+    const balance = roundMoney(credits.reduce((sum, row) => sum + row.remaining_amount, 0));
+    return { balance, credits };
+  } catch (error) {
+    console.warn("Store credit unavailable", error);
+    return { balance:0, credits:[] };
+  }
+}
+
+async function consumeStoreCreditForOrder({ user, profile, order, amount, note }) {
+  const appliedTotal = roundMoney(amount);
+  if (!user || !order || appliedTotal <= 0) return { applied:0, entries:[] };
+
+  const client = requireSupabaseClient();
+  const summary = await getAvailableStoreCredit(user, profile);
+  let remainingToApply = Math.min(appliedTotal, summary.balance);
+  const used = [];
+  const now = new Date().toISOString();
+
+  for (const credit of summary.credits) {
+    if (remainingToApply <= 0) break;
+    const before = roundMoney(credit.remaining_amount);
+    const usedAmount = roundMoney(Math.min(before, remainingToApply));
+    const after = roundMoney(before - usedAmount);
+
+    const { error:updateError } = await client
+      .from("customer_credits")
+      .update({
+        remaining_amount: after,
+        status: after > 0 ? "available" : "used",
+        updated_at: now
+      })
+      .eq("id", credit.id);
+
+    if (updateError) throw updateError;
+
+    await insertWithColumnFallback("customer_credits", {
+      id: crypto.randomUUID(),
+      user_id: user.id,
+      customer_email: accountCustomerEmail(profile || {}, user).toLowerCase(),
+      customer_name: accountCustomerName(profile || {}, user),
+      amount: -usedAmount,
+      remaining_amount: 0,
+      reason: note || `Store credit applied to order ${order.order_number || order.id}`,
+      related_order_id: order.id,
+      related_order_number: order.order_number || "",
+      source: "checkout_store_credit",
+      status: "used",
+      parent_credit_id: credit.id,
+      created_at: now,
+      updated_at: now
+    }).catch((error) => console.warn("Store credit usage ledger row skipped", error));
+
+    used.push({ id: credit.id, amount: usedAmount });
+    remainingToApply = roundMoney(remainingToApply - usedAmount);
+  }
+
+  return { applied: roundMoney(used.reduce((sum, row) => sum + row.amount, 0)), entries: used };
 }
 
 async function getSignedInUser() {
@@ -868,7 +952,12 @@ async function handleCheckoutSubmit(event) {
     const paymentInstructions = selectedOption?.dataset?.instructions || "";
     const paymentQr = selectedOption?.dataset?.qr || "";
     const totals = calculateCartTotals(rows, profile);
-    const { subtotal, shipping, tax, discount, total, taxRate, taxRegion } = totals;
+    const baseTotal = totals.total;
+    const wantsStoreCredit = formData.get("apply_store_credit") === "yes";
+    const storeCredit = wantsStoreCredit ? await getAvailableStoreCredit(user, profile) : { balance:0, credits:[] };
+    const storeCreditApplied = wantsStoreCredit ? roundMoney(Math.min(storeCredit.balance, baseTotal)) : 0;
+    const { subtotal, shipping, tax, discount, taxRate, taxRegion } = totals;
+    const total = roundMoney(baseTotal - storeCreditApplied);
     const orderNumberValue = await nextOrderNumber();
     const now = new Date().toISOString();
     const customerName = accountCustomerName(profile, user);
@@ -876,7 +965,10 @@ async function handleCheckoutSubmit(event) {
     const customerPhone = accountCustomerPhone(profile);
     const shippingAddressValue = accountShippingAddress(profile);
     const customerNotes = String(formData.get("customer_notes") || "").trim();
-    const paymentNote = paymentInstructions ? `Payment method selected: ${paymentMethod} | ${paymentInstructions}` : `Payment method selected: ${paymentMethod}`;
+    const paymentNote = [
+      paymentInstructions ? `Payment method selected: ${paymentMethod} | ${paymentInstructions}` : `Payment method selected: ${paymentMethod}`,
+      storeCreditApplied > 0 ? `Store credit applied: ${formatMoney(storeCreditApplied)}` : ""
+    ].filter(Boolean).join("\n");
     const orderId = crypto.randomUUID();
 
     const orderPayload = {
@@ -899,6 +991,7 @@ async function handleCheckoutSubmit(event) {
       customer_notes: [customerNotes, paymentNote].filter(Boolean).join("\n\n"),
       subtotal,
       discount,
+      store_credit_applied: storeCreditApplied,
       shipping,
       tax,
       tax_rate: taxRate,
@@ -928,6 +1021,17 @@ async function handleCheckoutSubmit(event) {
     }));
 
     await insertRowsWithColumnFallback("order_items", itemPayloads);
+
+    if (storeCreditApplied > 0) {
+      await consumeStoreCreditForOrder({
+        user,
+        profile,
+        order,
+        amount: storeCreditApplied,
+        note: `Store credit applied to order ${order.order_number || orderNumberValue}`
+      });
+    }
+
     await sendOrderReceivedEmail({ ...order, items: itemPayloads }, { customerName, customerEmail, paymentMethod, paymentInstructions, paymentQr });
 
     writeCart([]);
@@ -1131,9 +1235,18 @@ async function sendAdminOrderNotificationEmail(order, context = {}, customerPayl
 
 function checkoutFormHtml(rows, context) {
   const methods = context.paymentMethods.length ? context.paymentMethods : enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
+  const storeCredit = context.storeCredit || { balance:0, credits:[] };
+  const totals = context.totals || calculateCartTotals(rows, {});
+  const creditPreview = storeCredit.balance > 0 ? Math.min(storeCredit.balance, totals.total) : 0;
   return `
     <form class="checkout-form" data-checkout-form>
       <p class="account-checkout-note">This order will use the contact email and shipping details saved on your account.</p>
+      ${storeCredit.balance > 0 ? `
+        <label style="display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:14px;color:#101820;">
+          <input name="apply_store_credit" type="checkbox" value="yes" style="width:18px;min-height:18px;margin-top:1px;">
+          <span><strong>Apply available store credit</strong><br><span class="checkout-note">Available: ${formatMoney(storeCredit.balance)}. This order can use up to ${formatMoney(creditPreview)}.</span></span>
+        </label>
+      ` : ""}
       <label>Payment Method <select name="payment_method">${methods.map((method) => `<option value="${escapeAttribute(method.id)}" data-label="${escapeAttribute(method.label)}" data-instructions="${escapeAttribute(paymentInstructionsText(method))}" data-qr="${escapeAttribute(paymentQrImage(method))}">${escapeHtml(method.label)}</option>`).join("")}</select></label>
       <p class="payment-instructions" data-payment-instructions></p>
       <div data-payment-qr></div>
