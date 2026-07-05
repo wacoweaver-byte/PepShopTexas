@@ -1416,7 +1416,7 @@ function productIncomingPill(product = {}) {
   const label = productIncomingLabel(product);
   if (!label) return "";
   const text = label === "In transit" ? "In Transit" : "On Order";
-  return `<span class="card-cart-button catalog-incoming-pill" style="box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;margin-left:8px;pointer-events:none;cursor:default;color:#003f9e;border-color:#003f9e;background:#fff;">${escapeHtml(text)}</span>`;
+  return `<span class="catalog-incoming-pill" style="display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:72px;height:34px;margin-left:8px;padding:0 16px;border-radius:999px;border:1px solid #003f9e;background:#fff;color:#003f9e;font:inherit;font-weight:700;line-height:1;white-space:nowrap;text-align:center;vertical-align:middle;">${escapeHtml(text)}</span>`;
 }
 
 function stockText(product) {
