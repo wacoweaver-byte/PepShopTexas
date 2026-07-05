@@ -568,10 +568,13 @@ function bindCartPageButtons() {
     form.addEventListener("submit", handleCheckoutSubmit);
     const select = form.querySelector("[name='payment_method']");
     const instructions = form.querySelector("[data-payment-instructions]");
+    const qrBox = form.querySelector("[data-payment-qr]");
     const syncPaymentInstructions = () => {
       const option = select?.selectedOptions?.[0];
       const text = option?.dataset?.instructions || "";
+      const qr = option?.dataset?.qr || "";
       if (instructions) instructions.textContent = text;
+      if (qrBox) qrBox.innerHTML = paymentQrMarkup(qr);
     };
     select?.addEventListener("change", syncPaymentInstructions);
     syncPaymentInstructions();
@@ -746,9 +749,20 @@ function normalizePaymentMethods(row) {
       ...method,
       enabled: method.enabled === true || String(method.enabled || "").toLowerCase() === "true",
       account: String(method.account || method.handle || method.wallet || method.value || "").trim(),
-      instructions: String(method.instructions || method.note || method.notes || byId[id].instructions || "").trim()
+      instructions: String(method.instructions || method.note || method.notes || byId[id].instructions || "").trim(),
+      qr_image: String(method.qr_image || method.qrUrl || method.qr_url || method.qr || method.qr_code || method.qr_code_image || method.qr_image_url || method.image || method.image_url || method.payment_image || "").trim()
     };
   });
+  if (row && !Array.isArray(row)) {
+    const venmo = byId.venmo;
+    if (venmo) {
+      venmo.enabled = venmo.enabled || row.venmo_enabled === true || String(row.venmo_enabled || "").toLowerCase() === "true";
+      venmo.account = venmo.account || String(row.venmo_handle || "").trim();
+      venmo.instructions = venmo.instructions || String(row.venmo_note || "").trim();
+      venmo.qr_image = venmo.qr_image || String(row.venmo_qr || row.venmo_qr_image || row.venmo_image || row.qr_image || "").trim();
+    }
+  }
+
   return defaults.map((method) => byId[method.id]);
 }
 
@@ -768,7 +782,7 @@ async function getPaymentMethods() {
     const client = requireSupabaseClient();
     const { data, error } = await client
       .from("site_payment_options")
-      .select("payment_methods, venmo_enabled, venmo_handle, venmo_note")
+      .select("payment_methods, venmo_enabled, venmo_handle, venmo_note, venmo_qr, venmo_qr_image, venmo_image, qr_image")
       .eq("id", 1)
       .maybeSingle();
     if (!error && data) settings = normalizePaymentMethods(data);
@@ -782,6 +796,16 @@ async function getPaymentMethods() {
 function paymentInstructionsText(method = {}) {
   const accountLine = method.account ? `${method.accountLabel || "Send payment to"}: ${method.account}` : "";
   return [accountLine, method.instructions || ""].filter(Boolean).join(" | ");
+}
+
+function paymentQrImage(method = {}) {
+  return String(method.qr_image || method.qrUrl || method.qr_url || method.qr || method.qr_code || method.qr_code_image || method.qr_image_url || method.image || method.image_url || method.payment_image || "").trim();
+}
+
+function paymentQrMarkup(src = "") {
+  const image = String(src || "").trim();
+  if (!image) return "";
+  return `<div class="payment-qr-wrap" data-payment-qr-wrap style="margin:10px 0 0;"><img data-payment-qr-image src="${escapeAttribute(image)}" alt="Payment QR code" style="width:150px;max-width:100%;border:1px solid #d9e2ec;border-radius:12px;padding:8px;background:#fff;display:block;"></div>`;
 }
 
 function unavailableCartRows(rows) {
@@ -842,6 +866,7 @@ async function handleCheckoutSubmit(event) {
     const selectedOption = form.querySelector("[name='payment_method']")?.selectedOptions?.[0];
     const paymentMethod = selectedOption?.dataset?.label || String(formData.get("payment_method") || "Payment pending");
     const paymentInstructions = selectedOption?.dataset?.instructions || "";
+    const paymentQr = selectedOption?.dataset?.qr || "";
     const totals = calculateCartTotals(rows, profile);
     const { subtotal, shipping, tax, discount, total, taxRate, taxRegion } = totals;
     const orderNumberValue = await nextOrderNumber();
@@ -870,6 +895,7 @@ async function handleCheckoutSubmit(event) {
       payment_status: "pending",
       payment_method: paymentMethod,
       payment_instructions_snapshot: paymentInstructions,
+      payment_qr_image: paymentQr || null,
       customer_notes: [customerNotes, paymentNote].filter(Boolean).join("\n\n"),
       subtotal,
       discount,
@@ -902,7 +928,7 @@ async function handleCheckoutSubmit(event) {
     }));
 
     await insertRowsWithColumnFallback("order_items", itemPayloads);
-    await sendOrderReceivedEmail({ ...order, items: itemPayloads }, { customerName, customerEmail, paymentMethod, paymentInstructions });
+    await sendOrderReceivedEmail({ ...order, items: itemPayloads }, { customerName, customerEmail, paymentMethod, paymentInstructions, paymentQr });
 
     writeCart([]);
     setStatus(`Order ${order.order_number || orderNumberValue} submitted. It is now in Order Management.`, "good");
@@ -1029,6 +1055,8 @@ function buildOrderEmailPayload(order, context = {}, overrides = {}) {
     paymentMethod: context.paymentMethod || order.payment_method || "Payment pending",
     paymentStatus: order.payment_status || "pending",
     paymentInstructions: context.paymentInstructions || order.payment_instructions_snapshot || "",
+    paymentQr: context.paymentQr || order.payment_qr_image || "",
+    paymentQrImage: context.paymentQr || order.payment_qr_image || "",
     items: (order.items || []).map((item) => ({
       name: item.product_name || item.name || item.product_key || "Item",
       quantity: item.quantity || item.qty || 1,
@@ -1085,6 +1113,8 @@ async function sendAdminOrderNotificationEmail(order, context = {}, customerPayl
       subject: `New PST order ${orderNumber} — ${customerName}`,
       statusNote: adminStatusNote,
       paymentInstructions: context.paymentInstructions || order.payment_instructions_snapshot || "",
+      paymentQr: context.paymentQr || order.payment_qr_image || "",
+      paymentQrImage: context.paymentQr || order.payment_qr_image || "",
       paymentMethod,
       customerName,
       customerEmail
@@ -1104,8 +1134,9 @@ function checkoutFormHtml(rows, context) {
   return `
     <form class="checkout-form" data-checkout-form>
       <p class="account-checkout-note">This order will use the contact email and shipping details saved on your account.</p>
-      <label>Payment Method <select name="payment_method">${methods.map((method) => `<option value="${escapeAttribute(method.id)}" data-label="${escapeAttribute(method.label)}" data-instructions="${escapeAttribute(paymentInstructionsText(method))}">${escapeHtml(method.label)}</option>`).join("")}</select></label>
+      <label>Payment Method <select name="payment_method">${methods.map((method) => `<option value="${escapeAttribute(method.id)}" data-label="${escapeAttribute(method.label)}" data-instructions="${escapeAttribute(paymentInstructionsText(method))}" data-qr="${escapeAttribute(paymentQrImage(method))}">${escapeHtml(method.label)}</option>`).join("")}</select></label>
       <p class="payment-instructions" data-payment-instructions></p>
+      <div data-payment-qr></div>
       <label>Order Notes <textarea name="customer_notes" placeholder="Optional notes for support"></textarea></label>
       <button class="primary-action" type="submit" ${rows.length ? "" : "disabled"}>Place Order</button>
       <p class="checkout-status" data-checkout-status></p>
