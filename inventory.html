@@ -2398,7 +2398,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <input id="incomingOrderDate" type="date" />
       </div>
       <div class="field">
-        <label>Ordered Qty (Vials)</label>
+        <label>Ordered Qty (Vials, 10-kit multiples)</label>
         <input id="incomingQty" type="number" min="1" step="1" placeholder="10" />
       </div>
       <div class="field">
@@ -3219,7 +3219,7 @@ function renderReorderReview() {
 
   const note = $("reorderReviewNote");
   if (note) {
-    const base = `Using the last ${rangeDays} days of order_items sales, stock depletion, a ${REORDER_LEAD_DAYS}-day lead time, and a ${DEFAULT_KIT_VIAL_COUNT}-vial kit baseline when movement history is unavailable. Suggested reorder quantity targets roughly ${REORDER_WATCH_DAYS} days of coverage or restores to a kit baseline, rounded up to the nearest 5 vials.`;
+    const base = `Using the last ${rangeDays} days of order_items sales, stock depletion, a ${REORDER_LEAD_DAYS}-day lead time, and a ${DEFAULT_KIT_VIAL_COUNT}-vial kit baseline when movement history is unavailable. Suggested reorder quantity targets roughly ${REORDER_WATCH_DAYS} days of coverage or restores to a kit baseline, rounded up for review; purchase orders round to full 10-vial kits.`;
     note.textContent = reorderSalesLoadError ? `${base} Sales lookup warning: ${reorderSalesLoadError}` : base;
   }
 
@@ -3300,14 +3300,14 @@ function addSelectedReorderRowsToIncomingDraft() {
 
   selectedRows.forEach(row => {
     const product = row.item;
-    const qty = reorderSuggestedQty(row);
+    const qty = incomingRoundQtyToFullKits(reorderSuggestedQty(row));
     incomingDraftLines.push({
       id: crypto?.randomUUID ? crypto.randomUUID() : `reorder_${Date.now()}_${Math.random().toString(16).slice(2)}`,
       productId: product.id,
       productKey: product._catalog_product_key || product.product_key || null,
       productName: incomingProductLabel(product),
       qty,
-      kitCost: 0
+      kitCost: incomingDefaultKitCost()
     });
   });
 
@@ -3322,7 +3322,7 @@ function addSelectedReorderRowsToIncomingDraft() {
     setTimeout(() => scrollInventoryToCard(card), 60);
   }
 
-  setStatus(`Added ${selectedRows.length} reorder line(s) to Incoming Inventory / Purchase Orders. Enter kit costs, vendor, tracking, and shipping/fees, then click Save Incoming Order.`, "good");
+  setStatus(`Added ${selectedRows.length} reorder line(s) to Incoming Inventory / Purchase Orders. PO quantities are full 10-vial kits only. Enter kit cost per 10-vial kit, vendor, tracking, and shipping/fees, then click Save Incoming Order.`, "good");
   setTimeout(() => $("incomingKitCost")?.focus(), 350);
 }
 
@@ -3338,7 +3338,7 @@ function startIncomingOrderFromReorder(productId, suggestedQty) {
 
   if (select) select.value = product.id;
   if (qtyEl) {
-    const qty = Number(suggestedQty || 0) > 0 ? Number(suggestedQty) : DEFAULT_KIT_VIAL_COUNT;
+    const qty = incomingRoundQtyToFullKits(Number(suggestedQty || 0) > 0 ? Number(suggestedQty) : DEFAULT_KIT_VIAL_COUNT);
     qtyEl.value = String(qty);
   }
   if (statusEl) statusEl.value = "ordered";
@@ -3566,6 +3566,23 @@ function incomingKitsForQty(qty) {
   return q > 0 ? q / PST_KIT_VIAL_COUNT : 0;
 }
 
+function incomingRoundQtyToFullKits(qty) {
+  const q = Number(qty || 0);
+  if (!Number.isFinite(q) || q <= 0) return PST_KIT_VIAL_COUNT;
+  return Math.ceil(q / PST_KIT_VIAL_COUNT) * PST_KIT_VIAL_COUNT;
+}
+
+function incomingDefaultKitCost() {
+  const value = Number($("incomingKitCost")?.value || 0);
+  return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+function incomingLineKitCost(line = {}) {
+  const lineCost = Number(line.kitCost || 0);
+  if (Number.isFinite(lineCost) && lineCost > 0) return lineCost;
+  return incomingDefaultKitCost();
+}
+
 function incomingLandedUnitCost(qty, kitCost, allocatedShipping) {
   const q = Number(qty || 0);
   const kits = incomingKitsForQty(q);
@@ -3586,7 +3603,7 @@ function incomingDraftTotalKits(lines = incomingDraftLines) {
 }
 
 function incomingDraftProductCost(lines = incomingDraftLines) {
-  return (lines || []).reduce((sum, line) => sum + (incomingKitsForQty(line.qty) * Number(line.kitCost || 0)), 0);
+  return (lines || []).reduce((sum, line) => sum + (incomingKitsForQty(line.qty) * incomingLineKitCost(line)), 0);
 }
 
 function syncIncomingTotalCostField() {
@@ -3611,10 +3628,11 @@ function syncIncomingTotalCostField() {
 
 function addIncomingDraftLine() {
   const product = selectedIncomingProduct();
-  const qty = Number($("incomingQty")?.value || 0);
+  const enteredQty = Number($("incomingQty")?.value || 0);
+  const qty = incomingRoundQtyToFullKits(enteredQty);
   const kitCost = Number($("incomingKitCost")?.value || 0);
   if (!product) { alert("Select a product before adding a line."); return; }
-  if (!Number.isFinite(qty) || qty <= 0) { alert("Enter an ordered quantity greater than zero."); return; }
+  if (!Number.isFinite(enteredQty) || enteredQty <= 0) { alert("Enter an ordered quantity greater than zero."); return; }
   if (!Number.isFinite(kitCost) || kitCost < 0) { alert("Enter a valid kit cost."); return; }
   incomingDraftLines.push({
     id: crypto?.randomUUID ? crypto.randomUUID() : `draft_${Date.now()}_${Math.random().toString(16).slice(2)}`,
@@ -3655,12 +3673,13 @@ function renderIncomingDraftLines() {
   body.innerHTML = incomingDraftLines.map(line => {
     const kits = incomingKitsForQty(line.qty);
     const allocatedShipping = incomingDraftShippingAllocation(line, shipping, totalKits);
-    const landedUnit = incomingLandedUnitCost(line.qty, line.kitCost, allocatedShipping);
+    const effectiveKitCost = incomingLineKitCost(line);
+    const landedUnit = incomingLandedUnitCost(line.qty, effectiveKitCost, allocatedShipping);
     return `<tr>
       <td><strong>${esc(line.productName)}</strong><div class="note">${esc(line.productKey || "")}</div></td>
       <td>${esc(line.qty)}</td>
       <td>${kits.toFixed(2)}</td>
-      <td>${incomingMoney(line.kitCost)}</td>
+      <td>${incomingMoney(effectiveKitCost)}</td>
       <td>${incomingMoney(allocatedShipping)}</td>
       <td><strong>${landedUnit > 0 ? incomingMoney(landedUnit) : "—"}</strong></td>
       <td><button class="btn secondary incoming-line-remove" type="button" data-remove-incoming-line="${esc(line.id)}">Remove</button></td>
@@ -3858,7 +3877,8 @@ function setIncomingOrderDateToday(force=false) {
 
 async function addIncomingInventory() {
   const enteredProduct = selectedIncomingProduct();
-  const enteredQty = Number($("incomingQty")?.value || 0);
+  const rawEnteredQty = Number($("incomingQty")?.value || 0);
+  const enteredQty = incomingRoundQtyToFullKits(rawEnteredQty);
   const enteredKitCost = Number($("incomingKitCost")?.value || 0);
   const lines = incomingDraftLines.length ? incomingDraftLines.slice() : (enteredProduct && enteredQty > 0 ? [{
     id: crypto?.randomUUID ? crypto.randomUUID() : `draft_${Date.now()}`,
@@ -3889,7 +3909,7 @@ async function addIncomingInventory() {
 
   const rows = lines.map((line, index) => {
     const qty = Number(line.qty || 0);
-    const kitCost = Number(line.kitCost || 0);
+    const kitCost = incomingLineKitCost(line);
     const kits = incomingKitsForQty(qty);
     const allocatedShipping = incomingDraftShippingAllocation(line, totalShipping, totalKits);
     const productCost = kits * kitCost;
@@ -4630,6 +4650,8 @@ function wireEvents() {
   });
   setIncomingOrderDateToday(false);
   if ($("addIncomingLineBtn")) $("addIncomingLineBtn")?.addEventListener("click", addIncomingDraftLine);
+  $("incomingKitCost")?.addEventListener("input", syncIncomingTotalCostField);
+  $("incomingShippingCost")?.addEventListener("input", syncIncomingTotalCostField);
   if ($("addIncomingBtn")) $("addIncomingBtn")?.addEventListener("click", addIncomingInventory);
   if ($("toggleIncomingAuditBtn")) $("toggleIncomingAuditBtn")?.addEventListener("click", () => {
     incomingAuditVisible = !incomingAuditVisible;
