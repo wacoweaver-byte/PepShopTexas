@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V21_REORDER_SELECTED_TO_PO_DRAFT -->
 <!-- PST_INVENTORY_PATCH_V20_SIMPLE_STOCK_FILTER -->
 <!-- PST_INVENTORY_PATCH_V20_INDEPENDENT_FILTERS -->
 <!-- PST_INVENTORY_PATCH_V19_PRICE_READONLY_FROM_PRODUCTS -->
@@ -921,6 +922,25 @@ strong {
   min-width: 72px !important;
   max-width: 72px !important;
   text-align: center !important;
+}
+
+/* PST_REORDER_TO_PO_SELECTION_V1 */
+.reorder-select-cell { text-align:center; width:42px; }
+.reorder-selected-actions {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.reorder-selected-count {
+  color:var(--muted);
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.reorder-select[disabled] {
+  opacity:.35;
+  cursor:not-allowed;
 }
 
 </style>
@@ -2269,6 +2289,11 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           </select>
         </div>
         <button class="btn secondary" id="refreshReorderBtn" type="button">Refresh Review</button>
+        <span class="reorder-selected-actions">
+          <button class="btn success" id="createReorderPOBtn" type="button" disabled>Create PO from Selected</button>
+          <button class="btn secondary" id="clearReorderSelectionBtn" type="button" disabled>Clear Selected</button>
+          <span class="reorder-selected-count" id="selectedReorderCount">0 selected</span>
+        </span>
         <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="reorderReviewCard" aria-expanded="false">Open</button>
       </div>
     </div>
@@ -2292,6 +2317,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       <table class="reorder-table">
         <thead>
           <tr>
+            <th class="reorder-select-cell"><input id="selectAllReorder" type="checkbox" title="Select all actionable reorder rows"></th>
             <th>Product</th>
             <th>Current Stock</th>
             <th>Qty Sold</th>
@@ -2304,7 +2330,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           </tr>
         </thead>
         <tbody id="reorderReviewBody">
-          <tr><td colspan="9" class="note">Loading reorder review...</td></tr>
+          <tr><td colspan="10" class="note">Loading reorder review...</td></tr>
         </tbody>
       </table>
     </div>
@@ -2577,6 +2603,8 @@ let currentAdminRecord = null;
 let allItems = [];
 let filteredItems = [];
 let selectedIds = new Set();
+let selectedReorderIds = new Set();
+let lastReorderRows = [];
 let dirtyIds = new Set();
 let incomingInventoryRows = [];
 let incomingUsesSupabase = false;
@@ -3135,6 +3163,10 @@ function renderReorderReview() {
     return String(a.item.display_name || a.item.product_key).localeCompare(String(b.item.display_name || b.item.product_key));
   });
 
+  lastReorderRows = rows;
+  const actionableIds = new Set(rows.filter(row => row.status.rank <= 2).map(row => String(row.item.id)));
+  selectedReorderIds = new Set([...selectedReorderIds].filter(id => actionableIds.has(String(id))));
+
   const counts = rows.reduce((acc, row) => {
     // Header counts must match the same risk buckets shown in each line item.
     // This includes "Critical Low Stock" and "Critical: Out of Stock," not only velocity-based "Critical."
@@ -3157,7 +3189,7 @@ function renderReorderReview() {
   }
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="9" class="note">No inventory rows loaded.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="note">No inventory rows loaded.</td></tr>`;
     return;
   }
 
@@ -3165,8 +3197,12 @@ function renderReorderReview() {
     const name = row.item.display_name || row.item.product_key || "Product";
     const key = row.item.product_key || "";
     const suggestedText = row.suggested > 0 ? `${row.suggested} vials` : "—";
+    const actionable = row.status.rank <= 2;
+    const checked = selectedReorderIds.has(String(row.item.id)) ? "checked" : "";
+    const disabled = actionable ? "" : "disabled";
     return `
       <tr>
+        <td class="reorder-select-cell"><input class="reorder-select" type="checkbox" data-reorder-select-id="${esc(row.item.id)}" ${checked} ${disabled} title="${actionable ? "Select for purchase order draft" : "Healthy rows are not selected for reorder"}"></td>
         <td class="name-cell"><strong>${esc(name)}</strong><span>${esc(key)}</span></td>
         <td><strong>${Number(row.currentStock || 0)}</strong></td>
         <td>${Number(row.sales.qty || 0).toFixed(0)}</td>
@@ -3183,6 +3219,78 @@ function renderReorderReview() {
   document.querySelectorAll(".reorder-action-btn").forEach(btn => {
     btn.addEventListener("click", () => startIncomingOrderFromReorder(btn.dataset.reorderProductId, btn.dataset.reorderQty));
   });
+  document.querySelectorAll(".reorder-select").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const id = String(cb.dataset.reorderSelectId || "");
+      if (!id) return;
+      cb.checked ? selectedReorderIds.add(id) : selectedReorderIds.delete(id);
+      updateReorderSelectionUI();
+    });
+  });
+  updateReorderSelectionUI();
+}
+
+function reorderSuggestedQty(row) {
+  return Number(row?.suggested || 0) > 0 ? Number(row.suggested) : DEFAULT_KIT_VIAL_COUNT;
+}
+
+function updateReorderSelectionUI() {
+  const selectedCount = selectedReorderIds.size;
+  if ($("selectedReorderCount")) $("selectedReorderCount").textContent = `${selectedCount} selected`;
+  if ($("createReorderPOBtn")) $("createReorderPOBtn").disabled = selectedCount === 0;
+  if ($("clearReorderSelectionBtn")) $("clearReorderSelectionBtn").disabled = selectedCount === 0;
+
+  const actionableRows = lastReorderRows.filter(row => row.status.rank <= 2);
+  const actionableIds = actionableRows.map(row => String(row.item.id));
+  const selectAll = $("selectAllReorder");
+  if (selectAll) {
+    const allSelected = actionableIds.length > 0 && actionableIds.every(id => selectedReorderIds.has(id));
+    const someSelected = actionableIds.some(id => selectedReorderIds.has(id));
+    selectAll.checked = allSelected;
+    selectAll.indeterminate = someSelected && !allSelected;
+    selectAll.disabled = actionableIds.length === 0;
+  }
+}
+
+function clearReorderSelection() {
+  selectedReorderIds.clear();
+  document.querySelectorAll(".reorder-select").forEach(cb => cb.checked = false);
+  updateReorderSelectionUI();
+}
+
+function addSelectedReorderRowsToIncomingDraft() {
+  const selectedRows = lastReorderRows.filter(row => selectedReorderIds.has(String(row.item.id)) && row.status.rank <= 2);
+  if (!selectedRows.length) {
+    alert("Select one or more Critical, Reorder Now, or Watch rows first.");
+    return;
+  }
+
+  selectedRows.forEach(row => {
+    const product = row.item;
+    const qty = reorderSuggestedQty(row);
+    incomingDraftLines.push({
+      id: crypto?.randomUUID ? crypto.randomUUID() : `reorder_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+      productId: product.id,
+      productKey: product._catalog_product_key || product.product_key || null,
+      productName: incomingProductLabel(product),
+      qty,
+      kitCost: 0
+    });
+  });
+
+  clearReorderSelection();
+  syncIncomingTotalCostField();
+  setIncomingOrderDateToday(false);
+  setIncomingUserField(true);
+
+  const card = $("incomingInventoryCard");
+  if (card) {
+    setInventoryCardOpen(card, true);
+    setTimeout(() => scrollInventoryToCard(card), 60);
+  }
+
+  setStatus(`Added ${selectedRows.length} reorder line(s) to Incoming Inventory / Purchase Orders. Enter kit costs, vendor, tracking, and shipping/fees, then click Save Incoming Order.`, "good");
+  setTimeout(() => $("incomingKitCost")?.focus(), 350);
 }
 
 function startIncomingOrderFromReorder(productId, suggestedQty) {
@@ -4471,6 +4579,14 @@ function wireEvents() {
 
   if ($("reorderRange")) $("reorderRange")?.addEventListener("change", async () => { await loadReorderSales(); renderReorderReview(); });
   if ($("refreshReorderBtn")) $("refreshReorderBtn")?.addEventListener("click", async () => { await loadReorderSales(); renderReorderReview(); });
+  if ($("selectAllReorder")) $("selectAllReorder")?.addEventListener("change", e => {
+    const actionableIds = lastReorderRows.filter(row => row.status.rank <= 2).map(row => String(row.item.id));
+    if (e.target.checked) actionableIds.forEach(id => selectedReorderIds.add(id));
+    else actionableIds.forEach(id => selectedReorderIds.delete(id));
+    renderReorderReview();
+  });
+  if ($("createReorderPOBtn")) $("createReorderPOBtn")?.addEventListener("click", addSelectedReorderRowsToIncomingDraft);
+  if ($("clearReorderSelectionBtn")) $("clearReorderSelectionBtn")?.addEventListener("click", () => { clearReorderSelection(); renderReorderReview(); });
   if ($("refreshVendorsBtn")) $("refreshVendorsBtn")?.addEventListener("click", loadVendors);
   if ($("addVendorBtn")) $("addVendorBtn")?.addEventListener("click", () => addVendor().catch(err => { console.error("Vendor save failed:", err); setStatus(err.message || "Vendor could not be saved.", "bad"); }));
   if ($("incomingVendorSelect")) $("incomingVendorSelect")?.addEventListener("change", updateIncomingVendorInfo);
