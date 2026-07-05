@@ -465,7 +465,7 @@ async function renderProductDetail() {
         <h1>${escapeHtml(product.display_name)}</h1>
         <p class="strength">${escapeHtml(product.strength || "")}</p>
         <div class="price-line">${priceHtml(product)}</div>
-        <p class="stock">${stockText(product)}</p>
+        <p class="stock">${stockText(product)}${productIncomingPill(product)}</p>
         ${productIncomingNotice(product)}
         <div class="purchase-panel">
           <label>Quantity <input type="number" min="1" max="${Math.max(Number(product.current_inventory || 1), 1)}" value="1" data-detail-qty ${Number(product.current_inventory || 0) <= 0 ? "disabled" : ""}></label>
@@ -563,7 +563,7 @@ function catalogDoseOptions(variants) {
         <div class="catalog-dose-option">
           <a class="catalog-dose-name" href="${productUrl(product)}">${escapeHtml(product.strength || product.product_key)}</a>
           <strong>${priceHtml(product)}</strong>
-          <span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span>
+          <span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span>${productIncomingPill(product)}
           <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out" : "Add to Cart"}</button>
         </div>
       `).join("")}
@@ -1373,12 +1373,19 @@ function productIncomingNotice(product = {}) {
   return text ? `<p class="checkout-note">${escapeHtml(text)}</p>` : "";
 }
 
+function productIncomingPill(product = {}) {
+  const label = productIncomingLabel(product);
+  if (!label) return "";
+  const text = label === "In transit" ? "In Transit" : "On Order";
+  return `<span class="catalog-incoming-pill" style="display:inline-flex;align-items:center;justify-content:center;margin-left:8px;padding:4px 9px;border-radius:999px;border:1px solid #d9e2ec;background:#f4f8ff;color:#003f9e;font-size:12px;font-weight:700;white-space:nowrap;">${escapeHtml(text)}</span>`;
+}
+
 function stockText(product) {
   const count = Number(product.current_inventory || 0);
   const incoming = productIncomingLabel(product);
-  if (count <= 0) return incoming ? `Out of stock — ${incoming}` : "Out of stock";
-  if (count <= 10) return incoming ? "Limited stock — more on order" : "Limited stock";
-  return incoming ? "In stock — more on order" : "In stock";
+  if (count <= 0) return "Out of stock";
+  if (count <= 10) return incoming ? "Limited stock" : "Limited stock";
+  return incoming ? "In stock" : "In stock";
 }
 
 function stockClass(product) {
