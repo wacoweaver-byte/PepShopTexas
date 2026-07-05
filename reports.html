@@ -1771,6 +1771,9 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           <div class="finance-summary-card"><strong id="finOperatingExpenses">—</strong><span>Operating Expenses</span></div>
           <div class="finance-summary-card"><strong id="finCashProfit">—</strong><span>Estimated Realized Profit</span></div>
           <div class="finance-summary-card"><strong id="finInventoryValue">—</strong><span>Estimated Inventory Value</span></div>
+          <div class="finance-summary-card"><strong id="finInventoryRetailRevenue">—</strong><span>Potential Inventory Revenue</span></div>
+          <div class="finance-summary-card"><strong id="finInventoryRetailProfit">—</strong><span>Potential Inventory Gross Profit</span></div>
+          <div class="finance-summary-card"><strong id="finInventoryUnits">—</strong><span>Current Inventory Units</span></div>
           <div class="finance-summary-card"><strong id="finTaxHeld">—</strong><span>Tax Collected / Held</span></div>
         </div>
 
@@ -2960,10 +2963,27 @@ function inventoryValueFromIncoming(){
   let total = 0;
   (allInventoryRows || []).forEach(row => {
     const names = [row.product_key, row.display_name, row.product_name, row.name].map(v => cleanText(v).toLowerCase()).filter(Boolean);
-    const cost = names.map(n => latestUnitCost[n]).find(v => Number(v) > 0) || 0;
+    const cost = names.map(n => latestUnitCost[n]).find(v => Number(v) > 0) || Number(row.cost_per_unit ?? row.unit_cost ?? row.cost ?? 0) || 0;
     total += qtyValue(row) * cost;
   });
   return total;
+}
+
+function inventoryRetailUnitPrice(row = {}){
+  const sale = Number(row.sale_enabled && row.sale_price ? row.sale_price : 0);
+  if (Number.isFinite(sale) && sale > 0) return sale;
+  const price = Number(row.price ?? row.retail_price ?? row.selling_price ?? row.unit_price ?? 0);
+  return Number.isFinite(price) && price > 0 ? price : 0;
+}
+
+function inventoryRetailRevenuePotential(){
+  return (allInventoryRows || []).reduce((sum, row) => {
+    return sum + (qtyValue(row) * inventoryRetailUnitPrice(row));
+  }, 0);
+}
+
+function inventoryCurrentUnitCount(){
+  return (allInventoryRows || []).reduce((sum, row) => sum + qtyValue(row), 0);
 }
 
 function inventoryAuditProductForMovement(row){
@@ -3050,13 +3070,21 @@ function renderFinancials(orders){
   setText("finCashProfit", money(cashProfit));
   const profitEl = $("finCashProfit");
   if (profitEl) profitEl.className = cashProfit >= 0 ? "money-positive" : "money-negative";
-  setText("finInventoryValue", money(inventoryValueFromIncoming()));
+  const inventoryCostValue = inventoryValueFromIncoming();
+  const inventoryRetailRevenue = inventoryRetailRevenuePotential();
+  const inventoryRetailProfit = inventoryRetailRevenue - inventoryCostValue;
+  setText("finInventoryValue", money(inventoryCostValue));
+  setText("finInventoryRetailRevenue", money(inventoryRetailRevenue));
+  setText("finInventoryRetailProfit", money(inventoryRetailProfit));
+  setText("finInventoryUnits", String(inventoryCurrentUnitCount()));
+  const retailProfitEl = $("finInventoryRetailProfit");
+  if (retailProfitEl) retailProfitEl.className = inventoryRetailProfit >= 0 ? "money-positive" : "money-negative";
   setText("finTaxHeld", money(realizedTotals.tax));
   renderExpenseTable(expensesInRange);
   const note = $("financeNote");
   if (note) {
     const sourceText = `${reportsExpensesUsesSupabase ? "expenses from Supabase" : "expenses from this browser only"}; ${reportsIncomingUsesSupabase ? "incoming inventory from Supabase" : "incoming inventory from this browser only"}`;
-    note.textContent = `Financials for the selected report range: ${realizedTotals.orders} realized order(s), ${pendingTotals.orders} pending/open order(s), ${excludedTotals.orders} excluded order(s), ${expensesInRange.length} expense row(s), and ${incomingInRange.length} incoming inventory cost row(s). Data source: ${sourceText}. Revenue and estimated profit are realized only when order status is Shipped, Delivered, Complete, or Completed. Pending, Processing, Packed, Inventory Failed, Rejected, Cancelled, Refunded, and Void orders are not counted as realized revenue/profit.`;
+    note.textContent = `Financials for the selected report range: ${realizedTotals.orders} realized order(s), ${pendingTotals.orders} pending/open order(s), ${excludedTotals.orders} excluded order(s), ${expensesInRange.length} expense row(s), and ${incomingInRange.length} incoming inventory cost row(s). Data source: ${sourceText}. Potential Inventory Revenue equals current inventory quantity times current selling price for every inventory row. Revenue and estimated profit are realized only when order status is Shipped, Delivered, Complete, or Completed. Pending, Processing, Packed, Inventory Failed, Rejected, Cancelled, Refunded, and Void orders are not counted as realized revenue/profit.`;
   }
 }
 function renderExpenseTable(rows){
