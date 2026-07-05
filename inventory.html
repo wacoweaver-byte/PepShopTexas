@@ -2449,7 +2449,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
               <th>Product</th>
               <th>Qty</th>
               <th>Kits</th>
-              <th>Kit Cost</th>
+              <th>Kit Cost<br>(10 vials)</th>
               <th>Shipping Share</th>
               <th>Landed / Vial</th>
               <th></th>
@@ -2459,7 +2459,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         </table>
       </div>
     </div>
-    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival uses the selected vendor standard lead time. Add one or more product lines to the same incoming purchase order. Shipping/fees are allocated by kit count, and landed cost per vial includes the allocated shipping share.</div>
+    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival uses the selected vendor standard lead time. Add one or more product lines to the same incoming purchase order. Kit Cost means the supplier cost for one 10-vial kit. Changing the Kit Cost field applies that kit cost to current PO lines. Shipping/fees are allocated by kit count, and landed cost per vial includes the allocated shipping share.</div>
     <div class="incoming-table-wrap">
       <table class="incoming-table">
         <thead>
@@ -3659,6 +3659,24 @@ function clearIncomingDraftLines() {
   renderIncomingDraftLines();
 }
 
+function setIncomingDraftLineKitCost(id, value) {
+  const cost = Number(value || 0);
+  incomingDraftLines = incomingDraftLines.map(line =>
+    String(line.id) === String(id) ? { ...line, kitCost: Number.isFinite(cost) && cost >= 0 ? cost : 0 } : line
+  );
+  syncIncomingTotalCostField();
+}
+
+function applyIncomingHeaderKitCostToDraftLines() {
+  const cost = incomingDefaultKitCost();
+  if (!incomingDraftLines.length || cost <= 0) {
+    syncIncomingTotalCostField();
+    return;
+  }
+  incomingDraftLines = incomingDraftLines.map(line => ({ ...line, kitCost: cost }));
+  syncIncomingTotalCostField();
+}
+
 function renderIncomingDraftLines() {
   const body = $("incomingDraftBody");
   const summary = $("incomingDraftSummary");
@@ -3679,7 +3697,7 @@ function renderIncomingDraftLines() {
       <td><strong>${esc(line.productName)}</strong><div class="note">${esc(line.productKey || "")}</div></td>
       <td>${esc(line.qty)}</td>
       <td>${kits.toFixed(2)}</td>
-      <td>${incomingMoney(effectiveKitCost)}</td>
+      <td><input type="number" min="0" step="0.01" value="${Number(effectiveKitCost || 0).toFixed(2)}" data-incoming-line-kit-cost="${esc(line.id)}" title="Kit cost for one 10-vial kit"></td>
       <td>${incomingMoney(allocatedShipping)}</td>
       <td><strong>${landedUnit > 0 ? incomingMoney(landedUnit) : "—"}</strong></td>
       <td><button class="btn secondary incoming-line-remove" type="button" data-remove-incoming-line="${esc(line.id)}">Remove</button></td>
@@ -3689,6 +3707,9 @@ function renderIncomingDraftLines() {
   const totalPaid = productCost + shipping;
   if (summary) summary.textContent = `${incomingDraftLines.length} line(s) · ${totalKits.toFixed(2)} kit(s) · Product ${incomingMoney(productCost)} · Shipping/fees ${incomingMoney(shipping)} · Total ${incomingMoney(totalPaid)}`;
   document.querySelectorAll("[data-remove-incoming-line]").forEach(btn => btn.addEventListener("click", () => removeIncomingDraftLine(btn.dataset.removeIncomingLine)));
+  document.querySelectorAll("[data-incoming-line-kit-cost]").forEach(input => {
+    input.addEventListener("change", () => setIncomingDraftLineKitCost(input.dataset.incomingLineKitCost, input.value));
+  });
 }
 
 function incomingAuditText(row) {
@@ -4644,13 +4665,17 @@ function wireEvents() {
   if ($("addVendorBtn")) $("addVendorBtn")?.addEventListener("click", () => addVendor().catch(err => { console.error("Vendor save failed:", err); setStatus(err.message || "Vendor could not be saved.", "bad"); }));
   if ($("incomingVendorSelect")) $("incomingVendorSelect")?.addEventListener("change", updateIncomingVendorInfo);
   if ($("refreshIncomingBtn")) $("refreshIncomingBtn")?.addEventListener("click", loadIncomingInventory);
-  ["incomingProductSelect","incomingQty","incomingKitCost","incomingShippingCost"].forEach(id => {
+  ["incomingProductSelect","incomingQty","incomingShippingCost"].forEach(id => {
     const el = $(id);
     if (el) el.addEventListener("input", syncIncomingTotalCostField);
   });
+  const incomingKitCostEl = $("incomingKitCost");
+  if (incomingKitCostEl) {
+    incomingKitCostEl.addEventListener("input", applyIncomingHeaderKitCostToDraftLines);
+    incomingKitCostEl.addEventListener("change", applyIncomingHeaderKitCostToDraftLines);
+  }
   setIncomingOrderDateToday(false);
   if ($("addIncomingLineBtn")) $("addIncomingLineBtn")?.addEventListener("click", addIncomingDraftLine);
-  $("incomingKitCost")?.addEventListener("input", syncIncomingTotalCostField);
   $("incomingShippingCost")?.addEventListener("input", syncIncomingTotalCostField);
   if ($("addIncomingBtn")) $("addIncomingBtn")?.addEventListener("click", addIncomingInventory);
   if ($("toggleIncomingAuditBtn")) $("toggleIncomingAuditBtn")?.addEventListener("click", () => {
