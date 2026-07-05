@@ -201,7 +201,55 @@ async function getProducts() {
     .order("display_name", { ascending: true })
     .order("strength", { ascending: true, nullsFirst: false });
   if (error) throw error;
-  return sortProductsForCatalog(data || []);
+  return sortProductsForCatalog(await mergeIncomingInventoryStatus(data || []));
+}
+
+async function mergeIncomingInventoryStatus(products = []) {
+  const keys = [...new Set((products || []).map((p) => p.product_key).filter(Boolean))];
+  if (!keys.length) return products;
+
+  try {
+    const client = requireSupabaseClient();
+    const { data, error } = await client
+      .from("incoming_inventory")
+      .select("product_key,product_name,ordered_quantity,received_quantity,status,expected_arrival_date")
+      .in("product_key", keys)
+      .in("status", ["ordered", "in_transit"]);
+    if (error) throw error;
+
+    const byKey = new Map();
+    (data || []).forEach((row) => {
+      const key = String(row.product_key || "").trim();
+      if (!key) return;
+      const orderedQty = Number(row.ordered_quantity || 0);
+      const receivedQty = Number(row.received_quantity || 0);
+      const openQty = Math.max(0, orderedQty - receivedQty);
+      if (openQty <= 0) return;
+
+      const current = byKey.get(key) || { incoming_qty:0, statuses:new Set(), expected_dates:[] };
+      current.incoming_qty += openQty;
+      current.statuses.add(String(row.status || "ordered").toLowerCase());
+      if (row.expected_arrival_date) current.expected_dates.push(row.expected_arrival_date);
+      byKey.set(key, current);
+    });
+
+    return products.map((product) => {
+      const incoming = byKey.get(product.product_key);
+      if (!incoming) return product;
+      const statuses = [...incoming.statuses];
+      const status = statuses.includes("in_transit") ? "in_transit" : "ordered";
+      const nextDate = incoming.expected_dates.sort()[0] || "";
+      return {
+        ...product,
+        incoming_quantity: incoming.incoming_qty,
+        incoming_status: status,
+        incoming_expected_arrival_date: nextDate
+      };
+    });
+  } catch (error) {
+    console.warn("Incoming inventory status unavailable", error);
+    return products;
+  }
 }
 
 function sortProductsForCatalog(products) {
@@ -436,6 +484,7 @@ async function renderProductDetail() {
         <p class="strength">${escapeHtml(product.strength || "")}</p>
         <div class="price-line">${priceHtml(product)}</div>
         <p class="stock">${stockText(product)}</p>
+        ${productIncomingNotice(product)}
         <div class="purchase-panel">
           <label>Quantity <input type="number" min="1" max="${Math.max(Number(product.current_inventory || 1), 1)}" value="1" data-detail-qty ${Number(product.current_inventory || 0) <= 0 ? "disabled" : ""}></label>
           <button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out of Stock" : "Add to Cart"}</button>
@@ -617,10 +666,18 @@ function refreshCartCount() {
 
 function cartRow({ product, quantity, cartKey }) {
   const key = cartKey || product.product_key;
+  const available = Number(product.current_inventory || 0);
+  const out = available <= 0;
+  const over = Number(quantity || 0) > available && available > 0;
+  const rowWarning = out
+    ? `<p class="checkout-status bad">This item is out of stock and cannot be ordered. ${productIncomingPlainText(product)}</p>`
+    : over
+      ? `<p class="checkout-status bad">Only ${available} vial(s) available. Reduce quantity before checkout.</p>`
+      : productIncomingPlainText(product) ? `<p class="checkout-note">${productIncomingPlainText(product)}</p>` : "";
   return `
     <article class="cart-row">
-      <div><h2><a href="${productUrl(product)}">${escapeHtml(productTitle(product))}</a></h2><p>${priceHtml(product)}</p></div>
-      <input type="number" min="1" value="${quantity}" data-cart-qty="${escapeAttribute(key)}">
+      <div><h2><a href="${productUrl(product)}">${escapeHtml(productTitle(product))}</a></h2><p>${priceHtml(product)}</p>${rowWarning}</div>
+      <input type="number" min="1" max="${Math.max(available, 1)}" value="${quantity}" data-cart-qty="${escapeAttribute(key)}" ${out ? "disabled" : ""}>
       <strong>${formatMoney(unitPrice(product) * quantity)}</strong>
       <button class="cart-remove-button" data-remove-cart="${escapeAttribute(key)}">Remove</button>
     </article>
@@ -633,6 +690,12 @@ function summaryHtml(rows, context = {}) {
   const paymentMethods = context.paymentMethods || enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
   const storeCredit = context.storeCredit || { balance:0, credits:[] };
   const totals = calculateCartTotals(rows, profile);
+  const unavailable = unavailableCartRows(rows);
+  const insufficient = insufficientCartRows(rows);
+  const cartBlocked = unavailable.length > 0 || insufficient.length > 0;
+  const blockMessage = cartBlocked
+    ? `${unavailable.length ? `Out of stock: ${unavailableCartMessage(unavailable)}. ` : ""}${insufficient.length ? `Quantity exceeds available stock: ${unavailableCartMessage(insufficient)}. ` : ""}Remove or update these items before checkout.`
+    : "";
   const name = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.full_name || "";
   const email = profile.email || user?.email || "";
   const phone = profile.phone || "";
@@ -644,11 +707,11 @@ function summaryHtml(rows, context = {}) {
     <div class="summary-line"><span>Tax ${escapeHtml(totals.taxLabel)}</span><strong>${formatMoney(totals.tax)}</strong></div>
     ${storeCredit.balance > 0 ? `<div class="summary-line"><span>Available Store Credit</span><strong>${formatMoney(storeCredit.balance)}</strong></div>` : ""}
     <div class="summary-line summary-total"><span>Total Before Store Credit</span><strong>${formatMoney(totals.total)}</strong></div>
-    <p class="checkout-note">Submit your order to PEP Shop Texas. It will appear in Order Management for review and payment confirmation.</p>
+    ${cartBlocked ? `<p class="checkout-status bad">${escapeHtml(blockMessage)}</p>` : `<p class="checkout-note">Submit your order to PEP Shop Texas. It will appear in Order Management for review and payment confirmation.</p>`}
     ${!rows.length ? `
       <p class="checkout-note">${user ? "You are signed in. Add products to your cart when you are ready to place an order." : "Add products to your cart, then log in or create an account to place the order."}</p>
       <a class="primary-action" href="catalog.html">Browse Products</a>
-    ` : user ? checkoutFormHtml(rows, { name, email, phone, address, paymentMethods, storeCredit, totals }) : `
+    ` : user ? checkoutFormHtml(rows, { name, email, phone, address, paymentMethods, storeCredit, totals, cartBlocked, blockMessage }) : `
       <p class="checkout-note">Log in or create an account before placing an order so it can be saved to your account.</p>
       <a class="primary-action ${rows.length ? "" : "disabled"}" href="login.html?redirect=cart.html">Log In to Checkout</a>
       <a class="secondary-action" href="register.html">Create Account</a>
@@ -1237,6 +1300,8 @@ function checkoutFormHtml(rows, context) {
   const methods = context.paymentMethods.length ? context.paymentMethods : enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
   const storeCredit = context.storeCredit || { balance:0, credits:[] };
   const totals = context.totals || calculateCartTotals(rows, {});
+  const cartBlocked = context.cartBlocked === true;
+  const blockMessage = context.blockMessage || "Update your cart before checkout.";
   const creditPreview = storeCredit.balance > 0 ? Math.min(storeCredit.balance, totals.total) : 0;
   return `
     <form class="checkout-form" data-checkout-form>
@@ -1251,7 +1316,8 @@ function checkoutFormHtml(rows, context) {
       <p class="payment-instructions" data-payment-instructions></p>
       <div data-payment-qr></div>
       <label>Order Notes <textarea name="customer_notes" placeholder="Optional notes for support"></textarea></label>
-      <button class="primary-action" type="submit" ${rows.length ? "" : "disabled"}>Place Order</button>
+      ${cartBlocked ? `<p class="checkout-status bad">${escapeHtml(blockMessage)}</p>` : ""}
+      <button class="primary-action" type="submit" ${rows.length && !cartBlocked ? "" : "disabled"}>${cartBlocked ? "Update Cart Before Checkout" : "Place Order"}</button>
       <p class="checkout-status" data-checkout-status></p>
     </form>
   `;
@@ -1306,16 +1372,36 @@ function formatMoney(value) {
   return Number(value || 0).toLocaleString("en-US", { style: "currency", currency: "USD" });
 }
 
+function productIncomingLabel(product = {}) {
+  const qty = Number(product.incoming_quantity || 0);
+  if (qty <= 0) return "";
+  const status = String(product.incoming_status || "ordered").toLowerCase();
+  if (status === "in_transit") return "In transit";
+  return "On order";
+}
+
+function productIncomingPlainText(product = {}) {
+  const label = productIncomingLabel(product);
+  if (!label) return "";
+  return `${label} / pending arrival. Not available for checkout until received into inventory.`;
+}
+
+function productIncomingNotice(product = {}) {
+  const text = productIncomingPlainText(product);
+  return text ? `<p class="checkout-note">${escapeHtml(text)}</p>` : "";
+}
+
 function stockText(product) {
   const count = Number(product.current_inventory || 0);
-  if (count <= 0) return "Out of stock";
-  if (count <= 10) return "Limited stock";
-  return "In stock";
+  const incoming = productIncomingLabel(product);
+  if (count <= 0) return incoming ? `Out of stock — ${incoming}` : "Out of stock";
+  if (count <= 10) return incoming ? "Limited stock — more on order" : "Limited stock";
+  return incoming ? "In stock — more on order" : "In stock";
 }
 
 function stockClass(product) {
   const count = Number(product.current_inventory || 0);
-  if (count <= 0) return "out";
+  if (count <= 0) return productIncomingLabel(product) ? "out incoming" : "out";
   if (count <= 10) return "limited";
   return "available";
 }
