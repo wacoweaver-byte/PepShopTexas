@@ -835,7 +835,7 @@ strong {
 
 /* PST_INCOMING_MULTI_LINE_PO_V1 */
 .incoming-form-grid {
-  grid-template-columns: 1.2fr .55fr .7fr .7fr .75fr .9fr .9fr .8fr .9fr auto auto !important;
+  grid-template-columns: 1.2fr .55fr .7fr .7fr .7fr .75fr .9fr .9fr .8fr .9fr auto auto !important;
 }
 .incoming-line-preview {
   padding: 12px 14px;
@@ -2410,6 +2410,10 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <input id="incomingShippingCost" type="number" min="0" step="0.01" placeholder="0.00" />
       </div>
       <div class="field">
+        <label>PO Discount</label>
+        <input id="incomingDiscountAmount" type="number" min="0" step="0.01" placeholder="0.00" />
+      </div>
+      <div class="field">
         <label>Total Paid</label>
         <input id="incomingTotalCost" type="number" min="0" step="0.01" placeholder="Auto" readonly />
       </div>
@@ -2459,7 +2463,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         </table>
       </div>
     </div>
-    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival uses the selected vendor standard lead time. Add one or more product lines to the same incoming purchase order. Kit cost is auto-calculated from each product's cost per vial × 10. Use Kit Cost Override only when you need to override missing or unusual cost data. Shipping/fees are allocated by kit count, and landed cost per vial includes the allocated shipping share.</div>
+    <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival uses the selected vendor standard lead time. Add one or more product lines to the same incoming purchase order. Kit cost is auto-calculated from each product's cost per vial × 10. Use Kit Cost Override only when needed. PO Discount is a blanket vendor/order discount against the purchase order total only; it does not change kit cost or landed cost per vial. Shipping/fees are allocated by kit count.</div>
     <div class="incoming-table-wrap">
       <table class="incoming-table">
         <thead>
@@ -3612,6 +3616,18 @@ function incomingDraftShippingAllocation(line, totalShipping, totalKits) {
   return ship > 0 && denominator > 0 ? ship * (kits / denominator) : 0;
 }
 
+function incomingDiscountAmount() {
+  const value = Number($("incomingDiscountAmount")?.value || 0);
+  return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+function incomingDraftDiscountAllocation(line, totalDiscount, totalKits) {
+  const kits = incomingKitsForQty(line?.qty);
+  const discount = Number(totalDiscount || 0);
+  const denominator = Number(totalKits || 0);
+  return discount > 0 && denominator > 0 ? discount * (kits / denominator) : 0;
+}
+
 function incomingDraftTotalKits(lines = incomingDraftLines) {
   return (lines || []).reduce((sum, line) => sum + incomingKitsForQty(line.qty), 0);
 }
@@ -3624,6 +3640,7 @@ function syncIncomingTotalCostField() {
   const totalEl = $("incomingTotalCost");
   if (!totalEl) return;
   const shipping = Number($("incomingShippingCost")?.value || 0);
+  const discount = incomingDiscountAmount();
   const lines = incomingDraftLines.length ? incomingDraftLines : (() => {
     const product = selectedIncomingProduct();
     const qty = Number($("incomingQty")?.value || 0);
@@ -3632,7 +3649,7 @@ function syncIncomingTotalCostField() {
   })();
   const productCost = incomingDraftProductCost(lines);
   const totalKits = incomingDraftTotalKits(lines);
-  const calc = productCost + shipping;
+  const calc = Math.max(0, productCost + shipping - discount);
   totalEl.value = calc > 0 ? calc.toFixed(2) : "";
   totalEl.title = totalKits > 0
     ? `${totalKits.toFixed(2)} kit(s). Shipping allocation: ${incomingMoney(shipping / totalKits)}/kit or ${incomingMoney(shipping / (totalKits * PST_KIT_VIAL_COUNT))}/vial.`
@@ -3697,6 +3714,7 @@ function renderIncomingDraftLines() {
   const summary = $("incomingDraftSummary");
   if (!body) return;
   const shipping = Number($("incomingShippingCost")?.value || 0);
+  const discount = incomingDiscountAmount();
   const totalKits = incomingDraftTotalKits();
   if (!incomingDraftLines.length) {
     body.innerHTML = `<tr><td colspan="7" class="note">No lines added yet. Single-line orders can still be saved directly, or add multiple lines before saving.</td></tr>`;
@@ -3719,8 +3737,8 @@ function renderIncomingDraftLines() {
     </tr>`;
   }).join("");
   const productCost = incomingDraftProductCost();
-  const totalPaid = productCost + shipping;
-  if (summary) summary.textContent = `${incomingDraftLines.length} line(s) · ${totalKits.toFixed(2)} kit(s) · Product ${incomingMoney(productCost)} · Shipping/fees ${incomingMoney(shipping)} · Total ${incomingMoney(totalPaid)}`;
+  const totalPaid = Math.max(0, productCost + shipping - discount);
+  if (summary) summary.textContent = `${incomingDraftLines.length} line(s) · ${totalKits.toFixed(2)} kit(s) · Product ${incomingMoney(productCost)} · Shipping/fees ${incomingMoney(shipping)} · PO discount -${incomingMoney(discount)} · Total ${incomingMoney(totalPaid)}`;
   document.querySelectorAll("[data-remove-incoming-line]").forEach(btn => btn.addEventListener("click", () => removeIncomingDraftLine(btn.dataset.removeIncomingLine)));
 }
 
@@ -3930,6 +3948,7 @@ async function addIncomingInventory() {
   }
 
   const totalShipping = Number($("incomingShippingCost")?.value || 0);
+  const totalDiscount = incomingDiscountAmount();
   const totalKits = incomingDraftTotalKits(lines);
   const orderedAt = incomingOrderDateISO();
   const vendor = selectedIncomingVendor();
@@ -3946,8 +3965,9 @@ async function addIncomingInventory() {
     const kitCost = incomingLineKitCost(line);
     const kits = incomingKitsForQty(qty);
     const allocatedShipping = incomingDraftShippingAllocation(line, totalShipping, totalKits);
+    const allocatedDiscount = incomingDraftDiscountAllocation(line, totalDiscount, totalKits);
     const productCost = kits * kitCost;
-    const totalCost = productCost + allocatedShipping;
+    const totalCost = Math.max(0, productCost + allocatedShipping - allocatedDiscount);
     const unitCost = incomingLandedUnitCost(qty, kitCost, allocatedShipping);
     return {
       id: crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}_${index}`,
@@ -3973,7 +3993,7 @@ async function addIncomingInventory() {
       updated_at: orderedAt,
       created_by: currentUser?.id || null,
       created_by_email: currentUser?.email || null,
-      audit_note: `Incoming purchase order ${orderGroupId}. Line ${index + 1} of ${lines.length}. Vendor ${vendor ? vendorLabel(vendor) : "not selected"}. Entered by ${shortLoggedInUserName()}. Qty ${qty} vial(s) (${kits.toFixed(2)} kit(s)). Kit cost ${incomingMoney(kitCost)} per 10-vial kit. Allocated shipping/fees ${incomingMoney(allocatedShipping)} from total PO shipping/fees ${incomingMoney(totalShipping)}. Landed cost ${incomingMoney(unitCost)}/vial. Expected arrival ${fmtShortDate(expectedArrival)} using ${leadTimeDays}-day vendor lead time.`
+      audit_note: `Incoming purchase order ${orderGroupId}. Line ${index + 1} of ${lines.length}. Vendor ${vendor ? vendorLabel(vendor) : "not selected"}. Entered by ${shortLoggedInUserName()}. Qty ${qty} vial(s) (${kits.toFixed(2)} kit(s)). Kit cost ${incomingMoney(kitCost)} per 10-vial kit. Allocated shipping/fees ${incomingMoney(allocatedShipping)} from total PO shipping/fees ${incomingMoney(totalShipping)}. Blanket PO discount allocated ${incomingMoney(allocatedDiscount)} from total PO discount ${incomingMoney(totalDiscount)}. Discount reduces PO total only and does not change kit cost or landed cost per vial. Landed cost ${incomingMoney(unitCost)}/vial before blanket discount. Expected arrival ${fmtShortDate(expectedArrival)} using ${leadTimeDays}-day vendor lead time.`
     };
   });
 
@@ -3996,6 +4016,7 @@ async function addIncomingInventory() {
   if ($("incomingQty")) $("incomingQty").value = "";
   if ($("incomingKitCost")) $("incomingKitCost").value = "";
   if ($("incomingShippingCost")) $("incomingShippingCost").value = "";
+  if ($("incomingDiscountAmount")) $("incomingDiscountAmount").value = "";
   if ($("incomingTotalCost")) $("incomingTotalCost").value = "";
   if ($("incomingVendorSelect")) $("incomingVendorSelect").value = "";
   updateIncomingVendorInfo();
@@ -4678,7 +4699,7 @@ function wireEvents() {
   if ($("addVendorBtn")) $("addVendorBtn")?.addEventListener("click", () => addVendor().catch(err => { console.error("Vendor save failed:", err); setStatus(err.message || "Vendor could not be saved.", "bad"); }));
   if ($("incomingVendorSelect")) $("incomingVendorSelect")?.addEventListener("change", updateIncomingVendorInfo);
   if ($("refreshIncomingBtn")) $("refreshIncomingBtn")?.addEventListener("click", loadIncomingInventory);
-  ["incomingProductSelect","incomingQty","incomingShippingCost"].forEach(id => {
+  ["incomingProductSelect","incomingQty","incomingShippingCost","incomingDiscountAmount"].forEach(id => {
     const el = $(id);
     if (el) el.addEventListener("input", syncIncomingTotalCostField);
   });
