@@ -3139,6 +3139,35 @@ function formatDepletion(depletion, currentStock) {
   return `${currentStock} of ${original} left · ${pct}% depleted`;
 }
 
+
+function reorderNameSortValue(item = {}) {
+  return String(item.display_name || item.product_name || item.name || item.product_key || "").trim().toLowerCase();
+}
+
+function reorderStrengthSortValue(item = {}) {
+  return String(item._catalog_strength || item.strength || item.dose || "").trim().toLowerCase();
+}
+
+function reorderDoseSortValue(item = {}) {
+  const text = reorderStrengthSortValue(item);
+  if (!text) return Number.POSITIVE_INFINITY;
+
+  const matches = text.match(/(\d+(?:\.\d+)?)\s*(mcg|mg|g|iu|ml)?/gi);
+  if (!matches) return Number.POSITIVE_INFINITY;
+
+  return matches.reduce((total, token) => {
+    const match = token.match(/(\d+(?:\.\d+)?)\s*(mcg|mg|g|iu|ml)?/i);
+    if (!match) return total;
+    let value = Number(match[1] || 0);
+    const unit = String(match[2] || "mg").toLowerCase();
+
+    if (unit === "mcg") value = value / 1000;
+    if (unit === "g") value = value * 1000;
+    // mg is the base unit. IU and mL are left numeric for practical ordering.
+    return total + value;
+  }, 0);
+}
+
 function renderReorderReview() {
   const body = $("reorderReviewBody");
   if (!body) return;
@@ -3157,11 +3186,16 @@ function renderReorderReview() {
     const suggested = roundUpToFive(Math.ceil(targetStock - currentStock));
     return { item, sales, currentStock, avgPerDay, demand21, daysRemaining, depletion, status, suggested };
   }).sort((a,b) => {
-    if (a.status.rank !== b.status.rank) return a.status.rank - b.status.rank;
-    const aDays = Number.isFinite(a.daysRemaining) ? a.daysRemaining : 999999;
-    const bDays = Number.isFinite(b.daysRemaining) ? b.daysRemaining : 999999;
-    if (aDays !== bDays) return aDays - bDays;
-    return String(a.item.display_name || a.item.product_key).localeCompare(String(b.item.display_name || b.item.product_key));
+    const nameCompare = reorderNameSortValue(a.item).localeCompare(reorderNameSortValue(b.item), undefined, { numeric: true, sensitivity: "base" });
+    if (nameCompare) return nameCompare;
+
+    const doseCompare = reorderDoseSortValue(a.item) - reorderDoseSortValue(b.item);
+    if (doseCompare) return doseCompare;
+
+    const strengthCompare = reorderStrengthSortValue(a.item).localeCompare(reorderStrengthSortValue(b.item), undefined, { numeric: true, sensitivity: "base" });
+    if (strengthCompare) return strengthCompare;
+
+    return String(a.item.product_key || "").localeCompare(String(b.item.product_key || ""), undefined, { numeric: true, sensitivity: "base" });
   });
 
   lastReorderRows = rows;
