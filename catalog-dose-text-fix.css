@@ -1,34 +1,167 @@
-/* PST catalog dose text fix
-   Purpose: prevent mobile dose values like 10mg/3mg from being clipped as 10m...
+/* PST catalog dose/action mobile containment fix
+   Purpose: show dose values like 10mg/3mg without pushing Add/Out/On Order pills off the card.
    Loaded after catalog-mobile-fix.css so this wins. */
 
 @media (max-width: 700px) {
+  .catalog-card {
+    overflow: hidden !important;
+  }
+
   .catalog-dose-option {
-    grid-template-columns: minmax(78px, max-content) 82px 76px minmax(88px, 1fr) !important;
+    grid-template-columns: 74px 74px 62px 106px !important;
+    column-gap: 4px !important;
+    align-items: center !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
   }
 
   .catalog-dose-name {
-    width: auto !important;
-    min-width: max-content !important;
-    max-width: none !important;
+    grid-column: 1 !important;
+    width: 74px !important;
+    min-width: 74px !important;
+    max-width: 74px !important;
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: nowrap !important;
+    font-size: 13px !important;
+  }
+
+  .catalog-dose-option strong {
+    grid-column: 2 !important;
+    width: 74px !important;
+    min-width: 74px !important;
+    max-width: 74px !important;
+    justify-self: end !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+  }
+
+  .catalog-card .catalog-stock {
+    grid-column: 3 !important;
+    width: 62px !important;
+    min-width: 62px !important;
+    max-width: 62px !important;
+    justify-self: start !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+  }
+
+  .catalog-card .catalog-stock::before {
+    font-size: 10px !important;
+  }
+
+  .catalog-row-actions {
+    grid-column: 4 !important;
+    display: grid !important;
+    grid-template-columns: 60px 42px !important;
+    column-gap: 4px !important;
+    align-items: center !important;
+    justify-content: start !important;
+    justify-items: start !important;
+    width: 106px !important;
+    min-width: 106px !important;
+    max-width: 106px !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .catalog-row-actions .catalog-incoming-pill,
+  .catalog-incoming-pill {
+    grid-column: 1 !important;
+    justify-self: start !important;
+    min-width: 60px !important;
+    width: 60px !important;
+    max-width: 60px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    padding: 0 4px !important;
+    font-size: 8.5px !important;
+  }
+
+  .catalog-row-actions .card-cart-button,
+  .catalog-dose-option .card-cart-button,
+  .catalog-dose-option .card-cart-button:disabled,
+  .catalog-dose-option .card-cart-button[aria-disabled="true"] {
+    grid-column: 2 !important;
+    justify-self: start !important;
+    min-width: 42px !important;
+    width: 42px !important;
+    max-width: 42px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    padding: 0 4px !important;
+  }
+
+  .catalog-dose-option .card-cart-button::before,
+  .catalog-dose-option .card-cart-button:disabled::before,
+  .catalog-dose-option .card-cart-button[aria-disabled="true"]::before {
+    font-size: 9.5px !important;
   }
 }
 
 @media (max-width: 390px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(74px, max-content) 74px 62px minmax(96px, 1fr) !important;
+    grid-template-columns: 72px 72px 56px 98px !important;
+    column-gap: 3px !important;
   }
 
   .catalog-dose-name {
-    width: auto !important;
-    min-width: max-content !important;
-    max-width: none !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    white-space: nowrap !important;
+    width: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
     font-size: 12px !important;
+  }
+
+  .catalog-dose-option strong {
+    width: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+    font-size: 12px !important;
+  }
+
+  .catalog-card .catalog-stock {
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+  }
+
+  .catalog-card .catalog-stock::before {
+    font-size: 8.5px !important;
+  }
+
+  .catalog-row-actions {
+    grid-template-columns: 56px 39px !important;
+    column-gap: 3px !important;
+    width: 98px !important;
+    min-width: 98px !important;
+    max-width: 98px !important;
+  }
+
+  .catalog-row-actions .catalog-incoming-pill,
+  .catalog-incoming-pill {
+    min-width: 56px !important;
+    width: 56px !important;
+    max-width: 56px !important;
+    height: 23px !important;
+    min-height: 23px !important;
+    font-size: 8px !important;
+  }
+
+  .catalog-row-actions .card-cart-button,
+  .catalog-dose-option .card-cart-button,
+  .catalog-dose-option .card-cart-button:disabled,
+  .catalog-dose-option .card-cart-button[aria-disabled="true"] {
+    min-width: 39px !important;
+    width: 39px !important;
+    max-width: 39px !important;
+    height: 23px !important;
+    min-height: 23px !important;
+  }
+
+  .catalog-dose-option .card-cart-button::before,
+  .catalog-dose-option .card-cart-button:disabled::before,
+  .catalog-dose-option .card-cart-button[aria-disabled="true"]::before {
+    font-size: 9px !important;
   }
 }
