@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#bd0000">
-<link rel="stylesheet" href="styles.css?v=19"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="styles.css?v=45"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --blue:#003f9e;
@@ -606,13 +606,11 @@ main.wrap .same-row {
 
 
 
-<style id="pst-account-header-match-index-v3">
-/* PST Account header index-match fix
-   Purpose: make the account header logo position/scale match index.html.
-   The nav/search adjust around the logo; the logo does not move or enlarge. */
 
-/* Same public header sizing/placement language as index.html/styles.css. */
-.account-site-header.site-header {
+<style id="pst-account-header-exact-index-v4">
+/* Exact public/index header clone for account.html.
+   This intentionally overrides older account-only header CSS. */
+header.site-header {
   display: grid !important;
   grid-template-columns: 250px minmax(560px, 1fr) 258px !important;
   align-items: center !important;
@@ -622,18 +620,17 @@ main.wrap .same-row {
   color: #ffffff !important;
   background: #03060a !important;
   border-bottom: 0 !important;
+  box-shadow: none !important;
   position: sticky !important;
   top: 0 !important;
   z-index: 20 !important;
 }
 
-/* Exact index-style logo placement/scale. */
-.account-site-header .brand {
+header.site-header .brand {
   display: inline-grid !important;
   justify-items: center !important;
   align-items: center !important;
   justify-self: start !important;
-  align-self: center !important;
   width: 184px !important;
   max-width: 184px !important;
   min-width: 184px !important;
@@ -644,7 +641,7 @@ main.wrap .same-row {
   text-decoration: none !important;
 }
 
-.account-site-header .brand-main {
+header.site-header .brand-main {
   position: relative !important;
   color: #ffffff !important;
   font-size: 31px !important;
@@ -655,8 +652,8 @@ main.wrap .same-row {
   transform: none !important;
 }
 
-.account-site-header .brand-main::before,
-.account-site-header .brand-main::after {
+header.site-header .brand-main::before,
+header.site-header .brand-main::after {
   content: "" !important;
   position: absolute !important;
   bottom: -12px !important;
@@ -665,15 +662,10 @@ main.wrap .same-row {
   background: #bd0000 !important;
 }
 
-.account-site-header .brand-main::before {
-  left: 0 !important;
-}
+header.site-header .brand-main::before { left: 0 !important; }
+header.site-header .brand-main::after { right: 0 !important; }
 
-.account-site-header .brand-main::after {
-  right: 0 !important;
-}
-
-.account-site-header .brand-sub {
+header.site-header .brand-sub {
   margin-top: 6px !important;
   color: #ffffff !important;
   font-size: 16px !important;
@@ -684,65 +676,56 @@ main.wrap .same-row {
   white-space: nowrap !important;
 }
 
-/* Account has more nav items than index, so only the nav compresses/scrolls. */
-.account-site-header .main-nav {
+header.site-header .main-nav {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   min-width: 0 !important;
-  gap: clamp(10px, 1.35vw, 22px) !important;
+  gap: clamp(18px, 2.5vw, 38px) !important;
   color: #ffffff !important;
-  font-size: clamp(12px, 1.05vw, 14px) !important;
+  font-size: 15px !important;
   font-weight: 800 !important;
   line-height: 1 !important;
   white-space: nowrap !important;
   text-transform: uppercase !important;
   flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
-  padding: 2px 0 !important;
+  overflow: visible !important;
 }
 
-.account-site-header .main-nav::-webkit-scrollbar {
-  display: none !important;
-}
-
-.account-site-header .main-nav a,
-.account-site-header .account-logout {
-  flex: 0 0 auto !important;
+header.site-header .main-nav a {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
   color: #ffffff !important;
+  font-weight: 800 !important;
   white-space: nowrap !important;
 }
 
-.account-site-header .main-nav #accountGreetingLink {
+header.site-header .main-nav #accountGreetingLink {
   text-transform: none !important;
 }
 
-.account-site-header .account-logout {
-  min-height: 34px !important;
-  height: 34px !important;
-  padding: 0 12px !important;
+header.site-header .cart-link span {
+  display: inline-grid !important;
+  place-items: center !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  margin-left: 4px !important;
   color: #ffffff !important;
   background: #bd0000 !important;
-  border: 1px solid #bd0000 !important;
-  border-radius: 8px !important;
-  font-size: clamp(12px, 1.05vw, 14px) !important;
-  font-weight: 900 !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
   line-height: 1 !important;
-  cursor: pointer !important;
 }
 
-/* Same search placement/scale as public header, with controlled shrink. */
-.account-site-header .search {
+header.site-header .search {
   display: grid !important;
   grid-template-columns: 1fr 34px !important;
   align-items: center !important;
   justify-self: end !important;
   width: 258px !important;
   max-width: 258px !important;
-  min-width: 220px !important;
+  min-width: 258px !important;
   height: 42px !important;
   padding: 0 6px 0 14px !important;
   border: 1px solid rgba(255,255,255,.25) !important;
@@ -750,7 +733,7 @@ main.wrap .same-row {
   background: transparent !important;
 }
 
-.account-site-header .search input {
+header.site-header .search input {
   width: 100% !important;
   min-width: 0 !important;
   color: #ffffff !important;
@@ -760,11 +743,11 @@ main.wrap .same-row {
   outline: 0 !important;
 }
 
-.account-site-header .search input::placeholder {
+header.site-header .search input::placeholder {
   color: rgba(255,255,255,.88) !important;
 }
 
-.account-site-header .search button {
+header.site-header .search button {
   display: grid !important;
   place-items: center !important;
   width: 34px !important;
@@ -776,7 +759,7 @@ main.wrap .same-row {
   cursor: pointer !important;
 }
 
-.account-site-header .search svg {
+header.site-header .search svg {
   width: 24px !important;
   height: 24px !important;
   fill: none !important;
@@ -786,9 +769,8 @@ main.wrap .same-row {
   stroke-linejoin: round !important;
 }
 
-/* Tablet: keep logo scale/placement, move nav below before it can overlap. */
 @media (max-width: 1180px) {
-  .account-site-header.site-header {
+  header.site-header {
     grid-template-columns: 250px minmax(0, 1fr) !important;
     grid-template-areas:
       "brand search"
@@ -799,32 +781,33 @@ main.wrap .same-row {
     padding-bottom: 14px !important;
   }
 
-  .account-site-header .brand {
+  header.site-header .brand {
     grid-area: brand !important;
-    justify-self: start !important;
-    width: 184px !important;
-    max-width: 184px !important;
-    min-width: 184px !important;
   }
 
-  .account-site-header .search {
+  header.site-header .search {
     grid-area: search !important;
     justify-self: end !important;
-    width: min(258px, 100%) !important;
   }
 
-  .account-site-header .main-nav {
+  header.site-header .main-nav {
     grid-area: nav !important;
     width: 100% !important;
     justify-content: flex-start !important;
-    gap: 16px !important;
-    font-size: 13px !important;
+    gap: 18px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  header.site-header .main-nav::-webkit-scrollbar {
+    display: none !important;
   }
 }
 
-/* Phone: same public logo, just smaller like the public mobile header. */
 @media (max-width: 760px) {
-  .account-site-header.site-header {
+  header.site-header {
     grid-template-columns: 1fr !important;
     grid-template-areas:
       "brand"
@@ -834,7 +817,7 @@ main.wrap .same-row {
     padding: 14px 16px !important;
   }
 
-  .account-site-header .brand {
+  header.site-header .brand {
     grid-area: brand !important;
     justify-self: start !important;
     width: 170px !important;
@@ -842,31 +825,25 @@ main.wrap .same-row {
     min-width: 170px !important;
   }
 
-  .account-site-header .brand-main {
+  header.site-header .brand-main {
     font-size: 28px !important;
   }
 
-  .account-site-header .brand-sub {
+  header.site-header .brand-sub {
     font-size: 15px !important;
     letter-spacing: 7px !important;
   }
 
-  .account-site-header .main-nav {
+  header.site-header .main-nav {
     grid-area: nav !important;
     justify-content: flex-start !important;
     gap: 14px !important;
     font-size: 13px !important;
     padding-bottom: 4px !important;
+    overflow-x: auto !important;
   }
 
-  .account-site-header .account-logout {
-    height: 32px !important;
-    min-height: 32px !important;
-    padding: 0 11px !important;
-    font-size: 12px !important;
-  }
-
-  .account-site-header .search {
+  header.site-header .search {
     grid-area: search !important;
     justify-self: center !important;
     width: min(360px, 100%) !important;
@@ -878,20 +855,25 @@ main.wrap .same-row {
 
 </head>
 <body>
-<header class="site-header compact-header account-site-header">
-  <a class="brand" href="index.html" aria-label="PEP Shop Texas home"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
-  <nav class="main-nav">
-    <a href="index.html">HOME</a>
-    <a href="catalog.html">PEPTIDES A-Z</a>
-    <a href="catalog.html?category=Stack">TOP STACKS</a>
+<header class="site-header">
+  <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
+    <span class="brand-main">PEP SHOP</span>
+    <span class="brand-sub">TEXAS</span>
+  </a>
+  <nav class="main-nav" aria-label="Main navigation">
+    <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">&#8964;</span></a>
+    <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">&#8964;</span></a>
     <a href="faq.html">FAQ</a>
     <a href="contact.html">CONTACT</a>
     <a href="account.html" id="accountGreetingLink">ACCOUNT</a>
-    <button class="account-logout" type="button" id="logoutBtn">LOGOUT</button>
+    <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
   </nav>
-  <form class="search" role="search" action="catalog.html" method="get">
-    <input name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-    <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
+  <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
+    <label class="sr-only" for="site-search">Search peptides</label>
+    <input id="site-search" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+    <button type="submit" aria-label="Search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+    </button>
   </form>
 </header><main class="wrap">
   <h1 class="page-title">My Account</h1>
@@ -917,6 +899,7 @@ main.wrap .same-row {
           <a class="btn" href="reset-password.html">Change Password</a>
           <a class="btn" href="catalog.html">Shop Peptides</a>
           <button class="btn" type="button" onclick="loadAccount()">Refresh</button>
+          <button class="btn danger" type="button" id="logoutBtn">Logout</button>
         </div>
       </div>
 
@@ -987,6 +970,17 @@ let pstAccountOrders = [];
 let pstAccountItemsByOrder = {};
 let pstCurrentUser = null;
 let pstCurrentProfile = null;
+
+
+function refreshAccountCartCount() {
+  try {
+    const cart = JSON.parse(localStorage.getItem("pst_cart_v1") || "[]");
+    const count = Array.isArray(cart) ? cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0) : 0;
+    document.querySelectorAll("[data-cart-count]").forEach(node => { node.textContent = String(count); });
+  } catch {
+    document.querySelectorAll("[data-cart-count]").forEach(node => { node.textContent = "0"; });
+  }
+}
 
 function pstEsc(value) {
   return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
@@ -1269,14 +1263,14 @@ async function loadAccount() {
   if (existingAdminLink) existingAdminLink.remove();
   const isAdmin = !!adminRecord && (adminRecord.is_active === true || adminRecord.active === true || adminRecord.is_admin === true || adminRecord.email === user.email);
   if (isAdmin) {
-    const nav = document.querySelector(".account-site-header .main-nav");
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (nav && logoutBtn) {
+    const nav = document.querySelector("header.site-header .main-nav");
+    if (nav) {
       const adminLink = document.createElement("a");
       adminLink.href = "admin.html";
       adminLink.id = "accountAdminLink";
       adminLink.textContent = "ADMIN";
-      nav.insertBefore(adminLink, logoutBtn);
+      const cartLink = nav.querySelector(".cart-link");
+      nav.insertBefore(adminLink, cartLink || null);
     }
   }
 
@@ -1503,12 +1497,13 @@ function wireProfileEditor() {
   });
 }
 
-document.getElementById("logoutBtn").addEventListener("click", async () => {
+document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   await pstAccountSupabase.auth.signOut();
   window.location.href = "index.html?loggedout=1";
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  refreshAccountCartCount();
   wireProfileEditor();
   loadAccount();
 });
