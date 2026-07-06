@@ -1640,6 +1640,329 @@ header .pst-admin-actions-lock .btn.primary {
 }
 </style>
 
+
+<style id="pst-admin-compact-catalog-pill-style-v1">
+/* PST admin compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: admin navigation links, jump links, collapse buttons, action buttons,
+   disabled buttons, and read-only/status pills. */
+:root {
+  --pst-admin-pill-h: 26px;
+  --pst-admin-pill-font: 10px;
+  --pst-admin-pill-weight: 700;
+  --pst-admin-pill-radius: 999px;
+  --pst-admin-pill-pad-x: 10px;
+  --pst-admin-pill-line: #c9ced6;
+  --pst-admin-pill-ink: #101820;
+  --pst-admin-pill-blue: #003f9e;
+  --pst-admin-pill-red: #bd0000;
+  --pst-admin-pill-green: #0c6b3a;
+  --pst-admin-pill-warn: #8a5a00;
+  --pst-admin-pill-danger: #8a1f17;
+}
+
+/* One compact pill base for admin buttons and read-only status pills. */
+.btn,
+a.btn,
+button.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.admin-dashboard-nav .btn,
+.card-toggle-btn,
+.bulk-actions .btn,
+.email-preview-actions .btn,
+.email-action-buttons .btn,
+.order-adjustment-actions .btn,
+.inventory-deduct-actions .btn,
+.admin-back-top .btn,
+.pill,
+.locked-pill,
+.payment-method-pill,
+.inventory-restored-pill,
+.inventory-restore-needed-pill,
+.inventory-deduct-pill,
+.inventory-deduct-needed-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-admin-pill-h) !important;
+  height: var(--pst-admin-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-admin-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-admin-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-admin-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-admin-pill-font) !important;
+  font-weight: var(--pst-admin-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+/* Header page links: compact grey-outline pills. */
+header .actions,
+header .pst-admin-actions-lock {
+  gap: 6px !important;
+  height: auto !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  color: var(--pst-admin-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-line) !important;
+}
+
+/* Keep the current page obvious, but still compact. */
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+.admin-dashboard-nav .btn.active,
+.admin-dashboard-nav .btn[aria-pressed="true"],
+.card-toggle-btn.active,
+.card-toggle-btn[aria-expanded="true"],
+.collapsible-card:not(.collapsed) .card-toggle-btn {
+  color: #ffffff !important;
+  background: var(--pst-admin-pill-red) !important;
+  border-color: var(--pst-admin-pill-red) !important;
+}
+
+/* Jump links use the catalog On Order blue-outline language. */
+.admin-dashboard-nav .btn:not(.active):not([aria-pressed="true"]) {
+  color: var(--pst-admin-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-blue) !important;
+}
+
+.admin-dashboard-nav {
+  gap: 6px !important;
+  padding: 10px !important;
+  align-items: center !important;
+}
+
+.admin-dashboard-nav strong {
+  margin-right: 4px !important;
+  color: var(--muted) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: .03em !important;
+  text-transform: uppercase !important;
+}
+
+/* Action color variants remain meaningful but stay small/outlined. */
+.btn.success,
+button.btn.success,
+a.btn.success {
+  color: var(--pst-admin-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-green) !important;
+}
+
+.btn.warning,
+button.btn.warning,
+a.btn.warning {
+  color: var(--pst-admin-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-warn) !important;
+}
+
+.btn.danger,
+button.btn.danger,
+a.btn.danger {
+  color: var(--pst-admin-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-danger) !important;
+}
+
+/* Disabled/read-only action buttons match the grey Out pill. */
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button.btn[aria-disabled="true"],
+.btn.disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Status/read-only pills: same dimensions, outlined by state. */
+.pill,
+.locked-pill,
+.payment-method-pill,
+.inventory-restored-pill,
+.inventory-restore-needed-pill,
+.inventory-deduct-pill,
+.inventory-deduct-needed-pill {
+  cursor: default !important;
+}
+
+.pill.pending,
+.pill.awaiting_payment,
+.locked-pill,
+.inventory-restore-needed-pill,
+.inventory-deduct-needed-pill {
+  color: var(--pst-admin-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-warn) !important;
+}
+
+.pill.paid,
+.pill.complete,
+.pill.shipped,
+.pill.delivered,
+.inventory-restored-pill,
+.inventory-deduct-pill {
+  color: var(--pst-admin-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-green) !important;
+}
+
+.pill.processing,
+.pill.packed,
+.payment-method-pill {
+  color: var(--pst-admin-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-blue) !important;
+}
+
+.pill.cancelled,
+.pill.rejected,
+.pill.out_of_stock,
+.pill.refunded,
+.pill.failed,
+.pill.inventory_failed {
+  color: var(--pst-admin-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-admin-pill-danger) !important;
+}
+
+/* Button groups should not create bulky vertical spacing. */
+.bulk-actions,
+.email-preview-actions,
+.email-action-buttons,
+.order-adjustment-actions,
+.inventory-deduct-actions,
+.admin-back-top,
+.actions,
+.pst-admin-actions-lock {
+  gap: 6px !important;
+}
+
+/* Keep table rows compact but readable with smaller pills. */
+td .btn,
+td button.btn,
+td a.btn,
+td .pill,
+td .locked-pill,
+td .payment-method-pill {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+}
+
+/* Collapse buttons should not be oversized. */
+.card-toggle-btn {
+  min-width: 0 !important;
+}
+
+/* Mobile: preserve the same pill style, no oversized fallback. */
+@media (max-width: 700px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .admin-dashboard-nav .btn,
+  .card-toggle-btn,
+  .bulk-actions .btn,
+  .email-preview-actions .btn,
+  .email-action-buttons .btn,
+  .order-adjustment-actions .btn,
+  .inventory-deduct-actions .btn,
+  .admin-back-top .btn,
+  .pill,
+  .locked-pill,
+  .payment-method-pill,
+  .inventory-restored-pill,
+  .inventory-restore-needed-pill,
+  .inventory-deduct-pill,
+  .inventory-deduct-needed-pill {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .admin-dashboard-nav {
+    gap: 5px !important;
+    padding: 9px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .admin-dashboard-nav .btn,
+  .card-toggle-btn,
+  .bulk-actions .btn,
+  .email-preview-actions .btn,
+  .email-action-buttons .btn,
+  .order-adjustment-actions .btn,
+  .inventory-deduct-actions .btn,
+  .admin-back-top .btn,
+  .pill,
+  .locked-pill,
+  .payment-method-pill,
+  .inventory-restored-pill,
+  .inventory-restore-needed-pill,
+  .inventory-deduct-pill,
+  .inventory-deduct-needed-pill {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
 </head>
 <body class="admin-auth-pending">
 <header>
