@@ -242,24 +242,116 @@
   }
 }
 
-/* PST price column alignment fix
-   Keeps every price right-justified to the same vertical edge. */
-.catalog-dose-option strong {
-  grid-column: 2 !important;
-  display: block !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  justify-self: stretch !important;
-  text-align: right !important;
-  white-space: nowrap !important;
-  font-variant-numeric: tabular-nums !important;
-  font-feature-settings: "tnum" 1 !important;
+/* PST mobile hard column lock
+   Fixes mobile catalog price alignment by giving the dose, price,
+   stock, and action sections fixed column behavior. */
+@media (max-width: 700px) {
+  .catalog-dose-option {
+    grid-template-columns: 54px 84px minmax(74px, 1fr) 136px !important;
+    column-gap: 6px !important;
+    row-gap: 0 !important;
+    align-items: center !important;
+  }
+
+  .catalog-dose-name {
+    grid-column: 1 !important;
+    justify-self: start !important;
+    width: 54px !important;
+    min-width: 0 !important;
+    text-align: left !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .catalog-dose-option strong {
+    grid-column: 2 !important;
+    display: block !important;
+    justify-self: end !important;
+    width: 84px !important;
+    min-width: 84px !important;
+    max-width: 84px !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+    font-variant-numeric: tabular-nums !important;
+    font-feature-settings: "tnum" 1 !important;
+  }
+
+  .catalog-card .catalog-stock {
+    grid-column: 3 !important;
+    justify-self: start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    text-align: left !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+  }
+
+  .catalog-row-actions {
+    grid-column: 4 !important;
+    display: grid !important;
+    grid-template-columns: 74px 58px !important;
+    align-items: center !important;
+    justify-content: end !important;
+    justify-items: end !important;
+    column-gap: 4px !important;
+    min-width: 136px !important;
+    width: 136px !important;
+  }
+
+  .catalog-row-actions .catalog-incoming-pill,
+  .catalog-incoming-pill {
+    grid-column: 1 !important;
+    justify-self: end !important;
+    min-width: 74px !important;
+    width: 74px !important;
+  }
+
+  .catalog-row-actions .card-cart-button,
+  .catalog-dose-option .card-cart-button,
+  .catalog-dose-option .card-cart-button:disabled,
+  .catalog-dose-option .card-cart-button[aria-disabled="true"] {
+    grid-column: 2 !important;
+    justify-self: end !important;
+    min-width: 58px !important;
+    width: 58px !important;
+  }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 390px) {
+  .catalog-dose-option {
+    grid-template-columns: 46px 78px minmax(62px, 1fr) 128px !important;
+    column-gap: 5px !important;
+  }
+
+  .catalog-dose-name {
+    width: 46px !important;
+  }
+
   .catalog-dose-option strong {
-    text-align: right !important;
-    justify-self: stretch !important;
-    width: 100% !important;
+    width: 78px !important;
+    min-width: 78px !important;
+    max-width: 78px !important;
+  }
+
+  .catalog-row-actions {
+    grid-template-columns: 70px 54px !important;
+    column-gap: 4px !important;
+    min-width: 128px !important;
+    width: 128px !important;
+  }
+
+  .catalog-row-actions .catalog-incoming-pill,
+  .catalog-incoming-pill {
+    min-width: 70px !important;
+    width: 70px !important;
+  }
+
+  .catalog-row-actions .card-cart-button,
+  .catalog-dose-option .card-cart-button,
+  .catalog-dose-option .card-cart-button:disabled,
+  .catalog-dose-option .card-cart-button[aria-disabled="true"] {
+    min-width: 54px !important;
+    width: 54px !important;
   }
 }
