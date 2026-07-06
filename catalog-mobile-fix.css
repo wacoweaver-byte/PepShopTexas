@@ -1,5 +1,5 @@
 /* PST catalog mobile inventory/action alignment fix
-   Purpose: Add, Out, and On Order render consistently on iPhone Safari. */
+   Purpose: Add, Out, and On Order render consistently on iPhone Safari without changing desktop catalog. */
 .catalog-dose-option {
   grid-template-areas: none !important;
   grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(62px, .65fr) minmax(148px, auto) !important;
@@ -192,5 +192,34 @@
   .catalog-dose-option .card-cart-button[aria-disabled="true"] {
     min-width: 58px !important;
     width: 58px !important;
+  }
+}
+
+/* Desktop restore: this file exists for mobile. Do not show On Order badges or widen PC rows. */
+@media (min-width: 761px) {
+  .catalog-dose-option {
+    grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(78px, .9fr) 42px !important;
+  }
+
+  .catalog-row-actions {
+    min-width: 42px !important;
+    width: 42px !important;
+    gap: 0 !important;
+  }
+
+  .catalog-row-actions .catalog-incoming-pill,
+  .catalog-incoming-pill {
+    display: none !important;
+  }
+
+  .catalog-row-actions .card-cart-button,
+  .catalog-dose-option .card-cart-button,
+  .catalog-dose-option .card-cart-button:disabled,
+  .catalog-dose-option .card-cart-button[aria-disabled="true"] {
+    min-width: 38px !important;
+    width: 38px !important;
+    height: 25px !important;
+    min-height: 25px !important;
+    padding: 0 7px !important;
   }
 }
