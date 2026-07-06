@@ -361,6 +361,73 @@
 }
 </style>
 
+<style id="pst-cart-missed-browse-products-pill-fix-v2">
+/* PST Cart missed Browse Products button fix
+   Header remains untouched. This catches dynamically rendered cart-summary links. */
+.cart-page .cart-summary a,
+.cart-page [data-cart-summary] a,
+.cart-page .cart-items a,
+.cart-page [data-cart-items] a,
+.cart-page .cart-empty a,
+.cart-page .empty-cart a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-cart-pill-h, 26px) !important;
+  height: var(--pst-cart-pill-h, 26px) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-cart-pill-pad-x, 10px) !important;
+  border: 1px solid var(--pst-cart-pill-blue, #003f9e) !important;
+  border-radius: var(--pst-cart-pill-radius, 999px) !important;
+  background: #ffffff !important;
+  color: var(--pst-cart-pill-blue, #003f9e) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-cart-pill-font, 10px) !important;
+  font-weight: var(--pst-cart-pill-weight, 700) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+@media (max-width: 700px) {
+  .cart-page .cart-summary a,
+  .cart-page [data-cart-summary] a,
+  .cart-page .cart-items a,
+  .cart-page [data-cart-items] a,
+  .cart-page .cart-empty a,
+  .cart-page .empty-cart a {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .cart-page .cart-summary a,
+  .cart-page [data-cart-summary] a,
+  .cart-page .cart-items a,
+  .cart-page [data-cart-items] a,
+  .cart-page .cart-empty a,
+  .cart-page .empty-cart a {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
+
 </head>
 <body data-page="cart">
   <header class="site-header">
