@@ -13,10 +13,11 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=39"></script>
 
-<style id="pst-cart-page-actions-compact-pill-style-v1">
-/* PST Cart page compact pill style
-   Customer-facing header is intentionally untouched.
-   Scope only: cart page body controls, cart action links, status pills, promo/checkout controls, and mobile sizing. */
+<style id="pst-cart-page-actions-compact-pill-style-v3">
+/* PST Cart page compact pill style - corrected
+   Header untouched.
+   Product-name links inside cart rows stay normal text links.
+   Only cart page action controls/buttons/status pills are styled. */
 :root {
   --pst-cart-pill-h: 26px;
   --pst-cart-pill-font: 10px;
@@ -32,27 +33,18 @@
   --pst-cart-pill-danger: #8a1f17;
 }
 
-/* Page-body cart actions only. Header/nav/search/cart-count in the site header are not targeted. */
+/* Page-body cart actions only. Do not target .site-header, .main-nav, .search, header cart link, footer nav, or product title links. */
 .cart-page button,
 .cart-page .btn,
 .cart-page a.btn,
-.cart-page .cart-actions a,
-.cart-page .cart-actions button,
-.cart-page .cart-summary a.btn,
-.cart-page .cart-summary button,
-.cart-page .cart-summary .checkout-btn,
-.cart-page .cart-summary .checkout-button,
-.cart-page .cart-summary .continue-shopping,
-.cart-page .cart-summary [data-checkout],
-.cart-page .cart-summary [data-cart-checkout],
-.cart-page .cart-empty a,
-.cart-page .empty-cart a,
-.cart-page .cart-item button,
-.cart-page .cart-line button,
-.cart-page .quantity button,
-.cart-page .qty button,
-.cart-page .qty-control button,
-.cart-page .qty-controls button,
+.cart-page .primary-action,
+.cart-page .secondary-action,
+.cart-page .checkout-btn,
+.cart-page .checkout-button,
+.cart-page [data-checkout],
+.cart-page [data-cart-checkout],
+.cart-page .cart-remove-button,
+.cart-page [data-remove-cart],
 .cart-page .remove-item,
 .cart-page .cart-remove,
 .cart-page .cart-item-remove,
@@ -96,49 +88,31 @@
   box-shadow: none !important;
 }
 
-/* Clickable controls remain clickable; badges/status pills stay read-only. */
-.cart-page button,
-.cart-page .btn,
-.cart-page a.btn,
-.cart-page .cart-actions a,
-.cart-page .cart-actions button,
-.cart-page .cart-summary a.btn,
-.cart-page .cart-summary button,
-.cart-page .cart-empty a,
-.cart-page .empty-cart a,
-.cart-page .cart-item button,
-.cart-page .cart-line button,
-.cart-page .quantity button,
-.cart-page .qty button,
-.cart-page .qty-control button,
-.cart-page .qty-controls button,
-.cart-page .discount-code button,
-.cart-page .discount-row button,
-.cart-page .promo-code button,
-.cart-page .coupon-code button {
-  cursor: pointer !important;
-}
-
-.cart-page .pill,
-.cart-page .badge,
-.cart-page .status-pill,
-.cart-page .cart-status-pill,
-.cart-page .cart-tag,
-.cart-page .shipping-pill,
-.cart-page .free-shipping-pill {
-  cursor: default !important;
+/* Product links stay normal, not pills. */
+.cart-page .cart-row h2 a,
+.cart-page [data-cart-items] .cart-row h2 a {
+  display: inline !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font: inherit !important;
+  line-height: inherit !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  white-space: normal !important;
 }
 
 /* Default cart actions: compact blue-outline pill. */
 .cart-page button,
 .cart-page .btn,
 .cart-page a.btn,
-.cart-page .cart-actions a,
-.cart-page .cart-actions button,
-.cart-page .cart-summary a.btn,
-.cart-page .cart-summary button,
-.cart-page .cart-empty a,
-.cart-page .empty-cart a,
+.cart-page .primary-action,
+.cart-page .secondary-action,
 .cart-page .discount-code button,
 .cart-page .discount-row button,
 .cart-page .promo-code button,
@@ -146,13 +120,15 @@
   color: var(--pst-cart-pill-blue) !important;
   background: #ffffff !important;
   border-color: var(--pst-cart-pill-blue) !important;
+  cursor: pointer !important;
 }
 
-/* Checkout/primary action: compact green-outline pill. */
+/* Checkout/submit action: compact green-outline pill. */
 .cart-page .checkout-btn,
 .cart-page .checkout-button,
 .cart-page [data-checkout],
 .cart-page [data-cart-checkout],
+.cart-page button[type="submit"],
 .cart-page button.primary,
 .cart-page .btn.primary,
 .cart-page button.checkout,
@@ -163,6 +139,8 @@
 }
 
 /* Remove/delete actions: compact red-outline pill. */
+.cart-page .cart-remove-button,
+.cart-page [data-remove-cart],
 .cart-page .remove-item,
 .cart-page .cart-remove,
 .cart-page .cart-item-remove,
@@ -173,18 +151,6 @@
   color: var(--pst-cart-pill-danger) !important;
   background: #ffffff !important;
   border-color: var(--pst-cart-pill-danger) !important;
-}
-
-/* Quantity buttons stay very small and balanced. */
-.cart-page .quantity button,
-.cart-page .qty button,
-.cart-page .qty-control button,
-.cart-page .qty-controls button {
-  min-width: var(--pst-cart-pill-h) !important;
-  width: var(--pst-cart-pill-h) !important;
-  padding: 0 !important;
-  color: var(--pst-cart-pill-ink) !important;
-  border-color: var(--pst-cart-pill-line) !important;
 }
 
 /* Cart badges/statuses. */
@@ -198,6 +164,7 @@
   color: var(--pst-cart-pill-green) !important;
   background: #ffffff !important;
   border-color: var(--pst-cart-pill-green) !important;
+  cursor: default !important;
 }
 
 .cart-page .pill.warn,
@@ -209,6 +176,7 @@
   color: var(--pst-cart-pill-warn) !important;
   background: #ffffff !important;
   border-color: var(--pst-cart-pill-warn) !important;
+  cursor: default !important;
 }
 
 .cart-page .pill.bad,
@@ -222,6 +190,7 @@
   color: var(--pst-cart-pill-danger) !important;
   background: #ffffff !important;
   border-color: var(--pst-cart-pill-danger) !important;
+  cursor: default !important;
 }
 
 .cart-page .pill.info,
@@ -230,6 +199,7 @@
   color: var(--pst-cart-pill-blue) !important;
   background: #ffffff !important;
   border-color: var(--pst-cart-pill-blue) !important;
+  cursor: default !important;
 }
 
 /* Disabled state matches compact grey Out style. */
@@ -253,15 +223,13 @@
 .cart-page .discount-code,
 .cart-page .discount-row,
 .cart-page .promo-code,
-.cart-page .coupon-code,
-.cart-page .quantity,
-.cart-page .qty,
-.cart-page .qty-control,
-.cart-page .qty-controls {
+.cart-page .coupon-code {
   gap: 6px !important;
 }
 
-/* Cart message text remains message text, not giant buttons. */
+/* Cart message text remains message text, not buttons. */
+.cart-page .checkout-note,
+.cart-page .checkout-status,
 .cart-page .cart-message,
 .cart-page .cart-note,
 .cart-page .free-shipping-message,
@@ -278,18 +246,17 @@
   .cart-page button,
   .cart-page .btn,
   .cart-page a.btn,
-  .cart-page .cart-actions a,
-  .cart-page .cart-actions button,
-  .cart-page .cart-summary a.btn,
-  .cart-page .cart-summary button,
-  .cart-page .cart-empty a,
-  .cart-page .empty-cart a,
-  .cart-page .cart-item button,
-  .cart-page .cart-line button,
-  .cart-page .quantity button,
-  .cart-page .qty button,
-  .cart-page .qty-control button,
-  .cart-page .qty-controls button,
+  .cart-page .primary-action,
+  .cart-page .secondary-action,
+  .cart-page .checkout-btn,
+  .cart-page .checkout-button,
+  .cart-page [data-checkout],
+  .cart-page [data-cart-checkout],
+  .cart-page .cart-remove-button,
+  .cart-page [data-remove-cart],
+  .cart-page .remove-item,
+  .cart-page .cart-remove,
+  .cart-page .cart-item-remove,
   .cart-page .discount-code button,
   .cart-page .discount-row button,
   .cart-page .promo-code button,
@@ -306,33 +273,23 @@
     padding: 0 9px !important;
     font-size: 9.5px !important;
   }
-
-  .cart-page .quantity button,
-  .cart-page .qty button,
-  .cart-page .qty-control button,
-  .cart-page .qty-controls button {
-    min-width: 25px !important;
-    width: 25px !important;
-    padding: 0 !important;
-  }
 }
 
 @media (max-width: 390px) {
   .cart-page button,
   .cart-page .btn,
   .cart-page a.btn,
-  .cart-page .cart-actions a,
-  .cart-page .cart-actions button,
-  .cart-page .cart-summary a.btn,
-  .cart-page .cart-summary button,
-  .cart-page .cart-empty a,
-  .cart-page .empty-cart a,
-  .cart-page .cart-item button,
-  .cart-page .cart-line button,
-  .cart-page .quantity button,
-  .cart-page .qty button,
-  .cart-page .qty-control button,
-  .cart-page .qty-controls button,
+  .cart-page .primary-action,
+  .cart-page .secondary-action,
+  .cart-page .checkout-btn,
+  .cart-page .checkout-button,
+  .cart-page [data-checkout],
+  .cart-page [data-cart-checkout],
+  .cart-page .cart-remove-button,
+  .cart-page [data-remove-cart],
+  .cart-page .remove-item,
+  .cart-page .cart-remove,
+  .cart-page .cart-item-remove,
   .cart-page .discount-code button,
   .cart-page .discount-row button,
   .cart-page .promo-code button,
@@ -349,84 +306,8 @@
     padding: 0 8px !important;
     font-size: 9px !important;
   }
-
-  .cart-page .quantity button,
-  .cart-page .qty button,
-  .cart-page .qty-control button,
-  .cart-page .qty-controls button {
-    min-width: 24px !important;
-    width: 24px !important;
-    padding: 0 !important;
-  }
 }
 </style>
-
-<style id="pst-cart-missed-browse-products-pill-fix-v2">
-/* PST Cart missed Browse Products button fix
-   Header remains untouched. This catches dynamically rendered cart-summary links. */
-.cart-page .cart-summary a,
-.cart-page [data-cart-summary] a,
-.cart-page .cart-items a,
-.cart-page [data-cart-items] a,
-.cart-page .cart-empty a,
-.cart-page .empty-cart a {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: max-content !important;
-  min-height: var(--pst-cart-pill-h, 26px) !important;
-  height: var(--pst-cart-pill-h, 26px) !important;
-  margin: 0 !important;
-  padding: 0 var(--pst-cart-pill-pad-x, 10px) !important;
-  border: 1px solid var(--pst-cart-pill-blue, #003f9e) !important;
-  border-radius: var(--pst-cart-pill-radius, 999px) !important;
-  background: #ffffff !important;
-  color: var(--pst-cart-pill-blue, #003f9e) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: var(--pst-cart-pill-font, 10px) !important;
-  font-weight: var(--pst-cart-pill-weight, 700) !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-align: center !important;
-  text-transform: none !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  box-shadow: none !important;
-  cursor: pointer !important;
-}
-
-@media (max-width: 700px) {
-  .cart-page .cart-summary a,
-  .cart-page [data-cart-summary] a,
-  .cart-page .cart-items a,
-  .cart-page [data-cart-items] a,
-  .cart-page .cart-empty a,
-  .cart-page .empty-cart a {
-    min-height: 25px !important;
-    height: 25px !important;
-    padding: 0 9px !important;
-    font-size: 9.5px !important;
-  }
-}
-
-@media (max-width: 390px) {
-  .cart-page .cart-summary a,
-  .cart-page [data-cart-summary] a,
-  .cart-page .cart-items a,
-  .cart-page [data-cart-items] a,
-  .cart-page .cart-empty a,
-  .cart-page .empty-cart a {
-    min-height: 24px !important;
-    height: 24px !important;
-    padding: 0 8px !important;
-    font-size: 9px !important;
-  }
-}
-</style>
-
 
 </head>
 <body data-page="cart">
