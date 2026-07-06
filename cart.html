@@ -6,7 +6,7 @@
   <title>Cart | PEP Shop Texas</title>
     <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#bd0000"><link rel="stylesheet" href="styles.css?v=45">
@@ -309,6 +309,63 @@
 }
 </style>
 
+<style id="pst-cart-unit-line-price-labels-v1">
+/* PST Cart price clarity
+   Unit price displays as neutral "$X each"; right-side total displays as "Line Total $X".
+   Header remains untouched. */
+.cart-page .cart-row > div > p {
+  margin: 6px 0 0 !important;
+  color: #101820 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+}
+
+.cart-page .cart-row > div > p .sale-price,
+.cart-page .cart-row > div > p s {
+  color: #101820 !important;
+}
+
+.cart-page .cart-row > div > p::after {
+  content: " each";
+  color: #515761;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.cart-page .cart-row > strong {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 5px !important;
+  color: #101820 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+}
+
+.cart-page .cart-row > strong::before {
+  content: "Line Total";
+  color: #515761;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+
+@media (max-width: 700px) {
+  .cart-page .cart-row > div > p {
+    font-size: 13px !important;
+  }
+
+  .cart-page .cart-row > strong {
+    justify-content: flex-start !important;
+    font-size: 14px !important;
+  }
+}
+</style>
 </head>
 <body data-page="cart">
   <header class="site-header">
