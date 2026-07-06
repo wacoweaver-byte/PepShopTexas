@@ -293,6 +293,306 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
 }
 </style>
 
+
+<style id="pst-products-compact-catalog-pill-style-v1">
+/* PST products compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: products header links, page actions, modal/editor buttons,
+   active/inactive status pills, read-only inventory pills, disabled states,
+   and mobile sizing. */
+:root {
+  --pst-prod-pill-h: 26px;
+  --pst-prod-pill-font: 10px;
+  --pst-prod-pill-weight: 700;
+  --pst-prod-pill-radius: 999px;
+  --pst-prod-pill-pad-x: 10px;
+  --pst-prod-pill-line: #c9ced6;
+  --pst-prod-pill-ink: #101820;
+  --pst-prod-pill-blue: #003f9e;
+  --pst-prod-pill-red: #bd0000;
+  --pst-prod-pill-green: #0c6b3a;
+  --pst-prod-pill-danger: #8a1f17;
+}
+
+/* Compact pill base for products page actions and statuses. */
+.btn,
+a.btn,
+button.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.admin-page-actions .btn,
+.modal-header .btn,
+.modal-body .btn,
+.margin-tool .btn,
+#productForm .btn,
+#newProductForm .btn,
+.pill,
+.product-inventory-readonly a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-prod-pill-h) !important;
+  height: var(--pst-prod-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-prod-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-prod-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-prod-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-prod-pill-font) !important;
+  font-weight: var(--pst-prod-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+.btn,
+a.btn,
+button.btn,
+.product-inventory-readonly a {
+  cursor: pointer !important;
+}
+
+.pill {
+  cursor: default !important;
+}
+
+/* Header page links: compact grey-outline pills. */
+header .actions,
+header .pst-admin-actions-lock {
+  gap: 6px !important;
+  height: auto !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  color: var(--pst-prod-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-prod-pill-line) !important;
+}
+
+/* Active/current page and primary actions stay red, but compact. */
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+button#newProductBtn,
+.btn:not(.secondary):not(.danger):not(.success):not(.warning) {
+  color: #ffffff !important;
+  background: var(--pst-prod-pill-red) !important;
+  border-color: var(--pst-prod-pill-red) !important;
+}
+
+/* Color variants stay meaningful but outlined and compact. */
+.btn.success,
+button.btn.success,
+a.btn.success {
+  color: var(--pst-prod-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-prod-pill-green) !important;
+}
+
+.btn.danger,
+button.btn.danger,
+a.btn.danger {
+  color: var(--pst-prod-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-prod-pill-danger) !important;
+}
+
+.btn.secondary,
+button.btn.secondary,
+a.btn.secondary,
+#refreshBtn,
+#closeNewProductBtn,
+#cancelNewProductBtn,
+#newMarginPriceBtn,
+#editMarginPriceBtn,
+#cancelEditBtn,
+.product-inventory-readonly a {
+  color: var(--pst-prod-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-prod-pill-blue) !important;
+}
+
+/* Disabled buttons match the grey Out pill. */
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button.btn[aria-disabled="true"],
+.btn.disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-prod-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Active / inactive product statuses use same compact pill system. */
+.pill {
+  color: var(--pst-prod-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-prod-pill-green) !important;
+}
+
+.pill.off {
+  color: var(--pst-prod-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-prod-pill-danger) !important;
+}
+
+/* Read-only product inventory box: keep the card, make the value/action compact. */
+.product-inventory-readonly {
+  gap: 7px !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+}
+
+.product-inventory-readonly strong {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: max-content !important;
+  min-height: var(--pst-prod-pill-h) !important;
+  height: var(--pst-prod-pill-h) !important;
+  padding: 0 var(--pst-prod-pill-pad-x) !important;
+  color: #596579 !important;
+  background: #ffffff !important;
+  border: 1px solid var(--pst-prod-pill-line) !important;
+  border-radius: var(--pst-prod-pill-radius) !important;
+  font-size: var(--pst-prod-pill-font) !important;
+  font-weight: var(--pst-prod-pill-weight) !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.product-inventory-readonly span {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: .03em !important;
+}
+
+/* Button rows should not create bulky spacing. */
+.admin-page-actions,
+.actions,
+.pst-admin-actions-lock,
+.modal-header,
+.modal-body form > div[style*="display:flex"],
+#productForm > div[style*="display:flex"],
+#newProductForm > div[style*="display:flex"] {
+  gap: 6px !important;
+}
+
+.admin-page-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  margin: 0 0 14px !important;
+}
+
+/* Table rows stay compact with small status pills. */
+td .btn,
+td button.btn,
+td a.btn,
+td .pill {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+}
+
+/* Sort buttons remain table-header controls, not status/action pills. */
+.sort-btn {
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  font-weight: 700 !important;
+}
+
+@media (max-width: 700px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .admin-page-actions .btn,
+  .modal-header .btn,
+  .modal-body .btn,
+  .margin-tool .btn,
+  #productForm .btn,
+  #newProductForm .btn,
+  .pill,
+  .product-inventory-readonly a,
+  .product-inventory-readonly strong {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .admin-page-actions {
+    gap: 5px !important;
+    margin-bottom: 12px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .admin-page-actions .btn,
+  .modal-header .btn,
+  .modal-body .btn,
+  .margin-tool .btn,
+  #productForm .btn,
+  #newProductForm .btn,
+  .pill,
+  .product-inventory-readonly a,
+  .product-inventory-readonly strong {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
 </head>
 <body>
   <header>
