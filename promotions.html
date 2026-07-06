@@ -1234,6 +1234,265 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
+
+<style id="pst-promotions-compact-catalog-pill-style-v1">
+/* PST promotions compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: header links, save/new/delete actions, saved-list edit buttons,
+   preview badge/button, linked discount/status pills, disabled states,
+   and mobile sizing. */
+:root {
+  --pst-promo-pill-h: 26px;
+  --pst-promo-pill-font: 10px;
+  --pst-promo-pill-weight: 700;
+  --pst-promo-pill-radius: 999px;
+  --pst-promo-pill-pad-x: 10px;
+  --pst-promo-pill-line: #c9ced6;
+  --pst-promo-pill-ink: #101820;
+  --pst-promo-pill-blue: #003f9e;
+  --pst-promo-pill-red: #bd0000;
+  --pst-promo-pill-green: #0c6b3a;
+  --pst-promo-pill-warn: #8a5a00;
+  --pst-promo-pill-danger: #8a1f17;
+}
+
+/* Compact pill base. */
+.btn,
+a.btn,
+button.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.inline .btn,
+.promo-row .btn,
+.badge,
+.preview a,
+.pst-mini-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-promo-pill-h) !important;
+  height: var(--pst-promo-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-promo-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-promo-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-promo-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-promo-pill-font) !important;
+  font-weight: var(--pst-promo-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Header page links: compact grey-outline pills. */
+header .actions,
+header .pst-admin-actions-lock {
+  gap: 6px !important;
+  height: auto !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  color: var(--pst-promo-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-line) !important;
+}
+
+/* Current page / active buttons. */
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  color: #ffffff !important;
+  background: var(--pst-promo-pill-red) !important;
+  border-color: var(--pst-promo-pill-red) !important;
+}
+
+/* Action colors keep meaning but stay small/outlined. */
+.btn.success,
+button.btn.success,
+a.btn.success,
+#saveBtn {
+  color: var(--pst-promo-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-green) !important;
+}
+
+.btn.danger,
+button.btn.danger,
+a.btn.danger,
+#deleteBtn {
+  color: var(--pst-promo-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-danger) !important;
+}
+
+.btn.secondary,
+button.btn.secondary,
+a.btn.secondary,
+#newBtn,
+.promo-row .btn.secondary {
+  color: var(--pst-promo-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-line) !important;
+}
+
+/* Disabled state: grey compact Out-style pill. */
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button.btn[aria-disabled="true"],
+.btn.disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Preview badge and preview CTA use the same compact pill language. */
+.badge {
+  color: var(--pst-promo-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-blue) !important;
+  margin-bottom: 10px !important;
+}
+
+.preview a {
+  color: var(--pst-promo-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-blue) !important;
+  margin-top: 12px !important;
+}
+
+/* Saved promotion rows: compact metadata pills instead of loose text. */
+.promo-list-meta {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-top: 6px !important;
+}
+
+.pst-mini-pill.is-active {
+  color: var(--pst-promo-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-green) !important;
+}
+
+.pst-mini-pill.is-inactive {
+  color: var(--pst-promo-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-danger) !important;
+}
+
+.pst-mini-pill.is-sort {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-line) !important;
+}
+
+.pst-mini-pill.is-code {
+  color: var(--pst-promo-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-blue) !important;
+}
+
+/* Promotions row layout stays compact. */
+.promo-row {
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.inline {
+  gap: 6px !important;
+}
+
+.promo-row .btn,
+.inline .btn {
+  cursor: pointer !important;
+}
+
+/* Status banners remain message boxes, not action pills. */
+.status {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+/* Mobile: preserve compact pill sizing. */
+@media (max-width: 700px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .inline .btn,
+  .promo-row .btn,
+  .badge,
+  .preview a,
+  .pst-mini-pill {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .promo-row {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .inline .btn,
+  .promo-row .btn,
+  .badge,
+  .preview a,
+  .pst-mini-pill {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
 </head><body><header>
   <div class="topbar pst-admin-topbar-lock">
     <a class="brand pst-admin-brand-lock" href="admin.html" aria-label="Pep Shop Texas Admin Home">
@@ -1271,7 +1530,7 @@ async function loadDiscountOptions(){
 }
 function selectedDiscount(){const id=$('discount_id')?.value||'';return discounts.find(d=>d.id===id)||null;}
 function data(){return{title:title.value,body:body.value,badge:badge.value,button_text:button_text.value,button_link:button_link.value,image_url:image_url.value,discount_id:discount_id.value||null,auto_apply_discount:auto_apply_discount.value==="true",is_active:is_active.checked,starts_at:fromLocal(starts_at.value),ends_at:fromLocal(ends_at.value),sort_order:Number(sort_order.value||100),title_bold:title_bold.checked,title_italic:title_italic.checked,title_underline:title_underline.checked,body_bold:body_bold.checked,body_italic:body_italic.checked,body_underline:body_underline.checked,title_size:Number(title_size.value||28),body_size:Number(body_size.value||15),text_align:text_align.value,text_color:text_color.value,background_color:background_color.value,accent_color:accent_color.value}}function fill(p={}){title.value=p.title||'';body.value=p.body||'';badge.value=p.badge||'';button_text.value=p.button_text||'';button_link.value=p.button_link||'';image_url.value=p.image_url||'';if($('discount_id')) discount_id.value=p.discount_id||'';if($('auto_apply_discount')) auto_apply_discount.value=p.auto_apply_discount?'true':'false';is_active.checked=!!p.is_active;starts_at.value=isoLocal(p.starts_at);ends_at.value=isoLocal(p.ends_at);sort_order.value=p.sort_order??100;title_bold.checked=p.title_bold??true;title_italic.checked=!!p.title_italic;title_underline.checked=!!p.title_underline;body_bold.checked=!!p.body_bold;body_italic.checked=!!p.body_italic;body_underline.checked=!!p.body_underline;title_size.value=p.title_size??28;body_size.value=p.body_size??15;text_align.value=p.text_align||'center';text_color.value=p.text_color||'#101820';background_color.value=p.background_color||'#ffffff';accent_color.value=p.accent_color||'#003f9e';renderPreview()}function renderPreview(){const p=data();const d=selectedDiscount();const linkedCode=d?.code?('Code: '+String(d.code).toUpperCase()):'';preview.style.background=p.background_color;preview.style.textAlign=p.text_align;preview.style.alignItems=p.text_align==='left'?'flex-start':p.text_align==='right'?'flex-end':'center';preview.innerHTML=`${p.badge?`<div class="badge" style="color:${p.accent_color};background:#f4f8ff">${esc(p.badge)}</div>`:''}${p.image_url?`<img src="${esc(p.image_url)}">`:''}<div style="font-size:${p.title_size}px;color:${p.text_color};font-weight:${p.title_bold?900:400};font-style:${p.title_italic?'italic':'normal'};text-decoration:${p.title_underline?'underline':'none'}">${esc(p.title||'Promotion Title')}</div><div style="margin-top:8px;font-size:${p.body_size}px;color:${p.text_color};font-weight:${p.body_bold?800:400};font-style:${p.body_italic?'italic':'normal'};text-decoration:${p.body_underline?'underline':'none'}">${esc(p.body||'Promotion body text...')}</div>${(p.button_text||linkedCode)?`<a style="background:${p.accent_color}" href="${esc(p.button_link||'#')}">${esc(p.button_text||linkedCode)}</a>`:''}`}
-async function loadPromos(){const {data,error}=await db.from('site_promotions').select('*, discount_codes(id,code,percent_off,amount_off,active,assigned_email,expires_at)').order('sort_order',{ascending:true}).order('created_at',{ascending:false});if(error){setStatus(error.message,'bad');return}promos=data||[];promoSelect.innerHTML='<option value="">New promotion</option>'+promos.map(p=>`<option value="${p.id}">${esc(p.title||'(Untitled)')}</option>`).join('');promoList.innerHTML=promos.map(p=>`<div class="promo-row"><div><strong>${esc(p.title||'(Untitled)')}</strong><span>${p.is_active?'Active':'Inactive'} · Sort ${p.sort_order??100}${p.discount_codes?.code?' · Code '+esc(String(p.discount_codes.code).toUpperCase()):''}</span></div><button class="btn secondary" onclick="editPromo('${p.id}')">Edit</button></div>`).join('')||'<div class="muted">No promotions yet.</div>';setStatus('Promotion manager ready.','good')}function editPromo(id){const p=promos.find(x=>x.id===id);promoSelect.value=id;if(p)fill(p)}async function savePromo(){const payload=data();let res;if(promoSelect.value){res=await db.from('site_promotions').update(payload).eq('id',promoSelect.value)}else{res=await db.from('site_promotions').insert(payload)}if(res.error){setStatus(res.error.message,'bad');return}setStatus('Promotion saved.','good');await loadPromos()}async function deletePromo(){if(!promoSelect.value)return;if(!confirm('Delete this promotion?'))return;const {error}=await db.from('site_promotions').delete().eq('id',promoSelect.value);if(error){setStatus(error.message,'bad');return}fill({});promoSelect.value='';await loadPromos()}async function init(){const {data:{user}}=await db.auth.getUser();if(!user){setStatus('Please log in first.','bad');return}currentUser=user;const {data:admin}=await db.from('admin_users').select('user_id').eq('user_id',user.id).eq('is_active',true).maybeSingle();if(!admin){setStatus('Admin access required.','bad');return}await loadDiscountOptions();await loadPromos()}document.addEventListener('DOMContentLoaded',()=>{
+async function loadPromos(){const {data,error}=await db.from('site_promotions').select('*, discount_codes(id,code,percent_off,amount_off,active,assigned_email,expires_at)').order('sort_order',{ascending:true}).order('created_at',{ascending:false});if(error){setStatus(error.message,'bad');return}promos=data||[];promoSelect.innerHTML='<option value="">New promotion</option>'+promos.map(p=>`<option value="${p.id}">${esc(p.title||'(Untitled)')}</option>`).join('');promoList.innerHTML=promos.map(p=>`<div class="promo-row"><div><strong>${esc(p.title||'(Untitled)')}</strong><span class="promo-list-meta"><span class="pst-mini-pill ${p.is_active?'is-active':'is-inactive'}">${p.is_active?'Active':'Inactive'}</span><span class="pst-mini-pill is-sort">Sort ${p.sort_order??100}</span>${p.discount_codes?.code?'<span class="pst-mini-pill is-code">Code '+esc(String(p.discount_codes.code).toUpperCase())+'</span>':''}</span></div><button class="btn secondary" onclick="editPromo('${p.id}')">Edit</button></div>`).join('')||'<div class="muted">No promotions yet.</div>';setStatus('Promotion manager ready.','good')}function editPromo(id){const p=promos.find(x=>x.id===id);promoSelect.value=id;if(p)fill(p)}async function savePromo(){const payload=data();let res;if(promoSelect.value){res=await db.from('site_promotions').update(payload).eq('id',promoSelect.value)}else{res=await db.from('site_promotions').insert(payload)}if(res.error){setStatus(res.error.message,'bad');return}setStatus('Promotion saved.','good');await loadPromos()}async function deletePromo(){if(!promoSelect.value)return;if(!confirm('Delete this promotion?'))return;const {error}=await db.from('site_promotions').delete().eq('id',promoSelect.value);if(error){setStatus(error.message,'bad');return}fill({});promoSelect.value='';await loadPromos()}async function init(){const {data:{user}}=await db.auth.getUser();if(!user){setStatus('Please log in first.','bad');return}currentUser=user;const {data:admin}=await db.from('admin_users').select('user_id').eq('user_id',user.id).eq('is_active',true).maybeSingle();if(!admin){setStatus('Admin access required.','bad');return}await loadDiscountOptions();await loadPromos()}document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('input,select,textarea').forEach(el=>{
     el.addEventListener('input',renderPreview);
   });
