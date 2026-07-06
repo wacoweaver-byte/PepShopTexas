@@ -2033,6 +2033,301 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
+
+<style id="pst-customers-compact-catalog-pill-style-v1">
+/* PST customers compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: header links, filter/export/copy/modal buttons, column toggle pills,
+   customer status badges, disabled states, and mobile sizing. */
+:root {
+  --pst-customers-pill-h: 26px;
+  --pst-customers-pill-font: 10px;
+  --pst-customers-pill-weight: 700;
+  --pst-customers-pill-radius: 999px;
+  --pst-customers-pill-pad-x: 10px;
+  --pst-customers-pill-line: #c9ced6;
+  --pst-customers-pill-ink: #101820;
+  --pst-customers-pill-blue: #003f9e;
+  --pst-customers-pill-red: #bd0000;
+  --pst-customers-pill-green: #0c6b3a;
+  --pst-customers-pill-warn: #8a5a00;
+  --pst-customers-pill-danger: #8a1f17;
+}
+
+/* Compact pill base for buttons and status badges. */
+button,
+.btn,
+a.btn,
+button.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.button-row button,
+.button-row .btn,
+.modal button,
+.modal .btn,
+td button,
+td .btn,
+.badge,
+.column-toggles label {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-customers-pill-h) !important;
+  height: var(--pst-customers-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-customers-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-customers-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-customers-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-customers-pill-font) !important;
+  font-weight: var(--pst-customers-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Buttons remain clickable; badges are read-only. */
+button,
+.btn,
+a.btn,
+button.btn,
+.column-toggles label {
+  cursor: pointer !important;
+}
+
+.badge {
+  cursor: default !important;
+}
+
+/* Header page links: compact grey-outline pills. */
+header .actions,
+header .pst-admin-actions-lock {
+  gap: 6px !important;
+  height: auto !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  color: var(--pst-customers-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-line) !important;
+}
+
+/* Current page / active states. */
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  color: #ffffff !important;
+  background: var(--pst-customers-pill-red) !important;
+  border-color: var(--pst-customers-pill-red) !important;
+}
+
+/* Primary plain buttons: compact red outline unless a state class overrides it. */
+button:not(.secondary):not(.danger):not(.success):not(.btn),
+button.btn:not(.secondary):not(.danger):not(.success),
+.btn:not(.secondary):not(.danger):not(.success):not(.active) {
+  color: var(--pst-customers-pill-red) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-red) !important;
+}
+
+/* Secondary buttons: compact grey outline. */
+button.secondary,
+.btn.secondary,
+a.btn.secondary {
+  color: var(--pst-customers-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-line) !important;
+}
+
+/* Danger/success variants keep meaning but stay compact and outlined. */
+button.danger,
+.btn.danger,
+button.btn.danger,
+a.btn.danger {
+  color: var(--pst-customers-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-danger) !important;
+}
+
+button.success,
+.btn.success,
+button.btn.success,
+a.btn.success {
+  color: var(--pst-customers-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-green) !important;
+}
+
+/* Disabled/read-only buttons match compact grey Out style. */
+button:disabled,
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button[aria-disabled="true"],
+.btn.disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Customer badges. */
+.badge.good,
+.badge.subscribed,
+.badge.active,
+.badge.yes {
+  color: var(--pst-customers-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-green) !important;
+}
+
+.badge.bad,
+.badge.opted_out,
+.badge.inactive,
+.badge.no {
+  color: var(--pst-customers-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-danger) !important;
+}
+
+.badge.warn,
+.badge.warning,
+.badge.unknown {
+  color: var(--pst-customers-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-warn) !important;
+}
+
+.badge.neutral {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-line) !important;
+}
+
+/* Column toggles are pills too. */
+.column-toggles {
+  gap: 6px !important;
+}
+
+.column-toggles label {
+  color: var(--pst-customers-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-customers-pill-blue) !important;
+}
+
+.column-toggles label input[type="checkbox"] {
+  width: 12px !important;
+  height: 12px !important;
+  min-height: 12px !important;
+  margin: 0 !important;
+  accent-color: var(--pst-customers-pill-red) !important;
+}
+
+/* Button groups should not create bulky spacing. */
+.button-row {
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+/* Table action buttons and badges stay compact in rows. */
+td button,
+td .btn,
+td .badge {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+}
+
+/* Status text lines remain text, not buttons. */
+.status-line {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+/* Mobile: preserve compact pill sizing. */
+@media (max-width: 700px) {
+  button,
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .button-row button,
+  .button-row .btn,
+  .modal button,
+  .modal .btn,
+  td button,
+  td .btn,
+  .badge,
+  .column-toggles label {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .button-row,
+  .column-toggles {
+    gap: 5px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  button,
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .button-row button,
+  .button-row .btn,
+  .modal button,
+  .modal .btn,
+  td button,
+  td .btn,
+  .badge,
+  .column-toggles label {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header>
