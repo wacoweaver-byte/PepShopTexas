@@ -6,7 +6,7 @@
   <title>Cart | PEP Shop Texas</title>
     <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#bd0000"><link rel="stylesheet" href="styles.css?v=45">
@@ -309,6 +309,7 @@
 }
 </style>
 
+
 <style id="pst-cart-unit-line-price-labels-v1">
 /* PST Cart price clarity
    Unit price displays as neutral "$X each"; right-side total displays as "Line Total $X".
@@ -355,6 +356,13 @@
   letter-spacing: .02em;
 }
 
+
+/* Cart row incoming-arrival notes are suppressed.
+   Cart should only show stock-blocking or quantity-blocking warnings. */
+.cart-page .cart-row .checkout-note {
+  display: none !important;
+}
+
 @media (max-width: 700px) {
   .cart-page .cart-row > div > p {
     font-size: 13px !important;
@@ -366,6 +374,7 @@
   }
 }
 </style>
+
 </head>
 <body data-page="cart">
   <header class="site-header">
