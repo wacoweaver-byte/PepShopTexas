@@ -12,6 +12,154 @@
   <meta name="theme-color" content="#bd0000"><link rel="stylesheet" href="styles.css?v=19">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=22"></script>
+
+<style id="pst-login-page-actions-compact-pill-style-v1">
+/* PST Login page compact pill style
+   Customer-facing header is intentionally untouched.
+   Scope only: login/auth page action controls, auth links, status message, and mobile sizing. */
+:root {
+  --pst-login-pill-h: 26px;
+  --pst-login-pill-font: 10px;
+  --pst-login-pill-weight: 700;
+  --pst-login-pill-radius: 999px;
+  --pst-login-pill-pad-x: 10px;
+  --pst-login-pill-line: #c9ced6;
+  --pst-login-pill-ink: #101820;
+  --pst-login-pill-blue: #003f9e;
+  --pst-login-pill-red: #bd0000;
+  --pst-login-pill-green: #0c6b3a;
+  --pst-login-pill-danger: #8a1f17;
+}
+
+/* Auth page controls only. Do not target .site-header, .main-nav, .search, header cart link/count, or footer nav. */
+.auth-page .primary-action,
+.auth-page .secondary-action,
+.auth-page button,
+.auth-page .btn,
+.auth-page a.btn,
+.auth-page .auth-links a,
+.auth-page .pill,
+.auth-page .badge,
+.auth-page .status-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-login-pill-h) !important;
+  height: var(--pst-login-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-login-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-login-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-login-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-login-pill-font) !important;
+  font-weight: var(--pst-login-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Sign In / primary auth action. */
+.auth-page .primary-action,
+.auth-page button[type="submit"],
+.auth-page button.primary,
+.auth-page .btn.primary {
+  color: var(--pst-login-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-login-pill-green) !important;
+  cursor: pointer !important;
+}
+
+/* Reset password / create account links. */
+.auth-page .auth-links {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+.auth-page .auth-links a,
+.auth-page .secondary-action,
+.auth-page .btn.secondary {
+  color: var(--pst-login-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-login-pill-blue) !important;
+  cursor: pointer !important;
+}
+
+/* Disabled state matches compact grey Out style. */
+.auth-page button:disabled,
+.auth-page .btn:disabled,
+.auth-page button[aria-disabled="true"],
+.auth-page .btn[aria-disabled="true"],
+.auth-page a[aria-disabled="true"],
+.auth-page .disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-login-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Auth message remains readable text, not a button. */
+.auth-page [data-auth-message] {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+/* Mobile: preserve compact pill sizing. */
+@media (max-width: 700px) {
+  .auth-page .primary-action,
+  .auth-page .secondary-action,
+  .auth-page button,
+  .auth-page .btn,
+  .auth-page a.btn,
+  .auth-page .auth-links a,
+  .auth-page .pill,
+  .auth-page .badge,
+  .auth-page .status-pill {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .auth-page .auth-links {
+    gap: 5px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .auth-page .primary-action,
+  .auth-page .secondary-action,
+  .auth-page button,
+  .auth-page .btn,
+  .auth-page a.btn,
+  .auth-page .auth-links a,
+  .auth-page .pill,
+  .auth-page .badge,
+  .auth-page .status-pill {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
 </head>
 <body data-page="login">
   <header class="site-header compact-header">
