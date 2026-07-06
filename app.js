@@ -615,7 +615,7 @@ function catalogDoseOptions(variants) {
   return `
     <div class="catalog-dose-options${singleClass}">
       ${variants.map((product) => `
-        <div class="catalog-dose-option">
+        <div class="catalog-dose-option ${productIncomingLabel(product) ? "has-incoming" : ""}">
           <a class="catalog-dose-name" href="${productUrl(product)}">${escapeHtml(product.strength || product.product_key)}</a>
           <strong>${priceHtml(product)}</strong>
           <span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span>

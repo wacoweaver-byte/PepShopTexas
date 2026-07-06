@@ -1595,12 +1595,22 @@ a { color: inherit; text-decoration: none; }
 }
 
 
-/* PST catalog incoming alignment fix
-   Keeps On Order / In Transit in its own fixed column directly beside Add/Out.
-   This prevents the pill from shifting based on stock text length. */
+/* PST catalog incoming alignment + iPhone visibility fix
+   On Order / In Transit gets a dedicated column directly left of Add/Out.
+   This also clears older tiny-phone grid-area rules that were hiding the badge on mobile Safari. */
 .catalog-dose-option {
+  grid-template-areas: none !important;
   grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(62px, .65fr) 96px 42px !important;
   align-items: center !important;
+}
+
+.catalog-dose-name { grid-column: 1 !important; }
+.catalog-dose-option strong { grid-column: 2 !important; }
+.catalog-card .catalog-stock { grid-column: 3 !important; }
+.catalog-incoming-slot { grid-column: 4 !important; }
+.catalog-dose-option .card-cart-button {
+  grid-column: 5 !important;
+  justify-self: end !important;
 }
 
 .catalog-incoming-slot {
@@ -1609,6 +1619,9 @@ a { color: inherit; text-decoration: none; }
   justify-content: flex-end !important;
   min-width: 0 !important;
   margin: 0 !important;
+  overflow: visible !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .catalog-incoming-slot:empty {
@@ -1616,12 +1629,11 @@ a { color: inherit; text-decoration: none; }
 }
 
 .catalog-incoming-slot .catalog-incoming-pill {
+  display: inline-flex !important;
   margin: 0 !important;
-}
-
-.catalog-dose-option .card-cart-button {
-  grid-column: 5 !important;
-  justify-self: end !important;
+  overflow: visible !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 @media (max-width: 980px) {
@@ -1633,31 +1645,60 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 700px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(45px, .65fr) minmax(66px, .78fr) minmax(48px, .55fr) 80px 38px !important;
-    gap: 6px !important;
+    grid-template-columns: minmax(46px, .72fr) minmax(68px, .86fr) minmax(38px, .48fr) 76px 38px !important;
+    gap: 5px !important;
+  }
+
+  .catalog-incoming-slot {
+    min-width: 76px !important;
+    width: 76px !important;
   }
 
   .catalog-incoming-slot .catalog-incoming-pill {
-    min-width: 76px !important;
+    min-width: 72px !important;
+    width: 72px !important;
     height: 24px !important;
-    padding: 0 8px !important;
+    padding: 0 6px !important;
     font-size: 10px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .catalog-dose-option .card-cart-button {
+    min-width: 38px !important;
+    width: 38px !important;
   }
 }
 
-@media (max-width: 430px) {
+@media (max-width: 390px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(44px, .7fr) minmax(58px, .75fr) 38px 76px 36px !important;
-    gap: 5px !important;
+    grid-template-columns: minmax(42px, .72fr) minmax(60px, .82fr) minmax(32px, .42fr) 70px 36px !important;
+    gap: 4px !important;
+  }
+
+  .catalog-dose-name,
+  .catalog-dose-option strong {
+    font-size: 12px !important;
   }
 
   .catalog-card .catalog-stock::before {
     font-size: 10px !important;
   }
 
+  .catalog-incoming-slot {
+    min-width: 70px !important;
+    width: 70px !important;
+  }
+
   .catalog-incoming-slot .catalog-incoming-pill {
-    min-width: 72px !important;
-    padding: 0 6px !important;
+    min-width: 68px !important;
+    width: 68px !important;
+    font-size: 9px !important;
+  }
+
+  .catalog-dose-option .card-cart-button {
+    min-width: 36px !important;
+    width: 36px !important;
   }
 }
 
