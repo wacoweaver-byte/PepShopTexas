@@ -519,7 +519,7 @@ async function renderProductDetail() {
         <h1>${escapeHtml(product.display_name)}</h1>
         <p class="strength">${escapeHtml(product.strength || "")}</p>
         <div class="price-line">${priceHtml(product)}</div>
-        <p class="stock">${stockText(product)}${productIncomingPill(product)}</p>
+        <p class="stock ${stockClass(product)}"><span class="stock-text">${stockText(product)}</span>${productIncomingPill(product)}</p>
         ${productIncomingNotice(product)}
         <div class="purchase-panel">
           <label>Quantity <input type="number" min="1" max="${Math.max(Number(product.current_inventory || 1), 1)}" value="1" data-detail-qty ${Number(product.current_inventory || 0) <= 0 ? "disabled" : ""}></label>
@@ -1416,8 +1416,8 @@ function productIncomingLabel(product = {}) {
   const qty = Number(product.incoming_quantity || 0);
   if (qty <= 0) return "";
   const status = String(product.incoming_status || "ordered").toLowerCase();
-  if (status === "in_transit") return "In transit";
-  return "On order";
+  if (status === "in_transit") return "In Transit";
+  return "On Order";
 }
 
 function productIncomingPlainText(product = {}) {
@@ -1434,16 +1434,16 @@ function productIncomingNotice(product = {}) {
 function productIncomingPill(product = {}) {
   const label = productIncomingLabel(product);
   if (!label) return "";
-  const text = label === "In transit" ? "In Transit" : "On Order";
+  const text = label === "In Transit" ? "In Transit" : "On Order";
   return `<span class="catalog-incoming-pill">${escapeHtml(text)}</span>`;
 }
 
 function stockText(product) {
   const count = Number(product.current_inventory || 0);
   const incoming = productIncomingLabel(product);
-  if (count <= 0) return "Out of stock";
-  if (count <= 10) return incoming ? "Limited stock" : "Limited stock";
-  return incoming ? "In stock" : "In stock";
+  if (count <= 0) return "Out of Stock";
+  if (count <= 10) return "Limited";
+  return "In Stock";
 }
 
 function stockClass(product) {

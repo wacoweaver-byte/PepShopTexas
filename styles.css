@@ -1709,3 +1709,217 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
+/* PST product detail/customer UI unification
+   Keeps product.html status pills/buttons consistent with catalog styling without touching admin inline layouts. */
+.product-info .stock {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin: 0 0 18px !important;
+  padding: 0 !important;
+  color: #0c6b3a !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  text-transform: none !important;
+}
+
+.product-info .stock.out,
+.product-info .stock.unavailable {
+  color: #8a1f17 !important;
+}
+
+.product-info .stock.limited,
+.product-info .stock.low,
+.product-info .stock.warning {
+  color: #8a5a00 !important;
+}
+
+.product-info .stock.available {
+  color: #0c6b3a !important;
+}
+
+.product-info .stock .stock-text {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 26px !important;
+  white-space: nowrap !important;
+}
+
+.product-info .stock .catalog-incoming-pill,
+.product-info .catalog-incoming-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  min-width: 76px !important;
+  width: 76px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  color: #003f9e !important;
+  background: #ffffff !important;
+  border: 1px solid #003f9e !important;
+  border-radius: 999px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+}
+
+.product-info > .checkout-note {
+  max-width: 760px !important;
+  margin: 0 0 20px !important;
+  color: #161a20 !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+
+.product-info .purchase-panel {
+  display: inline-grid !important;
+  grid-template-columns: 110px 104px 92px !important;
+  gap: 10px !important;
+  align-items: end !important;
+  width: auto !important;
+  max-width: 100% !important;
+  margin: 8px 0 20px !important;
+  padding: 12px !important;
+  background: #f7f9fb !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+.product-info .purchase-panel input {
+  width: 100% !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 10px !important;
+  font-size: 14px !important;
+}
+
+.product-info .purchase-panel .primary-action,
+.product-info .purchase-panel .secondary-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+.product-info .purchase-panel .primary-action:disabled,
+.product-info .purchase-panel .primary-action[aria-disabled="true"] {
+  color: #6f7680 !important;
+  background: #eceff3 !important;
+  border: 1px solid #c9ced6 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+}
+
+.product-info .purchase-panel .secondary-action {
+  color: var(--ink) !important;
+  background: #fff !important;
+  border: 1px solid var(--line) !important;
+}
+
+@media (max-width: 700px) {
+  .detail-page {
+    width: calc(100% - 24px) !important;
+    padding: 28px 0 48px !important;
+  }
+
+  .detail-shell {
+    padding: 22px 16px !important;
+    overflow: hidden !important;
+  }
+
+  .product-info h1 {
+    font-size: clamp(34px, 11vw, 48px) !important;
+    line-height: .98 !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+
+  .product-info .strength {
+    margin: 12px 0 22px !important;
+    font-size: 18px !important;
+  }
+
+  .product-info .price-line {
+    margin-bottom: 14px !important;
+    font-size: 26px !important;
+  }
+
+  .product-info .stock {
+    gap: 9px !important;
+    margin-bottom: 14px !important;
+    font-size: 14px !important;
+  }
+
+  .product-info .stock .stock-text {
+    min-height: 25px !important;
+  }
+
+  .product-info .stock .catalog-incoming-pill,
+  .product-info .catalog-incoming-pill {
+    width: 74px !important;
+    min-width: 74px !important;
+    height: 25px !important;
+    min-height: 25px !important;
+    padding: 0 6px !important;
+    font-size: 9px !important;
+  }
+
+  .product-info > .checkout-note {
+    margin-bottom: 18px !important;
+    font-size: 14px !important;
+  }
+
+  .product-info .purchase-panel {
+    grid-template-columns: 86px minmax(92px, 1fr) 82px !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding: 10px !important;
+  }
+
+  .product-info .purchase-panel .primary-action,
+  .product-info .purchase-panel .secondary-action {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .product-info .purchase-panel {
+    grid-template-columns: 1fr !important;
+  }
+
+  .product-info .purchase-panel label,
+  .product-info .purchase-panel .primary-action,
+  .product-info .purchase-panel .secondary-action {
+    width: 100% !important;
+  }
+}

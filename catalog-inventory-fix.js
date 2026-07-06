@@ -163,14 +163,16 @@
       normalizeStockLabels();
 
       document.querySelectorAll("[data-add-to-cart]").forEach((button) => {
+        const row = button.closest(".catalog-dose-option");
+        if (!row) return; // Do not inject catalog badges into product detail, cart, or admin buttons.
+
+        const actionCell = button.closest(".catalog-row-actions");
+        if (!actionCell) return;
+
         const key = String(button.dataset.addToCart || "").trim();
         const incoming = incomingMap.get(key);
         const label = incomingLabel(incoming || {});
         if (!label) return;
-
-        const actionCell = button.closest(".catalog-row-actions") || button.parentElement;
-        const row = rowForButton(button);
-        if (!actionCell) return;
 
         // If app.js already rendered an On Order / In Transit badge, do not add another one.
         if (hasNativeIncomingBadge(row, actionCell)) return;
