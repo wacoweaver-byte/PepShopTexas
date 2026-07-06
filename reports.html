@@ -1528,6 +1528,407 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
+
+<style id="pst-reports-compact-catalog-pill-style-v1">
+/* PST reports compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: header links, report jump links, collapse buttons, print/export/refresh actions,
+   resource buttons, payment/finance/tax buttons, back-to-top links, status/risk pills,
+   read-only badges, and mobile sizing. */
+:root {
+  --pst-reports-pill-h: 26px;
+  --pst-reports-pill-font: 10px;
+  --pst-reports-pill-weight: 700;
+  --pst-reports-pill-radius: 999px;
+  --pst-reports-pill-pad-x: 10px;
+  --pst-reports-pill-line: #c9ced6;
+  --pst-reports-pill-ink: #101820;
+  --pst-reports-pill-blue: #003f9e;
+  --pst-reports-pill-red: #bd0000;
+  --pst-reports-pill-green: #0c6b3a;
+  --pst-reports-pill-warn: #8a5a00;
+  --pst-reports-pill-danger: #8a1f17;
+}
+
+/* Compact pill base for report actions, links, and status badges. */
+.btn,
+a.btn,
+button.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.reports-jumpbar a,
+.collapse-toggle,
+.print-actions .btn,
+.report-actions .btn,
+.resource .btn,
+.finance-controls .btn,
+.payment-options-grid .btn,
+.payment-method-card .btn,
+.tax-settings-grid .btn,
+.section-backtop a,
+.pill,
+.risk-badge,
+.reorder-guide-item,
+.settings-status .pill,
+#inventoryWatchBadge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-reports-pill-h) !important;
+  height: var(--pst-reports-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-reports-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-reports-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-reports-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-reports-pill-font) !important;
+  font-weight: var(--pst-reports-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Keep clickable things clickable; status things read-only. */
+.btn,
+a.btn,
+button.btn,
+.reports-jumpbar a,
+.collapse-toggle,
+.print-actions .btn,
+.report-actions .btn,
+.resource .btn,
+.finance-controls .btn,
+.payment-options-grid .btn,
+.payment-method-card .btn,
+.tax-settings-grid .btn,
+.section-backtop a {
+  cursor: pointer !important;
+}
+
+.pill,
+.risk-badge,
+.reorder-guide-item,
+#inventoryWatchBadge {
+  cursor: default !important;
+}
+
+/* Header page links: compact grey-outline pills. */
+header .actions,
+header .pst-admin-actions-lock {
+  gap: 6px !important;
+  height: auto !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  color: var(--pst-reports-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-line) !important;
+}
+
+/* Current page / active states / open cards. */
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+.reports-jumpbar a.active,
+.reports-jumpbar a[aria-pressed="true"],
+.collapse-toggle.active,
+.collapse-toggle[aria-expanded="true"],
+.card.collapsible-card:not(.collapsed) .collapse-toggle {
+  color: #ffffff !important;
+  background: var(--pst-reports-pill-red) !important;
+  border-color: var(--pst-reports-pill-red) !important;
+}
+
+/* Quick links use the catalog On Order blue-outline language. */
+.reports-jumpbar a:not(.active):not([aria-pressed="true"]) {
+  color: var(--pst-reports-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-blue) !important;
+}
+
+.reports-jumpbar {
+  gap: 6px !important;
+  padding: 10px !important;
+  align-items: center !important;
+}
+
+.reports-jumpbar-links {
+  gap: 6px !important;
+}
+
+.reports-jumpbar-title {
+  margin-right: 4px !important;
+  color: var(--muted) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: .03em !important;
+  text-transform: uppercase !important;
+}
+
+/* Action variants stay meaningful but compact and outlined. */
+.btn.success,
+button.btn.success,
+a.btn.success {
+  color: var(--pst-reports-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-green) !important;
+}
+
+.btn.danger,
+button.btn.danger,
+a.btn.danger {
+  color: var(--pst-reports-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-danger) !important;
+}
+
+.btn.warning,
+button.btn.warning,
+a.btn.warning {
+  color: var(--pst-reports-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-warn) !important;
+}
+
+.btn.secondary,
+button.btn.secondary,
+a.btn.secondary,
+.resource .btn,
+.section-backtop a {
+  color: var(--pst-reports-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-line) !important;
+}
+
+/* Disabled/read-only buttons match the compact grey Out pill. */
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button.btn[aria-disabled="true"],
+.btn.disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Report status pills. */
+.pill.good,
+.pill.paid,
+.pill.complete,
+.pill.delivered,
+.pill.shipped,
+.risk-healthy {
+  color: var(--pst-reports-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-green) !important;
+}
+
+.pill.warn,
+.pill.warning,
+.risk-reorder,
+.risk-watch {
+  color: var(--pst-reports-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-warn) !important;
+}
+
+.pill.info,
+.pill.processing,
+.pill.packed,
+#inventoryWatchBadge {
+  color: var(--pst-reports-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-blue) !important;
+}
+
+.pill.danger,
+.pill.bad,
+.pill.cancelled,
+.pill.failed,
+.risk-critical {
+  color: var(--pst-reports-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-danger) !important;
+}
+
+.risk-unknown,
+.reorder-guide-item {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-line) !important;
+}
+
+/* Reorder guide row: small pill language, no chunky legend boxes. */
+.reorder-guide-row {
+  gap: 6px !important;
+}
+
+.reorder-guide-item {
+  gap: 6px !important;
+}
+
+.risk-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 999px !important;
+}
+
+/* Groups stay compact. */
+.print-actions,
+.report-actions,
+.reports-jumpbar-links,
+.section-backtop {
+  gap: 6px !important;
+}
+
+.collapse-toggle {
+  min-width: 0 !important;
+}
+
+/* Back-to-top links are now actual compact pills. */
+.section-backtop {
+  align-items: center !important;
+}
+
+.section-backtop a {
+  color: var(--pst-reports-pill-blue) !important;
+  border-color: var(--pst-reports-pill-blue) !important;
+}
+
+/* Status message boxes remain message boxes, not action pills. */
+.status,
+.settings-status,
+.payment-options-status {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+/* Keep print rules sane: do not force tiny web pills into printed reports. */
+@media print {
+  .btn,
+  a.btn,
+  button.btn,
+  .reports-jumpbar a,
+  .collapse-toggle,
+  .section-backtop a,
+  .pill,
+  .risk-badge,
+  .reorder-guide-item {
+    min-height: auto !important;
+    height: auto !important;
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+    border-radius: 999px !important;
+  }
+}
+
+/* Mobile: preserve compact pill sizing. */
+@media (max-width: 700px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .reports-jumpbar a,
+  .collapse-toggle,
+  .print-actions .btn,
+  .report-actions .btn,
+  .resource .btn,
+  .finance-controls .btn,
+  .payment-options-grid .btn,
+  .payment-method-card .btn,
+  .tax-settings-grid .btn,
+  .section-backtop a,
+  .pill,
+  .risk-badge,
+  .reorder-guide-item,
+  #inventoryWatchBadge {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .reports-jumpbar {
+    gap: 5px !important;
+    padding: 9px !important;
+  }
+
+  .reports-jumpbar a {
+    flex: 0 0 auto !important;
+    width: auto !important;
+  }
+
+  .resource .btn {
+    width: auto !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .reports-jumpbar a,
+  .collapse-toggle,
+  .print-actions .btn,
+  .report-actions .btn,
+  .resource .btn,
+  .finance-controls .btn,
+  .payment-options-grid .btn,
+  .payment-method-card .btn,
+  .tax-settings-grid .btn,
+  .section-backtop a,
+  .pill,
+  .risk-badge,
+  .reorder-guide-item,
+  #inventoryWatchBadge {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header>
