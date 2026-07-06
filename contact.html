@@ -13,6 +13,95 @@
   <link rel="stylesheet" href="styles.css?v=45">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=39"></script>
+
+<style id="pst-contact-page-actions-compact-pill-style-v1">
+/* PST Contact page action compact pill style
+   Customer-facing header is intentionally untouched so it keeps the same header style as index.html.
+   Scope only: page-body contact action links/buttons. */
+:root {
+  --pst-contact-pill-h: 26px;
+  --pst-contact-pill-font: 10px;
+  --pst-contact-pill-weight: 700;
+  --pst-contact-pill-radius: 999px;
+  --pst-contact-pill-pad-x: 10px;
+  --pst-contact-pill-blue: #003f9e;
+  --pst-contact-pill-line: #c9ced6;
+}
+
+/* Page-level contact actions only. Do not target .site-header, .main-nav, .search, cart, or footer nav. */
+.contact-page .contact-email,
+.contact-page .contact-actions a,
+.contact-page .contact-actions button,
+.contact-page a.contact-button,
+.contact-page button.contact-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-contact-pill-h) !important;
+  height: var(--pst-contact-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-contact-pill-pad-x) !important;
+  border: 1px solid var(--pst-contact-pill-blue) !important;
+  border-radius: var(--pst-contact-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-contact-pill-blue) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-contact-pill-font) !important;
+  font-weight: var(--pst-contact-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.contact-page .contact-email[aria-disabled="true"],
+.contact-page .contact-actions a[aria-disabled="true"],
+.contact-page .contact-actions button:disabled,
+.contact-page button.contact-button:disabled {
+  color: #6f7680 !important;
+  border-color: var(--pst-contact-pill-line) !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 700px) {
+  .contact-page .contact-email,
+  .contact-page .contact-actions a,
+  .contact-page .contact-actions button,
+  .contact-page a.contact-button,
+  .contact-page button.contact-button {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .contact-page .contact-email,
+  .contact-page .contact-actions a,
+  .contact-page .contact-actions button,
+  .contact-page a.contact-button,
+  .contact-page button.contact-button {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
 </head>
 <body>
   <header class="site-header">
