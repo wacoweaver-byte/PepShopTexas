@@ -12,6 +12,355 @@
   <meta name="theme-color" content="#bd0000"><link rel="stylesheet" href="styles.css?v=45">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=39"></script>
+
+<style id="pst-cart-page-actions-compact-pill-style-v1">
+/* PST Cart page compact pill style
+   Customer-facing header is intentionally untouched.
+   Scope only: cart page body controls, cart action links, status pills, promo/checkout controls, and mobile sizing. */
+:root {
+  --pst-cart-pill-h: 26px;
+  --pst-cart-pill-font: 10px;
+  --pst-cart-pill-weight: 700;
+  --pst-cart-pill-radius: 999px;
+  --pst-cart-pill-pad-x: 10px;
+  --pst-cart-pill-line: #c9ced6;
+  --pst-cart-pill-ink: #101820;
+  --pst-cart-pill-blue: #003f9e;
+  --pst-cart-pill-red: #bd0000;
+  --pst-cart-pill-green: #0c6b3a;
+  --pst-cart-pill-warn: #8a5a00;
+  --pst-cart-pill-danger: #8a1f17;
+}
+
+/* Page-body cart actions only. Header/nav/search/cart-count in the site header are not targeted. */
+.cart-page button,
+.cart-page .btn,
+.cart-page a.btn,
+.cart-page .cart-actions a,
+.cart-page .cart-actions button,
+.cart-page .cart-summary a.btn,
+.cart-page .cart-summary button,
+.cart-page .cart-summary .checkout-btn,
+.cart-page .cart-summary .checkout-button,
+.cart-page .cart-summary .continue-shopping,
+.cart-page .cart-summary [data-checkout],
+.cart-page .cart-summary [data-cart-checkout],
+.cart-page .cart-empty a,
+.cart-page .empty-cart a,
+.cart-page .cart-item button,
+.cart-page .cart-line button,
+.cart-page .quantity button,
+.cart-page .qty button,
+.cart-page .qty-control button,
+.cart-page .qty-controls button,
+.cart-page .remove-item,
+.cart-page .cart-remove,
+.cart-page .cart-item-remove,
+.cart-page .discount-code button,
+.cart-page .discount-row button,
+.cart-page .promo-code button,
+.cart-page .coupon-code button,
+.cart-page .pill,
+.cart-page .badge,
+.cart-page .status-pill,
+.cart-page .cart-status-pill,
+.cart-page .cart-tag,
+.cart-page .shipping-pill,
+.cart-page .free-shipping-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-cart-pill-h) !important;
+  height: var(--pst-cart-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-cart-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-cart-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-cart-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-cart-pill-font) !important;
+  font-weight: var(--pst-cart-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Clickable controls remain clickable; badges/status pills stay read-only. */
+.cart-page button,
+.cart-page .btn,
+.cart-page a.btn,
+.cart-page .cart-actions a,
+.cart-page .cart-actions button,
+.cart-page .cart-summary a.btn,
+.cart-page .cart-summary button,
+.cart-page .cart-empty a,
+.cart-page .empty-cart a,
+.cart-page .cart-item button,
+.cart-page .cart-line button,
+.cart-page .quantity button,
+.cart-page .qty button,
+.cart-page .qty-control button,
+.cart-page .qty-controls button,
+.cart-page .discount-code button,
+.cart-page .discount-row button,
+.cart-page .promo-code button,
+.cart-page .coupon-code button {
+  cursor: pointer !important;
+}
+
+.cart-page .pill,
+.cart-page .badge,
+.cart-page .status-pill,
+.cart-page .cart-status-pill,
+.cart-page .cart-tag,
+.cart-page .shipping-pill,
+.cart-page .free-shipping-pill {
+  cursor: default !important;
+}
+
+/* Default cart actions: compact blue-outline pill. */
+.cart-page button,
+.cart-page .btn,
+.cart-page a.btn,
+.cart-page .cart-actions a,
+.cart-page .cart-actions button,
+.cart-page .cart-summary a.btn,
+.cart-page .cart-summary button,
+.cart-page .cart-empty a,
+.cart-page .empty-cart a,
+.cart-page .discount-code button,
+.cart-page .discount-row button,
+.cart-page .promo-code button,
+.cart-page .coupon-code button {
+  color: var(--pst-cart-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-cart-pill-blue) !important;
+}
+
+/* Checkout/primary action: compact green-outline pill. */
+.cart-page .checkout-btn,
+.cart-page .checkout-button,
+.cart-page [data-checkout],
+.cart-page [data-cart-checkout],
+.cart-page button.primary,
+.cart-page .btn.primary,
+.cart-page button.checkout,
+.cart-page .btn.checkout {
+  color: var(--pst-cart-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-cart-pill-green) !important;
+}
+
+/* Remove/delete actions: compact red-outline pill. */
+.cart-page .remove-item,
+.cart-page .cart-remove,
+.cart-page .cart-item-remove,
+.cart-page button.remove,
+.cart-page button.delete,
+.cart-page .btn.danger,
+.cart-page button.danger {
+  color: var(--pst-cart-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-cart-pill-danger) !important;
+}
+
+/* Quantity buttons stay very small and balanced. */
+.cart-page .quantity button,
+.cart-page .qty button,
+.cart-page .qty-control button,
+.cart-page .qty-controls button {
+  min-width: var(--pst-cart-pill-h) !important;
+  width: var(--pst-cart-pill-h) !important;
+  padding: 0 !important;
+  color: var(--pst-cart-pill-ink) !important;
+  border-color: var(--pst-cart-pill-line) !important;
+}
+
+/* Cart badges/statuses. */
+.cart-page .pill.good,
+.cart-page .badge.good,
+.cart-page .status-pill.good,
+.cart-page .cart-status-pill.good,
+.cart-page .free-shipping-pill,
+.cart-page .in-stock,
+.cart-page .available {
+  color: var(--pst-cart-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-cart-pill-green) !important;
+}
+
+.cart-page .pill.warn,
+.cart-page .badge.warn,
+.cart-page .status-pill.warn,
+.cart-page .cart-status-pill.warn,
+.cart-page .shipping-pill,
+.cart-page .limited {
+  color: var(--pst-cart-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-cart-pill-warn) !important;
+}
+
+.cart-page .pill.bad,
+.cart-page .badge.bad,
+.cart-page .pill.danger,
+.cart-page .badge.danger,
+.cart-page .status-pill.bad,
+.cart-page .cart-status-pill.bad,
+.cart-page .out-of-stock,
+.cart-page .unavailable {
+  color: var(--pst-cart-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-cart-pill-danger) !important;
+}
+
+.cart-page .pill.info,
+.cart-page .badge.info,
+.cart-page .cart-tag {
+  color: var(--pst-cart-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-cart-pill-blue) !important;
+}
+
+/* Disabled state matches compact grey Out style. */
+.cart-page button:disabled,
+.cart-page .btn:disabled,
+.cart-page button[aria-disabled="true"],
+.cart-page .btn[aria-disabled="true"],
+.cart-page a[aria-disabled="true"],
+.cart-page .disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-cart-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Keep cart button groups compact. */
+.cart-page .cart-actions,
+.cart-page .cart-summary-actions,
+.cart-page .discount-code,
+.cart-page .discount-row,
+.cart-page .promo-code,
+.cart-page .coupon-code,
+.cart-page .quantity,
+.cart-page .qty,
+.cart-page .qty-control,
+.cart-page .qty-controls {
+  gap: 6px !important;
+}
+
+/* Cart message text remains message text, not giant buttons. */
+.cart-page .cart-message,
+.cart-page .cart-note,
+.cart-page .free-shipping-message,
+.cart-page .shipping-message,
+.cart-page .discount-message {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+/* Mobile: preserve compact pill sizing. */
+@media (max-width: 700px) {
+  .cart-page button,
+  .cart-page .btn,
+  .cart-page a.btn,
+  .cart-page .cart-actions a,
+  .cart-page .cart-actions button,
+  .cart-page .cart-summary a.btn,
+  .cart-page .cart-summary button,
+  .cart-page .cart-empty a,
+  .cart-page .empty-cart a,
+  .cart-page .cart-item button,
+  .cart-page .cart-line button,
+  .cart-page .quantity button,
+  .cart-page .qty button,
+  .cart-page .qty-control button,
+  .cart-page .qty-controls button,
+  .cart-page .discount-code button,
+  .cart-page .discount-row button,
+  .cart-page .promo-code button,
+  .cart-page .coupon-code button,
+  .cart-page .pill,
+  .cart-page .badge,
+  .cart-page .status-pill,
+  .cart-page .cart-status-pill,
+  .cart-page .cart-tag,
+  .cart-page .shipping-pill,
+  .cart-page .free-shipping-pill {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .cart-page .quantity button,
+  .cart-page .qty button,
+  .cart-page .qty-control button,
+  .cart-page .qty-controls button {
+    min-width: 25px !important;
+    width: 25px !important;
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .cart-page button,
+  .cart-page .btn,
+  .cart-page a.btn,
+  .cart-page .cart-actions a,
+  .cart-page .cart-actions button,
+  .cart-page .cart-summary a.btn,
+  .cart-page .cart-summary button,
+  .cart-page .cart-empty a,
+  .cart-page .empty-cart a,
+  .cart-page .cart-item button,
+  .cart-page .cart-line button,
+  .cart-page .quantity button,
+  .cart-page .qty button,
+  .cart-page .qty-control button,
+  .cart-page .qty-controls button,
+  .cart-page .discount-code button,
+  .cart-page .discount-row button,
+  .cart-page .promo-code button,
+  .cart-page .coupon-code button,
+  .cart-page .pill,
+  .cart-page .badge,
+  .cart-page .status-pill,
+  .cart-page .cart-status-pill,
+  .cart-page .cart-tag,
+  .cart-page .shipping-pill,
+  .cart-page .free-shipping-pill {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+
+  .cart-page .quantity button,
+  .cart-page .qty button,
+  .cart-page .qty-control button,
+  .cart-page .qty-controls button {
+    min-width: 24px !important;
+    width: 24px !important;
+    padding: 0 !important;
+  }
+}
+</style>
+
 </head>
 <body data-page="cart">
   <header class="site-header">
