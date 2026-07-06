@@ -1,5 +1,5 @@
-/* PST catalog mobile inventory/action alignment fix
-   Purpose: Add, Out, and On Order render consistently on iPhone Safari without changing desktop catalog. */
+/* PST catalog inventory/action alignment fix
+   Purpose: show one On Order badge on desktop and mobile; keep Add/Out consistent. */
 .catalog-dose-option {
   grid-template-areas: none !important;
   grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(62px, .65fr) minmax(148px, auto) !important;
@@ -195,31 +195,31 @@
   }
 }
 
-/* Desktop restore: this file exists for mobile. Do not show On Order badges or widen PC rows. */
+/* Desktop: show one On Order badge, with enough room beside Add/Out. */
 @media (min-width: 761px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(78px, .9fr) 42px !important;
+    grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(78px, .9fr) minmax(148px, auto) !important;
   }
 
   .catalog-row-actions {
-    min-width: 42px !important;
-    width: 42px !important;
-    gap: 0 !important;
+    min-width: 148px !important;
+    width: auto !important;
+    gap: 6px !important;
   }
 
   .catalog-row-actions .catalog-incoming-pill,
   .catalog-incoming-pill {
-    display: none !important;
+    display: inline-flex !important;
   }
 
   .catalog-row-actions .card-cart-button,
   .catalog-dose-option .card-cart-button,
   .catalog-dose-option .card-cart-button:disabled,
   .catalog-dose-option .card-cart-button[aria-disabled="true"] {
-    min-width: 38px !important;
-    width: 38px !important;
-    height: 25px !important;
-    min-height: 25px !important;
-    padding: 0 7px !important;
+    min-width: 62px !important;
+    width: 62px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    padding: 0 8px !important;
   }
 }

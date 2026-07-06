@@ -1,19 +1,14 @@
 /* PST catalog inventory display fix
-   Purpose: make public catalog show incoming inventory badges reliably on mobile only. */
+   Purpose: show exactly one incoming inventory badge on desktop and mobile. */
 (function () {
   if (window.__pstCatalogInventoryFixLoaded) return;
   window.__pstCatalogInventoryFixLoaded = true;
 
   const OPEN_STATUS_PATTERN = /(ordered|order|on[_\s-]?order|pending|purchased|submitted|in[_\s-]?transit|transit|shipped|enroute|en[_\s-]?route)/i;
   const CLOSED_STATUS_PATTERN = /(received|complete|completed|cancelled|canceled|issue|closed)/i;
-  const MOBILE_QUERY = "(max-width: 760px)";
   let incomingMap = new Map();
   let fetchTimer = null;
   let patching = false;
-
-  function isMobileCatalog() {
-    return window.matchMedia(MOBILE_QUERY).matches;
-  }
 
   function normalizeIncomingStatus(value) {
     const raw = String(value || "ordered").trim().toLowerCase();
@@ -127,12 +122,20 @@
       .filter(Boolean);
   }
 
+  function rowForButton(button) {
+    return button.closest(".catalog-dose-option") || button.closest(".catalog-row-actions") || button.parentElement;
+  }
+
+  function hasNativeIncomingBadge(row, actionCell) {
+    const nativeSelector = ".catalog-incoming-pill:not(.catalog-inventory-fix-pill)";
+    return !!(actionCell?.querySelector(nativeSelector) || row?.querySelector(nativeSelector));
+  }
+
   function renderIncomingBadges() {
     if (patching) return;
     patching = true;
     try {
       document.querySelectorAll(".catalog-inventory-fix-pill").forEach((node) => node.remove());
-      if (!isMobileCatalog()) return;
 
       document.querySelectorAll("[data-add-to-cart]").forEach((button) => {
         const key = String(button.dataset.addToCart || "").trim();
@@ -141,8 +144,11 @@
         if (!label) return;
 
         const actionCell = button.closest(".catalog-row-actions") || button.parentElement;
+        const row = rowForButton(button);
         if (!actionCell) return;
-        if (actionCell.querySelector(".catalog-incoming-pill:not(.catalog-inventory-fix-pill)")) return;
+
+        // If app.js already rendered an On Order / In Transit badge, do not add another one.
+        if (hasNativeIncomingBadge(row, actionCell)) return;
 
         const pill = document.createElement("span");
         pill.className = "catalog-incoming-pill catalog-inventory-fix-pill";
@@ -195,10 +201,6 @@
     const grid = document.querySelector("[data-catalog-grid]") || document.body;
     const observer = new MutationObserver(() => scheduleRefresh());
     observer.observe(grid, { childList: true, subtree: true });
-
-    const mq = window.matchMedia(MOBILE_QUERY);
-    if (mq.addEventListener) mq.addEventListener("change", () => renderIncomingBadges());
-    else if (mq.addListener) mq.addListener(() => renderIncomingBadges());
   }
 
   if (document.readyState === "loading") {
