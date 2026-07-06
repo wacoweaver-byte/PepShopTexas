@@ -13,6 +13,187 @@
   <link rel="stylesheet" href="styles.css?v=19">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=22"></script>
+
+<style id="pst-faq-compact-catalog-pill-style-v1">
+/* PST FAQ compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: public header nav links, cart count, search button, FAQ action links,
+   and mobile sizing. */
+:root {
+  --pst-faq-pill-h: 26px;
+  --pst-faq-pill-font: 10px;
+  --pst-faq-pill-weight: 700;
+  --pst-faq-pill-radius: 999px;
+  --pst-faq-pill-pad-x: 10px;
+  --pst-faq-pill-line: #c9ced6;
+  --pst-faq-pill-ink: #101820;
+  --pst-faq-pill-blue: #003f9e;
+  --pst-faq-pill-red: #bd0000;
+  --pst-faq-pill-green: #0c6b3a;
+  --pst-faq-pill-danger: #8a1f17;
+}
+
+/* Compact pill base for public FAQ links/buttons. */
+.main-nav a,
+.main-nav .cart-link,
+.search button,
+.faq-actions a,
+.cart-link [data-cart-count],
+[data-cart-count] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-faq-pill-h) !important;
+  height: var(--pst-faq-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-faq-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-faq-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-faq-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-faq-pill-font) !important;
+  font-weight: var(--pst-faq-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Header nav: compact grey-outline pills. */
+.main-nav {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+.main-nav a,
+.main-nav .cart-link {
+  color: var(--pst-faq-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-faq-pill-line) !important;
+}
+
+/* Current FAQ page: compact red active pill. */
+.main-nav a[href="faq.html"] {
+  color: #ffffff !important;
+  background: var(--pst-faq-pill-red) !important;
+  border-color: var(--pst-faq-pill-red) !important;
+}
+
+/* FAQ card action links: compact catalog blue-outline pills. */
+.faq-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+.faq-actions a {
+  color: var(--pst-faq-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-faq-pill-blue) !important;
+}
+
+/* Search button: same compact pill language, icon centered. */
+.search {
+  gap: 6px !important;
+}
+
+.search button {
+  min-width: var(--pst-faq-pill-h) !important;
+  width: var(--pst-faq-pill-h) !important;
+  padding: 0 !important;
+  color: var(--pst-faq-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-faq-pill-blue) !important;
+}
+
+.search button svg {
+  width: 13px !important;
+  height: 13px !important;
+  stroke: currentColor !important;
+}
+
+/* Cart count becomes a tiny nested pill without making the cart link bulky. */
+.cart-link {
+  gap: 5px !important;
+}
+
+.cart-link [data-cart-count],
+[data-cart-count] {
+  min-width: 16px !important;
+  width: auto !important;
+  min-height: 16px !important;
+  height: 16px !important;
+  padding: 0 5px !important;
+  color: var(--pst-faq-pill-red) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-faq-pill-red) !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+}
+
+/* Keep the brand/logo text untouched; only nav/action controls get pill styling. */
+.brand {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Mobile: preserve compact pill sizing. */
+@media (max-width: 700px) {
+  .main-nav a,
+  .main-nav .cart-link,
+  .search button,
+  .faq-actions a {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .main-nav,
+  .faq-actions {
+    gap: 5px !important;
+  }
+
+  .search button {
+    min-width: 25px !important;
+    width: 25px !important;
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .main-nav a,
+  .main-nav .cart-link,
+  .search button,
+  .faq-actions a {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+
+  .search button {
+    min-width: 24px !important;
+    width: 24px !important;
+    padding: 0 !important;
+  }
+}
+</style>
+
 </head>
 <body>
   <header class="site-header compact-header">
