@@ -343,6 +343,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
                 <p class="margin-note full">Formula: cost / 0.20. This fills the regular price; sale pricing still works separately.</p>
               </div>
               <label class="full">Description<textarea name="description" placeholder="Optional customer-facing description"></textarea></label>
+              <label class="full">COA URL<input name="coa_url" placeholder="/assets/coas/coa-retatrutide-10mg-afi-2025-12-28.jpeg"></label>
+              <label class="full">COA Button Label<input name="coa_label" value="View COA" placeholder="View COA"></label>
               <div class="full checks">
                 <label class="check"><input name="is_active" type="checkbox" checked> Visible to customers</label>
                 <label class="check"><input name="featured" type="checkbox"> Featured</label>
@@ -398,7 +400,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
     const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,hot_peptide,sale_enabled,sale_price,sale_label";
+    const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,hot_peptide,sale_enabled,sale_price,sale_label";
     let products = [];
     let activeProduct = null;
     let inventoryCostsByProductKey = {};
@@ -712,6 +714,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         description: form.elements.description.value.trim() || null,
         research_notes: null,
         testing_statement: null,
+        coa_url: form.elements.coa_url.value.trim() || null,
+        coa_label: form.elements.coa_label.value.trim() || "View COA",
         price,
         current_inventory: currentInventory,
         is_active: form.elements.is_active.checked,
@@ -744,6 +748,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         is_active: form.elements.is_active.checked,
         featured: form.elements.featured.checked,
         blend_stack: category === "Stack",
+        coa_url: catalogPayload.coa_url,
+        coa_label: catalogPayload.coa_label,
         cost_per_unit: Number.isFinite(costPerUnit) && costPerUnit > 0 ? costPerUnit : null,
         updated_at: now
       };
@@ -798,6 +804,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
             <label class="full">Description<textarea name="description">${esc(activeProduct.description || "")}</textarea></label>
             <label class="full">Research Notes<textarea name="research_notes">${esc(activeProduct.research_notes || "")}</textarea></label>
             <label class="full">Testing Statement<textarea name="testing_statement">${esc(activeProduct.testing_statement || "")}</textarea></label>
+            <label class="full">COA URL<input name="coa_url" value="${esc(activeProduct.coa_url || "")}" placeholder="/assets/coas/coa-product-dose-lab-date.jpeg"></label>
+            <label class="full">COA Button Label<input name="coa_label" value="${esc(activeProduct.coa_label || "View COA")}" placeholder="View COA"></label>
             <div class="full checks">
               <label class="check"><input name="is_active" type="checkbox" ${activeProduct.is_active ? "checked" : ""}> Visible to customers</label>
               <label class="check"><input name="featured" type="checkbox" ${activeProduct.featured ? "checked" : ""}> Featured</label>
@@ -835,6 +843,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         description: value("description", form).trim() || null,
         research_notes: value("research_notes", form).trim() || null,
         testing_statement: value("testing_statement", form).trim() || null,
+        coa_url: value("coa_url", form).trim() || null,
+        coa_label: value("coa_label", form).trim() || "View COA",
         is_active: checked("is_active", form),
         featured: checked("featured", form),
         blend_stack: category === "Stack",
@@ -861,6 +871,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         is_active: data.is_active,
         featured: data.featured,
         blend_stack: data.blend_stack,
+        coa_url: data.coa_url,
+        coa_label: data.coa_label,
         cost_per_unit: Number.isFinite(costPerUnit) && costPerUnit > 0 ? costPerUnit : null,
         updated_at: data.updated_at
       };

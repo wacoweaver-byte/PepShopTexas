@@ -3,7 +3,7 @@ const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const ADMIN_ORDER_NOTIFICATION_EMAILS = ["wacoweaver@gmail.com"];
-const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
+const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,is_active,starts_at,ends_at,sort_order,accent_color";
 const EMAIL_FUNCTION_NAME = "send-order-email";
 const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
@@ -484,6 +484,21 @@ function updateCatalogHeading({ heading, eyebrow, category, query, count }) {
   eyebrow.textContent = category || query ? `${count} research product${count === 1 ? "" : "s"}` : "Research products";
 }
 
+
+function productCoaUrl(product = {}) {
+  return String(product.coa_url || product.coaUrl || product.testing_url || product.test_report_url || "").trim();
+}
+
+function productCoaLabel(product = {}) {
+  return String(product.coa_label || product.coaLabel || "").trim() || "View COA";
+}
+
+function productCoaMarkup(product = {}) {
+  const url = productCoaUrl(product);
+  if (!url) return "";
+  return `<section class="coa-section"><h2>Testing Documentation</h2><p>Third-party analytical report available for research documentation.</p><a class="coa-button" href="${escapeAttribute(url)}" target="_blank" rel="noopener">${escapeHtml(productCoaLabel(product))}</a></section>`;
+}
+
 async function renderProductDetail() {
   const shell = document.querySelector("[data-product-detail]");
   const productKey = params.get("key");
@@ -515,6 +530,7 @@ async function renderProductDetail() {
         ${product.description ? `<section><h2>Description</h2><p>${escapeHtml(product.description)}</p></section>` : ""}
         ${product.research_notes ? `<section><h2>Research Notes</h2><p>${escapeHtml(product.research_notes)}</p></section>` : ""}
         ${product.testing_statement ? `<section><h2>Testing</h2><p>${escapeHtml(product.testing_statement)}</p></section>` : ""}
+        ${productCoaMarkup(product)}
       </div>
     `;
     bindCartButtons();
