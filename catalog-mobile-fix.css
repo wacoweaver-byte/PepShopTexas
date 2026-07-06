@@ -1,14 +1,28 @@
 /* PST catalog inventory/action alignment fix
-   Purpose: show one On Order badge on desktop and mobile; keep Add/Out consistent. */
+   Purpose: show one On Order badge on desktop and mobile; use clear stock labels. */
 .catalog-dose-option {
   grid-template-areas: none !important;
-  grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(62px, .65fr) minmax(148px, auto) !important;
+  grid-template-columns: minmax(54px, .65fr) minmax(76px, .75fr) minmax(92px, .9fr) minmax(148px, auto) !important;
   align-items: center !important;
 }
 
 .catalog-dose-name { grid-column: 1 !important; }
 .catalog-dose-option strong { grid-column: 2 !important; }
 .catalog-card .catalog-stock { grid-column: 3 !important; }
+
+.catalog-card .catalog-stock {
+  font-size: 0 !important;
+}
+
+.catalog-card .catalog-stock::before {
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+}
+
+.catalog-card .catalog-stock.available::before { content: "In Stock" !important; }
+.catalog-card .catalog-stock.limited::before { content: "Limited" !important; }
+.catalog-card .catalog-stock.out::before { content: "Out of Stock" !important; }
 
 .catalog-row-actions {
   grid-column: 4 !important;
@@ -117,7 +131,7 @@
 
 @media (max-width: 980px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(48px, .7fr) minmax(66px, .8fr) minmax(52px, .58fr) minmax(144px, auto) !important;
+    grid-template-columns: minmax(48px, .62fr) minmax(66px, .72fr) minmax(86px, .86fr) minmax(144px, auto) !important;
     gap: 7px !important;
   }
 
@@ -128,46 +142,8 @@
 
 @media (max-width: 700px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(46px, .72fr) minmax(64px, .82fr) minmax(38px, .48fr) minmax(142px, auto) !important;
+    grid-template-columns: minmax(44px, .60fr) minmax(60px, .70fr) minmax(76px, .82fr) minmax(136px, auto) !important;
     gap: 5px !important;
-  }
-
-  .catalog-row-actions {
-    min-width: 142px !important;
-    gap: 5px !important;
-  }
-
-  .catalog-row-actions .catalog-incoming-pill,
-  .catalog-incoming-pill {
-    min-width: 76px !important;
-    width: 76px !important;
-    height: 25px !important;
-    min-height: 25px !important;
-    padding: 0 6px !important;
-    font-size: 10px !important;
-  }
-
-  .catalog-row-actions .card-cart-button,
-  .catalog-dose-option .card-cart-button,
-  .catalog-dose-option .card-cart-button:disabled,
-  .catalog-dose-option .card-cart-button[aria-disabled="true"] {
-    min-width: 60px !important;
-    width: 60px !important;
-    height: 25px !important;
-    min-height: 25px !important;
-    padding: 0 6px !important;
-  }
-}
-
-@media (max-width: 390px) {
-  .catalog-dose-option {
-    grid-template-columns: minmax(42px, .72fr) minmax(58px, .78fr) minmax(30px, .40fr) minmax(136px, auto) !important;
-    gap: 4px !important;
-  }
-
-  .catalog-dose-name,
-  .catalog-dose-option strong {
-    font-size: 12px !important;
   }
 
   .catalog-card .catalog-stock::before {
@@ -176,13 +152,16 @@
 
   .catalog-row-actions {
     min-width: 136px !important;
-    gap: 4px !important;
+    gap: 5px !important;
   }
 
   .catalog-row-actions .catalog-incoming-pill,
   .catalog-incoming-pill {
     min-width: 74px !important;
     width: 74px !important;
+    height: 25px !important;
+    min-height: 25px !important;
+    padding: 0 6px !important;
     font-size: 9px !important;
   }
 
@@ -192,13 +171,52 @@
   .catalog-dose-option .card-cart-button[aria-disabled="true"] {
     min-width: 58px !important;
     width: 58px !important;
+    height: 25px !important;
+    min-height: 25px !important;
+    padding: 0 6px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .catalog-dose-option {
+    grid-template-columns: minmax(40px, .62fr) minmax(56px, .68fr) minmax(70px, .78fr) minmax(128px, auto) !important;
+    gap: 4px !important;
+  }
+
+  .catalog-dose-name,
+  .catalog-dose-option strong {
+    font-size: 12px !important;
+  }
+
+  .catalog-card .catalog-stock::before {
+    font-size: 9px !important;
+  }
+
+  .catalog-row-actions {
+    min-width: 128px !important;
+    gap: 4px !important;
+  }
+
+  .catalog-row-actions .catalog-incoming-pill,
+  .catalog-incoming-pill {
+    min-width: 70px !important;
+    width: 70px !important;
+    font-size: 8.5px !important;
+  }
+
+  .catalog-row-actions .card-cart-button,
+  .catalog-dose-option .card-cart-button,
+  .catalog-dose-option .card-cart-button:disabled,
+  .catalog-dose-option .card-cart-button[aria-disabled="true"] {
+    min-width: 54px !important;
+    width: 54px !important;
   }
 }
 
 /* Desktop: show one On Order badge, with enough room beside Add/Out. */
 @media (min-width: 761px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(78px, .9fr) minmax(148px, auto) !important;
+    grid-template-columns: minmax(54px, .65fr) minmax(76px, .75fr) minmax(92px, .9fr) minmax(148px, auto) !important;
   }
 
   .catalog-row-actions {

@@ -84,6 +84,13 @@
     return label ? `<span class="catalog-incoming-pill">${escapeHtml(label)}</span>` : "";
   }
 
+  function improvedStockText(product = {}) {
+    const count = Number(product.current_inventory || 0);
+    if (count <= 0) return "Out of Stock";
+    if (count <= 10) return "Limited";
+    return "In Stock";
+  }
+
   async function robustFetchIncomingStatusRows(keys = []) {
     const client = requireSupabaseClient();
     const productKeys = Array.from(new Set((keys || []).map((key) => String(key || "").trim()).filter(Boolean)));
@@ -131,11 +138,29 @@
     return !!(actionCell?.querySelector(nativeSelector) || row?.querySelector(nativeSelector));
   }
 
+  function normalizeStockLabels() {
+    document.querySelectorAll(".catalog-dose-option").forEach((row) => {
+      const stock = row.querySelector(".catalog-stock");
+      if (!stock) return;
+      if (stock.classList.contains("out")) {
+        stock.textContent = "Out of Stock";
+        stock.setAttribute("aria-label", "Out of Stock");
+      } else if (stock.classList.contains("limited")) {
+        stock.textContent = "Limited";
+        stock.setAttribute("aria-label", "Limited");
+      } else if (stock.classList.contains("available")) {
+        stock.textContent = "In Stock";
+        stock.setAttribute("aria-label", "In Stock");
+      }
+    });
+  }
+
   function renderIncomingBadges() {
     if (patching) return;
     patching = true;
     try {
       document.querySelectorAll(".catalog-inventory-fix-pill").forEach((node) => node.remove());
+      normalizeStockLabels();
 
       document.querySelectorAll("[data-add-to-cart]").forEach((button) => {
         const key = String(button.dataset.addToCart || "").trim();
@@ -187,6 +212,7 @@
     try { productIncomingPlainText = incomingPlainText; } catch (_) {}
     try { productIncomingNotice = incomingNotice; } catch (_) {}
     try { productIncomingPill = incomingPill; } catch (_) {}
+    try { stockText = improvedStockText; } catch (_) {}
     return true;
   }
 
