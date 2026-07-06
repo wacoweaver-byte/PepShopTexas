@@ -1595,84 +1595,91 @@ a { color: inherit; text-decoration: none; }
 }
 
 
-/* PST catalog incoming alignment + iPhone visibility fix
-   On Order / In Transit gets a dedicated column directly left of Add/Out.
-   This also clears older tiny-phone grid-area rules that were hiding the badge on mobile Safari. */
+/* PST catalog On Order final layout
+   Incoming status now lives in the same right-side action cell as Add/Out.
+   This is more reliable on iPhone Safari than a separate fifth grid column. */
 .catalog-dose-option {
   grid-template-areas: none !important;
-  grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(62px, .65fr) 96px 42px !important;
+  grid-template-columns: minmax(54px, .7fr) minmax(76px, .8fr) minmax(62px, .65fr) minmax(124px, auto) !important;
   align-items: center !important;
 }
 
 .catalog-dose-name { grid-column: 1 !important; }
 .catalog-dose-option strong { grid-column: 2 !important; }
 .catalog-card .catalog-stock { grid-column: 3 !important; }
-.catalog-incoming-slot { grid-column: 4 !important; }
-.catalog-dose-option .card-cart-button {
-  grid-column: 5 !important;
-  justify-self: end !important;
-}
 
-.catalog-incoming-slot {
+.catalog-row-actions {
+  grid-column: 4 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  min-width: 0 !important;
+  gap: 8px !important;
+  min-width: 124px !important;
   margin: 0 !important;
+  padding: 0 !important;
   overflow: visible !important;
-  visibility: visible !important;
-  opacity: 1 !important;
 }
 
-.catalog-incoming-slot:empty {
-  visibility: hidden !important;
-}
-
-.catalog-incoming-slot .catalog-incoming-pill {
+.catalog-row-actions .catalog-incoming-pill {
+  flex: 0 0 auto !important;
   display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   margin: 0 !important;
-  overflow: visible !important;
+  white-space: nowrap !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+.catalog-row-actions .card-cart-button {
+  flex: 0 0 auto !important;
+  grid-column: auto !important;
+  justify-self: auto !important;
 }
 
 @media (max-width: 980px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(48px, .7fr) minmax(66px, .8fr) minmax(56px, .6fr) 88px 40px !important;
+    grid-template-columns: minmax(48px, .7fr) minmax(66px, .8fr) minmax(52px, .58fr) minmax(118px, auto) !important;
     gap: 8px !important;
+  }
+
+  .catalog-row-actions {
+    min-width: 118px !important;
+    gap: 7px !important;
   }
 }
 
 @media (max-width: 700px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(46px, .72fr) minmax(68px, .86fr) minmax(38px, .48fr) 76px 38px !important;
+    grid-template-columns: minmax(46px, .72fr) minmax(64px, .82fr) minmax(38px, .48fr) minmax(116px, auto) !important;
     gap: 5px !important;
   }
 
-  .catalog-incoming-slot {
-    min-width: 76px !important;
-    width: 76px !important;
+  .catalog-row-actions {
+    min-width: 116px !important;
+    gap: 6px !important;
   }
 
-  .catalog-incoming-slot .catalog-incoming-pill {
+  .catalog-row-actions .catalog-incoming-pill {
     min-width: 72px !important;
     width: 72px !important;
     height: 24px !important;
     padding: 0 6px !important;
     font-size: 10px !important;
     line-height: 1 !important;
-    white-space: nowrap !important;
   }
 
-  .catalog-dose-option .card-cart-button {
+  .catalog-row-actions .card-cart-button {
     min-width: 38px !important;
     width: 38px !important;
+    height: 24px !important;
+    padding: 0 6px !important;
   }
 }
 
 @media (max-width: 390px) {
   .catalog-dose-option {
-    grid-template-columns: minmax(42px, .72fr) minmax(60px, .82fr) minmax(32px, .42fr) 70px 36px !important;
+    grid-template-columns: minmax(42px, .72fr) minmax(58px, .78fr) minmax(30px, .40fr) minmax(108px, auto) !important;
     gap: 4px !important;
   }
 
@@ -1685,18 +1692,18 @@ a { color: inherit; text-decoration: none; }
     font-size: 10px !important;
   }
 
-  .catalog-incoming-slot {
-    min-width: 70px !important;
-    width: 70px !important;
+  .catalog-row-actions {
+    min-width: 108px !important;
+    gap: 4px !important;
   }
 
-  .catalog-incoming-slot .catalog-incoming-pill {
+  .catalog-row-actions .catalog-incoming-pill {
     min-width: 68px !important;
     width: 68px !important;
     font-size: 9px !important;
   }
 
-  .catalog-dose-option .card-cart-button {
+  .catalog-row-actions .card-cart-button {
     min-width: 36px !important;
     width: 36px !important;
   }

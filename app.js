@@ -615,12 +615,14 @@ function catalogDoseOptions(variants) {
   return `
     <div class="catalog-dose-options${singleClass}">
       ${variants.map((product) => `
-        <div class="catalog-dose-option ${productIncomingLabel(product) ? "has-incoming" : ""}">
+        <div class="catalog-dose-option">
           <a class="catalog-dose-name" href="${productUrl(product)}">${escapeHtml(product.strength || product.product_key)}</a>
           <strong>${priceHtml(product)}</strong>
           <span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span>
-          <span class="catalog-incoming-slot">${productIncomingPill(product)}</span>
-          <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out" : "Add to Cart"}</button>
+          <span class="catalog-row-actions">
+            ${productIncomingPill(product)}
+            <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out" : "Add to Cart"}</button>
+          </span>
         </div>
       `).join("")}
     </div>
