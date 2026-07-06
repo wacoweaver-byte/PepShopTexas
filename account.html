@@ -605,48 +605,98 @@ main.wrap .same-row {
 
 
 
-<style id="pst-account-header-crowding-fix-v2">
-/* PST Account header crowding fix v2
-   Match the customer-facing logo size/placement more closely, then give nav/search room without overlap. */
+
+<style id="pst-account-header-match-index-v3">
+/* PST Account header index-match fix
+   Purpose: make the account header logo position/scale match index.html.
+   The nav/search adjust around the logo; the logo does not move or enlarge. */
+
+/* Same public header sizing/placement language as index.html/styles.css. */
 .account-site-header.site-header {
-  grid-template-columns: 250px minmax(0, 1fr) minmax(220px, 300px) !important;
-  gap: clamp(12px, 1.4vw, 24px) !important;
-  min-height: 80px !important;
-  padding-left: clamp(30px, 5vw, 88px) !important;
-  padding-right: clamp(30px, 5vw, 88px) !important;
+  display: grid !important;
+  grid-template-columns: 250px minmax(560px, 1fr) 258px !important;
   align-items: center !important;
+  gap: clamp(16px, 2vw, 30px) !important;
+  min-height: 80px !important;
+  padding: 0 clamp(30px, 5vw, 88px) !important;
+  color: #ffffff !important;
+  background: #03060a !important;
+  border-bottom: 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 20 !important;
 }
 
-/* Keep account logo in the same left placement/scale language as the public header. */
+/* Exact index-style logo placement/scale. */
 .account-site-header .brand {
+  display: inline-grid !important;
+  justify-items: center !important;
+  align-items: center !important;
   justify-self: start !important;
   align-self: center !important;
   width: 184px !important;
+  max-width: 184px !important;
+  min-width: 184px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   transform: none !important;
+  text-decoration: none !important;
 }
 
 .account-site-header .brand-main {
+  position: relative !important;
+  color: #ffffff !important;
   font-size: 31px !important;
+  font-weight: 900 !important;
   line-height: 1 !important;
   letter-spacing: 1px !important;
+  white-space: nowrap !important;
   transform: none !important;
+}
+
+.account-site-header .brand-main::before,
+.account-site-header .brand-main::after {
+  content: "" !important;
+  position: absolute !important;
+  bottom: -12px !important;
+  width: 42px !important;
+  height: 2px !important;
+  background: #bd0000 !important;
+}
+
+.account-site-header .brand-main::before {
+  left: 0 !important;
+}
+
+.account-site-header .brand-main::after {
+  right: 0 !important;
 }
 
 .account-site-header .brand-sub {
   margin-top: 6px !important;
+  color: #ffffff !important;
   font-size: 16px !important;
+  font-weight: 800 !important;
   line-height: 1 !important;
   letter-spacing: 9px !important;
   transform: translateX(4px) !important;
+  white-space: nowrap !important;
 }
 
-/* Fix the actual crowding: nav gets tighter and scrolls before overlapping. */
+/* Account has more nav items than index, so only the nav compresses/scrolls. */
 .account-site-header .main-nav {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   min-width: 0 !important;
-  justify-content: flex-start !important;
-  gap: clamp(12px, 1.35vw, 22px) !important;
+  gap: clamp(10px, 1.35vw, 22px) !important;
+  color: #ffffff !important;
   font-size: clamp(12px, 1.05vw, 14px) !important;
+  font-weight: 800 !important;
   line-height: 1 !important;
+  white-space: nowrap !important;
+  text-transform: uppercase !important;
   flex-wrap: nowrap !important;
   overflow-x: auto !important;
   overflow-y: hidden !important;
@@ -662,72 +712,82 @@ main.wrap .same-row {
 .account-site-header .main-nav a,
 .account-site-header .account-logout {
   flex: 0 0 auto !important;
+  color: #ffffff !important;
   white-space: nowrap !important;
+}
+
+.account-site-header .main-nav #accountGreetingLink {
+  text-transform: none !important;
 }
 
 .account-site-header .account-logout {
   min-height: 34px !important;
   height: 34px !important;
   padding: 0 12px !important;
+  color: #ffffff !important;
+  background: #bd0000 !important;
+  border: 1px solid #bd0000 !important;
   border-radius: 8px !important;
   font-size: clamp(12px, 1.05vw, 14px) !important;
+  font-weight: 900 !important;
   line-height: 1 !important;
+  cursor: pointer !important;
 }
 
+/* Same search placement/scale as public header, with controlled shrink. */
 .account-site-header .search {
+  display: grid !important;
+  grid-template-columns: 1fr 34px !important;
+  align-items: center !important;
   justify-self: end !important;
-  width: clamp(220px, 19vw, 300px) !important;
+  width: 258px !important;
+  max-width: 258px !important;
   min-width: 220px !important;
-  height: 38px !important;
+  height: 42px !important;
+  padding: 0 6px 0 14px !important;
+  border: 1px solid rgba(255,255,255,.25) !important;
+  border-radius: 10px !important;
+  background: transparent !important;
 }
 
 .account-site-header .search input {
-  font-size: 14px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  color: #ffffff !important;
+  font: inherit !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+.account-site-header .search input::placeholder {
+  color: rgba(255,255,255,.88) !important;
 }
 
 .account-site-header .search button {
-  width: 32px !important;
-  height: 32px !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  color: #ffffff !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
 }
 
 .account-site-header .search svg {
-  width: 21px !important;
-  height: 21px !important;
+  width: 24px !important;
+  height: 24px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
 }
 
-@media (max-width: 1280px) {
-  .account-site-header.site-header {
-    grid-template-columns: 220px minmax(0, 1fr) minmax(200px, 260px) !important;
-    padding-left: 28px !important;
-    padding-right: 28px !important;
-    gap: 12px !important;
-  }
-
-  .account-site-header .brand {
-    width: 184px !important;
-  }
-
-  .account-site-header .brand-main {
-    font-size: 31px !important;
-  }
-
-  .account-site-header .brand-sub {
-    font-size: 16px !important;
-    letter-spacing: 9px !important;
-  }
-
-  .account-site-header .main-nav {
-    gap: 12px !important;
-    font-size: 12px !important;
-  }
-
-  .account-site-header .search {
-    width: 220px !important;
-    min-width: 200px !important;
-  }
-}
-
-@media (max-width: 1040px) {
+/* Tablet: keep logo scale/placement, move nav below before it can overlap. */
+@media (max-width: 1180px) {
   .account-site-header.site-header {
     grid-template-columns: 250px minmax(0, 1fr) !important;
     grid-template-areas:
@@ -735,31 +795,34 @@ main.wrap .same-row {
       "nav nav" !important;
     row-gap: 10px !important;
     min-height: auto !important;
-    padding-top: 12px !important;
-    padding-bottom: 12px !important;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
   }
 
   .account-site-header .brand {
     grid-area: brand !important;
     justify-self: start !important;
     width: 184px !important;
+    max-width: 184px !important;
+    min-width: 184px !important;
   }
 
   .account-site-header .search {
     grid-area: search !important;
     justify-self: end !important;
-    width: min(300px, 100%) !important;
+    width: min(258px, 100%) !important;
   }
 
   .account-site-header .main-nav {
     grid-area: nav !important;
     width: 100% !important;
     justify-content: flex-start !important;
-    gap: 14px !important;
+    gap: 16px !important;
     font-size: 13px !important;
   }
 }
 
+/* Phone: same public logo, just smaller like the public mobile header. */
 @media (max-width: 760px) {
   .account-site-header.site-header {
     grid-template-columns: 1fr !important;
@@ -772,8 +835,11 @@ main.wrap .same-row {
   }
 
   .account-site-header .brand {
+    grid-area: brand !important;
     justify-self: start !important;
     width: 170px !important;
+    max-width: 170px !important;
+    min-width: 170px !important;
   }
 
   .account-site-header .brand-main {
@@ -786,6 +852,7 @@ main.wrap .same-row {
   }
 
   .account-site-header .main-nav {
+    grid-area: nav !important;
     justify-content: flex-start !important;
     gap: 14px !important;
     font-size: 13px !important;
@@ -800,9 +867,11 @@ main.wrap .same-row {
   }
 
   .account-site-header .search {
+    grid-area: search !important;
     justify-self: center !important;
     width: min(360px, 100%) !important;
     min-width: 0 !important;
+    max-width: 360px !important;
   }
 }
 </style>
