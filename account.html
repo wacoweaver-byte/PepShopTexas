@@ -603,6 +603,210 @@ main.wrap .same-row {
 }
 </style>
 
+
+
+<style id="pst-account-header-crowding-fix-v2">
+/* PST Account header crowding fix v2
+   Match the customer-facing logo size/placement more closely, then give nav/search room without overlap. */
+.account-site-header.site-header {
+  grid-template-columns: 250px minmax(0, 1fr) minmax(220px, 300px) !important;
+  gap: clamp(12px, 1.4vw, 24px) !important;
+  min-height: 80px !important;
+  padding-left: clamp(30px, 5vw, 88px) !important;
+  padding-right: clamp(30px, 5vw, 88px) !important;
+  align-items: center !important;
+}
+
+/* Keep account logo in the same left placement/scale language as the public header. */
+.account-site-header .brand {
+  justify-self: start !important;
+  align-self: center !important;
+  width: 184px !important;
+  transform: none !important;
+}
+
+.account-site-header .brand-main {
+  font-size: 31px !important;
+  line-height: 1 !important;
+  letter-spacing: 1px !important;
+  transform: none !important;
+}
+
+.account-site-header .brand-sub {
+  margin-top: 6px !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  letter-spacing: 9px !important;
+  transform: translateX(4px) !important;
+}
+
+/* Fix the actual crowding: nav gets tighter and scrolls before overlapping. */
+.account-site-header .main-nav {
+  min-width: 0 !important;
+  justify-content: flex-start !important;
+  gap: clamp(12px, 1.35vw, 22px) !important;
+  font-size: clamp(12px, 1.05vw, 14px) !important;
+  line-height: 1 !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  padding: 2px 0 !important;
+}
+
+.account-site-header .main-nav::-webkit-scrollbar {
+  display: none !important;
+}
+
+.account-site-header .main-nav a,
+.account-site-header .account-logout {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+.account-site-header .account-logout {
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: 8px !important;
+  font-size: clamp(12px, 1.05vw, 14px) !important;
+  line-height: 1 !important;
+}
+
+.account-site-header .search {
+  justify-self: end !important;
+  width: clamp(220px, 19vw, 300px) !important;
+  min-width: 220px !important;
+  height: 38px !important;
+}
+
+.account-site-header .search input {
+  font-size: 14px !important;
+}
+
+.account-site-header .search button {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.account-site-header .search svg {
+  width: 21px !important;
+  height: 21px !important;
+}
+
+@media (max-width: 1280px) {
+  .account-site-header.site-header {
+    grid-template-columns: 220px minmax(0, 1fr) minmax(200px, 260px) !important;
+    padding-left: 28px !important;
+    padding-right: 28px !important;
+    gap: 12px !important;
+  }
+
+  .account-site-header .brand {
+    width: 184px !important;
+  }
+
+  .account-site-header .brand-main {
+    font-size: 31px !important;
+  }
+
+  .account-site-header .brand-sub {
+    font-size: 16px !important;
+    letter-spacing: 9px !important;
+  }
+
+  .account-site-header .main-nav {
+    gap: 12px !important;
+    font-size: 12px !important;
+  }
+
+  .account-site-header .search {
+    width: 220px !important;
+    min-width: 200px !important;
+  }
+}
+
+@media (max-width: 1040px) {
+  .account-site-header.site-header {
+    grid-template-columns: 250px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "brand search"
+      "nav nav" !important;
+    row-gap: 10px !important;
+    min-height: auto !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .account-site-header .brand {
+    grid-area: brand !important;
+    justify-self: start !important;
+    width: 184px !important;
+  }
+
+  .account-site-header .search {
+    grid-area: search !important;
+    justify-self: end !important;
+    width: min(300px, 100%) !important;
+  }
+
+  .account-site-header .main-nav {
+    grid-area: nav !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+    gap: 14px !important;
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .account-site-header.site-header {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "brand"
+      "nav"
+      "search" !important;
+    justify-items: stretch !important;
+    padding: 14px 16px !important;
+  }
+
+  .account-site-header .brand {
+    justify-self: start !important;
+    width: 170px !important;
+  }
+
+  .account-site-header .brand-main {
+    font-size: 28px !important;
+  }
+
+  .account-site-header .brand-sub {
+    font-size: 15px !important;
+    letter-spacing: 7px !important;
+  }
+
+  .account-site-header .main-nav {
+    justify-content: flex-start !important;
+    gap: 14px !important;
+    font-size: 13px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .account-site-header .account-logout {
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 11px !important;
+    font-size: 12px !important;
+  }
+
+  .account-site-header .search {
+    justify-self: center !important;
+    width: min(360px, 100%) !important;
+    min-width: 0 !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-header compact-header account-site-header">
