@@ -241,3 +241,25 @@
     padding: 0 8px !important;
   }
 }
+
+/* PST price column alignment fix
+   Keeps every price right-justified to the same vertical edge. */
+.catalog-dose-option strong {
+  grid-column: 2 !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  justify-self: stretch !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
+@media (max-width: 700px) {
+  .catalog-dose-option strong {
+    text-align: right !important;
+    justify-self: stretch !important;
+    width: 100% !important;
+  }
+}
