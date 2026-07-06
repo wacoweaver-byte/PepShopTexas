@@ -1,11 +1,14 @@
 /* PST catalog inventory display fix
-   Purpose: make public catalog show incoming inventory badges reliably. */
+   Purpose: make public catalog show incoming inventory badges reliably, even after app.js redraws rows. */
 (function () {
   if (window.__pstCatalogInventoryFixLoaded) return;
   window.__pstCatalogInventoryFixLoaded = true;
 
   const OPEN_STATUS_PATTERN = /(ordered|order|on[_\s-]?order|pending|purchased|submitted|in[_\s-]?transit|transit|shipped|enroute|en[_\s-]?route)/i;
   const CLOSED_STATUS_PATTERN = /(received|complete|completed|cancelled|canceled|issue|closed)/i;
+  let incomingMap = new Map();
+  let fetchTimer = null;
+  let patching = false;
 
   function normalizeIncomingStatus(value) {
     const raw = String(value || "ordered").trim().toLowerCase();
@@ -60,6 +63,27 @@
     }));
   }
 
+  function incomingLabel(product = {}) {
+    const qty = Number(product.incoming_quantity || 0);
+    if (qty <= 0) return "";
+    return normalizeIncomingStatus(product.incoming_status) === "in_transit" ? "In Transit" : "On Order";
+  }
+
+  function incomingPlainText(product = {}) {
+    const label = incomingLabel(product);
+    return label ? `${label} / pending arrival. Not available for checkout until received into inventory.` : "";
+  }
+
+  function incomingNotice(product = {}) {
+    const text = incomingPlainText(product);
+    return text ? `<p class="checkout-note">${escapeHtml(text)}</p>` : "";
+  }
+
+  function incomingPill(product = {}) {
+    const label = incomingLabel(product);
+    return label ? `<span class="catalog-incoming-pill">${escapeHtml(label)}</span>` : "";
+  }
+
   async function robustFetchIncomingStatusRows(keys = []) {
     const client = requireSupabaseClient();
     const productKeys = Array.from(new Set((keys || []).map((key) => String(key || "").trim()).filter(Boolean)));
@@ -92,59 +116,82 @@
     return toIncomingRows(byKey);
   }
 
-  function incomingLabel(product = {}) {
-    const qty = Number(product.incoming_quantity || 0);
-    if (qty <= 0) return "";
-    return normalizeIncomingStatus(product.incoming_status) === "in_transit" ? "In Transit" : "On Order";
+  function collectRenderedKeys() {
+    return Array.from(document.querySelectorAll("[data-add-to-cart]"))
+      .map((button) => String(button.dataset.addToCart || "").trim())
+      .filter(Boolean);
   }
 
-  function incomingPlainText(product = {}) {
-    const label = incomingLabel(product);
-    return label ? `${label} / pending arrival. Not available for checkout until received into inventory.` : "";
+  function renderIncomingBadges() {
+    if (patching) return;
+    patching = true;
+    try {
+      document.querySelectorAll(".catalog-inventory-fix-pill").forEach((node) => node.remove());
+      document.querySelectorAll("[data-add-to-cart]").forEach((button) => {
+        const key = String(button.dataset.addToCart || "").trim();
+        const incoming = incomingMap.get(key);
+        const label = incomingLabel(incoming || {});
+        if (!label) return;
+
+        const actionCell = button.closest(".catalog-row-actions") || button.parentElement;
+        if (!actionCell) return;
+
+        const pill = document.createElement("span");
+        pill.className = "catalog-incoming-pill catalog-inventory-fix-pill";
+        pill.textContent = label;
+        pill.title = incomingPlainText(incoming);
+        actionCell.insertBefore(pill, button);
+      });
+    } finally {
+      patching = false;
+    }
   }
 
-  function incomingNotice(product = {}) {
-    const text = incomingPlainText(product);
-    return text ? `<p class="checkout-note">${escapeHtml(text)}</p>` : "";
+  async function refreshIncomingMap() {
+    if (typeof requireSupabaseClient !== "function") return;
+    const keys = Array.from(new Set(collectRenderedKeys()));
+    if (!keys.length) return;
+
+    try {
+      const rows = await robustFetchIncomingStatusRows(keys);
+      incomingMap = new Map(rows.map((row) => [String(row.product_key || "").trim(), row]));
+      renderIncomingBadges();
+    } catch (error) {
+      console.warn("Catalog incoming badge patch failed", error);
+    }
   }
 
-  function incomingPill(product = {}) {
-    const label = incomingLabel(product);
-    return label ? `<span class="catalog-incoming-pill">${escapeHtml(label)}</span>` : "";
+  function scheduleRefresh() {
+    clearTimeout(fetchTimer);
+    fetchTimer = setTimeout(refreshIncomingMap, 120);
   }
 
-  function applyOverrides() {
+  function applyFunctionOverrides() {
     if (typeof requireSupabaseClient !== "function") return false;
-    fetchIncomingStatusRows = robustFetchIncomingStatusRows;
-    productIncomingLabel = incomingLabel;
-    productIncomingPlainText = incomingPlainText;
-    productIncomingNotice = incomingNotice;
-    productIncomingPill = incomingPill;
+    try { fetchIncomingStatusRows = robustFetchIncomingStatusRows; } catch (_) {}
+    try { productIncomingLabel = incomingLabel; } catch (_) {}
+    try { productIncomingPlainText = incomingPlainText; } catch (_) {}
+    try { productIncomingNotice = incomingNotice; } catch (_) {}
+    try { productIncomingPill = incomingPill; } catch (_) {}
     return true;
   }
 
-  async function redrawAfterPatch() {
+  async function start() {
     for (let attempt = 0; attempt < 30; attempt += 1) {
-      if (applyOverrides()) break;
+      if (applyFunctionOverrides()) break;
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    scheduleRefresh();
 
-    const page = document.body?.dataset?.page;
-    if (page === "products" && typeof renderCatalog === "function" && !window.__pstCatalogInventoryFixRedrew) {
-      window.__pstCatalogInventoryFixRedrew = true;
-      renderCatalog();
-    }
-    if (page === "product-detail" && typeof renderProductDetail === "function" && !window.__pstProductInventoryFixRedrew) {
-      window.__pstProductInventoryFixRedrew = true;
-      renderProductDetail();
-    }
+    const grid = document.querySelector("[data-catalog-grid]") || document.body;
+    const observer = new MutationObserver(() => scheduleRefresh());
+    observer.observe(grid, { childList: true, subtree: true });
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", redrawAfterPatch, { once: true });
+    document.addEventListener("DOMContentLoaded", start, { once: true });
   } else {
-    redrawAfterPatch();
+    start();
   }
 })();
