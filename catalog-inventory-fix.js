@@ -1,14 +1,19 @@
 /* PST catalog inventory display fix
-   Purpose: make public catalog show incoming inventory badges reliably, even after app.js redraws rows. */
+   Purpose: make public catalog show incoming inventory badges reliably on mobile only. */
 (function () {
   if (window.__pstCatalogInventoryFixLoaded) return;
   window.__pstCatalogInventoryFixLoaded = true;
 
   const OPEN_STATUS_PATTERN = /(ordered|order|on[_\s-]?order|pending|purchased|submitted|in[_\s-]?transit|transit|shipped|enroute|en[_\s-]?route)/i;
   const CLOSED_STATUS_PATTERN = /(received|complete|completed|cancelled|canceled|issue|closed)/i;
+  const MOBILE_QUERY = "(max-width: 760px)";
   let incomingMap = new Map();
   let fetchTimer = null;
   let patching = false;
+
+  function isMobileCatalog() {
+    return window.matchMedia(MOBILE_QUERY).matches;
+  }
 
   function normalizeIncomingStatus(value) {
     const raw = String(value || "ordered").trim().toLowerCase();
@@ -127,6 +132,8 @@
     patching = true;
     try {
       document.querySelectorAll(".catalog-inventory-fix-pill").forEach((node) => node.remove());
+      if (!isMobileCatalog()) return;
+
       document.querySelectorAll("[data-add-to-cart]").forEach((button) => {
         const key = String(button.dataset.addToCart || "").trim();
         const incoming = incomingMap.get(key);
@@ -135,6 +142,7 @@
 
         const actionCell = button.closest(".catalog-row-actions") || button.parentElement;
         if (!actionCell) return;
+        if (actionCell.querySelector(".catalog-incoming-pill:not(.catalog-inventory-fix-pill)")) return;
 
         const pill = document.createElement("span");
         pill.className = "catalog-incoming-pill catalog-inventory-fix-pill";
@@ -187,6 +195,10 @@
     const grid = document.querySelector("[data-catalog-grid]") || document.body;
     const observer = new MutationObserver(() => scheduleRefresh());
     observer.observe(grid, { childList: true, subtree: true });
+
+    const mq = window.matchMedia(MOBILE_QUERY);
+    if (mq.addEventListener) mq.addEventListener("change", () => renderIncomingBadges());
+    else if (mq.addListener) mq.addListener(() => renderIncomingBadges());
   }
 
   if (document.readyState === "loading") {
