@@ -385,6 +385,224 @@ body { background: #f7f9fb !important; color: #080b10 !important; }
   .grid { grid-template-columns: 1fr !important; }
 }
 </style>
+
+<style id="pst-account-page-actions-compact-pill-style-v1">
+/* PST Account page compact pill style
+   Customer-facing account header is intentionally untouched.
+   Scope only: account page body buttons, order badges/status pills, disabled states, and mobile sizing. */
+:root {
+  --pst-account-pill-h: 26px;
+  --pst-account-pill-font: 10px;
+  --pst-account-pill-weight: 700;
+  --pst-account-pill-radius: 999px;
+  --pst-account-pill-pad-x: 10px;
+  --pst-account-pill-line: #c9ced6;
+  --pst-account-pill-ink: #101820;
+  --pst-account-pill-blue: #003f9e;
+  --pst-account-pill-red: #bd0000;
+  --pst-account-pill-green: #0c6b3a;
+  --pst-account-pill-warn: #8a5a00;
+  --pst-account-pill-danger: #8a1f17;
+}
+
+/* Account page body only. Do not target .account-site-header, .main-nav, .search, or header logout. */
+main.wrap .btn,
+main.wrap a.btn,
+main.wrap button.btn,
+main.wrap .btn-row .btn,
+main.wrap .order-actions .btn,
+main.wrap .badge,
+main.wrap .pill,
+main.wrap .status-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-account-pill-h) !important;
+  height: var(--pst-account-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-account-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-account-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-account-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-account-pill-font) !important;
+  font-weight: var(--pst-account-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Body buttons remain clickable; badges/status pills are read-only. */
+main.wrap .btn,
+main.wrap a.btn,
+main.wrap button.btn,
+main.wrap .btn-row .btn,
+main.wrap .order-actions .btn {
+  cursor: pointer !important;
+}
+
+main.wrap .badge,
+main.wrap .pill,
+main.wrap .status-pill {
+  cursor: default !important;
+}
+
+/* Default body actions: compact blue-outline pill. */
+main.wrap .btn,
+main.wrap a.btn,
+main.wrap button.btn {
+  color: var(--pst-account-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-account-pill-blue) !important;
+}
+
+/* Primary/success body actions: compact green-outline pill. */
+main.wrap .btn.primary,
+main.wrap button.btn.primary,
+main.wrap a.btn.primary,
+main.wrap .btn.success,
+main.wrap button.btn.success,
+main.wrap a.btn.success {
+  color: var(--pst-account-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-account-pill-green) !important;
+}
+
+/* Danger body actions: compact red-outline pill. */
+main.wrap .btn.danger,
+main.wrap button.btn.danger,
+main.wrap a.btn.danger {
+  color: var(--pst-account-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-account-pill-danger) !important;
+}
+
+/* Order/account badges. */
+main.wrap .badge {
+  color: var(--pst-account-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-account-pill-blue) !important;
+}
+
+main.wrap .badge.good,
+main.wrap .badge.success,
+main.wrap .badge.paid,
+main.wrap .badge.delivered,
+main.wrap .badge.complete {
+  color: var(--pst-account-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-account-pill-green) !important;
+}
+
+main.wrap .badge.warn,
+main.wrap .badge.warning,
+main.wrap .badge.pending,
+main.wrap .badge.processing,
+main.wrap .badge.packed {
+  color: var(--pst-account-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-account-pill-warn) !important;
+}
+
+main.wrap .badge.bad,
+main.wrap .badge.error,
+main.wrap .badge.cancelled,
+main.wrap .badge.failed {
+  color: var(--pst-account-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-account-pill-danger) !important;
+}
+
+/* Disabled state matches compact grey Out style. */
+main.wrap .btn:disabled,
+main.wrap button.btn:disabled,
+main.wrap .btn[aria-disabled="true"],
+main.wrap button.btn[aria-disabled="true"],
+main.wrap a.btn[aria-disabled="true"],
+main.wrap .btn.disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-account-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Compact body groups. */
+main.wrap .btn-row,
+main.wrap .order-actions {
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+/* Page status/message boxes remain readable message boxes, not pill buttons. */
+main.wrap .status,
+main.wrap .email-pref-status,
+main.wrap .empty-state {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+/* Keep checkbox preference card as a card, not a pill. */
+main.wrap .email-pref-check,
+main.wrap .same-row {
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+}
+
+/* Mobile: preserve compact pill sizing. */
+@media (max-width: 700px) {
+  main.wrap .btn,
+  main.wrap a.btn,
+  main.wrap button.btn,
+  main.wrap .btn-row .btn,
+  main.wrap .order-actions .btn,
+  main.wrap .badge,
+  main.wrap .pill,
+  main.wrap .status-pill {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  main.wrap .btn-row,
+  main.wrap .order-actions {
+    gap: 5px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  main.wrap .btn,
+  main.wrap a.btn,
+  main.wrap button.btn,
+  main.wrap .btn-row .btn,
+  main.wrap .order-actions .btn,
+  main.wrap .badge,
+  main.wrap .pill,
+  main.wrap .status-pill {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="site-header compact-header account-site-header">
