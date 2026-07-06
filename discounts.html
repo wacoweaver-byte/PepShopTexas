@@ -557,6 +557,257 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
+
+<style id="pst-discounts-compact-catalog-pill-style-v1">
+/* PST discounts compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: header links, create/save buttons, form badges, preview code pills,
+   table status pills, disabled/read-only states, and mobile sizing. */
+:root {
+  --pst-disc-pill-h: 26px;
+  --pst-disc-pill-font: 10px;
+  --pst-disc-pill-weight: 700;
+  --pst-disc-pill-radius: 999px;
+  --pst-disc-pill-pad-x: 10px;
+  --pst-disc-pill-line: #c9ced6;
+  --pst-disc-pill-ink: #101820;
+  --pst-disc-pill-blue: #003f9e;
+  --pst-disc-pill-red: #bd0000;
+  --pst-disc-pill-green: #0c6b3a;
+  --pst-disc-pill-warn: #8a5a00;
+  --pst-disc-pill-danger: #8a1f17;
+}
+
+.btn,
+a.btn,
+button.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .header-actions .btn,
+header .header-actions a.btn,
+header .header-actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.form-actions-row .btn,
+.form-mode-badge,
+.promo-card-code,
+.discount-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-disc-pill-h) !important;
+  height: var(--pst-disc-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-disc-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-disc-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-disc-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-disc-pill-font) !important;
+  font-weight: var(--pst-disc-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+.btn,
+a.btn,
+button.btn {
+  cursor: pointer !important;
+}
+
+.form-mode-badge,
+.promo-card-code,
+.discount-pill {
+  cursor: default !important;
+}
+
+/* Header page links: compact grey-outline pills. */
+header .actions,
+header .header-actions,
+header .pst-admin-actions-lock {
+  gap: 6px !important;
+  height: auto !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+
+header .actions .btn.secondary,
+header .header-actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  color: var(--pst-disc-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-disc-pill-line) !important;
+}
+
+/* Active/current page: compact red pill. */
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+.btn.secondary.active,
+header .actions .btn.active,
+header .actions .btn.primary,
+header .header-actions .btn.active,
+header .header-actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  color: #ffffff !important;
+  background: var(--pst-disc-pill-red) !important;
+  border-color: var(--pst-disc-pill-red) !important;
+}
+
+/* Action variants: still color-coded, but outlined and compact. */
+.btn.success,
+button.btn.success,
+a.btn.success {
+  color: var(--pst-disc-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-disc-pill-green) !important;
+}
+
+.btn.danger,
+button.btn.danger,
+a.btn.danger {
+  color: var(--pst-disc-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-disc-pill-danger) !important;
+}
+
+.btn.secondary,
+button.btn.secondary,
+a.btn.secondary {
+  color: var(--pst-disc-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-disc-pill-line) !important;
+}
+
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button.btn[aria-disabled="true"],
+.btn.disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-disc-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Discount/promo statuses and preview code pills. */
+.form-mode-badge,
+.promo-card-code {
+  color: var(--pst-disc-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-disc-pill-blue) !important;
+}
+
+.discount-pill.promo-on,
+.promo-on .discount-pill,
+span.promo-on,
+.promo-on:not(td) {
+  color: var(--pst-disc-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-disc-pill-green) !important;
+  font-weight: var(--pst-disc-pill-weight) !important;
+}
+
+.discount-pill.promo-off,
+.promo-off .discount-pill,
+span.promo-off,
+.promo-off:not(td) {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-disc-pill-line) !important;
+  font-weight: var(--pst-disc-pill-weight) !important;
+}
+
+/* Button rows should stay tight. */
+.form-actions-row,
+.actions,
+.header-actions,
+.pst-admin-actions-lock {
+  gap: 6px !important;
+}
+
+/* Table cells stay compact with small pills. */
+td .btn,
+td button.btn,
+td a.btn,
+td .discount-pill,
+td .form-mode-badge,
+td .promo-card-code {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+}
+
+/* Keep selected discount row readable without blue block styling. */
+.discount-row.selected {
+  background: rgba(189,0,0,.055) !important;
+}
+
+@media (max-width: 700px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .header-actions .btn,
+  header .header-actions a.btn,
+  header .header-actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .form-actions-row .btn,
+  .form-mode-badge,
+  .promo-card-code,
+  .discount-pill {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .header-actions .btn,
+  header .header-actions a.btn,
+  header .header-actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .form-actions-row .btn,
+  .form-mode-badge,
+  .promo-card-code,
+  .discount-pill {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header>
@@ -824,8 +1075,8 @@ async function loadDiscountCodes() {
       <td>${safe(row.assigned_email || "Any customer")}</td>
       <td>${uses}</td>
       <td>${row.expires_at ? formatDate(row.expires_at) : "No expiration"}</td>
-      <td class="${promoClass}">${row.hero_banner_active ? "Homepage" : "Off"}</td>
-      <td>${row.active ? "Active" : "Inactive"}</td>
+      <td><span class="discount-pill ${promoClass}">${row.hero_banner_active ? "Homepage" : "Off"}</span></td>
+      <td><span class="discount-pill ${row.active ? "promo-on" : "promo-off"}">${row.active ? "Active" : "Inactive"}</span></td>
     </tr>`;
   }).join("");
 
