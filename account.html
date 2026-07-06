@@ -12,405 +12,307 @@
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#bd0000">
 <link rel="stylesheet" href="styles.css?v=45"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root {
-  --blue:#003f9e;
-  --black:#050505;
-  --white:#ffffff;
-  --line:#e6e6e6;
-  --soft:#f7f7f7;
-  --muted:#555;
-  --red:#b00020;
-  --green:#147a32;
-}
-* { box-sizing:border-box; }
-body { margin:0; background:#fff; color:var(--black); font-family:Arial, Helvetica, sans-serif; }
-a { color:var(--blue); font-weight:900; text-decoration:none; }
-.top-strip { background:#050505; color:#fff; font-size:13px; font-weight:800; text-transform:uppercase; display:flex; justify-content:space-between; gap:20px; padding:9px 36px; }
-header { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:20; }
-.nav { max-width:1180px; margin:auto; padding:18px 28px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
-.brand { display:flex; align-items:center; text-decoration:none; }
-.account-logo-img { width:220px; max-width:100%; height:auto; display:block; }
-.menu { display:flex; gap:18px; align-items:center; text-transform:uppercase; font-weight:900; font-size:14px; flex-wrap:wrap; }
-.wrap { max-width:1180px; margin:auto; padding:30px 28px; }
-.page-title { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:48px; margin:0 0 10px; }
-.subtitle { margin:0 0 28px; color:#444; font-size:17px; line-height:1.45; }
-.grid { display:grid; grid-template-columns:390px 1fr; gap:24px; align-items:start; }
-.card { border:1px solid var(--line); border-radius:12px; background:#fff; box-shadow:0 10px 26px rgba(0,0,0,.06); padding:22px; }
-.card h2 { font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:28px; margin:0 0 14px; }
-.status { border-radius:8px; padding:12px 14px; margin:12px 0; font-weight:900; line-height:1.4; display:none; }
-.status.active { display:block; }
-.status.info { background:#f4f8ff; border:1px solid #d9e7ff; color:#153f76; }
-.status.success { background:#edf8f0; border:1px solid #bfe8c8; color:#147a32; }
-.status.error { background:#fff0f0; border:1px solid #ffb8c0; color:#b00020; }
-.profile-row { border-top:1px solid var(--line); padding:12px 0; }
-.profile-row:first-of-type { border-top:0; }
-.profile-row strong { display:block; text-transform:uppercase; font-size:12px; color:#555; margin-bottom:4px; }
-.profile-row span { line-height:1.45; display:block; }
-.btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
-.btn { border:2px solid var(--blue); border-radius:4px; background:#fff; color:var(--blue); padding:11px 15px; font-weight:900; text-transform:uppercase; cursor:pointer; display:inline-block; text-align:center; font-family:inherit; }
-.btn.primary { background:var(--blue); color:#fff; }
-.btn.danger { border-color:var(--red); color:var(--red); }
-.btn.success { border-color:var(--green); background:var(--green); color:#fff; }
-.btn:disabled { opacity:.6; cursor:not-allowed; }
-.edit-profile { display:none; border-top:1px solid var(--line); margin-top:16px; padding-top:16px; }
-.edit-profile.active { display:block; }
-.profile-view.hidden { display:none; }
-.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.form-field.full { grid-column:1 / -1; }
-.form-field label, .same-row { display:block; text-transform:uppercase; font-size:11px; color:#555; margin-bottom:5px; font-weight:900; }
-.form-field input { width:100%; border:1px solid var(--line); border-radius:6px; padding:11px 12px; font-size:14px; font-family:inherit; }
-.form-field input[readonly] { background:#f7f7f7; color:#555; }
-.same-row { display:flex; align-items:flex-start; gap:9px; text-transform:none; line-height:1.35; margin:4px 0 2px; color:#111; }
-.same-row input { width:18px; height:18px; margin:0; }
-.order-card { border:1px solid var(--line); border-radius:10px; background:#fff; margin:0 0 14px; overflow:hidden; }
-.order-head { display:grid; grid-template-columns:1.1fr .85fr .75fr .75fr; gap:12px; align-items:center; padding:16px; background:#fafafa; border-bottom:1px solid var(--line); }
-.order-number { font-weight:900; color:var(--blue); }
-.order-meta strong { display:block; text-transform:uppercase; color:#555; font-size:11px; margin-bottom:3px; }
-.badge { display:inline-block; border-radius:999px; padding:6px 9px; font-size:12px; font-weight:900; text-transform:uppercase; background:#f4f8ff; color:var(--blue); border:1px solid #d9e7ff; }
-.order-actions { padding:14px 16px; display:flex; gap:10px; flex-wrap:wrap; }
-.order-items { display:none; padding:0 16px 16px; }
-.order-items.active { display:block; }
-.item-line { display:grid; grid-template-columns:1fr 80px 90px 90px; gap:10px; padding:11px 0; border-top:1px solid var(--line); align-items:center; }
-.item-name strong { display:block; }
-.item-name span { color:#555; font-size:13px; }
-.empty-state { background:#f7f7f7; border:1px dashed #ccc; padding:24px; border-radius:10px; color:#555; font-weight:800; }
-.email-pref-box { border-top:1px solid var(--line); margin-top:18px; padding-top:18px; }
-.email-pref-box h3 { margin:0 0 8px; font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:24px; }
-.email-pref-copy { color:#444; font-size:14px; line-height:1.45; margin:0 0 12px; }
-.email-pref-check { display:flex; align-items:flex-start; gap:10px; border:1px solid var(--line); background:#f7f7f7; border-radius:10px; padding:12px; font-weight:800; line-height:1.4; }
-.email-pref-check input { width:20px; height:20px; margin-top:1px; flex:0 0 auto; }
-.email-pref-small { display:block; margin-top:5px; color:#555; font-weight:700; font-size:12px; }
-.email-pref-status { display:none; margin-top:10px; border-radius:8px; padding:10px 12px; font-weight:900; line-height:1.35; font-size:13px; }
-.email-pref-status.active { display:block; }
-.email-pref-status.success { background:#edf8f0; border:1px solid #bfe8c8; color:#147a32; }
-.email-pref-status.error { background:#fff0f0; border:1px solid #ffb8c0; color:#b00020; }
-.email-pref-status.info { background:#f4f8ff; border:1px solid #d9e7ff; color:#153f76; }
-.security-box { border-top:1px solid var(--line); margin-top:18px; padding-top:18px; }
-.security-box h3 { margin:0 0 8px; font-family:Impact,'Arial Black','Arial Narrow',Arial,sans-serif; text-transform:uppercase; font-size:24px; }
-.security-copy { color:#444; font-size:14px; line-height:1.45; margin:0 0 12px; }
-@media(max-width:900px) {
-  .top-strip { display:none; }
-  .nav { flex-direction:column; align-items:flex-start; }
-  .grid { grid-template-columns:1fr; }
-  .order-head { grid-template-columns:1fr 1fr; }
-  .item-line { grid-template-columns:1fr 55px 70px 70px; font-size:14px; }
-}
-@media(max-width:560px) {
-  .wrap { padding:22px 16px; }
-  .page-title { font-size:38px; }
-  .order-head { grid-template-columns:1fr; }
-  .item-line { grid-template-columns:1fr; }
-  .form-grid { grid-template-columns:1fr; }
-}
-
-@media(max-width:560px) {
-  .account-logo-img { width:170px; }
-}
-
-
-/* PST_ACCOUNT_FONT_WEIGHT_CLEANUP_V1 */
-body { font-weight: 400; }
-.top-strip { font-weight: 600 !important; }
-.menu { font-weight: 600 !important; }
-.menu a { font-weight: 600 !important; }
-a { font-weight: 600; }
-.page-title { font-family: Arial, Helvetica, sans-serif !important; font-weight: 600 !important; letter-spacing: 0 !important; }
-.subtitle { font-weight: 400 !important; }
-.card h2,
-.email-pref-box h3,
-.security-box h3 {
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-weight: 600 !important;
-  letter-spacing: 0 !important;
-}
-.profile-row strong,
-.form-field label,
-.same-row,
-.order-meta strong {
-  font-weight: 600 !important;
-}
-.profile-row span,
-.email-pref-copy,
-.security-copy,
-.email-pref-small,
-.empty-state,
-.order-meta span {
-  font-weight: 400 !important;
-}
-.btn { font-weight: 700 !important; }
-.badge { font-weight: 700 !important; }
-.order-number { font-weight: 700 !important; }
-.item-name strong,
-.item-line strong { font-weight: 600 !important; }
-.status,
-.email-pref-status { font-weight: 600 !important; }
-.email-pref-check { font-weight: 500 !important; }
 
 
 
-/* PST_ACCOUNT_TYPOGRAPHY_STANDARD_V2
-   Reduce heavy Impact/bold treatment on account page.
-   Keep brand logo image; use clean application typography for sections/labels.
-*/
-.page-title {
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 42px !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.02em !important;
-  text-transform: none !important;
-}
-.subtitle {
-  font-weight: 400 !important;
-}
-.menu {
-  font-weight: 500 !important;
-}
-.menu a,
-.menu button {
-  font-weight: 500 !important;
-}
-.card h2,
-.email-pref-box h3,
-.security-box h3 {
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 22px !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.01em !important;
-  text-transform: none !important;
-}
-.profile-row strong,
-.order-meta strong,
-.form-field label,
-.same-row {
-  font-weight: 600 !important;
-  letter-spacing: 0 !important;
-}
-.profile-row span,
-.order-meta span,
-.item-name strong {
-  font-weight: 400 !important;
-}
-.status {
-  font-weight: 600 !important;
-}
-.btn {
-  font-weight: 600 !important;
-  letter-spacing: 0 !important;
-}
-.badge,
-.order-number {
-  font-weight: 600 !important;
-}
-.email-pref-check,
-.email-pref-small,
-.security-copy,
-.email-pref-copy {
-  font-weight: 400 !important;
-}
-@media(max-width:560px) {
-  .page-title { font-size: 34px !important; }
+<style id="pst-account-body-only-clean-v5">
+/* Account body styling only.
+   The header is intentionally controlled only by styles.css, exactly like index.html. */
+main.wrap {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 44px 0 64px;
 }
 
-
-/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
-   Purpose: standardize font hierarchy and logo display across public/admin pages.
-   Keep actions/prices readable without the heavy all-bold/Impact look.
-*/
-:root {
-  --pst-ui-font: Arial, Helvetica, sans-serif;
-}
-body, input, button, select, textarea {
-  font-family: var(--pst-ui-font) !important;
-}
-.brand, .logo, .logo-mark {
-  display: inline-flex !important;
-  align-items: center !important;
-  text-decoration: none !important;
-}
-.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
-  display: block !important;
-  height: auto !important;
-  object-fit: contain !important;
-}
-.brand-logo-img, .account-logo-img {
-  width: clamp(155px, 18vw, 220px) !important;
-  max-width: 100% !important;
-}
-.pst-master-admin-logo {
-  width: clamp(150px, 16vw, 210px) !important;
-  max-width: 100% !important;
-}
-.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
-.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
-.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
-.product-title, .discount-title, .customer-title, h1, h2, h3 {
-  font-family: var(--pst-ui-font) !important;
-  font-weight: 600 !important;
-  letter-spacing: .01em !important;
-}
-.page-title {
-  font-weight: 600 !important;
-  text-transform: none !important;
-}
-.menu, .menu a, .account-status, .account-status a, .account-status button,
-.btn, button, label, th, .profile-row strong, .order-meta strong,
-.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
-  font-weight: 600 !important;
-}
-p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
-.email-pref-copy, .security-copy, .footer-disclaimer {
-  font-weight: 400 !important;
-}
-strong {
-  font-weight: 600 !important;
-}
-@media(max-width:560px) {
-  .brand-logo-img, .account-logo-img {
-    width: clamp(135px, 42vw, 170px) !important;
-  }
+main.wrap .page-title {
+  margin: 0 0 8px;
+  color: #080b10;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(34px, 5vw, 58px);
+  font-weight: 900;
+  line-height: .98;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
-/* PST_ACCOUNT_STOREFRONT_REFRESH_V1 */
-.top-strip { display: none !important; }
-body { background: #f7f9fb !important; color: #080b10 !important; }
-.account-site-header.site-header {
-  display: grid !important;
-  grid-template-columns: 250px minmax(560px, 1fr) 258px !important;
-  align-items: center !important;
-  gap: clamp(16px, 2vw, 30px) !important;
-  min-height: 80px !important;
-  padding: 0 clamp(30px, 5vw, 88px) !important;
-  color: #fff !important;
-  background: #03060a !important;
-  border-bottom: 0 !important;
-  box-shadow: 0 8px 22px rgba(0,0,0,.22) !important;
-  position: sticky !important;
-}
-.account-site-header .brand {
-  display: inline-grid !important;
-  justify-items: center !important;
-  width: 184px !important;
-  color: #fff !important;
-  line-height: 1 !important;
-  text-transform: none !important;
-}
-.account-site-header .brand-main {
-  position: relative !important;
-  color: #fff !important;
-  font-size: 31px !important;
-  font-weight: 900 !important;
-  letter-spacing: 1px !important;
-  white-space: nowrap !important;
-}
-.account-site-header .brand-main::before,
-.account-site-header .brand-main::after {
-  content: "" !important;
-  position: absolute !important;
-  bottom: -12px !important;
-  width: 42px !important;
-  height: 2px !important;
-  background: #bd0000 !important;
-}
-.account-site-header .brand-main::before { left: 0 !important; }
-.account-site-header .brand-main::after { right: 0 !important; }
-.account-site-header .brand-sub {
-  margin-top: 6px !important;
-  color: #fff !important;
-  font-size: 16px !important;
-  font-weight: 800 !important;
-  letter-spacing: 9px !important;
-  transform: translateX(4px) !important;
-  white-space: nowrap !important;
-}
-.account-site-header .main-nav {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: clamp(18px, 2.5vw, 34px) !important;
-  color: #fff !important;
-  font-size: 15px !important;
-  font-weight: 800 !important;
-  white-space: nowrap !important;
-  text-transform: uppercase !important;
-}
-.account-site-header .main-nav a { color: #fff !important; font-weight: 800 !important; }
-.account-site-header .main-nav #accountGreetingLink { text-transform: none !important; }
-.account-site-header .account-logout {
-  min-height: 38px !important;
-  padding: 0 13px !important;
-  color: #fff !important;
-  background: #bd0000 !important;
-  border: 1px solid #bd0000 !important;
-  border-radius: 6px !important;
-  font: inherit !important;
-  font-weight: 900 !important;
-  cursor: pointer !important;
-}
-.account-site-header .search {
-  display: grid !important;
-  grid-template-columns: 1fr 34px !important;
-  align-items: center !important;
-  width: 258px !important;
-  height: 42px !important;
-  padding: 0 6px 0 14px !important;
-  border: 1px solid rgba(255,255,255,.25) !important;
-  border-radius: 10px !important;
-}
-.account-site-header .search input { width: 100% !important; min-width: 0 !important; color: #fff !important; background: transparent !important; border: 0 !important; outline: 0 !important; }
-.account-site-header .search input::placeholder { color: rgba(255,255,255,.88) !important; }
-.account-site-header .search button { display: grid !important; place-items: center !important; width: 34px !important; height: 34px !important; color: #fff !important; background: transparent !important; border: 0 !important; }
-.account-site-header .search svg { width: 24px !important; height: 24px !important; fill: none !important; stroke: currentColor !important; stroke-width: 2 !important; stroke-linecap: round !important; stroke-linejoin: round !important; }
-.wrap { width: min(1180px, calc(100% - 48px)) !important; margin: 0 auto !important; padding: 44px 0 64px !important; }
-.page-title { margin: 0 0 8px !important; font-size: clamp(34px, 5vw, 58px) !important; line-height: .98 !important; font-weight: 900 !important; letter-spacing: 0 !important; }
-.subtitle { margin: 0 0 24px !important; color: #515761 !important; font-size: 17px !important; }
-.grid { grid-template-columns: 360px minmax(0,1fr) !important; gap: 20px !important; }
-.card { border: 1px solid #e1e5eb !important; border-radius: 8px !important; box-shadow: 0 10px 28px rgba(18,26,38,.10) !important; }
-.card h2, .email-pref-box h3, .security-box h3 { font-size: 22px !important; font-weight: 900 !important; }
-.btn { border-radius: 6px !important; border-width: 1px !important; color: #080b10 !important; background: #fff !important; }
-.btn.primary, .btn.success { color: #fff !important; background: #bd0000 !important; border-color: #bd0000 !important; }
-.btn.danger { color: #bd0000 !important; border-color: #bd0000 !important; background: #fff !important; }
-@media (max-width: 1180px) {
-  .account-site-header.site-header { grid-template-columns: 210px 1fr !important; height: auto !important; padding: 14px 32px !important; }
-  .account-site-header .main-nav { order: 3 !important; grid-column: 1 / -1 !important; flex-wrap: wrap !important; }
-  .account-site-header .search { justify-self: end !important; }
-}
-@media (max-width: 760px) {
-  .account-site-header.site-header { grid-template-columns: 1fr !important; justify-items: center !important; padding: 16px !important; }
-  .account-site-header .brand { width: 170px !important; }
-  .account-site-header .brand-main { font-size: 28px !important; }
-  .account-site-header .main-nav { gap: 16px 22px !important; font-size: 14px !important; }
-  .account-site-header .search { justify-self: stretch !important; width: 100% !important; max-width: 360px !important; }
-  .wrap { width: calc(100% - 24px) !important; }
-  .grid { grid-template-columns: 1fr !important; }
-}
-</style>
-
-<style id="pst-account-page-actions-compact-pill-style-v1">
-/* PST Account page compact pill style
-   Customer-facing account header is intentionally untouched.
-   Scope only: account page body buttons, order badges/status pills, disabled states, and mobile sizing. */
-:root {
-  --pst-account-pill-h: 26px;
-  --pst-account-pill-font: 10px;
-  --pst-account-pill-weight: 700;
-  --pst-account-pill-radius: 999px;
-  --pst-account-pill-pad-x: 10px;
-  --pst-account-pill-line: #c9ced6;
-  --pst-account-pill-ink: #101820;
-  --pst-account-pill-blue: #003f9e;
-  --pst-account-pill-red: #bd0000;
-  --pst-account-pill-green: #0c6b3a;
-  --pst-account-pill-warn: #8a5a00;
-  --pst-account-pill-danger: #8a1f17;
+main.wrap .subtitle {
+  margin: 0 0 24px;
+  color: #515761;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.45;
 }
 
-/* Account page body only. Do not target .account-site-header, .main-nav, .search, or header logout. */
+main.wrap .grid {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+main.wrap .card,
+main.wrap .order-card {
+  background: rgba(255,255,255,.96);
+  border: 1px solid #e1e5eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(18,26,38,.10);
+}
+
+main.wrap .card {
+  padding: 22px;
+}
+
+main.wrap .card h2,
+main.wrap .email-pref-box h3,
+main.wrap .security-box h3 {
+  margin: 0 0 14px;
+  color: #080b10;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+main.wrap .status,
+main.wrap .email-pref-status {
+  display: none;
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+main.wrap .status.active,
+main.wrap .email-pref-status.active {
+  display: block;
+}
+
+main.wrap .status.info,
+main.wrap .email-pref-status.info {
+  color: #153f76;
+  background: #f4f8ff;
+  border: 1px solid #d9e7ff;
+}
+
+main.wrap .status.success,
+main.wrap .email-pref-status.success {
+  color: #147a32;
+  background: #edf8f0;
+  border: 1px solid #bfe8c8;
+}
+
+main.wrap .status.error,
+main.wrap .email-pref-status.error {
+  color: #b00020;
+  background: #fff0f0;
+  border: 1px solid #ffb8c0;
+}
+
+main.wrap .profile-row {
+  padding: 12px 0;
+  border-top: 1px solid #e1e5eb;
+}
+
+main.wrap .profile-row:first-of-type {
+  border-top: 0;
+}
+
+main.wrap .profile-row strong,
+main.wrap .order-meta strong,
+main.wrap .form-field label {
+  display: block;
+  margin-bottom: 4px;
+  color: #515761;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+main.wrap .profile-row span,
+main.wrap .order-meta span {
+  display: block;
+  color: #080b10;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+main.wrap .btn-row,
+main.wrap .order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+main.wrap .edit-profile {
+  display: none;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e1e5eb;
+}
+
+main.wrap .edit-profile.active {
+  display: block;
+}
+
+main.wrap .profile-view.hidden {
+  display: none;
+}
+
+main.wrap .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+main.wrap .form-field.full {
+  grid-column: 1 / -1;
+}
+
+main.wrap .form-field input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  color: #080b10;
+  font: inherit;
+  background: #fff;
+  border: 1px solid #d8dde5;
+  border-radius: 8px;
+}
+
+main.wrap .form-field input[readonly] {
+  color: #555;
+  background: #f7f9fb;
+}
+
+main.wrap .same-row,
+main.wrap .email-pref-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.35;
+}
+
+main.wrap .same-row {
+  margin: 4px 0 2px;
+  color: #111;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+}
+
+main.wrap .same-row input,
+main.wrap .email-pref-check input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+main.wrap .order-card {
+  margin: 0 0 14px;
+  overflow: hidden;
+}
+
+main.wrap .order-head {
+  display: grid;
+  grid-template-columns: 1.1fr .85fr .75fr .75fr;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  background: #fafafa;
+  border-bottom: 1px solid #e1e5eb;
+}
+
+main.wrap .order-number {
+  color: #003f9e;
+  font-weight: 700;
+}
+
+main.wrap .order-actions {
+  margin: 0;
+  padding: 14px 16px;
+}
+
+main.wrap .order-items {
+  display: none;
+  padding: 0 16px 16px;
+}
+
+main.wrap .order-items.active {
+  display: block;
+}
+
+main.wrap .item-line {
+  display: grid;
+  grid-template-columns: 1fr 80px 90px 90px;
+  gap: 10px;
+  align-items: center;
+  padding: 11px 0;
+  border-top: 1px solid #e1e5eb;
+}
+
+main.wrap .item-name strong,
+main.wrap .item-line strong {
+  font-weight: 600;
+}
+
+main.wrap .item-name span {
+  color: #515761;
+  font-size: 13px;
+}
+
+main.wrap .empty-state {
+  padding: 24px;
+  color: #515761;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.35;
+  background: #f7f9fb;
+  border: 1px dashed #c9ced6;
+  border-radius: 10px;
+}
+
+main.wrap .email-pref-box,
+main.wrap .security-box {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #e1e5eb;
+}
+
+main.wrap .email-pref-copy,
+main.wrap .security-copy,
+main.wrap .email-pref-small {
+  color: #515761;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+main.wrap .email-pref-small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+main.wrap .email-pref-check {
+  padding: 12px;
+  background: #f7f9fb;
+  border: 1px solid #e1e5eb;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+/* Compact account page body pills/buttons only. */
 main.wrap .btn,
 main.wrap a.btn,
 main.wrap button.btn,
-main.wrap .btn-row .btn,
-main.wrap .order-actions .btn,
 main.wrap .badge,
 main.wrap .pill,
 main.wrap .status-pill {
@@ -422,17 +324,17 @@ main.wrap .status-pill {
   width: auto !important;
   min-width: 0 !important;
   max-width: max-content !important;
-  min-height: var(--pst-account-pill-h) !important;
-  height: var(--pst-account-pill-h) !important;
+  min-height: 26px !important;
+  height: 26px !important;
   margin: 0 !important;
-  padding: 0 var(--pst-account-pill-pad-x) !important;
+  padding: 0 10px !important;
   border: 1px solid currentColor !important;
-  border-radius: var(--pst-account-pill-radius) !important;
+  border-radius: 999px !important;
   background: #ffffff !important;
-  color: var(--pst-account-pill-ink) !important;
+  color: #003f9e !important;
   font-family: Arial, Helvetica, sans-serif !important;
-  font-size: var(--pst-account-pill-font) !important;
-  font-weight: var(--pst-account-pill-weight) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
   line-height: 1 !important;
   letter-spacing: 0 !important;
   text-align: center !important;
@@ -443,12 +345,9 @@ main.wrap .status-pill {
   box-shadow: none !important;
 }
 
-/* Body buttons remain clickable; badges/status pills are read-only. */
 main.wrap .btn,
 main.wrap a.btn,
-main.wrap button.btn,
-main.wrap .btn-row .btn,
-main.wrap .order-actions .btn {
+main.wrap button.btn {
   cursor: pointer !important;
 }
 
@@ -458,73 +357,31 @@ main.wrap .status-pill {
   cursor: default !important;
 }
 
-/* Default body actions: compact blue-outline pill. */
-main.wrap .btn,
-main.wrap a.btn,
-main.wrap button.btn {
-  color: var(--pst-account-pill-blue) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-account-pill-blue) !important;
-}
-
-/* Primary/success body actions: compact green-outline pill. */
 main.wrap .btn.primary,
 main.wrap button.btn.primary,
 main.wrap a.btn.primary,
 main.wrap .btn.success,
 main.wrap button.btn.success,
 main.wrap a.btn.success {
-  color: var(--pst-account-pill-green) !important;
+  color: #0c6b3a !important;
   background: #ffffff !important;
-  border-color: var(--pst-account-pill-green) !important;
+  border-color: #0c6b3a !important;
 }
 
-/* Danger body actions: compact red-outline pill. */
 main.wrap .btn.danger,
 main.wrap button.btn.danger,
 main.wrap a.btn.danger {
-  color: var(--pst-account-pill-danger) !important;
+  color: #8a1f17 !important;
   background: #ffffff !important;
-  border-color: var(--pst-account-pill-danger) !important;
+  border-color: #8a1f17 !important;
 }
 
-/* Order/account badges. */
 main.wrap .badge {
-  color: var(--pst-account-pill-blue) !important;
+  color: #003f9e !important;
   background: #ffffff !important;
-  border-color: var(--pst-account-pill-blue) !important;
+  border-color: #003f9e !important;
 }
 
-main.wrap .badge.good,
-main.wrap .badge.success,
-main.wrap .badge.paid,
-main.wrap .badge.delivered,
-main.wrap .badge.complete {
-  color: var(--pst-account-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-account-pill-green) !important;
-}
-
-main.wrap .badge.warn,
-main.wrap .badge.warning,
-main.wrap .badge.pending,
-main.wrap .badge.processing,
-main.wrap .badge.packed {
-  color: var(--pst-account-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-account-pill-warn) !important;
-}
-
-main.wrap .badge.bad,
-main.wrap .badge.error,
-main.wrap .badge.cancelled,
-main.wrap .badge.failed {
-  color: var(--pst-account-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-account-pill-danger) !important;
-}
-
-/* Disabled state matches compact grey Out style. */
 main.wrap .btn:disabled,
 main.wrap button.btn:disabled,
 main.wrap .btn[aria-disabled="true"],
@@ -533,44 +390,36 @@ main.wrap a.btn[aria-disabled="true"],
 main.wrap .btn.disabled {
   color: #6f7680 !important;
   background: #ffffff !important;
-  border-color: var(--pst-account-pill-line) !important;
+  border-color: #c9ced6 !important;
   opacity: 1 !important;
   cursor: not-allowed !important;
   pointer-events: none !important;
 }
 
-/* Compact body groups. */
-main.wrap .btn-row,
-main.wrap .order-actions {
-  gap: 6px !important;
-  align-items: center !important;
+@media (max-width: 900px) {
+  main.wrap .grid {
+    grid-template-columns: 1fr;
+  }
+
+  main.wrap .order-head {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  main.wrap .item-line {
+    grid-template-columns: 1fr 55px 70px 70px;
+    font-size: 14px;
+  }
 }
 
-/* Page status/message boxes remain readable message boxes, not pill buttons. */
-main.wrap .status,
-main.wrap .email-pref-status,
-main.wrap .empty-state {
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 400 !important;
-  line-height: 1.35 !important;
-}
-
-/* Keep checkbox preference card as a card, not a pill. */
-main.wrap .email-pref-check,
-main.wrap .same-row {
-  border-radius: 10px !important;
-  font-size: 13px !important;
-  line-height: 1.35 !important;
-}
-
-/* Mobile: preserve compact pill sizing. */
 @media (max-width: 700px) {
+  main.wrap {
+    width: calc(100% - 24px);
+    padding: 28px 0 56px;
+  }
+
   main.wrap .btn,
   main.wrap a.btn,
   main.wrap button.btn,
-  main.wrap .btn-row .btn,
-  main.wrap .order-actions .btn,
   main.wrap .badge,
   main.wrap .pill,
   main.wrap .status-pill {
@@ -579,10 +428,17 @@ main.wrap .same-row {
     padding: 0 9px !important;
     font-size: 9.5px !important;
   }
+}
 
-  main.wrap .btn-row,
-  main.wrap .order-actions {
-    gap: 5px !important;
+@media (max-width: 560px) {
+  main.wrap .page-title {
+    font-size: 34px;
+  }
+
+  main.wrap .order-head,
+  main.wrap .item-line,
+  main.wrap .form-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -590,8 +446,6 @@ main.wrap .same-row {
   main.wrap .btn,
   main.wrap a.btn,
   main.wrap button.btn,
-  main.wrap .btn-row .btn,
-  main.wrap .order-actions .btn,
   main.wrap .badge,
   main.wrap .pill,
   main.wrap .status-pill {
@@ -603,279 +457,29 @@ main.wrap .same-row {
 }
 </style>
 
-
-
-
-
-<style id="pst-account-header-exact-index-v4">
-/* Exact public/index header clone for account.html.
-   This intentionally overrides older account-only header CSS. */
-header.site-header {
-  display: grid !important;
-  grid-template-columns: 250px minmax(560px, 1fr) 258px !important;
-  align-items: center !important;
-  gap: clamp(16px, 2vw, 30px) !important;
-  min-height: 80px !important;
-  padding: 0 clamp(30px, 5vw, 88px) !important;
-  color: #ffffff !important;
-  background: #03060a !important;
-  border-bottom: 0 !important;
-  box-shadow: none !important;
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 20 !important;
-}
-
-header.site-header .brand {
-  display: inline-grid !important;
-  justify-items: center !important;
-  align-items: center !important;
-  justify-self: start !important;
-  width: 184px !important;
-  max-width: 184px !important;
-  min-width: 184px !important;
-  line-height: 1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  transform: none !important;
-  text-decoration: none !important;
-}
-
-header.site-header .brand-main {
-  position: relative !important;
-  color: #ffffff !important;
-  font-size: 31px !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  letter-spacing: 1px !important;
-  white-space: nowrap !important;
-  transform: none !important;
-}
-
-header.site-header .brand-main::before,
-header.site-header .brand-main::after {
-  content: "" !important;
-  position: absolute !important;
-  bottom: -12px !important;
-  width: 42px !important;
-  height: 2px !important;
-  background: #bd0000 !important;
-}
-
-header.site-header .brand-main::before { left: 0 !important; }
-header.site-header .brand-main::after { right: 0 !important; }
-
-header.site-header .brand-sub {
-  margin-top: 6px !important;
-  color: #ffffff !important;
-  font-size: 16px !important;
-  font-weight: 800 !important;
-  line-height: 1 !important;
-  letter-spacing: 9px !important;
-  transform: translateX(4px) !important;
-  white-space: nowrap !important;
-}
-
-header.site-header .main-nav {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 0 !important;
-  gap: clamp(18px, 2.5vw, 38px) !important;
-  color: #ffffff !important;
-  font-size: 15px !important;
-  font-weight: 800 !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  text-transform: uppercase !important;
-  flex-wrap: nowrap !important;
-  overflow: visible !important;
-}
-
-header.site-header .main-nav a {
-  display: inline-flex !important;
-  align-items: center !important;
-  min-width: 0 !important;
-  color: #ffffff !important;
-  font-weight: 800 !important;
-  white-space: nowrap !important;
-}
-
-header.site-header .main-nav #accountGreetingLink {
-  text-transform: none !important;
-}
-
-header.site-header .cart-link span {
-  display: inline-grid !important;
-  place-items: center !important;
-  min-width: 22px !important;
-  height: 22px !important;
-  margin-left: 4px !important;
-  color: #ffffff !important;
-  background: #bd0000 !important;
-  border-radius: 999px !important;
-  font-size: 12px !important;
-  line-height: 1 !important;
-}
-
-header.site-header .search {
-  display: grid !important;
-  grid-template-columns: 1fr 34px !important;
-  align-items: center !important;
-  justify-self: end !important;
-  width: 258px !important;
-  max-width: 258px !important;
-  min-width: 258px !important;
-  height: 42px !important;
-  padding: 0 6px 0 14px !important;
-  border: 1px solid rgba(255,255,255,.25) !important;
-  border-radius: 10px !important;
-  background: transparent !important;
-}
-
-header.site-header .search input {
-  width: 100% !important;
-  min-width: 0 !important;
-  color: #ffffff !important;
-  font: inherit !important;
-  background: transparent !important;
-  border: 0 !important;
-  outline: 0 !important;
-}
-
-header.site-header .search input::placeholder {
-  color: rgba(255,255,255,.88) !important;
-}
-
-header.site-header .search button {
-  display: grid !important;
-  place-items: center !important;
-  width: 34px !important;
-  height: 34px !important;
-  color: #ffffff !important;
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-  cursor: pointer !important;
-}
-
-header.site-header .search svg {
-  width: 24px !important;
-  height: 24px !important;
-  fill: none !important;
-  stroke: currentColor !important;
-  stroke-width: 2 !important;
-  stroke-linecap: round !important;
-  stroke-linejoin: round !important;
-}
-
-@media (max-width: 1180px) {
-  header.site-header {
-    grid-template-columns: 250px minmax(0, 1fr) !important;
-    grid-template-areas:
-      "brand search"
-      "nav nav" !important;
-    row-gap: 10px !important;
-    min-height: auto !important;
-    padding-top: 14px !important;
-    padding-bottom: 14px !important;
-  }
-
-  header.site-header .brand {
-    grid-area: brand !important;
-  }
-
-  header.site-header .search {
-    grid-area: search !important;
-    justify-self: end !important;
-  }
-
-  header.site-header .main-nav {
-    grid-area: nav !important;
-    width: 100% !important;
-    justify-content: flex-start !important;
-    gap: 18px !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scrollbar-width: none !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  header.site-header .main-nav::-webkit-scrollbar {
-    display: none !important;
-  }
-}
-
-@media (max-width: 760px) {
-  header.site-header {
-    grid-template-columns: 1fr !important;
-    grid-template-areas:
-      "brand"
-      "nav"
-      "search" !important;
-    justify-items: stretch !important;
-    padding: 14px 16px !important;
-  }
-
-  header.site-header .brand {
-    grid-area: brand !important;
-    justify-self: start !important;
-    width: 170px !important;
-    max-width: 170px !important;
-    min-width: 170px !important;
-  }
-
-  header.site-header .brand-main {
-    font-size: 28px !important;
-  }
-
-  header.site-header .brand-sub {
-    font-size: 15px !important;
-    letter-spacing: 7px !important;
-  }
-
-  header.site-header .main-nav {
-    grid-area: nav !important;
-    justify-content: flex-start !important;
-    gap: 14px !important;
-    font-size: 13px !important;
-    padding-bottom: 4px !important;
-    overflow-x: auto !important;
-  }
-
-  header.site-header .search {
-    grid-area: search !important;
-    justify-self: center !important;
-    width: min(360px, 100%) !important;
-    min-width: 0 !important;
-    max-width: 360px !important;
-  }
-}
-</style>
-
 </head>
 <body>
 <header class="site-header">
-  <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
-    <span class="brand-main">PEP SHOP</span>
-    <span class="brand-sub">TEXAS</span>
-  </a>
-  <nav class="main-nav" aria-label="Main navigation">
-    <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">&#8964;</span></a>
-    <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">&#8964;</span></a>
-    <a href="faq.html">FAQ</a>
-    <a href="contact.html">CONTACT</a>
-    <a href="account.html" id="accountGreetingLink">ACCOUNT</a>
-    <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
-  </nav>
-  <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
-    <label class="sr-only" for="site-search">Search peptides</label>
-    <input id="site-search" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-    <button type="submit" aria-label="Search">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
-    </button>
-  </form>
-</header><main class="wrap">
+    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
+      <span class="brand-main">PEP SHOP</span>
+      <span class="brand-sub">TEXAS</span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">&#8964;</span></a>
+      <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">&#8964;</span></a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">CONTACT</a>
+      <a href="account.html" id="accountGreetingLink">ACCOUNT</a>
+      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
+    </nav>
+    <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
+      <label class="sr-only" for="site-search">Search peptides</label>
+      <input id="site-search" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+      <button type="submit" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+      </button>
+    </form>
+  </header><main class="wrap">
   <h1 class="page-title">My Account</h1>
   <p class="subtitle">View and update your customer profile, recent orders, order status, and account security.</p>
 
