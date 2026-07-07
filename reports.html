@@ -362,6 +362,20 @@ strong {
     width: clamp(135px, 42vw, 170px) !important;
   }
 }
+
+
+/* PST_REPORT_CENTER_CARDS_V1
+   Reports page only. Uses existing admin card/pill/button language. */
+.report-center-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}
+.report-center-card{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;border:1px solid var(--border);background:#fff;border-radius:14px;padding:13px;text-decoration:none;box-shadow:0 6px 18px rgba(16,24,32,.05);min-height:86px}
+.report-center-icon{font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px}
+.report-center-card strong{display:block;color:var(--dark);font-size:15px;font-weight:600;line-height:1.15;margin-bottom:4px}
+.report-center-card span{display:block;color:var(--muted);font-size:12px;font-weight:400;line-height:1.25}
+.report-center-card:hover{border-color:#bd0000;box-shadow:0 8px 22px rgba(16,24,32,.08)}
+@media(max-width:1050px){.report-center-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.report-center-grid{grid-template-columns:1fr}.report-center-card{min-height:74px}}
+@media print{.report-center-grid{display:none!important}}
+
 </style>
 
 <style>
@@ -1959,9 +1973,30 @@ button.btn[aria-disabled="true"],
   <div id="statusLine" class="status">Checking admin access...</div>
 
 
+  <section class="report-center-grid no-print" aria-label="Report Center">
+    <a class="report-center-card" href="#quick-snapshot-card">
+      <span class="report-center-icon" aria-hidden="true">📊</span>
+      <span><strong>Dashboard</strong><span>Quick KPIs and charts</span></span>
+    </a>
+    <a class="report-center-card" href="report-writer.html">
+      <span class="report-center-icon" aria-hidden="true">📝</span>
+      <span><strong>Report Writer</strong><span>Build custom reports</span></span>
+    </a>
+    <a class="report-center-card" href="report-writer.html#saved-reports">
+      <span class="report-center-icon" aria-hidden="true">⭐</span>
+      <span><strong>Saved Reports</strong><span>One-click favorites</span></span>
+    </a>
+    <a class="report-center-card" href="report-writer.html#exports">
+      <span class="report-center-icon" aria-hidden="true">📤</span>
+      <span><strong>Exports</strong><span>Download history and scheduled reports</span></span>
+    </a>
+  </section>
+
+
   <nav class="reports-jumpbar no-print" id="reportsTop" aria-label="Reports quick navigation">
     <div class="reports-jumpbar-title">Jump to</div>
     <div class="reports-jumpbar-links">
+      <a href="report-writer.html" data-jump-target="report-writer">Report Writer</a>
       <a href="#sales-report-card" data-jump-target="sales-report-card">Sales Report</a>
       <a href="#order-report-card" data-jump-target="order-report-card">Order Report</a>
       <a href="#tax-settings-card" data-jump-target="tax-settings-card">Checkout Tax Settings</a>
