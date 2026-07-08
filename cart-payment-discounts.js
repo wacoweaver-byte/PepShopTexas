@@ -61,6 +61,10 @@
     return Math.round((Number(value) || 0) * 100) / 100;
   }
 
+  function parsePaymentMoney(text) {
+    return Number(String(text || "").replace(/[^0-9.-]/g, "")) || 0;
+  }
+
   function formatPaymentMoney(value) {
     if (typeof formatMoney === "function") return formatMoney(value);
     return Number(value || 0).toLocaleString("en-US", { style: "currency", currency: "USD" });
@@ -101,13 +105,14 @@
       const html = originalSummaryHtml(rows, context);
       const profile = context.profile || {};
       const totals = calculateCartTotals(rows, profile);
+      const baseTotal = roundPaymentDiscount(Number(totals.total || 0) + Number(totals.paymentDiscount || 0));
       const paymentLine = totals.paymentDiscount > 0
         ? `<div class="summary-line" data-payment-discount-line><span>${escapeHtml(paymentDiscountLabel(totals.paymentDiscountMethod))}</span><strong>-${formatPaymentMoney(totals.paymentDiscount)}</strong></div>`
         : `<div class="summary-line" data-payment-discount-line hidden><span>Payment Savings</span><strong>-${formatPaymentMoney(0)}</strong></div>`;
 
       return html
         .replace(`<div class="summary-line"><span>Shipping</span><strong>${formatPaymentMoney(totals.shipping)}</strong></div>`, `${paymentLine}<div class="summary-line"><span>Shipping</span><strong>${formatPaymentMoney(totals.shipping)}</strong></div>`)
-        .replace(/<div class="summary-line summary-total"><span>Total Before Store Credit<\/span><strong>[^<]*<\/strong><\/div>/, `<div class="summary-line summary-total"><span>Total Before Store Credit</span><strong data-cart-total-display>${formatPaymentMoney(totals.total)}</strong></div>`);
+        .replace(/<div class="summary-line summary-total"><span>Total Before Store Credit<\/span><strong>[^<]*<\/strong><\/div>/, `<div class="summary-line summary-total"><span>Total Before Store Credit</span><strong data-cart-total-display data-base-total="${baseTotal}">${formatPaymentMoney(totals.total)}</strong></div>`);
     };
 
     summaryHtml.pstPaymentDiscountPatched = true;
@@ -158,11 +163,12 @@
 
     const methodId = String(select.value || "").trim();
     const subtotalText = document.querySelector("[data-cart-summary] .summary-line:first-of-type strong")?.textContent || "";
-    const subtotal = Number(subtotalText.replace(/[^0-9.-]/g, "")) || 0;
+    const subtotal = parsePaymentMoney(subtotalText);
     const rate = paymentDiscountRate(methodId);
     const discount = roundPaymentDiscount(subtotal * rate);
     const line = document.querySelector("[data-payment-discount-line]");
     const message = document.querySelector("[data-payment-discount-message]");
+    const totalDisplay = document.querySelector("[data-cart-total-display]");
 
     if (line) {
       if (discount > 0) {
@@ -172,6 +178,12 @@
       } else {
         line.hidden = true;
       }
+    }
+
+    if (totalDisplay) {
+      const baseTotal = parsePaymentMoney(totalDisplay.dataset.baseTotal || totalDisplay.textContent);
+      totalDisplay.dataset.baseTotal = String(baseTotal);
+      totalDisplay.textContent = formatPaymentMoney(roundPaymentDiscount(baseTotal - discount));
     }
 
     if (message) {
