@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V22_VENDOR_LEAD_TIME_EXPECTED_ARRIVAL_FIX -->
 <!-- PST_INVENTORY_PATCH_V21_REORDER_SELECTED_TO_PO_DRAFT -->
 <!-- PST_INVENTORY_PATCH_V20_SIMPLE_STOCK_FILTER -->
 <!-- PST_INVENTORY_PATCH_V20_INDEPENDENT_FILTERS -->
@@ -3205,6 +3206,36 @@ function vendorLeadDays(vendor = selectedIncomingVendor()) {
   return Number.isFinite(lead) && lead >= 0 ? lead : PST_INCOMING_LEAD_DAYS;
 }
 
+function vendorForIncomingRow(row = {}) {
+  const vendorId = String(row.vendor_id || "").trim();
+  if (vendorId) {
+    const byId = vendors.find(vendor => String(vendor.id) === vendorId);
+    if (byId) return byId;
+  }
+  const names = [row.vendor_name, row.supplier_name, row.supplier, row.supplier_source]
+    .map(value => cleanText(value).toLowerCase())
+    .filter(Boolean);
+  if (!names.length) return null;
+  return vendors.find(vendor => {
+    const vendorNames = [vendor.company_name, vendor.pst_vendor_id, vendorLabel(vendor)]
+      .map(value => cleanText(value).toLowerCase())
+      .filter(Boolean);
+    return vendorNames.some(name => names.includes(name));
+  }) || null;
+}
+
+function incomingLeadTimeForRow(row = {}) {
+  const vendor = vendorForIncomingRow(row);
+  if (vendor) return vendorLeadDays(vendor);
+  const storedLead = Number(row.lead_time_days ?? row.standard_shipping_lead_time ?? PST_INCOMING_LEAD_DAYS);
+  return Number.isFinite(storedLead) && storedLead >= 0 ? storedLead : PST_INCOMING_LEAD_DAYS;
+}
+
+function incomingExpectedArrivalForRow(row = {}) {
+  const orderedAt = row.ordered_at || row.created_at || new Date().toISOString();
+  return addDays(orderedAt, incomingLeadTimeForRow(row)).toISOString();
+}
+
 function populateVendorDropdown() {
   const select = $("incomingVendorSelect");
   if (!select) return;
@@ -4249,7 +4280,7 @@ function renderIncomingDraftLines() {
 function incomingAuditText(row) {
   const lines = [];
   lines.push(`Entered: ${fmtShortDate(row.ordered_at || row.created_at)} by ${row.created_by_email || "Admin"}`);
-  lines.push(`Expected arrival: ${fmtShortDate(row.expected_arrival_date)}${row.lead_time_days ? ` · Lead time: ${row.lead_time_days} day(s)` : ""}`);
+  lines.push(`Expected arrival: ${fmtShortDate(incomingExpectedArrivalForRow(row))} · Lead time: ${incomingLeadTimeForRow(row)} day(s)`);
   if (row.vendor_name || row.supplier_name || row.supplier) lines.push(`Vendor: ${row.vendor_name || row.supplier_name || row.supplier}`);
   if (incomingTotalCost(row) > 0) {
     const kit = incomingKitCost(row);
@@ -4294,13 +4325,13 @@ function renderIncomingInventory() {
   const openRows = rows.filter(incomingRowOpen);
   const today = new Date();
   const dueSoon = openRows.filter(row => {
-    const expected = new Date(row.expected_arrival_date || addDays(row.ordered_at || row.created_at, PST_INCOMING_LEAD_DAYS));
+    const expected = new Date(incomingExpectedArrivalForRow(row));
     if (Number.isNaN(expected.getTime())) return false;
     const diff = Math.ceil((expected - today) / (1000 * 60 * 60 * 24));
     return diff >= 0 && diff <= 7;
   });
   const overdue = openRows.filter(row => {
-    const expected = new Date(row.expected_arrival_date || addDays(row.ordered_at || row.created_at, PST_INCOMING_LEAD_DAYS));
+    const expected = new Date(incomingExpectedArrivalForRow(row));
     return !Number.isNaN(expected.getTime()) && expected < new Date(today.getFullYear(), today.getMonth(), today.getDate());
   });
   if ($("incomingOnOrderCount")) $("incomingOnOrderCount").textContent = String(openRows.length);
@@ -4316,7 +4347,8 @@ function renderIncomingInventory() {
   }
   body.innerHTML = rows.map(row => {
     const orderedAt = row.ordered_at || row.created_at || new Date().toISOString();
-    const expected = row.expected_arrival_date || addDays(orderedAt, PST_INCOMING_LEAD_DAYS).toISOString();
+    const leadTimeDays = incomingLeadTimeForRow(row);
+    const expected = incomingExpectedArrivalForRow(row);
     const days = daysBetween(orderedAt);
     const qty = Number(row.ordered_quantity || 0);
     const status = String(row.status || "ordered").toLowerCase();
@@ -4333,7 +4365,7 @@ function renderIncomingInventory() {
       <td><strong>${esc(qty)}</strong></td>
       <td>${esc(fmtShortDate(orderedAt))}<div class="note">Static entry timestamp</div></td>
       <td><strong>${esc(days)}</strong> day${days === 1 ? "" : "s"}</td>
-      <td>${esc(fmtShortDate(expected))}<div class="note">21-day lead time</div></td>
+      <td>${esc(fmtShortDate(expected))}<div class="note">${esc(leadTimeDays)}-day lead time</div></td>
       <td>${esc(source)}</td>
       <td><strong>${totalCost > 0 ? incomingMoney(totalCost) : "—"}</strong><div class="note">${kitCost > 0 ? `${incomingMoney(kitCost)}/kit · ` : ""}${unitCost > 0 ? `${incomingMoney(unitCost)}/vial` : "No unit cost"}${shipCost > 0 ? ` · ${incomingMoney(shipCost)} ship/fees` : ""}</div></td>
       <td>${incomingStatusPill(status)}</td>
