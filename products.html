@@ -648,7 +648,7 @@ td .pill {
               <label class="full">COA Button Label<input name="coa_label" value="View COA" placeholder="View COA"></label>
               <div class="full checks">
                 <label class="check"><input name="is_active" type="checkbox" checked> Visible to customers</label>
-                <label class="check"><input name="featured" type="checkbox"> Featured</label>
+                <label class="check"><input name="featured" type="checkbox"> Show in New Arrivals</label>
                 <label class="check"><input name="hot_peptide" type="checkbox"> Hot peptide</label>
               </div>
             </div>
@@ -1111,7 +1111,7 @@ td .pill {
             <label class="full">COA Button Label<input name="coa_label" value="${esc(activeProduct.coa_label || "View COA")}" placeholder="View COA"></label>
             <div class="full checks">
               <label class="check"><input name="is_active" type="checkbox" ${activeProduct.is_active ? "checked" : ""}> Visible to customers</label>
-              <label class="check"><input name="featured" type="checkbox" ${activeProduct.featured ? "checked" : ""}> Featured</label>
+              <label class="check"><input name="featured" type="checkbox" ${activeProduct.featured ? "checked" : ""}> Show in New Arrivals</label>
               <label class="check"><input name="hot_peptide" type="checkbox" ${activeProduct.hot_peptide ? "checked" : ""}> Hot peptide</label>
               <label class="check"><input name="sale_enabled" type="checkbox" ${activeProduct.sale_enabled ? "checked" : ""}> Sale enabled</label>
             </div>

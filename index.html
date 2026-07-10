@@ -91,7 +91,7 @@
       </article>
       <article class="list-card">
         <h2><span class="title-icon">&#9733;</span> NEW ARRIVALS</h2>
-        <p>Recently added products</p>
+        <p>Products selected in admin</p>
         <ul data-home-list="new">
           <li><a href="catalog.html"><span>KPV 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
           <li><a href="catalog.html"><span>Selank 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
@@ -124,6 +124,87 @@
     </nav>
   </div>
 </footer>
+
+
+  <script id="pst-new-arrivals-featured-loader-v1">
+    (function () {
+      const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+      const MAX_NEW_ARRIVALS = 5;
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>'"]/g, char => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          '"': "&quot;"
+        }[char]));
+      }
+
+      function productLabel(product) {
+        return [product.display_name, product.strength].filter(Boolean).join(" ").trim() || "Product";
+      }
+
+      function productTag(product) {
+        return product.category || "Catalog";
+      }
+
+      function productHref(product) {
+        const key = encodeURIComponent(product.product_key || product.id || "");
+        return key ? `product.html?key=${key}` : "catalog.html";
+      }
+
+      async function loadFeaturedNewArrivals() {
+        const list = document.querySelector('[data-home-list="new"]');
+        const card = list?.closest(".list-card");
+        if (!list || !window.supabase?.createClient) return false;
+
+        try {
+          const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+          const { data, error } = await db
+            .from("product_catalog")
+            .select("id,product_key,display_name,strength,category,is_active,featured,sort_name")
+            .eq("is_active", true)
+            .eq("featured", true)
+            .order("sort_name", { ascending: true, nullsFirst: false })
+            .order("display_name", { ascending: true })
+            .limit(MAX_NEW_ARRIVALS);
+
+          if (error) throw error;
+          const products = data || [];
+
+          if (!products.length) {
+            if (card) card.hidden = true;
+            return true;
+          }
+
+          if (card) card.hidden = false;
+          list.innerHTML = products.map(product => `
+            <li><a href="${productHref(product)}"><span>${escapeHtml(productLabel(product))}</span><strong>${escapeHtml(productTag(product))}</strong><span>&gt;</span></a></li>
+          `).join("");
+          return true;
+        } catch (error) {
+          console.warn("Could not load admin-selected New Arrivals.", error);
+          return false;
+        }
+      }
+
+      function runWhenReady(attempt = 0) {
+        if (window.supabase?.createClient) {
+          loadFeaturedNewArrivals();
+          return;
+        }
+        if (attempt < 20) window.setTimeout(() => runWhenReady(attempt + 1), 100);
+      }
+
+      window.addEventListener("load", () => {
+        runWhenReady();
+        window.setTimeout(loadFeaturedNewArrivals, 750);
+      });
+    })();
+  </script>
+
 </body>
 </html>
 
