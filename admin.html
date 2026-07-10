@@ -1,3 +1,4 @@
+<!-- PST_ADMIN_PATCH_V16_GLOBAL_ADMIN_LOOKUP -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
 <!DOCTYPE html>
@@ -639,6 +640,34 @@ strong {
   color:#7a4a00;
   background:#fff8e6;
 }
+
+
+
+/* PST_ADMIN_PATCH_V16_GLOBAL_ADMIN_LOOKUP */
+.admin-lookup-card{margin:0 0 18px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.admin-lookup-grid{display:grid;grid-template-columns:minmax(260px,1fr) auto auto;gap:10px;align-items:end}
+.admin-lookup-help{margin:10px 0 0;color:var(--muted);font-size:13px;line-height:1.4;font-weight:700}
+.admin-lookup-result{display:grid;gap:12px;margin-top:14px}
+.admin-lookup-empty{padding:18px;border:1px dashed var(--border);border-radius:14px;background:#fbfcfe;color:var(--muted);line-height:1.45;font-weight:700}
+.admin-lookup-mode{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.admin-lookup-cardlet{border:1px solid var(--border);border-radius:14px;background:#fbfcfe;overflow:hidden}
+.admin-lookup-cardlet-head{padding:13px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff}
+.admin-lookup-cardlet-head h3{margin:0;font-size:16px}
+.admin-lookup-cardlet-body{padding:14px;display:grid;gap:12px}
+.admin-lookup-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.admin-lookup-kv{padding:10px;border:1px solid var(--border);border-radius:12px;background:#fff;word-break:break-word;min-height:58px}
+.admin-lookup-kv strong{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.admin-lookup-kv span{font-weight:900;color:var(--dark)}
+.admin-lookup-actions{display:flex;gap:8px;flex-wrap:wrap}
+.admin-lookup-items{display:grid;gap:8px}
+.admin-lookup-item{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.admin-lookup-item strong{display:block}
+.admin-lookup-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;background:#fff}
+.admin-lookup-table{min-width:760px;width:100%;border-collapse:collapse}
+.admin-lookup-table th,.admin-lookup-table td{padding:10px;border-bottom:1px solid var(--border);font-size:13px;text-align:left;vertical-align:middle}
+.admin-lookup-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}
+.admin-lookup-warning{padding:11px;border-radius:12px;border:1px solid rgba(183,121,31,.25);background:#fff8e6;color:#7a4a00;font-weight:800;line-height:1.4}
+@media(max-width:900px){.admin-lookup-grid,.admin-lookup-summary{grid-template-columns:1fr}.admin-lookup-actions .btn{width:100%}}
 
 </style>
 
@@ -1997,6 +2026,27 @@ td .payment-method-pill {
     <button class="btn" type="button" data-admin-jump="order-tools-email" data-admin-target="detailCard">Order Tools / Email Tools</button>
   </nav>
 
+
+
+  <section class="admin-lookup-card" id="adminLookupCard" aria-label="Admin lookup">
+    <div class="card-header">
+      <div>
+        <h2>Admin Lookup</h2>
+        <p class="subtitle">Search by order, customer, refund, product/item number, email, phone, tracking, or payment method.</p>
+      </div>
+      <div class="admin-lookup-mode"><span class="pill processing" id="adminLookupMode">Ready</span></div>
+    </div>
+    <div class="card-body">
+      <div class="admin-lookup-grid">
+        <div class="field"><label for="adminLookupInput">Lookup</label><input id="adminLookupInput" type="search" placeholder="O, C, R, P, email, phone, tracking..." autocomplete="off" /></div>
+        <button class="btn" id="adminLookupBtn" type="button">Search</button>
+        <button class="btn secondary" id="adminLookupClearBtn" type="button">Clear</button>
+      </div>
+      <p class="admin-lookup-help">Customer support searches show customer/order context. Product searches show product context only unless you open sales history manually.</p>
+      <div id="adminLookupResults" class="admin-lookup-result" aria-live="polite"></div>
+    </div>
+  </section>
+
   <section class="grid admin-dashboard-grid">
     <div class="card collapsible-card collapsed" id="order-list-card" data-admin-card="order-list">
       <div class="card-header" data-admin-header="order-list-card"><h2>Order List</h2><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="order-list-card">Open</button></div>
@@ -2120,6 +2170,339 @@ td .payment-method-pill {
     const method = paymentMethod(order);
     const cls = norm(method, "manual");
     return `<span class="payment-method-pill ${esc(cls)}">${esc(method.replaceAll("_", " "))}</span>`;
+  }
+
+
+  /* PST_ADMIN_PATCH_V16_GLOBAL_ADMIN_LOOKUP */
+  function lookupNormalize(value){ return cleanValue(value).toLowerCase(); }
+  function lookupDigits(value){ return cleanValue(value).replace(/\D/g, ""); }
+  function lookupLooksLikeEmail(value){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanValue(value)); }
+  function lookupCodeParts(value){
+    const raw = cleanValue(value);
+    const compact = raw.toUpperCase().replace(/[\s#:-]/g, "");
+    const prefix = compact.match(/^(PST)?([OCRP])([A-Z0-9]+)$/i);
+    const pstp = compact.match(/^PSTP\d+$/i);
+    return { raw, compact, prefixLetter: pstp ? "P" : (prefix ? prefix[2].toUpperCase() : ""), suffix: prefix ? prefix[3] : compact };
+  }
+  function detectLookupIntent(value){
+    const raw = cleanValue(value);
+    const parts = lookupCodeParts(raw);
+    if(!raw) return "empty";
+    if(lookupLooksLikeEmail(raw)) return "customer";
+    if(parts.prefixLetter === "O") return "order";
+    if(parts.prefixLetter === "C") return "customer";
+    if(parts.prefixLetter === "R") return "refund";
+    if(parts.prefixLetter === "P") return "product";
+    if(/^PSTP\d+$/i.test(parts.compact)) return "product";
+    if(lookupDigits(raw).length >= 7 && !/[a-z]/i.test(raw)) return "phone";
+    return "mixed";
+  }
+  function orderLookupValues(order){
+    const profile = profileOf(order);
+    return [
+      order.id, order.order_number, order.order_sequence_number, order.legacy_order_number,
+      order.refund_number, order.tracking_number, order.tracking, order.tracking_carrier, order.shipping_carrier, order.carrier,
+      order.customer_id, order.user_id, profile.user_id, profile.customer_number,
+      customerName(order), customerEmail(order), customerPhone(order), order.shipping_phone,
+      paymentMethod(order), order.discount_code, order.customer_notes, order.admin_note, order.admin_notes
+    ].map(cleanValue).filter(Boolean);
+  }
+  function orderMatchesText(order, term){
+    const q = lookupNormalize(term);
+    if(!q) return false;
+    const qDigits = lookupDigits(term);
+    return orderLookupValues(order).some(value => {
+      const text = lookupNormalize(value);
+      if(text.includes(q)) return true;
+      return qDigits.length >= 4 && lookupDigits(value).includes(qDigits);
+    });
+  }
+  function orderMatchesOrderNumber(order, term){
+    const parts = lookupCodeParts(term);
+    const candidates = [order.order_number, order.order_sequence_number, order.legacy_order_number, order.id].map(cleanValue).filter(Boolean);
+    return candidates.some(value => lookupNormalize(value).includes(lookupNormalize(term)) || lookupDigits(value) === lookupDigits(parts.suffix));
+  }
+  function orderMatchesRefundNumber(order, term){
+    const parts = lookupCodeParts(term);
+    const targetDigits = lookupDigits(parts.suffix || term);
+    const candidates = [order.refund_number, order.refund_status, order.refund_reason].map(cleanValue).filter(Boolean);
+    return candidates.some(value => lookupNormalize(value).includes(lookupNormalize(term)) || (targetDigits && lookupDigits(value) === targetDigits));
+  }
+  function orderMatchesCustomer(order, term){
+    const q = lookupNormalize(term);
+    const qDigits = lookupDigits(term);
+    const profile = profileOf(order);
+    const values = [profile.customer_number, customerName(order), customerEmail(order), customerPhone(order), order.shipping_phone, order.customer_id, order.user_id].map(cleanValue).filter(Boolean);
+    return values.some(value => {
+      if(lookupNormalize(value).includes(q)) return true;
+      return qDigits.length >= 4 && lookupDigits(value).includes(qDigits);
+    });
+  }
+  function customerNumber(order){
+    const p = profileOf(order);
+    return cleanValue(p.customer_number || order.customer_number || order.customer_id || order.user_id || "—");
+  }
+  function refundNumber(order){ return cleanValue(order.refund_number || "—"); }
+  function productKeyMatches(product, term){
+    const q = lookupNormalize(term);
+    const parts = lookupCodeParts(term);
+    const qDigits = lookupDigits(parts.suffix || term);
+    const values = [product.product_key, product.display_name, product.strength, product.category, product.id].map(cleanValue).filter(Boolean);
+    return values.some(value => {
+      const text = lookupNormalize(value);
+      if(text.includes(q)) return true;
+      return qDigits && lookupDigits(value) === qDigits;
+    });
+  }
+  async function lookupProducts(term){
+    const q = cleanValue(term);
+    if(!q) return [];
+    const parts = lookupCodeParts(q);
+    const compact = parts.compact;
+    const text = q.replace(/[%_,]/g, "");
+    const searchValues = [q, compact, parts.suffix].map(cleanValue).filter(Boolean);
+    const seen = new Map();
+    async function collect(table, query){
+      const { data, error } = await query.limit(20);
+      if(error) console.warn(`Admin lookup ${table} failed:`, error.message || error);
+      (data || []).forEach(row => {
+        const key = cleanValue(row.product_key || row.id || `${table}-${seen.size}`);
+        if(!seen.has(key)) seen.set(key, { ...row, _source_table: table });
+      });
+    }
+    for(const val of searchValues.slice(0, 3)){
+      await collect("product_catalog", supabaseClient.from("product_catalog").select("id,product_key,display_name,strength,category,price,current_inventory,is_active,featured,blend_stack,coa_url,coa_label").or(`product_key.ilike.%${val}%,display_name.ilike.%${text}%,strength.ilike.%${text}%,category.ilike.%${text}%`));
+      await collect("product_inventory", supabaseClient.from("product_inventory").select("id,product_key,display_name,strength,category,price,current_inventory,is_active,status_override,cost_per_unit,coa_url,coa_label").or(`product_key.ilike.%${val}%,display_name.ilike.%${text}%,strength.ilike.%${text}%,category.ilike.%${text}%`));
+    }
+    return [...seen.values()].filter(product => productKeyMatches(product, q)).slice(0, 12);
+  }
+
+  function lookupSafeText(value){ return cleanValue(value).replace(/[%_,()]/g, " ").trim(); }
+  async function lookupCustomerProfiles(term){
+    const q = lookupSafeText(term);
+    if(!q) return [];
+    const parts = lookupCodeParts(term);
+    const digits = lookupDigits(parts.suffix || term);
+    const clauses = [];
+    if(lookupLooksLikeEmail(q)) clauses.push(`email.ilike.%${q}%`);
+    clauses.push(`email.ilike.%${q}%`, `first_name.ilike.%${q}%`, `last_name.ilike.%${q}%`, `username.ilike.%${q}%`);
+    if(lookupDigits(q).length >= 4) clauses.push(`phone.ilike.%${lookupDigits(q)}%`);
+    if(digits) clauses.push(`customer_number.eq.${digits}`);
+    const uniqueClauses = [...new Set(clauses)];
+    const { data, error } = await supabaseClient
+      .from("customer_profiles")
+      .select("user_id,first_name,last_name,email,phone,username,billing_city,billing_state,shipping_city,shipping_state,account_status,customer_number,created_at")
+      .or(uniqueClauses.join(","))
+      .limit(20);
+    if(error){ console.warn("Admin lookup customer_profiles failed:", error.message || error); return []; }
+    return data || [];
+  }
+  function customerProfileName(profile){ return cleanValue([profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.username || profile.email || "Customer"); }
+  function ordersForCustomerProfile(profile){
+    const email = lookupNormalize(profile.email);
+    const userId = cleanValue(profile.user_id);
+    const phoneDigits = lookupDigits(profile.phone);
+    return allOrders.filter(order => {
+      if(email && lookupNormalize(customerEmail(order)) === email) return true;
+      if(userId && [order.customer_id, order.user_id, order.profile_id, profileOf(order).user_id].map(cleanValue).includes(userId)) return true;
+      if(phoneDigits.length >= 7 && lookupDigits(customerPhone(order)).includes(phoneDigits)) return true;
+      return false;
+    });
+  }
+  function renderLookupCustomerProfileCard(profile, orders){
+    const rows = orders.map(order => `<tr><td><button class="btn secondary" type="button" data-lookup-open-order="${esc(order.id)}">${esc(orderNumber(order))}</button></td><td>${esc(fmtDate(order.created_at || order.order_date))}</td><td>${pill(orderStatus(order))}</td><td>${pill(paymentStatus(order))}</td><td><strong>${money(orderTotal(order))}</strong></td><td>${esc((order.items || []).length)} item row(s)</td></tr>`).join("");
+    return `<div class="admin-lookup-cardlet">
+      <div class="admin-lookup-cardlet-head"><h3>Customer Match — ${esc(customerProfileName(profile))}</h3><span class="pill ${profile.account_status === "active" ? "paid" : "processing"}">${esc(profile.account_status || "customer")}</span></div>
+      <div class="admin-lookup-cardlet-body">
+        <div class="admin-lookup-summary">
+          ${adminLookupKv("Customer", customerProfileName(profile))}
+          ${adminLookupKv("Customer #", profile.customer_number)}
+          ${adminLookupKv("Email", profile.email)}
+          ${adminLookupKv("Phone", profile.phone)}
+          ${adminLookupKv("Status", profile.account_status || "—")}
+          ${adminLookupKv("Created", fmtDate(profile.created_at))}
+          ${adminLookupKv("Billing", [profile.billing_city, profile.billing_state].filter(Boolean).join(", "))}
+          ${adminLookupKv("Shipping", [profile.shipping_city, profile.shipping_state].filter(Boolean).join(", "))}
+        </div>
+        ${orders.length ? `<div class="admin-lookup-table-wrap"><table class="admin-lookup-table"><thead><tr><th>Order</th><th>Date</th><th>Order Status</th><th>Payment</th><th>Total</th><th>Items</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="admin-lookup-empty">Customer found. No orders are currently tied to this customer profile.</div>`}
+        <div class="admin-lookup-actions"><a class="btn secondary" href="customers.html">Open Customers</a>${adminLookupCopyButton(profile.email, "Copy Email")}${adminLookupCopyButton(profile.phone, "Copy Phone")}</div>
+      </div>
+    </div>`;
+  }
+  function adminLookupSetMode(label, cls="processing"){
+    const el = $("adminLookupMode");
+    if(el){ el.className = `pill ${cls}`; el.textContent = label; }
+  }
+  function adminLookupEmpty(message){ return `<div class="admin-lookup-empty">${esc(message)}</div>`; }
+  function adminLookupKv(label, value){ return `<div class="admin-lookup-kv"><strong>${esc(label)}</strong><span>${esc(cleanValue(value) || "—")}</span></div>`; }
+  function adminLookupCopyButton(value, label){
+    const clean = cleanValue(value);
+    return clean ? `<button class="btn secondary" type="button" data-lookup-copy="${esc(clean)}">${esc(label)}</button>` : "";
+  }
+  function adminLookupOrderButton(order, label="Open Order"){
+    return `<button class="btn" type="button" data-lookup-open-order="${esc(order.id)}">${esc(label)}</button>`;
+  }
+  function adminLookupProductButtons(product){
+    const key = cleanValue(product.product_key);
+    if(!key) return "";
+    return `<a class="btn secondary" href="products.html?product_key=${encodeURIComponent(key)}">Open Product</a><a class="btn secondary" href="inventory.html?product_key=${encodeURIComponent(key)}">Open Inventory</a>`;
+  }
+  function renderLookupOrderCard(order, title="Order Match"){
+    const items = order.items || [];
+    const carrier = order.tracking_carrier || order.shipping_carrier || order.carrier || "—";
+    const tracking = order.tracking_number || order.tracking || "";
+    return `<div class="admin-lookup-cardlet">
+      <div class="admin-lookup-cardlet-head"><h3>${esc(title)} — #${esc(orderNumber(order))}</h3>${pill(orderStatus(order))}</div>
+      <div class="admin-lookup-cardlet-body">
+        <div class="admin-lookup-summary">
+          ${adminLookupKv("Customer", customerName(order))}
+          ${adminLookupKv("Customer #", customerNumber(order))}
+          ${adminLookupKv("Email", customerEmail(order))}
+          ${adminLookupKv("Phone", customerPhone(order))}
+          ${adminLookupKv("Payment", paymentStatus(order))}
+          ${adminLookupKv("Method", paymentMethod(order))}
+          ${adminLookupKv("Total", money(orderTotal(order)))}
+          ${adminLookupKv("Date", fmtDate(order.created_at || order.order_date))}
+          ${adminLookupKv("Carrier", carrier)}
+          ${adminLookupKv("Tracking", tracking || "Not added")}
+          ${adminLookupKv("Refund #", refundNumber(order))}
+          ${adminLookupKv("Refund Status", order.refund_status || "—")}
+        </div>
+        <div><strong>Items</strong><div class="admin-lookup-items">${items.length ? items.map(item => `<div class="admin-lookup-item"><div><strong>${esc(orderItemDisplayName(item))}</strong><div class="muted">${esc(item.product_key || item.product_id || item.item_number || item.product_strength || item.strength || "")}</div></div><div><strong>Qty ${esc(orderItemQty(item))}</strong><div class="muted">${money(orderItemLineTotal(item))}</div></div></div>`).join("") : `<div class="muted">No item rows found.</div>`}</div></div>
+        <div class="admin-lookup-actions">${adminLookupOrderButton(order)}${adminLookupCopyButton(customerEmail(order), "Copy Email")}${adminLookupCopyButton(tracking, "Copy Tracking")}</div>
+      </div>
+    </div>`;
+  }
+  function renderLookupCustomerCard(orders, title="Customer Match"){
+    const first = orders[0] || {};
+    const rows = orders.map(order => `<tr><td><button class="btn secondary" type="button" data-lookup-open-order="${esc(order.id)}">${esc(orderNumber(order))}</button></td><td>${esc(fmtDate(order.created_at || order.order_date))}</td><td>${pill(orderStatus(order))}</td><td>${pill(paymentStatus(order))}</td><td><strong>${money(orderTotal(order))}</strong></td><td>${esc((order.items || []).length)} item row(s)</td></tr>`).join("");
+    return `<div class="admin-lookup-cardlet">
+      <div class="admin-lookup-cardlet-head"><h3>${esc(title)}</h3><span class="pill processing">${orders.length} order${orders.length === 1 ? "" : "s"}</span></div>
+      <div class="admin-lookup-cardlet-body">
+        <div class="admin-lookup-summary">
+          ${adminLookupKv("Customer", customerName(first))}
+          ${adminLookupKv("Customer #", customerNumber(first))}
+          ${adminLookupKv("Email", customerEmail(first))}
+          ${adminLookupKv("Phone", customerPhone(first))}
+        </div>
+        <div class="admin-lookup-table-wrap"><table class="admin-lookup-table"><thead><tr><th>Order</th><th>Date</th><th>Order Status</th><th>Payment</th><th>Total</th><th>Items</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="admin-lookup-actions">${adminLookupCopyButton(customerEmail(first), "Copy Email")}</div>
+      </div>
+    </div>`;
+  }
+  function renderLookupRefundCard(order){
+    return `<div class="admin-lookup-cardlet">
+      <div class="admin-lookup-cardlet-head"><h3>Refund Match — R${esc(refundNumber(order))}</h3>${pill(order.refund_status || "refund")}</div>
+      <div class="admin-lookup-cardlet-body">
+        <div class="admin-lookup-summary">
+          ${adminLookupKv("Refund #", refundNumber(order))}
+          ${adminLookupKv("Order", orderNumber(order))}
+          ${adminLookupKv("Customer", customerName(order))}
+          ${adminLookupKv("Email", customerEmail(order))}
+          ${adminLookupKv("Amount", money(order.refund_amount || 0))}
+          ${adminLookupKv("Status", order.refund_status || "—")}
+          ${adminLookupKv("Requested", fmtDate(order.refund_requested_at))}
+          ${adminLookupKv("Issued", fmtDate(order.refund_issued_at))}
+        </div>
+        <div class="admin-lookup-warning"><strong>Reason:</strong> ${esc(order.refund_reason || "No refund reason recorded.")}</div>
+        <div class="admin-lookup-actions">${adminLookupOrderButton(order, "Open Refund Order")}${adminLookupCopyButton(customerEmail(order), "Copy Email")}</div>
+      </div>
+    </div>`;
+  }
+  function renderLookupProductCard(product){
+    const active = product.is_active === false ? "Inactive" : "Active";
+    const inventory = product.current_inventory ?? "—";
+    return `<div class="admin-lookup-cardlet">
+      <div class="admin-lookup-cardlet-head"><h3>Product Match — ${esc(product.product_key || "Product")}</h3><span class="pill ${product.is_active === false ? "cancelled" : "paid"}">${esc(active)}</span></div>
+      <div class="admin-lookup-cardlet-body">
+        <div class="admin-lookup-summary">
+          ${adminLookupKv("Item #", product.product_key)}
+          ${adminLookupKv("Name", product.display_name)}
+          ${adminLookupKv("Strength", product.strength)}
+          ${adminLookupKv("Category", product.category)}
+          ${adminLookupKv("Price", money(product.price || 0))}
+          ${adminLookupKv("Inventory", inventory)}
+          ${adminLookupKv("Status Override", product.status_override || "—")}
+          ${adminLookupKv("Source", product._source_table || "product")}
+        </div>
+        <div class="admin-lookup-warning">Product lookup intentionally does not expand every order containing this item. Use reports/sales history when that is actually needed.</div>
+        <div class="admin-lookup-actions">${adminLookupProductButtons(product)}</div>
+      </div>
+    </div>`;
+  }
+  function groupOrdersByCustomer(orders){
+    const groups = new Map();
+    orders.forEach(order => {
+      const key = lookupNormalize(customerEmail(order)) || lookupNormalize(customerPhone(order)) || lookupNormalize(customerNumber(order)) || String(order.customer_id || order.user_id || order.id);
+      if(!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(order);
+    });
+    return [...groups.values()];
+  }
+  async function runAdminLookup(){
+    const input = $("adminLookupInput");
+    const out = $("adminLookupResults");
+    const term = cleanValue(input?.value || "");
+    if(!out) return;
+    if(!term){ adminLookupSetMode("Ready"); out.innerHTML = ""; return; }
+    adminLookupSetMode("Searching...");
+    out.innerHTML = adminLookupEmpty("Searching admin records...");
+    const intent = detectLookupIntent(term);
+    let html = "";
+    try{
+      if(intent === "product"){
+        const products = await lookupProducts(term);
+        adminLookupSetMode("Product lookup", products.length ? "paid" : "cancelled");
+        html = products.length ? products.map(renderLookupProductCard).join("") : adminLookupEmpty("No product/item number matched that search.");
+      } else if(intent === "order"){
+        const matches = allOrders.filter(order => orderMatchesOrderNumber(order, term));
+        adminLookupSetMode("Order lookup", matches.length ? "paid" : "cancelled");
+        html = matches.length ? matches.slice(0, 10).map(o => renderLookupOrderCard(o, "Order Match")).join("") : adminLookupEmpty("No order matched that order number.");
+      } else if(intent === "refund"){
+        const matches = allOrders.filter(order => orderMatchesRefundNumber(order, term));
+        adminLookupSetMode("Refund lookup", matches.length ? "paid" : "cancelled");
+        html = matches.length ? matches.slice(0, 10).map(renderLookupRefundCard).join("") : adminLookupEmpty("No refund matched that refund number. Refund fields exist, but this value is not recorded on an order.");
+      } else if(["customer", "phone"].includes(intent)){
+        const matches = allOrders.filter(order => orderMatchesCustomer(order, term));
+        const profiles = await lookupCustomerProfiles(term);
+        const profileBlocks = profiles.slice(0, 8).map(profile => renderLookupCustomerProfileCard(profile, ordersForCustomerProfile(profile)));
+        const profileKeys = new Set(profiles.flatMap(profile => [lookupNormalize(profile.email), lookupDigits(profile.phone), cleanValue(profile.user_id)]).filter(Boolean));
+        const remainingOrderMatches = matches.filter(order => !profileKeys.has(lookupNormalize(customerEmail(order))) && !profileKeys.has(lookupDigits(customerPhone(order))) && !profileKeys.has(cleanValue(order.customer_id || order.user_id)));
+        const groups = groupOrdersByCustomer(remainingOrderMatches);
+        adminLookupSetMode("Customer lookup", (profileBlocks.length || groups.length) ? "paid" : "cancelled");
+        html = (profileBlocks.length || groups.length) ? [profileBlocks.join(""), groups.slice(0, 8).map(group => renderLookupCustomerCard(group)).join("")].filter(Boolean).join("") : adminLookupEmpty("No customer/order matched that customer lookup.");
+      } else {
+        const orderMatches = allOrders.filter(order => orderMatchesText(order, term)).slice(0, 8);
+        const productMatches = await lookupProducts(term);
+        adminLookupSetMode("Mixed lookup", (orderMatches.length || productMatches.length) ? "paid" : "cancelled");
+        const mixedBlocks = [];
+        if(orderMatches.length) mixedBlocks.push(`<div class="admin-lookup-cardlet"><div class="admin-lookup-cardlet-head"><h3>Best Order / Customer Matches</h3><span class="pill processing">${orderMatches.length}</span></div><div class="admin-lookup-cardlet-body">${orderMatches.map(o => renderLookupOrderCard(o, "Possible Match")).join("")}</div></div>`);
+        if(productMatches.length) mixedBlocks.push(productMatches.map(renderLookupProductCard).join(""));
+        html = mixedBlocks.length ? mixedBlocks.join("") : adminLookupEmpty("No admin lookup matches found.");
+      }
+      out.innerHTML = html;
+    }catch(error){
+      console.error(error);
+      adminLookupSetMode("Lookup error", "cancelled");
+      out.innerHTML = adminLookupEmpty(error.message || "Lookup failed.");
+    }
+  }
+  function wireAdminLookup(){
+    $("adminLookupBtn")?.addEventListener("click", runAdminLookup);
+    $("adminLookupInput")?.addEventListener("keydown", event => { if(event.key === "Enter"){ event.preventDefault(); runAdminLookup(); } });
+    $("adminLookupClearBtn")?.addEventListener("click", () => { if($("adminLookupInput")) $("adminLookupInput").value = ""; if($("adminLookupResults")) $("adminLookupResults").innerHTML = ""; adminLookupSetMode("Ready"); });
+    document.addEventListener("click", event => {
+      const open = event.target.closest("[data-lookup-open-order]");
+      if(open){
+        const order = allOrders.find(o => String(o.id) === String(open.dataset.lookupOpenOrder));
+        if(order) renderOrderDetail(order);
+        return;
+      }
+      const copy = event.target.closest("[data-lookup-copy]");
+      if(copy){
+        navigator.clipboard?.writeText(copy.dataset.lookupCopy || "").then(() => setStatus("Copied to clipboard.", "good")).catch(() => alert(copy.dataset.lookupCopy || ""));
+      }
+    });
   }
 
   function paymentInstructions(order){
@@ -2540,6 +2923,7 @@ td .payment-method-pill {
     selectedOrderIds = new Set([...selectedOrderIds].filter(id => allOrders.some(o => o.id === id)));
     applyFilters();
     setStatus(`Loaded ${allOrders.length} order${allOrders.length===1?"":"s"}.`, "good");
+    if(cleanValue($("adminLookupInput")?.value || "") && $("adminLookupResults")?.innerHTML) runAdminLookup();
   }
 
   function applyFilters(){
@@ -4054,6 +4438,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
 
   function wireEvents(){
     setupAdminDashboardNavigation();
+    wireAdminLookup();
     $("refreshBtn")?.addEventListener("click", loadOrders);
     $("closeEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
     $("cancelEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
