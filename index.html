@@ -1,132 +1,189 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PEP Shop Texas</title>
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="styles.css?v=45">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>PEP Shop Texas</title>
+<link href="favicon.ico" rel="icon" sizes="any"/>
+<link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="apple-touch-icon.png" rel="apple-touch-icon"/>
+<link href="site.webmanifest" rel="manifest"/>
+<meta content="#bd0000" name="theme-color"/>
+<link href="styles.css?v=45" rel="stylesheet"/>
+<script defer="" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer="" src="app.js?v=39"></script>
+<style id="pst-approved-hero-header-v1">
+/* Approved PST header + hero preview. This intentionally overrides styles.css. */
+.pst-header-v2 {
+  min-height: 104px;
+  padding: 0 28px;
+  background: #050505;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+  color: #fff;
+}
+.pst-header-v2 .header-left,
+.pst-header-v2 .header-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 38px);
+  min-width: 0;
+}
+.pst-header-v2 .header-left { justify-content: flex-start; }
+.pst-header-v2 .header-right { justify-content: flex-end; gap: 20px; }
+.pst-header-v2 a { color:#fff; text-decoration:none; font-weight:700; white-space:nowrap; }
+.pst-header-v2 .header-left a { font-size: clamp(12px, 1vw, 16px); }
+.pst-header-v2 .header-brand { display:block; line-height:0; }
+.pst-header-v2 .header-brand img { display:block; width:210px; max-height:90px; object-fit:contain; }
+.pst-header-v2 .account-link { display:flex; align-items:center; gap:9px; line-height:1.05; }
+.pst-header-v2 .account-link strong { display:block; font-size:14px; }
+.pst-header-v2 .account-link small { display:block; margin-top:4px; font-size:11px; font-weight:500; }
+.pst-header-v2 .account-icon { font-size:22px; }
+.pst-header-v2 .admin-link { border-left:1px solid rgba(255,255,255,.55); padding-left:20px; font-size:14px; }
+.pst-header-v2 .header-search { width:280px; height:48px; margin:0; display:flex; background:#fff; border-radius:7px; overflow:hidden; }
+.pst-header-v2 .header-search input { width:100%; min-width:0; border:0; padding:0 14px; font-size:15px; outline:none; }
+.pst-header-v2 .header-search button { width:48px; border:0; background:#fff; padding:12px; }
+.pst-header-v2 .header-search svg { width:24px; height:24px; fill:none; stroke:#000; stroke-width:2; }
 
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=39"></script>
-</head>
+.pst-approved-hero {
+  width:100%;
+  height:400px;
+  max-height:400px;
+  overflow:hidden;
+  background:#fff;
+}
+.pst-approved-hero img {
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center 44%;
+}
+
+@media (max-width: 1180px) {
+  .pst-header-v2 { grid-template-columns: 1fr auto; padding:12px 20px; gap:12px 22px; }
+  .pst-header-v2 .header-brand { grid-column:1 / -1; grid-row:1; justify-self:center; }
+  .pst-header-v2 .header-left { grid-column:1; grid-row:2; flex-wrap:wrap; }
+  .pst-header-v2 .header-right { grid-column:2; grid-row:2; flex-wrap:wrap; }
+  .pst-header-v2 .header-search { width:220px; }
+  .pst-approved-hero { height:330px; }
+}
+
+@media (max-width: 760px) {
+  .pst-header-v2 { grid-template-columns:1fr; padding:10px 12px 14px; gap:10px; }
+  .pst-header-v2 .header-brand,
+  .pst-header-v2 .header-left,
+  .pst-header-v2 .header-right { grid-column:1; justify-self:center; width:100%; }
+  .pst-header-v2 .header-brand { grid-row:1; width:auto; }
+  .pst-header-v2 .header-brand img { width:145px; max-height:68px; }
+  .pst-header-v2 .header-left { grid-row:2; justify-content:center; gap:8px 16px; }
+  .pst-header-v2 .header-left a { font-size:12px; }
+  .pst-header-v2 .header-right { grid-row:3; justify-content:center; gap:10px 14px; }
+  .pst-header-v2 .account-link strong { font-size:12px; }
+  .pst-header-v2 .account-link small { font-size:10px; }
+  .pst-header-v2 .admin-link { font-size:12px; padding-left:14px; }
+  .pst-header-v2 .header-search { flex-basis:100%; width:min(100%,360px); height:38px; }
+  .pst-approved-hero { height:230px; }
+  .pst-approved-hero img { object-position:center 43%; }
+}
+
+@media (max-width: 420px) {
+  .pst-header-v2 .header-left { gap:7px 12px; }
+  .pst-header-v2 .header-left a { font-size:10.5px; }
+  .pst-header-v2 .account-icon { display:none; }
+  .pst-approved-hero { height:200px; }
+  .pst-approved-hero img { object-position:center 42%; }
+}
+</style></head>
 <body data-page="home">
-  <header class="site-header">
-    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
-      <span class="brand-main">PEP SHOP</span>
-      <span class="brand-sub">TEXAS</span>
-    </a>
-    <nav class="main-nav" aria-label="Main navigation">
-      <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">&#8964;</span></a>
-      <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">&#8964;</span></a>
-      <a href="faq.html">FAQ</a>
-      <a href="contact.html">CONTACT</a>
-      <a href="account.html">ACCOUNT</a>
-      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
-    </nav>
-    <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
-      <label class="sr-only" for="site-search">Search peptides</label>
-      <input id="site-search" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-      <button type="submit" aria-label="Search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
-      </button>
-    </form>
-  </header>
-
-  <main>
-    <section class="hero" aria-label="PEP Shop Texas research peptides hero"><img src="pst-hero-1920x300.png" alt="PEP Shop Texas research peptides hero"></section>
-
-    <section class="quick-panel" aria-label="Primary links">
-      <a class="quick-link" href="catalog.html">
-        <span class="quick-icon red">A<br>Z</span>
-        <strong>PEPTIDES A-Z</strong>
-        <span>Browse all peptides alphabetically</span>
-      </a>
-      <a class="quick-link" href="catalog.html?category=Stack">
-        <span class="quick-icon dark"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Zm-7 9 7 4 7-4M5 16l7 4 7-4"/></svg></span>
-        <strong>TOP STACKS</strong>
-        <span>Popular blend and stack products</span>
-      </a>
-      <a class="quick-link" href="faq.html">
-        <span class="quick-icon dark"><svg viewBox="0 0 24 24"><path d="M9.5 9a3 3 0 1 1 4.6 2.53c-.88.52-1.6 1.13-1.6 2.47m0 3h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg></span>
-        <strong>FAQ</strong>
-        <span>Answers to common questions</span>
-      </a>
-      <a class="quick-link" href="contact.html">
-        <span class="quick-icon red"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4V6Zm0 1 8 6 8-6"/></svg></span>
-        <strong>CONTACT</strong>
-        <span>Get in touch with our team</span>
-      </a>
-    </section>
-
-    <section class="promo-band" data-home-promotion hidden aria-label="Current promotion"></section>
-
-    <section class="product-grid" aria-label="Featured peptide lists">
-      <article class="list-card">
-        <h2><span class="title-icon red-text">&#9830;</span> HOT PEPTIDES</h2>
-        <p>Featured active products</p>
-        <ul data-home-list="hot">
-          <li><a href="catalog.html"><span>BPC-157 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>TB-500 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>GHK-Cu 50 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>NAD+ 500 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>CJC No DAC 5 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-        </ul>
-      </article>
-      <article class="list-card">
-        <h2><span class="title-icon">&#9649;</span> TOP STACKS</h2>
-        <p>Popular blend and stack products</p>
-        <ul data-home-list="stacks">
-          <li><a href="catalog.html?category=Stack"><span>Performance Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html?category=Stack"><span>Recovery Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html?category=Stack"><span>Longevity Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html?category=Stack"><span>Cutting Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html?category=Stack"><span>Healing Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-        </ul>
-      </article>
-      <article class="list-card">
-        <h2><span class="title-icon">&#9733;</span> NEW ARRIVALS</h2>
-        <p>Products selected in admin</p>
-        <ul data-home-list="new">
-          <li><a href="catalog.html"><span>KPV 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>Selank 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>Semax 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>MOTS-C 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>Ipamorelin 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-        </ul>
-      </article>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-  <div class="trust-bar">
-    <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
-    <div><span><strong>QUALITY</strong>Third-party tested</span></div>
-    <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
-    <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
-  </div>
-  <div class="site-footer-inner">
-    <div class="site-footer-brand">
-      <strong>Pep Shop Texas</strong>
-      <span>Research-use catalog. Not for human or veterinary use.</span>
-    </div>
-    <nav class="site-footer-links" aria-label="Footer policies">
-      <a href="terms.html">Terms</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="shipping.html">Shipping</a>
-      <a href="returns.html">Returns</a>
-      <a href="contact.html">Contact</a>
-    </nav>
-  </div>
+<header class="site-header pst-header-v2"><nav aria-label="Main navigation" class="header-left"><a href="catalog.html">PEPTIDES A-Z</a><a href="catalog.html?category=Stack">TOP STACKS</a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a></nav><a aria-label="PEP Shop Texas home" class="brand header-brand" href="index.html"><img alt="PEP Shop Texas" src="pst-header-logo-approved.png"/></a><div class="header-right"><a class="account-link" href="account.html"><span aria-hidden="true" class="account-icon">◯</span><span><strong>HELLO JIMMIE</strong><small>MY ACCOUNT</small></span></a><a class="admin-link" href="admin.html">ADMIN</a><form action="catalog.html" class="search header-search" data-product-search-form="" method="get" role="search"><label class="sr-only" for="site-search">Search peptides</label><input autocomplete="off" id="site-search" name="search" placeholder="Search peptides..." type="search"/><button aria-label="Search" type="submit"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button></form></div></header>
+<main>
+<section aria-label="PEP Shop Texas research peptides hero" class="hero pst-approved-hero"><img alt="PEP Shop Texas premium research peptides" src="pst-hero-approved.jpg"/></section>
+<section aria-label="Primary links" class="quick-panel">
+<a class="quick-link" href="catalog.html">
+<span class="quick-icon red">A<br/>Z</span>
+<strong>PEPTIDES A-Z</strong>
+<span>Browse all peptides alphabetically</span>
+</a>
+<a class="quick-link" href="catalog.html?category=Stack">
+<span class="quick-icon dark"><svg viewbox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Zm-7 9 7 4 7-4M5 16l7 4 7-4"></path></svg></span>
+<strong>TOP STACKS</strong>
+<span>Popular blend and stack products</span>
+</a>
+<a class="quick-link" href="faq.html">
+<span class="quick-icon dark"><svg viewbox="0 0 24 24"><path d="M9.5 9a3 3 0 1 1 4.6 2.53c-.88.52-1.6 1.13-1.6 2.47m0 3h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path></svg></span>
+<strong>FAQ</strong>
+<span>Answers to common questions</span>
+</a>
+<a class="quick-link" href="contact.html">
+<span class="quick-icon red"><svg viewbox="0 0 24 24"><path d="M4 6h16v12H4V6Zm0 1 8 6 8-6"></path></svg></span>
+<strong>CONTACT</strong>
+<span>Get in touch with our team</span>
+</a>
+</section>
+<section aria-label="Current promotion" class="promo-band" data-home-promotion="" hidden=""></section>
+<section aria-label="Featured peptide lists" class="product-grid">
+<article class="list-card">
+<h2><span class="title-icon red-text">♦</span> HOT PEPTIDES</h2>
+<p>Featured active products</p>
+<ul data-home-list="hot">
+<li><a href="catalog.html"><span>BPC-157 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>TB-500 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>GHK-Cu 50 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>NAD+ 500 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>CJC No DAC 5 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+</ul>
+</article>
+<article class="list-card">
+<h2><span class="title-icon">▱</span> TOP STACKS</h2>
+<p>Popular blend and stack products</p>
+<ul data-home-list="stacks">
+<li><a href="catalog.html?category=Stack"><span>Performance Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html?category=Stack"><span>Recovery Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html?category=Stack"><span>Longevity Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html?category=Stack"><span>Cutting Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html?category=Stack"><span>Healing Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+</ul>
+</article>
+<article class="list-card">
+<h2><span class="title-icon">★</span> NEW ARRIVALS</h2>
+<p>Products selected in admin</p>
+<ul data-home-list="new">
+<li><a href="catalog.html"><span>KPV 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>Selank 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>Semax 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>MOTS-C 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>Ipamorelin 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+</ul>
+</article>
+</section>
+</main>
+<footer class="site-footer">
+<div class="trust-bar">
+<div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
+<div><span><strong>QUALITY</strong>Third-party tested</span></div>
+<div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
+<div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
+</div>
+<div class="site-footer-inner">
+<div class="site-footer-brand">
+<strong>Pep Shop Texas</strong>
+<span>Research-use catalog. Not for human or veterinary use.</span>
+</div>
+<nav aria-label="Footer policies" class="site-footer-links">
+<a href="terms.html">Terms</a>
+<a href="privacy.html">Privacy</a>
+<a href="shipping.html">Shipping</a>
+<a href="returns.html">Returns</a>
+<a href="contact.html">Contact</a>
+</nav>
+</div>
 </footer>
-
-
-  <script id="pst-new-arrivals-featured-loader-v1">
+<script id="pst-new-arrivals-featured-loader-v1">
     (function () {
       const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
       const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
@@ -204,10 +261,5 @@
       });
     })();
   </script>
-
 </body>
 </html>
-
-
-
-
