@@ -153,7 +153,6 @@
 }
 
 #pst-hero-v3 {
-  box-sizing: border-box !important;
   width: 100% !important;
   height: 400px !important;
   max-height: 400px !important;
@@ -161,20 +160,17 @@
   padding: 0 !important;
   overflow: hidden !important;
   background: #fff !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
 }
 
 #pst-hero-v3 img {
   display: block !important;
-  width: auto !important;
+  width: 100% !important;
   height: 100% !important;
   max-width: none !important;
-  max-height: 100% !important;
-  margin: 0 auto !important;
-  object-fit: contain !important;
-  object-position: center center !important;
+  max-height: none !important;
+  margin: 0 !important;
+  object-fit: cover !important;
+  object-position: center 48% !important;
 }
 
 @media (max-width: 1180px) {
@@ -225,6 +221,8 @@
 }
 
 @media (max-width: 760px) {
+  #pst-hero-v3 { height: 230px !important; max-height: 230px !important; }
+
   #pst-header-v3 {
     grid-template-columns: 1fr !important;
     padding: 8px 12px 12px !important;
@@ -289,6 +287,8 @@
 }
 
 @media (max-width: 420px) {
+  #pst-hero-v3 { height: 200px !important; max-height: 200px !important; }
+
   #pst-header-v3 .pst-logo img {
     width: 112px !important;
     height: 52px !important;
