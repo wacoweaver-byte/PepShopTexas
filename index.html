@@ -153,28 +153,18 @@
 }
 
 #pst-hero-v3 {
-  box-sizing: border-box !important;
   width: 100% !important;
-  height: 400px !important;
-  max-height: 400px !important;
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden !important;
   background: #fff !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
 }
 
 #pst-hero-v3 img {
   display: block !important;
   width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
+  height: auto !important;
   margin: 0 !important;
-  object-fit: cover !important;
-  object-position: center center !important;
 }
 
 @media (max-width: 1180px) {
@@ -220,8 +210,6 @@
   #pst-header-v3 .pst-search button {
     height: 40px !important;
   }
-
-  #pst-hero-v3 { height: 330px !important; }
 }
 
 @media (max-width: 760px) {
@@ -284,8 +272,6 @@
   #pst-header-v3 .pst-search button {
     height: 38px !important;
   }
-
-  #pst-hero-v3 { height: 230px !important; }
 }
 
 @media (max-width: 420px) {
@@ -305,9 +291,25 @@
   #pst-header-v3 .pst-account-icon {
     display: none !important;
   }
-
-  #pst-hero-v3 { height: 200px !important; }
 }
+
+@media (max-width: 760px) {
+  #pst-hero-v3 {
+    height: 220px !important;
+  }
+  #pst-hero-v3 img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+  }
+}
+@media (max-width: 420px) {
+  #pst-hero-v3 {
+    height: 190px !important;
+  }
+}
+
 </style></head>
 <body data-page="home">
 <header id="pst-header-v3">
@@ -337,7 +339,7 @@
 </header>
 <main>
 <section aria-label="PEP Shop Texas research peptides hero" id="pst-hero-v3">
-<img alt="PEP Shop Texas premium research peptides" src="pst-hero-approved-v3.jpg"/>
+<img alt="PEP Shop Texas premium research peptides" src="pst-hero-1920x400.jpg"/>
 </section>
 <section aria-label="Primary links" class="quick-panel">
 <a class="quick-link" href="catalog.html">
