@@ -14,95 +14,331 @@
 <link href="styles.css?v=45" rel="stylesheet"/>
 <script defer="" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer="" src="app.js?v=39"></script>
-<style id="pst-approved-hero-header-v1">
-/* Approved PST header + hero preview. This intentionally overrides styles.css. */
-.pst-header-v2 {
-  min-height: 104px;
-  padding: 0 28px;
-  background: #050505;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: 28px;
-  color: #fff;
+<style id="pst-hero-integration-v3">
+/* Fully isolated PST header/hero integration. */
+#pst-header-v3 {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-height: 96px !important;
+  margin: 0 !important;
+  padding: 0 28px !important;
+  background: #050505 !important;
+  display: grid !important;
+  grid-template-columns: minmax(380px, 1fr) 180px minmax(520px, 1fr) !important;
+  align-items: center !important;
+  gap: 20px !important;
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 10 !important;
 }
-.pst-header-v2 .header-left,
-.pst-header-v2 .header-right {
-  display: flex;
-  align-items: center;
-  gap: clamp(16px, 2vw, 38px);
-  min-width: 0;
-}
-.pst-header-v2 .header-left { justify-content: flex-start; }
-.pst-header-v2 .header-right { justify-content: flex-end; gap: 20px; }
-.pst-header-v2 a { color:#fff; text-decoration:none; font-weight:700; white-space:nowrap; }
-.pst-header-v2 .header-left a { font-size: clamp(12px, 1vw, 16px); }
-.pst-header-v2 .header-brand { display:block; line-height:0; }
-.pst-header-v2 .header-brand img { display:block; width:210px; max-height:90px; object-fit:contain; }
-.pst-header-v2 .account-link { display:flex; align-items:center; gap:9px; line-height:1.05; }
-.pst-header-v2 .account-link strong { display:block; font-size:14px; }
-.pst-header-v2 .account-link small { display:block; margin-top:4px; font-size:11px; font-weight:500; }
-.pst-header-v2 .account-icon { font-size:22px; }
-.pst-header-v2 .admin-link { border-left:1px solid rgba(255,255,255,.55); padding-left:20px; font-size:14px; }
-.pst-header-v2 .header-search { width:280px; height:48px; margin:0; display:flex; background:#fff; border-radius:7px; overflow:hidden; }
-.pst-header-v2 .header-search input { width:100%; min-width:0; border:0; padding:0 14px; font-size:15px; outline:none; }
-.pst-header-v2 .header-search button { width:48px; border:0; background:#fff; padding:12px; }
-.pst-header-v2 .header-search svg { width:24px; height:24px; fill:none; stroke:#000; stroke-width:2; }
 
-.pst-approved-hero {
-  width:100%;
-  height:400px;
-  max-height:400px;
-  overflow:hidden;
-  background:#fff;
+#pst-header-v3 * { box-sizing: border-box !important; }
+
+#pst-header-v3 .pst-left,
+#pst-header-v3 .pst-right {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
 }
-.pst-approved-hero img {
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:cover;
-  object-position:center 44%;
+
+#pst-header-v3 .pst-left {
+  justify-content: flex-start !important;
+  gap: clamp(18px, 2vw, 34px) !important;
+}
+
+#pst-header-v3 .pst-right {
+  justify-content: flex-end !important;
+  gap: 18px !important;
+}
+
+#pst-header-v3 a {
+  color: #fff !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+#pst-header-v3 .pst-left a {
+  font-size: clamp(12px, .95vw, 15px) !important;
+}
+
+#pst-header-v3 .pst-logo {
+  display: block !important;
+  justify-self: center !important;
+  line-height: 0 !important;
+}
+
+#pst-header-v3 .pst-logo img {
+  display: block !important;
+  width: 180px !important;
+  height: 84px !important;
+  object-fit: contain !important;
+}
+
+#pst-header-v3 .pst-account {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  line-height: 1.05 !important;
+}
+
+#pst-header-v3 .pst-account strong {
+  display: block !important;
+  font-size: 14px !important;
+}
+
+#pst-header-v3 .pst-account small {
+  display: block !important;
+  margin-top: 4px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+#pst-header-v3 .pst-account-icon {
+  font-size: 22px !important;
+}
+
+#pst-header-v3 .pst-admin {
+  border-left: 1px solid rgba(255,255,255,.45) !important;
+  padding-left: 18px !important;
+  font-size: 14px !important;
+}
+
+#pst-header-v3 .pst-search {
+  width: 280px !important;
+  min-width: 220px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: #fff !important;
+  border-radius: 7px !important;
+  overflow: hidden !important;
+  flex: 0 1 280px !important;
+}
+
+#pst-header-v3 .pst-search input {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 46px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  padding: 0 14px !important;
+  background: #fff !important;
+  color: #111 !important;
+  font-size: 15px !important;
+  outline: none !important;
+}
+
+#pst-header-v3 .pst-search button {
+  flex: 0 0 46px !important;
+  width: 46px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 11px !important;
+  border: 0 !important;
+  background: #fff !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+#pst-header-v3 .pst-search svg {
+  width: 23px !important;
+  height: 23px !important;
+  fill: none !important;
+  stroke: #000 !important;
+  stroke-width: 2 !important;
+}
+
+#pst-hero-v3 {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 400px !important;
+  max-height: 400px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #fff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#pst-hero-v3 img {
+  display: block !important;
+  width: auto !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: 100% !important;
+  margin: 0 auto !important;
+  object-fit: contain !important;
+  object-position: center center !important;
 }
 
 @media (max-width: 1180px) {
-  .pst-header-v2 { grid-template-columns: 1fr auto; padding:12px 20px; gap:12px 22px; }
-  .pst-header-v2 .header-brand { grid-column:1 / -1; grid-row:1; justify-self:center; }
-  .pst-header-v2 .header-left { grid-column:1; grid-row:2; flex-wrap:wrap; }
-  .pst-header-v2 .header-right { grid-column:2; grid-row:2; flex-wrap:wrap; }
-  .pst-header-v2 .header-search { width:220px; }
-  .pst-approved-hero { height:330px; }
+  #pst-header-v3 {
+    grid-template-columns: 1fr auto !important;
+    min-height: 0 !important;
+    padding: 10px 18px 14px !important;
+    gap: 10px 18px !important;
+  }
+
+  #pst-header-v3 .pst-logo {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+  }
+
+  #pst-header-v3 .pst-logo img {
+    width: 155px !important;
+    height: 70px !important;
+  }
+
+  #pst-header-v3 .pst-left {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    flex-wrap: wrap !important;
+    gap: 10px 18px !important;
+  }
+
+  #pst-header-v3 .pst-right {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    flex-wrap: wrap !important;
+    gap: 10px 14px !important;
+  }
+
+  #pst-header-v3 .pst-search {
+    width: 220px !important;
+    min-width: 190px !important;
+    flex-basis: 220px !important;
+    height: 40px !important;
+  }
+
+  #pst-header-v3 .pst-search input,
+  #pst-header-v3 .pst-search button {
+    height: 40px !important;
+  }
+
+  #pst-hero-v3 { height: 330px !important; }
 }
 
 @media (max-width: 760px) {
-  .pst-header-v2 { grid-template-columns:1fr; padding:10px 12px 14px; gap:10px; }
-  .pst-header-v2 .header-brand,
-  .pst-header-v2 .header-left,
-  .pst-header-v2 .header-right { grid-column:1; justify-self:center; width:100%; }
-  .pst-header-v2 .header-brand { grid-row:1; width:auto; }
-  .pst-header-v2 .header-brand img { width:145px; max-height:68px; }
-  .pst-header-v2 .header-left { grid-row:2; justify-content:center; gap:8px 16px; }
-  .pst-header-v2 .header-left a { font-size:12px; }
-  .pst-header-v2 .header-right { grid-row:3; justify-content:center; gap:10px 14px; }
-  .pst-header-v2 .account-link strong { font-size:12px; }
-  .pst-header-v2 .account-link small { font-size:10px; }
-  .pst-header-v2 .admin-link { font-size:12px; padding-left:14px; }
-  .pst-header-v2 .header-search { flex-basis:100%; width:min(100%,360px); height:38px; }
-  .pst-approved-hero { height:230px; }
-  .pst-approved-hero img { object-position:center 43%; }
+  #pst-header-v3 {
+    grid-template-columns: 1fr !important;
+    padding: 8px 12px 12px !important;
+    gap: 9px !important;
+  }
+
+  #pst-header-v3 .pst-logo,
+  #pst-header-v3 .pst-left,
+  #pst-header-v3 .pst-right {
+    grid-column: 1 !important;
+    justify-self: center !important;
+    width: 100% !important;
+  }
+
+  #pst-header-v3 .pst-logo {
+    grid-row: 1 !important;
+    width: auto !important;
+  }
+
+  #pst-header-v3 .pst-logo img {
+    width: 132px !important;
+    height: 60px !important;
+  }
+
+  #pst-header-v3 .pst-left {
+    grid-row: 2 !important;
+    justify-content: center !important;
+    gap: 7px 14px !important;
+  }
+
+  #pst-header-v3 .pst-left a {
+    font-size: 11.5px !important;
+  }
+
+  #pst-header-v3 .pst-right {
+    grid-row: 3 !important;
+    justify-content: center !important;
+    gap: 9px 12px !important;
+  }
+
+  #pst-header-v3 .pst-account strong { font-size: 12px !important; }
+  #pst-header-v3 .pst-account small { font-size: 9.5px !important; }
+
+  #pst-header-v3 .pst-admin {
+    padding-left: 12px !important;
+    font-size: 12px !important;
+  }
+
+  #pst-header-v3 .pst-search {
+    flex: 1 1 100% !important;
+    width: min(100%, 360px) !important;
+    min-width: 0 !important;
+    height: 38px !important;
+  }
+
+  #pst-header-v3 .pst-search input,
+  #pst-header-v3 .pst-search button {
+    height: 38px !important;
+  }
+
+  #pst-hero-v3 { height: 230px !important; }
 }
 
 @media (max-width: 420px) {
-  .pst-header-v2 .header-left { gap:7px 12px; }
-  .pst-header-v2 .header-left a { font-size:10.5px; }
-  .pst-header-v2 .account-icon { display:none; }
-  .pst-approved-hero { height:200px; }
-  .pst-approved-hero img { object-position:center 42%; }
+  #pst-header-v3 .pst-logo img {
+    width: 112px !important;
+    height: 52px !important;
+  }
+
+  #pst-header-v3 .pst-left {
+    gap: 6px 11px !important;
+  }
+
+  #pst-header-v3 .pst-left a {
+    font-size: 10px !important;
+  }
+
+  #pst-header-v3 .pst-account-icon {
+    display: none !important;
+  }
+
+  #pst-hero-v3 { height: 200px !important; }
 }
 </style></head>
 <body data-page="home">
-<header class="site-header pst-header-v2"><nav aria-label="Main navigation" class="header-left"><a href="catalog.html">PEPTIDES A-Z</a><a href="catalog.html?category=Stack">TOP STACKS</a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a></nav><a aria-label="PEP Shop Texas home" class="brand header-brand" href="index.html"><img alt="PEP Shop Texas" src="pst-header-logo-approved.png"/></a><div class="header-right"><a class="account-link" href="account.html"><span aria-hidden="true" class="account-icon">◯</span><span><strong>HELLO JIMMIE</strong><small>MY ACCOUNT</small></span></a><a class="admin-link" href="admin.html">ADMIN</a><form action="catalog.html" class="search header-search" data-product-search-form="" method="get" role="search"><label class="sr-only" for="site-search">Search peptides</label><input autocomplete="off" id="site-search" name="search" placeholder="Search peptides..." type="search"/><button aria-label="Search" type="submit"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button></form></div></header>
+<header id="pst-header-v3">
+<nav aria-label="Main navigation" class="pst-left">
+<a href="catalog.html">PEPTIDES A-Z</a>
+<a href="catalog.html?category=Stack">TOP STACKS</a>
+<a href="faq.html">FAQ</a>
+<a href="contact.html">CONTACT</a>
+</nav>
+<a aria-label="PEP Shop Texas home" class="pst-logo" href="index.html">
+<img alt="PEP Shop Texas" src="pst-header-logo-approved-v3.png"/>
+</a>
+<div class="pst-right">
+<a class="pst-account" href="account.html">
+<span aria-hidden="true" class="pst-account-icon">◯</span>
+<span><strong>HELLO JIMMIE</strong><small>MY ACCOUNT</small></span>
+</a>
+<a class="pst-admin" href="admin.html">ADMIN</a>
+<form action="catalog.html" class="pst-search" data-product-search-form="" method="get" role="search">
+<label class="sr-only" for="site-search">Search peptides</label>
+<input autocomplete="off" id="site-search" name="search" placeholder="Search peptides..." type="search"/>
+<button aria-label="Search" type="submit">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg>
+</button>
+</form>
+</div>
+</header>
 <main>
-<section aria-label="PEP Shop Texas research peptides hero" class="hero pst-approved-hero"><img alt="PEP Shop Texas premium research peptides" src="pst-hero-approved.jpg"/></section>
+<section aria-label="PEP Shop Texas research peptides hero" id="pst-hero-v3">
+<img alt="PEP Shop Texas premium research peptides" src="pst-hero-approved-v3.jpg"/>
+</section>
 <section aria-label="Primary links" class="quick-panel">
 <a class="quick-link" href="catalog.html">
 <span class="quick-icon red">A<br/>Z</span>
