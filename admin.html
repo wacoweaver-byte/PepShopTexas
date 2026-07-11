@@ -1502,6 +1502,508 @@ header .pst-admin-actions-lock .btn.primary {
   color: #ffffff !important;
 }
 </style>
+
+<style id="pst-inventory-compact-catalog-pill-style-v1">
+/* PST inventory compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: inventory header links, jump links, collapse buttons, row actions,
+   reorder buttons/badges, incoming PO actions/statuses, vendor IDs,
+   product/status pills, disabled/read-only states. */
+:root {
+  --pst-inv-pill-h: 26px;
+  --pst-inv-pill-font: 10px;
+  --pst-inv-pill-weight: 700;
+  --pst-inv-pill-radius: 999px;
+  --pst-inv-pill-pad-x: 10px;
+  --pst-inv-pill-line: #c9ced6;
+  --pst-inv-pill-ink: #101820;
+  --pst-inv-pill-blue: #003f9e;
+  --pst-inv-pill-red: #bd0000;
+  --pst-inv-pill-green: #0c6b3a;
+  --pst-inv-pill-warn: #8a5a00;
+  --pst-inv-pill-danger: #8a1f17;
+}
+
+/* Compact pill base for inventory actions and statuses. */
+.btn,
+a.btn,
+button.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.inventory-jumpbar .btn,
+.inventory-jump-link,
+.inventory-collapse-toggle,
+.bulk-tools .btn,
+.bulk .btn,
+.reorder-controls .btn,
+.reorder-selected-actions .btn,
+.incoming-actions .btn,
+.incoming-edit-actions .btn,
+.vendor-form-grid .btn,
+.back-to-inventory-top .btn,
+.row-save,
+.row-audit-btn,
+.edit-incoming-btn,
+.close-incoming-edit-btn,
+.cancel-incoming-btn,
+.receive-incoming-btn,
+.transit-incoming-btn,
+.save-incoming-edit-btn,
+.incoming-line-remove,
+.reorder-action-btn,
+.status-pill,
+.reorder-badge,
+.incoming-pill,
+.vendor-id-pill,
+.active-pill,
+.inactive-pill,
+.inventory-restored-pill,
+.inventory-restore-needed-pill,
+.inventory-deduct-pill,
+.inventory-deduct-needed-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-inv-pill-h) !important;
+  height: var(--pst-inv-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-inv-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-inv-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-inv-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-inv-pill-font) !important;
+  font-weight: var(--pst-inv-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Buttons remain clickable; pills/statuses do not look like huge blocks. */
+.btn,
+a.btn,
+button.btn,
+.inventory-jump-link,
+.inventory-collapse-toggle,
+.reorder-action-btn,
+.incoming-line-remove,
+.row-save,
+.row-audit-btn,
+.edit-incoming-btn,
+.close-incoming-edit-btn,
+.cancel-incoming-btn,
+.receive-incoming-btn,
+.transit-incoming-btn,
+.save-incoming-edit-btn {
+  cursor: pointer !important;
+}
+
+.status-pill,
+.reorder-badge:not(.reorder-action-btn),
+.incoming-pill,
+.vendor-id-pill,
+.active-pill,
+.inactive-pill,
+.inventory-restored-pill,
+.inventory-restore-needed-pill,
+.inventory-deduct-pill,
+.inventory-deduct-needed-pill {
+  cursor: default !important;
+}
+
+/* Header page links: compact grey-outline pills. */
+header .actions,
+header .pst-admin-actions-lock {
+  gap: 6px !important;
+  height: auto !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  color: var(--pst-inv-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-line) !important;
+}
+
+/* Current page / active jump / open collapse: compact red pill. */
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+.inventory-jumpbar .btn.active,
+.inventory-jumpbar .btn[aria-pressed="true"],
+.inventory-collapse-toggle.active,
+.inventory-collapse-toggle[aria-expanded="true"],
+.inventory-dashboard-card:not(.collapsed) .inventory-collapse-toggle {
+  color: #ffffff !important;
+  background: var(--pst-inv-pill-red) !important;
+  border-color: var(--pst-inv-pill-red) !important;
+}
+
+/* Inventory jump links use catalog On Order blue-outline language. */
+.inventory-jumpbar .btn:not(.active):not([aria-pressed="true"]),
+.inventory-jump-link:not(.active):not([aria-pressed="true"]) {
+  color: var(--pst-inv-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-blue) !important;
+}
+
+.inventory-jumpbar {
+  gap: 6px !important;
+  padding: 10px !important;
+  align-items: center !important;
+}
+
+.inventory-jumpbar-label {
+  margin-right: 4px !important;
+  color: var(--muted) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: .03em !important;
+  text-transform: uppercase !important;
+}
+
+/* Action color variants keep meaning but use outlined compact pills. */
+.btn.success,
+button.btn.success,
+a.btn.success,
+.receive-incoming-btn,
+.row-save {
+  color: var(--pst-inv-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-green) !important;
+}
+
+.btn.warning,
+button.btn.warning,
+a.btn.warning,
+.transit-incoming-btn {
+  color: var(--pst-inv-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-warn) !important;
+}
+
+.btn.danger,
+button.btn.danger,
+a.btn.danger,
+.cancel-incoming-btn {
+  color: var(--pst-inv-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-danger) !important;
+}
+
+.btn.secondary,
+button.btn.secondary,
+a.btn.secondary,
+.edit-incoming-btn,
+.close-incoming-edit-btn,
+.row-audit-btn,
+.incoming-line-remove {
+  color: var(--pst-inv-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-line) !important;
+}
+
+/* Disabled/read-only buttons match the compact grey Out style. */
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button.btn[aria-disabled="true"],
+.btn.disabled,
+.reorder-action-btn:disabled,
+.reorder-select[disabled] {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Product active/inactive and inventory stock statuses. */
+.status-pill,
+.status-pill.active-pill,
+.active-pill {
+  color: var(--pst-inv-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-green) !important;
+}
+
+.status-pill.inactive-pill,
+.inactive-pill,
+.status-pill.low,
+.status-pill.out_of_stock,
+.status-pill.out,
+.status-pill.inactive {
+  color: var(--pst-inv-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-danger) !important;
+}
+
+.status-pill.limited {
+  color: var(--pst-inv-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-warn) !important;
+}
+
+.status-pill.in_stock,
+.status-pill.available {
+  color: var(--pst-inv-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-green) !important;
+}
+
+/* Reorder badges. */
+.reorder-critical {
+  color: var(--pst-inv-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-danger) !important;
+}
+
+.reorder-now,
+.reorder-watch {
+  color: var(--pst-inv-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-warn) !important;
+}
+
+.reorder-healthy {
+  color: var(--pst-inv-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-green) !important;
+}
+
+.reorder-none,
+.reorder-unknown {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-line) !important;
+}
+
+/* Incoming PO statuses. */
+.incoming-ordered {
+  color: var(--pst-inv-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-blue) !important;
+}
+
+.incoming-in_transit {
+  color: var(--pst-inv-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-warn) !important;
+}
+
+.incoming-received {
+  color: var(--pst-inv-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-green) !important;
+}
+
+.incoming-cancelled,
+.incoming-issue_shorted {
+  color: var(--pst-inv-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-danger) !important;
+}
+
+/* Vendor/read-only/product-derived pills. */
+.vendor-id-pill {
+  color: var(--pst-inv-pill-red) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-inv-pill-red) !important;
+}
+
+.inventory-readonly-value,
+.inventory-current-readonly,
+.inventory-price-readonly,
+.inventory-category,
+.inventory-strength {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  min-height: var(--pst-inv-pill-h) !important;
+  height: var(--pst-inv-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-inv-pill-pad-x) !important;
+  border: 1px solid var(--pst-inv-pill-line) !important;
+  border-radius: var(--pst-inv-pill-radius) !important;
+  background: #ffffff !important;
+  color: #596579 !important;
+  font-size: var(--pst-inv-pill-font) !important;
+  font-weight: var(--pst-inv-pill-weight) !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  cursor: not-allowed !important;
+}
+
+/* Button groups should not create bulky spacing. */
+.bulk-tools,
+.bulk,
+.actions,
+.pst-admin-actions-lock,
+.inventory-card-actions,
+.reorder-controls,
+.reorder-selected-actions,
+.incoming-actions,
+.incoming-edit-actions,
+.back-to-inventory-top {
+  gap: 6px !important;
+}
+
+/* Table cells stay compact with small pills. */
+td .btn,
+td button.btn,
+td a.btn,
+td .status-pill,
+td .reorder-badge,
+td .incoming-pill,
+td .vendor-id-pill,
+td .inventory-readonly-value {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+}
+
+/* Collapse buttons should not carry old minimum width. */
+.inventory-collapse-toggle {
+  min-width: 0 !important;
+}
+
+/* Keep selected count readable without looking like a button. */
+.reorder-selected-count {
+  color: var(--muted) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 700px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .inventory-jumpbar .btn,
+  .inventory-jump-link,
+  .inventory-collapse-toggle,
+  .bulk-tools .btn,
+  .bulk .btn,
+  .reorder-controls .btn,
+  .reorder-selected-actions .btn,
+  .incoming-actions .btn,
+  .incoming-edit-actions .btn,
+  .vendor-form-grid .btn,
+  .back-to-inventory-top .btn,
+  .row-save,
+  .row-audit-btn,
+  .edit-incoming-btn,
+  .close-incoming-edit-btn,
+  .cancel-incoming-btn,
+  .receive-incoming-btn,
+  .transit-incoming-btn,
+  .save-incoming-edit-btn,
+  .incoming-line-remove,
+  .reorder-action-btn,
+  .status-pill,
+  .reorder-badge,
+  .incoming-pill,
+  .vendor-id-pill,
+  .active-pill,
+  .inactive-pill,
+  .inventory-readonly-value,
+  .inventory-current-readonly,
+  .inventory-price-readonly,
+  .inventory-category,
+  .inventory-strength {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .inventory-jumpbar {
+    gap: 5px !important;
+    padding: 9px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .inventory-jumpbar .btn,
+  .inventory-jump-link,
+  .inventory-collapse-toggle,
+  .bulk-tools .btn,
+  .bulk .btn,
+  .reorder-controls .btn,
+  .reorder-selected-actions .btn,
+  .incoming-actions .btn,
+  .incoming-edit-actions .btn,
+  .vendor-form-grid .btn,
+  .back-to-inventory-top .btn,
+  .row-save,
+  .row-audit-btn,
+  .edit-incoming-btn,
+  .close-incoming-edit-btn,
+  .cancel-incoming-btn,
+  .receive-incoming-btn,
+  .transit-incoming-btn,
+  .save-incoming-edit-btn,
+  .incoming-line-remove,
+  .reorder-action-btn,
+  .status-pill,
+  .reorder-badge,
+  .incoming-pill,
+  .vendor-id-pill,
+  .active-pill,
+  .inactive-pill,
+  .inventory-readonly-value,
+  .inventory-current-readonly,
+  .inventory-price-readonly,
+  .inventory-category,
+  .inventory-strength {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
 </head>
 <body class="admin-auth-pending">
 <header>
@@ -2722,508 +3224,6 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   background-color: #bd0000;
   border-color: #bd0000;
   color: #ffffff;
-}
-</style>
-
-<style id="pst-inventory-compact-catalog-pill-style-v1">
-/* PST inventory compact catalog pill style
-   Target: same small pill language as catalog On Order / Out.
-   Scope: inventory header links, jump links, collapse buttons, row actions,
-   reorder buttons/badges, incoming PO actions/statuses, vendor IDs,
-   product/status pills, disabled/read-only states. */
-:root {
-  --pst-inv-pill-h: 26px;
-  --pst-inv-pill-font: 10px;
-  --pst-inv-pill-weight: 700;
-  --pst-inv-pill-radius: 999px;
-  --pst-inv-pill-pad-x: 10px;
-  --pst-inv-pill-line: #c9ced6;
-  --pst-inv-pill-ink: #101820;
-  --pst-inv-pill-blue: #003f9e;
-  --pst-inv-pill-red: #bd0000;
-  --pst-inv-pill-green: #0c6b3a;
-  --pst-inv-pill-warn: #8a5a00;
-  --pst-inv-pill-danger: #8a1f17;
-}
-
-/* Compact pill base for inventory actions and statuses. */
-.btn,
-a.btn,
-button.btn,
-header .actions .btn,
-header .actions a.btn,
-header .actions button.btn,
-header .pst-admin-actions-lock .btn,
-header .pst-admin-actions-lock a.btn,
-header .pst-admin-actions-lock button.btn,
-.inventory-jumpbar .btn,
-.inventory-jump-link,
-.inventory-collapse-toggle,
-.bulk-tools .btn,
-.bulk .btn,
-.reorder-controls .btn,
-.reorder-selected-actions .btn,
-.incoming-actions .btn,
-.incoming-edit-actions .btn,
-.vendor-form-grid .btn,
-.back-to-inventory-top .btn,
-.row-save,
-.row-audit-btn,
-.edit-incoming-btn,
-.close-incoming-edit-btn,
-.cancel-incoming-btn,
-.receive-incoming-btn,
-.transit-incoming-btn,
-.save-incoming-edit-btn,
-.incoming-line-remove,
-.reorder-action-btn,
-.status-pill,
-.reorder-badge,
-.incoming-pill,
-.vendor-id-pill,
-.active-pill,
-.inactive-pill,
-.inventory-restored-pill,
-.inventory-restore-needed-pill,
-.inventory-deduct-pill,
-.inventory-deduct-needed-pill {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  flex: 0 0 auto !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: max-content !important;
-  min-height: var(--pst-inv-pill-h) !important;
-  height: var(--pst-inv-pill-h) !important;
-  margin: 0 !important;
-  padding: 0 var(--pst-inv-pill-pad-x) !important;
-  border: 1px solid currentColor !important;
-  border-radius: var(--pst-inv-pill-radius) !important;
-  background: #ffffff !important;
-  color: var(--pst-inv-pill-ink) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: var(--pst-inv-pill-font) !important;
-  font-weight: var(--pst-inv-pill-weight) !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-align: center !important;
-  text-transform: none !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  vertical-align: middle !important;
-  box-shadow: none !important;
-}
-
-/* Buttons remain clickable; pills/statuses do not look like huge blocks. */
-.btn,
-a.btn,
-button.btn,
-.inventory-jump-link,
-.inventory-collapse-toggle,
-.reorder-action-btn,
-.incoming-line-remove,
-.row-save,
-.row-audit-btn,
-.edit-incoming-btn,
-.close-incoming-edit-btn,
-.cancel-incoming-btn,
-.receive-incoming-btn,
-.transit-incoming-btn,
-.save-incoming-edit-btn {
-  cursor: pointer !important;
-}
-
-.status-pill,
-.reorder-badge:not(.reorder-action-btn),
-.incoming-pill,
-.vendor-id-pill,
-.active-pill,
-.inactive-pill,
-.inventory-restored-pill,
-.inventory-restore-needed-pill,
-.inventory-deduct-pill,
-.inventory-deduct-needed-pill {
-  cursor: default !important;
-}
-
-/* Header page links: compact grey-outline pills. */
-header .actions,
-header .pst-admin-actions-lock {
-  gap: 6px !important;
-  height: auto !important;
-  min-height: 30px !important;
-  align-items: center !important;
-}
-
-header .actions .btn.secondary,
-header .pst-admin-actions-lock .btn.secondary {
-  color: var(--pst-inv-pill-ink) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-line) !important;
-}
-
-/* Current page / active jump / open collapse: compact red pill. */
-.btn.active,
-.btn.primary,
-.btn[aria-pressed="true"],
-header .actions .btn.active,
-header .actions .btn.primary,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary,
-.inventory-jumpbar .btn.active,
-.inventory-jumpbar .btn[aria-pressed="true"],
-.inventory-collapse-toggle.active,
-.inventory-collapse-toggle[aria-expanded="true"],
-.inventory-dashboard-card:not(.collapsed) .inventory-collapse-toggle {
-  color: #ffffff !important;
-  background: var(--pst-inv-pill-red) !important;
-  border-color: var(--pst-inv-pill-red) !important;
-}
-
-/* Inventory jump links use catalog On Order blue-outline language. */
-.inventory-jumpbar .btn:not(.active):not([aria-pressed="true"]),
-.inventory-jump-link:not(.active):not([aria-pressed="true"]) {
-  color: var(--pst-inv-pill-blue) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-blue) !important;
-}
-
-.inventory-jumpbar {
-  gap: 6px !important;
-  padding: 10px !important;
-  align-items: center !important;
-}
-
-.inventory-jumpbar-label {
-  margin-right: 4px !important;
-  color: var(--muted) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 10px !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
-  letter-spacing: .03em !important;
-  text-transform: uppercase !important;
-}
-
-/* Action color variants keep meaning but use outlined compact pills. */
-.btn.success,
-button.btn.success,
-a.btn.success,
-.receive-incoming-btn,
-.row-save {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-.btn.warning,
-button.btn.warning,
-a.btn.warning,
-.transit-incoming-btn {
-  color: var(--pst-inv-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-warn) !important;
-}
-
-.btn.danger,
-button.btn.danger,
-a.btn.danger,
-.cancel-incoming-btn {
-  color: var(--pst-inv-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-danger) !important;
-}
-
-.btn.secondary,
-button.btn.secondary,
-a.btn.secondary,
-.edit-incoming-btn,
-.close-incoming-edit-btn,
-.row-audit-btn,
-.incoming-line-remove {
-  color: var(--pst-inv-pill-ink) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-line) !important;
-}
-
-/* Disabled/read-only buttons match the compact grey Out style. */
-.btn:disabled,
-button.btn:disabled,
-.btn[aria-disabled="true"],
-button.btn[aria-disabled="true"],
-.btn.disabled,
-.reorder-action-btn:disabled,
-.reorder-select[disabled] {
-  color: #6f7680 !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-line) !important;
-  opacity: 1 !important;
-  cursor: not-allowed !important;
-  pointer-events: none !important;
-}
-
-/* Product active/inactive and inventory stock statuses. */
-.status-pill,
-.status-pill.active-pill,
-.active-pill {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-.status-pill.inactive-pill,
-.inactive-pill,
-.status-pill.low,
-.status-pill.out_of_stock,
-.status-pill.out,
-.status-pill.inactive {
-  color: var(--pst-inv-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-danger) !important;
-}
-
-.status-pill.limited {
-  color: var(--pst-inv-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-warn) !important;
-}
-
-.status-pill.in_stock,
-.status-pill.available {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-/* Reorder badges. */
-.reorder-critical {
-  color: var(--pst-inv-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-danger) !important;
-}
-
-.reorder-now,
-.reorder-watch {
-  color: var(--pst-inv-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-warn) !important;
-}
-
-.reorder-healthy {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-.reorder-none,
-.reorder-unknown {
-  color: #6f7680 !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-line) !important;
-}
-
-/* Incoming PO statuses. */
-.incoming-ordered {
-  color: var(--pst-inv-pill-blue) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-blue) !important;
-}
-
-.incoming-in_transit {
-  color: var(--pst-inv-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-warn) !important;
-}
-
-.incoming-received {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-.incoming-cancelled,
-.incoming-issue_shorted {
-  color: var(--pst-inv-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-danger) !important;
-}
-
-/* Vendor/read-only/product-derived pills. */
-.vendor-id-pill {
-  color: var(--pst-inv-pill-red) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-red) !important;
-}
-
-.inventory-readonly-value,
-.inventory-current-readonly,
-.inventory-price-readonly,
-.inventory-category,
-.inventory-strength {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  min-height: var(--pst-inv-pill-h) !important;
-  height: var(--pst-inv-pill-h) !important;
-  margin: 0 !important;
-  padding: 0 var(--pst-inv-pill-pad-x) !important;
-  border: 1px solid var(--pst-inv-pill-line) !important;
-  border-radius: var(--pst-inv-pill-radius) !important;
-  background: #ffffff !important;
-  color: #596579 !important;
-  font-size: var(--pst-inv-pill-font) !important;
-  font-weight: var(--pst-inv-pill-weight) !important;
-  line-height: 1 !important;
-  text-align: center !important;
-  white-space: nowrap !important;
-  cursor: not-allowed !important;
-}
-
-/* Button groups should not create bulky spacing. */
-.bulk-tools,
-.bulk,
-.actions,
-.pst-admin-actions-lock,
-.inventory-card-actions,
-.reorder-controls,
-.reorder-selected-actions,
-.incoming-actions,
-.incoming-edit-actions,
-.back-to-inventory-top {
-  gap: 6px !important;
-}
-
-/* Table cells stay compact with small pills. */
-td .btn,
-td button.btn,
-td a.btn,
-td .status-pill,
-td .reorder-badge,
-td .incoming-pill,
-td .vendor-id-pill,
-td .inventory-readonly-value {
-  margin-top: 2px !important;
-  margin-bottom: 2px !important;
-}
-
-/* Collapse buttons should not carry old minimum width. */
-.inventory-collapse-toggle {
-  min-width: 0 !important;
-}
-
-/* Keep selected count readable without looking like a button. */
-.reorder-selected-count {
-  color: var(--muted) !important;
-  font-size: 10px !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-}
-
-@media (max-width: 700px) {
-  .btn,
-  a.btn,
-  button.btn,
-  header .actions .btn,
-  header .actions a.btn,
-  header .actions button.btn,
-  header .pst-admin-actions-lock .btn,
-  header .pst-admin-actions-lock a.btn,
-  header .pst-admin-actions-lock button.btn,
-  .inventory-jumpbar .btn,
-  .inventory-jump-link,
-  .inventory-collapse-toggle,
-  .bulk-tools .btn,
-  .bulk .btn,
-  .reorder-controls .btn,
-  .reorder-selected-actions .btn,
-  .incoming-actions .btn,
-  .incoming-edit-actions .btn,
-  .vendor-form-grid .btn,
-  .back-to-inventory-top .btn,
-  .row-save,
-  .row-audit-btn,
-  .edit-incoming-btn,
-  .close-incoming-edit-btn,
-  .cancel-incoming-btn,
-  .receive-incoming-btn,
-  .transit-incoming-btn,
-  .save-incoming-edit-btn,
-  .incoming-line-remove,
-  .reorder-action-btn,
-  .status-pill,
-  .reorder-badge,
-  .incoming-pill,
-  .vendor-id-pill,
-  .active-pill,
-  .inactive-pill,
-  .inventory-readonly-value,
-  .inventory-current-readonly,
-  .inventory-price-readonly,
-  .inventory-category,
-  .inventory-strength {
-    min-height: 25px !important;
-    height: 25px !important;
-    padding: 0 9px !important;
-    font-size: 9.5px !important;
-  }
-
-  .inventory-jumpbar {
-    gap: 5px !important;
-    padding: 9px !important;
-  }
-}
-
-@media (max-width: 390px) {
-  .btn,
-  a.btn,
-  button.btn,
-  header .actions .btn,
-  header .actions a.btn,
-  header .actions button.btn,
-  header .pst-admin-actions-lock .btn,
-  header .pst-admin-actions-lock a.btn,
-  header .pst-admin-actions-lock button.btn,
-  .inventory-jumpbar .btn,
-  .inventory-jump-link,
-  .inventory-collapse-toggle,
-  .bulk-tools .btn,
-  .bulk .btn,
-  .reorder-controls .btn,
-  .reorder-selected-actions .btn,
-  .incoming-actions .btn,
-  .incoming-edit-actions .btn,
-  .vendor-form-grid .btn,
-  .back-to-inventory-top .btn,
-  .row-save,
-  .row-audit-btn,
-  .edit-incoming-btn,
-  .close-incoming-edit-btn,
-  .cancel-incoming-btn,
-  .receive-incoming-btn,
-  .transit-incoming-btn,
-  .save-incoming-edit-btn,
-  .incoming-line-remove,
-  .reorder-action-btn,
-  .status-pill,
-  .reorder-badge,
-  .incoming-pill,
-  .vendor-id-pill,
-  .active-pill,
-  .inactive-pill,
-  .inventory-readonly-value,
-  .inventory-current-readonly,
-  .inventory-price-readonly,
-  .inventory-category,
-  .inventory-strength {
-    min-height: 24px !important;
-    height: 24px !important;
-    padding: 0 8px !important;
-    font-size: 9px !important;
-  }
 }
 </style>
 </head><body><div class="sheet">
