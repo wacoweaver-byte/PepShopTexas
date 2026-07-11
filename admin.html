@@ -1,4 +1,3 @@
-<!-- PST_ADMIN_PATCH_V16_GLOBAL_ADMIN_LOOKUP -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
 <!DOCTYPE html>
@@ -582,93 +581,6 @@ strong {
     width: clamp(135px, 42vw, 170px) !important;
   }
 }
-
-/* PST_ADMIN_PATCH_V18_ORDER_INVENTORY_DEDUCTION */
-.inventory-deduct-banner{
-  margin:12px 0 0;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid rgba(15,138,59,.25);
-  background:rgba(15,138,59,.075);
-  color:#0f5f2a;
-  line-height:1.45;
-  font-size:14px;
-}
-.inventory-deduct-banner strong{display:block;margin-bottom:4px;}
-.inventory-deduct-needed-banner{
-  margin:12px 0 0;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid rgba(183,121,31,.28);
-  background:#fff8e6;
-  color:#7a4a00;
-  line-height:1.45;
-  font-size:14px;
-}
-.inventory-deduct-needed-banner strong{display:block;margin-bottom:4px;}
-.inventory-deduct-actions{
-  margin-top:10px;
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.inventory-deduct-pill{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  margin-top:6px;
-  padding:5px 9px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-  white-space:nowrap;
-  border:1px solid rgba(15,138,59,.25);
-  color:#0f5f2a;
-  background:rgba(15,138,59,.09);
-}
-.inventory-deduct-needed-pill{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  margin-top:6px;
-  padding:5px 9px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-  white-space:nowrap;
-  border:1px solid rgba(183,121,31,.28);
-  color:#7a4a00;
-  background:#fff8e6;
-}
-
-
-
-/* PST_ADMIN_PATCH_V16_GLOBAL_ADMIN_LOOKUP */
-.admin-lookup-card{margin:0 0 18px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.admin-lookup-grid{display:grid;grid-template-columns:minmax(260px,1fr) auto auto;gap:10px;align-items:end}
-.admin-lookup-help{margin:10px 0 0;color:var(--muted);font-size:13px;line-height:1.4;font-weight:700}
-.admin-lookup-result{display:grid;gap:12px;margin-top:14px}
-.admin-lookup-empty{padding:18px;border:1px dashed var(--border);border-radius:14px;background:#fbfcfe;color:var(--muted);line-height:1.45;font-weight:700}
-.admin-lookup-mode{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.admin-lookup-cardlet{border:1px solid var(--border);border-radius:14px;background:#fbfcfe;overflow:hidden}
-.admin-lookup-cardlet-head{padding:13px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff}
-.admin-lookup-cardlet-head h3{margin:0;font-size:16px}
-.admin-lookup-cardlet-body{padding:14px;display:grid;gap:12px}
-.admin-lookup-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.admin-lookup-kv{padding:10px;border:1px solid var(--border);border-radius:12px;background:#fff;word-break:break-word;min-height:58px}
-.admin-lookup-kv strong{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.admin-lookup-kv span{font-weight:900;color:var(--dark)}
-.admin-lookup-actions{display:flex;gap:8px;flex-wrap:wrap}
-.admin-lookup-items{display:grid;gap:8px}
-.admin-lookup-item{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.admin-lookup-item strong{display:block}
-.admin-lookup-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;background:#fff}
-.admin-lookup-table{min-width:760px;width:100%;border-collapse:collapse}
-.admin-lookup-table th,.admin-lookup-table td{padding:10px;border-bottom:1px solid var(--border);font-size:13px;text-align:left;vertical-align:middle}
-.admin-lookup-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}
-.admin-lookup-warning{padding:11px;border-radius:12px;border:1px solid rgba(183,121,31,.25);background:#fff8e6;color:#7a4a00;font-weight:800;line-height:1.4}
-@media(max-width:900px){.admin-lookup-grid,.admin-lookup-summary{grid-template-columns:1fr}.admin-lookup-actions .btn{width:100%}}
-
 </style>
 
 <style>
@@ -1590,408 +1502,6 @@ header .pst-admin-actions-lock .btn.primary {
   color: #ffffff !important;
 }
 </style>
-
-<style id="pst-order-adjustment-v1">
-/* PST_ADMIN_PATCH_V17_ORDER_ADJUSTMENTS */
-.order-adjustment-wrap {
-  display: grid;
-  gap: 12px;
-}
-.order-adjustment-table-wrap {
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #fff;
-}
-.order-adjustment-table {
-  width: 100%;
-  min-width: 620px;
-  border-collapse: collapse;
-}
-.order-adjustment-table th,
-.order-adjustment-table td {
-  padding: 9px 8px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-.order-adjustment-table th {
-  background: #fbfcfe;
-  color: var(--muted);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-}
-.order-adjustment-table input {
-  min-height: 36px;
-  padding: 7px 8px;
-}
-.order-adjustment-qty {
-  width: 78px;
-  text-align: center;
-}
-.order-adjustment-money {
-  width: 108px;
-  text-align: right;
-}
-.order-adjustment-totals {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(110px, 1fr));
-  gap: 10px;
-}
-.order-adjustment-total-card {
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #fbfcfe;
-}
-.order-adjustment-total-card span {
-  display: block;
-  color: var(--muted);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  font-weight: 700;
-}
-.order-adjustment-total-card strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 17px;
-  font-variant-numeric: tabular-nums;
-}
-.order-adjustment-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-@media(max-width:700px){
-  .order-adjustment-totals { grid-template-columns: 1fr 1fr; }
-}
-</style>
-
-
-<style id="pst-admin-compact-catalog-pill-style-v1">
-/* PST admin compact catalog pill style
-   Target: same small pill language as catalog On Order / Out.
-   Scope: admin navigation links, jump links, collapse buttons, action buttons,
-   disabled buttons, and read-only/status pills. */
-:root {
-  --pst-admin-pill-h: 26px;
-  --pst-admin-pill-font: 10px;
-  --pst-admin-pill-weight: 700;
-  --pst-admin-pill-radius: 999px;
-  --pst-admin-pill-pad-x: 10px;
-  --pst-admin-pill-line: #c9ced6;
-  --pst-admin-pill-ink: #101820;
-  --pst-admin-pill-blue: #003f9e;
-  --pst-admin-pill-red: #bd0000;
-  --pst-admin-pill-green: #0c6b3a;
-  --pst-admin-pill-warn: #8a5a00;
-  --pst-admin-pill-danger: #8a1f17;
-}
-
-/* One compact pill base for admin buttons and read-only status pills. */
-.btn,
-a.btn,
-button.btn,
-header .actions .btn,
-header .actions a.btn,
-header .actions button.btn,
-header .pst-admin-actions-lock .btn,
-header .pst-admin-actions-lock a.btn,
-header .pst-admin-actions-lock button.btn,
-.admin-dashboard-nav .btn,
-.card-toggle-btn,
-.bulk-actions .btn,
-.email-preview-actions .btn,
-.email-action-buttons .btn,
-.order-adjustment-actions .btn,
-.inventory-deduct-actions .btn,
-.admin-back-top .btn,
-.pill,
-.locked-pill,
-.payment-method-pill,
-.inventory-restored-pill,
-.inventory-restore-needed-pill,
-.inventory-deduct-pill,
-.inventory-deduct-needed-pill {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  flex: 0 0 auto !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: max-content !important;
-  min-height: var(--pst-admin-pill-h) !important;
-  height: var(--pst-admin-pill-h) !important;
-  margin: 0 !important;
-  padding: 0 var(--pst-admin-pill-pad-x) !important;
-  border: 1px solid currentColor !important;
-  border-radius: var(--pst-admin-pill-radius) !important;
-  background: #ffffff !important;
-  color: var(--pst-admin-pill-ink) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: var(--pst-admin-pill-font) !important;
-  font-weight: var(--pst-admin-pill-weight) !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-align: center !important;
-  text-transform: none !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  vertical-align: middle !important;
-  box-shadow: none !important;
-  cursor: pointer !important;
-}
-
-/* Header page links: compact grey-outline pills. */
-header .actions,
-header .pst-admin-actions-lock {
-  gap: 6px !important;
-  height: auto !important;
-  min-height: 30px !important;
-  align-items: center !important;
-}
-
-header .actions .btn.secondary,
-header .pst-admin-actions-lock .btn.secondary {
-  color: var(--pst-admin-pill-ink) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-line) !important;
-}
-
-/* Keep the current page obvious, but still compact. */
-.btn.active,
-.btn.primary,
-.btn[aria-pressed="true"],
-header .actions .btn.active,
-header .actions .btn.primary,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary,
-.admin-dashboard-nav .btn.active,
-.admin-dashboard-nav .btn[aria-pressed="true"],
-.card-toggle-btn.active,
-.card-toggle-btn[aria-expanded="true"],
-.collapsible-card:not(.collapsed) .card-toggle-btn {
-  color: #ffffff !important;
-  background: var(--pst-admin-pill-red) !important;
-  border-color: var(--pst-admin-pill-red) !important;
-}
-
-/* Jump links use the catalog On Order blue-outline language. */
-.admin-dashboard-nav .btn:not(.active):not([aria-pressed="true"]) {
-  color: var(--pst-admin-pill-blue) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-blue) !important;
-}
-
-.admin-dashboard-nav {
-  gap: 6px !important;
-  padding: 10px !important;
-  align-items: center !important;
-}
-
-.admin-dashboard-nav strong {
-  margin-right: 4px !important;
-  color: var(--muted) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 10px !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
-  letter-spacing: .03em !important;
-  text-transform: uppercase !important;
-}
-
-/* Action color variants remain meaningful but stay small/outlined. */
-.btn.success,
-button.btn.success,
-a.btn.success {
-  color: var(--pst-admin-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-green) !important;
-}
-
-.btn.warning,
-button.btn.warning,
-a.btn.warning {
-  color: var(--pst-admin-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-warn) !important;
-}
-
-.btn.danger,
-button.btn.danger,
-a.btn.danger {
-  color: var(--pst-admin-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-danger) !important;
-}
-
-/* Disabled/read-only action buttons match the grey Out pill. */
-.btn:disabled,
-button.btn:disabled,
-.btn[aria-disabled="true"],
-button.btn[aria-disabled="true"],
-.btn.disabled {
-  color: #6f7680 !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-line) !important;
-  opacity: 1 !important;
-  cursor: not-allowed !important;
-  pointer-events: none !important;
-}
-
-/* Status/read-only pills: same dimensions, outlined by state. */
-.pill,
-.locked-pill,
-.payment-method-pill,
-.inventory-restored-pill,
-.inventory-restore-needed-pill,
-.inventory-deduct-pill,
-.inventory-deduct-needed-pill {
-  cursor: default !important;
-}
-
-.pill.pending,
-.pill.awaiting_payment,
-.locked-pill,
-.inventory-restore-needed-pill,
-.inventory-deduct-needed-pill {
-  color: var(--pst-admin-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-warn) !important;
-}
-
-.pill.paid,
-.pill.complete,
-.pill.shipped,
-.pill.delivered,
-.inventory-restored-pill,
-.inventory-deduct-pill {
-  color: var(--pst-admin-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-green) !important;
-}
-
-.pill.processing,
-.pill.packed,
-.payment-method-pill {
-  color: var(--pst-admin-pill-blue) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-blue) !important;
-}
-
-.pill.cancelled,
-.pill.rejected,
-.pill.out_of_stock,
-.pill.refunded,
-.pill.failed,
-.pill.inventory_failed {
-  color: var(--pst-admin-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-admin-pill-danger) !important;
-}
-
-/* Button groups should not create bulky vertical spacing. */
-.bulk-actions,
-.email-preview-actions,
-.email-action-buttons,
-.order-adjustment-actions,
-.inventory-deduct-actions,
-.admin-back-top,
-.actions,
-.pst-admin-actions-lock {
-  gap: 6px !important;
-}
-
-/* Keep table rows compact but readable with smaller pills. */
-td .btn,
-td button.btn,
-td a.btn,
-td .pill,
-td .locked-pill,
-td .payment-method-pill {
-  margin-top: 2px !important;
-  margin-bottom: 2px !important;
-}
-
-/* Collapse buttons should not be oversized. */
-.card-toggle-btn {
-  min-width: 0 !important;
-}
-
-/* Mobile: preserve the same pill style, no oversized fallback. */
-@media (max-width: 700px) {
-  .btn,
-  a.btn,
-  button.btn,
-  header .actions .btn,
-  header .actions a.btn,
-  header .actions button.btn,
-  header .pst-admin-actions-lock .btn,
-  header .pst-admin-actions-lock a.btn,
-  header .pst-admin-actions-lock button.btn,
-  .admin-dashboard-nav .btn,
-  .card-toggle-btn,
-  .bulk-actions .btn,
-  .email-preview-actions .btn,
-  .email-action-buttons .btn,
-  .order-adjustment-actions .btn,
-  .inventory-deduct-actions .btn,
-  .admin-back-top .btn,
-  .pill,
-  .locked-pill,
-  .payment-method-pill,
-  .inventory-restored-pill,
-  .inventory-restore-needed-pill,
-  .inventory-deduct-pill,
-  .inventory-deduct-needed-pill {
-    min-height: 25px !important;
-    height: 25px !important;
-    padding: 0 9px !important;
-    font-size: 9.5px !important;
-  }
-
-  .admin-dashboard-nav {
-    gap: 5px !important;
-    padding: 9px !important;
-  }
-}
-
-@media (max-width: 390px) {
-  .btn,
-  a.btn,
-  button.btn,
-  header .actions .btn,
-  header .actions a.btn,
-  header .actions button.btn,
-  header .pst-admin-actions-lock .btn,
-  header .pst-admin-actions-lock a.btn,
-  header .pst-admin-actions-lock button.btn,
-  .admin-dashboard-nav .btn,
-  .card-toggle-btn,
-  .bulk-actions .btn,
-  .email-preview-actions .btn,
-  .email-action-buttons .btn,
-  .order-adjustment-actions .btn,
-  .inventory-deduct-actions .btn,
-  .admin-back-top .btn,
-  .pill,
-  .locked-pill,
-  .payment-method-pill,
-  .inventory-restored-pill,
-  .inventory-restore-needed-pill,
-  .inventory-deduct-pill,
-  .inventory-deduct-needed-pill {
-    min-height: 24px !important;
-    height: 24px !important;
-    padding: 0 8px !important;
-    font-size: 9px !important;
-  }
-}
-</style>
-
 </head>
 <body class="admin-auth-pending">
 <header>
@@ -2025,27 +1535,6 @@ td .payment-method-pill {
     <button class="btn" type="button" data-admin-jump="rejected-cancelled" data-admin-target="order-list-card">Rejected / Cancelled Orders</button>
     <button class="btn" type="button" data-admin-jump="order-tools-email" data-admin-target="detailCard">Order Tools / Email Tools</button>
   </nav>
-
-
-
-  <section class="admin-lookup-card" id="adminLookupCard" aria-label="Admin lookup">
-    <div class="card-header">
-      <div>
-        <h2>Admin Lookup</h2>
-        <p class="subtitle">Search by order, customer, refund, product/item number, email, phone, tracking, or payment method.</p>
-      </div>
-      <div class="admin-lookup-mode"><span class="pill processing" id="adminLookupMode">Ready</span></div>
-    </div>
-    <div class="card-body">
-      <div class="admin-lookup-grid">
-        <div class="field"><label for="adminLookupInput">Lookup</label><input id="adminLookupInput" type="search" placeholder="O, C, R, P, email, phone, tracking..." autocomplete="off" /></div>
-        <button class="btn" id="adminLookupBtn" type="button">Search</button>
-        <button class="btn secondary" id="adminLookupClearBtn" type="button">Clear</button>
-      </div>
-      <p class="admin-lookup-help">Customer support searches show customer/order context. Product searches show product context only unless you open sales history manually.</p>
-      <div id="adminLookupResults" class="admin-lookup-result" aria-live="polite"></div>
-    </div>
-  </section>
 
   <section class="grid admin-dashboard-grid">
     <div class="card collapsible-card collapsed" id="order-list-card" data-admin-card="order-list">
@@ -2172,339 +1661,6 @@ td .payment-method-pill {
     return `<span class="payment-method-pill ${esc(cls)}">${esc(method.replaceAll("_", " "))}</span>`;
   }
 
-
-  /* PST_ADMIN_PATCH_V16_GLOBAL_ADMIN_LOOKUP */
-  function lookupNormalize(value){ return cleanValue(value).toLowerCase(); }
-  function lookupDigits(value){ return cleanValue(value).replace(/\D/g, ""); }
-  function lookupLooksLikeEmail(value){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanValue(value)); }
-  function lookupCodeParts(value){
-    const raw = cleanValue(value);
-    const compact = raw.toUpperCase().replace(/[\s#:-]/g, "");
-    const prefix = compact.match(/^(PST)?([OCRP])([A-Z0-9]+)$/i);
-    const pstp = compact.match(/^PSTP\d+$/i);
-    return { raw, compact, prefixLetter: pstp ? "P" : (prefix ? prefix[2].toUpperCase() : ""), suffix: prefix ? prefix[3] : compact };
-  }
-  function detectLookupIntent(value){
-    const raw = cleanValue(value);
-    const parts = lookupCodeParts(raw);
-    if(!raw) return "empty";
-    if(lookupLooksLikeEmail(raw)) return "customer";
-    if(parts.prefixLetter === "O") return "order";
-    if(parts.prefixLetter === "C") return "customer";
-    if(parts.prefixLetter === "R") return "refund";
-    if(parts.prefixLetter === "P") return "product";
-    if(/^PSTP\d+$/i.test(parts.compact)) return "product";
-    if(lookupDigits(raw).length >= 7 && !/[a-z]/i.test(raw)) return "phone";
-    return "mixed";
-  }
-  function orderLookupValues(order){
-    const profile = profileOf(order);
-    return [
-      order.id, order.order_number, order.order_sequence_number, order.legacy_order_number,
-      order.refund_number, order.tracking_number, order.tracking, order.tracking_carrier, order.shipping_carrier, order.carrier,
-      order.customer_id, order.user_id, profile.user_id, profile.customer_number,
-      customerName(order), customerEmail(order), customerPhone(order), order.shipping_phone,
-      paymentMethod(order), order.discount_code, order.customer_notes, order.admin_note, order.admin_notes
-    ].map(cleanValue).filter(Boolean);
-  }
-  function orderMatchesText(order, term){
-    const q = lookupNormalize(term);
-    if(!q) return false;
-    const qDigits = lookupDigits(term);
-    return orderLookupValues(order).some(value => {
-      const text = lookupNormalize(value);
-      if(text.includes(q)) return true;
-      return qDigits.length >= 4 && lookupDigits(value).includes(qDigits);
-    });
-  }
-  function orderMatchesOrderNumber(order, term){
-    const parts = lookupCodeParts(term);
-    const candidates = [order.order_number, order.order_sequence_number, order.legacy_order_number, order.id].map(cleanValue).filter(Boolean);
-    return candidates.some(value => lookupNormalize(value).includes(lookupNormalize(term)) || lookupDigits(value) === lookupDigits(parts.suffix));
-  }
-  function orderMatchesRefundNumber(order, term){
-    const parts = lookupCodeParts(term);
-    const targetDigits = lookupDigits(parts.suffix || term);
-    const candidates = [order.refund_number, order.refund_status, order.refund_reason].map(cleanValue).filter(Boolean);
-    return candidates.some(value => lookupNormalize(value).includes(lookupNormalize(term)) || (targetDigits && lookupDigits(value) === targetDigits));
-  }
-  function orderMatchesCustomer(order, term){
-    const q = lookupNormalize(term);
-    const qDigits = lookupDigits(term);
-    const profile = profileOf(order);
-    const values = [profile.customer_number, customerName(order), customerEmail(order), customerPhone(order), order.shipping_phone, order.customer_id, order.user_id].map(cleanValue).filter(Boolean);
-    return values.some(value => {
-      if(lookupNormalize(value).includes(q)) return true;
-      return qDigits.length >= 4 && lookupDigits(value).includes(qDigits);
-    });
-  }
-  function customerNumber(order){
-    const p = profileOf(order);
-    return cleanValue(p.customer_number || order.customer_number || order.customer_id || order.user_id || "—");
-  }
-  function refundNumber(order){ return cleanValue(order.refund_number || "—"); }
-  function productKeyMatches(product, term){
-    const q = lookupNormalize(term);
-    const parts = lookupCodeParts(term);
-    const qDigits = lookupDigits(parts.suffix || term);
-    const values = [product.product_key, product.display_name, product.strength, product.category, product.id].map(cleanValue).filter(Boolean);
-    return values.some(value => {
-      const text = lookupNormalize(value);
-      if(text.includes(q)) return true;
-      return qDigits && lookupDigits(value) === qDigits;
-    });
-  }
-  async function lookupProducts(term){
-    const q = cleanValue(term);
-    if(!q) return [];
-    const parts = lookupCodeParts(q);
-    const compact = parts.compact;
-    const text = q.replace(/[%_,]/g, "");
-    const searchValues = [q, compact, parts.suffix].map(cleanValue).filter(Boolean);
-    const seen = new Map();
-    async function collect(table, query){
-      const { data, error } = await query.limit(20);
-      if(error) console.warn(`Admin lookup ${table} failed:`, error.message || error);
-      (data || []).forEach(row => {
-        const key = cleanValue(row.product_key || row.id || `${table}-${seen.size}`);
-        if(!seen.has(key)) seen.set(key, { ...row, _source_table: table });
-      });
-    }
-    for(const val of searchValues.slice(0, 3)){
-      await collect("product_catalog", supabaseClient.from("product_catalog").select("id,product_key,display_name,strength,category,price,current_inventory,is_active,featured,blend_stack,coa_url,coa_label").or(`product_key.ilike.%${val}%,display_name.ilike.%${text}%,strength.ilike.%${text}%,category.ilike.%${text}%`));
-      await collect("product_inventory", supabaseClient.from("product_inventory").select("id,product_key,display_name,strength,category,price,current_inventory,is_active,status_override,cost_per_unit,coa_url,coa_label").or(`product_key.ilike.%${val}%,display_name.ilike.%${text}%,strength.ilike.%${text}%,category.ilike.%${text}%`));
-    }
-    return [...seen.values()].filter(product => productKeyMatches(product, q)).slice(0, 12);
-  }
-
-  function lookupSafeText(value){ return cleanValue(value).replace(/[%_,()]/g, " ").trim(); }
-  async function lookupCustomerProfiles(term){
-    const q = lookupSafeText(term);
-    if(!q) return [];
-    const parts = lookupCodeParts(term);
-    const digits = lookupDigits(parts.suffix || term);
-    const clauses = [];
-    if(lookupLooksLikeEmail(q)) clauses.push(`email.ilike.%${q}%`);
-    clauses.push(`email.ilike.%${q}%`, `first_name.ilike.%${q}%`, `last_name.ilike.%${q}%`, `username.ilike.%${q}%`);
-    if(lookupDigits(q).length >= 4) clauses.push(`phone.ilike.%${lookupDigits(q)}%`);
-    if(digits) clauses.push(`customer_number.eq.${digits}`);
-    const uniqueClauses = [...new Set(clauses)];
-    const { data, error } = await supabaseClient
-      .from("customer_profiles")
-      .select("user_id,first_name,last_name,email,phone,username,billing_city,billing_state,shipping_city,shipping_state,account_status,customer_number,created_at")
-      .or(uniqueClauses.join(","))
-      .limit(20);
-    if(error){ console.warn("Admin lookup customer_profiles failed:", error.message || error); return []; }
-    return data || [];
-  }
-  function customerProfileName(profile){ return cleanValue([profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.username || profile.email || "Customer"); }
-  function ordersForCustomerProfile(profile){
-    const email = lookupNormalize(profile.email);
-    const userId = cleanValue(profile.user_id);
-    const phoneDigits = lookupDigits(profile.phone);
-    return allOrders.filter(order => {
-      if(email && lookupNormalize(customerEmail(order)) === email) return true;
-      if(userId && [order.customer_id, order.user_id, order.profile_id, profileOf(order).user_id].map(cleanValue).includes(userId)) return true;
-      if(phoneDigits.length >= 7 && lookupDigits(customerPhone(order)).includes(phoneDigits)) return true;
-      return false;
-    });
-  }
-  function renderLookupCustomerProfileCard(profile, orders){
-    const rows = orders.map(order => `<tr><td><button class="btn secondary" type="button" data-lookup-open-order="${esc(order.id)}">${esc(orderNumber(order))}</button></td><td>${esc(fmtDate(order.created_at || order.order_date))}</td><td>${pill(orderStatus(order))}</td><td>${pill(paymentStatus(order))}</td><td><strong>${money(orderTotal(order))}</strong></td><td>${esc((order.items || []).length)} item row(s)</td></tr>`).join("");
-    return `<div class="admin-lookup-cardlet">
-      <div class="admin-lookup-cardlet-head"><h3>Customer Match — ${esc(customerProfileName(profile))}</h3><span class="pill ${profile.account_status === "active" ? "paid" : "processing"}">${esc(profile.account_status || "customer")}</span></div>
-      <div class="admin-lookup-cardlet-body">
-        <div class="admin-lookup-summary">
-          ${adminLookupKv("Customer", customerProfileName(profile))}
-          ${adminLookupKv("Customer #", profile.customer_number)}
-          ${adminLookupKv("Email", profile.email)}
-          ${adminLookupKv("Phone", profile.phone)}
-          ${adminLookupKv("Status", profile.account_status || "—")}
-          ${adminLookupKv("Created", fmtDate(profile.created_at))}
-          ${adminLookupKv("Billing", [profile.billing_city, profile.billing_state].filter(Boolean).join(", "))}
-          ${adminLookupKv("Shipping", [profile.shipping_city, profile.shipping_state].filter(Boolean).join(", "))}
-        </div>
-        ${orders.length ? `<div class="admin-lookup-table-wrap"><table class="admin-lookup-table"><thead><tr><th>Order</th><th>Date</th><th>Order Status</th><th>Payment</th><th>Total</th><th>Items</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="admin-lookup-empty">Customer found. No orders are currently tied to this customer profile.</div>`}
-        <div class="admin-lookup-actions"><a class="btn secondary" href="customers.html">Open Customers</a>${adminLookupCopyButton(profile.email, "Copy Email")}${adminLookupCopyButton(profile.phone, "Copy Phone")}</div>
-      </div>
-    </div>`;
-  }
-  function adminLookupSetMode(label, cls="processing"){
-    const el = $("adminLookupMode");
-    if(el){ el.className = `pill ${cls}`; el.textContent = label; }
-  }
-  function adminLookupEmpty(message){ return `<div class="admin-lookup-empty">${esc(message)}</div>`; }
-  function adminLookupKv(label, value){ return `<div class="admin-lookup-kv"><strong>${esc(label)}</strong><span>${esc(cleanValue(value) || "—")}</span></div>`; }
-  function adminLookupCopyButton(value, label){
-    const clean = cleanValue(value);
-    return clean ? `<button class="btn secondary" type="button" data-lookup-copy="${esc(clean)}">${esc(label)}</button>` : "";
-  }
-  function adminLookupOrderButton(order, label="Open Order"){
-    return `<button class="btn" type="button" data-lookup-open-order="${esc(order.id)}">${esc(label)}</button>`;
-  }
-  function adminLookupProductButtons(product){
-    const key = cleanValue(product.product_key);
-    if(!key) return "";
-    return `<a class="btn secondary" href="products.html?product_key=${encodeURIComponent(key)}">Open Product</a><a class="btn secondary" href="inventory.html?product_key=${encodeURIComponent(key)}">Open Inventory</a>`;
-  }
-  function renderLookupOrderCard(order, title="Order Match"){
-    const items = order.items || [];
-    const carrier = order.tracking_carrier || order.shipping_carrier || order.carrier || "—";
-    const tracking = order.tracking_number || order.tracking || "";
-    return `<div class="admin-lookup-cardlet">
-      <div class="admin-lookup-cardlet-head"><h3>${esc(title)} — #${esc(orderNumber(order))}</h3>${pill(orderStatus(order))}</div>
-      <div class="admin-lookup-cardlet-body">
-        <div class="admin-lookup-summary">
-          ${adminLookupKv("Customer", customerName(order))}
-          ${adminLookupKv("Customer #", customerNumber(order))}
-          ${adminLookupKv("Email", customerEmail(order))}
-          ${adminLookupKv("Phone", customerPhone(order))}
-          ${adminLookupKv("Payment", paymentStatus(order))}
-          ${adminLookupKv("Method", paymentMethod(order))}
-          ${adminLookupKv("Total", money(orderTotal(order)))}
-          ${adminLookupKv("Date", fmtDate(order.created_at || order.order_date))}
-          ${adminLookupKv("Carrier", carrier)}
-          ${adminLookupKv("Tracking", tracking || "Not added")}
-          ${adminLookupKv("Refund #", refundNumber(order))}
-          ${adminLookupKv("Refund Status", order.refund_status || "—")}
-        </div>
-        <div><strong>Items</strong><div class="admin-lookup-items">${items.length ? items.map(item => `<div class="admin-lookup-item"><div><strong>${esc(orderItemDisplayName(item))}</strong><div class="muted">${esc(item.product_key || item.product_id || item.item_number || item.product_strength || item.strength || "")}</div></div><div><strong>Qty ${esc(orderItemQty(item))}</strong><div class="muted">${money(orderItemLineTotal(item))}</div></div></div>`).join("") : `<div class="muted">No item rows found.</div>`}</div></div>
-        <div class="admin-lookup-actions">${adminLookupOrderButton(order)}${adminLookupCopyButton(customerEmail(order), "Copy Email")}${adminLookupCopyButton(tracking, "Copy Tracking")}</div>
-      </div>
-    </div>`;
-  }
-  function renderLookupCustomerCard(orders, title="Customer Match"){
-    const first = orders[0] || {};
-    const rows = orders.map(order => `<tr><td><button class="btn secondary" type="button" data-lookup-open-order="${esc(order.id)}">${esc(orderNumber(order))}</button></td><td>${esc(fmtDate(order.created_at || order.order_date))}</td><td>${pill(orderStatus(order))}</td><td>${pill(paymentStatus(order))}</td><td><strong>${money(orderTotal(order))}</strong></td><td>${esc((order.items || []).length)} item row(s)</td></tr>`).join("");
-    return `<div class="admin-lookup-cardlet">
-      <div class="admin-lookup-cardlet-head"><h3>${esc(title)}</h3><span class="pill processing">${orders.length} order${orders.length === 1 ? "" : "s"}</span></div>
-      <div class="admin-lookup-cardlet-body">
-        <div class="admin-lookup-summary">
-          ${adminLookupKv("Customer", customerName(first))}
-          ${adminLookupKv("Customer #", customerNumber(first))}
-          ${adminLookupKv("Email", customerEmail(first))}
-          ${adminLookupKv("Phone", customerPhone(first))}
-        </div>
-        <div class="admin-lookup-table-wrap"><table class="admin-lookup-table"><thead><tr><th>Order</th><th>Date</th><th>Order Status</th><th>Payment</th><th>Total</th><th>Items</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <div class="admin-lookup-actions">${adminLookupCopyButton(customerEmail(first), "Copy Email")}</div>
-      </div>
-    </div>`;
-  }
-  function renderLookupRefundCard(order){
-    return `<div class="admin-lookup-cardlet">
-      <div class="admin-lookup-cardlet-head"><h3>Refund Match — R${esc(refundNumber(order))}</h3>${pill(order.refund_status || "refund")}</div>
-      <div class="admin-lookup-cardlet-body">
-        <div class="admin-lookup-summary">
-          ${adminLookupKv("Refund #", refundNumber(order))}
-          ${adminLookupKv("Order", orderNumber(order))}
-          ${adminLookupKv("Customer", customerName(order))}
-          ${adminLookupKv("Email", customerEmail(order))}
-          ${adminLookupKv("Amount", money(order.refund_amount || 0))}
-          ${adminLookupKv("Status", order.refund_status || "—")}
-          ${adminLookupKv("Requested", fmtDate(order.refund_requested_at))}
-          ${adminLookupKv("Issued", fmtDate(order.refund_issued_at))}
-        </div>
-        <div class="admin-lookup-warning"><strong>Reason:</strong> ${esc(order.refund_reason || "No refund reason recorded.")}</div>
-        <div class="admin-lookup-actions">${adminLookupOrderButton(order, "Open Refund Order")}${adminLookupCopyButton(customerEmail(order), "Copy Email")}</div>
-      </div>
-    </div>`;
-  }
-  function renderLookupProductCard(product){
-    const active = product.is_active === false ? "Inactive" : "Active";
-    const inventory = product.current_inventory ?? "—";
-    return `<div class="admin-lookup-cardlet">
-      <div class="admin-lookup-cardlet-head"><h3>Product Match — ${esc(product.product_key || "Product")}</h3><span class="pill ${product.is_active === false ? "cancelled" : "paid"}">${esc(active)}</span></div>
-      <div class="admin-lookup-cardlet-body">
-        <div class="admin-lookup-summary">
-          ${adminLookupKv("Item #", product.product_key)}
-          ${adminLookupKv("Name", product.display_name)}
-          ${adminLookupKv("Strength", product.strength)}
-          ${adminLookupKv("Category", product.category)}
-          ${adminLookupKv("Price", money(product.price || 0))}
-          ${adminLookupKv("Inventory", inventory)}
-          ${adminLookupKv("Status Override", product.status_override || "—")}
-          ${adminLookupKv("Source", product._source_table || "product")}
-        </div>
-        <div class="admin-lookup-warning">Product lookup intentionally does not expand every order containing this item. Use reports/sales history when that is actually needed.</div>
-        <div class="admin-lookup-actions">${adminLookupProductButtons(product)}</div>
-      </div>
-    </div>`;
-  }
-  function groupOrdersByCustomer(orders){
-    const groups = new Map();
-    orders.forEach(order => {
-      const key = lookupNormalize(customerEmail(order)) || lookupNormalize(customerPhone(order)) || lookupNormalize(customerNumber(order)) || String(order.customer_id || order.user_id || order.id);
-      if(!groups.has(key)) groups.set(key, []);
-      groups.get(key).push(order);
-    });
-    return [...groups.values()];
-  }
-  async function runAdminLookup(){
-    const input = $("adminLookupInput");
-    const out = $("adminLookupResults");
-    const term = cleanValue(input?.value || "");
-    if(!out) return;
-    if(!term){ adminLookupSetMode("Ready"); out.innerHTML = ""; return; }
-    adminLookupSetMode("Searching...");
-    out.innerHTML = adminLookupEmpty("Searching admin records...");
-    const intent = detectLookupIntent(term);
-    let html = "";
-    try{
-      if(intent === "product"){
-        const products = await lookupProducts(term);
-        adminLookupSetMode("Product lookup", products.length ? "paid" : "cancelled");
-        html = products.length ? products.map(renderLookupProductCard).join("") : adminLookupEmpty("No product/item number matched that search.");
-      } else if(intent === "order"){
-        const matches = allOrders.filter(order => orderMatchesOrderNumber(order, term));
-        adminLookupSetMode("Order lookup", matches.length ? "paid" : "cancelled");
-        html = matches.length ? matches.slice(0, 10).map(o => renderLookupOrderCard(o, "Order Match")).join("") : adminLookupEmpty("No order matched that order number.");
-      } else if(intent === "refund"){
-        const matches = allOrders.filter(order => orderMatchesRefundNumber(order, term));
-        adminLookupSetMode("Refund lookup", matches.length ? "paid" : "cancelled");
-        html = matches.length ? matches.slice(0, 10).map(renderLookupRefundCard).join("") : adminLookupEmpty("No refund matched that refund number. Refund fields exist, but this value is not recorded on an order.");
-      } else if(["customer", "phone"].includes(intent)){
-        const matches = allOrders.filter(order => orderMatchesCustomer(order, term));
-        const profiles = await lookupCustomerProfiles(term);
-        const profileBlocks = profiles.slice(0, 8).map(profile => renderLookupCustomerProfileCard(profile, ordersForCustomerProfile(profile)));
-        const profileKeys = new Set(profiles.flatMap(profile => [lookupNormalize(profile.email), lookupDigits(profile.phone), cleanValue(profile.user_id)]).filter(Boolean));
-        const remainingOrderMatches = matches.filter(order => !profileKeys.has(lookupNormalize(customerEmail(order))) && !profileKeys.has(lookupDigits(customerPhone(order))) && !profileKeys.has(cleanValue(order.customer_id || order.user_id)));
-        const groups = groupOrdersByCustomer(remainingOrderMatches);
-        adminLookupSetMode("Customer lookup", (profileBlocks.length || groups.length) ? "paid" : "cancelled");
-        html = (profileBlocks.length || groups.length) ? [profileBlocks.join(""), groups.slice(0, 8).map(group => renderLookupCustomerCard(group)).join("")].filter(Boolean).join("") : adminLookupEmpty("No customer/order matched that customer lookup.");
-      } else {
-        const orderMatches = allOrders.filter(order => orderMatchesText(order, term)).slice(0, 8);
-        const productMatches = await lookupProducts(term);
-        adminLookupSetMode("Mixed lookup", (orderMatches.length || productMatches.length) ? "paid" : "cancelled");
-        const mixedBlocks = [];
-        if(orderMatches.length) mixedBlocks.push(`<div class="admin-lookup-cardlet"><div class="admin-lookup-cardlet-head"><h3>Best Order / Customer Matches</h3><span class="pill processing">${orderMatches.length}</span></div><div class="admin-lookup-cardlet-body">${orderMatches.map(o => renderLookupOrderCard(o, "Possible Match")).join("")}</div></div>`);
-        if(productMatches.length) mixedBlocks.push(productMatches.map(renderLookupProductCard).join(""));
-        html = mixedBlocks.length ? mixedBlocks.join("") : adminLookupEmpty("No admin lookup matches found.");
-      }
-      out.innerHTML = html;
-    }catch(error){
-      console.error(error);
-      adminLookupSetMode("Lookup error", "cancelled");
-      out.innerHTML = adminLookupEmpty(error.message || "Lookup failed.");
-    }
-  }
-  function wireAdminLookup(){
-    $("adminLookupBtn")?.addEventListener("click", runAdminLookup);
-    $("adminLookupInput")?.addEventListener("keydown", event => { if(event.key === "Enter"){ event.preventDefault(); runAdminLookup(); } });
-    $("adminLookupClearBtn")?.addEventListener("click", () => { if($("adminLookupInput")) $("adminLookupInput").value = ""; if($("adminLookupResults")) $("adminLookupResults").innerHTML = ""; adminLookupSetMode("Ready"); });
-    document.addEventListener("click", event => {
-      const open = event.target.closest("[data-lookup-open-order]");
-      if(open){
-        const order = allOrders.find(o => String(o.id) === String(open.dataset.lookupOpenOrder));
-        if(order) renderOrderDetail(order);
-        return;
-      }
-      const copy = event.target.closest("[data-lookup-copy]");
-      if(copy){
-        navigator.clipboard?.writeText(copy.dataset.lookupCopy || "").then(() => setStatus("Copied to clipboard.", "good")).catch(() => alert(copy.dataset.lookupCopy || ""));
-      }
-    });
-  }
-
   function paymentInstructions(order){
     const direct = cleanValue(order.payment_instructions_snapshot || order.payment_instructions || order.payment_note || order.payment_notes);
     if(direct) return direct;
@@ -2593,33 +1749,7 @@ td .payment-method-pill {
   function customerName(order){ const p=profileOf(order); return order.customer_name || order.name || [p.first_name,p.last_name].filter(Boolean).join(" ") || p.full_name || "Customer"; }
   function customerEmail(order){ const p=profileOf(order); return order.customer_email || order.email || order.shipping_email || order.contact_email || order.billing_email || p.email || ""; }
   function customerPhone(order){ const p=profileOf(order); return order.customer_phone || order.phone || p.phone || "—"; }
-  function compactAddressValue(value){
-    if(!value) return "";
-    if(typeof value === "object") {
-      const line1 = cleanValue(value.line1 || value.address1 || value.street || value.street1 || value.address);
-      const line2 = cleanValue(value.line2 || value.address2 || value.apt || value.apartment || value.unit || value.suite);
-      const city = cleanValue(value.city);
-      const state = cleanValue(value.state || value.region || value.province);
-      const zip = cleanValue(value.zip || value.postal_code || value.postal || value.zip_code);
-      const cityStateZip = [city, [state, zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
-      return [line1, line2, cityStateZip].filter(Boolean).join("\n");
-    }
-    return cleanValue(value);
-  }
-  function shippingAddress(order){
-    const p = profileOf(order);
-    const source = { ...p, ...order };
-    const direct = compactAddressValue(order.shipping_address || order.address || p.shipping_address || p.address);
-    const line1 = cleanValue(source.shipping_address_line1 || source.address_line1 || source.street_address || source.street || source.address1 || source.line1);
-    const line2 = cleanValue(source.shipping_address_line2 || source.address_line2 || source.apartment || source.apt || source.unit || source.suite || source.address2 || source.line2);
-    const city = cleanValue(source.shipping_city || source.city);
-    const state = cleanValue(source.shipping_state || source.state);
-    const zip = cleanValue(source.shipping_zip || source.shipping_postal_code || source.postal_code || source.zip_code || source.zip);
-    const firstLine = line1 || direct;
-    const cityStateZip = [city, [state, zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
-    const lines = [firstLine, line2, cityStateZip].filter(Boolean);
-    return lines.length ? Array.from(new Set(lines)).join("\n") : "—";
-  }
+  function shippingAddress(order){ const p=profileOf(order); return order.shipping_address || order.address || p.shipping_address || p.address || [p.address1,p.address2,p.city,p.state,p.zip].filter(Boolean).join(", ") || "—"; }
   function trackingUrl(carrier, number, provided){ if(provided) return provided; if(!number) return ""; const n=encodeURIComponent(number); const c=String(carrier||"").toLowerCase(); if(c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${n}`; if(c.includes("ups")) return `https://www.ups.com/track?tracknum=${n}`; if(c.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${n}`; return ""; }
   function adminDisplayName(){ const email=cleanValue(currentUser?.email).toLowerCase(); if(email === "wacoweaver@gmail.com") return "Jimmie Weaver"; return cleanValue(currentUser?.user_metadata?.full_name) || cleanValue(currentUser?.email) || "Admin"; }
  function normalizeAdminNotes(text){
@@ -2900,8 +2030,22 @@ td .payment-method-pill {
     let itemsByOrder = {}, profilesByUser = {}, profilesByEmail = {};
 
     if(orderIds.length){
-      const { data: items } = await supabaseClient.from("order_items").select("*").in("order_id", orderIds);
-      (items||[]).forEach(item => { const k=item.order_id; if(!itemsByOrder[k]) itemsByOrder[k]=[]; itemsByOrder[k].push(item); });
+      const { data: items, error: itemError } = await supabaseClient.from("order_items").select("*").in("order_id", orderIds);
+      if(itemError) throw itemError;
+      const productIds = [...new Set((items||[]).map(item => cleanValue(item.product_id)).filter(Boolean))];
+      const productsById = {};
+      if(productIds.length){
+        const { data: products, error: productError } = await supabaseClient.from("products").select("id,product_key").in("id", productIds);
+        if(productError) console.warn("Product-key lookup failed:", productError.message || productError);
+        (products||[]).forEach(product => { productsById[String(product.id)] = product; });
+      }
+      (items||[]).forEach(item => {
+        const product = productsById[String(item.product_id)] || {};
+        const enrichedItem = {...item, product_key: item.product_key || product.product_key || ""};
+        const k=enrichedItem.order_id;
+        if(!itemsByOrder[k]) itemsByOrder[k]=[];
+        itemsByOrder[k].push(enrichedItem);
+      });
     }
 
     // customer_profiles appears to have user_id and email, but not id/customer_id/customer_email/shipping_email.
@@ -2923,7 +2067,6 @@ td .payment-method-pill {
     selectedOrderIds = new Set([...selectedOrderIds].filter(id => allOrders.some(o => o.id === id)));
     applyFilters();
     setStatus(`Loaded ${allOrders.length} order${allOrders.length===1?"":"s"}.`, "good");
-    if(cleanValue($("adminLookupInput")?.value || "") && $("adminLookupResults")?.innerHTML) runAdminLookup();
   }
 
   function applyFilters(){
@@ -2981,344 +2124,6 @@ td .payment-method-pill {
       return `<div class="item"><div class="item-top"><span>${esc(name)}</span><span>${money(line)}</span></div><div class="muted">Qty: ${esc(qty)} · Unit: ${money(price)} ${item.strength ? `· ${esc(item.strength)}` : ""}</div></div>`;
     }).join("")}</div>`;
   }
-
-
-  /* PST_ADMIN_PATCH_V17_ORDER_ADJUSTMENTS */
-  function roundOrderMoney(value){
-    return Math.round((Number(value) || 0) * 100) / 100;
-  }
-
-  function orderItemDisplayName(item){
-    return item.product_name || item.name || item.display_name || item.product_key || "Item";
-  }
-
-  function orderItemQty(item){
-    return Number(item.quantity ?? item.qty ?? 1) || 0;
-  }
-
-  function orderItemUnitPrice(item){
-    return Number(item.unit_price ?? item.price ?? 0) || 0;
-  }
-
-  function orderItemLineTotal(item){
-    const qty = orderItemQty(item);
-    const price = orderItemUnitPrice(item);
-    return Number(item.line_total ?? item.total ?? (qty * price)) || 0;
-  }
-
-  function storeCreditIssueMarkup(order){
-    return `
-      <div class="detail-section" id="storeCreditSection">
-        <h3>Issue Store Credit</h3>
-        <div class="note"><strong>Account credit:</strong> Use this when you owe the customer value but do not want to issue a refund. The customer can choose to apply the credit during their next checkout.</div>
-        <div class="edit-grid" style="margin-top:12px">
-          <div class="field"><label for="creditAmount">Credit Amount</label><input id="creditAmount" type="number" step="0.01" min="0" placeholder="0.00" /></div>
-          <div class="field"><label>Customer Email</label><input value="${esc(customerEmail(order) || "—")}" readonly /></div>
-          <div class="field full"><label for="creditReason">Reason / Note Required</label><input id="creditReason" type="text" placeholder="Example: order adjustment credit, waived shipping after payment, goodwill credit..." /></div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="issueStoreCreditBtn" type="button">Issue Store Credit</button></div>
-      </div>
-    `;
-  }
-
-  async function insertStoreCredit(payload){
-    let working = { ...payload };
-    const maxAttempts = Object.keys(working).length + 5;
-    for(let attempt = 0; attempt < maxAttempts; attempt += 1){
-      const { error } = await supabaseClient.from("customer_credits").insert(working);
-      if(!error) return working;
-      const missing = missingColumnFromError(error);
-      if(missing && Object.prototype.hasOwnProperty.call(working, missing)){
-        delete working[missing];
-        continue;
-      }
-      throw error;
-    }
-    throw new Error("Could not issue store credit; Supabase kept rejecting the credit row.");
-  }
-
-  async function issueStoreCredit(order){
-    try{
-      const amount = roundOrderMoney(Number($("creditAmount")?.value || 0));
-      const reason = cleanValue($("creditReason")?.value || "");
-      if(amount <= 0){
-        alert("Enter a credit amount greater than $0.00.");
-        $("creditAmount")?.focus();
-        return;
-      }
-      if(!reason){
-        alert("Enter a reason/note for this store credit.");
-        $("creditReason")?.focus();
-        return;
-      }
-
-      const email = cleanValue(customerEmail(order)).toLowerCase();
-      if(!email){
-        alert("This order does not have a customer email, so account credit cannot be issued safely.");
-        return;
-      }
-
-      const ok = confirm(`Issue ${money(amount)} store credit to ${email}?`);
-      if(!ok) return;
-
-      setStatus("Issuing store credit...");
-      const now = new Date().toISOString();
-      await insertStoreCredit({
-        id: crypto.randomUUID(),
-        user_id: cleanValue(order.user_id || order.customer_id || order.profile_id || ""),
-        customer_email: email,
-        customer_name: customerName(order),
-        amount,
-        remaining_amount: amount,
-        reason,
-        related_order_id: order.id,
-        related_order_number: orderNumber(order),
-        source: "admin_order_adjustment",
-        status: "available",
-        created_by: adminDisplayName(),
-        created_by_email: cleanValue(currentUser?.email),
-        created_at: now,
-        updated_at: now
-      });
-
-      const auditText = `Store credit issued by ${adminDisplayName()}: ${money(amount)} to ${email} | Reason: ${reason}`;
-      const currentNotes = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-      const nextNotes = joinAuditNotes(currentNotes, auditLine(auditText));
-      await safeUpdateOrder(order.id, { admin_note: nextNotes, admin_notes: nextNotes, updated_at: now }, order).catch(()=>{});
-
-      setStatus(`Store credit issued: ${money(amount)} to ${email}.`, "good");
-      await loadOrders();
-      const fresh = allOrders.find(o => String(o.id) === String(order.id));
-      if(fresh) await renderOrderDetail(fresh);
-    }catch(error){
-      console.error(error);
-      setStatus(error.message || "Could not issue store credit.", "bad");
-      alert(error.message || "Could not issue store credit. Confirm the customer_credits table exists.");
-    }
-  }
-
-  function orderAdjustmentMarkup(order){
-    const items = order.items || [];
-    if(!items.length){
-      return `<div class="detail-section"><h3>Adjust Order Pricing / Quantity</h3><div class="muted">No item rows were found for this order, so only shipping/discount/tax can be adjusted after item rows exist.</div></div>`;
-    }
-
-    const itemRows = items.map((item, idx) => {
-      const name = orderItemDisplayName(item);
-      const qty = orderItemQty(item);
-      const price = orderItemUnitPrice(item);
-      const line = orderItemLineTotal(item);
-      return `
-        <tr data-adjust-index="${idx}">
-          <td><strong>${esc(name)}</strong><div class="muted">${esc(item.product_key || item.sku || item.product_strength || item.strength || "")}</div></td>
-          <td><input class="order-adjustment-qty" data-adjust-field="quantity" type="number" step="1" min="0" value="${esc(qty)}" /></td>
-          <td><input class="order-adjustment-money" data-adjust-field="unit_price" type="number" step="0.01" min="0" value="${esc(Number(price).toFixed(2))}" /></td>
-          <td><strong data-adjust-line>${money(line)}</strong></td>
-        </tr>
-      `;
-    }).join("");
-
-    return `
-      <div class="detail-section" id="orderAdjustmentSection">
-        <h3>Adjust Order Pricing / Quantity</h3>
-        <div class="order-adjustment-wrap">
-          <div class="note"><strong>Order-specific adjustment:</strong> This changes only this order snapshot. It does not change product catalog pricing.</div>
-          <div class="order-adjustment-table-wrap">
-            <table class="order-adjustment-table">
-              <thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Line Total</th></tr></thead>
-              <tbody>${itemRows}</tbody>
-            </table>
-          </div>
-          <div class="edit-grid">
-            <div class="field"><label for="adjustShipping">Shipping</label><input id="adjustShipping" class="order-adjustment-money" type="number" step="0.01" min="0" value="${esc(Number(orderShipping(order)).toFixed(2))}" /></div>
-            <div class="field"><label for="adjustDiscount">Discount</label><input id="adjustDiscount" class="order-adjustment-money" type="number" step="0.01" min="0" value="${esc(Number(orderDiscount(order)).toFixed(2))}" /></div>
-            <div class="field"><label for="adjustTax">Tax</label><input id="adjustTax" class="order-adjustment-money" type="number" step="0.01" min="0" value="${esc(Number(orderTax(order)).toFixed(2))}" /></div>
-            <div class="field"><label for="adjustReason">Reason / Note Required</label><input id="adjustReason" type="text" placeholder="Example: waived shipping, corrected quantity, customer price adjustment..." /></div>
-          </div>
-          <div class="order-adjustment-totals">
-            <div class="order-adjustment-total-card"><span>Subtotal</span><strong id="adjustPreviewSubtotal">${money(orderSubtotal(order))}</strong></div>
-            <div class="order-adjustment-total-card"><span>Shipping</span><strong id="adjustPreviewShipping">${money(orderShipping(order))}</strong></div>
-            <div class="order-adjustment-total-card"><span>Discount</span><strong id="adjustPreviewDiscount">-${money(orderDiscount(order))}</strong></div>
-            <div class="order-adjustment-total-card"><span>Tax</span><strong id="adjustPreviewTax">${money(orderTax(order))}</strong></div>
-            <div class="order-adjustment-total-card"><span>Grand Total</span><strong id="adjustPreviewTotal">${money(orderTotal(order))}</strong></div>
-          </div>
-          <div class="order-adjustment-actions">
-            <button class="btn success" id="saveOrderAdjustmentBtn" type="button">Save Pricing / Quantity Adjustment</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function readOrderAdjustmentForm(order){
-    const items = (order.items || []).map((item, idx) => {
-      const row = document.querySelector(`[data-adjust-index="${idx}"]`);
-      const quantity = Math.max(0, Number(row?.querySelector('[data-adjust-field="quantity"]')?.value || 0));
-      const unitPrice = Math.max(0, Number(row?.querySelector('[data-adjust-field="unit_price"]')?.value || 0));
-      const lineTotal = roundOrderMoney(quantity * unitPrice);
-      return { item, idx, quantity, unitPrice, lineTotal };
-    });
-
-    const subtotal = roundOrderMoney(items.reduce((sum, row) => sum + row.lineTotal, 0));
-    const shipping = roundOrderMoney(Math.max(0, Number($("adjustShipping")?.value || 0)));
-    const discount = roundOrderMoney(Math.max(0, Number($("adjustDiscount")?.value || 0)));
-    const tax = roundOrderMoney(Math.max(0, Number($("adjustTax")?.value || 0)));
-    const total = roundOrderMoney(subtotal + shipping + tax - discount);
-    const reason = cleanValue($("adjustReason")?.value || "");
-
-    return { items, subtotal, shipping, discount, tax, total, reason };
-  }
-
-  function updateOrderAdjustmentPreview(order){
-    const form = readOrderAdjustmentForm(order);
-    form.items.forEach(row => {
-      const el = document.querySelector(`[data-adjust-index="${row.idx}"] [data-adjust-line]`);
-      if(el) el.textContent = money(row.lineTotal);
-    });
-    if($("adjustPreviewSubtotal")) $("adjustPreviewSubtotal").textContent = money(form.subtotal);
-    if($("adjustPreviewShipping")) $("adjustPreviewShipping").textContent = money(form.shipping);
-    if($("adjustPreviewDiscount")) $("adjustPreviewDiscount").textContent = `-${money(form.discount)}`;
-    if($("adjustPreviewTax")) $("adjustPreviewTax").textContent = money(form.tax);
-    if($("adjustPreviewTotal")) $("adjustPreviewTotal").textContent = money(form.total);
-    return form;
-  }
-
-  function initOrderAdjustment(order){
-    document.querySelectorAll("[data-adjust-field], #adjustShipping, #adjustDiscount, #adjustTax").forEach(input => {
-      input.addEventListener("input", () => updateOrderAdjustmentPreview(order));
-      input.addEventListener("change", () => updateOrderAdjustmentPreview(order));
-    });
-    updateOrderAdjustmentPreview(order);
-  }
-
-  function filterUpdatesToOrderItemColumns(updates, item){
-    const keys = new Set(Object.keys(item || {}));
-    const filtered = {};
-    Object.entries(updates || {}).forEach(([key, value]) => {
-      if(value !== undefined && keys.has(key)) filtered[key] = value;
-    });
-    return filtered;
-  }
-
-  async function safeUpdateOrderItem(item, updates){
-    let payload = filterUpdatesToOrderItemColumns(updates, item);
-    if(!Object.keys(payload).length) return;
-
-    let query = supabaseClient.from("order_items").update(payload);
-    if(item.id) query = query.eq("id", item.id);
-    else if(item.order_id && item.product_key) query = query.eq("order_id", item.order_id).eq("product_key", item.product_key);
-    else if(item.order_id && item.product_id) query = query.eq("order_id", item.order_id).eq("product_id", item.product_id);
-    else throw new Error("Could not identify the order item row to update.");
-
-    const { error } = await query;
-    if(!error) return;
-
-    const missing = missingColumnFromError(error);
-    if(missing && Object.prototype.hasOwnProperty.call(payload, missing)){
-      delete payload[missing];
-      if(Object.keys(payload).length) return safeUpdateOrderItem(item, payload);
-    }
-    throw error;
-  }
-
-  function orderAdjustmentChangeSummary(order, form){
-    const changes = [];
-    form.items.forEach(row => {
-      const oldQty = orderItemQty(row.item);
-      const oldPrice = orderItemUnitPrice(row.item);
-      const oldLine = orderItemLineTotal(row.item);
-      if(Number(oldQty) !== Number(row.quantity) || roundOrderMoney(oldPrice) !== roundOrderMoney(row.unitPrice)){
-        changes.push(`${orderItemDisplayName(row.item)}: qty ${oldQty} → ${row.quantity}, unit ${money(oldPrice)} → ${money(row.unitPrice)}, line ${money(oldLine)} → ${money(row.lineTotal)}`);
-      }
-    });
-
-    const totals = [
-      ["Subtotal", orderSubtotal(order), form.subtotal],
-      ["Shipping", orderShipping(order), form.shipping],
-      ["Discount", orderDiscount(order), form.discount],
-      ["Tax", orderTax(order), form.tax],
-      ["Grand total", orderTotal(order), form.total]
-    ];
-
-    totals.forEach(([label, oldValue, newValue]) => {
-      if(roundOrderMoney(oldValue) !== roundOrderMoney(newValue)) changes.push(`${label}: ${money(oldValue)} → ${money(newValue)}`);
-    });
-
-    return changes;
-  }
-
-  async function saveOrderAdjustment(order){
-    try{
-      const form = updateOrderAdjustmentPreview(order);
-      const changes = orderAdjustmentChangeSummary(order, form);
-      if(!changes.length){
-        alert("No pricing, quantity, shipping, discount, or tax changes were found.");
-        return;
-      }
-      if(!form.reason){
-        alert("Enter a reason/note for this order adjustment.");
-        $("adjustReason")?.focus();
-        return;
-      }
-
-      if(isOrderLocked(order)){
-        const ok = confirm("This order is locked. Save this pricing/quantity adjustment anyway?");
-        if(!ok) return;
-      }
-
-      setStatus("Saving order pricing / quantity adjustment...");
-
-      const now = new Date().toISOString();
-
-      for(const row of form.items){
-        const itemUpdates = {
-          quantity: row.quantity,
-          qty: row.quantity,
-          unit_price: row.unitPrice,
-          price: row.unitPrice,
-          line_total: row.lineTotal,
-          total: row.lineTotal,
-          updated_at: now
-        };
-        await safeUpdateOrderItem(row.item, itemUpdates);
-      }
-
-      const auditText = `Order adjusted by ${adminDisplayName()}: ${changes.join(" | ")} | Reason: ${form.reason}`;
-      const currentNotes = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-      const nextNotes = joinAuditNotes(currentNotes, auditLine(auditText));
-      const orderUpdates = {
-        subtotal: form.subtotal,
-        subtotal_amount: form.subtotal,
-        shipping: form.shipping,
-        shipping_amount: form.shipping,
-        discount: form.discount,
-        discount_amount: form.discount,
-        tax: form.tax,
-        tax_amount: form.tax,
-        total: form.total,
-        total_amount: form.total,
-        order_total: form.total,
-        grand_total: form.total,
-        admin_note: nextNotes,
-        admin_notes: nextNotes,
-        last_admin_actor: adminDisplayName(),
-        last_admin_actor_email: cleanValue(currentUser?.email),
-        updated_at: now
-      };
-
-      await safeUpdateOrder(order.id, orderUpdates, order);
-
-      setStatus("Order adjustment saved. Totals were recalculated for this order only.", "good");
-      await loadOrders();
-      const fresh = allOrders.find(o => String(o.id) === String(order.id));
-      if(fresh) await renderOrderDetail(fresh);
-    }catch(error){
-      console.error(error);
-      setStatus(error.message || "Could not save order adjustment.", "bad");
-      alert(error.message || "Could not save order adjustment.");
-    }
-  }
-
 
 
   function auditActionLabel(row){
@@ -3509,191 +2314,6 @@ td .payment-method-pill {
     if(orderInventoryRestored(order)) return "restored";
     return "restore_needed";
   }
-  
-  /* PST_ADMIN_PATCH_V18_ORDER_INVENTORY_DEDUCTION */
-  function orderNeedsInventoryDeduction(order, updates={}){
-    if(!order || orderInventoryDeducted(order)) return false;
-    if(orderInventoryRestored(order)) return false;
-    const newOS = norm(updates.order_status || updates.status || orderStatus(order));
-    return ["packed","shipped","delivered","complete","completed"].includes(newOS);
-  }
-
-  function orderInventoryDeductionVisualMarkup(order){
-    if(orderInventoryDeducted(order)){
-      const deductedAt = esc(fmtDate(order.inventory_deducted_at));
-      return `<div class="inventory-deduct-banner"><strong>Inventory Deducted</strong>Product quantity from this order has already been removed from inventory.${deductedAt !== "—" ? ` Deducted: ${deductedAt}.` : ""}</div>`;
-    }
-    if(orderNeedsInventoryDeduction(order)){
-      return `<div class="inventory-deduct-needed-banner"><strong>Inventory Deduction Needed</strong>This order has reached fulfillment, but product quantity has not been removed from inventory yet.<div class="inventory-deduct-actions"><button class="btn warning" id="deductInventoryNowBtn" type="button">Deduct Inventory Now</button></div></div>`;
-    }
-    return "";
-  }
-
-  function inventoryDeductCompactMarkup(order){
-    if(orderInventoryDeducted(order)) return `<div class="inventory-deduct-pill">Inventory Deducted</div>`;
-    if(orderNeedsInventoryDeduction(order)) return `<div class="inventory-deduct-needed-pill">Deduct Needed</div>`;
-    return "";
-  }
-
-  function itemNumberValue(value){
-    const text = cleanValue(value);
-    return /^PSTP\d+$/i.test(text) ? text.toUpperCase() : "";
-  }
-
-  function directOrderItemNumber(item={}){
-    return [
-      item.product_key,
-      item.sku,
-      item.product_sku,
-      item.item_number,
-      item.item_no
-    ].map(itemNumberValue).find(Boolean) || "";
-  }
-
-  async function catalogItemNumberForOrderItem(item={}){
-    const direct = directOrderItemNumber(item);
-    if(direct) return direct;
-
-    const productId = cleanValue(item.product_id);
-    if(!productId) return "";
-
-    const { data, error } = await supabaseClient
-      .from("product_catalog")
-      .select("product_key")
-      .eq("id", productId)
-      .maybeSingle();
-
-    if(error) throw new Error(`Catalog item-number lookup failed for ${orderItemDisplayName(item)}: ${error.message || error}`);
-
-    return itemNumberValue(data?.product_key);
-  }
-
-  async function findInventoryRowForOrderItem(item={}){
-    const itemNumber = await catalogItemNumberForOrderItem(item);
-    if(!itemNumber){
-      throw new Error(`${orderItemDisplayName(item)} has no valid item number. Inventory deduction is SKU/item-number only.`);
-    }
-
-    const { data, error } = await supabaseClient
-      .from("product_inventory")
-      .select("*")
-      .eq("product_key", itemNumber)
-      .maybeSingle();
-
-    if(error) throw new Error(`Inventory item-number lookup failed for ${orderItemDisplayName(item)} (${itemNumber}): ${error.message || error}`);
-    if(!data) throw new Error(`${orderItemDisplayName(item)}: inventory row not found for item # ${itemNumber}.`);
-
-    return data;
-  }
-
-  async function safeUpdateCatalogInventory(keys, newQty, now){
-    const uniqueKeys = [...new Set((keys || []).map(cleanValue).filter(Boolean))];
-    if(!uniqueKeys.length) return;
-    try{
-      const query = supabaseClient.from("product_catalog").update({ current_inventory: newQty, updated_at: now });
-      const { error } = uniqueKeys.length > 1
-        ? await query.in("product_key", uniqueKeys)
-        : await query.eq("product_key", uniqueKeys[0]);
-      if(error) console.warn("Catalog inventory sync failed:", error.message || error);
-    }catch(error){
-      console.warn("Catalog inventory sync failed:", error.message || error);
-    }
-  }
-
-  async function safeLogInventoryMovement(row, order, qtyChange, previousQty, newQty, reason){
-    try{
-      await supabaseClient.from("inventory_movements").insert({
-        product_id: row.id,
-        product_key: row.product_key,
-        movement_type: "order_deducted",
-        quantity_change: qtyChange,
-        previous_quantity: previousQty,
-        new_quantity: newQty,
-        admin_note: reason || null,
-        created_by: currentUser?.id || null,
-        created_by_email: currentUser?.email || null
-      });
-    }catch(error){
-      console.warn("Inventory movement log failed:", error.message || error);
-    }
-  }
-
-  async function deductInventoryForOrder(order, reason=""){
-    if(!order) throw new Error("No order selected.");
-    if(orderInventoryDeducted(order)) return { attempted:false, deducted:false, message:"Inventory was already deducted for this order." };
-
-    const items = Array.isArray(order.items) ? order.items : [];
-    if(!items.length) throw new Error("This order has no item rows to deduct from inventory.");
-
-    const now = new Date().toISOString();
-    const note = reason || `Order #${orderNumber(order)} inventory deduction by ${adminDisplayName()}`;
-    const results = [];
-    let failed = 0;
-
-    for(const item of items){
-      const qty = Math.max(0, Number(item.quantity ?? item.qty ?? 1) || 0);
-      if(qty <= 0) continue;
-
-      let inv = null;
-      try{
-        inv = await findInventoryRowForOrderItem(item);
-      }catch(lookupError){
-        results.push(lookupError.message || `${orderItemDisplayName(item)}: inventory row not found by item number.`);
-        failed++;
-        continue;
-      }
-
-      const itemNumber = itemNumberValue(inv.product_key);
-      const previousQty = Number(inv.current_inventory || 0);
-      const newQty = Math.max(0, previousQty - qty);
-      const updatePayload = {
-        current_inventory: newQty,
-        updated_at: now,
-        admin_note: note
-      };
-
-      const { error: updateError } = await supabaseClient
-        .from("product_inventory")
-        .update(updatePayload)
-        .eq("id", inv.id);
-
-      if(updateError) throw new Error(`Inventory deduction failed for ${orderItemDisplayName(item)}: ${updateError.message || updateError}`);
-
-      await safeUpdateCatalogInventory([itemNumber], newQty, now);
-      await safeLogInventoryMovement(inv, order, -qty, previousQty, newQty, note);
-      results.push(`${orderItemDisplayName(item)} [${itemNumber}]: ${previousQty} → ${newQty} (-${qty})`);
-    }
-
-    if(failed){
-      throw new Error(`Inventory deduction incomplete: ${results.join(" | ")}`);
-    }
-
-    const currentNotes = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-    const auditText = `Inventory deducted by ${adminDisplayName()}: ${results.join(" | ")}. Reason: ${note}`;
-    const nextNotes = joinAuditNotes(currentNotes, auditLine(auditText));
-    const orderUpdates = {
-      inventory_deducted: true,
-      inventory_deducted_at: now,
-      inventory_restored: false,
-      inventory_restored_at: null,
-      admin_note: nextNotes,
-      admin_notes: nextNotes,
-      last_admin_actor: adminDisplayName(),
-      last_admin_actor_email: cleanValue(currentUser?.email),
-      updated_at: now
-    };
-
-    await safeUpdateOrder(order.id, orderUpdates, order);
-    return { attempted:true, deducted:true, message:`Inventory deducted. ${results.join(" | ")}`, results };
-  }
-
-  async function deductInventoryForOrderIfNeeded(order, updates={}){
-    if(!orderNeedsInventoryDeduction(order, updates)) return { attempted:false, deducted:false, message:"Inventory deduction not needed." };
-    const reason = `Order #${orderNumber(order)} reached ${norm(updates.order_status || updates.status || orderStatus(order)).replaceAll("_"," ")} / payment ${norm(updates.payment_status || paymentStatus(order)).replaceAll("_"," ")}`;
-    return await deductInventoryForOrder(order, reason);
-  }
-
-
   function inventoryRestoreVisualMarkup(order){
     const status = closedInventoryReturnStatus(order);
     if(status === "restored"){
@@ -3767,7 +2387,7 @@ td .payment-method-pill {
 
   /* PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT */
   function fulfillmentItemSku(item={}){
-    return cleanValue(item.sku || item.product_sku || item.item_number || item.item_no || item.product_id || item.product_key || item.id);
+    return cleanValue(item.product_key || item.sku || item.product_sku || item.item_number || item.item_no || item.product_id || item.id);
   }
   function fulfillmentItemStrength(item={}){
     return cleanValue(item.strength || item.dose || item.dosage || item.product_strength || item.label_dose);
@@ -3779,112 +2399,347 @@ td .payment-method-pill {
     const strength = fulfillmentItemStrength(item);
     return strength && !name.toLowerCase().includes(strength.toLowerCase()) ? `${name} / ${strength}` : name;
   }
-  
-  function packingSlipNoteText(order={}){
-    return cleanValue([order.packing_slip_note, order.packing_slip_notes, order.admin_note, order.admin_notes, order.notes].join("\n"));
-  }
-  function packingSlipPrinted(order={}){
-    const explicit = order.packing_slip_printed === true || String(order.packing_slip_printed).toLowerCase() === "true" || !!order.packing_slip_printed_at;
-    const notes = packingSlipNoteText(order).toLowerCase();
-    return explicit || notes.includes("packing slip printed");
-  }
-  function packingSlipPrintedAt(order={}){
-    return order.packing_slip_printed_at || order.packing_slip_printed_date || "";
-  }
-  function packingSlipStatusMarkup(order={}){
-    if(packingSlipPrinted(order)){
-      const when = packingSlipPrintedAt(order);
-      return `<div class="kv"><strong>Packing Slip</strong><span class="pill paid">Printed</span>${when ? `<div class="muted" style="margin-top:6px">${esc(fmtDate(when))}</div>` : ""}</div>`;
-    }
-    return `<div class="kv"><strong>Packing Slip</strong><span class="pill awaiting_payment">Not Printed</span><div class="muted" style="margin-top:6px">Print before marking Packed.</div></div>`;
-  }
-  function orderStatusOptions(order={}){
-    const printed = packingSlipPrinted(order);
-    const current = norm(orderStatus(order));
-    const alreadyPastPacked = ["packed","shipped","delivered","complete"].includes(current);
-    return orderStatuses.map(s => {
-      const disablePacked = s === "packed" && !printed && !alreadyPastPacked;
-      const label = disablePacked ? "packed — print slip first" : s.replaceAll("_"," ");
-      return `<option value="${s}" ${current===s?"selected":""} ${disablePacked?"disabled":""}>${label}</option>`;
-    }).join("");
-  }
-  function packingSlipHtml(order){
+  function fulfillmentSheetHtml(order){
     const items = order.items || [];
-    const rows = items.length ? items.map((item) => {
+    const rows = items.length ? items.map((item, index) => {
       const name = item.product_name || item.name || item.display_name || item.product_key || "Item";
       const qty = item.quantity ?? item.qty ?? 1;
       const sku = fulfillmentItemSku(item) || "—";
       const strength = fulfillmentItemStrength(item) || "—";
-      return `<tr><td class="qty">${esc(qty)}</td><td>${esc(sku)}</td><td><strong>${esc(name)}</strong></td><td>${esc(strength)}</td></tr>`;
-    }).join("") : `<tr><td colspan="4">No item rows found for this order.</td></tr>`;
+      const label = fulfillmentItemLabel(item);
+      return `<tr><td>${index + 1}</td><td><strong>${esc(name)}</strong><div class="small">Label: ${esc(label)}</div></td><td>${esc(strength)}</td><td>${esc(sku)}</td><td class="qty">${esc(qty)}</td><td class="check">□</td></tr>`;
+    }).join("") : `<tr><td colspan="6">No item rows found for this order.</td></tr>`;
     const generated = new Date().toLocaleString();
-    return `<!doctype html><html><head><meta charset="utf-8"><title>Packing Slip #${esc(orderNumber(order))}</title>
-      <style>
-        *{box-sizing:border-box}
-        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:28px;color:#101820;background:#fff}
-        .slip{max-width:760px;margin:0 auto}
-        .top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:2px solid #101820;padding-bottom:14px;margin-bottom:18px}
-        .brand{font-size:22px;font-weight:800;letter-spacing:.03em}
-        .sub{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#667085;font-weight:700;margin-top:3px}
-        .order{text-align:right}
-        .order strong{display:block;font-size:24px;margin-bottom:4px}
-        .section{border:1px solid #d9e2ec;border-radius:10px;padding:13px;margin:12px 0}
-        .section h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#667085}
-        .section p{margin:0;line-height:1.45}
-        table{width:100%;border-collapse:collapse;margin-top:12px}
-        th,td{border:1px solid #d9e2ec;padding:9px 8px;text-align:left;vertical-align:top}
-        th{background:#f5f8fb;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#667085}
-        .qty{text-align:center;font-weight:800;width:64px}
-        .footer{margin-top:20px;border-top:1px solid #d9e2ec;padding-top:12px;text-align:center;font-size:12px;line-height:1.45;color:#667085}
-        .ruo{font-weight:800;color:#101820}
-        .meta{font-size:12px;color:#667085;margin-top:8px}
-        @media print{body{padding:0}.slip{max-width:none}.section,th,td{break-inside:avoid}}
-      </style>
-    </head><body><div class="slip">
-      <div class="top">
-        <div><div class="brand">PEP SHOP TEXAS</div><div class="sub">Research Products</div></div>
-        <div class="order"><strong>Order #${esc(orderNumber(order))}</strong><div>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="meta">Printed: ${esc(generated)}</div></div>
-      </div>
-      <div class="section"><h3>Ship To</h3><p>${esc(customerName(order))}<br>${esc(shippingAddress(order)).replace(/\n/g,"<br>")}</p></div>
-      <div class="section"><h3>Contents</h3><table><thead><tr><th>Qty</th><th>Item #</th><th>Product</th><th>Strength</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <div class="footer"><div>Thank you for your order.</div><div class="ruo">Research Use Only</div><div>Not for human or veterinary use. Not medical advice.</div><div>support@pepshoptexas.com</div></div>
+    return `<!doctype html><html><head><meta charset="utf-8"><title>Fulfillment Sheet #${esc(orderNumber(order))}</title><link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#bd0000"><style>
+      *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px;color:#101820;background:#fff}.sheet{max-width:900px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border-bottom:3px solid #101820;padding-bottom:14px;margin-bottom:16px}.brand{font-size:24px;font-weight:900;letter-spacing:.04em}.sub{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#667085;font-weight:900}.order-no{font-size:30px;font-weight:900;text-align:right}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.box{border:1px solid #d9e2ec;border-radius:10px;padding:12px;min-height:92px}.box h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#667085}.box p{margin:0;line-height:1.4}.line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #edf2f7;padding:4px 0}.line:last-child{border-bottom:0}.pill{display:inline-block;border:1px solid #d9e2ec;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:900;text-transform:capitalize}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #d9e2ec;padding:9px 8px;text-align:left;vertical-align:top}th{background:#f5f8fb;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#667085}.qty,.check{text-align:center;font-weight:900}.small{font-size:12px;color:#667085;margin-top:3px}.checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.checkitem{border:1px solid #d9e2ec;border-radius:10px;padding:9px;font-weight:800}.sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.sigline{border-top:1px solid #101820;padding-top:6px;font-size:12px;color:#667085}.footer{margin-top:16px;font-size:11px;color:#667085;text-align:center}@media print{body{padding:0}.sheet{max-width:none}.no-print{display:none}.box,th,td,.checkitem{break-inside:avoid}}
+    
+
+/* PST compact fixed-height internal admin audit log */
+.audit-scrollbox{
+  max-height:220px;
+  overflow-y:auto;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fbfcfe;
+  padding:6px;
+}
+.audit-scrollbox .audit-list{display:grid;gap:5px;}
+.audit-scrollbox .audit-item{
+  border:1px solid #e3eaf2;
+  background:#fff;
+  border-radius:8px;
+  padding:6px 8px;
+  font-size:11px;
+  line-height:1.25;
+}
+.audit-scrollbox .audit-item strong{display:inline;margin:0;font-size:11px;}
+.audit-scrollbox .audit-item .muted{font-size:10.5px;}
+.audit-scrollbox .audit-line-detail{margin-top:3px;line-height:1.25;font-size:11px;color:#344054;}
+.audit-scrollbox .audit-empty{font-size:12px;color:var(--muted);padding:8px;}
+
+
+
+/* PST ADMIN HEADER FINAL HARD LOCK V4 - NO OVERLAP / SAME PLACEMENT / LIGHTER TYPE */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  min-height: 92px !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 92px !important;
+  margin: 0 !important;
+  padding: 14px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 22px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+header .brand,
+header .pst-admin-brand-lock {
+  flex: 0 0 390px !important;
+  width: 390px !important;
+  min-width: 390px !important;
+  max-width: 390px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 132px 1fr !important;
+  column-gap: 22px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-decoration: none !important;
+}
+
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+}
+
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 21px !important;
+  font-weight: 500 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: #596579 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+
+header .actions,
+header .pst-admin-actions-lock {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 6px 0 0 !important;
+  box-sizing: border-box !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
+
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .pst-admin-actions-lock a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock button.btn {
+  flex: 0 0 auto !important;
+  min-width: auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  background: #bd0000 !important;
+  color: #ffffff !important;
+  border-color: #bd0000 !important;
+}
+
+@media (max-width: 1180px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    gap: 14px !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    flex-basis: 350px !important;
+    width: 350px !important;
+    min-width: 350px !important;
+    max-width: 350px !important;
+    grid-template-columns: 120px 1fr !important;
+    column-gap: 18px !important;
+  }
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 120px !important;
+    height: 58px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+  }
+  header .pst-master-page-label {
+    font-size: 19px !important;
+    font-weight: 500 !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 15px !important;
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  header { overflow: visible !important; }
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    min-height: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+    overflow: visible !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex-basis: auto !important;
+    grid-template-columns: 120px minmax(0, 1fr) !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    width: 100% !important;
+    height: 46px !important;
+  }
+}
+</style>
+<style id="pst-admin-red-button-overrides">
+:root {
+  --blue: #bd0000 !important;
+  --pst-blue: #bd0000 !important;
+  --pst-admin-blue: #bd0000 !important;
+  --pst-admin-accent: #bd0000 !important;
+}
+body.admin-auth-pending header {
+  display: none !important;
+}
+body.admin-auth-pending main {
+  max-width: 560px !important;
+  padding-top: 88px !important;
+}
+body.admin-auth-pending main > :not(#statusLine) {
+  display: none !important;
+}
+body.admin-auth-pending #statusLine {
+  margin: 0 !important;
+  padding: 18px 20px !important;
+  text-align: center !important;
+  color: #596579 !important;
+  background: #fff !important;
+  border: 1px solid #d9e2ec !important;
+  box-shadow: 0 10px 30px rgba(16,24,32,.08) !important;
+}
+header .actions .btn.active,
+header .actions .btn.primary,
+header .header-actions .btn.active,
+header .header-actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+.admin-dashboard-nav .btn.active,
+.admin-dashboard-nav .btn[aria-pressed="true"],
+.collapsible-card:not(.collapsed) .card-toggle-btn,
+.card-toggle-btn.active,
+.card-toggle-btn[aria-expanded="true"],
+.inventory-jump-link.active,
+.inventory-jump-link[aria-pressed="true"],
+.inventory-collapse-toggle.active,
+.inventory-collapse-toggle[aria-expanded="true"],
+.collapse-toggle.active,
+.collapse-toggle[aria-expanded="true"],
+.reports-jumpbar a.active,
+.reports-jumpbar a[aria-pressed="true"],
+.btn.primary,
+.btn.active,
+.btn[aria-pressed="true"],
+.btn.secondary.active,
+button.btn.primary,
+a.btn.primary {
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
+  color: #ffffff !important;
+}
+.btn:not(.secondary):not(.danger):not(.success):not(.warning) {
+  background-color: #bd0000;
+  border-color: #bd0000;
+  color: #ffffff;
+}
+button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
+  background-color: #bd0000;
+  border-color: #bd0000;
+  color: #ffffff;
+}
+</style>
+</head><body><div class="sheet">
+      <div class="top"><div><div class="brand">PEP SHOP TEXAS</div><div class="sub">Order Fulfillment Sheet</div><div class="small">Generated: ${esc(generated)}</div></div><div><div class="sub">Order</div><div class="order-no">#${esc(orderNumber(order))}</div></div></div>
+      <div class="grid"><div class="box"><h3>Customer / Ship To</h3><p><strong>${esc(customerName(order))}</strong><br>${esc(shippingAddress(order))}<br>${esc(customerEmail(order) || "No email")}<br>${esc(customerPhone(order))}</p></div><div class="box"><h3>Order Snapshot</h3><div class="line"><span>Date</span><strong>${esc(fmtDate(order.created_at || order.order_date))}</strong></div><div class="line"><span>Order Status</span><span class="pill">${esc(String(orderStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Payment Status</span><span class="pill">${esc(String(paymentStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Shipping</span><strong>${money(orderShipping(order))}</strong></div><div class="line"><span>Total</span><strong>${money(orderTotal(order))}</strong></div></div></div>
+      <table><thead><tr><th>#</th><th>Product / Vial Label</th><th>Strength</th><th>SKU / Item</th><th>Qty</th><th>Picked</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="checklist"><div class="checkitem">□ Correct product/SKU pulled</div><div class="checkitem">□ Correct quantity pulled</div><div class="checkitem">□ Vial label checked</div><div class="checkitem">□ Lot/COA checked if applicable</div><div class="checkitem">□ Items protected in packaging</div><div class="checkitem">□ Packing slip/order sheet included</div><div class="checkitem">□ Shipping label matches customer address</div><div class="checkitem">□ Final package sealed</div></div>
+      <div class="grid"><div class="box"><h3>Fulfillment Notes</h3><p style="min-height:52px">&nbsp;</p></div><div class="box"><h3>Tracking / Carrier</h3><p>Carrier: ${esc(order.tracking_carrier || order.carrier || "—")}<br>Tracking: ${esc(order.tracking_number || order.tracking || "—")}</p></div></div>
+      <div class="sign"><div class="sigline">Packed by / Date</div><div class="sigline">Final check / Date</div></div><div class="footer">Internal fulfillment document only. Not a customer-facing marketing insert.</div>
     </div><script>window.addEventListener('load',function(){setTimeout(function(){window.focus();window.print();},250);});<\/script></body></html>`;
   }
-  async function markPackingSlipPrinted(order){
-    const now = new Date().toISOString();
-    const currentNotes = order.admin_notes || order.admin_note || "";
-    const line = auditLine("Packing slip printed");
-    const nextNotes = joinAuditNotes(currentNotes, line);
-    const updates = {
-      packing_slip_printed: true,
-      packing_slip_printed_at: now,
-      admin_notes: nextNotes,
-      admin_note: nextNotes,
-      updated_at: now
-    };
-    await safeUpdateOrder(order.id, updates, order);
-    return { ...order, ...updates };
-  }
-  function fulfillmentSheetHtml(order){
-    return packingSlipHtml(order);
-  }
-async function printFulfillmentSheet(order){
+  function printFulfillmentSheet(order){
     const win = window.open("", "_blank", "width=960,height=900");
-    if(!win){ alert("Popup blocked. Allow popups for this site, then click Print Packing Slip again."); return; }
+    if(!win){ alert("Popup blocked. Allow popups for this site, then click Print Fulfillment Sheet again."); return; }
     win.document.open();
-    win.document.write(packingSlipHtml(order));
+    win.document.write(fulfillmentSheetHtml(order));
     win.document.close();
-    try{
-      const updatedOrder = await markPackingSlipPrinted(order);
-      Object.assign(order, updatedOrder);
-      setStatus(`Packing slip printed for Order #${orderNumber(order)}. You can now mark this order as Packed.`, "good");
-      await loadOrders();
-      const fresh = allOrders.find(o => String(o.id) === String(order.id)) || updatedOrder;
-      await renderOrderDetail(fresh);
-    }catch(error){
-      console.error(error);
-      setStatus(`Packing slip opened, but printed status could not be saved: ${error.message || error}`, "bad");
-    }
+    setStatus(`Fulfillment sheet opened for Order #${orderNumber(order)}.`, "good");
   }
 
   async function renderOrderDetail(order){
@@ -3896,16 +2751,14 @@ async function printFulfillmentSheet(order){
     const turl = trackingUrl(carrier, tracking, order.tracking_url);
     const detail = $("detailCard");
     detail.innerHTML = `
-      <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Packing Slip</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
+      <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Fulfillment Sheet</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
       <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
-      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${orderInventoryDeductionVisualMarkup(order)}${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div>${packingSlipStatusMarkup(order)}<div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
+      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
       ${paymentInstructionsMarkup(order)}
-      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Packing Slip:</strong> Print the packing slip after payment is accepted. The order cannot be marked Packed until the packing slip has been printed.</div></div>
-      ${orderAdjustmentMarkup(order)}
-      ${storeCreditIssueMarkup(order)}
+      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Fulfillment:</strong> Use Print Fulfillment Sheet after the order is received, paid, or moved to Processing. It opens a clean packing sheet with customer address, item/SKU rows, quantity checks, and final verification boxes.</div></div>
       <div class="detail-section"><h3>Update Order</h3>
         <div class="edit-grid">
-          <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatusOptions(order)}</select></div>
+          <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatuses.map(s=>`<option value="${s}" ${norm(orderStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
           <div class="field"><label for="editPaymentStatus">Payment Status</label><select id="editPaymentStatus">${paymentStatuses.map(s=>`<option value="${s}" ${norm(paymentStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
           <div class="field"><label>Payment Method</label><input value="${esc(paymentMethod(order))}" readonly /></div>
           <div class="field"><label for="editCarrier">Carrier</label><input id="editCarrier" value="${esc(carrier)}" placeholder="USPS, UPS, FedEx..." /></div>
@@ -3927,25 +2780,6 @@ async function printFulfillmentSheet(order){
     }
     $("reloadDetailBtn")?.addEventListener("click", loadOrders);
     $("printFulfillmentBtn")?.addEventListener("click", () => printFulfillmentSheet(order));
-    initOrderAdjustment(order);
-    $("saveOrderAdjustmentBtn")?.addEventListener("click", () => saveOrderAdjustment(order));
-    $("issueStoreCreditBtn")?.addEventListener("click", () => issueStoreCredit(order));
-    $("deductInventoryNowBtn")?.addEventListener("click", async () => {
-      try{
-        const reason = prompt("Reason/note for deducting inventory now:", `Manual deduction for order #${orderNumber(order)}`);
-        if(!reason || !reason.trim()) return;
-        setStatus("Deducting inventory for this order...");
-        const result = await deductInventoryForOrder(order, reason.trim());
-        setStatus(result.message || "Inventory deducted.", "good");
-        await loadOrders();
-        const fresh = allOrders.find(o => String(o.id) === String(order.id));
-        if(fresh) await renderOrderDetail(fresh);
-      }catch(error){
-        console.error(error);
-        setStatus(error.message || "Could not deduct inventory.", "bad");
-        alert(error.message || "Could not deduct inventory.");
-      }
-    });
     $("saveOrderBtn")?.addEventListener("click", () => saveOrder(order));
     document.querySelectorAll(".preview-email-action").forEach(btn => btn.addEventListener("click", () => openEmailPreview(order, btn.dataset.emailType, false)));
     document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false, { skipPreview:true })));
@@ -3953,9 +2787,6 @@ async function printFulfillmentSheet(order){
 
   function buildUpdatesFromForm(order={}){
     let os = $("editOrderStatus").value;
-    if(norm(os) === "packed" && !packingSlipPrinted(order) && !["packed","shipped","delivered","complete"].includes(norm(orderStatus(order)))){
-      throw new Error("Packing slip must be printed before this order can be marked Packed.");
-    }
     const ps = $("editPaymentStatus").value;
     const carrier = $("editCarrier").value.trim();
     const tracking = $("editTracking").value.trim();
@@ -4119,10 +2950,9 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
 
-      const deductResult = await deductInventoryForOrderIfNeeded(order, updates);
-      const restoreResult = await restoreInventoryForOrderIfNeeded({ ...order, ...updates }, updates);
+      const restoreResult = await restoreInventoryForOrderIfNeeded(order, updates);
 
-      const mergedForEmail = { ...order, ...updates, inventory_deducted: deductResult.deducted ? true : order.inventory_deducted, profile: profileOf(order), items: order.items || [] };
+      const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
       const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
       const previewTypes = emailTypes.filter(emailTypeNeedsPreview);
 
@@ -4131,13 +2961,13 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
           for(const emailType of automaticTypes){
             await sendOrderEmail(mergedForEmail, emailType, true, { skipPreview:true, auditAutomatic:true });
           }
-          setStatus(`${deductResult.attempted ? "Order updates saved, inventory deducted" : "Order updates saved"}${restoreResult.attempted ? ", inventory restored" : ""}, and automatic customer email notification(s) sent.`, "good");
+          setStatus(restoreResult.attempted ? "Order updates saved, inventory restored, and automatic customer email notification(s) sent." : "Order updates saved and automatic customer email notification(s) sent.", "good");
         }catch(emailError){
           console.error(emailError);
           setStatus(`Order saved, but customer email failed: ${emailError.message || emailError}`, "bad");
         }
       }else{
-        setStatus(`${deductResult.attempted ? "Order updates saved and inventory deducted" : "Order updates saved"}${restoreResult.attempted ? " and inventory restored" : ""}.`, "good");
+        setStatus(restoreResult.attempted ? "Order updates saved and inventory restored." : "Order updates saved.", "good");
       }
 
       await loadOrders();
@@ -4145,10 +2975,10 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       await renderOrderDetail(fresh);
 
       if(previewTypes.length){
-        setStatus(`${deductResult.attempted ? "Order saved and inventory deducted" : "Order saved"}${restoreResult.attempted ? " and inventory restored" : ""}. Preview required before sending: ${previewTypes.map(emailTypeLabel).join(", ")}.`, "good");
+        setStatus(`${restoreResult.attempted ? "Order saved and inventory restored" : "Order saved"}. Preview required before sending: ${previewTypes.map(emailTypeLabel).join(", ")}.`, "good");
         setTimeout(() => openEmailPreview(fresh, previewTypes[0], true), 250);
       }else if(!emailTypes.length){
-        setStatus(`${deductResult.attempted ? "Order updates saved and inventory deducted" : "Order updates saved"}${restoreResult.attempted ? " and inventory restored" : ""}. No customer-facing status email was needed.`, "good");
+        setStatus(restoreResult.attempted ? "Order updates saved and inventory restored. No customer-facing status email was needed." : "Order updates saved. No customer-facing status email was needed.", "good");
       }
     }catch(error){ console.error(error); setStatus(error.message || "Could not save order updates.", "bad"); alert(error.message || "Could not save order updates."); }
   }
@@ -4414,31 +3244,24 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
 
     setStatus("Saving bulk updates...");
     let failed = 0;
-    let deducted = 0;
     let restored = 0;
     for(const id of ids){
       try{
         const order = allOrders.find(o => String(o.id) === String(id));
         await safeUpdateOrder(id, payload, order);
-        if(order && orderNeedsInventoryDeduction(order, payload)){
-          await deductInventoryForOrderIfNeeded(order, payload);
-          deducted++;
-        }
-        if(order && inventoryRestoreNeeded({ ...order, ...payload }, payload)){
-          await restoreInventoryForOrderIfNeeded({ ...order, ...payload }, payload);
+        if(order && inventoryRestoreNeeded(order, payload)){
+          await restoreInventoryForOrderIfNeeded(order, payload);
           restored++;
         }
       } catch(e){ console.error(e); failed++; }
     }
     await loadOrders();
-    const deductText = deducted ? ` Inventory deducted for ${deducted} order(s).` : "";
     const restoreText = restored ? ` Inventory restored for ${restored} order(s).` : "";
-    setStatus(failed ? `${message} ${failed} order(s) could not be updated.${deductText}${restoreText}` : `${message}${deductText}${restoreText}`, failed ? "bad" : "good");
+    setStatus(failed ? `${message} ${failed} order(s) could not be updated.${restoreText}` : `${message}${restoreText}`, failed ? "bad" : "good");
   }
 
   function wireEvents(){
     setupAdminDashboardNavigation();
-    wireAdminLookup();
     $("refreshBtn")?.addEventListener("click", loadOrders);
     $("closeEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
     $("cancelEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
@@ -4457,7 +3280,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     ["searchInput","statusFilter","paymentFilter","dateFilter","attentionFilter"].forEach(id => { const el=$(id); if(el) el.addEventListener(id==="searchInput"?"input":"change", () => { clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); }); });
     $("clearFiltersBtn")?.addEventListener("click", () => { if($("searchInput")) $("searchInput").value=""; if($("statusFilter")) $("statusFilter").value=""; if($("paymentFilter")) $("paymentFilter").value=""; if($("dateFilter")) $("dateFilter").value=""; if($("attentionFilter")) $("attentionFilter").value=""; clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); });
     $("selectAllOrders")?.addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(String(o.id))); else filteredOrders.forEach(o=>selectedOrderIds.delete(String(o.id))); renderOrders(); renderSelectedCount(); });
-    $("bulkPaidBtn")?.addEventListener("click", () => bulkUpdate({ payment_status:"paid", order_status:"processing", status:"processing" }, "Selected orders marked paid and moved to processing."));
+    $("bulkPaidBtn")?.addEventListener("click", () => bulkUpdate({ payment_status:"paid" }, "Selected orders marked paid."));
     $("bulkProcessingBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
     $("bulkPackedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"packed", status:"packed" }, "Selected orders marked packed."));
     $("bulkDeliveredBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"delivered", status:"delivered" }, "Selected orders marked delivered."));
