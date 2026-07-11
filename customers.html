@@ -2050,6 +2050,22 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
+<style id="pst-customers-all-clickable-pill-fix">
+/* Preserve every existing color and font rule; change clickable controls to capsules only. */
+button,
+.btn,
+a.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+#customersTable button,
+.modal button {
+  border-radius: 999px !important;
+}
+</style>
 </head>
 <body>
 <header>
