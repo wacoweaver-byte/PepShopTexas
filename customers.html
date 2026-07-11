@@ -2576,8 +2576,8 @@ td .inventory-readonly-value {
 <div id="adminStatus" style="display:none;">Checking admin access...</div>
 <main>
   <div class="button-row" style="margin-top:0;">
-      <button id="refreshBtn">Refresh</button>
-      <button id="exportCsvBtn" class="secondary">Export CSV</button>
+      <button class="btn secondary" id="refreshBtn">Refresh</button>
+      <button id="exportCsvBtn" class="btn secondary">Export CSV</button>
     </div>
 
   <div class="notice">
@@ -2628,10 +2628,10 @@ td .inventory-readonly-value {
       </div>
     </div>
     <div class="button-row">
-      <button id="applyFiltersBtn">Apply Filters</button>
-      <button id="clearFiltersBtn" class="secondary">Clear Filters</button>
-      <button id="copyEmailListBtn" class="secondary">Copy Eligible Emails</button>
-      <button id="openBlastModalBtn" class="secondary">Email Blast List</button>
+      <button class="btn secondary" id="applyFiltersBtn">Apply Filters</button>
+      <button id="clearFiltersBtn" class="btn secondary">Clear Filters</button>
+      <button id="copyEmailListBtn" class="btn secondary">Copy Eligible Emails</button>
+      <button id="openBlastModalBtn" class="btn secondary">Email Blast List</button>
     </div>
     <div class="status-line" id="filterStatus"></div>
   </section>
@@ -2671,9 +2671,9 @@ td .inventory-readonly-value {
     </p>
     <textarea class="email-output" id="emailOutput" readonly></textarea>
     <div class="button-row">
-      <button id="copyBlastEmailsBtn">Copy Emails</button>
-      <button id="downloadBlastEmailsBtn" class="secondary">Download TXT</button>
-      <button id="closeBlastModalBtn" class="secondary">Close</button>
+      <button class="btn secondary" id="copyBlastEmailsBtn">Copy Emails</button>
+      <button id="downloadBlastEmailsBtn" class="btn secondary">Download TXT</button>
+      <button id="closeBlastModalBtn" class="btn secondary">Close</button>
     </div>
     <div class="status-line" id="blastStatus"></div>
   </div>
@@ -2696,14 +2696,14 @@ td .inventory-readonly-value {
         </label>
       </div>
       <div class="button-row">
-        <button id="addStoreCreditBtn">Add Credit</button>
-        <button id="deductStoreCreditBtn" class="secondary">Deduct Credit</button>
+        <button class="btn secondary" id="addStoreCreditBtn">Add Credit</button>
+        <button id="deductStoreCreditBtn" class="btn secondary">Deduct Credit</button>
       </div>
       <div class="status-line" id="storeCreditStatus"></div>
       <div class="credit-history" id="storeCreditHistory"></div>
     </section>
     <div class="button-row">
-      <button id="closeCustomerModalBtn" class="secondary">Close</button>
+      <button id="closeCustomerModalBtn" class="btn secondary">Close</button>
     </div>
   </div>
 </div>
@@ -3148,7 +3148,7 @@ function renderTable() {
   $("tableBody").innerHTML = filteredCustomers.map((c, index) => `
     <tr>
       ${visibleColumns.map(col => renderCell(c, col.key)).join("")}
-      <td><button class="secondary" data-view-index="${index}">View</button></td>
+      <td><button class="btn secondary" data-view-index="${index}">View</button></td>
     </tr>
   `).join("");
 
