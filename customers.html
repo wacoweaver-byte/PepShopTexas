@@ -2050,304 +2050,55 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
-<style id="pst-admin-customers-css-match-inventory-products-discounts-promotions-v1">
-/*
-  Final admin CSS match patch.
-  Purpose: make admin.html and customers.html follow the same visual system used by
-  inventory.html, products.html, discounts.html, and promotions.html.
-  This loads last and intentionally overrides older Codex/admin header and button CSS.
-*/
+<style id="pst-customers-all-clickable-pill-fix">
+/* Preserve every existing color and font rule; change clickable controls to capsules only. */
+button,
+.btn,
+a.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+#customersTable button,
+.modal button {
+  border-radius: 999px !important;
+}
+</style>
+
+<style id="pst-admin-copy-inventory-compact-pill-css-v1">
+/* Copied behavior from inventory.html compact pill system. */
 :root {
-  --blue: #bd0000 !important;
-  --pst-blue: #bd0000 !important;
-  --pst-admin-blue: #bd0000 !important;
-  --pst-admin-accent: #bd0000 !important;
-  --dark: #101820 !important;
-  --light: #f5f8fb !important;
-  --border: #d9e2ec !important;
-  --muted: #667085 !important;
-  --success: #0f8a3b !important;
-  --warning: #b7791f !important;
-  --danger: #b42318 !important;
-  --white: #ffffff !important;
-  --shadow: 0 10px 30px rgba(16,24,32,.08) !important;
-  --radius: 16px !important;
-  --pst-pill-h: 26px;
-  --pst-pill-font: 10px;
-  --pst-pill-weight: 700;
-  --pst-pill-radius: 999px;
-  --pst-pill-pad-x: 10px;
-  --pst-pill-line: #c9ced6;
-  --pst-pill-ink: #101820;
-  --pst-pill-blue: #003f9e;
-  --pst-pill-red: #bd0000;
-  --pst-pill-green: #0c6b3a;
-  --pst-pill-warn: #8a5a00;
-  --pst-pill-danger: #8a1f17;
+  --pst-inv-pill-h: 26px;
+  --pst-inv-pill-font: 10px;
+  --pst-inv-pill-weight: 700;
+  --pst-inv-pill-radius: 999px;
+  --pst-inv-pill-pad-x: 10px;
+  --pst-inv-pill-line: #c9ced6;
+  --pst-inv-pill-ink: #101820;
+  --pst-inv-pill-blue: #003f9e;
+  --pst-inv-pill-red: #bd0000;
+  --pst-inv-pill-green: #0c6b3a;
+  --pst-inv-pill-danger: #8a1f17;
 }
 
-html,
-body {
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-}
-
-body {
-  margin: 0 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  background: var(--light) !important;
-  color: var(--dark) !important;
-}
-
-body, input, button, select, textarea {
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-  width: 100% !important;
-  min-height: 86px !important;
-  background: #ffffff !important;
-  border-bottom: 1px solid var(--border) !important;
-  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-
-header .topbar,
-header .pst-admin-topbar-lock {
-  width: 100% !important;
-  max-width: 1540px !important;
-  min-height: 86px !important;
-  margin: 0 auto !important;
-  padding: 14px 18px !important;
-  display: grid !important;
-  grid-template-columns: minmax(300px, 430px) minmax(0, 1fr) !important;
-  align-items: center !important;
-  justify-content: stretch !important;
-  gap: 18px !important;
-  background: #ffffff !important;
-  box-sizing: border-box !important;
-}
-
-header .brand,
-header .pst-admin-brand-lock {
-  display: grid !important;
-  grid-template-columns: 54px minmax(0, 1fr) !important;
-  align-items: center !important;
-  gap: 14px !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  color: #101820 !important;
-  text-decoration: none !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  line-height: 1.1 !important;
-}
-
-header .pst-admin-logo-mark {
-  display: inline-grid !important;
-  place-items: center !important;
-  width: 54px !important;
-  height: 54px !important;
-  min-width: 54px !important;
-  max-width: 54px !important;
-  min-height: 54px !important;
-  max-height: 54px !important;
-  border-radius: 14px !important;
-  background: linear-gradient(135deg, #d10000, #a00000) !important;
-  color: #ffffff !important;
-  font-size: 18px !important;
-  font-weight: 900 !important;
-  letter-spacing: 0 !important;
-  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
-}
-
-header .pst-admin-title-lock {
-  display: grid !important;
-  gap: 4px !important;
-  min-width: 0 !important;
-}
-
-header .pst-admin-title-lock strong {
-  display: block !important;
-  color: #101820 !important;
-  font-size: 21px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  line-height: 1.05 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-}
-
-header .pst-admin-title-lock small {
-  display: block !important;
-  color: #596579 !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  letter-spacing: .01em !important;
-  line-height: 1.1 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-}
-
-header .actions,
-header .pst-admin-actions-lock {
-  min-width: 0 !important;
-  width: 100% !important;
-  height: auto !important;
-  min-height: 30px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 6px !important;
-  flex-wrap: wrap !important;
-  overflow: visible !important;
-  box-sizing: border-box !important;
-}
-
-main {
-  max-width: 1540px !important;
-  margin: 0 auto !important;
-  padding: 22px 18px 54px !important;
-}
-
-.page-title,
-.page-head {
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: space-between !important;
-  gap: 16px !important;
-  margin: 0 0 16px !important;
-}
-
-h1,
-.page-title h1,
-.page-head h1,
-main > h1 {
-  margin: 0 0 6px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: clamp(24px, 3vw, 36px) !important;
-  font-weight: 600 !important;
-  line-height: 1.15 !important;
-  letter-spacing: .01em !important;
-  color: #101820 !important;
-  text-transform: none !important;
-}
-
-h2,
-h3,
-.panel h2,
-.card h2,
-.modal h2 {
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-weight: 600 !important;
-  letter-spacing: .01em !important;
-  text-transform: none !important;
-}
-
-.subtitle,
-.subhead {
-  margin: 0 !important;
-  color: #667085 !important;
-  line-height: 1.4 !important;
-  font-weight: 400 !important;
-}
-
-.card,
-.panel {
-  background: #ffffff !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--radius) !important;
-  box-shadow: var(--shadow) !important;
-  overflow: hidden !important;
-}
-
-.panel {
-  padding: 16px !important;
-  margin-bottom: 18px !important;
-}
-
-.card-header {
-  padding: 16px !important;
-  border-bottom: 1px solid var(--border) !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  gap: 12px !important;
-  flex-wrap: wrap !important;
-}
-
-.card-body {
-  padding: 16px !important;
-}
-
-.status,
-.status-line,
-.notice {
-  border-radius: 12px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-
-label,
-th,
-.control label,
-.kv strong,
-.detail-box strong {
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-weight: 600 !important;
-  letter-spacing: .04em !important;
-}
-
-input,
-select,
-textarea {
-  min-height: 40px !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 10px !important;
-  padding: 9px 10px !important;
-  font-size: 14px !important;
-  background: #ffffff !important;
-  color: var(--dark) !important;
-}
-
-.table-wrap {
-  border: 1px solid var(--border) !important;
-  border-radius: 14px !important;
-  background: #ffffff !important;
-}
-
-th {
-  color: var(--muted) !important;
-  background: #fbfcfe !important;
-}
-
-/* Compact pill base shared with inventory/products/discounts/promotions. */
+/* Inventory-style compact pill base. */
 .btn,
 a.btn,
 button.btn,
-main button,
-.modal button,
-.modal-backdrop button,
-.button-row button,
-.admin-page-actions .btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
 .admin-dashboard-nav .btn,
-.bulk-actions .btn,
-.email-action-buttons .btn,
-.email-preview-actions .btn,
+.admin-jump-link,
 .card-toggle-btn,
+.admin-back-top .btn,
 .pill,
-.badge,
-.status-pill,
-.payment-method-pill,
-.locked-pill,
-.inventory-restored-pill,
-.inventory-restore-needed-pill {
+.badge {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2356,17 +2107,17 @@ main button,
   width: auto !important;
   min-width: 0 !important;
   max-width: max-content !important;
-  min-height: var(--pst-pill-h) !important;
-  height: var(--pst-pill-h) !important;
+  min-height: var(--pst-inv-pill-h) !important;
+  height: var(--pst-inv-pill-h) !important;
   margin: 0 !important;
-  padding: 0 var(--pst-pill-pad-x) !important;
+  padding: 0 var(--pst-inv-pill-pad-x) !important;
   border: 1px solid currentColor !important;
-  border-radius: var(--pst-pill-radius) !important;
+  border-radius: var(--pst-inv-pill-radius) !important;
   background: #ffffff !important;
-  color: var(--pst-pill-ink) !important;
+  color: var(--pst-inv-pill-ink) !important;
   font-family: Arial, Helvetica, sans-serif !important;
-  font-size: var(--pst-pill-font) !important;
-  font-weight: var(--pst-pill-weight) !important;
+  font-size: var(--pst-inv-pill-font) !important;
+  font-weight: var(--pst-inv-pill-weight) !important;
   line-height: 1 !important;
   letter-spacing: 0 !important;
   text-align: center !important;
@@ -2377,37 +2128,18 @@ main button,
   box-shadow: none !important;
 }
 
-.btn,
-a.btn,
-button.btn,
-main button,
-.modal button,
-.modal-backdrop button,
-.button-row button,
-.admin-page-actions .btn,
-.admin-dashboard-nav .btn,
-.bulk-actions .btn,
-.email-action-buttons .btn,
-.email-preview-actions .btn,
-.card-toggle-btn {
-  cursor: pointer !important;
-}
-
-.pill,
-.badge,
-.status-pill,
-.payment-method-pill,
-.locked-pill {
-  cursor: default !important;
-}
-
+/* Header/page nav uses white pills until current/selected. */
 header .actions .btn.secondary,
-header .pst-admin-actions-lock .btn.secondary {
-  color: var(--pst-pill-ink) !important;
+header .pst-admin-actions-lock .btn.secondary,
+.btn.secondary,
+button.btn.secondary,
+a.btn.secondary {
+  color: var(--pst-inv-pill-ink) !important;
   background: #ffffff !important;
-  border-color: var(--pst-pill-line) !important;
+  border-color: var(--pst-inv-pill-line) !important;
 }
 
+/* Current page / active jump / open collapse: compact red pill, only when actually active. */
 .btn.active,
 .btn.primary,
 .btn[aria-pressed="true"],
@@ -2417,202 +2149,99 @@ header .pst-admin-actions-lock .btn.active,
 header .pst-admin-actions-lock .btn.primary,
 .admin-dashboard-nav .btn.active,
 .admin-dashboard-nav .btn[aria-pressed="true"],
-button#refreshBtn:not(.secondary),
-button#applyFiltersBtn,
-button#copyBlastEmailsBtn,
-button#addStoreCreditBtn,
-.btn:not(.secondary):not(.danger):not(.success):not(.warning) {
+.card-toggle-btn.active,
+.card-toggle-btn[aria-pressed="true"],
+.collapse-toggle.active,
+.collapse-toggle[aria-expanded="true"] {
   color: #ffffff !important;
-  background: var(--pst-pill-red) !important;
-  border-color: var(--pst-pill-red) !important;
+  background: var(--pst-inv-pill-red) !important;
+  border-color: var(--pst-inv-pill-red) !important;
 }
 
-.btn.secondary,
-button.btn.secondary,
-a.btn.secondary,
-button.secondary,
-a.secondary,
-button#clearFiltersBtn,
-button#copyEmailListBtn,
-button#openBlastModalBtn,
-button#exportCsvBtn,
-button#downloadBlastEmailsBtn,
-button#closeBlastModalBtn,
-button#deductStoreCreditBtn,
-button#closeCustomerModalBtn,
-button[data-view-index] {
-  color: var(--pst-pill-blue) !important;
+/* Admin Jump To links match inventory-jumpbar inactive style. */
+.admin-dashboard-nav .btn:not(.active):not([aria-pressed="true"]),
+.admin-jump-link:not(.active):not([aria-pressed="true"]) {
+  color: var(--pst-inv-pill-blue) !important;
   background: #ffffff !important;
-  border-color: var(--pst-pill-blue) !important;
+  border-color: var(--pst-inv-pill-blue) !important;
 }
 
+/* Layout copied from inventory jumpbar sizing. */
+.admin-dashboard-nav {
+  gap: 6px !important;
+  padding: 10px !important;
+  align-items: center !important;
+}
+.admin-dashboard-nav strong {
+  margin-right: 4px !important;
+  color: var(--muted) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: .03em !important;
+  text-transform: uppercase !important;
+}
+
+/* Color variants. */
 .btn.success,
 button.btn.success,
-a.btn.success {
-  color: var(--pst-pill-green) !important;
+a.btn.success,
+.badge.good,
+.pill.good {
+  color: var(--pst-inv-pill-green) !important;
   background: #ffffff !important;
-  border-color: var(--pst-pill-green) !important;
-}
-
-.btn.warning,
-button.btn.warning,
-a.btn.warning {
-  color: var(--pst-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-pill-warn) !important;
+  border-color: var(--pst-inv-pill-green) !important;
 }
 
 .btn.danger,
 button.btn.danger,
-a.btn.danger {
-  color: var(--pst-pill-danger) !important;
+a.btn.danger,
+.badge.bad,
+.pill.bad {
+  color: var(--pst-inv-pill-danger) !important;
   background: #ffffff !important;
-  border-color: var(--pst-pill-danger) !important;
+  border-color: var(--pst-inv-pill-danger) !important;
 }
 
 .btn:disabled,
 button.btn:disabled,
-main button:disabled,
 .btn[aria-disabled="true"],
 button.btn[aria-disabled="true"],
 .btn.disabled {
   color: #6f7680 !important;
   background: #ffffff !important;
-  border-color: var(--pst-pill-line) !important;
+  border-color: var(--pst-inv-pill-line) !important;
   opacity: 1 !important;
   cursor: not-allowed !important;
   pointer-events: none !important;
 }
 
-.pill.good,
-.badge.good,
-.status-pill.good,
-.pill.paid,
-.pill.complete,
-.pill.shipped,
-.pill.delivered,
-.badge.good {
-  color: var(--pst-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-pill-green) !important;
-}
-
-.pill.warn,
-.badge.warn,
-.status-pill.warn,
-.pill.pending,
-.pill.awaiting_payment,
-.badge.warn {
-  color: var(--pst-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-pill-warn) !important;
-}
-
-.pill.bad,
-.pill.danger,
-.badge.bad,
-.badge.danger,
-.status-pill.bad,
-.pill.cancelled,
-.pill.rejected,
-.pill.refunded,
-.pill.failed,
-.badge.bad {
-  color: var(--pst-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-pill-danger) !important;
-}
-
-.badge.neutral,
-.pill.neutral,
-.status-pill.neutral {
-  color: #6f7680 !important;
-  background: #ffffff !important;
-  border-color: var(--pst-pill-line) !important;
-}
-
-.button-row,
-.actions,
-.pst-admin-actions-lock,
-.admin-page-actions,
-.admin-dashboard-nav,
-.bulk-actions,
-.email-action-buttons,
-.email-preview-actions {
-  gap: 6px !important;
-}
-
-td .btn,
-td button,
-td .pill,
-td .badge {
-  margin-top: 2px !important;
-  margin-bottom: 2px !important;
-}
-
-@media (max-width: 980px) {
-  header .topbar,
-  header .pst-admin-topbar-lock {
-    grid-template-columns: 1fr !important;
-    min-height: auto !important;
-    align-items: start !important;
-  }
-  header .actions,
-  header .pst-admin-actions-lock {
-    justify-content: flex-start !important;
-  }
-}
-
 @media (max-width: 700px) {
-  .page-title,
-  .page-head {
-    flex-direction: column !important;
-  }
   .btn,
   a.btn,
   button.btn,
-  main button,
-  .modal button,
-  .modal-backdrop button,
-  .button-row button,
-  .admin-page-actions .btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
   .admin-dashboard-nav .btn,
-  .bulk-actions .btn,
-  .email-action-buttons .btn,
-  .email-preview-actions .btn,
+  .admin-jump-link,
   .card-toggle-btn,
+  .admin-back-top .btn,
   .pill,
-  .badge,
-  .status-pill,
-  .payment-method-pill,
-  .locked-pill {
+  .badge {
     min-height: 25px !important;
     height: 25px !important;
     padding: 0 9px !important;
     font-size: 9.5px !important;
   }
-}
 
-@media (max-width: 560px) {
-  header .pst-admin-brand-lock {
-    grid-template-columns: 46px minmax(0, 1fr) !important;
-  }
-  header .pst-admin-logo-mark {
-    width: 46px !important;
-    height: 46px !important;
-    min-width: 46px !important;
-    max-width: 46px !important;
-    min-height: 46px !important;
-    max-height: 46px !important;
-    font-size: 16px !important;
-  }
-  header .pst-admin-title-lock strong {
-    font-size: 18px !important;
-    white-space: normal !important;
-  }
-  header .pst-admin-title-lock small {
-    font-size: 13px !important;
-    white-space: normal !important;
+  .admin-dashboard-nav {
+    gap: 5px !important;
+    padding: 9px !important;
   }
 }
 
@@ -2620,181 +2249,22 @@ td .badge {
   .btn,
   a.btn,
   button.btn,
-  main button,
-  .modal button,
-  .modal-backdrop button,
-  .button-row button,
-  .pill,
-  .badge,
-  .status-pill,
-  .payment-method-pill,
-  .locked-pill {
-    min-height: 24px !important;
-    height: 24px !important;
-    padding: 0 8px !important;
-    font-size: 9px !important;
-  }
-}
-</style>
-
-<style id="pst-admin-red-outline-pill-final-v3">
-/* FINAL ADMIN PILL RULE
-   - Pills are red outline with red text.
-   - No blue outline.
-   - No solid red fill.
-   - Selected/current pills stay highlighted with a light red tint, not a red fill.
-   - Loads last to override older Codex/header/button rules.
-*/
-:root {
-  --pst-pill-red: #bd0000 !important;
-  --pst-pill-red-soft: rgba(189, 0, 0, .08) !important;
-  --pst-pill-red-soft-strong: rgba(189, 0, 0, .14) !important;
-}
-
-header .actions,
-header .pst-admin-actions-lock,
-.admin-page-actions,
-.button-row {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  flex-wrap: wrap !important;
-}
-
-header .actions,
-header .pst-admin-actions-lock {
-  justify-content: flex-end !important;
-}
-
-.admin-page-actions,
-.button-row {
-  justify-content: flex-start !important;
-}
-
-/* Red-outline pill base for header nav and page action buttons. */
-header .actions .btn,
-header .actions a.btn,
-header .actions button.btn,
-header .pst-admin-actions-lock .btn,
-header .pst-admin-actions-lock a.btn,
-header .pst-admin-actions-lock button.btn,
-.admin-page-actions .btn,
-.admin-page-actions a.btn,
-.admin-page-actions button.btn,
-.button-row .btn,
-.button-row a.btn,
-.button-row button.btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: max-content !important;
-  min-height: 34px !important;
-  height: 34px !important;
-  padding: 0 14px !important;
-  border: 1px solid var(--pst-pill-red) !important;
-  border-radius: 999px !important;
-  background: #ffffff !important;
-  color: var(--pst-pill-red) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  box-shadow: none !important;
-  box-sizing: border-box !important;
-}
-
-/* Selected/current/pressed state: highlighted, not filled. */
-header .actions .btn.active,
-header .actions .btn.primary,
-header .actions .btn[aria-pressed="true"],
-header .actions a.btn.active,
-header .actions button.btn.active,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary,
-header .pst-admin-actions-lock .btn[aria-pressed="true"],
-header .pst-admin-actions-lock a.btn.active,
-header .pst-admin-actions-lock button.btn.active,
-.admin-page-actions .btn.active,
-.admin-page-actions .btn.primary,
-.admin-page-actions .btn[aria-pressed="true"],
-.admin-page-actions a.btn.active,
-.admin-page-actions button.btn.active,
-.button-row .btn.active,
-.button-row .btn.primary,
-.button-row .btn[aria-pressed="true"],
-.button-row a.btn.active,
-.button-row button.btn.active {
-  background: var(--pst-pill-red-soft-strong) !important;
-  border-color: var(--pst-pill-red) !important;
-  color: var(--pst-pill-red) !important;
-  box-shadow: inset 0 0 0 1px rgba(189, 0, 0, .18) !important;
-}
-
-/* Hover/focus: temporary highlight only. */
-header .actions .btn:hover,
-header .actions a.btn:hover,
-header .actions button.btn:hover,
-header .pst-admin-actions-lock .btn:hover,
-header .pst-admin-actions-lock a.btn:hover,
-header .pst-admin-actions-lock button.btn:hover,
-.admin-page-actions .btn:hover,
-.admin-page-actions a.btn:hover,
-.admin-page-actions button.btn:hover,
-.button-row .btn:hover,
-.button-row a.btn:hover,
-.button-row button.btn:hover {
-  background: var(--pst-pill-red-soft) !important;
-  border-color: var(--pst-pill-red) !important;
-  color: var(--pst-pill-red) !important;
-}
-
-/* Danger buttons remain red-outline too; no filled button. */
-header .actions .btn.danger,
-header .actions a.btn.danger,
-header .actions button.btn.danger,
-header .pst-admin-actions-lock .btn.danger,
-header .pst-admin-actions-lock a.btn.danger,
-header .pst-admin-actions-lock button.btn.danger,
-.admin-page-actions .btn.danger,
-.admin-page-actions a.btn.danger,
-.admin-page-actions button.btn.danger,
-.button-row .btn.danger,
-.button-row a.btn.danger,
-.button-row button.btn.danger {
-  background: #ffffff !important;
-  border-color: #b42318 !important;
-  color: #b42318 !important;
-}
-
-@media (max-width: 700px) {
-  header .actions,
-  header .pst-admin-actions-lock {
-    justify-content: flex-start !important;
-    gap: 7px !important;
-  }
-
   header .actions .btn,
   header .actions a.btn,
   header .actions button.btn,
   header .pst-admin-actions-lock .btn,
   header .pst-admin-actions-lock a.btn,
   header .pst-admin-actions-lock button.btn,
-  .admin-page-actions .btn,
-  .admin-page-actions a.btn,
-  .admin-page-actions button.btn,
-  .button-row .btn,
-  .button-row a.btn,
-  .button-row button.btn {
-    min-height: 32px !important;
-    height: 32px !important;
-    padding: 0 12px !important;
-    font-size: 12px !important;
+  .admin-dashboard-nav .btn,
+  .admin-jump-link,
+  .card-toggle-btn,
+  .admin-back-top .btn,
+  .pill,
+  .badge {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
   }
 }
 </style>
@@ -2813,7 +2283,7 @@ header .pst-admin-actions-lock button.btn.danger,
       <a class="btn secondary" href="discounts.html">Discounts</a>
       <a class="btn secondary" href="promotions.html">Promotions</a>
       <a class="btn secondary" href="reports.html">Reports</a>
-      <a class="btn secondary active" style="background:#bd0000!important;border-color:#bd0000!important;color:#fff!important;" href="customers.html">Customers</a>
+      <a class="btn secondary active" href="customers.html">Customers</a>
       <a class="btn secondary" href="index.html">View Site</a>
     </nav>
   </div>
@@ -2822,8 +2292,8 @@ header .pst-admin-actions-lock button.btn.danger,
 <div id="adminStatus" style="display:none;">Checking admin access...</div>
 <main>
   <div class="button-row" style="margin-top:0;">
-      <button class="btn" id="refreshBtn">Refresh</button>
-      <button id="exportCsvBtn" class="btn secondary">Export CSV</button>
+      <button id="refreshBtn">Refresh</button>
+      <button id="exportCsvBtn" class="secondary">Export CSV</button>
     </div>
 
   <div class="notice">
@@ -2874,10 +2344,10 @@ header .pst-admin-actions-lock button.btn.danger,
       </div>
     </div>
     <div class="button-row">
-      <button class="btn" id="applyFiltersBtn">Apply Filters</button>
-      <button id="clearFiltersBtn" class="btn secondary">Clear Filters</button>
-      <button id="copyEmailListBtn" class="btn secondary">Copy Eligible Emails</button>
-      <button id="openBlastModalBtn" class="btn secondary">Email Blast List</button>
+      <button id="applyFiltersBtn">Apply Filters</button>
+      <button id="clearFiltersBtn" class="secondary">Clear Filters</button>
+      <button id="copyEmailListBtn" class="secondary">Copy Eligible Emails</button>
+      <button id="openBlastModalBtn" class="secondary">Email Blast List</button>
     </div>
     <div class="status-line" id="filterStatus"></div>
   </section>
@@ -2917,9 +2387,9 @@ header .pst-admin-actions-lock button.btn.danger,
     </p>
     <textarea class="email-output" id="emailOutput" readonly></textarea>
     <div class="button-row">
-      <button class="btn" id="copyBlastEmailsBtn">Copy Emails</button>
-      <button id="downloadBlastEmailsBtn" class="btn secondary">Download TXT</button>
-      <button id="closeBlastModalBtn" class="btn secondary">Close</button>
+      <button id="copyBlastEmailsBtn">Copy Emails</button>
+      <button id="downloadBlastEmailsBtn" class="secondary">Download TXT</button>
+      <button id="closeBlastModalBtn" class="secondary">Close</button>
     </div>
     <div class="status-line" id="blastStatus"></div>
   </div>
@@ -2942,14 +2412,14 @@ header .pst-admin-actions-lock button.btn.danger,
         </label>
       </div>
       <div class="button-row">
-        <button class="btn" id="addStoreCreditBtn">Add Credit</button>
-        <button id="deductStoreCreditBtn" class="btn secondary">Deduct Credit</button>
+        <button id="addStoreCreditBtn">Add Credit</button>
+        <button id="deductStoreCreditBtn" class="secondary">Deduct Credit</button>
       </div>
       <div class="status-line" id="storeCreditStatus"></div>
       <div class="credit-history" id="storeCreditHistory"></div>
     </section>
     <div class="button-row">
-      <button id="closeCustomerModalBtn" class="btn secondary">Close</button>
+      <button id="closeCustomerModalBtn" class="secondary">Close</button>
     </div>
   </div>
 </div>
@@ -3394,7 +2864,7 @@ function renderTable() {
   $("tableBody").innerHTML = filteredCustomers.map((c, index) => `
     <tr>
       ${visibleColumns.map(col => renderCell(c, col.key)).join("")}
-      <td><button class="btn secondary" data-view-index="${index}">View</button></td>
+      <td><button class="secondary" data-view-index="${index}">View</button></td>
     </tr>
   `).join("");
 
