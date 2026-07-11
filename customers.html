@@ -2050,26 +2050,27 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
-<style id="pst-customers-admin-style-sync">
-:root { --blue:#bd0000; --line:#d9e2ec; --muted:#667085; --font:Arial, Helvetica, sans-serif; }
+<style id="pst-customers-github-pill-sync">
+/* Exact customer-control treatment matched to the GitHub inventory jump pills. */
+:root { --blue:#003f9e; --line:#d8dde5; --muted:#596579; --font:Arial, Helvetica, sans-serif; }
 body, input, select, textarea, button, .btn { font-family:Arial, Helvetica, sans-serif; }
 h1 { font-family:Arial, Helvetica, sans-serif; font-size:clamp(24px,3vw,36px); line-height:1.15; text-transform:none; }
 .panel h2, .modal h2 { font-family:Arial, Helvetica, sans-serif; font-size:18px; line-height:1.2; text-transform:none; }
-.control label, .credit-controls label { font-size:12px; font-weight:900; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+.control label, .credit-controls label { font-family:Arial, Helvetica, sans-serif; font-size:12px; font-weight:900; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
 .control input, .control select, .credit-controls input { min-height:40px; border:1px solid var(--line); border-radius:10px; padding:9px 10px; font-size:14px; }
-button, .btn { min-height:40px; padding:10px 13px; border-radius:10px; font-size:14px; line-height:1; font-weight:800; text-transform:none; }
-.badge { display:inline-flex; align-items:center; justify-content:center; padding:5px 9px; min-height:auto; border-radius:999px; font-size:12px; line-height:1.2; font-weight:900; white-space:nowrap; border:1px solid transparent; text-transform:capitalize; }
-.badge.good { color:#0f8a3b; background:rgba(15,138,59,.10); border-color:rgba(15,138,59,.18); }
-.badge.bad { color:#b42318; background:rgba(180,35,24,.10); border-color:rgba(180,35,24,.18); }
-.badge.warn { color:#b7791f; background:rgba(183,121,31,.10); border-color:rgba(183,121,31,.18); }
-.badge.neutral { color:#667085; background:#f3f4f6; border-color:#d9e2ec; }
-.column-toggles label { border-color:var(--line); border-radius:999px; padding:5px 9px; font-size:12px; font-weight:900; }
+main button, main .btn { min-height:36px; padding:8px 14px; border:1px solid #003f9e; border-radius:999px; background:#003f9e; color:#fff; font-size:14px; line-height:1.2; font-weight:700; text-transform:none; }
+main button:hover, main .btn:hover { background:#002f78; border-color:#002f78; }
+main button.secondary, main .btn.secondary { background:#fff; color:#003f9e; border-color:#003f9e; }
+main button.secondary:hover, main .btn.secondary:hover { background:#f4f8ff; }
+.column-toggles { gap:8px; }
+.column-toggles label { display:inline-flex; align-items:center; gap:7px; min-height:36px; border:1px solid #003f9e; border-radius:999px; padding:8px 14px; background:#fff; color:#003f9e; font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:1.2; font-weight:700; }
+.column-toggles label:hover { background:#f4f8ff; }
+.column-toggles input { accent-color:#003f9e; }
+.badge { border-radius:999px; padding:5px 9px; font-family:Arial, Helvetica, sans-serif; font-size:12px; font-weight:900; text-transform:capitalize; }
 .detail-box, .credit-panel { border:1px solid var(--line); border-radius:12px; background:#fbfcfe; }
-.credit-panel h3 { margin:0 0 4px; font-size:16px; font-weight:900; }
+.credit-panel h3 { margin:0 0 4px; font-family:Arial, Helvetica, sans-serif; font-size:16px; font-weight:900; }
 .credit-balance { font-size:24px; font-weight:900; }
-.credit-history-row { font-size:12px; line-height:1.35; }
-.credit-history-row .credit-positive,
-.credit-history-row .credit-negative { display:inline-flex; align-items:center; justify-content:center; width:max-content; padding:5px 9px; border-radius:999px; font-size:12px; font-weight:900; }
+.credit-history-row .credit-positive, .credit-history-row .credit-negative { display:inline-flex; align-items:center; justify-content:center; width:max-content; padding:5px 9px; border-radius:999px; font-size:12px; font-weight:900; }
 .credit-history-row .credit-positive { color:#0f8a3b; background:rgba(15,138,59,.10); border:1px solid rgba(15,138,59,.18); }
 .credit-history-row .credit-negative { color:#b42318; background:rgba(180,35,24,.10); border:1px solid rgba(180,35,24,.18); }
 </style>
