@@ -3311,6 +3311,168 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
+
+<style id="pst-admin-red-outline-pill-final-v3">
+/* FINAL ADMIN PILL RULE
+   - Pills are red outline with red text.
+   - No blue outline.
+   - No solid red fill.
+   - Selected/current pills stay highlighted with a light red tint, not a red fill.
+   - Loads last to override older Codex/header/button rules.
+*/
+:root {
+  --pst-pill-red: #bd0000 !important;
+  --pst-pill-red-soft: rgba(189, 0, 0, .08) !important;
+  --pst-pill-red-soft-strong: rgba(189, 0, 0, .14) !important;
+}
+
+header .actions,
+header .pst-admin-actions-lock,
+.admin-page-actions,
+.button-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+header .actions,
+header .pst-admin-actions-lock {
+  justify-content: flex-end !important;
+}
+
+.admin-page-actions,
+.button-row {
+  justify-content: flex-start !important;
+}
+
+/* Red-outline pill base for header nav and page action buttons. */
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.admin-page-actions .btn,
+.admin-page-actions a.btn,
+.admin-page-actions button.btn,
+.button-row .btn,
+.button-row a.btn,
+.button-row button.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+  border: 1px solid var(--pst-pill-red) !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  color: var(--pst-pill-red) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+
+/* Selected/current/pressed state: highlighted, not filled. */
+header .actions .btn.active,
+header .actions .btn.primary,
+header .actions .btn[aria-pressed="true"],
+header .actions a.btn.active,
+header .actions button.btn.active,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+header .pst-admin-actions-lock .btn[aria-pressed="true"],
+header .pst-admin-actions-lock a.btn.active,
+header .pst-admin-actions-lock button.btn.active,
+.admin-page-actions .btn.active,
+.admin-page-actions .btn.primary,
+.admin-page-actions .btn[aria-pressed="true"],
+.admin-page-actions a.btn.active,
+.admin-page-actions button.btn.active,
+.button-row .btn.active,
+.button-row .btn.primary,
+.button-row .btn[aria-pressed="true"],
+.button-row a.btn.active,
+.button-row button.btn.active {
+  background: var(--pst-pill-red-soft-strong) !important;
+  border-color: var(--pst-pill-red) !important;
+  color: var(--pst-pill-red) !important;
+  box-shadow: inset 0 0 0 1px rgba(189, 0, 0, .18) !important;
+}
+
+/* Hover/focus: temporary highlight only. */
+header .actions .btn:hover,
+header .actions a.btn:hover,
+header .actions button.btn:hover,
+header .pst-admin-actions-lock .btn:hover,
+header .pst-admin-actions-lock a.btn:hover,
+header .pst-admin-actions-lock button.btn:hover,
+.admin-page-actions .btn:hover,
+.admin-page-actions a.btn:hover,
+.admin-page-actions button.btn:hover,
+.button-row .btn:hover,
+.button-row a.btn:hover,
+.button-row button.btn:hover {
+  background: var(--pst-pill-red-soft) !important;
+  border-color: var(--pst-pill-red) !important;
+  color: var(--pst-pill-red) !important;
+}
+
+/* Danger buttons remain red-outline too; no filled button. */
+header .actions .btn.danger,
+header .actions a.btn.danger,
+header .actions button.btn.danger,
+header .pst-admin-actions-lock .btn.danger,
+header .pst-admin-actions-lock a.btn.danger,
+header .pst-admin-actions-lock button.btn.danger,
+.admin-page-actions .btn.danger,
+.admin-page-actions a.btn.danger,
+.admin-page-actions button.btn.danger,
+.button-row .btn.danger,
+.button-row a.btn.danger,
+.button-row button.btn.danger {
+  background: #ffffff !important;
+  border-color: #b42318 !important;
+  color: #b42318 !important;
+}
+
+@media (max-width: 700px) {
+  header .actions,
+  header .pst-admin-actions-lock {
+    justify-content: flex-start !important;
+    gap: 7px !important;
+  }
+
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .admin-page-actions .btn,
+  .admin-page-actions a.btn,
+  .admin-page-actions button.btn,
+  .button-row .btn,
+  .button-row a.btn,
+  .button-row button.btn {
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
+  }
+}
+</style>
 </head><body><div class="sheet">
       <div class="top"><div><div class="brand">PEP SHOP TEXAS</div><div class="sub">Order Fulfillment Sheet</div><div class="small">Generated: ${esc(generated)}</div></div><div><div class="sub">Order</div><div class="order-no">#${esc(orderNumber(order))}</div></div></div>
       <div class="grid"><div class="box"><h3>Customer / Ship To</h3><p><strong>${esc(customerName(order))}</strong><br>${esc(shippingAddress(order))}<br>${esc(customerEmail(order) || "No email")}<br>${esc(customerPhone(order))}</p></div><div class="box"><h3>Order Snapshot</h3><div class="line"><span>Date</span><strong>${esc(fmtDate(order.created_at || order.order_date))}</strong></div><div class="line"><span>Order Status</span><span class="pill">${esc(String(orderStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Payment Status</span><span class="pill">${esc(String(paymentStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Shipping</span><strong>${money(orderShipping(order))}</strong></div><div class="line"><span>Total</span><strong>${money(orderTotal(order))}</strong></div></div></div>
