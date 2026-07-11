@@ -1996,7 +1996,7 @@ button.btn[aria-disabled="true"],
   <nav class="reports-jumpbar no-print" id="reportsTop" aria-label="Reports quick navigation">
     <div class="reports-jumpbar-title">Jump to</div>
     <div class="reports-jumpbar-links">
-      <a href="report-writer.html" data-jump-target="report-writer">Report Writer</a>
+      <a href="report-writer.html">Report Writer</a>
       <a href="#sales-report-card" data-jump-target="sales-report-card">Sales Report</a>
       <a href="#order-report-card" data-jump-target="order-report-card">Order Report</a>
       <a href="#tax-settings-card" data-jump-target="tax-settings-card">Checkout Tax Settings</a>
@@ -3779,6 +3779,8 @@ function setupReportsDashboardNavigation(){
     button.addEventListener("click", () => setReportsCardCollapsed(card, !card.classList.contains("collapsed")));
   });
   document.querySelectorAll(".reports-jumpbar a[data-jump-target]").forEach(link => {
+    const href = link.getAttribute("href") || "";
+    if (!href.startsWith("#")) return;
     link.setAttribute("role", "button");
     syncReportsJumpLinkState(link.dataset.jumpTarget);
     link.addEventListener("click", (event) => {
