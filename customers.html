@@ -326,6 +326,22 @@ td.wrap-text {
   color:#4b5563;
   margin-bottom:5px;
 }
+.credit-panel {
+  margin-top:16px;
+  padding:14px;
+  border:2px solid #111827;
+  border-radius:10px;
+  background:#f8fafc;
+}
+.credit-panel h3 { margin:0 0 4px; }
+.credit-balance { font-size:28px; font-weight:800; margin:4px 0 12px; }
+.credit-controls { display:grid; grid-template-columns:140px 1fr; gap:10px; }
+.credit-controls label { display:block; font-size:12px; font-weight:700; }
+.credit-controls input { width:100%; margin-top:5px; }
+.credit-history { margin-top:12px; font-size:12px; }
+.credit-history-row { display:grid; grid-template-columns:85px 1fr 120px; gap:8px; padding:7px 0; border-top:1px solid var(--line); }
+.credit-positive { color:#047857; font-weight:800; }
+.credit-negative { color:#b91c1c; font-weight:800; }
 @media(max-width:1000px) {
   .controls-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .stats-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
@@ -334,7 +350,8 @@ td.wrap-text {
 @media(max-width:560px) {
   .controls-grid,
   .stats-grid,
-  .detail-grid { grid-template-columns:1fr; }
+  .detail-grid,
+  .credit-controls { grid-template-columns:1fr; }
   h1 { font-size:28px; }
 }
 
@@ -2033,301 +2050,6 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   color: #ffffff;
 }
 </style>
-
-<style id="pst-customers-compact-catalog-pill-style-v1">
-/* PST customers compact catalog pill style
-   Target: same small pill language as catalog On Order / Out.
-   Scope: header links, filter/export/copy/modal buttons, column toggle pills,
-   customer status badges, disabled states, and mobile sizing. */
-:root {
-  --pst-customers-pill-h: 26px;
-  --pst-customers-pill-font: 10px;
-  --pst-customers-pill-weight: 700;
-  --pst-customers-pill-radius: 999px;
-  --pst-customers-pill-pad-x: 10px;
-  --pst-customers-pill-line: #c9ced6;
-  --pst-customers-pill-ink: #101820;
-  --pst-customers-pill-blue: #003f9e;
-  --pst-customers-pill-red: #bd0000;
-  --pst-customers-pill-green: #0c6b3a;
-  --pst-customers-pill-warn: #8a5a00;
-  --pst-customers-pill-danger: #8a1f17;
-}
-
-/* Compact pill base for buttons and status badges. */
-button,
-.btn,
-a.btn,
-button.btn,
-header .actions .btn,
-header .actions a.btn,
-header .actions button.btn,
-header .pst-admin-actions-lock .btn,
-header .pst-admin-actions-lock a.btn,
-header .pst-admin-actions-lock button.btn,
-.button-row button,
-.button-row .btn,
-.modal button,
-.modal .btn,
-td button,
-td .btn,
-.badge,
-.column-toggles label {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  flex: 0 0 auto !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: max-content !important;
-  min-height: var(--pst-customers-pill-h) !important;
-  height: var(--pst-customers-pill-h) !important;
-  margin: 0 !important;
-  padding: 0 var(--pst-customers-pill-pad-x) !important;
-  border: 1px solid currentColor !important;
-  border-radius: var(--pst-customers-pill-radius) !important;
-  background: #ffffff !important;
-  color: var(--pst-customers-pill-ink) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: var(--pst-customers-pill-font) !important;
-  font-weight: var(--pst-customers-pill-weight) !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-align: center !important;
-  text-transform: none !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  vertical-align: middle !important;
-  box-shadow: none !important;
-}
-
-/* Buttons remain clickable; badges are read-only. */
-button,
-.btn,
-a.btn,
-button.btn,
-.column-toggles label {
-  cursor: pointer !important;
-}
-
-.badge {
-  cursor: default !important;
-}
-
-/* Header page links: compact grey-outline pills. */
-header .actions,
-header .pst-admin-actions-lock {
-  gap: 6px !important;
-  height: auto !important;
-  min-height: 30px !important;
-  align-items: center !important;
-}
-
-header .actions .btn.secondary,
-header .pst-admin-actions-lock .btn.secondary {
-  color: var(--pst-customers-pill-ink) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-line) !important;
-}
-
-/* Current page / active states. */
-.btn.active,
-.btn.primary,
-.btn[aria-pressed="true"],
-header .actions .btn.active,
-header .actions .btn.primary,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary {
-  color: #ffffff !important;
-  background: var(--pst-customers-pill-red) !important;
-  border-color: var(--pst-customers-pill-red) !important;
-}
-
-/* Primary plain buttons: compact red outline unless a state class overrides it. */
-button:not(.secondary):not(.danger):not(.success):not(.btn),
-button.btn:not(.secondary):not(.danger):not(.success),
-.btn:not(.secondary):not(.danger):not(.success):not(.active) {
-  color: var(--pst-customers-pill-red) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-red) !important;
-}
-
-/* Secondary buttons: compact grey outline. */
-button.secondary,
-.btn.secondary,
-a.btn.secondary {
-  color: var(--pst-customers-pill-ink) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-line) !important;
-}
-
-/* Danger/success variants keep meaning but stay compact and outlined. */
-button.danger,
-.btn.danger,
-button.btn.danger,
-a.btn.danger {
-  color: var(--pst-customers-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-danger) !important;
-}
-
-button.success,
-.btn.success,
-button.btn.success,
-a.btn.success {
-  color: var(--pst-customers-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-green) !important;
-}
-
-/* Disabled/read-only buttons match compact grey Out style. */
-button:disabled,
-.btn:disabled,
-button.btn:disabled,
-.btn[aria-disabled="true"],
-button[aria-disabled="true"],
-.btn.disabled {
-  color: #6f7680 !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-line) !important;
-  opacity: 1 !important;
-  cursor: not-allowed !important;
-  pointer-events: none !important;
-}
-
-/* Customer badges. */
-.badge.good,
-.badge.subscribed,
-.badge.active,
-.badge.yes {
-  color: var(--pst-customers-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-green) !important;
-}
-
-.badge.bad,
-.badge.opted_out,
-.badge.inactive,
-.badge.no {
-  color: var(--pst-customers-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-danger) !important;
-}
-
-.badge.warn,
-.badge.warning,
-.badge.unknown {
-  color: var(--pst-customers-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-warn) !important;
-}
-
-.badge.neutral {
-  color: #6f7680 !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-line) !important;
-}
-
-/* Column toggles are pills too. */
-.column-toggles {
-  gap: 6px !important;
-}
-
-.column-toggles label {
-  color: var(--pst-customers-pill-blue) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-customers-pill-blue) !important;
-}
-
-.column-toggles label input[type="checkbox"] {
-  width: 12px !important;
-  height: 12px !important;
-  min-height: 12px !important;
-  margin: 0 !important;
-  accent-color: var(--pst-customers-pill-red) !important;
-}
-
-/* Button groups should not create bulky spacing. */
-.button-row {
-  gap: 6px !important;
-  align-items: center !important;
-}
-
-/* Table action buttons and badges stay compact in rows. */
-td button,
-td .btn,
-td .badge {
-  margin-top: 2px !important;
-  margin-bottom: 2px !important;
-}
-
-/* Status text lines remain text, not buttons. */
-.status-line {
-  font-size: 13px !important;
-  font-weight: 400 !important;
-  line-height: 1.35 !important;
-}
-
-/* Mobile: preserve compact pill sizing. */
-@media (max-width: 700px) {
-  button,
-  .btn,
-  a.btn,
-  button.btn,
-  header .actions .btn,
-  header .actions a.btn,
-  header .actions button.btn,
-  header .pst-admin-actions-lock .btn,
-  header .pst-admin-actions-lock a.btn,
-  header .pst-admin-actions-lock button.btn,
-  .button-row button,
-  .button-row .btn,
-  .modal button,
-  .modal .btn,
-  td button,
-  td .btn,
-  .badge,
-  .column-toggles label {
-    min-height: 25px !important;
-    height: 25px !important;
-    padding: 0 9px !important;
-    font-size: 9.5px !important;
-  }
-
-  .button-row,
-  .column-toggles {
-    gap: 5px !important;
-  }
-}
-
-@media (max-width: 390px) {
-  button,
-  .btn,
-  a.btn,
-  button.btn,
-  header .actions .btn,
-  header .actions a.btn,
-  header .actions button.btn,
-  header .pst-admin-actions-lock .btn,
-  header .pst-admin-actions-lock a.btn,
-  header .pst-admin-actions-lock button.btn,
-  .button-row button,
-  .button-row .btn,
-  .modal button,
-  .modal .btn,
-  td button,
-  td .btn,
-  .badge,
-  .column-toggles label {
-    min-height: 24px !important;
-    height: 24px !important;
-    padding: 0 8px !important;
-    font-size: 9px !important;
-  }
-}
-</style>
-
 </head>
 <body>
 <header>
@@ -2460,6 +2182,24 @@ td .badge {
     <h2 id="modalCustomerName">Customer</h2>
     <p class="subhead" id="modalCustomerEmail"></p>
     <div class="detail-grid" id="modalDetails"></div>
+    <section class="credit-panel">
+      <h3>Store Credit</h3>
+      <div class="credit-balance" id="storeCreditBalance">$0.00</div>
+      <div class="credit-controls">
+        <label>Amount
+          <input id="storeCreditAmount" type="number" min="0.01" step="0.01" placeholder="25.00">
+        </label>
+        <label>Reason
+          <input id="storeCreditReason" type="text" maxlength="180" placeholder="Return, service recovery, promotion...">
+        </label>
+      </div>
+      <div class="button-row">
+        <button id="addStoreCreditBtn">Add Credit</button>
+        <button id="deductStoreCreditBtn" class="secondary">Deduct Credit</button>
+      </div>
+      <div class="status-line" id="storeCreditStatus"></div>
+      <div class="credit-history" id="storeCreditHistory"></div>
+    </section>
     <div class="button-row">
       <button id="closeCustomerModalBtn" class="secondary">Close</button>
     </div>
@@ -2489,7 +2229,7 @@ const DEFAULT_COLUMNS = [
   { key:"research_role", label:"Research Role", visible:true },
   { key:"order_count", label:"Orders", visible:true },
   { key:"total_spent", label:"Total Spent", visible:true },
-  { key:"store_credit_balance", label:"Store Credit", visible:true },
+  { key:"store_credit", label:"Store Credit", visible:true },
   { key:"last_order_date", label:"Last Order", visible:true },
   { key:"city_state", label:"City / State", visible:true },
   { key:"created_at", label:"Created", visible:true },
@@ -2501,11 +2241,12 @@ const DEFAULT_COLUMNS = [
 
 let rawProfiles = [];
 let rawOrders = [];
-let rawCredits = [];
+let rawStoreCredit = [];
 let customers = [];
 let filteredCustomers = [];
 let columns = JSON.parse(JSON.stringify(DEFAULT_COLUMNS));
 let sortState = { key:"created_at", dir:"desc" };
+let activeCustomer = null;
 
 function $(id){ return document.getElementById(id); }
 
@@ -2527,6 +2268,11 @@ function escapeHtml(value) {
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
+}
+
+function uuidOrNull(value) {
+  const text = String(value || "").trim();
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(text) ? text : null;
 }
 
 function money(value) {
@@ -2594,24 +2340,6 @@ function deriveSubscription(profile) {
 function buildCustomerRows() {
   const orderByEmail = new Map();
   const orderByUserId = new Map();
-  const creditByEmail = new Map();
-  const creditByUserId = new Map();
-
-  for (const credit of rawCredits) {
-    const email = normalizeEmail(pick(credit, ["customer_email", "email"]));
-    const userId = String(pick(credit, ["user_id", "customer_id", "profile_id"]));
-    const remaining = Number(pick(credit, ["remaining_amount", "amount"]) || 0);
-    const status = String(pick(credit, ["status"]) || "").toLowerCase();
-    if (!["available", "active", ""].includes(status) || remaining <= 0) continue;
-
-    function addCredit(map, key) {
-      if (!key) return;
-      map.set(key, (map.get(key) || 0) + remaining);
-    }
-
-    addCredit(creditByEmail, email);
-    addCredit(creditByUserId, userId);
-  }
 
   for (const order of rawOrders) {
     const email = normalizeEmail(pick(order, ["customer_email", "email", "billing_email"]));
@@ -2638,11 +2366,20 @@ function buildCustomerRows() {
     addToMap(orderByUserId, userId);
   }
 
+  const creditByUser = new Map();
+  const creditByEmail = new Map();
+  rawStoreCredit.forEach(transaction => {
+    const amount = Number(transaction.amount_cents || 0) / 100;
+    const userId = String(transaction.customer_user_id || "");
+    const email = normalizeEmail(transaction.customer_email);
+    if(userId) creditByUser.set(userId, (creditByUser.get(userId) || 0) + amount);
+    if(email) creditByEmail.set(email, (creditByEmail.get(email) || 0) + amount);
+  });
+
   const rows = rawProfiles.map(profile => {
     const email = normalizeEmail(pick(profile, ["email", "customer_email"]));
     const userId = String(pick(profile, ["user_id", "id", "customer_id", "profile_id"]));
     const orderSummary = orderByEmail.get(email) || orderByUserId.get(userId) || { count:0, spent:0, last:null, statuses:[] };
-    const creditBalance = Number(creditByEmail.get(email) || creditByUserId.get(userId) || 0);
     const subscription = deriveSubscription(profile);
 
     const firstName = pick(profile, ["first_name", "firstname", "given_name"]);
@@ -2675,7 +2412,7 @@ function buildCustomerRows() {
       email_eligible: subscription.eligible && !!email,
       order_count: orderSummary.count,
       total_spent: orderSummary.spent,
-      store_credit_balance: creditBalance,
+      store_credit: creditByUser.get(userId) ?? creditByEmail.get(email) ?? 0,
       last_order_date: orderSummary.last,
       city_state: cityState,
       created_at: pick(profile, ["created_at", "inserted_at", "registered_at"]),
@@ -2702,7 +2439,7 @@ function buildCustomerRows() {
       email_eligible:false,
       order_count:summary.count,
       total_spent:summary.spent,
-      store_credit_balance:Number(creditByEmail.get(email) || 0),
+      store_credit:creditByEmail.get(email) || 0,
       last_order_date:summary.last,
       city_state:"",
       created_at:"",
@@ -2753,10 +2490,10 @@ async function loadCustomers() {
   const isAdmin = await checkAdminAccess();
   if (!isAdmin) return;
 
-  const [profilesResult, ordersResult, creditsResult] = await Promise.all([
+  const [profilesResult, ordersResult, creditResult] = await Promise.all([
     supabaseClient.from("customer_profiles").select("*").order("created_at", { ascending:false }),
     supabaseClient.from("orders").select("*").order("created_at", { ascending:false }),
-    supabaseClient.from("customer_credits").select("*").order("created_at", { ascending:false })
+    supabaseClient.from("store_credit_transactions").select("id,customer_user_id,customer_email,amount_cents,reason,created_by_email,created_at").order("created_at", { ascending:false })
   ]);
 
   if (profilesResult.error) {
@@ -2769,19 +2506,15 @@ async function loadCustomers() {
     return;
   }
 
-  if (creditsResult.error) {
-    console.warn("Store credit load failed", creditsResult.error);
-    rawCredits = [];
-  } else {
-    rawCredits = creditsResult.data || [];
-  }
-
   rawProfiles = (profilesResult.data || []).map(stripUnsafeFields);
   rawOrders = ordersResult.data || [];
+  rawStoreCredit = creditResult.error ? [] : (creditResult.data || []);
 
   buildCustomerRows();
   applyFilters();
-  $("loadStatus").textContent = "Loaded " + customers.length + " customer records.";
+  $("loadStatus").textContent = creditResult.error
+    ? "Loaded " + customers.length + " customers. Store credit needs the Supabase setup SQL before it can be used."
+    : "Loaded " + customers.length + " customer records.";
 }
 
 function stripUnsafeFields(profile) {
@@ -2929,7 +2662,7 @@ function renderCell(c, key) {
     return `<td><span class="badge ${escapeHtml(c.subscription_class)}">${escapeHtml(c.subscription)}</span></td>`;
   }
 
-  if (key === "total_spent" || key === "store_credit_balance") value = money(value);
+  if (key === "total_spent" || key === "store_credit") value = money(value);
   if (key === "created_at" || key === "last_order_date") value = formatDate(value);
 
   const wrapClass = ["notes", "tags", "research_role"].includes(key) ? "wrap-text" : "";
@@ -2953,7 +2686,7 @@ function exportCsv() {
   const headers = visibleColumns.map(c => c.label);
   const rows = filteredCustomers.map(c => visibleColumns.map(col => {
     let value = c[col.key];
-    if (col.key === "total_spent" || col.key === "store_credit_balance") value = Number(value || 0).toFixed(2);
+    if (col.key === "total_spent" || col.key === "store_credit") value = Number(value || 0).toFixed(2);
     if (col.key === "created_at" || col.key === "last_order_date") value = formatDate(value);
     return csvEscape(value);
   }));
@@ -2990,7 +2723,65 @@ function closeBlastModal() {
   $("blastModal").classList.remove("active");
 }
 
+function creditTransactionsForCustomer(c) {
+  const userId = uuidOrNull(pick(c?.raw || {}, ["user_id", "id", "customer_id", "profile_id"]));
+  const email = normalizeEmail(c?.email);
+  return rawStoreCredit.filter(transaction =>
+    (userId && String(transaction.customer_user_id || "") === userId) ||
+    (!userId && email && normalizeEmail(transaction.customer_email) === email)
+  );
+}
+
+function renderStoreCredit(c) {
+  $("storeCreditBalance").textContent = money(c.store_credit || 0);
+  const transactions = creditTransactionsForCustomer(c);
+  $("storeCreditHistory").innerHTML = transactions.length ? transactions.slice(0, 12).map(transaction => {
+    const amount = Number(transaction.amount_cents || 0) / 100;
+    const amountClass = amount >= 0 ? "credit-positive" : "credit-negative";
+    const amountText = `${amount >= 0 ? "+" : ""}${money(amount)}`;
+    return `<div class="credit-history-row"><span class="${amountClass}">${escapeHtml(amountText)}</span><span>${escapeHtml(transaction.reason || "")}</span><span>${escapeHtml(formatDate(transaction.created_at))}</span></div>`;
+  }).join("") : '<div class="muted">No store-credit transactions yet.</div>';
+}
+
+async function adjustStoreCredit(direction) {
+  if(!activeCustomer) return;
+  const amount = Number($("storeCreditAmount").value);
+  const reason = $("storeCreditReason").value.trim();
+  if(!Number.isFinite(amount) || amount <= 0){
+    $("storeCreditStatus").innerHTML = '<span class="error">Enter an amount greater than zero.</span>';
+    return;
+  }
+  if(reason.length < 3){
+    $("storeCreditStatus").innerHTML = '<span class="error">Enter a reason of at least 3 characters.</span>';
+    return;
+  }
+  const cents = Math.round(amount * 100) * direction;
+  const userId = uuidOrNull(pick(activeCustomer.raw || {}, ["user_id", "id", "customer_id", "profile_id"]));
+  $("storeCreditStatus").textContent = direction > 0 ? "Adding credit..." : "Deducting credit...";
+  $("addStoreCreditBtn").disabled = true;
+  $("deductStoreCreditBtn").disabled = true;
+  const { error } = await supabaseClient.rpc("admin_adjust_store_credit", {
+    p_customer_user_id: userId,
+    p_customer_email: activeCustomer.email,
+    p_amount_cents: cents,
+    p_reason: reason
+  });
+  $("addStoreCreditBtn").disabled = false;
+  $("deductStoreCreditBtn").disabled = false;
+  if(error){
+    $("storeCreditStatus").innerHTML = '<span class="error">' + escapeHtml(error.message || "Store-credit update failed.") + '</span>';
+    return;
+  }
+  const customerKey = activeCustomer.id;
+  const customerEmail = activeCustomer.email;
+  await loadCustomers();
+  const refreshed = customers.find(customer => customer.id === customerKey || (customerEmail && customer.email === customerEmail));
+  if(refreshed) openCustomerModal(refreshed);
+  $("storeCreditStatus").innerHTML = '<span class="success">Store credit updated and recorded.</span>';
+}
+
 function openCustomerModal(c) {
+  activeCustomer = c;
   $("modalCustomerName").textContent = c.name || "Customer";
   $("modalCustomerEmail").textContent = c.email || "No email on file";
 
@@ -3002,7 +2793,7 @@ function openCustomerModal(c) {
     ["Research Role Confirmed", formatDate(c.research_role_confirmed_at)],
     ["Orders", c.order_count],
     ["Total Spent", money(c.total_spent)],
-    ["Available Store Credit", money(c.store_credit_balance)],
+    ["Store Credit", money(c.store_credit)],
     ["Last Order", formatDate(c.last_order_date)],
     ["Created", formatDate(c.created_at)],
     ["City / State", c.city_state],
@@ -3019,10 +2810,16 @@ function openCustomerModal(c) {
     </div>
   `).join("");
 
+  $("storeCreditAmount").value = "";
+  $("storeCreditReason").value = "";
+  $("storeCreditStatus").textContent = "";
+  renderStoreCredit(c);
+
   $("customerModal").classList.add("active");
 }
 
 function closeCustomerModal() {
+  activeCustomer = null;
   $("customerModal").classList.remove("active");
 }
 
@@ -3060,6 +2857,8 @@ function wireEvents() {
   });
   $("closeBlastModalBtn")?.addEventListener("click", closeBlastModal);
   $("closeCustomerModalBtn")?.addEventListener("click", closeCustomerModal);
+  $("addStoreCreditBtn")?.addEventListener("click", () => adjustStoreCredit(1));
+  $("deductStoreCreditBtn")?.addEventListener("click", () => adjustStoreCredit(-1));
 
   $("blastModal")?.addEventListener("click", e => { if (e.target.id === "blastModal") closeBlastModal(); });
   $("customerModal")?.addEventListener("click", e => { if (e.target.id === "customerModal") closeCustomerModal(); });
