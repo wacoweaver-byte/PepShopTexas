@@ -159,7 +159,7 @@
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden !important;
-  background: #fff !important;
+  background: #000 !important;
 }
 
 #pst-hero-v3 img {
@@ -169,20 +169,11 @@
   max-width: none !important;
   max-height: none !important;
   margin: 0 !important;
-  object-fit: cover !important;
-  object-position: center 48% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
 }
 
 @media (max-width: 1180px) {
-  #pst-hero-v3 {
-    background: #000 !important;
-  }
-
-  #pst-hero-v3 img {
-    object-fit: contain !important;
-    object-position: center top !important;
-  }
-
   #pst-header-v3 {
     grid-template-columns: 1fr auto !important;
     min-height: 0 !important;
