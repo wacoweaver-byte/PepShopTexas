@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V23_PO_VENDOR_ITEM_SORTABLE_HEADERS -->
 <!-- PST_INVENTORY_PATCH_V22_VENDOR_LEAD_TIME_EXPECTED_ARRIVAL_FIX -->
 <!-- PST_INVENTORY_PATCH_V21_REORDER_SELECTED_TO_PO_DRAFT -->
 <!-- PST_INVENTORY_PATCH_V20_SIMPLE_STOCK_FILTER -->
@@ -603,6 +604,12 @@ header .header-actions .btn.secondary.active {
 .incoming-table { width:100%; border-collapse:collapse; min-width:1250px; }
 .incoming-table th, .incoming-table td { border-bottom:1px solid var(--line); padding:9px 7px; text-align:left; vertical-align:middle; font-size:13px; }
 .incoming-table th { background:#fff; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-size:11px; }
+.incoming-sortable { cursor:pointer; user-select:none; white-space:nowrap; }
+.incoming-sortable:hover { color:var(--blue); background:#f7fbff; }
+.incoming-sortable::after { content:" ↕"; color:#9aa6b2; font-size:10px; }
+.incoming-sortable.sort-asc::after { content:" ▲"; color:var(--blue); }
+.incoming-sortable.sort-desc::after { content:" ▼"; color:var(--blue); }
+.vendor-item-number { font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
 .incoming-pill { display:inline-flex; align-items:center; justify-content:center; padding:5px 8px; border-radius:999px; font-size:11px; font-weight:900; text-transform:uppercase; white-space:nowrap; border:1px solid transparent; }
 .incoming-ordered { background:#f4f8ff; color:#003f9e; border-color:#d9e7ff; }
 .incoming-in_transit { background:#fff7e6; color:#a35b00; border-color:#ffd58a; }
@@ -2955,6 +2962,7 @@ td .inventory-readonly-value {
           <thead>
             <tr>
               <th>Product</th>
+              <th>Vendor Item #</th>
               <th>Qty</th>
               <th>Kits</th>
               <th>Kit Cost<br>(10 vials)</th>
@@ -2963,7 +2971,7 @@ td .inventory-readonly-value {
               <th></th>
             </tr>
           </thead>
-          <tbody id="incomingDraftBody"><tr><td colspan="7" class="note">No lines added yet.</td></tr></tbody>
+          <tbody id="incomingDraftBody"><tr><td colspan="8" class="note">No lines added yet.</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -2972,20 +2980,21 @@ td .inventory-readonly-value {
       <table class="incoming-table">
         <thead>
           <tr>
-            <th>Product</th>
-            <th>Qty Ordered</th>
-            <th>Date Ordered</th>
-            <th>Days On Order</th>
-            <th>Expected Arrival</th>
-            <th>Supplier / Tracking</th>
-            <th>Cost / Paid</th>
-            <th>Status</th>
-            <th>User</th>
+            <th class="incoming-sortable" data-incoming-sort="product">Product</th>
+            <th class="incoming-sortable" data-incoming-sort="vendor_item">Vendor Item #</th>
+            <th class="incoming-sortable" data-incoming-sort="qty">Qty Ordered</th>
+            <th class="incoming-sortable" data-incoming-sort="ordered_at">Date Ordered</th>
+            <th class="incoming-sortable" data-incoming-sort="days">Days On Order</th>
+            <th class="incoming-sortable" data-incoming-sort="expected">Expected Arrival</th>
+            <th class="incoming-sortable" data-incoming-sort="supplier">Supplier / Tracking</th>
+            <th class="incoming-sortable" data-incoming-sort="cost">Cost / Paid</th>
+            <th class="incoming-sortable" data-incoming-sort="status">Status</th>
+            <th class="incoming-sortable" data-incoming-sort="user">User</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="incomingInventoryBody">
-          <tr><td colspan="10" class="note">Loading incoming inventory...</td></tr>
+          <tr><td colspan="11" class="note">Loading incoming inventory...</td></tr>
         </tbody>
       </table>
     </div>
@@ -3120,6 +3129,7 @@ let incomingUsesSupabase = false;
 let incomingAuditVisible = false;
 let editingIncomingId = null;
 let incomingDraftLines = [];
+let incomingSort = { key:"ordered_at", direction:"desc" };
 let vendors = [];
 let vendorsAvailable = false;
 const PST_INCOMING_LEAD_DAYS = 10;
@@ -3453,6 +3463,7 @@ function mergeInventoryCatalogLabel(item) {
     _catalog_display_name: catalog.display_name || item.display_name || null,
     _catalog_strength: catalog.strength || item.strength || null,
     _catalog_price: Number(catalog.price ?? item.price ?? 0),
+    _catalog_admin_only: catalog.admin_only ?? catalog.admin_only_field ?? catalog.admin_notes ?? catalog.vendor_item_number ?? catalog.vendor_item_no ?? catalog.vendor_sku ?? catalog.supplier_item_number ?? null,
     display_name: catalog.display_name || item.display_name,
     strength: catalog.strength || item.strength,
     price: Number(catalog.price ?? item.price ?? 0),
@@ -4000,6 +4011,58 @@ function incomingProductLabel(item) {
   return sku ? `${fullLabel} — ${sku}` : fullLabel;
 }
 
+function incomingVendorItemNumber(itemOrRow) {
+  if (!itemOrRow) return "";
+  const direct = itemOrRow.vendor_item_number ?? itemOrRow.vendor_item_no ?? itemOrRow.vendor_sku ?? itemOrRow.supplier_item_number ?? itemOrRow.admin_only ?? itemOrRow.admin_only_field ?? itemOrRow.admin_notes ?? itemOrRow._catalog_admin_only;
+  if (cleanText(direct)) return cleanText(direct);
+  const productId = itemOrRow.product_id ?? itemOrRow.productId ?? itemOrRow.id;
+  const productKey = cleanText(itemOrRow.product_key || itemOrRow.product_sku || itemOrRow.sku).toLowerCase();
+  const item = allItems.find(candidate =>
+    (productId && String(candidate.id) === String(productId)) ||
+    (productKey && cleanText(candidate._catalog_product_key || candidate.product_key || candidate.sku).toLowerCase() === productKey)
+  );
+  if (!item) return "";
+  const catalog = productCatalogForInventoryItem(item) || {};
+  return cleanText(catalog.admin_only ?? catalog.admin_only_field ?? catalog.admin_notes ?? catalog.vendor_item_number ?? catalog.vendor_item_no ?? catalog.vendor_sku ?? catalog.supplier_item_number ?? item._catalog_admin_only);
+}
+
+function incomingSortValue(row, key) {
+  const orderedAt = row.ordered_at || row.created_at || 0;
+  if (key === "product") return row.product_name || row.display_name || row.product_key || "";
+  if (key === "vendor_item") return incomingVendorItemNumber(row);
+  if (key === "qty") return Number(row.ordered_quantity || 0);
+  if (key === "ordered_at") return new Date(orderedAt).getTime() || 0;
+  if (key === "days") return daysBetween(orderedAt);
+  if (key === "expected") return new Date(incomingExpectedArrivalForRow(row)).getTime() || 0;
+  if (key === "supplier") return row.vendor_name || row.supplier_name || row.supplier || row.tracking_number || "";
+  if (key === "cost") return incomingTotalCost(row);
+  if (key === "status") return incomingStatusLabel(row.status || "ordered");
+  if (key === "user") return row.notes || "";
+  return "";
+}
+
+function compareIncomingRows(a, b) {
+  const av = incomingSortValue(a, incomingSort.key);
+  const bv = incomingSortValue(b, incomingSort.key);
+  let result;
+  if (typeof av === "number" && typeof bv === "number") result = av - bv;
+  else result = inventoryCompareText(av, bv);
+  return incomingSort.direction === "asc" ? result : -result;
+}
+
+function bindIncomingSortableHeaders() {
+  document.querySelectorAll(".incoming-sortable").forEach(header => {
+    const key = header.dataset.incomingSort;
+    header.classList.toggle("sort-asc", incomingSort.key === key && incomingSort.direction === "asc");
+    header.classList.toggle("sort-desc", incomingSort.key === key && incomingSort.direction === "desc");
+    header.onclick = () => {
+      if (incomingSort.key === key) incomingSort.direction = incomingSort.direction === "asc" ? "desc" : "asc";
+      else incomingSort = { key, direction:"asc" };
+      renderIncomingInventory();
+    };
+  });
+}
+
 function selectedIncomingProduct() {
   const id = $("incomingProductSelect")?.value || "";
   return allItems.find(item => String(item.id) === String(id)) || null;
@@ -4252,7 +4315,7 @@ function renderIncomingDraftLines() {
   const discount = incomingDiscountAmount();
   const totalKits = incomingDraftTotalKits();
   if (!incomingDraftLines.length) {
-    body.innerHTML = `<tr><td colspan="7" class="note">No lines added yet. Single-line orders can still be saved directly, or add multiple lines before saving.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="8" class="note">No lines added yet. Single-line orders can still be saved directly, or add multiple lines before saving.</td></tr>`;
     if (summary) summary.textContent = "No lines added yet. Add one or more product lines, then save the incoming order.";
     return;
   }
@@ -4263,6 +4326,7 @@ function renderIncomingDraftLines() {
     const landedUnit = incomingLandedUnitCost(line.qty, effectiveKitCost, allocatedShipping);
     return `<tr>
       <td><strong>${esc(line.productName)}</strong><div class="note">${esc(line.productKey || "")}</div></td>
+      <td><span class="vendor-item-number">${esc(incomingVendorItemNumber(line) || "—")}</span></td>
       <td>${esc(line.qty)}</td>
       <td>${kits.toFixed(2)}</td>
       <td><strong>${incomingMoney(effectiveKitCost)}</strong><div class="note">Auto from cost/vial × 10</div></td>
@@ -4296,7 +4360,7 @@ function incomingAuditText(row) {
 function incomingEditRowHTML(row) {
   const id = esc(row.id);
   return `<tr class="incoming-edit-row" data-editing-incoming-id="${id}">
-    <td colspan="10">
+    <td colspan="11">
       <div class="incoming-edit-panel">
         <div class="incoming-edit-grid">
           <label>Date Ordered<input data-incoming-edit="${id}" data-field="ordered_at" type="date" value="${esc(incomingDateInputValue(row.ordered_at || row.created_at))}"></label>
@@ -4321,7 +4385,7 @@ function renderIncomingInventory() {
   populateIncomingProductSelect();
   const body = $("incomingInventoryBody");
   if (!body) return;
-  const rows = (incomingInventoryRows || []).slice().sort((a,b) => new Date(b.ordered_at || b.created_at || 0) - new Date(a.ordered_at || a.created_at || 0));
+  const rows = (incomingInventoryRows || []).slice().sort(compareIncomingRows);
   const openRows = rows.filter(incomingRowOpen);
   const today = new Date();
   const dueSoon = openRows.filter(row => {
@@ -4342,7 +4406,8 @@ function renderIncomingInventory() {
   if ($("incomingOverdueCount")) $("incomingOverdueCount").textContent = String(overdue.length);
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="10" class="note">No incoming inventory orders recorded yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="11" class="note">No incoming inventory orders recorded yet.</td></tr>`;
+    bindIncomingSortableHeaders();
     return;
   }
   body.innerHTML = rows.map(row => {
@@ -4362,6 +4427,7 @@ function renderIncomingInventory() {
     const auditClass = incomingAuditVisible ? "incoming-audit open" : "incoming-audit";
     const baseRow = `<tr data-incoming-id="${esc(row.id)}">
       <td><strong>${esc(row.product_name || row.display_name || row.product_key || "Product")}</strong><div class="note">${esc(row.product_key || "")}</div></td>
+      <td><span class="vendor-item-number">${esc(incomingVendorItemNumber(row) || "—")}</span><div class="note">Products: Admin Only</div></td>
       <td><strong>${esc(qty)}</strong></td>
       <td>${esc(fmtShortDate(orderedAt))}<div class="note">Static entry timestamp</div></td>
       <td><strong>${esc(days)}</strong> day${days === 1 ? "" : "s"}</td>
@@ -4385,6 +4451,8 @@ function renderIncomingInventory() {
       ? baseRow + incomingEditRowHTML(row)
       : baseRow;
   }).join("");
+
+  bindIncomingSortableHeaders();
 
   document.querySelectorAll(".edit-incoming-btn").forEach(btn => btn.addEventListener("click", () => {
     editingIncomingId = btn.dataset.incomingId;
