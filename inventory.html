@@ -1,4 +1,5 @@
 <!-- PST_INVENTORY_PATCH_V23_PO_VENDOR_ITEM_SORTABLE_HEADERS -->
+<!-- PST_INVENTORY_PATCH_V24_RECEIVED_7_DAY_HISTORY -->
 <!-- PST_INVENTORY_PATCH_V22_VENDOR_LEAD_TIME_EXPECTED_ARRIVAL_FIX -->
 <!-- PST_INVENTORY_PATCH_V21_REORDER_SELECTED_TO_PO_DRAFT -->
 <!-- PST_INVENTORY_PATCH_V20_SIMPLE_STOCK_FILTER -->
@@ -2888,6 +2889,7 @@ td .inventory-readonly-value {
       <div class="actions">
         <button class="btn secondary" id="refreshIncomingBtn" type="button">Refresh Incoming</button>
         <button class="btn secondary" id="toggleIncomingAuditBtn" type="button">Show Audit Trail</button>
+        <button class="btn secondary" id="toggleReceivedHistoryBtn" type="button">Show Received History</button>
         <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="incomingInventoryCard" aria-expanded="false">Open</button>
       </div>
     </div>
@@ -3127,6 +3129,7 @@ let dirtyIds = new Set();
 let incomingInventoryRows = [];
 let incomingUsesSupabase = false;
 let incomingAuditVisible = false;
+let incomingReceivedHistoryVisible = false;
 let editingIncomingId = null;
 let incomingDraftLines = [];
 let incomingSort = { key:"ordered_at", direction:"desc" };
@@ -4001,6 +4004,19 @@ function incomingRowOpen(row) {
   return !["received", "cancelled"].includes(s);
 }
 
+function incomingReceivedWithinHistoryWindow(row, days = 7) {
+  const status = String(row.status || "").toLowerCase();
+  if (status !== "received") return true;
+  if (incomingReceivedHistoryVisible) return true;
+  if (!row.received_at) return true;
+  const received = new Date(row.received_at);
+  if (Number.isNaN(received.getTime())) return true;
+  const cutoff = new Date();
+  cutoff.setHours(0, 0, 0, 0);
+  cutoff.setDate(cutoff.getDate() - Number(days || 7));
+  return received >= cutoff;
+}
+
 function incomingProductLabel(item) {
   if (!item) return "Product";
   const catalog = productCatalogForInventoryItem(item) || {};
@@ -4385,8 +4401,9 @@ function renderIncomingInventory() {
   populateIncomingProductSelect();
   const body = $("incomingInventoryBody");
   if (!body) return;
-  const rows = (incomingInventoryRows || []).slice().sort(compareIncomingRows);
-  const openRows = rows.filter(incomingRowOpen);
+  const allRows = (incomingInventoryRows || []).slice().sort(compareIncomingRows);
+  const rows = allRows.filter(row => incomingReceivedWithinHistoryWindow(row, 7));
+  const openRows = allRows.filter(incomingRowOpen);
   const today = new Date();
   const dueSoon = openRows.filter(row => {
     const expected = new Date(incomingExpectedArrivalForRow(row));
@@ -4401,7 +4418,7 @@ function renderIncomingInventory() {
   if ($("incomingOnOrderCount")) $("incomingOnOrderCount").textContent = String(openRows.length);
   if ($("incomingOnOrderQty")) $("incomingOnOrderQty").textContent = String(openRows.reduce((sum,row)=>sum + Number(row.ordered_quantity || 0),0));
   if ($("incomingOpenCost")) $("incomingOpenCost").textContent = incomingMoney(openRows.reduce((sum,row)=>sum + incomingTotalCost(row),0));
-  if ($("incomingReceivedCost")) $("incomingReceivedCost").textContent = incomingMoney(rows.filter(row => String(row.status || "").toLowerCase() === "received").reduce((sum,row)=>sum + incomingTotalCost(row),0));
+  if ($("incomingReceivedCost")) $("incomingReceivedCost").textContent = incomingMoney(allRows.filter(row => String(row.status || "").toLowerCase() === "received").reduce((sum,row)=>sum + incomingTotalCost(row),0));
   if ($("incomingDueSoonCount")) $("incomingDueSoonCount").textContent = String(dueSoon.length);
   if ($("incomingOverdueCount")) $("incomingOverdueCount").textContent = String(overdue.length);
 
@@ -5319,6 +5336,11 @@ function wireEvents() {
   if ($("toggleIncomingAuditBtn")) $("toggleIncomingAuditBtn")?.addEventListener("click", () => {
     incomingAuditVisible = !incomingAuditVisible;
     $("toggleIncomingAuditBtn").textContent = incomingAuditVisible ? "Hide Audit Trail" : "Show Audit Trail";
+    renderIncomingInventory();
+  });
+  if ($("toggleReceivedHistoryBtn")) $("toggleReceivedHistoryBtn")?.addEventListener("click", () => {
+    incomingReceivedHistoryVisible = !incomingReceivedHistoryVisible;
+    $("toggleReceivedHistoryBtn").textContent = incomingReceivedHistoryVisible ? "Hide Received History" : "Show Received History";
     renderIncomingInventory();
   });
 
