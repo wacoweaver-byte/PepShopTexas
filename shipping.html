@@ -484,51 +484,56 @@
 </footer>
 <script id="pst-account-header-state-script">
 (() => {
-  const escapeHtml = (value) =>
-    String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+  const formatLink = (link) => {
+    if (!link || link.querySelector(".pst-account-copy")) return true;
 
-  const formatAccountLink = (link) => {
-    if (!link || link.dataset.pstAccountFormatting === "true") return;
+    const text = String(link.textContent || "").trim().replace(/\s+/g, " ");
+    let primary = "";
+    let secondary = "";
 
-    const rawText = String(link.textContent || "").trim().replace(/\s+/g, " ");
-    const isHello = /^hello\s+/i.test(rawText);
-    const isLogin = /^login$/i.test(rawText);
+    if (/^hello\s+/i.test(text)) {
+      primary = `Hello ${text.replace(/^hello\s+/i, "").trim()}`;
+      secondary = "MY ACCOUNT";
+    } else if (/^login$/i.test(text)) {
+      primary = "LOGIN";
+      secondary = "ACCOUNT";
+    } else {
+      return false;
+    }
 
-    if (!isHello && !isLogin) return;
-
-    const primary = isHello
-      ? `Hello ${rawText.replace(/^hello\s+/i, "").trim()}`
-      : "LOGIN";
-    const secondary = isHello ? "MY ACCOUNT" : "ACCOUNT";
-
-    const currentPrimary = link.querySelector(".pst-account-copy strong")?.textContent?.trim();
-    const currentSecondary = link.querySelector(".pst-account-copy small")?.textContent?.trim();
-    if (currentPrimary === primary && currentSecondary === secondary) return;
-
-    link.dataset.pstAccountFormatting = "true";
     link.innerHTML =
-      `<span class="pst-account-copy"><strong>${escapeHtml(primary)}</strong>` +
-      `<small>${escapeHtml(secondary)}</small></span>`;
-    delete link.dataset.pstAccountFormatting;
+      `<span class="pst-account-copy"><strong>${primary}</strong>` +
+      `<small>${secondary}</small></span>`;
+    return true;
   };
 
-  const initialize = () => {
-    document.querySelectorAll("[data-account-link]").forEach((link) => {
-      formatAccountLink(link);
-      const observer = new MutationObserver(() => formatAccountLink(link));
-      observer.observe(link, { childList: true, subtree: true, characterData: true });
+  const run = () => {
+    const links = document.querySelectorAll("[data-account-link]");
+    let complete = links.length > 0;
+
+    links.forEach((link) => {
+      if (!formatLink(link)) complete = false;
     });
+
+    return complete;
+  };
+
+  const start = () => {
+    if (run()) return;
+
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      attempts += 1;
+      if (run() || attempts >= 50) {
+        window.clearInterval(timer);
+      }
+    }, 100);
   };
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initialize, { once: true });
+    document.addEventListener("DOMContentLoaded", start, { once: true });
   } else {
-    initialize();
+    start();
   }
 })();
 </script>
