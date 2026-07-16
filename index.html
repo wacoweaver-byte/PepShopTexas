@@ -8,7 +8,7 @@
 <link href="favicon.ico" rel="icon" sizes="any"/>
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3"/>
+<link href="apple-touch-icon.png" rel="apple-touch-icon"/>
 <link href="site.webmanifest" rel="manifest"/>
 <meta content="#bd0000" name="theme-color"/>
 <link href="styles.css?v=45" rel="stylesheet"/>
@@ -175,10 +175,14 @@
 
 @media (max-width: 1180px) {
   #pst-hero-v3 {
+    height: auto !important;
+    max-height: none !important;
     background: #000 !important;
   }
 
   #pst-hero-v3 img {
+    width: 100% !important;
+    height: auto !important;
     object-fit: contain !important;
     object-position: center top !important;
   }
@@ -226,11 +230,9 @@
     height: 40px !important;
   }
 
-  #pst-hero-v3 { height: 330px !important; }
 }
 
 @media (max-width: 760px) {
-  #pst-hero-v3 { height: 230px !important; max-height: 230px !important; }
 
   #pst-header-v3 {
     grid-template-columns: 1fr !important;
@@ -292,11 +294,9 @@
     height: 38px !important;
   }
 
-  #pst-hero-v3 { height: 230px !important; }
 }
 
 @media (max-width: 420px) {
-  #pst-hero-v3 { height: 200px !important; max-height: 200px !important; }
 
   #pst-header-v3 .pst-logo img {
     width: 112px !important;
@@ -315,7 +315,6 @@
     display: none !important;
   }
 
-  #pst-hero-v3 { height: 200px !important; }
 }
 </style></head>
 <body data-page="home">
@@ -327,10 +326,10 @@
 <a href="contact.html">CONTACT</a>
 </nav>
 <span aria-hidden="true" class="pst-logo"></span>
-<div class="pst-right">
-<a class="pst-account" href="account.html">
+<div class="pst-right main-nav">
+<a class="pst-account" href="login.html?redirect=index.html">
 <span aria-hidden="true" class="pst-account-icon">◯</span>
-<span><strong>HELLO JIMMIE</strong><small>MY ACCOUNT</small></span>
+<span><strong>LOGIN</strong><small>ACCOUNT</small></span>
 </a>
 <a class="pst-admin" href="admin.html">ADMIN</a>
 <form action="catalog.html" class="pst-search" data-product-search-form="" method="get" role="search">
