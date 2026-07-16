@@ -2568,21 +2568,19 @@ td .inventory-readonly-value {
   .pst-admin-nav-wrap {
     width: 100% !important;
     max-width: 1540px !important;
-    min-height: 60px !important;
+    min-height: 40px !important;
     margin: 0 auto !important;
-    padding: 8px 22px !important;
+    padding: 2px 22px !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: center !important;
-    gap: 30px !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
     position: relative !important;
   }
 
   .pst-admin-logo-link {
-    position: absolute !important;
-    left: 22px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
+    position: static !important;
+    transform: none !important;
     flex: 0 0 auto !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -2592,8 +2590,8 @@ td .inventory-readonly-value {
 
   .pst-admin-header-logo {
     display: block !important;
-    width: 133px !important;
-    height: 36px !important;
+    width: 112px !important;
+    height: 30px !important;
     max-width: none !important;
     object-fit: contain !important;
   }
@@ -2602,7 +2600,7 @@ td .inventory-readonly-value {
     min-width: 0 !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: flex-end !important;
     gap: 24px !important;
     flex-wrap: wrap !important;
   }
@@ -2641,7 +2639,7 @@ td .inventory-readonly-value {
 
   @media (max-width: 980px) {
     .pst-admin-nav-wrap {
-      align-items: center !important;
+      align-items: stretch !important;
       flex-direction: column !important;
       gap: 8px !important;
       padding: 12px 18px !important;
@@ -2654,7 +2652,7 @@ td .inventory-readonly-value {
 
     .pst-admin-nav {
       width: 100% !important;
-      justify-content: center !important;
+      justify-content: flex-start !important;
       gap: 18px !important;
     }
   }
