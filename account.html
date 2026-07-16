@@ -678,6 +678,24 @@ main.wrap .btn.disabled {
       overflow: visible !important;
     }
   }
+
+  .pst-cart-count {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    margin-left: 6px !important;
+    padding: 0 6px !important;
+    border-radius: 999px !important;
+    background: #fff !important;
+    color: #000 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+  }
+
 </style>
 </head>
 <body>
@@ -705,7 +723,7 @@ main.wrap .btn.disabled {
         <a href="contact.html">CONTACT</a>
         <a href="account.html">Hello Jimmie</a>
         <a href="admin.html">ADMIN</a>
-        <a href="cart.html">CART <span data-cart-count>0</span></a>
+        <a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
       </nav>
     </div>
   </div>
