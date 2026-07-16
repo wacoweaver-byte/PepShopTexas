@@ -15,23 +15,259 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=40"></script>
   <script defer src="catalog-inventory-fix.js?v=6"></script>
+<style id="pst-customer-header-final">
+  .pst-customer-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    height: 141px !important;
+    min-height: 141px !important;
+    max-height: 141px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #000 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #262626 !important;
+    box-shadow: none !important;
+  }
+
+  .pst-customer-header * {
+    box-sizing: border-box !important;
+  }
+
+  .pst-customer-header-inner {
+    width: 100% !important;
+    height: 141px !important;
+    min-height: 141px !important;
+    max-height: 141px !important;
+    margin: 0 !important;
+    padding: 0 24px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    overflow: hidden !important;
+  }
+
+  .pst-customer-logo-link {
+    flex: 0 0 auto !important;
+    height: 141px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    line-height: 0 !important;
+    text-decoration: none !important;
+  }
+
+  .pst-customer-header-logo {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+  }
+
+  .pst-customer-header-right {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    height: 141px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 22px !important;
+    overflow: hidden !important;
+  }
+
+  .pst-customer-search {
+    flex: 0 1 280px !important;
+    width: 280px !important;
+    min-width: 220px !important;
+    height: 42px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    background: #fff !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+  }
+
+  .pst-customer-search input {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    height: 42px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    background: #fff !important;
+    color: #111 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 14px !important;
+  }
+
+  .pst-customer-search button {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    height: 42px !important;
+    margin: 0 !important;
+    padding: 9px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    display: grid !important;
+    place-items: center !important;
+    cursor: pointer !important;
+  }
+
+  .pst-customer-search svg {
+    width: 22px !important;
+    height: 22px !important;
+    fill: none !important;
+    stroke: #000 !important;
+    stroke-width: 2 !important;
+  }
+
+  .pst-customer-nav {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    height: 141px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 22px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+  }
+
+  .pst-customer-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .pst-customer-nav a {
+    flex: 0 0 auto !important;
+    height: 141px !important;
+    min-height: 141px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #fff !important;
+    background: transparent !important;
+    border: 0 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+  }
+
+  .pst-customer-nav a:hover,
+  .pst-customer-nav a:focus-visible {
+    color: #fff !important;
+    text-decoration: underline !important;
+    text-underline-offset: 4px !important;
+  }
+
+  @media (max-width: 1180px) {
+    .pst-customer-header-inner {
+      padding: 0 16px !important;
+      gap: 16px !important;
+    }
+
+    .pst-customer-header-right {
+      gap: 16px !important;
+    }
+
+    .pst-customer-search {
+      flex-basis: 230px !important;
+      width: 230px !important;
+      min-width: 190px !important;
+    }
+
+    .pst-customer-nav {
+      gap: 16px !important;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .pst-customer-header-inner {
+      padding: 0 12px !important;
+      gap: 12px !important;
+    }
+
+    .pst-customer-header-right {
+      gap: 12px !important;
+      overflow-x: auto !important;
+      scrollbar-width: none !important;
+    }
+
+    .pst-customer-header-right::-webkit-scrollbar {
+      display: none !important;
+    }
+
+    .pst-customer-search {
+      flex: 0 0 210px !important;
+      width: 210px !important;
+      min-width: 210px !important;
+    }
+
+    .pst-customer-nav {
+      overflow: visible !important;
+    }
+  }
+</style>
 </head>
 <body data-page="products">
-  <header class="site-header compact-header">
-    <a class="brand" href="index.html"><span class="brand-main">PEP SHOP</span><span class="brand-sub">TEXAS</span></a>
-    <nav class="main-nav">
-      <a href="catalog.html">PEPTIDES A-Z</a>
-      <a href="catalog.html?category=Stack">TOP STACKS</a>
-      <a href="faq.html">FAQ</a>
-      <a href="contact.html">CONTACT</a>
-      <a href="account.html">ACCOUNT</a>
-      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
-    </nav>
-    <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
-      <input name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-      <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
-    </form>
-  </header>
+  <header class="pst-customer-header">
+  <div class="pst-customer-header-inner">
+    <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
+      <img src="customer facing header logo.png" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
+    </a>
+
+    <div class="pst-customer-header-right">
+      <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
+        <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
+        <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+        <button type="submit" aria-label="Search">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
+          </svg>
+        </button>
+      </form>
+
+      <nav class="pst-customer-nav" aria-label="Main navigation">
+        <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
+        <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">CONTACT</a>
+        <a href="account.html">Hello Jimmie</a>
+        <a href="admin.html">ADMIN</a>
+        <a href="cart.html">CART <span data-cart-count>0</span></a>
+      </nav>
+    </div>
+  </div>
+</header>
   <main class="catalog-page">
     <section class="page-heading"><p>Research products</p><h1>Peptides A-Z</h1></section>
     <section class="catalog-toolbar">
