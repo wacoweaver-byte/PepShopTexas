@@ -2568,16 +2568,21 @@ td .inventory-readonly-value {
   .pst-admin-nav-wrap {
     width: 100% !important;
     max-width: 1540px !important;
-    min-height: 70px !important;
+    min-height: 60px !important;
     margin: 0 auto !important;
-    padding: 10px 22px !important;
+    padding: 8px 22px !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
     gap: 30px !important;
+    position: relative !important;
   }
 
   .pst-admin-logo-link {
+    position: absolute !important;
+    left: 22px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
     flex: 0 0 auto !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -2597,7 +2602,7 @@ td .inventory-readonly-value {
     min-width: 0 !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
     gap: 24px !important;
     flex-wrap: wrap !important;
   }
@@ -2636,14 +2641,20 @@ td .inventory-readonly-value {
 
   @media (max-width: 980px) {
     .pst-admin-nav-wrap {
-      align-items: flex-start !important;
+      align-items: center !important;
       flex-direction: column !important;
       gap: 8px !important;
       padding: 12px 18px !important;
     }
 
+    .pst-admin-logo-link {
+      position: static !important;
+      transform: none !important;
+    }
+
     .pst-admin-nav {
       width: 100% !important;
+      justify-content: center !important;
       gap: 18px !important;
     }
   }
