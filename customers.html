@@ -2680,21 +2680,33 @@ td .inventory-readonly-value {
     }
   }
 </style>
+<style id="pst-admin-black-pill-final">
+  /*
+    Locked admin pill system:
+    - Existing font, font size, height, padding, and radius are preserved.
+    - Default state: white background, black text, black outline.
+    - Hover/focus: light gray background, black text, black outline.
+    - Active/selected/open state: black background, white text, black outline.
+    - Semantic success/warning/danger controls retain their status colors.
+  */
 
-<style id="pst-black-pill-system">
-  /* Unified pill, tab, and jump-link styling. */
-  .btn,
-  a.btn,
-  button.btn,
-  .pill,
+  /* Standard admin action pills and jump links. */
+  .btn:not(.success):not(.warning):not(.danger),
+  a.btn:not(.success):not(.warning):not(.danger),
+  button.btn:not(.success):not(.warning):not(.danger),
   .step,
+  .jump-link,
+  .inventory-jump-link,
   .collapse-toggle,
   .inventory-collapse-toggle,
-  .inventory-jump-link,
-  .jump-link,
   .sort-btn,
-  .status-pill,
-  .reorder-guide-item,
+  .field-order-btn,
+  .row-audit-btn,
+  .edit-incoming-btn,
+  .close-incoming-edit-btn,
+  .incoming-line-remove,
+  .pill.info,
+  .status-pill:not(.good):not(.warn):not(.danger),
   .center-card,
   .report-center-card {
     border-color: #000 !important;
@@ -2703,36 +2715,47 @@ td .inventory-readonly-value {
     box-shadow: none !important;
   }
 
-  .btn:hover,
-  a.btn:hover,
-  button.btn:hover,
+  /* Hover and keyboard focus retain the same dimensions and typography. */
+  .btn:not(.success):not(.warning):not(.danger):hover,
+  a.btn:not(.success):not(.warning):not(.danger):hover,
+  button.btn:not(.success):not(.warning):not(.danger):hover,
   .step:hover,
+  .jump-link:hover,
+  .inventory-jump-link:hover,
   .collapse-toggle:hover,
   .inventory-collapse-toggle:hover,
-  .inventory-jump-link:hover,
-  .jump-link:hover,
   .sort-btn:hover,
-  .status-pill:hover,
+  .field-order-btn:hover,
+  .row-audit-btn:hover,
+  .edit-incoming-btn:hover,
+  .close-incoming-edit-btn:hover,
+  .incoming-line-remove:hover,
+  .pill.info:hover,
+  .status-pill:not(.good):not(.warn):not(.danger):hover,
   .center-card:hover,
   .report-center-card:hover {
     border-color: #000 !important;
     color: #000 !important;
-    background: #f3f3f3 !important;
+    background: #f2f2f2 !important;
   }
 
-  .btn.active,
-  a.btn.active,
-  button.btn.active,
-  .btn[aria-pressed="true"],
-  .btn[aria-current="page"],
-  .pill.active,
+  /* Persistent selected/open/current state. */
+  .btn.active:not(.success):not(.warning):not(.danger),
+  a.btn.active:not(.success):not(.warning):not(.danger),
+  button.btn.active:not(.success):not(.warning):not(.danger),
+  .btn[aria-pressed="true"]:not(.success):not(.warning):not(.danger),
+  .btn[aria-expanded="true"]:not(.success):not(.warning):not(.danger),
+  .btn[aria-current="page"]:not(.success):not(.warning):not(.danger),
   .step.active,
-  .collapse-toggle.active,
-  .inventory-collapse-toggle.active,
-  .inventory-jump-link.active,
   .jump-link.active,
+  .inventory-jump-link.active,
+  .collapse-toggle.active,
+  .collapse-toggle[aria-expanded="true"],
+  .inventory-collapse-toggle.active,
+  .inventory-collapse-toggle[aria-expanded="true"],
   .sort-btn.active,
-  .status-pill.active,
+  .pill.info.active,
+  .status-pill.active:not(.good):not(.warn):not(.danger),
   .center-card.active,
   .report-center-card.active {
     border-color: #000 !important;
@@ -2741,32 +2764,35 @@ td .inventory-readonly-value {
     box-shadow: none !important;
   }
 
-  .btn.active *,
-  a.btn.active *,
-  button.btn.active *,
-  .pill.active *,
+  /* Keep text/icons white inside selected controls. */
+  .btn.active:not(.success):not(.warning):not(.danger) *,
+  .btn[aria-pressed="true"]:not(.success):not(.warning):not(.danger) *,
+  .btn[aria-expanded="true"]:not(.success):not(.warning):not(.danger) *,
+  .btn[aria-current="page"]:not(.success):not(.warning):not(.danger) *,
   .step.active *,
-  .collapse-toggle.active *,
-  .inventory-collapse-toggle.active *,
-  .inventory-jump-link.active *,
   .jump-link.active *,
+  .inventory-jump-link.active *,
+  .collapse-toggle.active *,
+  .collapse-toggle[aria-expanded="true"] *,
+  .inventory-collapse-toggle.active *,
+  .inventory-collapse-toggle[aria-expanded="true"] *,
   .sort-btn.active *,
-  .status-pill.active *,
+  .pill.info.active *,
+  .status-pill.active:not(.good):not(.warn):not(.danger) *,
   .center-card.active *,
   .report-center-card.active * {
     color: #fff !important;
   }
 
-  .btn:focus-visible,
-  a.btn:focus-visible,
-  button.btn:focus-visible,
+  /* Accessible focus ring without changing pill dimensions. */
+  .btn:not(.success):not(.warning):not(.danger):focus-visible,
   .step:focus-visible,
+  .jump-link:focus-visible,
+  .inventory-jump-link:focus-visible,
   .collapse-toggle:focus-visible,
   .inventory-collapse-toggle:focus-visible,
-  .inventory-jump-link:focus-visible,
-  .jump-link:focus-visible,
   .sort-btn:focus-visible,
-  .status-pill:focus-visible,
+  .pill.info:focus-visible,
   .center-card:focus-visible,
   .report-center-card:focus-visible {
     outline: 2px solid #000 !important;
