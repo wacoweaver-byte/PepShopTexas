@@ -326,15 +326,10 @@ const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PU
   }
 
 </style>
-<style id="pst-account-header-state-style">
-  [data-account-link] {
+<style id="pst-account-link-clean-style">
+  .main-nav a[data-account-link],
+  .pst-account[data-account-link] {
     display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .pst-account-copy {
-    display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
     justify-content: center !important;
@@ -342,28 +337,21 @@ const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PU
     line-height: 1 !important;
   }
 
-  .pst-account-copy strong {
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    color: #fff !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
+  .main-nav a[data-account-link]::after,
+  .pst-account[data-account-link]::after {
+    content: "MY ACCOUNT";
+    display: block;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
   }
 
-  .pst-account-copy small {
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    color: #fff !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 11px !important;
-    font-weight: 500 !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
+  .main-nav a[data-account-link][href^="login.html"]::after,
+  .pst-account[data-account-link][href^="login.html"]::after {
+    content: "ACCOUNT";
   }
 </style>
 </head><body><header class="pst-customer-header">
@@ -388,7 +376,7 @@ const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PU
         <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
         <a href="faq.html">FAQ</a>
         <a href="contact.html">CONTACT</a>
-        <a href="account.html" data-account-link><span class="pst-account-copy"><strong>LOGIN</strong><small>ACCOUNT</small></span></a>
+        <a href="account.html" data-account-link>LOGIN</a>
 <a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
       </nav>
     </div>
@@ -530,60 +518,4 @@ registerForm.addEventListener('submit', async (e) => {
     submitButton.textContent = 'Create Account';
   }
 });
-</script>
-<script id="pst-account-header-state-script">
-(() => {
-  const formatLink = (link) => {
-    if (!link || link.querySelector(".pst-account-copy")) return true;
-
-    const text = String(link.textContent || "").trim().replace(/\s+/g, " ");
-    let primary = "";
-    let secondary = "";
-
-    if (/^hello\s+/i.test(text)) {
-      primary = `Hello ${text.replace(/^hello\s+/i, "").trim()}`;
-      secondary = "MY ACCOUNT";
-    } else if (/^login$/i.test(text)) {
-      primary = "LOGIN";
-      secondary = "ACCOUNT";
-    } else {
-      return false;
-    }
-
-    link.innerHTML =
-      `<span class="pst-account-copy"><strong>${primary}</strong>` +
-      `<small>${secondary}</small></span>`;
-    return true;
-  };
-
-  const run = () => {
-    const links = document.querySelectorAll("[data-account-link]");
-    let complete = links.length > 0;
-
-    links.forEach((link) => {
-      if (!formatLink(link)) complete = false;
-    });
-
-    return complete;
-  };
-
-  const start = () => {
-    if (run()) return;
-
-    let attempts = 0;
-    const timer = window.setInterval(() => {
-      attempts += 1;
-      if (run() || attempts >= 50) {
-        window.clearInterval(timer);
-      }
-    }, 100);
-  };
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start, { once: true });
-  } else {
-    start();
-  }
-})();
-</script>
-</body></html>
+</script></body></html>
