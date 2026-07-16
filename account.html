@@ -697,6 +697,46 @@ main.wrap .btn.disabled {
   }
 
 </style>
+<style id="pst-account-header-state-style">
+  [data-account-link] {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .pst-account-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    line-height: 1 !important;
+  }
+
+  .pst-account-copy strong {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #fff !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .pst-account-copy small {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #fff !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+</style>
 </head>
 <body>
 <header class="pst-customer-header">
@@ -721,7 +761,7 @@ main.wrap .btn.disabled {
         <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
         <a href="faq.html">FAQ</a>
         <a href="contact.html">CONTACT</a>
-        <a href="login.html?redirect=account.html">LOGIN</a>
+        <a href="account.html" data-account-link><span class="pst-account-copy"><strong>LOGIN</strong><small>ACCOUNT</small></span></a>
 <a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
       </nav>
     </div>
@@ -1358,6 +1398,56 @@ document.addEventListener("DOMContentLoaded", () => {
   wireProfileEditor();
   loadAccount();
 });
+</script>
+<script id="pst-account-header-state-script">
+(() => {
+  const escapeHtml = (value) =>
+    String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+  const formatAccountLink = (link) => {
+    if (!link || link.dataset.pstAccountFormatting === "true") return;
+
+    const rawText = String(link.textContent || "").trim().replace(/\s+/g, " ");
+    const isHello = /^hello\s+/i.test(rawText);
+    const isLogin = /^login$/i.test(rawText);
+
+    if (!isHello && !isLogin) return;
+
+    const primary = isHello
+      ? `Hello ${rawText.replace(/^hello\s+/i, "").trim()}`
+      : "LOGIN";
+    const secondary = isHello ? "MY ACCOUNT" : "ACCOUNT";
+
+    const currentPrimary = link.querySelector(".pst-account-copy strong")?.textContent?.trim();
+    const currentSecondary = link.querySelector(".pst-account-copy small")?.textContent?.trim();
+    if (currentPrimary === primary && currentSecondary === secondary) return;
+
+    link.dataset.pstAccountFormatting = "true";
+    link.innerHTML =
+      `<span class="pst-account-copy"><strong>${escapeHtml(primary)}</strong>` +
+      `<small>${escapeHtml(secondary)}</small></span>`;
+    delete link.dataset.pstAccountFormatting;
+  };
+
+  const initialize = () => {
+    document.querySelectorAll("[data-account-link]").forEach((link) => {
+      formatAccountLink(link);
+      const observer = new MutationObserver(() => formatAccountLink(link));
+      observer.observe(link, { childList: true, subtree: true, characterData: true });
+    });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize, { once: true });
+  } else {
+    initialize();
+  }
+})();
 </script>
 </body>
 </html>
