@@ -1493,21 +1493,145 @@ button.btn[aria-disabled="true"],
 }
 </style>
 
-</head><body><header>
-  <div class="topbar pst-admin-topbar-lock">
-    <a class="brand pst-admin-brand-lock" href="admin.html" aria-label="Pep Shop Texas Admin Home">
-      <span class="pst-admin-logo-mark">PST</span>
-      <span class="pst-admin-title-lock"><strong>PEP Shop Texas</strong><small>Promotions</small></span>
+<style id="pst-admin-header-final">
+  .pst-admin-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    overflow: hidden !important;
+    background: #000 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #262626 !important;
+    box-shadow: none !important;
+  }
+
+  .pst-admin-nav-wrap {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-height: 40px !important;
+    margin: 0 auto !important;
+    padding: 0 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    position: relative !important;
+  }
+
+  .pst-admin-logo-link {
+    position: static !important;
+    transform: none !important;
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-header-logo {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    object-fit: contain !important;
+  }
+
+  .pst-admin-nav {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 24px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .pst-admin-nav a {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #fff !important;
+    font: 800 14px/1 Arial, Helvetica, sans-serif !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+  }
+
+  .pst-admin-nav a:hover,
+  .pst-admin-nav a:focus-visible {
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-nav a.active::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 3px !important;
+    height: 2px !important;
+    background: #fff !important;
+  }
+
+  @media (max-width: 980px) {
+    .pst-admin-nav-wrap {
+      height: 40px !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      padding: 0 14px !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 16px !important;
+    }
+
+    .pst-admin-nav {
+      flex: 1 1 auto !important;
+      flex-wrap: nowrap !important;
+      justify-content: flex-end !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scrollbar-width: none !important;
+    }
+
+    .pst-admin-nav::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pst-admin-nav-wrap {
+      padding: 0 10px !important;
+      gap: 12px !important;
+    }
+
+    .pst-admin-nav {
+      gap: 16px !important;
+    }
+  }
+</style>
+</head><body><header class="pst-admin-header">
+  <div class="pst-admin-nav-wrap">
+    <a class="pst-admin-logo-link" href="admin.html" aria-label="Pep Shop Texas Admin Home">
+      <img src="admin header logo.png" alt="PST" class="pst-admin-header-logo">
     </a>
-    <nav class="actions pst-admin-actions-lock" aria-label="Admin navigation">
-      <a class="btn secondary" href="admin.html">Orders</a>
-      <a class="btn secondary" href="inventory.html">Inventory</a>
-      <a class="btn secondary" href="products.html">Products</a>
-      <a class="btn secondary" href="discounts.html">Discounts</a>
-      <a class="btn secondary active" style="background:#bd0000!important;border-color:#bd0000!important;color:#fff!important;" href="promotions.html">Promotions</a>
-      <a class="btn secondary" href="reports.html">Reports</a>
-      <a class="btn secondary" href="customers.html">Customers</a>
-      <a class="btn secondary" href="index.html">View Site</a>
+    <nav class="pst-admin-nav" aria-label="Admin navigation">
+      <a href="admin.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="products.html">Products</a>
+      <a href="discounts.html">Discounts</a>
+      <a href="promotions.html" class="active">Promotions</a>
+      <a href="reports.html">Reports</a>
+      <a href="customers.html">Customers</a>
+      <a href="index.html">View Site</a>
     </nav>
   </div>
 </header><main><div id="status" class="status">Checking admin access...</div><div class="grid"><section class="card"><h2>Create / Edit Promotion</h2><div class="card-body"><div class="fields"><div class="field full"><label>Promotion ID</label><select id="promoSelect"><option value="">New promotion</option></select></div><div class="field"><label>Title</label><input id="title"></div><div class="field"><label>Badge / Label</label><input id="badge" placeholder="Limited Time"></div><div class="field full"><label>Body</label><textarea id="body"></textarea></div><div class="field"><label>Button Text</label><input id="button_text"></div><div class="field"><label>Button Link</label><input id="button_link" placeholder="register.html"></div><div class="field"><label>Linked Discount Code</label><select id="discount_id"><option value="">No linked discount</option></select><div class="field-note">Dropdown pulls from Discount Manager. No manual code typing.</div></div><div class="field"><label>Auto-Apply After Account Creation</label><select id="auto_apply_discount"><option value="false">No</option><option value="true">Yes</option></select></div><div class="field full"><label>Image URL</label><input id="image_url"></div><div class="field"><label>Start Date/Time</label><input id="starts_at" type="datetime-local"></div><div class="field"><label>End Date/Time</label><input id="ends_at" type="datetime-local"></div><div class="field"><label>Sort Order</label><input id="sort_order" type="number" value="100"></div><div class="field"><label>Alignment</label><select id="text_align"><option>center</option><option>left</option><option>right</option></select></div><div class="field"><label>Title Size</label><input id="title_size" type="number" value="28"></div><div class="field"><label>Body Size</label><input id="body_size" type="number" value="15"></div><div class="field"><label>Text Color</label><input id="text_color" type="color" value="#101820"></div><div class="field"><label>Background</label><input id="background_color" type="color" value="#ffffff"></div><div class="field"><label>Accent Color</label><input id="accent_color" type="color" value="#003f9e"></div><div class="field full"><label>Formatting</label><div class="inline"><label><input id="is_active" type="checkbox"> Active</label><label><input id="title_bold" type="checkbox" checked> Title Bold</label><label><input id="title_italic" type="checkbox"> Title Italic</label><label><input id="title_underline" type="checkbox"> Title Underline</label><label><input id="body_bold" type="checkbox"> Body Bold</label><label><input id="body_italic" type="checkbox"> Body Italic</label><label><input id="body_underline" type="checkbox"> Body Underline</label></div></div><div class="field full"><div class="inline"><button class="btn success" id="saveBtn">Save Promotion</button><button class="btn secondary" id="newBtn">New</button><button class="btn danger" id="deleteBtn">Delete</button></div></div></div></div></section><section class="card"><h2>Live Preview</h2><div class="card-body"><div id="preview" class="preview"></div></div></section><section class="card full"><h2>Saved Promotions</h2><div class="card-body"><div id="promoList" class="list"></div></div></section></div></main><script>

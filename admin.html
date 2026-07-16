@@ -1,3817 +1,627 @@
-<!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
-<!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
 <!DOCTYPE html>
-<!-- PST_ADMIN_PATCH_V13_DB_AUDIT_LOG -->
-<!-- PST_ADMIN_PATCH_V12_HISTORY_WHO_DID_WHAT -->
-<!-- PST_ADMIN_PATCH_V11_FULFILLMENT_NO_AUDIT_NOTES -->
-<!-- PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT -->
-<!-- PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL -->
-<!-- PST_ADMIN_PATCH_V8_ORDER_DASHBOARD -->
-<!-- PST_ADMIN_PATCH_V7_FORCE_DELETE_TEST_ORDERS -->
-<!-- PST_ADMIN_PATCH_V5_NO_TRACKING_REQUIRED -->
-<!-- PST_ADMIN_PATCH_V4_PAYMENT_INSTRUCTIONS_VISIBILITY -->
-<!-- PST_ADMIN_PATCH_V1_ORDER_STATUS_ATTENTION -->
-<!-- PST_ADMIN_PATCH_V2_ORDER_RECEIVED_RESEND -->
-<!-- PST_ADMIN_PATCH_V3_PAYMENT_METHOD_VISIBILITY -->
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pep Shop Texas | Orders Management</title>
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#bd0000"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{--blue:#bd0000;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}header{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--border);box-shadow:0 3px 18px rgba(16,24,32,.04)}.topbar{max-width:1540px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;text-transform:uppercase}.brand-mark{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#8f0000);color:#fff;display:grid;place-items:center;font-size:16px}.brand small{display:block;color:#596579;font-size:12px;line-height:1.2;font-weight:700;text-transform:none}.actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.btn,a.btn,button.btn{min-height:40px;padding:10px 13px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:14px}.btn.secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}.btn.success{background:var(--success)}.btn.warning{background:var(--warning)}.btn.danger{background:var(--danger)}.btn:disabled{opacity:.55;cursor:not-allowed}main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}h1{margin:0 0 6px;font-size:clamp(24px,3vw,36px)}h2{margin:0;font-size:18px}.subtitle{margin:0;color:var(--muted);line-height:1.4}.status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted);min-height:42px}.status.good{color:var(--success);border-color:rgba(15,138,59,.25);background:rgba(15,138,59,.06)}.status.bad{color:var(--danger);border-color:rgba(180,35,24,.25);background:rgba(180,35,24,.06)}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.card-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.card-body{padding:16px}.filters{display:grid;grid-template-columns:1.15fr .72fr .72fr .72fr .72fr auto;gap:10px;width:100%;align-items:end}.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted)}input,select,textarea{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}textarea{min-height:84px;resize:vertical}.bulk-bar{padding:12px 16px;border-bottom:1px solid var(--border);background:#f9fbfd;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}.bulk-left{display:flex;align-items:center;gap:8px;font-weight:900}.bulk-left input,.row-check{width:18px;height:18px;min-height:18px;cursor:pointer}.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bulk-actions .btn{padding:8px 10px;min-height:35px;font-size:13px}.table-wrap{overflow:auto;resize:vertical;min-height:360px;height:520px;max-height:78vh;position:relative}
-.table-wrap::-webkit-resizer{background:linear-gradient(135deg,transparent 0 45%,#98a2b3 45% 55%,transparent 55% 100%)}
-#detailCard{position:sticky;top:88px;max-height:calc(100vh - 110px);overflow:auto}
-table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:14px}th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}tr.order-row{cursor:pointer}tr.order-row:hover{background:#f7fbff}tr.active{background:rgba(189,0,0,.08)}.muted{color:var(--muted);font-size:13px}.pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid transparent;text-transform:capitalize}.pill.pending,.pill.awaiting_payment{color:var(--warning);background:rgba(183,121,31,.1);border-color:rgba(183,121,31,.18)}.pill.paid,.pill.complete,.pill.shipped,.pill.delivered{color:var(--success);background:rgba(15,138,59,.1);border-color:rgba(15,138,59,.18)}.pill.processing,.pill.packed{color:var(--blue);background:rgba(189,0,0,.1);border-color:rgba(189,0,0,.18)}.pill.cancelled,.pill.rejected,.pill.out_of_stock,.pill.refunded,.pill.failed,.pill.inventory_failed{color:var(--danger);background:rgba(180,35,24,.1);border-color:rgba(180,35,24,.18)}.detail-empty{padding:34px 20px;text-align:center;color:var(--muted);line-height:1.5}.detail-section{border-bottom:1px solid var(--border);padding:16px}.detail-section:last-child{border-bottom:0}.detail-section h3{margin:0 0 12px;font-size:16px}.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kv{padding:10px;border:1px solid var(--border);border-radius:12px;background:#fbfcfe;word-break:break-word}.kv strong{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}.item-list{display:flex;flex-direction:column;gap:10px}.item{border:1px solid var(--border);border-radius:12px;padding:11px;background:#fbfcfe}.item-top{display:flex;justify-content:space-between;gap:12px;font-weight:900}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.note{background:#fff8e6;border:1px solid rgba(183,121,31,.24);color:#7a4a00;border-radius:12px;padding:11px;line-height:1.45;font-size:14px}.lock-banner{margin:12px 0;padding:12px;border-radius:12px;border:1px solid rgba(183,121,31,.35);background:#fff8e6;color:#7a4a00;line-height:1.45;font-size:14px}.lock-banner strong{display:block;margin-bottom:4px}.override-panel{margin-top:12px;padding:12px;border:1px solid rgba(180,35,24,.25);background:rgba(180,35,24,.055);border-radius:12px}.override-check{display:flex;align-items:flex-start;gap:10px;font-weight:900;color:var(--danger);text-transform:none;letter-spacing:0}.override-check input{width:18px;min-height:18px;margin-top:1px}.override-panel textarea{margin-top:8px;min-height:64px}.locked-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid rgba(183,121,31,.28);color:#7a4a00;background:#fff8e6;text-transform:uppercase;letter-spacing:.04em}.audit-list{display:grid;gap:9px}.audit-item{border:1px solid var(--border);background:#fbfcfe;border-radius:12px;padding:10px 11px;line-height:1.35}.audit-item strong{display:block;margin-bottom:3px}.email-box{margin-top:12px;padding:13px;border:1px solid rgba(189,0,0,.22);background:rgba(189,0,0,.055);border-radius:12px}.email-box h4{margin:0 0 8px;color:var(--blue);font-size:15px}.email-box p{margin:0 0 12px;color:#24445c;line-height:1.45;font-size:13px;font-weight:700}.tracking-link{display:inline-flex;margin-top:7px;color:var(--blue);font-weight:900;text-decoration:none}.tracking-link:hover{text-decoration:underline}.payment-method-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap;border:1px solid rgba(189,0,0,.22);color:var(--blue);background:rgba(189,0,0,.08);text-transform:capitalize}.payment-method-pill.venmo{color:#bd0000;background:rgba(189,0,0,.12);border-color:rgba(189,0,0,.3)}.tracking-exception-check{display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid rgba(189,0,0,.22);background:rgba(189,0,0,.055);border-radius:12px;font-weight:900;color:#24445c;text-transform:none;letter-spacing:0}.tracking-exception-check input{width:18px;min-height:18px;margin-top:1px}
-
-/* PST_ADMIN_PATCH_V1_ORDER_STATUS_ATTENTION */
-.attention-summary{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);background:#fbfcfe}
-.attention-card{border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px;cursor:pointer;box-shadow:0 6px 16px rgba(16,24,32,.045)}
-.attention-card:hover{border-color:var(--blue);background:#f7fbff}
-.attention-card.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(189,0,0,.13)}
-.attention-card strong{display:block;font-size:22px;line-height:1;color:var(--dark);margin-bottom:5px}
-.attention-card span{display:block;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
-.attention-card.danger strong{color:var(--danger)}
-.attention-card.warning strong{color:var(--warning)}
-.attention-card.success strong{color:var(--success)}
-.attention-reason{font-size:12px;color:var(--muted);line-height:1.3;max-width:180px}
-.attention-reason strong{display:block;color:var(--danger);font-size:12px;margin-bottom:2px}
-.problem-banner{margin:12px 0;padding:12px;border-radius:12px;border:1px solid rgba(180,35,24,.25);background:rgba(180,35,24,.055);color:#7a211a;line-height:1.45;font-size:14px}
-.problem-banner strong{display:block;margin-bottom:4px}
-@media(max-width:1100px){.attention-summary{grid-template-columns:1fr 1fr}}
-@media(max-width:700px){.attention-summary{grid-template-columns:1fr}}
-@media(max-width:1100px){.grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}#detailCard{position:static;max-height:none;overflow:visible}}@media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.filters,.edit-grid,.kv-grid,.bulk-bar{grid-template-columns:1fr}.bulk-actions{justify-content:flex-start}.page-title{flex-direction:column}}
-  
-/* PST UNIFIED ADMIN HEADER - APPROVED LOGO + MATCHING FONT/SIZE */
-header .topbar {
-  max-width: 1540px !important;
-  margin: 0 auto !important;
-  padding: 14px 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 14px !important;
-}
-header .brand {
-  display: flex !important;
-  align-items: center !important;
-  gap: 16px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-weight: 900 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-}
-header .pst-master-admin-logo {
-  height: 54px !important;
-  width: auto !important;
-  max-width: 230px !important;
-  display: block !important;
-  object-fit: contain !important;
-}
-header .pst-master-page-label {
-  color: #596579 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 16px !important;
-  line-height: 1.15 !important;
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-}
-header .actions {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 8px !important;
-  flex-wrap: wrap !important;
-}
-header .actions .btn,
-header .actions a.btn,
-header .actions button.btn {
-  min-height: 40px !important;
-  height: 40px !important;
-  padding: 10px 13px !important;
-  border-radius: 10px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 14px !important;
-  line-height: 1 !important;
-  font-weight: 800 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 7px !important;
-  text-decoration: none !important;
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>PEP Shop Texas</title>
+<link href="favicon.ico" rel="icon" sizes="any"/>
+<link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3"/>
+<link href="site.webmanifest" rel="manifest"/>
+<meta content="#bd0000" name="theme-color"/>
+<link href="styles.css?v=45" rel="stylesheet"/>
+<script defer="" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer="" src="app.js?v=39"></script>
+<style id="pst-hero-integration-v3">
+/* Fully isolated PST header/hero integration. */
+#pst-header-v3 {
   box-sizing: border-box !important;
-  white-space: nowrap !important;
-}
-header .actions .btn.secondary {
-  background: #ffffff !important;
-  color: #101820 !important;
-  border: 1px solid #d9e2ec !important;
-}
-header .actions .btn.secondary.active {
-  background: #bd0000 !important;
-  color: #ffffff !important;
-  border-color: #bd0000 !important;
-}
-header .actions .btn.danger {
-  background: #b42318 !important;
-  color: #ffffff !important;
-  border: 1px solid #b42318 !important;
-}
-@media (max-width: 640px) {
-  header .topbar {
-    align-items: flex-start !important;
-    flex-direction: column !important;
-  }
-  header .actions {
-    justify-content: flex-start !important;
-  }
-  header .pst-master-admin-logo {
-    height: 46px !important;
-    max-width: 200px !important;
-  }
-  header .pst-master-page-label {
-    font-size: 15px !important;
-    white-space: normal !important;
-  }
-}
-
-
-
-/* PST FINAL UNIFIED ADMIN LAYOUT - COPIED FROM ORDERS MANAGEMENT */
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 50 !important;
-  background: #ffffff !important;
-  border-bottom: 1px solid #d9e2ec !important;
-  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
-}
-header .topbar {
-  max-width: 1540px !important;
-  margin: 0 auto !important;
-  padding: 14px 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 14px !important;
-}
-header .brand {
-  display: flex !important;
-  align-items: center !important;
-  gap: 16px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-weight: 900 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-}
-header .pst-master-admin-logo {
-  height: 54px !important;
-  width: auto !important;
-  max-width: 230px !important;
-  display: block !important;
-  object-fit: contain !important;
-}
-header .pst-master-page-label {
-  color: #596579 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 16px !important;
-  line-height: 1.15 !important;
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-}
-header .actions {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 8px !important;
-  flex-wrap: wrap !important;
-}
-header .actions .btn,
-header .actions a.btn,
-header .actions button.btn {
-  min-height: 40px !important;
-  height: 40px !important;
-  padding: 10px 13px !important;
-  border-radius: 10px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 14px !important;
-  line-height: 1 !important;
-  font-weight: 800 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 7px !important;
-  text-decoration: none !important;
-  box-sizing: border-box !important;
-  white-space: nowrap !important;
-}
-header .actions .btn.secondary {
-  background: #ffffff !important;
-  color: #101820 !important;
-  border: 1px solid #d9e2ec !important;
-}
-header .actions .btn.secondary.active {
-  background: #bd0000 !important;
-  color: #ffffff !important;
-  border-color: #bd0000 !important;
-}
-header .actions .btn.danger {
-  background: #b42318 !important;
-  color: #ffffff !important;
-  border: 1px solid #b42318 !important;
-}
-main {
-  max-width: 1540px !important;
-  margin: 0 auto !important;
-  padding: 22px 18px 54px !important;
-}
-.page-title {
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: space-between !important;
-  gap: 16px !important;
-  margin-bottom: 16px !important;
-}
-main > h1,
-.page-title h1 {
-  margin: 0 0 6px !important;
-  font-size: clamp(24px, 3vw, 36px) !important;
-  line-height: 1.15 !important;
-  color: #101820 !important;
-  font-weight: 900 !important;
-}
-.subtitle {
-  margin: 0 !important;
-  color: #667085 !important;
-  line-height: 1.4 !important;
-}
-@media (max-width: 700px) {
-  header .topbar {
-    align-items: flex-start !important;
-    flex-direction: column !important;
-  }
-  header .actions {
-    justify-content: flex-start !important;
-  }
-  header .pst-master-admin-logo {
-    height: 46px !important;
-    max-width: 200px !important;
-  }
-  header .pst-master-page-label {
-    font-size: 15px !important;
-    white-space: normal !important;
-  }
-}
-
-
-/* PST SHARED ADMIN HEADER RULE - VERIFIED 2026-06-08 */
-header .pst-master-admin-logo {
-  height: 54px !important;
-  max-width: 230px !important;
-}
-
-header .pst-master-page-label {
-  font-size: 16px !important;
-  font-weight: 800 !important;
-  color: #596579 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-
-/* PST SHARED ADMIN ACTIVE NAV RULE - VERIFIED 2026-06-08 */
-header .actions .btn.secondary.active,
-header .header-actions .btn.secondary.active {
-  background: #bd0000 !important;
-  color: #ffffff !important;
-  border-color: #bd0000 !important;
-}
-
-
-
-/* PST_ADMIN_PATCH_V8_ORDER_DASHBOARD */
-.admin-dashboard-nav {
-  position: sticky;
-  top: 83px;
-  z-index: 35;
-  margin: 0 0 16px;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: rgba(255,255,255,.96);
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-.admin-dashboard-nav strong {
-  color: var(--muted);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  margin-right: 2px;
-}
-.admin-dashboard-nav .btn {
-  background: #fff;
-  color: var(--dark);
-  border: 1px solid var(--border);
-}
-.admin-dashboard-nav .btn.active,
-.admin-dashboard-nav .btn[aria-pressed="true"] {
-  background: var(--blue);
-  color: #fff;
-  border-color: var(--blue);
-}
-.admin-dashboard-grid {
-  display: grid;
-  grid-template-columns: 1.15fr .85fr;
-  gap: 18px;
-  align-items: start;
-}
-.collapsible-card { scroll-margin-top: 178px; }
-.collapsible-card > .card-header { cursor: pointer; }
-.collapsible-card.collapsed > :not(.card-header) { display: none !important; }
-.card-toggle-btn {
-  min-width: 112px;
-}
-.admin-back-top {
-  padding: 12px 16px 16px;
-  border-top: 1px solid var(--border);
-  background: #fbfcfe;
-}
-@media(max-width:1100px){
-  .admin-dashboard-grid{grid-template-columns:1fr;}
-  .admin-dashboard-nav{top: 78px;}
-}
-@media(max-width:700px){
-  .admin-dashboard-nav{position: static;}
-}
-
-
-/* PST_ADMIN_PATCH_V9_EMAIL_PREVIEW_CONTROL */
-/* PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT */
-.fulfillment-print-note{margin-top:10px;padding:11px;border:1px solid rgba(189,0,0,.22);background:rgba(189,0,0,.055);border-radius:12px;color:#24445c;font-size:13px;line-height:1.4;font-weight:700}
-
-.email-preview-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 18px;
-  background: rgba(16,24,32,.55);
-}
-.email-preview-modal.open { display: flex; }
-.email-preview-dialog {
-  width: min(980px, 96vw);
-  max-height: 92vh;
-  overflow: hidden;
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  box-shadow: 0 24px 70px rgba(16,24,32,.28);
-  display: flex;
-  flex-direction: column;
-}
-.email-preview-header {
-  padding: 15px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.email-preview-header h2 { margin: 0; font-size: 18px; }
-.email-preview-meta {
-  padding: 12px 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  border-bottom: 1px solid var(--border);
-  background: #fbfcfe;
-}
-.email-preview-meta .kv { background: #ffffff; }
-.email-preview-body {
-  padding: 16px;
-  overflow: auto;
-  background: #f5f8fb;
-}
-.email-preview-frame {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
-}
-.email-preview-actions {
-  padding: 12px 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  background: #ffffff;
-}
-.email-action-group {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.email-action-group strong { min-width: 170px; }
-.email-action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-@media(max-width:700px){
-  .email-preview-meta{grid-template-columns:1fr;}
-  .email-preview-dialog{max-height: 96vh;}
-}
-
-
-
-/* PST compact fixed-height internal admin audit log */
-.audit-scrollbox{
-  max-height:220px;
-  overflow-y:auto;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:#fbfcfe;
-  padding:6px;
-}
-.audit-scrollbox .audit-list{display:grid;gap:5px;}
-.audit-scrollbox .audit-item{
-  border:1px solid #e3eaf2;
-  background:#fff;
-  border-radius:8px;
-  padding:6px 8px;
-  font-size:11px;
-  line-height:1.25;
-}
-.audit-scrollbox .audit-item strong{display:inline;margin:0;font-size:11px;}
-.audit-scrollbox .audit-item .muted{font-size:10.5px;}
-.audit-scrollbox .audit-line-detail{margin-top:3px;line-height:1.25;font-size:11px;color:#344054;}
-.audit-scrollbox .audit-empty{font-size:12px;color:var(--muted);padding:8px;}
-
-
-/* PST_ADMIN_PATCH_V16_INVENTORY_RESTORE_VISUAL_STATUS */
-.inventory-restore-banner{
-  margin:12px 0 0;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid rgba(15,138,59,.25);
-  background:rgba(15,138,59,.075);
-  color:#0f5f2a;
-  line-height:1.45;
-  font-size:14px;
-}
-.inventory-restore-banner strong{display:block;margin-bottom:4px;}
-.inventory-pending-banner{
-  margin:12px 0 0;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid rgba(183,121,31,.28);
-  background:#fff8e6;
-  color:#7a4a00;
-  line-height:1.45;
-  font-size:14px;
-}
-.inventory-pending-banner strong{display:block;margin-bottom:4px;}
-.inventory-restored-pill{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  margin-top:6px;
-  padding:5px 9px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-  white-space:nowrap;
-  border:1px solid rgba(15,138,59,.25);
-  color:#0f5f2a;
-  background:rgba(15,138,59,.09);
-}
-.inventory-restore-needed-pill{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  margin-top:6px;
-  padding:5px 9px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-  white-space:nowrap;
-  border:1px solid rgba(183,121,31,.28);
-  color:#7a4a00;
-  background:#fff8e6;
-}
-
-
-
-/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
-   Purpose: standardize font hierarchy and logo display across public/admin pages.
-   Keep actions/prices readable without the heavy all-bold/Impact look.
-*/
-:root {
-  --pst-ui-font: Arial, Helvetica, sans-serif;
-}
-body, input, button, select, textarea {
-  font-family: var(--pst-ui-font) !important;
-}
-.brand, .logo, .logo-mark {
-  display: inline-flex !important;
-  align-items: center !important;
-  text-decoration: none !important;
-}
-.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
-  display: block !important;
-  height: auto !important;
-  object-fit: contain !important;
-}
-.brand-logo-img, .account-logo-img {
-  width: clamp(155px, 18vw, 220px) !important;
-  max-width: 100% !important;
-}
-.pst-master-admin-logo {
-  width: clamp(150px, 16vw, 210px) !important;
-  max-width: 100% !important;
-}
-.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
-.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
-.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
-.product-title, .discount-title, .customer-title, h1, h2, h3 {
-  font-family: var(--pst-ui-font) !important;
-  font-weight: 600 !important;
-  letter-spacing: .01em !important;
-}
-.page-title {
-  font-weight: 600 !important;
-  text-transform: none !important;
-}
-.menu, .menu a, .account-status, .account-status a, .account-status button,
-.btn, button, label, th, .profile-row strong, .order-meta strong,
-.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
-  font-weight: 600 !important;
-}
-p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
-.email-pref-copy, .security-copy, .footer-disclaimer {
-  font-weight: 400 !important;
-}
-strong {
-  font-weight: 600 !important;
-}
-@media(max-width:560px) {
-  .brand-logo-img, .account-logo-img {
-    width: clamp(135px, 42vw, 170px) !important;
-  }
-}
-</style>
-
-<style>
-
-/* PST_ADMIN_HEADER_LOCK_V2
-   Purpose: force every admin page header to use the exact same layout, logo size, spacing, title placement, nav placement, and typography.
-   Do not move this block above older admin CSS. It intentionally loads last.
-*/
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-  background: #ffffff !important;
-  border-bottom: 1px solid #d9e2ec !important;
-  min-height: 92px !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-header .topbar,
-header .pst-admin-topbar-lock {
   width: 100% !important;
-  max-width: none !important;
-  min-height: 92px !important;
+  min-height: 66px !important;
   margin: 0 !important;
-  padding: 14px 28px !important;
+  padding: 0 28px !important;
+  background: #050505 !important;
   display: grid !important;
-  grid-template-columns: 420px minmax(0, 1fr) !important;
+  grid-template-columns: minmax(380px, 1fr) 180px minmax(520px, 1fr) !important;
   align-items: center !important;
-  justify-content: stretch !important;
-  gap: 18px !important;
-  background: #ffffff !important;
-  box-sizing: border-box !important;
-}
-header .brand,
-header .pst-admin-brand-lock {
-  width: 420px !important;
-  min-width: 420px !important;
-  max-width: 420px !important;
-  display: grid !important;
-  grid-template-columns: 132px 260px !important;
-  align-items: center !important;
-  justify-content: start !important;
-  column-gap: 22px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-weight: 600 !important;
-  line-height: 1.15 !important;
-  color: #596579 !important;
-}
-header .pst-master-admin-logo,
-header img.pst-master-admin-logo,
-header .pst-admin-logo {
-  display: block !important;
-  width: 132px !important;
-  height: 64px !important;
-  min-width: 132px !important;
-  max-width: 132px !important;
-  min-height: 64px !important;
-  max-height: 64px !important;
-  object-fit: contain !important;
-  object-position: left center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  flex: none !important;
-}
-header .pst-master-page-label {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  width: 260px !important;
-  min-width: 260px !important;
-  max-width: 260px !important;
-  min-height: 64px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 22px !important;
-  font-weight: 600 !important;
-  line-height: 1.15 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: #596579 !important;
-  white-space: nowrap !important;
-  text-align: left !important;
-}
-header .actions,
-header .pst-admin-actions-lock {
-  min-width: 0 !important;
-  width: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 10px !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-header .actions::-webkit-scrollbar,
-header .pst-admin-actions-lock::-webkit-scrollbar {
-  display: none !important;
-}
-header .actions .btn,
-header .pst-admin-actions-lock .btn,
-header .actions a.btn,
-header .actions button.btn {
-  flex: 0 0 auto !important;
-  min-height: 46px !important;
-  height: 46px !important;
-  padding: 0 18px !important;
-  border-radius: 10px !important;
-  border: 1px solid #d9e2ec !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  line-height: 1 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  box-shadow: none !important;
-}
-header .actions .btn.secondary,
-header .pst-admin-actions-lock .btn.secondary {
-  background: #ffffff !important;
-  color: #101820 !important;
-}
-header .actions .btn.secondary.active,
-header .pst-admin-actions-lock .btn.secondary.active {
-  background: #bd0000 !important;
-  border-color: #bd0000 !important;
-  color: #ffffff !important;
-}
-header .actions .btn.danger,
-header .pst-admin-actions-lock .btn.danger {
-  background: #b42318 !important;
-  border-color: #b42318 !important;
-  color: #ffffff !important;
-}
-@media (max-width: 1180px) {
-  header .topbar,
-  header .pst-admin-topbar-lock {
-    grid-template-columns: 1fr !important;
-    min-height: auto !important;
-    padding: 14px 18px !important;
-    gap: 12px !important;
-  }
-  header .brand,
-  header .pst-admin-brand-lock {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    grid-template-columns: 132px minmax(0, 1fr) !important;
-  }
-  header .pst-master-page-label {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    white-space: normal !important;
-  }
-  header .actions,
-  header .pst-admin-actions-lock {
-    justify-content: flex-start !important;
-  }
-}
-@media (max-width: 640px) {
-  header .pst-master-admin-logo,
-  header img.pst-master-admin-logo,
-  header .pst-admin-logo {
-    width: 112px !important;
-    height: 54px !important;
-    min-width: 112px !important;
-    max-width: 112px !important;
-    min-height: 54px !important;
-    max-height: 54px !important;
-  }
-  header .brand,
-  header .pst-admin-brand-lock {
-    grid-template-columns: 112px minmax(0, 1fr) !important;
-    column-gap: 14px !important;
-  }
-  header .pst-master-page-label {
-    min-height: 54px !important;
-    font-size: 18px !important;
-  }
-  header .actions .btn,
-  header .pst-admin-actions-lock .btn {
-    min-height: 42px !important;
-    height: 42px !important;
-    padding: 0 14px !important;
-    font-size: 15px !important;
-  }
-}
-
-</style>
-
-<style>
-/* PST_ADMIN_HEADER_FINAL_LOCK_V3_NO_OVERLAP
-   Single admin header system for every admin page.
-   This block intentionally loads last and overrides older page-specific header CSS.
-*/
-html, body {
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-}
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-  width: 100% !important;
-  background: #ffffff !important;
-  border-bottom: 1px solid #d9e2ec !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-header .topbar,
-header .pst-admin-topbar-lock {
-  width: 100% !important;
-  max-width: none !important;
-  min-height: 92px !important;
-  margin: 0 !important;
-  padding: 14px 28px !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 18px !important;
-  flex-wrap: nowrap !important;
-  background: #ffffff !important;
-}
-header .brand,
-header .pst-admin-brand-lock {
-  flex: 0 0 420px !important;
-  width: 420px !important;
-  min-width: 420px !important;
-  max-width: 420px !important;
-  height: 64px !important;
-  min-height: 64px !important;
-  display: grid !important;
-  grid-template-columns: 132px 260px !important;
-  column-gap: 22px !important;
-  align-items: center !important;
-  justify-content: start !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  gap: 20px !important;
   overflow: visible !important;
-  font-family: Arial, Helvetica, sans-serif !important;
+  position: relative !important;
+  z-index: 10 !important;
 }
-header .pst-master-admin-logo,
-header img.pst-master-admin-logo,
-header .pst-admin-logo {
-  display: block !important;
-  width: 132px !important;
-  height: 64px !important;
-  min-width: 132px !important;
-  max-width: 132px !important;
-  min-height: 64px !important;
-  max-height: 64px !important;
-  object-fit: contain !important;
-  object-position: left center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  flex: none !important;
-}
-header .pst-master-page-label {
+
+#pst-header-v3 * { box-sizing: border-box !important; }
+
+#pst-header-v3 .pst-left,
+#pst-header-v3 .pst-right {
   display: flex !important;
   align-items: center !important;
+  min-width: 0 !important;
+}
+
+#pst-header-v3 .pst-left {
   justify-content: flex-start !important;
-  width: 260px !important;
-  min-width: 260px !important;
-  max-width: 260px !important;
-  height: 64px !important;
-  min-height: 64px !important;
+  gap: clamp(18px, 2vw, 34px) !important;
+}
+
+#pst-header-v3 .pst-right {
+  justify-content: flex-end !important;
+  gap: 18px !important;
+}
+
+#pst-header-v3 a {
+  color: #fff !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+#pst-header-v3 .pst-left a {
+  font-size: clamp(12px, .95vw, 15px) !important;
+}
+
+#pst-header-v3 .pst-logo {
+  display: block !important;
+  justify-self: center !important;
+  line-height: 0 !important;
+}
+
+#pst-header-v3 .pst-logo img {
+  display: block !important;
+  width: 180px !important;
+  height: 84px !important;
+  object-fit: contain !important;
+}
+
+#pst-header-v3 .pst-account {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  line-height: 1.05 !important;
+}
+
+#pst-header-v3 .pst-account strong {
+  display: block !important;
+  font-size: 14px !important;
+}
+
+#pst-header-v3 .pst-account small {
+  display: block !important;
+  margin-top: 4px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+#pst-header-v3 .pst-account-icon {
+  font-size: 22px !important;
+}
+
+#pst-header-v3 .pst-admin {
+  border-left: 1px solid rgba(255,255,255,.45) !important;
+  padding-left: 18px !important;
+  font-size: 14px !important;
+}
+
+#pst-header-v3 .pst-search {
+  width: 280px !important;
+  min-width: 220px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: #fff !important;
+  border-radius: 7px !important;
+  overflow: hidden !important;
+  flex: 0 1 280px !important;
+}
+
+#pst-header-v3 .pst-search input {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 46px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  padding: 0 14px !important;
+  background: #fff !important;
+  color: #111 !important;
+  font-size: 15px !important;
+  outline: none !important;
+}
+
+#pst-header-v3 .pst-search button {
+  flex: 0 0 46px !important;
+  width: 46px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 11px !important;
+  border: 0 !important;
+  background: #fff !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+#pst-header-v3 .pst-search svg {
+  width: 23px !important;
+  height: 23px !important;
+  fill: none !important;
+  stroke: #000 !important;
+  stroke-width: 2 !important;
+}
+
+#pst-hero-v3 {
+  width: 100% !important;
+  height: 469px !important;
+  max-height: 469px !important;
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 22px !important;
-  font-weight: 600 !important;
-  line-height: 1.15 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: #596579 !important;
-  white-space: nowrap !important;
-  text-align: left !important;
+  background: #fff !important;
 }
-header .actions,
-header .pst-admin-actions-lock {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  width: auto !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 10px !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
+
+#pst-hero-v3 img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
   margin: 0 !important;
-  padding: 0 !important;
+  object-fit: fill !important;
+  object-position: center 48% !important;
 }
-header .actions::-webkit-scrollbar,
-header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
-header .actions .btn,
-header .pst-admin-actions-lock .btn,
-header .actions a.btn,
-header .actions button.btn {
-  flex: 0 0 auto !important;
-  min-height: 46px !important;
-  height: 46px !important;
-  padding: 0 18px !important;
-  border-radius: 10px !important;
-  border: 1px solid #d9e2ec !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  line-height: 1 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  box-shadow: none !important;
-}
-header .actions .btn.secondary,
-header .pst-admin-actions-lock .btn.secondary {
-  background: #ffffff !important;
-  color: #101820 !important;
-}
-header .actions .btn.secondary.active,
-header .pst-admin-actions-lock .btn.secondary.active {
-  background: #bd0000 !important;
-  border-color: #bd0000 !important;
-  color: #ffffff !important;
-}
-header .actions .btn.danger,
-header .pst-admin-actions-lock .btn.danger {
-  background: #b42318 !important;
-  border-color: #b42318 !important;
-  color: #ffffff !important;
-}
-@media (max-width: 1240px) {
-  header .topbar,
-  header .pst-admin-topbar-lock {
-    min-height: 150px !important;
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
+
+@media (max-width: 1180px) {
+  #pst-hero-v3 {
+    background: #000 !important;
+  }
+
+  #pst-hero-v3 img {
+    object-fit: contain !important;
+    object-position: center top !important;
+  }
+
+  #pst-header-v3 {
+    grid-template-columns: 1fr auto !important;
+    min-height: 0 !important;
+    padding: 10px 18px 14px !important;
+    gap: 10px 18px !important;
+  }
+
+  #pst-header-v3 .pst-logo {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+  }
+
+  #pst-header-v3 .pst-logo img {
+    width: 155px !important;
+    height: 70px !important;
+  }
+
+  #pst-header-v3 .pst-left {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
     flex-wrap: wrap !important;
     gap: 10px 18px !important;
   }
-  header .brand,
-  header .pst-admin-brand-lock {
-    flex: 0 0 420px !important;
-  }
-  header .actions,
-  header .pst-admin-actions-lock {
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    justify-content: flex-start !important;
-  }
-}
-@media (max-width: 640px) {
-  header .topbar,
-  header .pst-admin-topbar-lock {
-    padding: 12px 16px !important;
-    min-height: 138px !important;
-  }
-  header .brand,
-  header .pst-admin-brand-lock {
-    flex-basis: 100% !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    height: 54px !important;
-    min-height: 54px !important;
-    grid-template-columns: 112px minmax(0, 1fr) !important;
-    column-gap: 14px !important;
-  }
-  header .pst-master-admin-logo,
-  header img.pst-master-admin-logo,
-  header .pst-admin-logo {
-    width: 112px !important;
-    height: 54px !important;
-    min-width: 112px !important;
-    max-width: 112px !important;
-    min-height: 54px !important;
-    max-height: 54px !important;
-  }
-  header .pst-master-page-label {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    height: 54px !important;
-    min-height: 54px !important;
-    font-size: 18px !important;
-  }
-  header .actions .btn,
-  header .pst-admin-actions-lock .btn {
-    min-height: 42px !important;
-    height: 42px !important;
-    padding: 0 14px !important;
-    font-size: 15px !important;
-  }
-}
-</style>
-
-
-<style>
-/* PST_ADMIN_HEADER_BUTTON_ALIGNMENT_FINAL
-   Fixes header button drift caused by extra Refresh/Sign Out utility buttons.
-   Header is now identical on all admin pages and cannot overlap the title.
-*/
-header .pst-admin-topbar-lock,
-header .topbar {
-  display: grid !important;
-  grid-template-columns: 420px minmax(0, 1fr) !important;
-  align-items: center !important;
-  column-gap: 20px !important;
-  row-gap: 10px !important;
-}
-header .pst-admin-brand-lock,
-header .brand {
-  grid-column: 1 !important;
-}
-header .pst-admin-actions-lock,
-header .actions {
-  grid-column: 2 !important;
-  justify-content: flex-start !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  padding-bottom: 2px !important;
-}
-header .pst-master-page-label {
-  font-weight: 400 !important;
-}
-header .pst-admin-actions-lock .btn,
-header .actions .btn,
-header .actions a.btn,
-header .actions button.btn {
-  font-weight: 500 !important;
-}
-@media (max-width: 1500px) {
-  header .pst-admin-topbar-lock,
-  header .topbar {
-    grid-template-columns: 1fr !important;
-    min-height: 144px !important;
-    align-items: start !important;
-  }
-  header .pst-admin-brand-lock,
-  header .brand {
-    grid-column: 1 !important;
-  }
-  header .pst-admin-actions-lock,
-  header .actions {
-    grid-column: 1 !important;
-    width: 100% !important;
-    justify-content: flex-start !important;
-  }
-}
-@media (max-width: 640px) {
-  header .pst-admin-topbar-lock,
-  header .topbar {
-    min-height: 136px !important;
-  }
-}
-</style>
-
-
-
-<style id="pst-admin-inventory-shell-final">
-/* PST_ADMIN_INVENTORY_MIRROR_FINAL
-   One admin shell copied across every admin page.
-   Scope: header, admin page container, page titles, card/section headings, basic typography only.
-   Does not modify page scripts or page-specific business logic.
-*/
-:root {
-  --pst-admin-font: Arial, Helvetica, sans-serif;
-  --pst-admin-blue: #bd0000;
-  --pst-admin-accent: #bd0000;
-  --pst-admin-text: #101820;
-  --pst-admin-muted: #596579;
-  --pst-admin-line: #d9e2ec;
-  --pst-admin-shell-width: 1500px;
-  --pst-admin-x: 18px;
-}
-html, body {
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-}
-body, input, select, textarea, button {
-  font-family: var(--pst-admin-font) !important;
-}
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-  width: 100% !important;
-  background: #ffffff !important;
-  border-bottom: 1px solid var(--pst-admin-line) !important;
-  font-family: var(--pst-admin-font) !important;
-  overflow: visible !important;
-}
-header .topbar,
-header .pst-admin-topbar-lock {
-  width: 100% !important;
-  max-width: var(--pst-admin-shell-width) !important;
-  min-height: 92px !important;
-  margin: 0 auto !important;
-  padding: 14px var(--pst-admin-x) !important;
-  box-sizing: border-box !important;
-  display: grid !important;
-  grid-template-columns: 390px minmax(0, 1fr) !important;
-  align-items: center !important;
-  column-gap: 22px !important;
-  row-gap: 10px !important;
-  background: #ffffff !important;
-}
-header .brand,
-header .pst-admin-brand-lock {
-  grid-column: 1 !important;
-  width: 390px !important;
-  min-width: 390px !important;
-  max-width: 390px !important;
-  height: 64px !important;
-  min-height: 64px !important;
-  display: grid !important;
-  grid-template-columns: 132px minmax(0, 1fr) !important;
-  align-items: center !important;
-  column-gap: 22px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  color: var(--pst-admin-muted) !important;
-  text-decoration: none !important;
-  font-family: var(--pst-admin-font) !important;
-  font-weight: 400 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  line-height: 1.15 !important;
-  overflow: visible !important;
-}
-header .pst-master-admin-logo,
-header img.pst-master-admin-logo,
-header .pst-admin-logo {
-  display: block !important;
-  width: 132px !important;
-  height: 64px !important;
-  min-width: 132px !important;
-  max-width: 132px !important;
-  min-height: 64px !important;
-  max-height: 64px !important;
-  object-fit: contain !important;
-  object-position: left center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-header .pst-master-page-label {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  min-width: 0 !important;
-  height: 64px !important;
-  min-height: 64px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  color: var(--pst-admin-muted) !important;
-  font-family: var(--pst-admin-font) !important;
-  font-size: 21px !important;
-  font-weight: 400 !important;
-  line-height: 1.15 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-  text-align: left !important;
-}
-header .actions,
-header .pst-admin-actions-lock {
-  grid-column: 2 !important;
-  min-width: 0 !important;
-  width: 100% !important;
-  height: 52px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 10px !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
-  margin: 0 !important;
-  padding: 0 6px 0 0 !important;
-  box-sizing: border-box !important;
-}
-header .actions::-webkit-scrollbar,
-header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
-header .actions .btn,
-header .pst-admin-actions-lock .btn,
-header .actions a.btn,
-header .pst-admin-actions-lock a.btn,
-header .actions button.btn,
-header .pst-admin-actions-lock button.btn {
-  flex: 0 0 auto !important;
-  min-width: auto !important;
-  min-height: 46px !important;
-  height: 46px !important;
-  padding: 0 18px !important;
-  border-radius: 10px !important;
-  border: 1px solid var(--pst-admin-line) !important;
-  background: #ffffff !important;
-  color: var(--pst-admin-text) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  font-family: var(--pst-admin-font) !important;
-  font-size: 16px !important;
-  font-weight: 500 !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-  text-decoration: none !important;
-  box-shadow: none !important;
-  cursor: pointer !important;
-}
-header .actions .btn.active,
-header .actions .btn.primary,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary {
-  background: var(--pst-admin-accent) !important;
-  border-color: var(--pst-admin-accent) !important;
-  color: #ffffff !important;
-}
-main,
-.admin-main,
-.page-wrap,
-.wrap,
-.container,
-.admin-container,
-.dashboard,
-.content {
-  max-width: var(--pst-admin-shell-width) !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: var(--pst-admin-x) !important;
-  padding-right: var(--pst-admin-x) !important;
-  box-sizing: border-box !important;
-}
-main {
-  padding-top: 22px !important;
-  padding-bottom: 60px !important;
-}
-.page-title,
-.title-row,
-.page-head,
-.admin-page-head {
-  max-width: var(--pst-admin-shell-width) !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  margin-bottom: 16px !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  box-sizing: border-box !important;
-}
-h1,
-.page-title h1,
-.title-row h1,
-.page-head h1,
-.admin-page-head h1 {
-  margin: 0 0 6px !important;
-  color: var(--pst-admin-text) !important;
-  font-family: var(--pst-admin-font) !important;
-  font-size: clamp(26px, 3vw, 38px) !important;
-  font-weight: 400 !important;
-  line-height: 1.12 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-}
-h2, h3,
-.card h2,
-.card h3,
-.panel h2,
-.panel h3,
-.section-title,
-.box-title,
-.settings-title {
-  font-family: var(--pst-admin-font) !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-}
-.subtitle,
-.page-subtitle,
-.help-text,
-p, li, td, input, select, textarea {
-  font-family: var(--pst-admin-font) !important;
-  font-weight: 400 !important;
-}
-label,
-th,
-.badge,
-.status,
-.empty-state,
-.small-label,
-.meta-label,
-.form-field label,
-.order-meta strong,
-.profile-row strong {
-  font-family: var(--pst-admin-font) !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
-}
-strong { font-weight: 500 !important; }
-@media (max-width: 1180px) {
-  header .topbar,
-  header .pst-admin-topbar-lock {
-    grid-template-columns: 1fr !important;
-    min-height: auto !important;
-    padding: 12px var(--pst-admin-x) !important;
-  }
-  header .brand,
-  header .pst-admin-brand-lock {
-    grid-column: 1 !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-  header .actions,
-  header .pst-admin-actions-lock {
-    grid-column: 1 !important;
-    width: 100% !important;
-  }
-}
-@media (max-width: 640px) {
-  :root { --pst-admin-x: 14px; }
-  header .brand,
-  header .pst-admin-brand-lock {
-    height: 54px !important;
-    min-height: 54px !important;
-    grid-template-columns: 112px minmax(0, 1fr) !important;
-    column-gap: 14px !important;
-  }
-  header .pst-master-admin-logo,
-  header img.pst-master-admin-logo,
-  header .pst-admin-logo {
-    width: 112px !important;
-    height: 54px !important;
-    min-width: 112px !important;
-    max-width: 112px !important;
-    min-height: 54px !important;
-    max-height: 54px !important;
-  }
-  header .pst-master-page-label {
-    height: 54px !important;
-    min-height: 54px !important;
-    font-size: 18px !important;
-  }
-  header .actions .btn,
-  header .pst-admin-actions-lock .btn {
-    height: 42px !important;
-    min-height: 42px !important;
-    padding: 0 14px !important;
-    font-size: 15px !important;
-  }
-  h1,
-  .page-title h1,
-  .title-row h1,
-  .page-head h1,
-  .admin-page-head h1 {
-    font-size: 30px !important;
-  }
-}
-</style>
-
-<style id="pst-admin-header-unified-v1">
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-  min-height: 86px !important;
-  background: #ffffff !important;
-  border-bottom: 1px solid #d9e2ec !important;
-  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-header .pst-admin-topbar-lock {
-  width: 100% !important;
-  max-width: 1540px !important;
-  min-height: 86px !important;
-  margin: 0 auto !important;
-  padding: 14px 18px !important;
-  display: grid !important;
-  grid-template-columns: minmax(300px, 430px) minmax(0, 1fr) !important;
-  align-items: center !important;
-  gap: 18px !important;
-  box-sizing: border-box !important;
-}
-header .pst-admin-brand-lock {
-  display: grid !important;
-  grid-template-columns: 54px minmax(0, 1fr) !important;
-  align-items: center !important;
-  gap: 14px !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  color: #101820 !important;
-  text-decoration: none !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  line-height: 1.1 !important;
-}
-header .pst-admin-logo-mark {
-  display: inline-grid !important;
-  place-items: center !important;
-  width: 54px !important;
-  height: 54px !important;
-  border-radius: 14px !important;
-  background: linear-gradient(135deg, #d10000, #a00000) !important;
-  color: #fff !important;
-  font-size: 18px !important;
-  font-weight: 900 !important;
-  letter-spacing: 0 !important;
-  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
-}
-header .pst-admin-title-lock {
-  display: grid !important;
-  gap: 4px !important;
-  min-width: 0 !important;
-}
-header .pst-admin-title-lock strong {
-  display: block !important;
-  color: #101820 !important;
-  font-size: 21px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-}
-header .pst-admin-title-lock small {
-  display: block !important;
-  color: #596579 !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  letter-spacing: .01em !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-}
-header .pst-admin-actions-lock {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 8px !important;
-  flex-wrap: wrap !important;
-  min-width: 0 !important;
-  overflow: visible !important;
-}
-header .pst-admin-actions-lock .btn,
-header .pst-admin-actions-lock a.btn,
-header .pst-admin-actions-lock button.btn {
-  min-height: 38px !important;
-  padding: 9px 12px !important;
-  border-radius: 10px !important;
-  border: 1px solid #d9e2ec !important;
-  background: #ffffff !important;
-  color: #101820 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  line-height: 1 !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-}
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary {
-  color: #ffffff !important;
-  background: #bd0000 !important;
-  border-color: #bd0000 !important;
-}
-@media (max-width: 980px) {
-  header .pst-admin-topbar-lock { grid-template-columns: 1fr !important; align-items: start !important; }
-  header .pst-admin-actions-lock { justify-content: flex-start !important; }
-}
-@media (max-width: 560px) {
-  header .pst-admin-brand-lock { grid-template-columns: 46px minmax(0, 1fr) !important; }
-  header .pst-admin-logo-mark {
-  display: inline-grid !important;
-  place-items: center !important;
-  width: 54px !important;
-  height: 54px !important;
-  border-radius: 14px !important;
-  background: linear-gradient(135deg, #d10000, #a00000) !important;
-  color: #fff !important;
-  font-size: 18px !important;
-  font-weight: 900 !important;
-  letter-spacing: 0 !important;
-  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
-}
-}
-
-#adminDashboardNav .btn.active,
-#adminDashboardNav .btn[aria-pressed="true"],
-.admin-dashboard-nav .btn.active,
-.admin-dashboard-nav .btn[aria-pressed="true"],
-.collapsible-card:not(.collapsed) .card-toggle-btn,
-.card-toggle-btn.active,
-.card-toggle-btn[aria-expanded="true"] {
-  background: #bd0000 !important;
-  background-color: #bd0000 !important;
-  border-color: #bd0000 !important;
-  color: #ffffff !important;
-}
-</style>
-
-<style id="pst-inventory-compact-catalog-pill-style-v1">
-/* PST inventory compact catalog pill style
-   Target: same small pill language as catalog On Order / Out.
-   Scope: inventory header links, jump links, collapse buttons, row actions,
-   reorder buttons/badges, incoming PO actions/statuses, vendor IDs,
-   product/status pills, disabled/read-only states. */
-:root {
-  --pst-inv-pill-h: 26px;
-  --pst-inv-pill-font: 10px;
-  --pst-inv-pill-weight: 700;
-  --pst-inv-pill-radius: 999px;
-  --pst-inv-pill-pad-x: 10px;
-  --pst-inv-pill-line: #c9ced6;
-  --pst-inv-pill-ink: #101820;
-  --pst-inv-pill-blue: #003f9e;
-  --pst-inv-pill-red: #bd0000;
-  --pst-inv-pill-green: #0c6b3a;
-  --pst-inv-pill-warn: #8a5a00;
-  --pst-inv-pill-danger: #8a1f17;
-}
-
-/* Compact pill base for inventory actions and statuses. */
-.btn,
-a.btn,
-button.btn,
-header .actions .btn,
-header .actions a.btn,
-header .actions button.btn,
-header .pst-admin-actions-lock .btn,
-header .pst-admin-actions-lock a.btn,
-header .pst-admin-actions-lock button.btn,
-.inventory-jumpbar .btn,
-.inventory-jump-link,
-.inventory-collapse-toggle,
-.bulk-tools .btn,
-.bulk .btn,
-.reorder-controls .btn,
-.reorder-selected-actions .btn,
-.incoming-actions .btn,
-.incoming-edit-actions .btn,
-.vendor-form-grid .btn,
-.back-to-inventory-top .btn,
-.row-save,
-.row-audit-btn,
-.edit-incoming-btn,
-.close-incoming-edit-btn,
-.cancel-incoming-btn,
-.receive-incoming-btn,
-.transit-incoming-btn,
-.save-incoming-edit-btn,
-.incoming-line-remove,
-.reorder-action-btn,
-.status-pill,
-.reorder-badge,
-.incoming-pill,
-.vendor-id-pill,
-.active-pill,
-.inactive-pill,
-.inventory-restored-pill,
-.inventory-restore-needed-pill,
-.inventory-deduct-pill,
-.inventory-deduct-needed-pill {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  flex: 0 0 auto !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: max-content !important;
-  min-height: var(--pst-inv-pill-h) !important;
-  height: var(--pst-inv-pill-h) !important;
-  margin: 0 !important;
-  padding: 0 var(--pst-inv-pill-pad-x) !important;
-  border: 1px solid currentColor !important;
-  border-radius: var(--pst-inv-pill-radius) !important;
-  background: #ffffff !important;
-  color: var(--pst-inv-pill-ink) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: var(--pst-inv-pill-font) !important;
-  font-weight: var(--pst-inv-pill-weight) !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-align: center !important;
-  text-transform: none !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  vertical-align: middle !important;
-  box-shadow: none !important;
-}
-
-/* Buttons remain clickable; pills/statuses do not look like huge blocks. */
-.btn,
-a.btn,
-button.btn,
-.inventory-jump-link,
-.inventory-collapse-toggle,
-.reorder-action-btn,
-.incoming-line-remove,
-.row-save,
-.row-audit-btn,
-.edit-incoming-btn,
-.close-incoming-edit-btn,
-.cancel-incoming-btn,
-.receive-incoming-btn,
-.transit-incoming-btn,
-.save-incoming-edit-btn {
-  cursor: pointer !important;
-}
-
-.status-pill,
-.reorder-badge:not(.reorder-action-btn),
-.incoming-pill,
-.vendor-id-pill,
-.active-pill,
-.inactive-pill,
-.inventory-restored-pill,
-.inventory-restore-needed-pill,
-.inventory-deduct-pill,
-.inventory-deduct-needed-pill {
-  cursor: default !important;
-}
-
-/* Header page links: compact grey-outline pills. */
-header .actions,
-header .pst-admin-actions-lock {
-  gap: 6px !important;
-  height: auto !important;
-  min-height: 30px !important;
-  align-items: center !important;
-}
-
-header .actions .btn.secondary,
-header .pst-admin-actions-lock .btn.secondary {
-  color: var(--pst-inv-pill-ink) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-line) !important;
-}
-
-/* Current page / active jump / open collapse: compact red pill. */
-.btn.active,
-.btn.primary,
-.btn[aria-pressed="true"],
-header .actions .btn.active,
-header .actions .btn.primary,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary,
-.inventory-jumpbar .btn.active,
-.inventory-jumpbar .btn[aria-pressed="true"],
-.inventory-collapse-toggle.active,
-.inventory-collapse-toggle[aria-expanded="true"],
-.inventory-dashboard-card:not(.collapsed) .inventory-collapse-toggle {
-  color: #ffffff !important;
-  background: var(--pst-inv-pill-red) !important;
-  border-color: var(--pst-inv-pill-red) !important;
-}
-
-/* Inventory jump links use catalog On Order blue-outline language. */
-.inventory-jumpbar .btn:not(.active):not([aria-pressed="true"]),
-.inventory-jump-link:not(.active):not([aria-pressed="true"]) {
-  color: var(--pst-inv-pill-blue) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-blue) !important;
-}
-
-.inventory-jumpbar {
-  gap: 6px !important;
-  padding: 10px !important;
-  align-items: center !important;
-}
-
-.inventory-jumpbar-label {
-  margin-right: 4px !important;
-  color: var(--muted) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 10px !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
-  letter-spacing: .03em !important;
-  text-transform: uppercase !important;
-}
-
-/* Action color variants keep meaning but use outlined compact pills. */
-.btn.success,
-button.btn.success,
-a.btn.success,
-.receive-incoming-btn,
-.row-save {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-.btn.warning,
-button.btn.warning,
-a.btn.warning,
-.transit-incoming-btn {
-  color: var(--pst-inv-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-warn) !important;
-}
-
-.btn.danger,
-button.btn.danger,
-a.btn.danger,
-.cancel-incoming-btn {
-  color: var(--pst-inv-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-danger) !important;
-}
-
-.btn.secondary,
-button.btn.secondary,
-a.btn.secondary,
-.edit-incoming-btn,
-.close-incoming-edit-btn,
-.row-audit-btn,
-.incoming-line-remove {
-  color: var(--pst-inv-pill-ink) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-line) !important;
-}
-
-/* Disabled/read-only buttons match the compact grey Out style. */
-.btn:disabled,
-button.btn:disabled,
-.btn[aria-disabled="true"],
-button.btn[aria-disabled="true"],
-.btn.disabled,
-.reorder-action-btn:disabled,
-.reorder-select[disabled] {
-  color: #6f7680 !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-line) !important;
-  opacity: 1 !important;
-  cursor: not-allowed !important;
-  pointer-events: none !important;
-}
-
-/* Product active/inactive and inventory stock statuses. */
-.status-pill,
-.status-pill.active-pill,
-.active-pill {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-.status-pill.inactive-pill,
-.inactive-pill,
-.status-pill.low,
-.status-pill.out_of_stock,
-.status-pill.out,
-.status-pill.inactive {
-  color: var(--pst-inv-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-danger) !important;
-}
-
-.status-pill.limited {
-  color: var(--pst-inv-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-warn) !important;
-}
-
-.status-pill.in_stock,
-.status-pill.available {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-/* Reorder badges. */
-.reorder-critical {
-  color: var(--pst-inv-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-danger) !important;
-}
-
-.reorder-now,
-.reorder-watch {
-  color: var(--pst-inv-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-warn) !important;
-}
-
-.reorder-healthy {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-.reorder-none,
-.reorder-unknown {
-  color: #6f7680 !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-line) !important;
-}
-
-/* Incoming PO statuses. */
-.incoming-ordered {
-  color: var(--pst-inv-pill-blue) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-blue) !important;
-}
-
-.incoming-in_transit {
-  color: var(--pst-inv-pill-warn) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-warn) !important;
-}
-
-.incoming-received {
-  color: var(--pst-inv-pill-green) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-green) !important;
-}
-
-.incoming-cancelled,
-.incoming-issue_shorted {
-  color: var(--pst-inv-pill-danger) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-danger) !important;
-}
-
-/* Vendor/read-only/product-derived pills. */
-.vendor-id-pill {
-  color: var(--pst-inv-pill-red) !important;
-  background: #ffffff !important;
-  border-color: var(--pst-inv-pill-red) !important;
-}
-
-.inventory-readonly-value,
-.inventory-current-readonly,
-.inventory-price-readonly,
-.inventory-category,
-.inventory-strength {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  min-height: var(--pst-inv-pill-h) !important;
-  height: var(--pst-inv-pill-h) !important;
-  margin: 0 !important;
-  padding: 0 var(--pst-inv-pill-pad-x) !important;
-  border: 1px solid var(--pst-inv-pill-line) !important;
-  border-radius: var(--pst-inv-pill-radius) !important;
-  background: #ffffff !important;
-  color: #596579 !important;
-  font-size: var(--pst-inv-pill-font) !important;
-  font-weight: var(--pst-inv-pill-weight) !important;
-  line-height: 1 !important;
-  text-align: center !important;
-  white-space: nowrap !important;
-  cursor: not-allowed !important;
-}
-
-/* Button groups should not create bulky spacing. */
-.bulk-tools,
-.bulk,
-.actions,
-.pst-admin-actions-lock,
-.inventory-card-actions,
-.reorder-controls,
-.reorder-selected-actions,
-.incoming-actions,
-.incoming-edit-actions,
-.back-to-inventory-top {
-  gap: 6px !important;
-}
-
-/* Table cells stay compact with small pills. */
-td .btn,
-td button.btn,
-td a.btn,
-td .status-pill,
-td .reorder-badge,
-td .incoming-pill,
-td .vendor-id-pill,
-td .inventory-readonly-value {
-  margin-top: 2px !important;
-  margin-bottom: 2px !important;
-}
-
-/* Collapse buttons should not carry old minimum width. */
-.inventory-collapse-toggle {
-  min-width: 0 !important;
-}
-
-/* Keep selected count readable without looking like a button. */
-.reorder-selected-count {
-  color: var(--muted) !important;
-  font-size: 10px !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-}
-
-@media (max-width: 700px) {
-  .btn,
-  a.btn,
-  button.btn,
-  header .actions .btn,
-  header .actions a.btn,
-  header .actions button.btn,
-  header .pst-admin-actions-lock .btn,
-  header .pst-admin-actions-lock a.btn,
-  header .pst-admin-actions-lock button.btn,
-  .inventory-jumpbar .btn,
-  .inventory-jump-link,
-  .inventory-collapse-toggle,
-  .bulk-tools .btn,
-  .bulk .btn,
-  .reorder-controls .btn,
-  .reorder-selected-actions .btn,
-  .incoming-actions .btn,
-  .incoming-edit-actions .btn,
-  .vendor-form-grid .btn,
-  .back-to-inventory-top .btn,
-  .row-save,
-  .row-audit-btn,
-  .edit-incoming-btn,
-  .close-incoming-edit-btn,
-  .cancel-incoming-btn,
-  .receive-incoming-btn,
-  .transit-incoming-btn,
-  .save-incoming-edit-btn,
-  .incoming-line-remove,
-  .reorder-action-btn,
-  .status-pill,
-  .reorder-badge,
-  .incoming-pill,
-  .vendor-id-pill,
-  .active-pill,
-  .inactive-pill,
-  .inventory-readonly-value,
-  .inventory-current-readonly,
-  .inventory-price-readonly,
-  .inventory-category,
-  .inventory-strength {
-    min-height: 25px !important;
-    height: 25px !important;
-    padding: 0 9px !important;
-    font-size: 9.5px !important;
-  }
-
-  .inventory-jumpbar {
-    gap: 5px !important;
-    padding: 9px !important;
-  }
-}
-
-@media (max-width: 390px) {
-  .btn,
-  a.btn,
-  button.btn,
-  header .actions .btn,
-  header .actions a.btn,
-  header .actions button.btn,
-  header .pst-admin-actions-lock .btn,
-  header .pst-admin-actions-lock a.btn,
-  header .pst-admin-actions-lock button.btn,
-  .inventory-jumpbar .btn,
-  .inventory-jump-link,
-  .inventory-collapse-toggle,
-  .bulk-tools .btn,
-  .bulk .btn,
-  .reorder-controls .btn,
-  .reorder-selected-actions .btn,
-  .incoming-actions .btn,
-  .incoming-edit-actions .btn,
-  .vendor-form-grid .btn,
-  .back-to-inventory-top .btn,
-  .row-save,
-  .row-audit-btn,
-  .edit-incoming-btn,
-  .close-incoming-edit-btn,
-  .cancel-incoming-btn,
-  .receive-incoming-btn,
-  .transit-incoming-btn,
-  .save-incoming-edit-btn,
-  .incoming-line-remove,
-  .reorder-action-btn,
-  .status-pill,
-  .reorder-badge,
-  .incoming-pill,
-  .vendor-id-pill,
-  .active-pill,
-  .inactive-pill,
-  .inventory-readonly-value,
-  .inventory-current-readonly,
-  .inventory-price-readonly,
-  .inventory-category,
-  .inventory-strength {
-    min-height: 24px !important;
-    height: 24px !important;
-    padding: 0 8px !important;
-    font-size: 9px !important;
-  }
-}
-</style>
-</head>
-<body class="admin-auth-pending">
-<header>
-  <div class="topbar pst-admin-topbar-lock">
-    <a class="brand pst-admin-brand-lock" href="admin.html" aria-label="Pep Shop Texas Admin Home">
-      <span class="pst-admin-logo-mark">PST</span>
-      <span class="pst-admin-title-lock"><strong>PEP Shop Texas</strong><small>Orders Management</small></span>
-    </a>
-    <nav class="actions pst-admin-actions-lock" aria-label="Admin navigation">
-      <a class="btn secondary active" href="admin.html">Orders</a>
-      <a class="btn secondary" href="inventory.html">Inventory</a>
-      <a class="btn secondary" href="products.html">Products</a>
-      <a class="btn secondary" href="discounts.html">Discounts</a>
-      <a class="btn secondary" href="promotions.html">Promotions</a>
-      <a class="btn secondary" href="reports.html">Reports</a>
-      <a class="btn secondary" href="customers.html">Customers</a>
-      <a class="btn secondary" href="index.html">View Site</a>
-    </nav>
-  </div>
-</header>
-
-<main>
-  <div id="statusLine" class="status">Checking admin access...</div>
-
-  <nav class="admin-dashboard-nav inventory-jumpbar" id="adminDashboardNav" aria-label="Orders dashboard quick links">
-    <span class="inventory-jumpbar-label">Jump To</span>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="open-pending" data-admin-target="order-list-card">Open / Pending Orders</button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="paid-processing" data-admin-target="order-list-card">Paid / Processing Orders</button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="packed-ready" data-admin-target="order-list-card">Packed / Ready to Ship</button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="shipped-completed" data-admin-target="order-list-card">Shipped / Completed Orders</button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="rejected-cancelled" data-admin-target="order-list-card">Rejected / Cancelled Orders</button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="order-tools-email" data-admin-target="detailCard">Order Tools / Email Tools</button>
-  </nav>
-
-  <section class="grid admin-dashboard-grid">
-    <div class="card collapsible-card collapsed" id="order-list-card" data-admin-card="order-list">
-      <div class="card-header" data-admin-header="order-list-card"><h2>Order List</h2><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="order-list-card">Open</button></div>
-      <div class="card-body">
-        <div class="filters">
-          <div class="field"><label for="searchInput">Search</label><input id="searchInput" type="search" placeholder="Customer, email, order #, tracking..." /></div>
-          <div class="field"><label for="statusFilter">Order Status</label><select id="statusFilter"><option value="">All</option><option value="pending">Pending</option><option value="awaiting_payment">Awaiting Payment</option><option value="processing">Processing</option><option value="packed">Packed</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="complete">Complete</option><option value="inventory_failed">Inventory Failed</option><option value="cancelled">Cancelled</option><option value="rejected">Rejected</option><option value="refunded">Refunded</option></select></div>
-          <div class="field"><label for="paymentFilter">Payment</label><select id="paymentFilter"><option value="">All</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="failed">Failed</option><option value="refunded">Refunded</option><option value="manual_review">Manual Review</option></select></div>
-          <div class="field"><label for="dateFilter">Date</label><select id="dateFilter"><option value="">All Time</option><option value="today">Today</option><option value="7">Last 7 Days</option><option value="30">Last 30 Days</option></select></div>
-          <div class="field"><label for="attentionFilter">Attention</label><select id="attentionFilter"><option value="">All</option><option value="needs_attention">Needs Attention</option><option value="inventory_failed">Inventory Failed</option><option value="paid_not_shipped">Paid Not Shipped</option><option value="missing_tracking">Missing Tracking</option><option value="payment_pending_old">Payment Pending 24h+</option></select></div>
-          <button class="btn secondary" id="clearFiltersBtn" type="button">Clear</button>
-        </div>
-      </div>
-      <div id="orderAttentionSummary" class="attention-summary" aria-label="Order attention summary"></div>
-      <div class="bulk-bar">
-        <div class="bulk-left"><input id="selectAllOrders" type="checkbox" /><span id="selectedCount">0 selected</span></div>
-        <div class="bulk-actions">
-          <button class="btn secondary" id="bulkPaidBtn" type="button">Mark Paid</button>
-          <button class="btn secondary" id="bulkProcessingBtn" type="button">Processing</button>
-          <button class="btn secondary" id="bulkPackedBtn" type="button">Packed</button>
-          <button class="btn secondary" id="bulkDeliveredBtn" type="button">Delivered</button>
-          <button class="btn warning" id="bulkShippedBtn" type="button">Shipped</button>
-          <button class="btn secondary" id="bulkNoTrackingBtn" type="button">No Tracking Req.</button>
-          <button class="btn danger" id="bulkRejectedBtn" type="button">Reject</button>
-          <button class="btn danger" id="bulkDeleteTestBtn" type="button">Delete Test Orders</button>
-          <button class="btn secondary" id="bulkClearBtn" type="button">Clear Selection</button>
-        </div>
-      </div>
-      <div class="table-wrap"><table><thead><tr><th></th><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Order</th><th>Payment</th><th>Method</th><th>Tracking</th><th>Attention</th></tr></thead><tbody id="ordersBody"><tr><td colspan="10" class="muted">Loading orders...</td></tr></tbody></table></div>
-      <div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>
-    </div>
-
-    <div class="card collapsible-card collapsed" id="detailCard" data-admin-card="order-tools-email">
-      <div class="card-header" data-admin-header="detailCard"><h2>Order Tools / Email Tools</h2><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Open</button></div>
-      <div class="detail-empty">Select an order to view and manage details.</div>
-    </div>
-  </section>
-</main>
-
-
-<div class="email-preview-modal" id="emailPreviewModal" aria-hidden="true">
-  <div class="email-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="emailPreviewTitle">
-    <div class="email-preview-header">
-      <h2 id="emailPreviewTitle">Email Preview</h2>
-      <button class="btn secondary" id="closeEmailPreviewBtn" type="button">Close</button>
-    </div>
-    <div class="email-preview-meta">
-      <div class="kv"><strong>To</strong><span id="emailPreviewTo">—</span></div>
-      <div class="kv"><strong>Subject</strong><span id="emailPreviewSubject">—</span></div>
-    </div>
-    <div class="email-preview-body">
-      <div class="email-preview-frame" id="emailPreviewHtml">Loading preview...</div>
-    </div>
-    <div class="email-preview-actions">
-      <button class="btn secondary" id="cancelEmailPreviewBtn" type="button">Cancel</button>
-      <button class="btn success" id="sendPreviewedEmailBtn" type="button">Send This Email</button>
-    </div>
-  </div>
-</div>
-
-<script>
-  /* IMPORTANT: use the same Supabase URL and anon key already used in index.html/products.html. */
-  const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
-  const EMAIL_FUNCTION_NAME = "send-order-email";
-
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const $ = (id) => document.getElementById(id);
-  let currentUser = null;
-  let allOrders = [];
-  let filteredOrders = [];
-  let activeOrderId = null;
-  let selectedOrderIds = new Set();
-  let adminDashboardGroupFilter = "";
-
-  const orderStatuses = ["pending","awaiting_payment","processing","packed","shipped","delivered","complete","inventory_failed","cancelled","rejected","refunded"];
-  const paymentStatuses = ["pending","paid","failed","refunded","manual_review"];
-
-  function setStatus(message, type="") { const el = $("statusLine"); el.textContent = message; el.className = `status ${type}`.trim(); }
-  function esc(value){return String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));}
-  function money(value){ const n = Number(value ?? 0); return n.toLocaleString(undefined,{style:"currency",currency:"USD"}); }
-  function fmtDate(value){ if(!value) return "—"; const d = new Date(value); return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString(); }
-  function norm(value, fallback="pending"){ return String(value || fallback).toLowerCase().replace(/\s+/g,"_"); }
-  function cleanValue(value){ if(value === null || value === undefined) return ""; const text = String(value).trim(); return ["null","undefined","none","n/a","[object Object]"].includes(text.toLowerCase()) ? "" : text; }
-  const NO_TRACKING_REQUIRED_TOKEN = "[NO_TRACKING_REQUIRED]";
-  function removeNoTrackingToken(text){ return cleanValue(text).replace(new RegExp("\\s*" + NO_TRACKING_REQUIRED_TOKEN.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&"), "gi"), "").trim(); }
-  function rawAdminNotes(order){ return cleanValue(order.admin_note || order.admin_notes || ""); }
-  function noTrackingRequired(order){ return order.no_tracking_required === true || String(order.no_tracking_required).toLowerCase() === "true"; }
-  function setNoTrackingToken(text, enabled){ const clean = removeNoTrackingToken(text); return enabled ? `${NO_TRACKING_REQUIRED_TOKEN}${clean ? "\n" + clean : ""}` : clean; }
-  function pill(value){ const v = norm(value); return `<span class="pill ${esc(v)}">${esc(v.replaceAll("_"," "))}</span>`; }
-  function orderNumber(order){ return order.order_number || order.order_no || order.id || "—"; }
-  function orderTotal(order){ return order.total ?? order.total_amount ?? order.order_total ?? order.grand_total ?? 0; }
-  function orderSubtotal(order){ return order.subtotal ?? order.subtotal_amount ?? 0; }
-  function orderDiscount(order){ return order.discount_amount ?? order.discount ?? 0; }
-  function orderShipping(order){ return order.shipping_amount ?? order.shipping ?? 0; }
-  function orderTax(order){ return order.tax_amount ?? order.tax ?? 0; }
-  function orderTaxRate(order){ return Number(order.tax_rate ?? order.sales_tax_rate ?? 0); }
-  function orderTaxRegion(order){ return order.tax_region || order.tax_jurisdiction || "—"; }
-  function orderStatus(order){
-    // Use the real active status in a safe priority order.
-    // Supabase rows may contain both `status` and `order_status`; if they disagree,
-    // `status` is the field that reflects the latest admin/bulk update.
-    const statusValue = cleanValue(order.status);
-    const orderStatusValue = cleanValue(order.order_status);
-    const statusNorm = norm(statusValue, "");
-    const orderStatusNorm = norm(orderStatusValue, "");
-
-    if(statusValue && statusNorm !== "pending") return statusValue;
-    if(orderStatusValue && orderStatusNorm !== "pending") return orderStatusValue;
-    return statusValue || orderStatusValue || "pending";
-  }
-  function paymentStatus(order){ return order.payment_status || "pending"; }
-  function paymentMethod(order){
-    const direct = cleanValue(order.payment_method || order.payment_type || order.pay_method || order.selected_payment_method);
-    if(direct) return direct;
-    const notes = cleanValue([order.customer_notes, order.notes, order.order_notes, order.admin_note, order.admin_notes].join(" ")).toLowerCase();
-    if(notes.includes("venmo")) return "Venmo";
-    return "Manual / Not selected";
-  }
-  function paymentMethodPill(order){
-    const method = paymentMethod(order);
-    const cls = norm(method, "manual");
-    return `<span class="payment-method-pill ${esc(cls)}">${esc(method.replaceAll("_", " "))}</span>`;
-  }
-
-  function paymentInstructions(order){
-    const direct = cleanValue(order.payment_instructions_snapshot || order.payment_instructions || order.payment_note || order.payment_notes);
-    if(direct) return direct;
-    const notes = cleanValue(order.customer_notes || order.notes || order.order_notes || "");
-    const marker = "Payment method selected:";
-    const idx = notes.indexOf(marker);
-    if(idx >= 0) return notes.slice(idx).trim();
-    return "";
-  }
-  function paymentInstructionsMarkup(order){
-    const txt = paymentInstructions(order);
-    if(!txt) return "";
-    const qrMatch = txt.match(/QR code\/payment image:\s*(\S+)/i);
-    const qr = qrMatch ? qrMatch[1] : "";
-    return `<div class="detail-section"><h3>Payment Instructions Shown to Customer</h3><div class="email-box"><p style="white-space:pre-wrap;margin:0 0 8px;line-height:1.45">${esc(txt.replace(/\s*\|\s*/g, "\n"))}</p>${qr ? `<img src="${esc(qr)}" alt="Payment QR code" style="width:140px;max-width:100%;border:1px solid #d9e2ec;border-radius:8px;padding:6px;background:#fff">` : ""}</div></div>`;
-  }
-  function orderAgeHours(order){
-    const d = new Date(order.created_at || order.order_date || 0);
-    if(Number.isNaN(d.getTime())) return 0;
-    return (Date.now() - d.getTime()) / (1000*60*60);
-  }
-  function isClosedOrder(order){
-    return ["shipped","delivered","complete","completed","cancelled","rejected","refunded","inventory_failed","void"].includes(norm(orderStatus(order)));
-  }
-  function attentionFlags(order){
-    const os = norm(orderStatus(order));
-    const ps = norm(paymentStatus(order));
-    const tracking = cleanValue(order.tracking_number || order.tracking);
-    const flags = [];
-    if(["inventory_failed","out_of_stock"].includes(os)) flags.push("inventory_failed");
-    if(["failed","manual_review"].includes(ps)) flags.push("payment_issue");
-    if(ps === "pending" && !isClosedOrder(order) && orderAgeHours(order) >= 24) flags.push("payment_pending_old");
-    if(ps === "paid" && !["shipped","delivered","complete","completed","cancelled","rejected","refunded"].includes(os)) flags.push("paid_not_shipped");
-    if(["shipped","delivered","complete","completed"].includes(os) && !tracking && !noTrackingRequired(order)) flags.push("missing_tracking");
-    return flags;
-  }
-  function needsAttention(order){ return attentionFlags(order).length > 0; }
-  function attentionReason(order){
-    const flags = attentionFlags(order);
-    if(!flags.length) return '<span class="muted">OK</span>';
-    const labels = {
-      inventory_failed:"Inventory failed",
-      payment_issue:"Payment issue",
-      payment_pending_old:"Payment pending 24h+",
-      paid_not_shipped:"Paid / not shipped",
-      missing_tracking:"Missing tracking"
-    };
-    return `<div class="attention-reason"><strong>Needs Attention</strong>${flags.map(f => esc(labels[f] || f.replaceAll("_"," "))).join("<br>")}</div>`;
-  }
-  function matchesAttentionFilter(order, filter){
-    if(!filter) return true;
-    const flags = attentionFlags(order);
-    if(filter === "needs_attention") return flags.length > 0;
-    return flags.includes(filter);
-  }
-  function renderAttentionSummary(){
-    const el = $("orderAttentionSummary");
-    if(!el) return;
-    const counts = {
-      needs_attention: allOrders.filter(needsAttention).length,
-      inventory_failed: allOrders.filter(o => attentionFlags(o).includes("inventory_failed")).length,
-      paid_not_shipped: allOrders.filter(o => attentionFlags(o).includes("paid_not_shipped")).length,
-      missing_tracking: allOrders.filter(o => attentionFlags(o).includes("missing_tracking")).length,
-      payment_pending_old: allOrders.filter(o => attentionFlags(o).includes("payment_pending_old")).length
-    };
-    const active = $("attentionFilter")?.value || "";
-    const cards = [
-      ["needs_attention","Needs Attention",counts.needs_attention,"danger"],
-      ["inventory_failed","Inventory Failed",counts.inventory_failed,"danger"],
-      ["paid_not_shipped","Paid / Not Shipped",counts.paid_not_shipped,"warning"],
-      ["missing_tracking","Missing Tracking",counts.missing_tracking,"warning"],
-      ["payment_pending_old","Payment Pending 24h+",counts.payment_pending_old,"warning"]
-    ];
-    el.innerHTML = cards.map(([key,label,count,tone]) => `<button type="button" class="attention-card ${tone} ${active===key?"active":""}" data-attention-card="${key}"><strong>${count}</strong><span>${label}</span></button>`).join("");
-    el.querySelectorAll("[data-attention-card]").forEach(btn => btn.addEventListener("click", () => {
-      const key = btn.dataset.attentionCard;
-      const filter = $("attentionFilter");
-      if(filter) filter.value = (filter.value === key ? "" : key);
-      clearOrderDashboardFilters();
-      applyFilters();
-      syncAdminJumpLinkState();
-    }));
-  }
-
-  function profileOf(order){ return order.profile || {}; }
-  function customerName(order){ const p=profileOf(order); return order.customer_name || order.name || [p.first_name,p.last_name].filter(Boolean).join(" ") || p.full_name || "Customer"; }
-  function customerEmail(order){ const p=profileOf(order); return order.customer_email || order.email || order.shipping_email || order.contact_email || order.billing_email || p.email || ""; }
-  function customerPhone(order){ const p=profileOf(order); return order.customer_phone || order.phone || p.phone || "—"; }
-  function shippingAddress(order){ const p=profileOf(order); return order.shipping_address || order.address || p.shipping_address || p.address || [p.address1,p.address2,p.city,p.state,p.zip].filter(Boolean).join(", ") || "—"; }
-  function trackingUrl(carrier, number, provided){ if(provided) return provided; if(!number) return ""; const n=encodeURIComponent(number); const c=String(carrier||"").toLowerCase(); if(c.includes("usps")) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${n}`; if(c.includes("ups")) return `https://www.ups.com/track?tracknum=${n}`; if(c.includes("fedex")) return `https://www.fedex.com/fedextrack/?trknbr=${n}`; return ""; }
-  function adminDisplayName(){ const email=cleanValue(currentUser?.email).toLowerCase(); if(email === "wacoweaver@gmail.com") return "Jimmie Weaver"; return cleanValue(currentUser?.user_metadata?.full_name) || cleanValue(currentUser?.email) || "Admin"; }
- function normalizeAdminNotes(text){
-  const raw = removeNoTrackingToken(cleanValue(text))
-    .replace(/Admin account:\s*wacoweaver@gmail\.com/gi, "Admin account: Jimmie Weaver")
-    .replace(/wacoweaver@gmail\.com/gi, "Jimmie Weaver");
-
-  const entries = raw
-    .split(/\n{2,}/)
-    .map(x => x.trim())
-    .filter(Boolean)
-    .filter(entry => {
-      const compact = entry.replace(/\s+/g, " ").trim();
-
-      if(/^\[\]$/.test(compact)) return false;
-      if(/\bss:\s*[^|]*→/i.test(compact)) return false;
-      if(/\bPym\s+ss\b/i.test(compact)) return false;
-      if(/\bPymp\s+ssf\b/i.test(compact)) return false;
-      if(/\bJmm\s+Wv\b/i.test(compact)) return false;
-      if(/\bwwv@ml\.m\b/i.test(compact)) return false;
-      if(/\bjff@yh\.m\b/i.test(compact)) return false;
-
-      return true;
-    });
-
-  return entries.join("\n\n\n");
-}
-
-// Then we'll do the second replacement for the status/payment lines.
-  function auditLine(text){ return `[${new Date().toLocaleString()}] ${text} | Admin account: ${adminDisplayName()}`; }
-  function joinAuditNotes(current, line){ const base=normalizeAdminNotes(current || "").trim(); return `${base}${base ? "\n\n\n" : ""}${line}`; }
-  function describeFieldChange(label, oldValue, newValue){
-    const oldText = cleanValue(oldValue);
-    const newText = cleanValue(newValue);
-    if(oldText === newText) return "";
-    if(!oldText && newText) return `${label} added: ${newText}`;
-    if(oldText && !newText) return `${label} removed`;
-    return `${label} changed: ${oldText} → ${newText}`;
-  }
-  function emailTypeLabel(type){
-    const labels = {
-      order_received:"Order received",
-      payment_accepted:"Payment accepted",
-      payment_issue:"Payment issue",
-      order_processing:"Processing",
-      order_packed:"Packed / awaiting carrier pickup",
-      order_shipped:"Shipped",
-      order_delivered:"Delivered",
-      order_complete:"Complete",
-      order_cancelled:"Cancelled",
-      order_rejected:"Rejected"
-    };
-    return labels[type] || String(type || "Status").replaceAll("_", " ");
-  }
-  function customerFacingStatusNote(type){
-    if(type === "order_received") return "Your order has been received and is pending payment/processing.";
-    if(type === "order_packed") return "Your order has been packed and is awaiting carrier pickup.";
-    return "";
-  }
-
-  function emailTypeNeedsPreview(type){
-    return ["order_shipped","order_cancelled","order_rejected"].includes(String(type || ""));
-  }
-  function previewableManualEmailTypes(){
-    return ["order_received","payment_accepted","payment_issue","order_processing","order_packed","order_shipped","order_delivered","order_cancelled","order_rejected"];
-  }
-  function closeEmailPreview(){
-    const modal = $("emailPreviewModal");
-    if(modal){
-      modal.classList.remove("open");
-      modal.setAttribute("aria-hidden", "true");
-    }
-    window.pendingPreviewEmail = null;
-  }
-  function setEmailPreviewLoading(to, label){
-    if($("emailPreviewTitle")) $("emailPreviewTitle").textContent = `Email Preview — ${label}`;
-    if($("emailPreviewTo")) $("emailPreviewTo").textContent = to || "—";
-    if($("emailPreviewSubject")) $("emailPreviewSubject").textContent = "Loading...";
-    if($("emailPreviewHtml")) $("emailPreviewHtml").innerHTML = "Loading preview...";
-    const modal = $("emailPreviewModal");
-    if(modal){
-      modal.classList.add("open");
-      modal.setAttribute("aria-hidden", "false");
-    }
-  }
-    async function appendAdminAudit(order, text){
-  let current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-
-  try {
-    const { data, error } = await supabaseClient
-      .from("orders")
-      .select("admin_note, admin_notes")
-      .eq("id", order.id)
-      .maybeSingle();
-
-    if(!error && data){
-      current = normalizeAdminNotes(data.admin_note || data.admin_notes || current);
-    }
-  } catch (_) {}
-
-  const next = joinAuditNotes(current, auditLine(text));
-
-  await safeUpdateOrder(
-    order.id,
-    { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() },
-    { ...order, admin_note: current, admin_notes: current }
-  ).catch(()=>{});
-
-  order.admin_note = next;
-  order.admin_notes = next;
-}
-
-  function selectedOrdersArray(){ return Array.from(selectedOrderIds).map(String).filter(Boolean); }
-  function renderSelectedCount(){ $("selectedCount").textContent = `${selectedOrderIds.size} selected`; const allVisible = filteredOrders.length && filteredOrders.every(o => selectedOrderIds.has(String(o.id))); $("selectAllOrders").checked = !!allVisible; }
-
-
-  function adminStickyOffset(){
-    const header = document.querySelector("header")?.offsetHeight || 0;
-    const nav = $("adminDashboardNav")?.offsetHeight || 0;
-    return header + nav + 22;
-  }
-  function scrollAdminToTarget(targetId){
-    const el = $(targetId);
-    if(!el) return;
-    const y = el.getBoundingClientRect().top + window.scrollY - adminStickyOffset();
-    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-  }
-  function setAdminCardOpen(targetId, open=true){
-    const card = $(targetId);
-    if(!card) return;
-    card.classList.toggle("collapsed", !open);
-    const btn = card.querySelector("[data-admin-collapse-target]");
-    if(btn){
-      btn.textContent = open ? "Collapse" : "Open";
-      btn.classList.toggle("active", !!open);
-      btn.setAttribute("aria-expanded", open ? "true" : "false");
-      btn.setAttribute("aria-pressed", open ? "true" : "false");
-    }
-    syncAdminJumpLinkState();
-  }
-  function toggleAdminCard(targetId){
-    const card = $(targetId);
-    if(!card) return;
-    setAdminCardOpen(targetId, card.classList.contains("collapsed"));
-  }
-  function clearOrderDashboardFilters(){
-    adminDashboardGroupFilter = "";
-  }
-  function matchesAdminDashboardGroup(order, group){
-    if(!group) return true;
-    const os = norm(orderStatus(order));
-    const ps = norm(paymentStatus(order));
-    if(group === "open-pending") return ["pending","awaiting_payment"].includes(os) || ps === "pending";
-    if(group === "paid-processing") return (ps === "paid" && ["pending","awaiting_payment","processing"].includes(os)) || os === "processing";
-    if(group === "packed-ready") return os === "packed";
-    if(group === "shipped-completed") return ["shipped","delivered","complete","completed"].includes(os);
-    if(group === "rejected-cancelled") return ["cancelled","canceled","rejected","refunded","inventory_failed","failed"].includes(os) || ["refunded","failed"].includes(ps);
-    return true;
-  }
-  function dashboardGroupLabel(group){
-    const labels = {
-      "open-pending":"Open / Pending Orders",
-      "paid-processing":"Paid / Processing Orders",
-      "packed-ready":"Packed / Ready to Ship",
-      "shipped-completed":"Shipped / Completed Orders",
-      "rejected-cancelled":"Rejected / Cancelled Orders",
-      "order-tools-email":"Order Tools / Email Tools"
-    };
-    return labels[group] || "Orders";
-  }
-  function syncAdminJumpLinkState(){
-    document.querySelectorAll("#adminDashboardNav [data-admin-jump]").forEach(btn => {
-      const targetId = btn.dataset.adminTarget;
-      const jump = btn.dataset.adminJump;
-      const targetOpen = targetId && $(targetId) && !$(targetId).classList.contains("collapsed");
-      const active = targetOpen && (jump === "order-tools-email" ? true : adminDashboardGroupFilter === jump);
-      btn.classList.toggle("active", !!active);
-      btn.setAttribute("aria-pressed", active ? "true" : "false");
-    });
-    document.querySelectorAll("[data-admin-collapse-target]").forEach(btn => {
-      const target = $(btn.dataset.adminCollapseTarget);
-      if(target){
-        const open = !target.classList.contains("collapsed");
-        btn.textContent = open ? "Collapse" : "Open";
-        btn.classList.toggle("active", open);
-        btn.setAttribute("aria-expanded", open ? "true" : "false");
-        btn.setAttribute("aria-pressed", open ? "true" : "false");
-      }
-    });
-  }
-  function toggleAdminCardFromJump(btn){
-    const targetId = btn.dataset.adminTarget;
-    const jump = btn.dataset.adminJump;
-    const target = $(targetId);
-    if(!target) return;
-
-    if(jump === "order-tools-email"){
-      const willOpen = target.classList.contains("collapsed");
-      setAdminCardOpen(targetId, willOpen);
-      if(willOpen) setTimeout(() => scrollAdminToTarget(targetId), 60);
-      return;
-    }
-
-    const sameActive = adminDashboardGroupFilter === jump && !target.classList.contains("collapsed");
-    if(sameActive){
-      adminDashboardGroupFilter = "";
-      setAdminCardOpen(targetId, false);
-      applyFilters();
-      syncAdminJumpLinkState();
-      return;
-    }
-
-    adminDashboardGroupFilter = jump;
-    if($("statusFilter")) $("statusFilter").value = "";
-    if($("paymentFilter")) $("paymentFilter").value = "";
-    if($("attentionFilter")) $("attentionFilter").value = "";
-    setAdminCardOpen(targetId, true);
-    applyFilters();
-    setStatus(`Showing ${dashboardGroupLabel(jump)}.`, "good");
-    setTimeout(() => scrollAdminToTarget(targetId), 60);
-  }
-  function setupAdminDashboardNavigation(){
-    document.addEventListener("click", (event) => {
-      const collapseBtn = event.target.closest("[data-admin-collapse-target]");
-      if(collapseBtn){
-        event.preventDefault();
-        event.stopPropagation();
-        const targetId = collapseBtn.dataset.adminCollapseTarget;
-        if(targetId === "order-list-card" && !$(targetId)?.classList.contains("collapsed")) adminDashboardGroupFilter = "";
-        toggleAdminCard(targetId);
-        applyFilters();
-        syncAdminJumpLinkState();
-        return;
-      }
-      const jumpBtn = event.target.closest("#adminDashboardNav [data-admin-jump]");
-      if(jumpBtn){
-        event.preventDefault();
-        toggleAdminCardFromJump(jumpBtn);
-        return;
-      }
-      const topBtn = event.target.closest("[data-admin-back-top]");
-      if(topBtn){
-        event.preventDefault();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    });
-    syncAdminJumpLinkState();
-  }
-
-
-  async function checkAdminAccess(){
-    setStatus("Checking admin access...");
-    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-    if(sessionError) throw sessionError;
-    const session = sessionData?.session;
-    if(!session?.user){ setStatus("You are not logged in. Log in from the website first, then return to admin.html.", "bad"); return false; }
-    currentUser = session.user;
-    const checks = [
-      supabaseClient.from("admin_users").select("*").eq("user_id", currentUser.id).maybeSingle(),
-      supabaseClient.from("admin_users").select("*").eq("email", currentUser.email).maybeSingle()
-    ];
-    const results = await Promise.allSettled(checks);
-    const rows = results.filter(r => r.status === "fulfilled" && r.value?.data).map(r => r.value.data);
-    const admin = rows.find(r => r && (r.is_active === true || r.active === true || r.is_admin === true || r.email === currentUser.email));
-    if(!admin){ setStatus("Access denied. This login is not listed as an active Pep Shop Texas admin.", "bad"); return false; }
-    document.body.classList.remove("admin-auth-pending");
-    setStatus(`Admin access confirmed for ${currentUser.email}.`, "good");
-    return true;
-  }
-
-  async function loadOrders(){
-    setStatus("Loading orders...");
-    const { data: orders, error } = await supabaseClient.from("orders").select("*").order("created_at", { ascending:false });
-    if(error) throw error;
-    const orderIds = (orders||[]).map(o=>o.id).filter(Boolean);
-    const userIds = [...new Set((orders||[]).flatMap(o=>[o.user_id,o.customer_id,o.profile_id,o.customer_profile_id,o.auth_user_id]).map(cleanValue).filter(Boolean))];
-    const orderEmails = [...new Set((orders||[]).flatMap(o=>[o.customer_email,o.email,o.shipping_email,o.contact_email,o.billing_email]).map(v=>cleanValue(v).toLowerCase()).filter(Boolean))];
-    let itemsByOrder = {}, profilesByUser = {}, profilesByEmail = {};
-
-    if(orderIds.length){
-      const { data: items, error: itemError } = await supabaseClient.from("order_items").select("*").in("order_id", orderIds);
-      if(itemError) throw itemError;
-      const productIds = [...new Set((items||[]).map(item => cleanValue(item.product_id)).filter(Boolean))];
-      const productsById = {};
-      if(productIds.length){
-        const { data: products, error: productError } = await supabaseClient.from("products").select("id,product_key").in("id", productIds);
-        if(productError) console.warn("Product-key lookup failed:", productError.message || productError);
-        (products||[]).forEach(product => { productsById[String(product.id)] = product; });
-      }
-      (items||[]).forEach(item => {
-        const product = productsById[String(item.product_id)] || {};
-        const enrichedItem = {...item, product_key: item.product_key || product.product_key || ""};
-        const k=enrichedItem.order_id;
-        if(!itemsByOrder[k]) itemsByOrder[k]=[];
-        itemsByOrder[k].push(enrichedItem);
-      });
-    }
-
-    // customer_profiles appears to have user_id and email, but not id/customer_id/customer_email/shipping_email.
-    // Keep lookups limited to known-safe columns to avoid Supabase 400 console errors.
-    if(userIds.length){
-      const { data: profiles, error: profileError } = await supabaseClient.from("customer_profiles").select("*").in("user_id", userIds);
-      if(profileError) console.warn("Customer profile lookup by user_id failed:", profileError.message || profileError);
-      (profiles||[]).forEach(p => { if(p.user_id) profilesByUser[String(p.user_id)]=p; if(p.email) profilesByEmail[String(p.email).toLowerCase()]=p; });
-    }
-    if(orderEmails.length){
-      const { data: profiles, error: emailProfileError } = await supabaseClient.from("customer_profiles").select("*").in("email", orderEmails);
-      if(emailProfileError) console.warn("Customer profile lookup by email failed:", emailProfileError.message || emailProfileError);
-      (profiles||[]).forEach(p => { if(p.user_id) profilesByUser[String(p.user_id)]=p; if(p.email) profilesByEmail[String(p.email).toLowerCase()]=p; });
-    }
-    allOrders = (orders||[]).map(o => {
-      const profile = profilesByUser[cleanValue(o.user_id)] || profilesByUser[cleanValue(o.customer_id)] || profilesByUser[cleanValue(o.profile_id)] || profilesByEmail[cleanValue(o.customer_email || o.email || o.shipping_email).toLowerCase()] || {};
-      return {...o, items: itemsByOrder[o.id] || [], profile};
-    });
-    selectedOrderIds = new Set([...selectedOrderIds].filter(id => allOrders.some(o => o.id === id)));
-    applyFilters();
-    setStatus(`Loaded ${allOrders.length} order${allOrders.length===1?"":"s"}.`, "good");
-  }
-
-  function applyFilters(){
-    const q = $("searchInput").value.trim().toLowerCase();
-    const s = $("statusFilter").value;
-    const p = $("paymentFilter").value;
-    const d = $("dateFilter").value;
-    const a = $("attentionFilter")?.value || "";
-    const g = adminDashboardGroupFilter;
-    const now = new Date();
-    filteredOrders = allOrders.filter(order => {
-      const hay = [orderNumber(order), customerName(order), customerEmail(order), customerPhone(order), order.tracking_number, order.carrier, order.tracking_carrier, order.admin_note, order.customer_notes, paymentMethod(order)].join(" ").toLowerCase();
-      if(q && !hay.includes(q)) return false;
-      if(s && norm(orderStatus(order)) !== s) return false;
-      if(p && norm(paymentStatus(order)) !== p) return false;
-      if(a && !matchesAttentionFilter(order, a)) return false;
-      if(g && !matchesAdminDashboardGroup(order, g)) return false;
-      if(d){ const created = new Date(order.created_at || order.order_date || 0); if(Number.isNaN(created.getTime())) return false; if(d === "today" && created.toDateString() !== now.toDateString()) return false; if(d !== "today" && ((now-created)/(1000*60*60*24) > Number(d))) return false; }
-      return true;
-    });
-    renderOrders(); renderSelectedCount(); renderAttentionSummary(); syncAdminJumpLinkState();
-  }
-
-  function renderOrders(){
-    const body = $("ordersBody");
-    if(!filteredOrders.length){ body.innerHTML = `<tr><td colspan="10" class="muted">No orders match the current filters.</td></tr>`; return; }
-    body.innerHTML = filteredOrders.map(order => {
-      const id = esc(order.id);
-      const track = order.tracking_number || order.tracking || "";
-      return `<tr class="order-row ${activeOrderId===order.id?"active":""}" data-order-id="${id}">
-        <td onclick="event.stopPropagation()"><input class="row-check" type="checkbox" data-check-id="${id}" ${selectedOrderIds.has(String(order.id))?"checked":""}></td>
-        <td><strong>#${esc(String(orderNumber(order)))}</strong><div class="muted">${esc((order.items||[]).length)} item row(s)</div></td>
-        <td>${esc(fmtDate(order.created_at || order.order_date))}</td>
-        <td><strong>${esc(customerName(order))}</strong><div class="muted">${esc(customerEmail(order) || "No email")}</div></td>
-        <td><strong>${money(orderTotal(order))}</strong></td>
-        <td>${pill(orderStatus(order))}</td>
-        <td>${pill(paymentStatus(order))}</td>
-        <td>${paymentMethodPill(order)}</td>
-        <td>${track ? `<strong>${esc(track)}</strong><div class="muted">${esc(order.tracking_carrier || order.carrier || "Carrier not set")}</div>` : `<span class="muted">Not added</span>`}</td>
-        <td>${inventoryRestoreCompactMarkup(order)}${attentionReason(order)}</td>
-      </tr>`;
-    }).join("");
-    document.querySelectorAll("tr.order-row").forEach(row => row.addEventListener("click", () => { const order = allOrders.find(o => String(o.id) === String(row.dataset.orderId)); if(order) renderOrderDetail(order); }));
-    document.querySelectorAll(".row-check").forEach(cb => cb.addEventListener("change", e => { const id=e.target.dataset.checkId; e.target.checked ? selectedOrderIds.add(id) : selectedOrderIds.delete(id); renderSelectedCount(); }));
-  }
-
-  function itemsMarkup(order){
-    const items = order.items || [];
-    if(!items.length) return `<div class="muted">No item rows found for this order.</div>`;
-    return `<div class="item-list">${items.map(item => {
-      const name = item.product_name || item.name || item.display_name || item.product_key || "Item";
-      const qty = item.quantity ?? item.qty ?? 1;
-      const price = item.unit_price ?? item.price ?? 0;
-      const line = item.line_total ?? item.total ?? (Number(qty)*Number(price));
-      return `<div class="item"><div class="item-top"><span>${esc(name)}</span><span>${money(line)}</span></div><div class="muted">Qty: ${esc(qty)} · Unit: ${money(price)} ${item.strength ? `· ${esc(item.strength)}` : ""}</div></div>`;
-    }).join("")}</div>`;
-  }
-
-
-  function auditActionLabel(row){
-    const type = cleanValue(row.action_type);
-    const labels = {
-      order_received: "Order received",
-      payment_status_changed: "Payment status changed",
-      order_status_changed: "Order status changed",
-      tracking_changed: "Tracking changed",
-      tracking_carrier_changed: "Tracking carrier changed",
-      no_tracking_required_changed: "No tracking required changed",
-      no_tracking_reason_changed: "No tracking reason changed"
-    };
-    return labels[type] || type.replaceAll("_", " ") || "Admin action";
-  }
-
-  function auditValueText(value){
-    const txt = cleanValue(value);
-    if(txt === "true") return "Yes";
-    if(txt === "false") return "No";
-    return txt || "—";
-  }
-
-  function orderAuditLogMarkup(order){
-    const rows = Array.isArray(order.audit_log) ? order.audit_log : [];
-    if(!rows.length) return `<div class="audit-scrollbox"><div class="audit-empty">No audit entries have been recorded for this order yet.</div></div>`;
-    return `<div class="audit-scrollbox"><div class="audit-list">${rows.map(row => {
-      const label = auditActionLabel(row);
-      const who = cleanValue(row.changed_by) || cleanValue(row.changed_by_email) || "System";
-      const from = auditValueText(row.old_value);
-      const to = auditValueText(row.new_value);
-      const when = fmtDate(row.created_at);
-      return `<div class="audit-item"><strong>${esc(label)}</strong> <span class="muted">${esc(when)}</span><div class="audit-line-detail"><strong>By:</strong> ${esc(who)} &nbsp; <strong>From:</strong> ${esc(from)} &nbsp; <strong>To:</strong> ${esc(to)}</div></div>`;
-    }).join("")}</div></div>`;
-  }
 
-  async function attachAuditLog(order){
-    if(!order?.id) return order;
-    const { data, error } = await supabaseClient
-      .from("order_audit_log")
-      .select("action_type, field_name, old_value, new_value, changed_by, changed_by_email, created_at")
-      .eq("order_id", order.id)
-      .order("created_at", { ascending:false });
-    if(error){ console.warn("Could not load order audit log:", error.message || error); return { ...order, audit_log: [] }; }
-    return { ...order, audit_log: data || [] };
+  #pst-header-v3 .pst-right {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    flex-wrap: wrap !important;
+    gap: 10px 14px !important;
   }
 
-  function parseAuditEntry(entry){
-    const text = cleanValue(entry);
-    const timestampMatch = text.match(/^\[([^\]]+)\]\s*(.*)$/);
-    const timestamp = timestampMatch ? timestampMatch[1] : "";
-    const body = timestampMatch ? timestampMatch[2] : text;
-    const parts = body.split(/\s*\|\s*Admin account:\s*/i);
-    const actionText = cleanValue(parts[0]);
-    const adminText = cleanValue(parts[1] || "");
-    const byMatch = actionText.match(/by\s+([^:]+):/i);
-    const changedBy = cleanValue(byMatch ? byMatch[1] : adminText) || "Admin";
-    let title = "Admin action";
-    if(/order status changed/i.test(actionText)) title = "Order status changed";
-    else if(/payment status changed/i.test(actionText)) title = "Payment status changed";
-    else if(/status notification sent/i.test(actionText)) title = "Status notification sent";
-    else if(/admin override used/i.test(actionText)) title = "Admin override used";
-    return { timestamp, actionText, changedBy, title };
+  #pst-header-v3 .pst-search {
+    width: 220px !important;
+    min-width: 190px !important;
+    flex-basis: 220px !important;
+    height: 40px !important;
   }
 
-  function auditHistoryMarkupFromNotes(order){
-    const noteText = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-    const auditEntries = noteText
-      .split(/\n{2,}/)
-      .map(x => x.trim())
-      .filter(Boolean)
-      .filter(entry => /^\[[^\]]+\]/.test(entry) || /changed by|Admin account:|status notification sent|admin override used/i.test(entry));
-
-    return auditEntries.map(entry => {
-      const parsed = parseAuditEntry(entry);
-      const when = parsed.timestamp || "—";
-      return `<div class="audit-item"><strong>${esc(parsed.title)}</strong><span class="muted">${esc(when)}</span><div style="margin-top:6px;line-height:1.45"><strong style="display:inline">Changed by:</strong> ${esc(parsed.changedBy)}<br><strong style="display:inline">What happened:</strong> ${esc(parsed.actionText)}</div></div>`;
-    }).join("");
-  }
-
-  function historyMarkup(order){
-    const events = [];
-    if(order.created_at) events.push(["Order created", order.created_at]);
-    if(order.paid_at) events.push(["Payment received", order.paid_at]);
-    if(order.processing_at) events.push(["Marked processing", order.processing_at]);
-    if(order.packed_at) events.push(["Marked packed", order.packed_at]);
-    if(order.shipped_at) events.push(["Marked shipped", order.shipped_at]);
-    if(order.shipping_email_sent_at) events.push(["Shipping email sent", order.shipping_email_sent_at]);
-    if(order.delivered_at) events.push(["Marked delivered", order.delivered_at]);
-    if(order.cancelled_at) events.push(["Cancelled", order.cancelled_at]);
-    if(order.rejected_at) events.push(["Rejected", order.rejected_at]);
-    if(order.updated_at) events.push(["Last updated", order.updated_at]);
-
-    const audit = auditHistoryMarkupFromNotes(order);
-    if(!events.length && !audit) return `<div class="muted">No timeline fields are currently saved for this order.</div>`;
-
-    const timeline = events.map(([label,date])=>`<div class="audit-item"><strong>${esc(label)}</strong><span class="muted">${esc(fmtDate(date))}</span><div style="margin-top:6px;line-height:1.45"><strong style="display:inline">Changed by:</strong> System timeline</div></div>`).join("");
-    return `<div class="audit-list">${audit}${timeline}</div>`;
-  }
-
-
-  const orderStatusRank = { pending:0, awaiting_payment:0, processing:1, packed:2, shipped:3, delivered:4, complete:5, cancelled:-1, rejected:-1 };
-  function isOrderLocked(order){
-    const os = norm(orderStatus(order));
-    const ps = norm(paymentStatus(order));
-    return ps === "paid" || ["packed","shipped","delivered","complete"].includes(os);
-  }
-  function lockReason(order){
-    const reasons = [];
-    if(norm(paymentStatus(order)) === "paid") reasons.push("payment is marked Paid");
-    const os = norm(orderStatus(order));
-    if(["packed","shipped","delivered","complete"].includes(os)) reasons.push(`order is marked ${os.replaceAll("_"," ")}`);
-    return reasons.join(" and ") || "protected order stage";
-  }
-  function isRiskyLockedChange(order, updates){
-    if(!isOrderLocked(order)) return false;
-    const oldOS = norm(orderStatus(order));
-    const newOS = norm(updates.order_status || oldOS);
-    const oldPS = norm(paymentStatus(order));
-    const newPS = norm(updates.payment_status || oldPS);
-    const oldCarrier = cleanValue(order.tracking_carrier || order.carrier);
-    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
-    const oldTracking = cleanValue(order.tracking_number || order.tracking);
-    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
-    const oldUrl = cleanValue(order.tracking_url);
-    const newUrl = cleanValue(updates.tracking_url);
-
-    // Delivered and Complete are fulfillment recordkeeping states. They no longer require override by themselves.
-    // The protected cases are money/inventory risk: refund/cancel/reject or moving backwards from picked/shipped stages.
-    if(oldPS === "paid" && ["refunded","failed"].includes(newPS)) return true;
-    if(["cancelled","canceled","rejected","refunded"].includes(newOS)) return true;
-
-    const oldRank = orderStatusRank[oldOS] ?? 0;
-    const newRank = orderStatusRank[newOS] ?? 0;
-    if(["packed","shipped"].includes(oldOS) && newRank < oldRank) return true;
-    if(["shipped"].includes(oldOS) && (oldCarrier !== newCarrier || oldTracking !== newTracking || oldUrl !== newUrl)) return true;
-    return false;
-  }
-  function inventorySensitiveOrderChange(order, updates){
-    const oldOS = norm(orderStatus(order));
-    const newOS = norm(updates.order_status || oldOS);
-    const oldPS = norm(paymentStatus(order));
-    const newPS = norm(updates.payment_status || oldPS);
-    const inventoryWasTouched = order.inventory_deducted === true || order.inventory_restored === true;
-    const paidOrFulfilled = oldPS === "paid" || ["processing","packed","shipped","delivered","complete","completed"].includes(oldOS);
-    const cancellationLike = ["cancelled","canceled","rejected","refunded"].includes(newOS);
-    const refundLike = ["refunded","failed"].includes(newPS) && oldPS === "paid";
-    return (inventoryWasTouched || paidOrFulfilled) && (cancellationLike || refundLike);
-  }
-  function inventorySensitiveReason(order, updates){
-    const newOS = norm(updates.order_status || orderStatus(order));
-    const newPS = norm(updates.payment_status || paymentStatus(order));
-    if(["cancelled","canceled"].includes(newOS)) return "cancel order / possible inventory restoration";
-    if(newOS === "rejected") return "reject order / possible inventory restoration";
-    if(newOS === "refunded" || newPS === "refunded") return "refund order / inventory-money risk";
-    return "inventory-sensitive order change";
-  }
-  function inventoryRestoreNeeded(order, updates){
-    const oldOS = norm(orderStatus(order));
-    const newOS = norm(updates.order_status || oldOS);
-    const oldPS = norm(paymentStatus(order));
-    const newPS = norm(updates.payment_status || oldPS);
-    const inventoryDeducted = order.inventory_deducted === true || String(order.inventory_deducted).toLowerCase() === "true";
-    const inventoryRestored = order.inventory_restored === true || String(order.inventory_restored).toLowerCase() === "true";
-    const cancellationLike = ["cancelled","canceled","rejected","refunded"].includes(newOS);
-    const refundLike = newPS === "refunded" && oldPS === "paid";
-    return inventoryDeducted && !inventoryRestored && (cancellationLike || refundLike);
-  }
-  function inventoryRestoreReason(order, updates){
-    const newOS = norm(updates.order_status || orderStatus(order));
-    const newPS = norm(updates.payment_status || paymentStatus(order));
-    if(["cancelled","canceled"].includes(newOS)) return "Inventory restored after order cancellation";
-    if(newOS === "rejected") return "Inventory restored after order rejection";
-    if(newOS === "refunded" || newPS === "refunded") return "Inventory restored after order refund";
-    return "Inventory restored by admin status change";
-  }
-
-  function orderInventoryDeducted(order){
-    return order.inventory_deducted === true || String(order.inventory_deducted).toLowerCase() === "true";
-  }
-  function orderInventoryRestored(order){
-    return order.inventory_restored === true || String(order.inventory_restored).toLowerCase() === "true";
-  }
-  function closedInventoryReturnStatus(order){
-    const os = norm(orderStatus(order));
-    const closedReturnStatus = ["cancelled","canceled","rejected","refunded"].includes(os);
-    if(!closedReturnStatus || !orderInventoryDeducted(order)) return "";
-    if(orderInventoryRestored(order)) return "restored";
-    return "restore_needed";
-  }
-  function inventoryRestoreVisualMarkup(order){
-    const status = closedInventoryReturnStatus(order);
-    if(status === "restored"){
-      const restoredAt = esc(fmtDate(order.inventory_restored_at));
-      return `<div class="inventory-restore-banner"><strong>Inventory Restored</strong>Product quantity from this cancelled/rejected/refunded order has already been returned to inventory.${restoredAt !== "—" ? ` Restored: ${restoredAt}.` : ""}</div>`;
-    }
-    if(status === "restore_needed"){
-      return `<div class="inventory-pending-banner"><strong>Inventory Restore Needed</strong>This order deducted inventory, but the product quantity has not been returned yet.</div>`;
-    }
-    return "";
-  }
-  function inventoryRestoreCompactMarkup(order){
-    const status = closedInventoryReturnStatus(order);
-    if(status === "restored") return `<div class="inventory-restored-pill">Inventory Restored</div>`;
-    if(status === "restore_needed") return `<div class="inventory-restore-needed-pill">Restore Needed</div>`;
-    return "";
-  }
-  async function restoreInventoryForOrderIfNeeded(order, updates){
-    if(!inventoryRestoreNeeded(order, updates)) return { attempted:false, restored:false, message:"Inventory restore not needed." };
-    const reason = inventoryRestoreReason(order, updates);
-    const { data, error } = await supabaseClient.rpc("restore_inventory_for_order", {
-      p_order_id: order.id,
-      p_reason: `${reason} by ${adminDisplayName()}`
-    });
-    if(error) throw new Error(`Order was saved, but inventory restore failed: ${error.message || error}`);
-    if(data && data.success === false) throw new Error(`Order was saved, but inventory restore failed: ${data.message || data.reason || "Unknown restore error"}`);
-    await appendAdminAudit(order, `${reason}. ${data?.message || "Inventory restore request completed."}`);
-    return { attempted:true, restored:true, data, message:data?.message || "Inventory restored." };
-  }
-  async function confirmAdminPasswordForProtectedAction(reason){
-    const email = cleanValue(currentUser?.email);
-    if(!email) throw new Error("Admin password confirmation failed: no logged-in admin email was found.");
-    const password = await askAdminPassword(reason, email);
-    if(!password) throw new Error("Protected action cancelled. Admin password was not entered.");
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if(error) throw new Error("Admin password confirmation failed. Protected action was blocked.");
-    return true;
+  #pst-header-v3 .pst-search input,
+  #pst-header-v3 .pst-search button {
+    height: 40px !important;
   }
-  function askAdminPassword(reason, email){
-    return new Promise(resolve => {
-      const overlay = document.createElement("div");
-      overlay.style.cssText = "position:fixed;inset:0;z-index:10000;background:rgba(16,24,32,.72);display:flex;align-items:center;justify-content:center;padding:18px;";
-      overlay.innerHTML = `
-        <div style="width:min(440px,96vw);background:#fff;border-radius:16px;border:1px solid #d9e2ec;box-shadow:0 26px 80px rgba(0,0,0,.35);padding:18px;">
-          <h3 style="margin:0 0 8px;color:#b42318;font-size:20px;">Admin Password Required</h3>
-          <p style="margin:0 0 12px;line-height:1.45;color:#344054;font-weight:700;">This action affects inventory or refund/cancellation risk: <strong>${esc(reason)}</strong>.</p>
-          <p style="margin:0 0 12px;color:#667085;font-size:13px;">Confirm as ${esc(email)}.</p>
-          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:900;color:#667085;margin-bottom:5px;">Admin Password</label>
-          <input id="protectedAdminPasswordInput" type="password" autocomplete="current-password" style="width:100%;border:1px solid #d9e2ec;border-radius:10px;padding:12px;font-size:16px;" />
-          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
-            <button id="protectedAdminCancelBtn" type="button" class="btn secondary">Cancel</button>
-            <button id="protectedAdminConfirmBtn" type="button" class="btn danger">Confirm</button>
-          </div>
-        </div>`;
-      document.body.appendChild(overlay);
-      const input = overlay.querySelector("#protectedAdminPasswordInput");
-      const cleanup = value => { overlay.remove(); resolve(value); };
-      overlay.querySelector("#protectedAdminCancelBtn").addEventListener("click", () => cleanup(""));
-      overlay.querySelector("#protectedAdminConfirmBtn").addEventListener("click", () => cleanup(input.value));
-      input.addEventListener("keydown", e => { if(e.key === "Enter") cleanup(input.value); if(e.key === "Escape") cleanup(""); });
-      setTimeout(() => input.focus(), 50);
-    });
-  }
-  function lockBannerMarkup(order){
-    if(!isOrderLocked(order)) return "";
-    return `<div class="lock-banner"><strong>🔒 Protected Order</strong>This order is protected because ${esc(lockReason(order))}. Delivered and Complete do not require override. Cancellation/refund/restock or other inventory-sensitive changes require the logged-in admin password.</div>`;
-  }
-  function overrideMarkup(order){
-    return "";
-  }
-
-  /* PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT */
-  function fulfillmentItemSku(item={}){
-    return cleanValue(item.product_key || item.sku || item.product_sku || item.item_number || item.item_no || item.product_id || item.id);
-  }
-  function fulfillmentItemStrength(item={}){
-    return cleanValue(item.strength || item.dose || item.dosage || item.product_strength || item.label_dose);
-  }
-  function fulfillmentItemLabel(item={}){
-    const lines = [item.label_line_1, item.label_line_2, item.label_line_3, item.label_dose].map(cleanValue).filter(Boolean);
-    if(lines.length) return lines.join(" / ");
-    const name = cleanValue(item.label_name || item.product_name || item.name || item.display_name || item.product_key || "Item");
-    const strength = fulfillmentItemStrength(item);
-    return strength && !name.toLowerCase().includes(strength.toLowerCase()) ? `${name} / ${strength}` : name;
-  }
-  function fulfillmentSheetHtml(order){
-    const items = order.items || [];
-    const rows = items.length ? items.map((item, index) => {
-      const name = item.product_name || item.name || item.display_name || item.product_key || "Item";
-      const qty = item.quantity ?? item.qty ?? 1;
-      const sku = fulfillmentItemSku(item) || "—";
-      const strength = fulfillmentItemStrength(item) || "—";
-      const label = fulfillmentItemLabel(item);
-      return `<tr><td>${index + 1}</td><td><strong>${esc(name)}</strong><div class="small">Label: ${esc(label)}</div></td><td>${esc(strength)}</td><td>${esc(sku)}</td><td class="qty">${esc(qty)}</td><td class="check">□</td></tr>`;
-    }).join("") : `<tr><td colspan="6">No item rows found for this order.</td></tr>`;
-    const generated = new Date().toLocaleString();
-    return `<!doctype html><html><head><meta charset="utf-8"><title>Fulfillment Sheet #${esc(orderNumber(order))}</title><link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#bd0000"><style>
-      *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px;color:#101820;background:#fff}.sheet{max-width:900px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border-bottom:3px solid #101820;padding-bottom:14px;margin-bottom:16px}.brand{font-size:24px;font-weight:900;letter-spacing:.04em}.sub{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#667085;font-weight:900}.order-no{font-size:30px;font-weight:900;text-align:right}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.box{border:1px solid #d9e2ec;border-radius:10px;padding:12px;min-height:92px}.box h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#667085}.box p{margin:0;line-height:1.4}.line{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #edf2f7;padding:4px 0}.line:last-child{border-bottom:0}.pill{display:inline-block;border:1px solid #d9e2ec;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:900;text-transform:capitalize}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #d9e2ec;padding:9px 8px;text-align:left;vertical-align:top}th{background:#f5f8fb;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#667085}.qty,.check{text-align:center;font-weight:900}.small{font-size:12px;color:#667085;margin-top:3px}.checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.checkitem{border:1px solid #d9e2ec;border-radius:10px;padding:9px;font-weight:800}.sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.sigline{border-top:1px solid #101820;padding-top:6px;font-size:12px;color:#667085}.footer{margin-top:16px;font-size:11px;color:#667085;text-align:center}@media print{body{padding:0}.sheet{max-width:none}.no-print{display:none}.box,th,td,.checkitem{break-inside:avoid}}
-    
-
-/* PST compact fixed-height internal admin audit log */
-.audit-scrollbox{
-  max-height:220px;
-  overflow-y:auto;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:#fbfcfe;
-  padding:6px;
-}
-.audit-scrollbox .audit-list{display:grid;gap:5px;}
-.audit-scrollbox .audit-item{
-  border:1px solid #e3eaf2;
-  background:#fff;
-  border-radius:8px;
-  padding:6px 8px;
-  font-size:11px;
-  line-height:1.25;
-}
-.audit-scrollbox .audit-item strong{display:inline;margin:0;font-size:11px;}
-.audit-scrollbox .audit-item .muted{font-size:10.5px;}
-.audit-scrollbox .audit-line-detail{margin-top:3px;line-height:1.25;font-size:11px;color:#344054;}
-.audit-scrollbox .audit-empty{font-size:12px;color:var(--muted);padding:8px;}
-
-
-
-/* PST ADMIN HEADER FINAL HARD LOCK V4 - NO OVERLAP / SAME PLACEMENT / LIGHTER TYPE */
-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-  background: #ffffff !important;
-  border-bottom: 1px solid #d9e2ec !important;
-  min-height: 92px !important;
-  overflow: hidden !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-
-header .topbar,
-header .pst-admin-topbar-lock {
-  width: 100% !important;
-  max-width: none !important;
-  min-height: 92px !important;
-  margin: 0 !important;
-  padding: 14px 24px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 22px !important;
-  background: #ffffff !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-}
 
-header .brand,
-header .pst-admin-brand-lock {
-  flex: 0 0 390px !important;
-  width: 390px !important;
-  min-width: 390px !important;
-  max-width: 390px !important;
-  height: 64px !important;
-  min-height: 64px !important;
-  display: grid !important;
-  grid-template-columns: 132px 1fr !important;
-  column-gap: 22px !important;
-  align-items: center !important;
-  justify-content: start !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: visible !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  text-decoration: none !important;
-}
-
-header .pst-master-admin-logo,
-header img.pst-master-admin-logo,
-header .pst-admin-logo {
-  display: block !important;
-  width: 132px !important;
-  height: 64px !important;
-  min-width: 132px !important;
-  max-width: 132px !important;
-  min-height: 64px !important;
-  max-height: 64px !important;
-  object-fit: contain !important;
-  object-position: left center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  flex: none !important;
-}
-
-header .pst-master-page-label {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  height: 64px !important;
-  min-height: 64px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 21px !important;
-  font-weight: 500 !important;
-  line-height: 1.15 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: #596579 !important;
-  white-space: nowrap !important;
-  text-align: left !important;
-}
-
-header .actions,
-header .pst-admin-actions-lock {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  width: auto !important;
-  height: 52px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 10px !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
-  margin: 0 !important;
-  padding: 0 6px 0 0 !important;
-  box-sizing: border-box !important;
-}
-header .actions::-webkit-scrollbar,
-header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
-
-header .actions .btn,
-header .pst-admin-actions-lock .btn,
-header .actions a.btn,
-header .pst-admin-actions-lock a.btn,
-header .actions button.btn,
-header .pst-admin-actions-lock button.btn {
-  flex: 0 0 auto !important;
-  min-width: auto !important;
-  min-height: 46px !important;
-  height: 46px !important;
-  padding: 0 18px !important;
-  border-radius: 10px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 18px !important;
-  font-weight: 600 !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  white-space: nowrap !important;
-  text-decoration: none !important;
-}
-
-header .actions .btn.secondary,
-header .pst-admin-actions-lock .btn.secondary {
-  background: #ffffff !important;
-  color: #101820 !important;
-  border: 1px solid #d9e2ec !important;
-}
-
-header .actions .btn.active,
-header .actions .btn.primary,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary {
-  background: #bd0000 !important;
-  color: #ffffff !important;
-  border-color: #bd0000 !important;
-}
-
-@media (max-width: 1180px) {
-  header .topbar,
-  header .pst-admin-topbar-lock {
-    gap: 14px !important;
-    padding-left: 18px !important;
-    padding-right: 18px !important;
-  }
-  header .brand,
-  header .pst-admin-brand-lock {
-    flex-basis: 350px !important;
-    width: 350px !important;
-    min-width: 350px !important;
-    max-width: 350px !important;
-    grid-template-columns: 120px 1fr !important;
-    column-gap: 18px !important;
-  }
-  header .pst-master-admin-logo,
-  header img.pst-master-admin-logo,
-  header .pst-admin-logo {
-    width: 120px !important;
-    height: 58px !important;
-    min-width: 120px !important;
-    max-width: 120px !important;
-    min-height: 58px !important;
-    max-height: 58px !important;
-  }
-  header .pst-master-page-label {
-    font-size: 19px !important;
-    font-weight: 500 !important;
-  }
-  header .actions .btn,
-  header .pst-admin-actions-lock .btn {
-    height: 44px !important;
-    min-height: 44px !important;
-    padding: 0 15px !important;
-    font-size: 16px !important;
-  }
+  #pst-hero-v3 { height: 330px !important; }
 }
 
 @media (max-width: 760px) {
-  header { overflow: visible !important; }
-  header .topbar,
-  header .pst-admin-topbar-lock {
-    min-height: auto !important;
-    display: grid !important;
+  #pst-hero-v3 { height: 230px !important; max-height: 230px !important; }
+
+  #pst-header-v3 {
     grid-template-columns: 1fr !important;
-    gap: 10px !important;
-    padding: 12px 14px !important;
-    overflow: visible !important;
+    padding: 8px 12px 12px !important;
+    gap: 9px !important;
   }
-  header .brand,
-  header .pst-admin-brand-lock {
+
+  #pst-header-v3 .pst-logo,
+  #pst-header-v3 .pst-left,
+  #pst-header-v3 .pst-right {
+    grid-column: 1 !important;
+    justify-self: center !important;
     width: 100% !important;
-    max-width: 100% !important;
+  }
+
+  #pst-header-v3 .pst-logo {
+    grid-row: 1 !important;
+    width: auto !important;
+  }
+
+  #pst-header-v3 .pst-logo img {
+    width: 132px !important;
+    height: 60px !important;
+  }
+
+  #pst-header-v3 .pst-left {
+    grid-row: 2 !important;
+    justify-content: center !important;
+    gap: 7px 14px !important;
+  }
+
+  #pst-header-v3 .pst-left a {
+    font-size: 11.5px !important;
+  }
+
+  #pst-header-v3 .pst-right {
+    grid-row: 3 !important;
+    justify-content: center !important;
+    gap: 9px 12px !important;
+  }
+
+  #pst-header-v3 .pst-account strong { font-size: 12px !important; }
+  #pst-header-v3 .pst-account small { font-size: 9.5px !important; }
+
+  #pst-header-v3 .pst-admin {
+    padding-left: 12px !important;
+    font-size: 12px !important;
+  }
+
+  #pst-header-v3 .pst-search {
+    flex: 1 1 100% !important;
+    width: min(100%, 360px) !important;
     min-width: 0 !important;
-    flex-basis: auto !important;
-    grid-template-columns: 120px minmax(0, 1fr) !important;
+    height: 38px !important;
   }
-  header .actions,
-  header .pst-admin-actions-lock {
+
+  #pst-header-v3 .pst-search input,
+  #pst-header-v3 .pst-search button {
+    height: 38px !important;
+  }
+
+  #pst-hero-v3 { height: 230px !important; }
+}
+
+@media (max-width: 420px) {
+  #pst-hero-v3 { height: 200px !important; max-height: 200px !important; }
+
+  #pst-header-v3 .pst-logo img {
+    width: 112px !important;
+    height: 52px !important;
+  }
+
+  #pst-header-v3 .pst-left {
+    gap: 6px 11px !important;
+  }
+
+  #pst-header-v3 .pst-left a {
+    font-size: 10px !important;
+  }
+
+  #pst-header-v3 .pst-account-icon {
+    display: none !important;
+  }
+
+  #pst-hero-v3 { height: 200px !important; }
+}
+</style><style id="pst-admin-header-final">
+  .pst-admin-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
     width: 100% !important;
-    height: 46px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    overflow: hidden !important;
+    background: #000 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #262626 !important;
+    box-shadow: none !important;
   }
-}
+
+  .pst-admin-nav-wrap {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-height: 40px !important;
+    margin: 0 auto !important;
+    padding: 0 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    position: relative !important;
+  }
+
+  .pst-admin-logo-link {
+    position: static !important;
+    transform: none !important;
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-header-logo {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    object-fit: contain !important;
+  }
+
+  .pst-admin-nav {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 24px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .pst-admin-nav a {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #fff !important;
+    font: 800 14px/1 Arial, Helvetica, sans-serif !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+  }
+
+  .pst-admin-nav a:hover,
+  .pst-admin-nav a:focus-visible {
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-nav a.active::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 3px !important;
+    height: 2px !important;
+    background: #fff !important;
+  }
+
+  @media (max-width: 980px) {
+    .pst-admin-nav-wrap {
+      height: 40px !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      padding: 0 14px !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 16px !important;
+    }
+
+    .pst-admin-nav {
+      flex: 1 1 auto !important;
+      flex-wrap: nowrap !important;
+      justify-content: flex-end !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scrollbar-width: none !important;
+    }
+
+    .pst-admin-nav::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pst-admin-nav-wrap {
+      padding: 0 10px !important;
+      gap: 12px !important;
+    }
+
+    .pst-admin-nav {
+      gap: 16px !important;
+    }
+  }
 </style>
-<style id="pst-admin-red-button-overrides">
-:root {
-  --blue: #bd0000 !important;
-  --pst-blue: #bd0000 !important;
-  --pst-admin-blue: #bd0000 !important;
-  --pst-admin-accent: #bd0000 !important;
-}
-body.admin-auth-pending header {
-  display: none !important;
-}
-body.admin-auth-pending main {
-  max-width: 560px !important;
-  padding-top: 88px !important;
-}
-body.admin-auth-pending main > :not(#statusLine) {
-  display: none !important;
-}
-body.admin-auth-pending #statusLine {
-  margin: 0 !important;
-  padding: 18px 20px !important;
-  text-align: center !important;
-  color: #596579 !important;
-  background: #fff !important;
-  border: 1px solid #d9e2ec !important;
-  box-shadow: 0 10px 30px rgba(16,24,32,.08) !important;
-}
-header .actions .btn.active,
-header .actions .btn.primary,
-header .header-actions .btn.active,
-header .header-actions .btn.primary,
-header .pst-admin-actions-lock .btn.active,
-header .pst-admin-actions-lock .btn.primary,
-.admin-dashboard-nav .btn.active,
-.admin-dashboard-nav .btn[aria-pressed="true"],
-.collapsible-card:not(.collapsed) .card-toggle-btn,
-.card-toggle-btn.active,
-.card-toggle-btn[aria-expanded="true"],
-.inventory-jump-link.active,
-.inventory-jump-link[aria-pressed="true"],
-.inventory-collapse-toggle.active,
-.inventory-collapse-toggle[aria-expanded="true"],
-.collapse-toggle.active,
-.collapse-toggle[aria-expanded="true"],
-.reports-jumpbar a.active,
-.reports-jumpbar a[aria-pressed="true"],
-.btn.primary,
-.btn.active,
-.btn[aria-pressed="true"],
-.btn.secondary.active,
-button.btn.primary,
-a.btn.primary {
-  background: #bd0000 !important;
-  border-color: #bd0000 !important;
-  color: #ffffff !important;
-}
-.btn:not(.secondary):not(.danger):not(.success):not(.warning) {
-  background-color: #bd0000;
-  border-color: #bd0000;
-  color: #ffffff;
-}
-button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
-  background-color: #bd0000;
-  border-color: #bd0000;
-  color: #ffffff;
-}
-</style>
-</head><body><div class="sheet">
-      <div class="top"><div><div class="brand">PEP SHOP TEXAS</div><div class="sub">Order Fulfillment Sheet</div><div class="small">Generated: ${esc(generated)}</div></div><div><div class="sub">Order</div><div class="order-no">#${esc(orderNumber(order))}</div></div></div>
-      <div class="grid"><div class="box"><h3>Customer / Ship To</h3><p><strong>${esc(customerName(order))}</strong><br>${esc(shippingAddress(order))}<br>${esc(customerEmail(order) || "No email")}<br>${esc(customerPhone(order))}</p></div><div class="box"><h3>Order Snapshot</h3><div class="line"><span>Date</span><strong>${esc(fmtDate(order.created_at || order.order_date))}</strong></div><div class="line"><span>Order Status</span><span class="pill">${esc(String(orderStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Payment Status</span><span class="pill">${esc(String(paymentStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Shipping</span><strong>${money(orderShipping(order))}</strong></div><div class="line"><span>Total</span><strong>${money(orderTotal(order))}</strong></div></div></div>
-      <table><thead><tr><th>#</th><th>Product / Vial Label</th><th>Strength</th><th>SKU / Item</th><th>Qty</th><th>Picked</th></tr></thead><tbody>${rows}</tbody></table>
-      <div class="checklist"><div class="checkitem">□ Correct product/SKU pulled</div><div class="checkitem">□ Correct quantity pulled</div><div class="checkitem">□ Vial label checked</div><div class="checkitem">□ Lot/COA checked if applicable</div><div class="checkitem">□ Items protected in packaging</div><div class="checkitem">□ Packing slip/order sheet included</div><div class="checkitem">□ Shipping label matches customer address</div><div class="checkitem">□ Final package sealed</div></div>
-      <div class="grid"><div class="box"><h3>Fulfillment Notes</h3><p style="min-height:52px">&nbsp;</p></div><div class="box"><h3>Tracking / Carrier</h3><p>Carrier: ${esc(order.tracking_carrier || order.carrier || "—")}<br>Tracking: ${esc(order.tracking_number || order.tracking || "—")}</p></div></div>
-      <div class="sign"><div class="sigline">Packed by / Date</div><div class="sigline">Final check / Date</div></div><div class="footer">Internal fulfillment document only. Not a customer-facing marketing insert.</div>
-    </div><script>window.addEventListener('load',function(){setTimeout(function(){window.focus();window.print();},250);});<\/script></body></html>`;
-  }
-  function printFulfillmentSheet(order){
-    const win = window.open("", "_blank", "width=960,height=900");
-    if(!win){ alert("Popup blocked. Allow popups for this site, then click Print Fulfillment Sheet again."); return; }
-    win.document.open();
-    win.document.write(fulfillmentSheetHtml(order));
-    win.document.close();
-    setStatus(`Fulfillment sheet opened for Order #${orderNumber(order)}.`, "good");
-  }
+</head>
+<body data-page="home">
+<header class="pst-admin-header">
+  <div class="pst-admin-nav-wrap">
+    <a class="pst-admin-logo-link" href="admin.html" aria-label="Pep Shop Texas Admin Home">
+      <img src="admin header logo.png" alt="PST" class="pst-admin-header-logo">
+    </a>
+    <nav class="pst-admin-nav" aria-label="Admin navigation">
+      <a href="admin.html" class="active">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="products.html">Products</a>
+      <a href="discounts.html">Discounts</a>
+      <a href="promotions.html">Promotions</a>
+      <a href="reports.html">Reports</a>
+      <a href="customers.html">Customers</a>
+      <a href="index.html">View Site</a>
+    </nav>
+  </div>
+</header>
+<main>
+<section aria-label="PEP Shop Texas research peptides hero" id="pst-hero-v3">
+<img alt="PEP Shop Texas premium research peptides" src="pst-hero-final.png"/>
+</section>
+<section aria-label="Primary links" class="quick-panel">
+<a class="quick-link" href="catalog.html">
+<span class="quick-icon red">A<br/>Z</span>
+<strong>PEPTIDES A-Z</strong>
+<span>Browse all peptides alphabetically</span>
+</a>
+<a class="quick-link" href="catalog.html?category=Stack">
+<span class="quick-icon dark"><svg viewbox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Zm-7 9 7 4 7-4M5 16l7 4 7-4"></path></svg></span>
+<strong>TOP STACKS</strong>
+<span>Popular blend and stack products</span>
+</a>
+<a class="quick-link" href="faq.html">
+<span class="quick-icon dark"><svg viewbox="0 0 24 24"><path d="M9.5 9a3 3 0 1 1 4.6 2.53c-.88.52-1.6 1.13-1.6 2.47m0 3h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path></svg></span>
+<strong>FAQ</strong>
+<span>Answers to common questions</span>
+</a>
+<a class="quick-link" href="contact.html">
+<span class="quick-icon red"><svg viewbox="0 0 24 24"><path d="M4 6h16v12H4V6Zm0 1 8 6 8-6"></path></svg></span>
+<strong>CONTACT</strong>
+<span>Get in touch with our team</span>
+</a>
+</section>
+<section aria-label="Current promotion" class="promo-band" data-home-promotion="" hidden=""></section>
+<section aria-label="Featured peptide lists" class="product-grid">
+<article class="list-card">
+<h2><span class="title-icon red-text">♦</span> HOT PEPTIDES</h2>
+<p>Featured active products</p>
+<ul data-home-list="hot">
+<li><a href="catalog.html"><span>BPC-157 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>TB-500 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>GHK-Cu 50 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>NAD+ 500 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>CJC No DAC 5 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+</ul>
+</article>
+<article class="list-card">
+<h2><span class="title-icon">▱</span> TOP STACKS</h2>
+<p>Popular blend and stack products</p>
+<ul data-home-list="stacks">
+<li><a href="catalog.html?category=Stack"><span>Performance Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html?category=Stack"><span>Recovery Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html?category=Stack"><span>Longevity Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html?category=Stack"><span>Cutting Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html?category=Stack"><span>Healing Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+</ul>
+</article>
+<article class="list-card">
+<h2><span class="title-icon">★</span> NEW ARRIVALS</h2>
+<p>Products selected in admin</p>
+<ul data-home-list="new">
+<li><a href="catalog.html"><span>KPV 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>Selank 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>Semax 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>MOTS-C 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+<li><a href="catalog.html"><span>Ipamorelin 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+</ul>
+</article>
+</section>
+</main>
+<footer class="site-footer">
+<div class="trust-bar">
+<div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
+<div><span><strong>QUALITY</strong>Third-party tested</span></div>
+<div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
+<div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
+</div>
+<div class="site-footer-inner">
+<div class="site-footer-brand">
+<strong>Pep Shop Texas</strong>
+<span>Research-use catalog. Not for human or veterinary use.</span>
+</div>
+<nav aria-label="Footer policies" class="site-footer-links">
+<a href="terms.html">Terms</a>
+<a href="privacy.html">Privacy</a>
+<a href="shipping.html">Shipping</a>
+<a href="returns.html">Returns</a>
+<a href="contact.html">Contact</a>
+</nav>
+</div>
+</footer>
+<script id="pst-new-arrivals-featured-loader-v1">
+    (function () {
+      const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+      const MAX_NEW_ARRIVALS = 5;
 
-  async function renderOrderDetail(order){
-    order = await attachAuditLog(order);
-    activeOrderId = order.id; renderOrders();
-    setAdminCardOpen("detailCard", true);
-    const carrier = order.tracking_carrier || order.carrier || "";
-    const tracking = order.tracking_number || order.tracking || "";
-    const turl = trackingUrl(carrier, tracking, order.tracking_url);
-    const detail = $("detailCard");
-    detail.innerHTML = `
-      <div class="card-header" data-admin-header="detailCard"><h2>Manage Order #${esc(orderNumber(order))}</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" id="printFulfillmentBtn" type="button">Print Fulfillment Sheet</button><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Collapse</button></div></div>
-      <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div>${needsAttention(order) ? `<div class="problem-banner"><strong>Needs Attention</strong>${attentionFlags(order).map(f => esc(({inventory_failed:"Inventory validation failed before checkout completion.",payment_issue:"Payment status needs review.",payment_pending_old:"Payment has been pending for more than 24 hours.",paid_not_shipped:"Payment is marked Paid but the order has not shipped yet.",missing_tracking:"Order is marked shipped/delivered/complete but has no tracking number."})[f] || f.replaceAll("_"," "))).join("<br>")}</div>` : ""}</div>
-      <div class="detail-section"><h3>Order Summary ${isOrderLocked(order) ? '<span class="locked-pill">Locked</span>' : ""}</h3>${inventoryRestoreVisualMarkup(order)}<div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Subtotal</strong>${money(orderSubtotal(order))}</div><div class="kv"><strong>Discount</strong>-${money(orderDiscount(order))}</div><div class="kv"><strong>Shipping</strong>${money(orderShipping(order))}</div><div class="kv"><strong>Tax</strong>${money(orderTax(order))}${orderTaxRate(order) ? ` <span class="muted">(${esc((orderTaxRate(order) * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, ""))}%)</span>` : ""}</div><div class="kv"><strong>Grand Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Tax Region</strong>${esc(orderTaxRegion(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div><div class="kv"><strong>Payment Method</strong>${paymentMethodPill(order)}</div><div class="kv"><strong>Tracking Requirement</strong>${noTrackingRequired(order) ? 'No tracking required' : 'Tracking required if shipped/delivered'}</div></div>${lockBannerMarkup(order)}</div>
-      ${paymentInstructionsMarkup(order)}
-      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div class="fulfillment-print-note"><strong>Fulfillment:</strong> Use Print Fulfillment Sheet after the order is received, paid, or moved to Processing. It opens a clean packing sheet with customer address, item/SKU rows, quantity checks, and final verification boxes.</div></div>
-      <div class="detail-section"><h3>Update Order</h3>
-        <div class="edit-grid">
-          <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatuses.map(s=>`<option value="${s}" ${norm(orderStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
-          <div class="field"><label for="editPaymentStatus">Payment Status</label><select id="editPaymentStatus">${paymentStatuses.map(s=>`<option value="${s}" ${norm(paymentStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
-          <div class="field"><label>Payment Method</label><input value="${esc(paymentMethod(order))}" readonly /></div>
-          <div class="field"><label for="editCarrier">Carrier</label><input id="editCarrier" value="${esc(carrier)}" placeholder="USPS, UPS, FedEx..." /></div>
-          <div class="field"><label for="editTracking">Tracking Number</label><input id="editTracking" value="${esc(tracking)}" placeholder="Tracking number" /></div>
-          <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
-          <div class="field full"><label class="tracking-exception-check"><input id="editNoTrackingRequired" type="checkbox" ${noTrackingRequired(order) ? "checked" : ""} /> No tracking required for this order</label></div>
-          <div class="field full"><label for="editNoTrackingReason">No Tracking Reason</label><input id="editNoTrackingReason" value="${esc(order.no_tracking_reason || "")}" placeholder="Optional reason if tracking is not required" /></div>
-          <div class="field full"><label>Internal Admin Audit Log</label>${orderAuditLogMarkup(order)}</div>
-          ${overrideMarkup(order)}
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn success" id="saveOrderBtn" type="button">Save Order Updates</button></div>
-        <div class="note" style="margin-top:12px"><strong>Shipping protection:</strong> If you choose Shipped/Delivered/Complete, add tracking or check No tracking required. Missing tracking will stay on the attention dashboard until one of those is done.</div>
-      </div>
-      <div class="detail-section"><h3>Email Preview / Manual Resend</h3><div class="email-box"><h4>Preview before manually sending</h4><p>Payment marked Paid still sends automatically and moves the order to Processing. Use these buttons only when you intentionally need to preview or resend a customer email.</p><div style="display:grid;gap:8px">${previewableManualEmailTypes().map(emailType => `<div class="email-action-group"><strong>${esc(emailTypeLabel(emailType))}</strong><div class="email-action-buttons"><button class="btn secondary preview-email-action" data-email-type="${esc(emailType)}" type="button">Preview</button><button class="btn secondary email-action" data-email-type="${esc(emailType)}" type="button">Send</button></div></div>`).join("")}</div>${turl ? `<a class="tracking-link" href="${esc(turl)}" target="_blank" rel="noopener">Open tracking link</a>` : ""}</div></div>
-      <div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>`;
-
-    if(window.matchMedia && window.matchMedia("(max-width:1100px)").matches){
-      detail.scrollIntoView({ behavior:"smooth", block:"start" });
-    }
-    $("reloadDetailBtn")?.addEventListener("click", loadOrders);
-    $("printFulfillmentBtn")?.addEventListener("click", () => printFulfillmentSheet(order));
-    $("saveOrderBtn")?.addEventListener("click", () => saveOrder(order));
-    document.querySelectorAll(".preview-email-action").forEach(btn => btn.addEventListener("click", () => openEmailPreview(order, btn.dataset.emailType, false)));
-    document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType, false, { skipPreview:true })));
-  }
-
-  function buildUpdatesFromForm(order={}){
-    let os = $("editOrderStatus").value;
-    const ps = $("editPaymentStatus").value;
-    const carrier = $("editCarrier").value.trim();
-    const tracking = $("editTracking").value.trim();
-    const url = $("editTrackingUrl").value.trim();
-    const trackingNotRequired = !!$("editNoTrackingRequired")?.checked;
-    const trackingReason = cleanValue($("editNoTrackingReason")?.value);
-
-    // Payment accepted should automatically advance a newly paid order into Processing.
-    // Do not move backwards or override higher fulfillment stages like Packed/Shipped/Delivered.
-    const currentOrderStage = norm(orderStatus(order));
-    if(ps === "paid" && ["pending","awaiting_payment"].includes(norm(os)) && ["pending","awaiting_payment"].includes(currentOrderStage)){
-      os = "processing";
-    }
-
-    if(["shipped","delivered","complete","completed"].includes(norm(os)) && (!carrier || !tracking) && !trackingNotRequired) throw new Error("Tracking is required for shipped/delivered/complete orders unless No tracking required is checked.");
-    const now = new Date().toISOString();
-    const changes = [];
-if(norm(orderStatus(order)) !== norm(os)) {
-  changes.push(`Order status changed by ${adminDisplayName()}: ${String(orderStatus(order)).replaceAll("_"," ")} → ${String(os).replaceAll("_"," ")}`);
-}
-
-if(norm(paymentStatus(order)) !== norm(ps)) {
-  changes.push(`Payment status changed by ${adminDisplayName()}: ${String(paymentStatus(order)).replaceAll("_"," ")} → ${String(ps).replaceAll("_"," ")}`);
-}
-    const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
-    const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
-    const trackingUrlChange = describeFieldChange("Tracking URL", order.tracking_url, url);
-    if(carrierChange) changes.push(carrierChange);
-    if(trackingChange) changes.push(trackingChange);
-    if(trackingUrlChange) changes.push(trackingUrlChange);
-    if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? "No tracking required enabled" : "No tracking required removed");
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, no_tracking_required: trackingNotRequired, no_tracking_reason: trackingReason || null, last_admin_actor: adminDisplayName(), last_admin_actor_email: cleanValue(currentUser?.email), updated_at: now };
-
-    if(isRiskyLockedChange(order, updates)){
-      updates.last_admin_actor = adminDisplayName();
-      updates.last_admin_actor_email = cleanValue(currentUser?.email);
-    }
-
-    if(ps === "paid") updates.paid_at = now;
-    if(os === "processing") updates.processing_at = now;
-    if(os === "packed") updates.packed_at = now;
-    if(os === "shipped") updates.shipped_at = now;
-    if(os === "delivered") updates.delivered_at = now;
-    if(os === "complete") updates.completed_at = now;
-    if(os === "cancelled") updates.cancelled_at = now;
-    if(os === "rejected") updates.rejected_at = now;
-    return updates;
-  }
-
-  function missingColumnFromError(error){
-    const msg = String(error?.message || error || "");
-    return (msg.match(/column\s+orders\.([a-zA-Z0-9_]+)\s+does\s+not\s+exist/i) ||
-            msg.match(/column\s+\"?([a-zA-Z0-9_]+)\"?\s+of\s+relation\s+\"?orders\"?\s+does\s+not\s+exist/i) ||
-            msg.match(/Could not find the ['\"]([a-zA-Z0-9_]+)['\"] column/i) ||
-            [])[1] || "";
-  }
-
-  function orderColumnKeys(order){
-    const row = order || allOrders.find(o => String(o.id) === String(order?.id || "")) || {};
-    return new Set(Object.keys(row).filter(k => !["items","profile"].includes(k)));
-  }
-
-  function filterUpdatesToOrderColumns(updates, order){
-    const keys = orderColumnKeys(order);
-    const filtered = {};
-    Object.entries(updates || {}).forEach(([key, value]) => {
-      if(value !== undefined && keys.has(key)) filtered[key] = value;
-    });
-    return filtered;
-  }
-
-  async function safeUpdateOrder(id, updates, order=null){
-    const row = order || allOrders.find(o => String(o.id) === String(id)) || {};
-    let payload = filterUpdatesToOrderColumns(updates, row);
-
-    // Ensure the status fields stay synced, but only for columns that actually exist on this orders table.
-    if(Object.prototype.hasOwnProperty.call(row, "order_status") && updates.order_status !== undefined) payload.order_status = updates.order_status;
-    if(Object.prototype.hasOwnProperty.call(row, "status") && updates.status !== undefined) payload.status = updates.status;
-    if(Object.prototype.hasOwnProperty.call(row, "payment_status") && updates.payment_status !== undefined) payload.payment_status = updates.payment_status;
-
-    if(!Object.keys(payload).length) throw new Error("No matching order columns were available to update.");
-
-    const { error } = await supabaseClient.from("orders").update(payload).eq("id", id);
-    if(!error) return;
-
-    // If a stale/browser-cached payload still includes a missing column, drop only that column and retry once.
-    const missing = missingColumnFromError(error);
-    if(missing && Object.prototype.hasOwnProperty.call(payload, missing)){
-      delete payload[missing];
-      if(Object.keys(payload).length){
-        const retry = await supabaseClient.from("orders").update(payload).eq("id", id);
-        if(!retry.error) return;
-        throw retry.error;
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>'"]/g, char => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          '"': "&quot;"
+        }[char]));
       }
-    }
-    throw error;
-  }
 
-  function detectCustomerEmailType(oldOrder, updates){
-    const oldOrderStatus = norm(orderStatus(oldOrder));
-    const oldPaymentStatus = norm(paymentStatus(oldOrder));
-    const newOrderStatus = norm(updates.order_status);
-    const newPaymentStatus = norm(updates.payment_status);
-    const oldTracking = cleanValue(oldOrder.tracking_number || oldOrder.tracking);
-    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
-    const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
-    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
-
-    if(oldPaymentStatus !== newPaymentStatus){
-      if(newPaymentStatus === "paid") return "payment_accepted";
-      if(["failed","manual_review","refunded"].includes(newPaymentStatus)) return "payment_issue";
-    }
-    if(oldOrderStatus !== newOrderStatus){
-      if(newOrderStatus === "processing") return "order_processing";
-      if(newOrderStatus === "packed") return "order_packed";
-      if(newOrderStatus === "shipped") return "order_shipped";
-      if(newOrderStatus === "delivered") return "order_delivered";
-      if(newOrderStatus === "cancelled") return "order_cancelled";
-      if(newOrderStatus === "rejected") return "order_rejected";
-    }
-    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier)) return "order_shipped";
-    return "";
-  }
-
-  function detectCustomerEmailTypes(oldOrder, updates){
-    const oldOrderStatus = norm(orderStatus(oldOrder));
-    const oldPaymentStatus = norm(paymentStatus(oldOrder));
-    const newOrderStatus = norm(updates.order_status);
-    const newPaymentStatus = norm(updates.payment_status);
-    const oldTracking = cleanValue(oldOrder.tracking_number || oldOrder.tracking);
-    const newTracking = cleanValue(updates.tracking_number || updates.tracking);
-    const oldCarrier = cleanValue(oldOrder.tracking_carrier || oldOrder.carrier);
-    const newCarrier = cleanValue(updates.tracking_carrier || updates.carrier);
-    const types = [];
-    const paymentJustMarkedPaid = oldPaymentStatus !== newPaymentStatus && newPaymentStatus === "paid";
-    const paidAutoMovedToProcessing = paymentJustMarkedPaid && ["pending","awaiting_payment"].includes(oldOrderStatus) && newOrderStatus === "processing";
-
-    if(oldPaymentStatus !== newPaymentStatus){
-      if(newPaymentStatus === "paid") types.push("payment_accepted");
-      if(["failed","manual_review","refunded"].includes(newPaymentStatus)) types.push("payment_issue");
-    }
-    if(oldOrderStatus !== newOrderStatus){
-      if(newOrderStatus === "processing" && !paidAutoMovedToProcessing) types.push("order_processing");
-      if(newOrderStatus === "packed") types.push("order_packed");
-      if(newOrderStatus === "shipped") types.push("order_shipped");
-      if(newOrderStatus === "delivered") types.push("order_delivered");
-      if(newOrderStatus === "cancelled") types.push("order_cancelled");
-      if(newOrderStatus === "rejected") types.push("order_rejected");
-    }
-    if(newOrderStatus === "shipped" && (oldTracking !== newTracking || oldCarrier !== newCarrier) && !types.includes("order_shipped")) types.push("order_shipped");
-    return [...new Set(types)];
-  }
-
-  async function saveOrder(order){
-    try{
-      const updates = buildUpdatesFromForm(order);
-      if(inventorySensitiveOrderChange(order, updates)){
-        await confirmAdminPasswordForProtectedAction(inventorySensitiveReason(order, updates));
+      function productLabel(product) {
+        return [product.display_name, product.strength].filter(Boolean).join(" ").trim() || "Product";
       }
-      const emailTypes = detectCustomerEmailTypes(order, updates);
-      setStatus("Saving order updates...");
-      await safeUpdateOrder(order.id, updates, order);
 
-      const restoreResult = await restoreInventoryForOrderIfNeeded(order, updates);
+      function productTag(product) {
+        return product.category || "Catalog";
+      }
 
-      const mergedForEmail = { ...order, ...updates, profile: profileOf(order), items: order.items || [] };
-      const automaticTypes = emailTypes.filter(type => !emailTypeNeedsPreview(type));
-      const previewTypes = emailTypes.filter(emailTypeNeedsPreview);
+      function productHref(product) {
+        const key = encodeURIComponent(product.product_key || product.id || "");
+        return key ? `product.html?key=${key}` : "catalog.html";
+      }
 
-      if(automaticTypes.length){
-        try{
-          for(const emailType of automaticTypes){
-            await sendOrderEmail(mergedForEmail, emailType, true, { skipPreview:true, auditAutomatic:true });
+      async function loadFeaturedNewArrivals() {
+        const list = document.querySelector('[data-home-list="new"]');
+        const card = list?.closest(".list-card");
+        if (!list || !window.supabase?.createClient) return false;
+
+        try {
+          const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+          const { data, error } = await db
+            .from("product_catalog")
+            .select("id,product_key,display_name,strength,category,is_active,featured,sort_name")
+            .eq("is_active", true)
+            .eq("featured", true)
+            .order("sort_name", { ascending: true, nullsFirst: false })
+            .order("display_name", { ascending: true })
+            .limit(MAX_NEW_ARRIVALS);
+
+          if (error) throw error;
+          const products = data || [];
+
+          if (!products.length) {
+            if (card) card.hidden = true;
+            return true;
           }
-          setStatus(restoreResult.attempted ? "Order updates saved, inventory restored, and automatic customer email notification(s) sent." : "Order updates saved and automatic customer email notification(s) sent.", "good");
-        }catch(emailError){
-          console.error(emailError);
-          setStatus(`Order saved, but customer email failed: ${emailError.message || emailError}`, "bad");
+
+          if (card) card.hidden = false;
+          list.innerHTML = products.map(product => `
+            <li><a href="${productHref(product)}"><span>${escapeHtml(productLabel(product))}</span><strong>${escapeHtml(productTag(product))}</strong><span>&gt;</span></a></li>
+          `).join("");
+          return true;
+        } catch (error) {
+          console.warn("Could not load admin-selected New Arrivals.", error);
+          return false;
         }
-      }else{
-        setStatus(restoreResult.attempted ? "Order updates saved and inventory restored." : "Order updates saved.", "good");
       }
 
-      await loadOrders();
-      const fresh = allOrders.find(o => o.id === order.id) || mergedForEmail;
-      await renderOrderDetail(fresh);
-
-      if(previewTypes.length){
-        setStatus(`${restoreResult.attempted ? "Order saved and inventory restored" : "Order saved"}. Preview required before sending: ${previewTypes.map(emailTypeLabel).join(", ")}.`, "good");
-        setTimeout(() => openEmailPreview(fresh, previewTypes[0], true), 250);
-      }else if(!emailTypes.length){
-        setStatus(restoreResult.attempted ? "Order updates saved and inventory restored. No customer-facing status email was needed." : "Order updates saved. No customer-facing status email was needed.", "good");
+      function runWhenReady(attempt = 0) {
+        if (window.supabase?.createClient) {
+          loadFeaturedNewArrivals();
+          return;
+        }
+        if (attempt < 20) window.setTimeout(() => runWhenReady(attempt + 1), 100);
       }
-    }catch(error){ console.error(error); setStatus(error.message || "Could not save order updates.", "bad"); alert(error.message || "Could not save order updates."); }
-  }
 
-  async function makeEmailPayload(order, type){
-    const email = customerEmail(order);
-    const noTracking = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
-    const noTrackingReason = cleanValue($("editNoTrackingReason")?.value || order.no_tracking_reason || "");
-    let carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
-    let trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    if(type === "order_shipped" && noTracking && (!carrier || !trackingNumber)){
-      carrier = carrier || "No tracking required";
-      trackingNumber = trackingNumber || noTrackingReason || "No tracking required";
-    }
-    return {
-      type,
-      originalType: type,
-      to: email,
-      customerName: customerName(order),
-      orderNumber: orderNumber(order),
-      orderDate: order.created_at || order.order_date,
-      subtotal: orderSubtotal(order),
-      discount: orderDiscount(order),
-      shipping: orderShipping(order),
-      tax: orderTax(order),
-      total: orderTotal(order),
-      carrier,
-      trackingNumber,
-      trackingUrl: $("editTrackingUrl")?.value?.trim() || trackingUrl(carrier, trackingNumber, order.tracking_url),
-      noTrackingRequired: noTracking,
-      no_tracking_required: noTracking,
-      noTrackingReason,
-      no_tracking_reason: noTrackingReason,
-      statusNote: type === "order_shipped" && noTracking ? `No tracking is required for this order${noTrackingReason ? ": " + noTrackingReason : "."}` : (type === "order_received" ? (paymentInstructions(order) || customerFacingStatusNote(type)) : customerFacingStatusNote(type)),
-      paymentMethod: paymentMethod(order),
-      paymentStatus: paymentStatus(order),
-      paymentInstructions: paymentInstructions(order),
-      rejectionReason: order.rejection_reason || "",
-      items: (order.items || []).map(i => ({ name: i.product_name || i.name || i.product_key || "Item", quantity: i.quantity || i.qty || 1, price: i.unit_price || i.price || 0, total: i.line_total || i.total || null }))
-    };
-  }
-
-  async function callEmailFunction(payload){
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    const token = sessionData?.session?.access_token || SUPABASE_ANON_KEY;
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/${EMAIL_FUNCTION_NAME}`, { method:"POST", headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${token}` }, body: JSON.stringify(payload) });
-    const text = await res.text();
-    let data = null;
-    try{ data = text ? JSON.parse(text) : null; }catch(_){ data = text; }
-    if(!res.ok) throw new Error((data && data.error) || text || "Email function failed.");
-    return data;
-  }
-
-  async function openEmailPreview(order, type, automatic=false){
-    const email = customerEmail(order);
-    if(!email){ alert("This order does not have a customer email address."); return; }
-    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
-    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    const noTracking = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
-    if(type === "order_shipped" && (!carrier || !trackingNumber) && !noTracking){ alert("Carrier and tracking number are required before previewing a shipped email unless No tracking required is checked."); return; }
-    setEmailPreviewLoading(email, emailTypeLabel(type));
-    setStatus("Generating email preview...");
-    try{
-      const payload = await makeEmailPayload(order, type);
-      payload.preview_only = true;
-      payload.previewOnly = true;
-      const preview = await callEmailFunction(payload);
-      const subject = preview?.preview?.subject || preview?.subject || emailTypeLabel(type);
-      const html = preview?.preview?.html || preview?.html || "Preview unavailable.";
-      if($("emailPreviewSubject")) $("emailPreviewSubject").textContent = subject;
-      if($("emailPreviewHtml")) $("emailPreviewHtml").innerHTML = html;
-      window.pendingPreviewEmail = { order, type, automatic };
-      setStatus("Email preview ready. Review it, then send when ready.", "good");
-    }catch(error){
-      console.error(error);
-      if($("emailPreviewHtml")) $("emailPreviewHtml").innerHTML = `<div class="problem-banner"><strong>Preview failed</strong>${esc(error.message || error)}</div>`;
-      setStatus(`Email preview failed: ${error.message || error}`, "bad");
-    }
-  }
-
-  async function sendOrderEmail(order, type, automatic=false, options={}){
-    const email = customerEmail(order);
-    if(!email){ alert("This order does not have a customer email address."); return; }
-    const carrier = $("editCarrier")?.value?.trim() || order.tracking_carrier || order.carrier || "";
-    const trackingNumber = $("editTracking")?.value?.trim() || order.tracking_number || order.tracking || "";
-    const noTracking = !!$("editNoTrackingRequired")?.checked || noTrackingRequired(order);
-    if(type === "order_shipped" && (!carrier || !trackingNumber) && !noTracking){ alert("Carrier and tracking number are required before sending a shipped email unless No tracking required is checked."); return; }
-    if(!options.skipPreview && (emailTypeNeedsPreview(type) || options.previewFirst)){
-      return openEmailPreview(order, type, automatic);
-    }
-    setStatus("Sending customer email...");
-
-    try{
-      const payload = await makeEmailPayload(order, type);
-      await callEmailFunction(payload);
-    }catch(firstError){
-      if(type === "order_packed"){
-        const fallbackPayload = await makeEmailPayload(order, "order_processing");
-        fallbackPayload.originalType = type;
-        await callEmailFunction(fallbackPayload);
-      }else{
-        setStatus(`Email failed: ${firstError.message || firstError}`, "bad");
-        throw firstError;
-      }
-    }
-
-    if(type === "order_shipped") await safeUpdateOrder(order.id, { shipping_email_sent_at: new Date().toISOString(), updated_at: new Date().toISOString() }, order).catch(()=>{});
-    if(!automatic || options.auditAutomatic){
-      await appendAdminAudit(order, `${emailTypeLabel(type)} status notification ${automatic ? "sent" : "resent"} to customer at ${email}`);
-    }
-    setStatus("Customer email sent successfully.", "good");
-  }
-
-
-
-
-  function itemStockKey(item){
-    return cleanValue(item.product_key || item.product_id || item.sku || item.item_number || item.product_sku);
-  }
-  function itemQty(item){
-    const n = Number(item.quantity ?? item.qty ?? item.count ?? 0);
-    return Number.isFinite(n) ? n : 0;
-  }
-  async function restoreInventoryForDeletedTestOrders(orders){
-    const totals = new Map();
-    (orders || []).forEach(order => {
-      (order.items || []).forEach(item => {
-        const key = itemStockKey(item);
-        const qty = itemQty(item);
-        if(key && qty > 0) totals.set(key, (totals.get(key) || 0) + qty);
+      window.addEventListener("load", () => {
+        runWhenReady();
+        window.setTimeout(loadFeaturedNewArrivals, 750);
       });
-    });
-    if(!totals.size) return { restored:0, failed:0 };
-    let restored = 0;
-    let failed = 0;
-    for(const [key, qty] of totals.entries()){
-      try{
-        const { data: rows, error: readError } = await supabaseClient
-          .from("product_inventory")
-          .select("*")
-          .eq("product_key", key)
-          .limit(1);
-        if(readError) throw readError;
-        const row = (rows || [])[0];
-        if(!row){ failed++; console.warn("No product_inventory row found for deleted test order item", key); continue; }
-        const current = Number(row.current_inventory ?? row.inventory ?? row.qty ?? row.quantity ?? 0) || 0;
-        const next = current + qty;
-        const updatePayload = { current_inventory: next, updated_at: new Date().toISOString() };
-        const { error: updateError } = await supabaseClient
-          .from("product_inventory")
-          .update(updatePayload)
-          .eq("product_key", key);
-        if(updateError) throw updateError;
-        restored++;
-      }catch(error){
-        failed++;
-        console.error("Inventory restore failed for", key, error);
-      }
-    }
-    return { restored, failed };
-  }
-
-  async function bulkDeleteSelectedTestOrders(){
-    const ids = selectedOrdersArray();
-    if(!ids.length){ alert("Select one or more test orders first."); return; }
-    const selectedOrders = allOrders.filter(o => ids.includes(String(o.id)));
-    if(!selectedOrders.length){ setStatus("Delete stopped: selected rows were not found in the loaded order list. Refresh and try again.", "bad"); return; }
-
-    const firstConfirm = confirm(`Delete ${selectedOrders.length} selected TEST order(s)?\n\nThis permanently removes the selected orders and their item rows from Supabase. Use this only for test orders.`);
-    if(!firstConfirm) return;
-    const typed = prompt('Type DELETE TEST ORDERS to confirm permanent deletion.');
-    if(String(typed || '').trim().toUpperCase() !== 'DELETE TEST ORDERS'){
-      setStatus('Delete cancelled. Confirmation text did not match.', 'bad');
-      return;
-    }
-    const shouldRestore = confirm('Restore selected order item quantities back into Inventory before deleting?\n\nChoose OK if you want to reverse test inventory deductions. Choose Cancel if you want to delete the test orders only and leave inventory as-is.');
-
-    try{
-      setStatus(`Deleting ${selectedOrders.length} selected test order(s)...`);
-      let restoreResult = { restored:0, failed:0 };
-      if(shouldRestore){
-        await confirmAdminPasswordForProtectedAction('restore selected test order quantities back into inventory');
-        setStatus('Restoring inventory from selected test orders...');
-        restoreResult = await restoreInventoryForDeletedTestOrders(selectedOrders);
-      }
-
-      // Delete child item rows first so foreign-key constraints cannot block order deletion.
-      setStatus('Deleting matching order item rows...');
-      const { data: deletedItems, error: itemDeleteError } = await supabaseClient
-        .from('order_items')
-        .delete()
-        .in('order_id', ids)
-        .select('id, order_id');
-      if(itemDeleteError){
-        console.error('Order item delete failed:', itemDeleteError);
-        setStatus(`Order item delete failed: ${itemDeleteError.message || itemDeleteError}. Orders were not deleted.`, 'bad');
-        return;
-      }
-
-      // Delete parent orders. Use .select() so we can verify Supabase actually removed rows.
-      setStatus('Deleting selected order rows...');
-      const { data: deletedOrders, error: orderDeleteError } = await supabaseClient
-        .from('orders')
-        .delete()
-        .in('id', ids)
-        .select('id');
-      if(orderDeleteError){
-        console.error('Order delete failed:', orderDeleteError);
-        setStatus(`Test order delete failed: ${orderDeleteError.message || orderDeleteError}`, 'bad');
-        return;
-      }
-
-      const deletedOrderCount = (deletedOrders || []).length;
-      const deletedItemCount = (deletedItems || []).length;
-      if(deletedOrderCount === 0){
-        setStatus('Delete did not remove any orders. This usually means the selected IDs did not match Supabase rows or Row Level Security blocked the delete without returning rows. Refresh and try again; if it still happens, we will add a SQL cleanup button/script.', 'bad');
-        return;
-      }
-
-      selectedOrderIds.clear();
-      activeOrderId = null;
-      await loadOrders();
-      const parts = [`Deleted ${deletedOrderCount} test order(s)`, `deleted ${deletedItemCount} item row(s)`];
-      if(shouldRestore) parts.push(`inventory restored for ${restoreResult.restored} product(s)${restoreResult.failed ? `, ${restoreResult.failed} restore issue(s)` : ''}`);
-      setStatus(parts.join('. ') + '.', restoreResult.failed ? 'bad' : 'good');
-    }catch(error){
-      console.error('Delete test orders unexpected error:', error);
-      setStatus(`Delete failed unexpectedly: ${error.message || error}`, 'bad');
-    }
-  }
-
-  async function bulkSetNoTrackingRequired(){
-    const ids = selectedOrdersArray();
-    if(!ids.length){ alert("Select one or more orders first."); return; }
-    if(!confirm("Mark selected orders as No Tracking Required? They will no longer appear in Missing Tracking.")) return;
-    setStatus("Saving no-tracking exception...");
-    let failed = 0;
-    for(const id of ids){
-      try{
-        const order = allOrders.find(o => String(o.id) === String(id)) || {};
-        const current = normalizeAdminNotes(order.admin_note || order.admin_notes || "");
-        const next = setNoTrackingToken(joinAuditNotes(current, auditLine("No tracking required enabled")), true);
-        await safeUpdateOrder(id, { admin_note: next, admin_notes: next, updated_at: new Date().toISOString() }, order);
-      } catch(e){ console.error(e); failed++; }
-    }
-    await loadOrders();
-    setStatus(failed ? `No tracking required saved with ${failed} failure(s).` : "No tracking required saved for selected orders.", failed ? "bad" : "good");
-  }
-
-  async function bulkUpdate(updates, message){
-    const ids = selectedOrdersArray();
-    if(!ids.length){ alert("Select one or more orders first."); return; }
-    if(updates.order_status === "shipped" && !confirm("Bulk marking as shipped does not add tracking numbers. Continue only if tracking was already added or you will mark No Tracking Required afterward.")) return;
-
-    const payload = { ...updates, updated_at: new Date().toISOString() };
-    const selectedOrders = ids.map(id => allOrders.find(o => String(o.id) === String(id))).filter(Boolean);
-    const protectedOrders = selectedOrders.filter(order => inventorySensitiveOrderChange(order, payload));
-
-    if(protectedOrders.length){
-      const reason = `${protectedOrders.length} selected order(s): ${inventorySensitiveReason(protectedOrders[0], payload)}`;
-      await confirmAdminPasswordForProtectedAction(reason);
-    }
-
-    setStatus("Saving bulk updates...");
-    let failed = 0;
-    let restored = 0;
-    for(const id of ids){
-      try{
-        const order = allOrders.find(o => String(o.id) === String(id));
-        await safeUpdateOrder(id, payload, order);
-        if(order && inventoryRestoreNeeded(order, payload)){
-          await restoreInventoryForOrderIfNeeded(order, payload);
-          restored++;
-        }
-      } catch(e){ console.error(e); failed++; }
-    }
-    await loadOrders();
-    const restoreText = restored ? ` Inventory restored for ${restored} order(s).` : "";
-    setStatus(failed ? `${message} ${failed} order(s) could not be updated.${restoreText}` : `${message}${restoreText}`, failed ? "bad" : "good");
-  }
-
-  function wireEvents(){
-    setupAdminDashboardNavigation();
-    $("refreshBtn")?.addEventListener("click", loadOrders);
-    $("closeEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
-    $("cancelEmailPreviewBtn")?.addEventListener("click", closeEmailPreview);
-    $("emailPreviewModal")?.addEventListener("click", (event) => { if(event.target?.id === "emailPreviewModal") closeEmailPreview(); });
-    $("sendPreviewedEmailBtn")?.addEventListener("click", async () => {
-      const pending = window.pendingPreviewEmail;
-      if(!pending) return closeEmailPreview();
-      try{
-        await sendOrderEmail(pending.order, pending.type, pending.automatic, { skipPreview:true, auditAutomatic:true });
-        closeEmailPreview();
-      }catch(error){
-        console.error(error);
-        alert(error.message || "Could not send previewed email.");
-      }
-    });
-    ["searchInput","statusFilter","paymentFilter","dateFilter","attentionFilter"].forEach(id => { const el=$(id); if(el) el.addEventListener(id==="searchInput"?"input":"change", () => { clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); }); });
-    $("clearFiltersBtn")?.addEventListener("click", () => { if($("searchInput")) $("searchInput").value=""; if($("statusFilter")) $("statusFilter").value=""; if($("paymentFilter")) $("paymentFilter").value=""; if($("dateFilter")) $("dateFilter").value=""; if($("attentionFilter")) $("attentionFilter").value=""; clearOrderDashboardFilters(); applyFilters(); syncAdminJumpLinkState(); });
-    $("selectAllOrders")?.addEventListener("change", e => { if(e.target.checked) filteredOrders.forEach(o=>selectedOrderIds.add(String(o.id))); else filteredOrders.forEach(o=>selectedOrderIds.delete(String(o.id))); renderOrders(); renderSelectedCount(); });
-    $("bulkPaidBtn")?.addEventListener("click", () => bulkUpdate({ payment_status:"paid" }, "Selected orders marked paid."));
-    $("bulkProcessingBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"processing", status:"processing" }, "Selected orders marked processing."));
-    $("bulkPackedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"packed", status:"packed" }, "Selected orders marked packed."));
-    $("bulkDeliveredBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"delivered", status:"delivered" }, "Selected orders marked delivered."));
-    $("bulkShippedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"shipped", status:"shipped" }, "Selected orders marked shipped."));
-    $("bulkNoTrackingBtn")?.addEventListener("click", bulkSetNoTrackingRequired);
-    $("bulkRejectedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"rejected", status:"rejected" }, "Selected orders marked rejected."));
-    $("bulkDeleteTestBtn")?.addEventListener("click", bulkDeleteSelectedTestOrders);
-    $("bulkClearBtn")?.addEventListener("click", () => { selectedOrderIds.clear(); renderOrders(); renderSelectedCount(); });
-  }
-
-async function init(){
-  try{
-    wireEvents();
-
-    if(SUPABASE_URL.includes("PASTE_") || SUPABASE_ANON_KEY.includes("PASTE_")){
-      setStatus("Missing Supabase settings.", "bad");
-      return;
-    }
-
-    if(await checkAdminAccess()){
-      await loadOrders();
-    }
-  }catch(error){
-    console.error(error);
-    setStatus(error.message || "Something went wrong loading Admin Orders.", "bad");
-  }
-}
-
-init();
-</script>
+    })();
+  </script>
 </body>
 </html>
