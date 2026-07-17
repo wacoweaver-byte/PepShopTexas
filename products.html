@@ -868,6 +868,33 @@ body:has(#newProductModal.open) #newProductBtn {
   box-shadow: none !important;
 }
 </style>
+<style id="pst-products-add-product-pill-final">
+/* Products page only: override the more-specific red Add Product rule. */
+body button#newProductBtn.btn {
+  color: #000 !important;
+  background: #fff !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+body button#newProductBtn.btn:hover {
+  color: #000 !important;
+  background: #f2f2f2 !important;
+  background-color: #f2f2f2 !important;
+  border-color: #000 !important;
+}
+
+body:has(#newProductModal.open) button#newProductBtn.btn,
+body button#newProductBtn.btn:active,
+body button#newProductBtn.btn[aria-pressed="true"] {
+  color: #fff !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+</style>
 </head>
 <body>
   <header class="pst-admin-header">
