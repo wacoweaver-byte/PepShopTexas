@@ -4225,6 +4225,13 @@ function daysBetween(startValue, endValue = new Date()) {
   return Math.max(0, Math.floor((b - a) / (1000 * 60 * 60 * 24)));
 }
 
+function incomingDaysOnOrder(row = {}) {
+  const orderedAt = row.ordered_at || row.created_at || new Date().toISOString();
+  const status = String(row.status || "ordered").toLowerCase();
+  const endAt = status === "received" && row.received_at ? row.received_at : new Date();
+  return daysBetween(orderedAt, endAt);
+}
+
 function incomingStatusLabel(value) {
   const v = String(value || "ordered").toLowerCase();
   return { ordered:"Ordered", in_transit:"In Transit", received:"Received", cancelled:"Cancelled", issue_shorted:"Issue / Shorted" }[v] || v.replaceAll("_", " ");
@@ -4291,7 +4298,7 @@ function incomingSortValue(row, key) {
   if (key === "vendor_item") return incomingVendorItemNumber(row);
   if (key === "qty") return Number(row.ordered_quantity || 0);
   if (key === "ordered_at") return new Date(orderedAt).getTime() || 0;
-  if (key === "days") return daysBetween(orderedAt);
+  if (key === "days") return incomingDaysOnOrder(row);
   if (key === "expected") return new Date(incomingExpectedArrivalForRow(row)).getTime() || 0;
   if (key === "supplier") return row.vendor_name || row.supplier_name || row.supplier || row.tracking_number || "";
   if (key === "cost") return incomingTotalCost(row);
@@ -4674,7 +4681,7 @@ function renderIncomingInventory() {
     const orderedAt = row.ordered_at || row.created_at || new Date().toISOString();
     const leadTimeDays = incomingLeadTimeForRow(row);
     const expected = incomingExpectedArrivalForRow(row);
-    const days = daysBetween(orderedAt);
+    const days = incomingDaysOnOrder(row);
     const qty = Number(row.ordered_quantity || 0);
     const status = String(row.status || "ordered").toLowerCase();
     const isReceived = status === "received";
