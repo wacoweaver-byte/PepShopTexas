@@ -462,8 +462,7 @@
     height: 52px !important;
   }
 
-  #pst-header-v3 .pst-left,
-  #pst-header-v3 .main-nav {
+  #pst-header-v3 .pst-left {
     grid-column: 1 !important;
     grid-row: 3 !important;
     width: 100% !important;
@@ -474,6 +473,10 @@
     justify-content: center !important;
     gap: 8px 22px !important;
   }
+
+  /* Keep .pst-right as display:contents so its search can occupy row 2.
+     The old .main-nav selector also matched .pst-right and changed it back
+     to flex, which caused the search box and links to overlap. */
 }
 </style>
 </head>
