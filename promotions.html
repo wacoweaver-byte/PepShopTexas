@@ -1737,6 +1737,44 @@ button.btn[aria-disabled="true"],
     outline-offset: 2px !important;
   }
 </style>
+<style id="pst-promotions-black-outline-pill-fix">
+/* Promotions page only: preserve existing pill dimensions, padding, radius, and typography. */
+#saveBtn,
+#newBtn,
+#deleteBtn,
+.pst-mini-pill.is-active,
+.pst-mini-pill.is-inactive,
+.pst-mini-pill.is-sort,
+.pst-mini-pill.is-code {
+  color: #000 !important;
+  background: #fff !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+#saveBtn:hover,
+#newBtn:hover,
+#deleteBtn:hover {
+  color: #000 !important;
+  background: #f2f2f2 !important;
+  background-color: #f2f2f2 !important;
+  border-color: #000 !important;
+}
+
+#saveBtn:active,
+#newBtn:active,
+#deleteBtn:active,
+#saveBtn[aria-pressed="true"],
+#newBtn[aria-pressed="true"],
+#deleteBtn[aria-pressed="true"] {
+  color: #fff !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+</style>
 </head><body><header class="pst-admin-header">
   <div class="pst-admin-nav-wrap">
     <a class="pst-admin-logo-link" href="admin.html" aria-label="Pep Shop Texas Admin Home">
