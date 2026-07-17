@@ -2187,6 +2187,41 @@ button.btn[aria-disabled="true"],
     outline-offset: 2px !important;
   }
 </style>
+<style id="pst-reports-jump-links-black-fix">
+/* Reports page only: preserve existing jump-link size, font, padding, radius, and toggle logic. */
+.reports-jumpbar a {
+  color: #000 !important;
+  background: #fff !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+.reports-jumpbar a:hover {
+  color: #000 !important;
+  background: #f2f2f2 !important;
+  background-color: #f2f2f2 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+.reports-jumpbar a.active,
+.reports-jumpbar a[aria-pressed="true"] {
+  color: #fff !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+.reports-jumpbar a.active:hover,
+.reports-jumpbar a[aria-pressed="true"]:hover {
+  color: #fff !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+}
+</style>
 </head>
 <body>
 <header class="pst-admin-header">
