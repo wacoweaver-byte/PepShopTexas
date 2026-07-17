@@ -1052,6 +1052,25 @@ td .promo-card-code {
     outline-offset: 2px !important;
   }
 </style>
+<style id="pst-discounts-form-mode-black-pill-fix">
+/* Discounts page only: preserve existing pill size, font, padding, and radius. */
+#formModeBadge.form-mode-badge {
+  color: #000 !important;
+  background: #fff !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+/* When a saved discount is selected for editing, keep the pill highlighted black. */
+body:has(.discount-row.selected) #formModeBadge.form-mode-badge {
+  color: #fff !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+</style>
 </head>
 <body>
 <header class="pst-admin-header">
