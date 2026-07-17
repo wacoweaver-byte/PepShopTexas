@@ -479,6 +479,23 @@
      to flex, which caused the search box and links to overlap. */
 }
 </style>
+<style id="pst-public-header-links-auth-scope-fix">
+/* Public navigation must never depend on login/auth state.
+   Authentication may control Admin, but not Peptides, Stacks, FAQ, or Contact. */
+#pst-header-v3 .pst-left,
+#pst-header-v3 .pst-left[hidden] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#pst-header-v3 .pst-left a,
+#pst-header-v3 .pst-left a[hidden] {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+</style>
 </head>
 <body data-page="home">
 <header id="pst-header-v3">
