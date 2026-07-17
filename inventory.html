@@ -3381,6 +3381,7 @@ let vendorsAvailable = false;
 const PST_INCOMING_LEAD_DAYS = 10;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 const PST_INCOMING_MIGRATION_KEY = "pst_incoming_inventory_migrated_to_supabase_v1";
+const PST_REPORT_WRITER_PO_HANDOFF_KEY = "pst_report_writer_po_handoff_v1";
 let salesByInventoryId = {};
 let movementByInventoryId = {};
 let reorderSalesLoadError = "";
@@ -4121,6 +4122,37 @@ function addSelectedReorderRowsToIncomingDraft() {
   setTimeout(() => $("incomingKitCost")?.focus(), 350);
 }
 
+function consumeReportWriterPurchaseOrderHandoff() {
+  let handoff = null;
+  try { handoff = JSON.parse(localStorage.getItem(PST_REPORT_WRITER_PO_HANDOFF_KEY) || "null"); } catch (e) {}
+  if (!handoff || !Array.isArray(handoff.lines) || !handoff.lines.length) return false;
+  const added = [];
+  handoff.lines.forEach(line => {
+    const product = allItems.find(item => String(item.id) === String(line.productId))
+      || allItems.find(item => String(item.product_key || "").toLowerCase() === String(line.productKey || "").toLowerCase());
+    if (!product) return;
+    incomingDraftLines.push({
+      id: crypto?.randomUUID ? crypto.randomUUID() : `report_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+      productId: product.id,
+      productKey: product._catalog_product_key || product.product_key || line.productKey || null,
+      productName: incomingProductLabel(product),
+      qty: incomingRoundQtyToFullKits(Number(line.qty || PST_KIT_VIAL_COUNT)),
+      kitCost: Number(line.kitCost || 0) > 0 ? Number(line.kitCost) : incomingAutoKitCostForProduct(product)
+    });
+    added.push(product);
+  });
+  localStorage.removeItem(PST_REPORT_WRITER_PO_HANDOFF_KEY);
+  if (!added.length) { setStatus("The Report Writer selection could not be matched to current inventory products.", "bad"); return false; }
+  syncIncomingTotalCostField();
+  setIncomingOrderDateToday(false);
+  setIncomingUserField(true);
+  const card = $("incomingInventoryCard");
+  if (card) { setInventoryCardOpen(card, true); setTimeout(() => scrollInventoryToCard(card), 80); }
+  setStatus(`Added ${added.length} product${added.length === 1 ? "" : "s"} from ${handoff.reportName || "Report Writer"} to a new purchase order draft. Quantities default to one 10-vial kit and remain editable before saving.`, "good");
+  setTimeout(() => $("incomingVendorSelect")?.focus(), 300);
+  return true;
+}
+
 function startIncomingOrderFromReorder(productId, suggestedQty) {
   const product = allItems.find(item => String(item.id) === String(productId));
   if (!product) return;
@@ -4225,13 +4257,6 @@ function daysBetween(startValue, endValue = new Date()) {
   return Math.max(0, Math.floor((b - a) / (1000 * 60 * 60 * 24)));
 }
 
-function incomingDaysOnOrder(row = {}) {
-  const orderedAt = row.ordered_at || row.created_at || new Date().toISOString();
-  const status = String(row.status || "ordered").toLowerCase();
-  const endAt = status === "received" && row.received_at ? row.received_at : new Date();
-  return daysBetween(orderedAt, endAt);
-}
-
 function incomingStatusLabel(value) {
   const v = String(value || "ordered").toLowerCase();
   return { ordered:"Ordered", in_transit:"In Transit", received:"Received", cancelled:"Cancelled", issue_shorted:"Issue / Shorted" }[v] || v.replaceAll("_", " ");
@@ -4298,7 +4323,7 @@ function incomingSortValue(row, key) {
   if (key === "vendor_item") return incomingVendorItemNumber(row);
   if (key === "qty") return Number(row.ordered_quantity || 0);
   if (key === "ordered_at") return new Date(orderedAt).getTime() || 0;
-  if (key === "days") return incomingDaysOnOrder(row);
+  if (key === "days") return daysBetween(orderedAt);
   if (key === "expected") return new Date(incomingExpectedArrivalForRow(row)).getTime() || 0;
   if (key === "supplier") return row.vendor_name || row.supplier_name || row.supplier || row.tracking_number || "";
   if (key === "cost") return incomingTotalCost(row);
@@ -4681,7 +4706,7 @@ function renderIncomingInventory() {
     const orderedAt = row.ordered_at || row.created_at || new Date().toISOString();
     const leadTimeDays = incomingLeadTimeForRow(row);
     const expected = incomingExpectedArrivalForRow(row);
-    const days = incomingDaysOnOrder(row);
+    const days = daysBetween(orderedAt);
     const qty = Number(row.ordered_quantity || 0);
     const status = String(row.status || "ordered").toLowerCase();
     const isReceived = status === "received";
@@ -5615,6 +5640,7 @@ async function init() {
     if (!ok) return;
     await loadInventory();
     await loadVendors();
+    consumeReportWriterPurchaseOrderHandoff();
   } catch (err) {
     console.error(err);
     setStatus(err.message || "Inventory admin failed to load.", "bad");
