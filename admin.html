@@ -2158,6 +2158,73 @@ body .status-pill.active {
 }
 </style>
 
+<style id="pst-orders-page-specific-black-pills-v2">
+/* Orders page only: preserve existing pill dimensions and typography. */
+
+/* Jump To pills — unselected. */
+body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar .btn,
+body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar a.btn,
+body #adminDashboardNav .inventory-jump-link {
+  color: #000 !important;
+  background: #fff !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+/* Jump To pills — hover. */
+body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar .btn:hover,
+body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar a.btn:hover,
+body #adminDashboardNav .inventory-jump-link:hover {
+  color: #000 !important;
+  background: #f2f2f2 !important;
+  background-color: #f2f2f2 !important;
+  border-color: #000 !important;
+}
+
+/* Jump To pills — selected and persistent. */
+body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar .btn.active,
+body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar .btn[aria-pressed="true"],
+body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar a.btn.active,
+body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar a.btn[aria-pressed="true"],
+body #adminDashboardNav .inventory-jump-link.active,
+body #adminDashboardNav .inventory-jump-link[aria-pressed="true"] {
+  color: #fff !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+/* Section Open/Collapse pills — unselected/collapsed. */
+body .collapsible-card.collapsed > .card-header .card-toggle-btn.btn.secondary,
+body .collapsible-card > .card-header .card-toggle-btn.btn.secondary {
+  color: #000 !important;
+  background: #fff !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+/* Section Open/Collapse pills — hover. */
+body .collapsible-card > .card-header .card-toggle-btn.btn.secondary:hover {
+  color: #000 !important;
+  background: #f2f2f2 !important;
+  background-color: #f2f2f2 !important;
+  border-color: #000 !important;
+}
+
+/* Section Open/Collapse pills — open/selected and persistent. */
+body .collapsible-card:not(.collapsed) > .card-header .card-toggle-btn.btn.secondary,
+body .collapsible-card > .card-header .card-toggle-btn.btn.secondary.active,
+body .collapsible-card > .card-header .card-toggle-btn.btn.secondary[aria-expanded="true"] {
+  color: #fff !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+</style>
 </head>
 <body class="admin-auth-pending">
 <header class="pst-admin-header">
