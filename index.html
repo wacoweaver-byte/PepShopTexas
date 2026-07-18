@@ -1,673 +1,166 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>PEP Shop Texas</title>
-<link href="favicon.ico" rel="icon" sizes="any"/>
-<link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
-<link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
-<link href="apple-touch-icon.png" rel="apple-touch-icon"/>
-<link href="site.webmanifest" rel="manifest"/>
-<meta content="#bd0000" name="theme-color"/>
-<link href="styles.css?v=45" rel="stylesheet"/>
-<script defer="" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer="" src="app.js?v=39"></script>
-<style id="pst-hero-integration-v3">
-/* Fully isolated PST header/hero integration. */
-#pst-header-v3 {
-  box-sizing: border-box !important;
-  width: 100% !important;
-  min-height: 66px !important;
-  margin: 0 !important;
-  padding: 0 28px !important;
-  background: #050505 !important;
-  display: grid !important;
-  grid-template-columns: minmax(380px, 1fr) 180px minmax(520px, 1fr) !important;
-  align-items: center !important;
-  gap: 20px !important;
-  overflow: visible !important;
-  position: relative !important;
-  z-index: 10 !important;
-}
-
-#pst-header-v3 * { box-sizing: border-box !important; }
-
-#pst-header-v3 .pst-left,
-#pst-header-v3 .pst-right {
-  display: flex !important;
-  align-items: center !important;
-  min-width: 0 !important;
-}
-
-#pst-header-v3 .pst-left {
-  justify-content: flex-start !important;
-  gap: clamp(18px, 2vw, 34px) !important;
-}
-
-#pst-header-v3 .pst-right {
-  justify-content: flex-end !important;
-  gap: 18px !important;
-}
-
-#pst-header-v3 a {
-  color: #fff !important;
-  text-decoration: none !important;
-  font-weight: 700 !important;
-  white-space: nowrap !important;
-}
-
-#pst-header-v3 .pst-left a {
-  font-size: clamp(12px, .95vw, 15px) !important;
-}
-
-#pst-header-v3 .pst-logo {
-  display: block !important;
-  justify-self: center !important;
-  line-height: 0 !important;
-}
-
-#pst-header-v3 .pst-logo img {
-  display: block !important;
-  width: 180px !important;
-  height: 84px !important;
-  object-fit: contain !important;
-}
-
-#pst-header-v3 .pst-account {
-  display: flex !important;
-  align-items: center !important;
-  gap: 9px !important;
-  line-height: 1.05 !important;
-}
-
-#pst-header-v3 .pst-account strong {
-  display: block !important;
-  font-size: 14px !important;
-}
-
-#pst-header-v3 .pst-account small {
-  display: block !important;
-  margin-top: 4px !important;
-  font-size: 11px !important;
-  font-weight: 500 !important;
-}
-
-#pst-header-v3 .pst-account-icon {
-  font-size: 22px !important;
-}
-
-#pst-header-v3 .pst-admin {
-  border-left: 1px solid rgba(255,255,255,.45) !important;
-  padding-left: 18px !important;
-  font-size: 14px !important;
-}
-
-#pst-header-v3 .pst-search {
-  width: 280px !important;
-  min-width: 220px !important;
-  height: 46px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: stretch !important;
-  background: #fff !important;
-  border-radius: 7px !important;
-  overflow: hidden !important;
-  flex: 0 1 280px !important;
-}
-
-#pst-header-v3 .pst-search input {
-  flex: 1 1 auto !important;
-  width: auto !important;
-  min-width: 0 !important;
-  height: 46px !important;
-  margin: 0 !important;
-  border: 0 !important;
-  padding: 0 14px !important;
-  background: #fff !important;
-  color: #111 !important;
-  font-size: 15px !important;
-  outline: none !important;
-}
-
-#pst-header-v3 .pst-search button {
-  flex: 0 0 46px !important;
-  width: 46px !important;
-  height: 46px !important;
-  margin: 0 !important;
-  padding: 11px !important;
-  border: 0 !important;
-  background: #fff !important;
-  display: grid !important;
-  place-items: center !important;
-}
-
-#pst-header-v3 .pst-search svg {
-  width: 23px !important;
-  height: 23px !important;
-  fill: none !important;
-  stroke: #000 !important;
-  stroke-width: 2 !important;
-}
-
-#pst-hero-v3 {
-  width: 100% !important;
-  height: 469px !important;
-  max-height: 469px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  background: #fff !important;
-}
-
-#pst-hero-v3 img {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  margin: 0 !important;
-  object-fit: fill !important;
-  object-position: center 48% !important;
-}
-
-@media (max-width: 1400px) {
-  #pst-hero-v3 {
-    height: auto !important;
-    max-height: none !important;
-    background: #000 !important;
-  }
-
-  #pst-hero-v3 img {
-    width: 100% !important;
-    height: auto !important;
-    object-fit: contain !important;
-    object-position: center top !important;
-  }
-
-  #pst-header-v3 {
-    grid-template-columns: 1fr auto !important;
-    min-height: 0 !important;
-    padding: 10px 18px 14px !important;
-    gap: 10px 18px !important;
-  }
-
-  #pst-header-v3 .pst-logo {
-    grid-column: 1 / -1 !important;
-    grid-row: 1 !important;
-  }
-
-  #pst-header-v3 .pst-logo img {
-    width: 155px !important;
-    height: 70px !important;
-  }
-
-  #pst-header-v3 .pst-left {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-    flex-wrap: wrap !important;
-    gap: 10px 18px !important;
-  }
-
-  #pst-header-v3 .pst-right {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-    flex-wrap: wrap !important;
-    gap: 10px 14px !important;
-  }
-
-  #pst-header-v3 .pst-search {
-    width: 220px !important;
-    min-width: 190px !important;
-    flex-basis: 220px !important;
-    height: 40px !important;
-  }
-
-  #pst-header-v3 .pst-search input,
-  #pst-header-v3 .pst-search button {
-    height: 40px !important;
-  }
-
-}
-
-@media (max-width: 760px) {
-
-  #pst-header-v3 {
-    grid-template-columns: 1fr !important;
-    padding: 8px 12px 12px !important;
-    gap: 9px !important;
-  }
-
-  #pst-header-v3 .pst-logo,
-  #pst-header-v3 .pst-left,
-  #pst-header-v3 .pst-right {
-    grid-column: 1 !important;
-    justify-self: center !important;
-    width: 100% !important;
-  }
-
-  #pst-header-v3 .pst-logo {
-    grid-row: 1 !important;
-    width: auto !important;
-  }
-
-  #pst-header-v3 .pst-logo img {
-    width: 132px !important;
-    height: 60px !important;
-  }
-
-  #pst-header-v3 .pst-left {
-    grid-row: 2 !important;
-    justify-content: center !important;
-    gap: 7px 14px !important;
-  }
-
-  #pst-header-v3 .pst-left a {
-    font-size: 11.5px !important;
-  }
-
-  #pst-header-v3 .pst-right {
-    grid-row: 3 !important;
-    justify-content: center !important;
-    gap: 9px 12px !important;
-  }
-
-  #pst-header-v3 .pst-account strong { font-size: 12px !important; }
-  #pst-header-v3 .pst-account small { font-size: 9.5px !important; }
-
-  #pst-header-v3 .pst-admin {
-    padding-left: 12px !important;
-    font-size: 12px !important;
-  }
-
-  #pst-header-v3 .pst-search {
-    flex: 1 1 100% !important;
-    width: min(100%, 360px) !important;
-    min-width: 0 !important;
-    height: 38px !important;
-  }
-
-  #pst-header-v3 .pst-search input,
-  #pst-header-v3 .pst-search button {
-    height: 38px !important;
-  }
-
-}
-
-@media (max-width: 420px) {
-
-  #pst-header-v3 .pst-logo img {
-    width: 112px !important;
-    height: 52px !important;
-  }
-
-  #pst-header-v3 .pst-left {
-    gap: 6px 11px !important;
-  }
-
-  #pst-header-v3 .pst-left a {
-    font-size: 10px !important;
-  }
-
-  #pst-header-v3 .pst-account-icon {
-    display: none !important;
-  }
-
-}
-</style><style id="pst-account-link-clean-style">
-  .main-nav a[data-account-link],
-  .pst-account[data-account-link] {
-    display: inline-flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: center !important;
-    gap: 3px !important;
-    line-height: 1 !important;
-  }
-
-  .main-nav a[data-account-link]::after,
-  .pst-account[data-account-link]::after {
-    content: "MY ACCOUNT";
-    display: block;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1;
-    white-space: nowrap;
-  }
-
-  .main-nav a[data-account-link][href^="login.html"]::after,
-  .pst-account[data-account-link][href^="login.html"]::after {
-    content: "ACCOUNT";
-  }
-</style>
-<style id="pst-customer-single-collapse-fix">
-/* One-step responsive collapse for all customer-facing headers.
-   Desktop stays one row. At the collapse breakpoint it switches immediately
-   to: centered logo, centered search, centered links. No intermediate stage. */
-
-@media (max-width: 1400px) {
-  .pst-customer-header {
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-  }
-
-  .pst-customer-header-inner {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    padding: 10px 16px 14px !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto auto !important;
-    align-items: center !important;
-    justify-items: center !important;
-    gap: 10px !important;
-    overflow: visible !important;
-  }
-
-  .pst-customer-logo-link {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    width: auto !important;
-    height: auto !important;
-    justify-content: center !important;
-  }
-
-  .pst-customer-header-right {
-    grid-column: 1 !important;
-    grid-row: 2 / 4 !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    display: contents !important;
-  }
-
-  .pst-customer-search {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-    width: min(100%, 430px) !important;
-    min-width: 0 !important;
-    max-width: 430px !important;
-    height: 52px !important;
-    margin: 0 auto !important;
-  }
-
-  .pst-customer-search input,
-  .pst-customer-search button {
-    height: 52px !important;
-  }
-
-  .pst-customer-nav {
-    grid-column: 1 !important;
-    grid-row: 3 !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 40px !important;
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px 22px !important;
-    overflow: visible !important;
-  }
-
-  .pst-customer-nav a {
-    height: 40px !important;
-    min-height: 40px !important;
-  }
-
-  #pst-header-v3 {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto auto !important;
-    padding: 10px 16px 14px !important;
-    gap: 10px !important;
-    align-items: center !important;
-    justify-items: center !important;
-  }
-
-  #pst-header-v3 .pst-logo {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    justify-self: center !important;
-    width: auto !important;
-  }
-
-  #pst-header-v3 .pst-right {
-    grid-column: 1 !important;
-    grid-row: 2 / 4 !important;
-    width: 100% !important;
-    display: contents !important;
-  }
-
-  #pst-header-v3 .pst-search {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-    width: min(100%, 430px) !important;
-    min-width: 0 !important;
-    max-width: 430px !important;
-    height: 52px !important;
-    margin: 0 auto !important;
-  }
-
-  #pst-header-v3 .pst-search input,
-  #pst-header-v3 .pst-search button {
-    height: 52px !important;
-  }
-
-  #pst-header-v3 .pst-left {
-    grid-column: 1 !important;
-    grid-row: 3 !important;
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px 22px !important;
-  }
-
-  /* Keep .pst-right as display:contents so its search can occupy row 2.
-     The old .main-nav selector also matched .pst-right and changed it back
-     to flex, which caused the search box and links to overlap. */
-}
-</style>
-<style id="pst-public-header-links-auth-scope-fix">
-/* Public navigation must never depend on login/auth state.
-   Authentication may control Admin, but not Peptides, Stacks, FAQ, or Contact. */
-#pst-header-v3 .pst-left,
-#pst-header-v3 .pst-left[hidden] {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-#pst-header-v3 .pst-left a,
-#pst-header-v3 .pst-left a[hidden] {
-  display: inline-flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PEP Shop Texas</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon-32x32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="favicon-16x16.png" sizes="16x16" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#bd0000">
+  <link rel="stylesheet" href="css/customer.css?v=8">
+  <link rel="stylesheet" href="css/index.css?v=8">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js?v=39"></script>
 </head>
 <body data-page="home">
-<header id="pst-header-v3">
-<nav aria-label="Main navigation" class="pst-left">
-<a href="catalog.html">PEPTIDES A-Z</a>
-<a href="catalog.html?category=Stack">TOP STACKS</a>
-<a href="faq.html">FAQ</a>
-<a href="contact.html">CONTACT</a>
-</nav>
-<span aria-hidden="true" class="pst-logo"></span>
-<div class="pst-right main-nav">
-<a class="pst-account" href="account.html" data-account-link>
-<span aria-hidden="true" class="pst-account-icon">◯</span>
-<strong>LOGIN</strong>
-</a>
-<form action="catalog.html" class="pst-search" data-product-search-form="" method="get" role="search">
-<label class="sr-only" for="site-search">Search peptides</label>
-<input autocomplete="off" id="site-search" name="search" placeholder="Search peptides..." type="search"/>
-<button aria-label="Search" type="submit">
-<svg aria-hidden="true" viewbox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg>
-</button>
-</form>
-</div>
-</header>
-<main>
-<section aria-label="PEP Shop Texas research peptides hero" id="pst-hero-v3">
-<img alt="PEP Shop Texas premium research peptides" src="pst-hero-final.png"/>
-</section>
-<section aria-label="Primary links" class="quick-panel">
-<a class="quick-link" href="catalog.html">
-<span class="quick-icon red">A<br/>Z</span>
-<strong>PEPTIDES A-Z</strong>
-<span>Browse all peptides alphabetically</span>
-</a>
-<a class="quick-link" href="catalog.html?category=Stack">
-<span class="quick-icon dark"><svg viewbox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Zm-7 9 7 4 7-4M5 16l7 4 7-4"></path></svg></span>
-<strong>TOP STACKS</strong>
-<span>Popular blend and stack products</span>
-</a>
-<a class="quick-link" href="faq.html">
-<span class="quick-icon dark"><svg viewbox="0 0 24 24"><path d="M9.5 9a3 3 0 1 1 4.6 2.53c-.88.52-1.6 1.13-1.6 2.47m0 3h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path></svg></span>
-<strong>FAQ</strong>
-<span>Answers to common questions</span>
-</a>
-<a class="quick-link" href="contact.html">
-<span class="quick-icon red"><svg viewbox="0 0 24 24"><path d="M4 6h16v12H4V6Zm0 1 8 6 8-6"></path></svg></span>
-<strong>CONTACT</strong>
-<span>Get in touch with our team</span>
-</a>
-</section>
-<section aria-label="Current promotion" class="promo-band" data-home-promotion="" hidden=""></section>
-<section aria-label="Featured peptide lists" class="product-grid">
-<article class="list-card">
-<h2><span class="title-icon red-text">♦</span> HOT PEPTIDES</h2>
-<p>Featured active products</p>
-<ul data-home-list="hot">
-<li><a href="catalog.html"><span>BPC-157 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html"><span>TB-500 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html"><span>GHK-Cu 50 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html"><span>NAD+ 500 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html"><span>CJC No DAC 5 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-</ul>
-</article>
-<article class="list-card">
-<h2><span class="title-icon">▱</span> TOP STACKS</h2>
-<p>Popular blend and stack products</p>
-<ul data-home-list="stacks">
-<li><a href="catalog.html?category=Stack"><span>Performance Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html?category=Stack"><span>Recovery Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html?category=Stack"><span>Longevity Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html?category=Stack"><span>Cutting Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html?category=Stack"><span>Healing Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-</ul>
-</article>
-<article class="list-card">
-<h2><span class="title-icon">★</span> NEW ARRIVALS</h2>
-<p>Products selected in admin</p>
-<ul data-home-list="new">
-<li><a href="catalog.html"><span>KPV 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html"><span>Selank 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html"><span>Semax 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html"><span>MOTS-C 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-<li><a href="catalog.html"><span>Ipamorelin 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-</ul>
-</article>
-</section>
-</main>
-<footer class="site-footer">
-<div class="trust-bar">
-<div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
-<div><span><strong>QUALITY</strong>Third-party tested</span></div>
-<div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
-<div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
-</div>
-<div class="site-footer-inner">
-<div class="site-footer-brand">
-<strong>Pep Shop Texas</strong>
-<span>Research-use catalog. Not for human or veterinary use.</span>
-</div>
-<nav aria-label="Footer policies" class="site-footer-links">
-<a href="terms.html">Terms</a>
-<a href="privacy.html">Privacy</a>
-<a href="shipping.html">Shipping</a>
-<a href="returns.html">Returns</a>
-<a href="contact.html">Contact</a>
-</nav>
-</div>
-</footer>
-<script id="pst-new-arrivals-featured-loader-v1">
+  <header id="pst-header-v3">
+    <nav aria-label="Main navigation" class="pst-left">
+      <a href="catalog.html">PEPTIDES A-Z</a>
+      <a href="catalog.html?category=Stack">TOP STACKS</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">CONTACT</a>
+    </nav>
+    <span aria-hidden="true" class="pst-logo"></span>
+    <div class="pst-right main-nav">
+      <a class="pst-account" href="account.html" data-account-link>
+        <span aria-hidden="true" class="pst-account-icon">◯</span>
+        <strong>LOGIN</strong>
+      </a>
+      <form action="catalog.html" class="pst-search" data-product-search-form method="get" role="search">
+        <label class="sr-only" for="site-search">Search peptides</label>
+        <input autocomplete="off" id="site-search" name="search" placeholder="Search peptides..." type="search">
+        <button aria-label="Search" type="submit">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg>
+        </button>
+      </form>
+    </div>
+  </header>
+  <main>
+    <section aria-label="PEP Shop Texas research peptides hero" id="pst-hero-v3">
+      <img alt="PEP Shop Texas premium research peptides" src="pst-hero-final.png">
+    </section>
+    <section aria-label="Primary links" class="quick-panel">
+      <a class="quick-link" href="catalog.html">
+        <span class="quick-icon red">A<br>Z</span>
+        <strong>PEPTIDES A-Z</strong>
+        <span>Browse all peptides alphabetically</span>
+      </a>
+      <a class="quick-link" href="catalog.html?category=Stack">
+        <span class="quick-icon dark"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Zm-7 9 7 4 7-4M5 16l7 4 7-4"></path></svg></span>
+        <strong>TOP STACKS</strong>
+        <span>Popular blend and stack products</span>
+      </a>
+      <a class="quick-link" href="faq.html">
+        <span class="quick-icon dark"><svg viewBox="0 0 24 24"><path d="M9.5 9a3 3 0 1 1 4.6 2.53c-.88.52-1.6 1.13-1.6 2.47m0 3h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path></svg></span>
+        <strong>FAQ</strong>
+        <span>Answers to common questions</span>
+      </a>
+      <a class="quick-link" href="contact.html">
+        <span class="quick-icon red"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4V6Zm0 1 8 6 8-6"></path></svg></span>
+        <strong>CONTACT</strong>
+        <span>Get in touch with our team</span>
+      </a>
+    </section>
+    <section aria-label="Current promotion" class="promo-band" data-home-promotion hidden></section>
+    <section aria-label="Featured peptide lists" class="product-grid">
+      <article class="list-card">
+        <h2><span class="title-icon red-text">♦</span> HOT PEPTIDES</h2>
+        <p>Featured active products</p>
+        <ul data-home-list="hot">
+          <li><a href="catalog.html"><span>BPC-157 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html"><span>TB-500 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html"><span>GHK-Cu 50 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html"><span>NAD+ 500 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html"><span>CJC No DAC 5 mg</span><strong>Research</strong><span>&gt;</span></a></li>
+        </ul>
+      </article>
+      <article class="list-card">
+        <h2><span class="title-icon">▱</span> TOP STACKS</h2>
+        <p>Popular blend and stack products</p>
+        <ul data-home-list="stacks">
+          <li><a href="catalog.html?category=Stack"><span>Performance Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html?category=Stack"><span>Recovery Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html?category=Stack"><span>Longevity Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html?category=Stack"><span>Cutting Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html?category=Stack"><span>Healing Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
+        </ul>
+      </article>
+      <article class="list-card">
+        <h2><span class="title-icon">★</span> NEW ARRIVALS</h2>
+        <p>Products selected in admin</p>
+        <ul data-home-list="new">
+          <li><a href="catalog.html"><span>KPV 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html"><span>Selank 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html"><span>Semax 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html"><span>MOTS-C 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+          <li><a href="catalog.html"><span>Ipamorelin 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
+        </ul>
+      </article>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="trust-bar">
+      <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
+      <div><span><strong>QUALITY</strong>Third-party tested</span></div>
+      <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
+      <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
+    </div>
+    <div class="site-footer-inner">
+      <div class="site-footer-brand">
+        <strong>Pep Shop Texas</strong>
+        <span>Research-use catalog. Not for human or veterinary use.</span>
+      </div>
+      <nav aria-label="Footer policies" class="site-footer-links">
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="shipping.html">Shipping</a>
+        <a href="returns.html">Returns</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </footer>
+  <script id="pst-new-arrivals-featured-loader-v1">
     (function () {
       const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
       const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
       const MAX_NEW_ARRIVALS = 5;
-
       function escapeHtml(value) {
-        return String(value ?? "").replace(/[&<>'"]/g, char => ({
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          "'": "&#39;",
-          '"': "&quot;"
-        }[char]));
+        return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
       }
-
       function productLabel(product) {
         return [product.display_name, product.strength].filter(Boolean).join(" ").trim() || "Product";
       }
-
       function productTag(product) {
         return product.category || "Catalog";
       }
-
       function productHref(product) {
         const key = encodeURIComponent(product.product_key || product.id || "");
         return key ? `product.html?key=${key}` : "catalog.html";
       }
-
       async function loadFeaturedNewArrivals() {
         const list = document.querySelector('[data-home-list="new"]');
         const card = list?.closest(".list-card");
         if (!list || !window.supabase?.createClient) return false;
-
         try {
           const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-          const { data, error } = await db
-            .from("product_catalog")
-            .select("id,product_key,display_name,strength,category,is_active,featured,sort_name")
-            .eq("is_active", true)
-            .eq("featured", true)
-            .order("sort_name", { ascending: true, nullsFirst: false })
-            .order("display_name", { ascending: true })
-            .limit(MAX_NEW_ARRIVALS);
-
+          const { data, error } = await db.from("product_catalog").select("id,product_key,display_name,strength,category,is_active,featured,sort_name").eq("is_active", true).eq("featured", true).order("sort_name", { ascending: true, nullsFirst: false }).order("display_name", { ascending: true }).limit(MAX_NEW_ARRIVALS);
           if (error) throw error;
           const products = data || [];
-
           if (!products.length) {
             if (card) card.hidden = true;
             return true;
           }
-
           if (card) card.hidden = false;
-          list.innerHTML = products.map(product => `
-            <li><a href="${productHref(product)}"><span>${escapeHtml(productLabel(product))}</span><strong>${escapeHtml(productTag(product))}</strong><span>&gt;</span></a></li>
-          `).join("");
+          list.innerHTML = products.map(product => `<li><a href="${productHref(product)}"><span>${escapeHtml(productLabel(product))}</span><strong>${escapeHtml(productTag(product))}</strong><span>&gt;</span></a></li>`).join("");
           return true;
         } catch (error) {
           console.warn("Could not load admin-selected New Arrivals.", error);
           return false;
         }
       }
-
       function runWhenReady(attempt = 0) {
         if (window.supabase?.createClient) {
           loadFeaturedNewArrivals();
@@ -675,7 +168,6 @@
         }
         if (attempt < 20) window.setTimeout(() => runWhenReady(attempt + 1), 100);
       }
-
       window.addEventListener("load", () => {
         runWhenReady();
         window.setTimeout(loadFeaturedNewArrivals, 750);
