@@ -17,3 +17,17 @@
   font-weight: 600 !important;
   letter-spacing: 0 !important;
 }
+
+/* Incoming inventory labels are status indicators, not interactive controls. */
+.catalog-incoming-pill,
+.catalog-row-actions .catalog-incoming-pill,
+.catalog-incoming-pill:hover,
+.catalog-row-actions .catalog-incoming-pill:hover {
+  color: #000 !important;
+  background: #fff !important;
+  border-color: #000 !important;
+  cursor: default !important;
+  pointer-events: none !important;
+  transition: none !important;
+  transform: none !important;
+}
