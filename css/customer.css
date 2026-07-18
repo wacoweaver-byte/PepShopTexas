@@ -1,0 +1,412 @@
+/* Pep Shop Texas — shared customer-facing stylesheet
+   Foundation only. HTML migration will happen after visual approval. */
+
+:root {
+  --pst-black: #050505;
+  --pst-ink: #101820;
+  --pst-white: #ffffff;
+  --pst-red: #bd0000;
+  --pst-muted: #596579;
+  --pst-line: #d9e2ec;
+  --pst-soft: #f7f9fc;
+  --pst-success: #0f8a3b;
+  --pst-page-width: 1280px;
+  --pst-radius: 10px;
+  --pst-pill-height: 40px;
+  --pst-font: Arial, Helvetica, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  color: var(--pst-ink);
+  background: var(--pst-soft);
+  font-family: var(--pst-font);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Shared page shell */
+.pst-page-shell {
+  width: min(var(--pst-page-width), calc(100% - 40px));
+  margin: 0 auto;
+  padding: 36px 0 64px;
+}
+
+/* Customer header — non-home pages include the left-aligned logo. */
+.pst-customer-header {
+  position: relative;
+  z-index: 50;
+  width: 100%;
+  min-height: 88px;
+  color: var(--pst-white);
+  background: var(--pst-black);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.pst-customer-header__inner {
+  width: 100%;
+  min-height: 88px;
+  padding: 10px clamp(18px, 4vw, 60px);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.pst-customer-header__logo {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  line-height: 0;
+}
+
+.pst-customer-header__logo img {
+  display: block;
+  width: auto;
+  height: 64px;
+  max-width: 220px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.pst-customer-header__controls {
+  min-width: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.pst-customer-header__nav {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(12px, 1.7vw, 24px);
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.pst-customer-header__nav a,
+.pst-customer-header__account,
+.pst-customer-header__cart {
+  color: var(--pst-white);
+}
+
+.pst-customer-header__nav a:hover,
+.pst-customer-header__nav a:focus-visible,
+.pst-customer-header__account:hover,
+.pst-customer-header__account:focus-visible,
+.pst-customer-header__cart:hover,
+.pst-customer-header__cart:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.pst-customer-header__search {
+  flex: 0 1 280px;
+  width: 280px;
+  min-width: 210px;
+  height: 42px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  background: var(--pst-white);
+  border: 1px solid var(--pst-line);
+  border-radius: 8px;
+}
+
+.pst-customer-header__search input {
+  min-width: 0;
+  flex: 1 1 auto;
+  height: 100%;
+  padding: 0 13px;
+  color: var(--pst-ink);
+  background: var(--pst-white);
+  border: 0;
+  outline: 0;
+}
+
+.pst-customer-header__search button {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--pst-black);
+  background: var(--pst-white);
+  border: 0;
+  cursor: pointer;
+}
+
+.pst-customer-header__account {
+  flex: 0 0 auto;
+  display: grid;
+  align-content: center;
+  line-height: 1.1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.pst-customer-header__account strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.pst-customer-header__account small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pst-customer-header__cart {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.pst-customer-header__cart-count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: inline-grid;
+  place-items: center;
+  color: var(--pst-white);
+  background: var(--pst-red);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* Shared black-outline pill system */
+.pst-pill,
+button.pst-pill,
+a.pst-pill {
+  min-width: 96px;
+  min-height: var(--pst-pill-height);
+  height: var(--pst-pill-height);
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--pst-black);
+  background: var(--pst-white);
+  border: 2px solid var(--pst-black);
+  border-radius: 999px;
+  font-family: var(--pst-font);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.pst-pill:hover,
+.pst-pill:focus-visible {
+  background: #f0f0f0;
+}
+
+.pst-pill:active {
+  transform: translateY(1px);
+}
+
+.pst-pill[aria-pressed="true"],
+.pst-pill[aria-current="page"],
+.pst-pill.is-selected,
+.pst-pill.is-added {
+  color: var(--pst-white);
+  background: var(--pst-black);
+  border-color: var(--pst-black);
+}
+
+.pst-pill.is-added {
+  pointer-events: none;
+}
+
+.pst-pill:disabled,
+.pst-pill[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Shared cards, forms and buttons */
+.pst-card {
+  background: var(--pst-white);
+  border: 1px solid var(--pst-line);
+  border-radius: var(--pst-radius);
+  box-shadow: 0 10px 28px rgba(18, 26, 38, 0.10);
+}
+
+.pst-field {
+  display: grid;
+  gap: 6px;
+}
+
+.pst-field label {
+  color: var(--pst-muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.pst-field input,
+.pst-field select,
+.pst-field textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  color: var(--pst-ink);
+  background: var(--pst-white);
+  border: 1px solid var(--pst-line);
+  border-radius: 8px;
+}
+
+.pst-field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.pst-button {
+  min-height: 42px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pst-white);
+  background: var(--pst-red);
+  border: 1px solid var(--pst-red);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.pst-button--secondary {
+  color: var(--pst-ink);
+  background: var(--pst-white);
+  border-color: var(--pst-line);
+}
+
+/* Collapse the full control group before it collides with the logo.
+   The exact breakpoint can be tuned after the final header contents are installed. */
+@media (max-width: 1180px) {
+  .pst-customer-header__inner {
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding-top: 12px;
+    padding-bottom: 16px;
+  }
+
+  .pst-customer-header__logo {
+    align-self: flex-start;
+  }
+
+  .pst-customer-header__controls {
+    width: 100%;
+    margin-left: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .pst-customer-header__search {
+    width: min(420px, 100%);
+    min-width: 0;
+    flex-basis: auto;
+  }
+
+  .pst-customer-header__nav {
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .pst-customer-header__account,
+  .pst-customer-header__cart {
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .pst-customer-header__inner {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .pst-customer-header__logo {
+    align-self: center;
+  }
+
+  .pst-customer-header__logo img {
+    height: 56px;
+    max-width: 190px;
+  }
+
+  .pst-page-shell {
+    width: min(100% - 24px, var(--pst-page-width));
+    padding-top: 24px;
+  }
+
+  .pst-pill,
+  button.pst-pill,
+  a.pst-pill {
+    width: 100%;
+  }
+}
