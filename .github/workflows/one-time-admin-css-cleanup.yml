@@ -1,0 +1,92 @@
+name: One-time admin CSS cleanup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-admin-css-cleanup.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Strip embedded admin CSS and link shared stylesheet
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          files = [
+              'admin.html',
+              'inventory.html',
+              'products.html',
+              'discounts.html',
+              'promotions.html',
+              'customers.html',
+              'reports.html',
+              'report-writer.html',
+              'discounts_promotions.html',
+          ]
+
+          stylesheet = '  <link rel="stylesheet" href="css/admin.css?v=6">\n'
+
+          for name in files:
+              path = Path(name)
+              if not path.exists():
+                  print(f'SKIP missing {name}')
+                  continue
+
+              html = path.read_text(encoding='utf-8')
+
+              # Remove every embedded stylesheet block from the actual HTML document.
+              html = re.sub(r'\s*<style\b[^>]*>.*?</style>\s*', '\n', html, flags=re.I | re.S)
+
+              # Remove external stylesheet links so admin.css is the sole stylesheet.
+              html = re.sub(
+                  r'\s*<link\b(?=[^>]*\brel\s*=\s*["\']stylesheet["\'])[^>]*>\s*',
+                  '\n',
+                  html,
+                  flags=re.I,
+              )
+
+              # Insert exactly one shared admin stylesheet link before </head>.
+              html = re.sub(r'\s*</head>', '\n' + stylesheet + '</head>', html, count=1, flags=re.I)
+
+              path.write_text(html, encoding='utf-8')
+
+          # Audit: no embedded styles and exactly one admin.css link per existing file.
+          failures = []
+          for name in files:
+              path = Path(name)
+              if not path.exists():
+                  continue
+              html = path.read_text(encoding='utf-8')
+              styles = len(re.findall(r'<style\b', html, flags=re.I))
+              links = len(re.findall(r'css/admin\.css', html, flags=re.I))
+              if styles != 0 or links != 1:
+                  failures.append(f'{name}: style_tags={styles}, admin_links={links}')
+              print(f'{name}: style_tags={styles}, admin_links={links}')
+
+          if failures:
+              raise SystemExit('\n'.join(failures))
+          PY
+
+      - name: Commit cleaned admin pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.html inventory.html products.html discounts.html promotions.html customers.html reports.html report-writer.html discounts_promotions.html
+          if git diff --cached --quiet; then
+            echo "No changes required."
+            exit 0
+          fi
+          git commit -m "Remove embedded CSS from all admin pages"
+          git push
