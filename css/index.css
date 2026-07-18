@@ -1,0 +1,83 @@
+/* Pep Shop Texas — homepage-only stylesheet
+   index.html is the only customer page with a hero and no header logo. */
+
+.pst-home-header .pst-customer-header__inner {
+  justify-content: center;
+}
+
+.pst-home-header .pst-customer-header__controls {
+  width: 100%;
+  margin-left: 0;
+  justify-content: space-between;
+}
+
+.pst-home-header .pst-customer-header__nav {
+  justify-content: flex-start;
+}
+
+.pst-home-header .pst-customer-header__account,
+.pst-home-header .pst-customer-header__cart {
+  justify-self: end;
+}
+
+.pst-home-hero {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
+  line-height: 0;
+}
+
+.pst-home-hero img,
+.pst-home-hero picture {
+  display: block;
+  width: 100%;
+}
+
+.pst-home-hero img {
+  height: auto;
+  max-height: none;
+  object-fit: cover;
+  object-position: center;
+}
+
+.pst-home-section {
+  width: min(var(--pst-page-width), calc(100% - 40px));
+  margin: 0 auto;
+  padding: 28px 0;
+}
+
+.pst-home-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 1180px) {
+  .pst-home-header .pst-customer-header__controls {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pst-home-header .pst-customer-header__nav {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .pst-home-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .pst-home-section {
+    width: min(100% - 24px, var(--pst-page-width));
+    padding: 20px 0;
+  }
+
+  .pst-home-grid {
+    grid-template-columns: 1fr;
+  }
+}
