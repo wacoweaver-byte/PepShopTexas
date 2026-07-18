@@ -49,6 +49,13 @@ a{color:inherit;text-decoration:none}
 #detailCard{position:sticky;top:74px;max-height:calc(100vh - 92px);overflow:auto}
 .detail-empty{padding:18px 16px;color:var(--pst-admin-muted);font-size:14px}
 
+/* Orders detail visibility and full-width list behavior. */
+.admin-dashboard-grid:has(#detailCard.collapsed),
+.admin-dashboard-grid:has(#detailCard .detail-empty){grid-template-columns:minmax(0,1fr)!important}
+#detailCard.collapsed,
+.admin-dashboard-grid:has(#detailCard .detail-empty) #detailCard{display:none!important}
+body:has(#detailCard .detail-empty) #adminDashboardNav [data-admin-jump="order-tools-email"]{display:none!important}
+
 /* Forms */
 .filters,.toolbar,.edit-grid,.form-grid,.kv-grid{display:grid;gap:10px}
 .filters{grid-template-columns:minmax(210px,1.35fr) repeat(4,minmax(118px,.72fr)) auto;align-items:end}
