@@ -303,35 +303,43 @@ img { max-width: 100%; }
 
 .catalog-dose-list,
 .catalog-options,
-.catalog-variants {
+.catalog-variants,
+.catalog-dose-options {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* Dose | price + status | action. Price and status remain visually grouped. */
 .catalog-dose-option,
 .catalog-variant,
 .catalog-product-row {
   display: grid;
-  grid-template-columns: minmax(90px, 1fr) auto minmax(92px, auto);
+  grid-template-columns: minmax(52px, auto) max-content minmax(68px, 1fr) max-content;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   min-height: 66px;
   padding: 12px 0;
   border-bottom: 1px solid #e8edf2;
+  white-space: nowrap;
 }
 
+.catalog-dose-name,
 .catalog-dose-option > span:first-child,
 .catalog-variant > span:first-child,
 .catalog-product-row > span:first-child {
+  min-width: 0;
   color: #080b10;
   font-size: 16px;
+  white-space: nowrap;
 }
 
 .catalog-price,
-.catalog-dose-option strong,
-.catalog-variant strong,
-.catalog-product-row strong {
+.catalog-dose-option > strong,
+.catalog-variant > strong,
+.catalog-product-row > strong {
+  justify-self: start;
+  margin-left: 4px;
   color: #080b10;
   font-size: 16px;
   font-weight: 900;
@@ -342,16 +350,20 @@ img { max-width: 100%; }
 .stock-status,
 .catalog-dose-option .stock,
 .catalog-variant .stock {
+  justify-self: start;
+  margin-left: 0;
   font-size: 13px;
   white-space: nowrap;
 }
 
 .catalog-row-actions,
 .catalog-actions {
-  display: flex;
+  justify-self: end;
+  display: inline-flex;
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .sale-badge {
@@ -552,18 +564,25 @@ button.btn,
   .catalog-dose-option,
   .catalog-variant,
   .catalog-product-row {
-    grid-template-columns: minmax(65px, 1fr) auto minmax(80px, auto);
-    gap: 9px;
+    grid-template-columns: minmax(44px, auto) max-content minmax(58px, 1fr) max-content;
+    gap: 7px;
     min-height: 58px;
     padding: 10px 0;
   }
+  .catalog-dose-name,
   .catalog-dose-option > span:first-child,
   .catalog-variant > span:first-child,
   .catalog-product-row > span:first-child,
   .catalog-price,
-  .catalog-dose-option strong,
-  .catalog-variant strong,
-  .catalog-product-row strong { font-size: 15px; }
+  .catalog-dose-option > strong,
+  .catalog-variant > strong,
+  .catalog-product-row > strong { font-size: 15px; }
+  .catalog-stock,
+  .stock-status,
+  .catalog-dose-option .stock,
+  .catalog-variant .stock { font-size: 12px; }
+  .card-cart-button,
+  .catalog-incoming-pill { padding-left: 10px !important; padding-right: 10px !important; }
 }
 
 @media (max-width: 480px) {
@@ -581,12 +600,30 @@ button.btn,
   .catalog-toolbar { grid-template-columns: 1fr; }
   .catalog-toolbar input,
   .catalog-toolbar select { width: 100%; }
-  .catalog-card { padding: 16px; }
+  .catalog-card { padding: 16px 14px; }
   .catalog-dose-option,
   .catalog-variant,
   .catalog-product-row {
-    grid-template-columns: minmax(58px, 1fr) auto;
+    grid-template-columns: minmax(38px, auto) max-content minmax(52px, 1fr) max-content;
+    gap: 6px;
   }
-  .catalog-row-actions,
-  .catalog-actions { grid-column: 1 / -1; justify-content: flex-end; }
+  .catalog-dose-name,
+  .catalog-dose-option > span:first-child,
+  .catalog-variant > span:first-child,
+  .catalog-product-row > span:first-child,
+  .catalog-price,
+  .catalog-dose-option > strong,
+  .catalog-variant > strong,
+  .catalog-product-row > strong { font-size: 14px; }
+  .catalog-stock,
+  .stock-status,
+  .catalog-dose-option .stock,
+  .catalog-variant .stock { font-size: 11px; }
+  .card-cart-button,
+  .catalog-incoming-pill {
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 9px !important;
+    font-size: 12px !important;
+  }
 }
