@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customer Style Preview | PEP Shop Texas</title>
+  <link rel="stylesheet" href="css/customer.css">
+</head>
+<body>
+  <header class="pst-customer-header">
+    <div class="pst-customer-header__inner">
+      <a class="pst-customer-header__logo" href="index.html" aria-label="Pep Shop Texas home">
+        <img src="customer facing header logo.png" alt="PST Pep Shop Texas">
+      </a>
+
+      <div class="pst-customer-header__controls">
+        <form class="pst-customer-header__search" role="search" action="catalog.html" method="get">
+          <label class="sr-only" for="preview-search">Search peptides</label>
+          <input id="preview-search" name="search" type="search" placeholder="Search peptides...">
+          <button type="submit" aria-label="Search">⌕</button>
+        </form>
+
+        <nav class="pst-customer-header__nav" aria-label="Main navigation">
+          <a href="catalog.html">PEPTIDES A-Z</a>
+          <a href="catalog.html?category=Stack">TOP STACKS</a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact.html">CONTACT</a>
+          <a class="pst-customer-header__account" href="account.html">
+            <strong>Hello, John</strong>
+            <small>My Account</small>
+          </a>
+          <a class="pst-customer-header__cart" href="cart.html">CART <span class="pst-customer-header__cart-count">2</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="pst-page-shell">
+    <section class="pst-card" style="padding:24px">
+      <h1>Customer component preview</h1>
+      <p>This temporary branch-only page tests the shared header, account state, pills, cards, forms, and responsive collapse.</p>
+
+      <h2>Pills</h2>
+      <p>
+        <button class="pst-pill" type="button">Add</button>
+        <button class="pst-pill is-added" type="button" aria-pressed="true">Added</button>
+        <a class="pst-pill" href="#section">Jump Link</a>
+        <a class="pst-pill is-selected" href="#section" aria-current="page">Selected</a>
+      </p>
+
+      <h2>Form</h2>
+      <div class="pst-field">
+        <label for="preview-email">Email</label>
+        <input id="preview-email" type="email" placeholder="name@example.com">
+      </div>
+    </section>
+  </main>
+</body>
+</html>
