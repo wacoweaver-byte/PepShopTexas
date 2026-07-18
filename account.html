@@ -34,13 +34,11 @@
       </div>
     </div>
   </header>
-
   <main class="wrap account-page">
     <h1 class="page-title">My Account</h1>
     <p class="subtitle">View and update your customer profile, recent orders, order status, and account security.</p>
     <div id="pageStatus" class="status info active">Loading your account...</div>
-
-    <div class="account-grid" id="accountGrid" hidden>
+    <div class="account-grid" id="accountGrid" style="display:none;">
       <aside class="card account-profile-card">
         <h2>Profile</h2>
         <div id="profileView" class="profile-view">
@@ -52,54 +50,18 @@
           <div class="profile-row"><strong>Billing Address</strong><span id="profileBillingAddress">—</span></div>
           <div class="profile-row"><strong>Shipping Address</strong><span id="profileShippingAddress">—</span></div>
           <div class="profile-row"><strong>Email Preferences</strong><span id="profileEmailPreference">—</span></div>
-          <div class="btn-row">
-            <button class="btn primary" type="button" id="editProfileBtn">Edit Profile</button>
-            <a class="btn" href="reset-password.html">Change Password</a>
-            <a class="btn" href="catalog.html">Shop Peptides</a>
-            <button class="btn" type="button" onclick="loadAccount()">Refresh</button>
-            <button class="btn danger" type="button" id="logoutBtn">Logout</button>
-          </div>
+          <div class="btn-row"><button class="btn primary" type="button" id="editProfileBtn">Edit Profile</button><a class="btn" href="reset-password.html">Change Password</a><a class="btn" href="catalog.html">Shop Peptides</a><button class="btn" type="button" onclick="loadAccount()">Refresh</button><button class="btn danger" type="button" id="logoutBtn">Logout</button></div>
         </div>
-
         <form id="profileForm" class="edit-profile">
           <div class="form-grid">
-            <div class="form-field"><label>First Name</label><input name="first_name" autocomplete="given-name" required></div>
-            <div class="form-field"><label>Last Name</label><input name="last_name" autocomplete="family-name" required></div>
-            <div class="form-field full"><label>Email Address</label><input name="email" type="email" readonly></div>
-            <div class="form-field"><label>Phone</label><input name="phone" type="tel" autocomplete="tel"></div>
-            <div class="form-field"><label>Username</label><input name="username" autocomplete="username"></div>
-            <div class="form-field full"><label>Billing Address</label><input name="billing_address" autocomplete="billing street-address"></div>
-            <div class="form-field"><label>Billing City</label><input name="billing_city" autocomplete="billing address-level2"></div>
-            <div class="form-field"><label>Billing State</label><input name="billing_state" autocomplete="billing address-level1"></div>
-            <div class="form-field"><label>Billing ZIP</label><input name="billing_zip" autocomplete="billing postal-code"></div>
-            <div class="form-field full"><label class="same-row"><input id="sameAsBilling" type="checkbox"> Shipping address is the same as billing address.</label></div>
-            <div class="form-field full"><label>Shipping Address</label><input name="shipping_address" autocomplete="shipping street-address"></div>
-            <div class="form-field"><label>Shipping City</label><input name="shipping_city" autocomplete="shipping address-level2"></div>
-            <div class="form-field"><label>Shipping State</label><input name="shipping_state" autocomplete="shipping address-level1"></div>
-            <div class="form-field"><label>Shipping ZIP</label><input name="shipping_zip" autocomplete="shipping postal-code"></div>
+            <div class="form-field"><label>First Name</label><input name="first_name" autocomplete="given-name" required></div><div class="form-field"><label>Last Name</label><input name="last_name" autocomplete="family-name" required></div><div class="form-field full"><label>Email Address</label><input name="email" type="email" readonly></div><div class="form-field"><label>Phone</label><input name="phone" type="tel" autocomplete="tel"></div><div class="form-field"><label>Username</label><input name="username" autocomplete="username"></div><div class="form-field full"><label>Billing Address</label><input name="billing_address" autocomplete="billing street-address"></div><div class="form-field"><label>Billing City</label><input name="billing_city" autocomplete="billing address-level2"></div><div class="form-field"><label>Billing State</label><input name="billing_state" autocomplete="billing address-level1"></div><div class="form-field"><label>Billing ZIP</label><input name="billing_zip" autocomplete="billing postal-code"></div><div class="form-field full"><label class="same-row"><input id="sameAsBilling" type="checkbox"> Shipping address is the same as billing address.</label></div><div class="form-field full"><label>Shipping Address</label><input name="shipping_address" autocomplete="shipping street-address"></div><div class="form-field"><label>Shipping City</label><input name="shipping_city" autocomplete="shipping address-level2"></div><div class="form-field"><label>Shipping State</label><input name="shipping_state" autocomplete="shipping address-level1"></div><div class="form-field"><label>Shipping ZIP</label><input name="shipping_zip" autocomplete="shipping postal-code"></div>
           </div>
           <div class="btn-row"><button class="btn success" type="submit" id="saveProfileBtn">Save Profile</button><button class="btn" type="button" id="cancelEditBtn">Cancel</button></div>
         </form>
-
-        <div class="security-box">
-          <h3>Account Security</h3>
-          <p class="security-copy">Change your password while logged in, or use forgot password from the login page if you do not know your current password.</p>
-          <div class="btn-row"><a class="btn primary" href="reset-password.html">Change Password</a><a class="btn" href="forgot-password.html">Forgot Password</a></div>
-        </div>
-
-        <div class="email-pref-box" id="emailPreferencesBox">
-          <h3>Email Preferences</h3>
-          <p class="email-pref-copy">Control whether you receive Pep Shop Texas updates, promotions, and product availability emails.</p>
-          <label class="email-pref-check"><input id="marketingOptInCheckbox" type="checkbox"><span>I want to receive Pep Shop Texas updates, promotions, and product availability emails.<span class="email-pref-small">You can turn this off at any time from this account page.</span></span></label>
-          <div class="btn-row"><button class="btn primary" type="button" id="saveEmailPrefsBtn">Save Email Preferences</button></div>
-          <div class="email-pref-status" id="emailPrefsStatus"></div>
-        </div>
+        <div class="security-box"><h3>Account Security</h3><p class="security-copy">Change your password while logged in, or use forgot password from the login page if you do not know your current password.</p><div class="btn-row"><a class="btn primary" href="reset-password.html">Change Password</a><a class="btn" href="forgot-password.html">Forgot Password</a></div></div>
+        <div class="email-pref-box" id="emailPreferencesBox"><h3>Email Preferences</h3><p class="email-pref-copy">Control whether you receive Pep Shop Texas updates, promotions, and product availability emails.</p><label class="email-pref-check"><input id="marketingOptInCheckbox" type="checkbox"><span>I want to receive Pep Shop Texas updates, promotions, and product availability emails.<span class="email-pref-small">You can turn this off at any time from this account page.</span></span></label><div class="btn-row"><button class="btn primary" type="button" id="saveEmailPrefsBtn">Save Email Preferences</button></div><div class="email-pref-status" id="emailPrefsStatus"></div></div>
       </aside>
-
-      <section class="card account-orders-card">
-        <h2>Recent Orders</h2>
-        <div id="ordersList" class="empty-state">Loading orders...</div>
-      </section>
+      <section class="card account-orders-card"><h2>Recent Orders</h2><div id="ordersList" class="empty-state">Loading orders...</div></section>
     </div>
   </main>
 </body>
