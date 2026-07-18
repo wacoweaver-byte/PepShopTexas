@@ -1,11 +1,64 @@
-/* PST catalog dose/action mobile containment fix
-   Purpose: show dose values like 10mg/3mg without pushing Add/Out/On Order pills off the card.
-   Loaded after catalog-mobile-fix.css so this wins. */
+@import url("css/customer.css?v=4");
 
+/* Catalog compatibility for dynamically generated product controls. */
+.card-cart-button,
+.catalog-incoming-pill {
+  min-width: 0 !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  color: #000 !important;
+  background: #fff !important;
+  border: 1px solid #000 !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+.card-cart-button:hover:not(:disabled):not([aria-disabled="true"]),
+.catalog-incoming-pill:hover {
+  color: #000 !important;
+  background: #f3f3f3 !important;
+  border-color: #000 !important;
+}
+
+.card-cart-button.is-added,
+.card-cart-button[aria-pressed="true"],
+.card-cart-button[aria-current="page"],
+.catalog-incoming-pill.active,
+.catalog-incoming-pill.is-selected {
+  color: #fff !important;
+  background: #000 !important;
+  border-color: #000 !important;
+}
+
+.card-cart-button:disabled,
+.card-cart-button[aria-disabled="true"] {
+  color: #596579 !important;
+  background: #eef1f5 !important;
+  border-color: #c7ced8 !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+.card-cart-button:focus-visible,
+.catalog-incoming-pill:focus-visible {
+  outline: 2px solid #000 !important;
+  outline-offset: 2px !important;
+}
+
+/* PST catalog dose/action mobile containment fix. */
 @media (max-width: 700px) {
-  .catalog-card {
-    overflow: hidden !important;
-  }
+  .catalog-card { overflow: hidden !important; }
 
   .catalog-dose-option {
     grid-template-columns: 74px 74px 62px 106px !important;
@@ -46,9 +99,7 @@
     white-space: nowrap !important;
   }
 
-  .catalog-card .catalog-stock::before {
-    font-size: 10px !important;
-  }
+  .catalog-card .catalog-stock::before { font-size: 10px !important; }
 
   .catalog-row-actions {
     grid-column: 4 !important;
@@ -91,11 +142,6 @@
     height: 24px !important;
     min-height: 24px !important;
     padding: 0 4px !important;
-  }
-
-  .catalog-dose-option .card-cart-button::before,
-  .catalog-dose-option .card-cart-button:disabled::before,
-  .catalog-dose-option .card-cart-button[aria-disabled="true"]::before {
     font-size: 9.5px !important;
   }
 }
@@ -126,9 +172,7 @@
     max-width: 56px !important;
   }
 
-  .catalog-card .catalog-stock::before {
-    font-size: 8.5px !important;
-  }
+  .catalog-card .catalog-stock::before { font-size: 8.5px !important; }
 
   .catalog-row-actions {
     grid-template-columns: 56px 39px !important;
@@ -157,11 +201,6 @@
     max-width: 39px !important;
     height: 23px !important;
     min-height: 23px !important;
-  }
-
-  .catalog-dose-option .card-cart-button::before,
-  .catalog-dose-option .card-cart-button:disabled::before,
-  .catalog-dose-option .card-cart-button[aria-disabled="true"]::before {
     font-size: 9px !important;
   }
 }
