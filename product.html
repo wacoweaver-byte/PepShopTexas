@@ -4,57 +4,51 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Product | PEP Shop Texas</title>
-    <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000"><link rel="stylesheet" href="styles.css?v=52">
+  <meta name="theme-color" content="#bd0000">
+  <link rel="stylesheet" href="css/customer.css?v=12">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=40"></script>
   <script defer src="catalog-inventory-fix.js?v=6"></script>
 </head>
 <body data-page="product-detail">
-  <header class="site-header">
-    <a class="brand" href="index.html" aria-label="PEP Shop Texas home">
-      <span class="brand-main">PEP SHOP</span>
-      <span class="brand-sub">TEXAS</span>
-    </a>
-    <nav class="main-nav" aria-label="Main navigation">
-      <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">&#8964;</span></a>
-      <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">&#8964;</span></a>
-      <a href="faq.html">FAQ</a>
-      <a href="contact.html">CONTACT</a>
-      <a href="account.html">ACCOUNT</a>
-      <a class="cart-link" href="cart.html">CART <span data-cart-count>0</span></a>
-    </nav>
-    <form class="search" role="search" action="catalog.html" method="get" data-product-search-form>
-      <label class="sr-only" for="site-search">Search peptides</label>
-      <input id="site-search" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-      <button type="submit" aria-label="Search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
-      </button>
-    </form>
+  <header class="pst-customer-header">
+    <div class="pst-customer-header-inner">
+      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
+        <img src="customer facing header logo.png" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
+      </a>
+      <div class="pst-customer-header-right">
+        <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
+          <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
+          <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+          <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button>
+        </form>
+        <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
+          <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
+          <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact.html">CONTACT</a>
+          <a href="account.html" data-account-link>LOGIN</a>
+          <a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
+        </nav>
+      </div>
+    </div>
   </header>
   <main class="detail-page">
     <a class="back-link" href="catalog.html">‹ Back to products</a>
     <section class="detail-shell" data-product-detail><p class="loading-row">Loading product...</p></section>
   </main>
-
   <footer class="site-footer">
-  <div class="site-footer-inner">
-    <div class="site-footer-brand">
-      <strong>Pep Shop Texas</strong>
-      <span>Research-use catalog. Not for human or veterinary use.</span>
+    <div class="site-footer-inner">
+      <div class="site-footer-brand"><strong>Pep Shop Texas</strong><span>Research-use catalog. Not for human or veterinary use.</span></div>
+      <nav class="site-footer-links" aria-label="Footer policies">
+        <a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="shipping.html">Shipping</a><a href="returns.html">Returns</a><a href="contact.html">Contact</a>
+      </nav>
     </div>
-    <nav class="site-footer-links" aria-label="Footer policies">
-      <a href="terms.html">Terms</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="shipping.html">Shipping</a>
-      <a href="returns.html">Returns</a>
-      <a href="contact.html">Contact</a>
-    </nav>
-  </div>
   </footer>
 </body>
 </html>
