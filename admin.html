@@ -2004,243 +2004,23 @@ td .inventory-readonly-value {
   }
 }
 </style>
-
-<style id="pst-orders-approved-header-black-pills-v1">
-/* Approved admin header: header-only override. */
-header.pst-admin-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-  width: 100% !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  max-height: 40px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  background: #000 !important;
-  border: 0 !important;
-  border-bottom: 1px solid #262626 !important;
-  box-shadow: none !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-}
-header.pst-admin-header .pst-admin-nav-wrap {
-  width: 100% !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  max-height: 40px !important;
-  margin: 0 !important;
-  padding: 0 22px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 24px !important;
-  flex-wrap: nowrap !important;
-  box-sizing: border-box !important;
-}
-header.pst-admin-header .pst-admin-logo-link {
-  flex: 0 0 auto !important;
-  height: 40px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 0 !important;
-  text-decoration: none !important;
-}
-header.pst-admin-header .pst-admin-header-logo {
-  display: block !important;
-  width: 133px !important;
-  height: 36px !important;
-  min-width: 133px !important;
-  max-width: 133px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  object-fit: contain !important;
-}
-header.pst-admin-header .pst-admin-nav {
-  min-width: 0 !important;
-  height: 40px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 24px !important;
-  flex-wrap: nowrap !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-}
-header.pst-admin-header .pst-admin-nav a {
-  position: relative !important;
-  flex: 0 0 auto !important;
-  height: 40px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: #fff !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  box-shadow: none !important;
-}
-header.pst-admin-header .pst-admin-nav a.active::after,
-header.pst-admin-header .pst-admin-nav a[aria-current="page"]::after {
-  content: "" !important;
-  position: absolute !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 2px !important;
-  height: 2px !important;
-  background: #fff !important;
-}
-
-/* Page pill colors only. Existing dimensions and typography are untouched. */
-body .btn,
-body a.btn,
-body button.btn,
-body .inventory-jump-link,
-body .card-toggle-btn,
-body .pill,
-body .locked-pill,
-body .payment-method-pill,
-body .inventory-restored-pill,
-body .inventory-restore-needed-pill,
-body .inventory-deduct-pill,
-body .inventory-deduct-needed-pill,
-body .status-pill,
-body .reorder-badge,
-body .incoming-pill,
-body .vendor-id-pill,
-body .active-pill,
-body .inactive-pill {
-  color: #000 !important;
-  background-color: #fff !important;
-  border-color: #000 !important;
-}
-body .btn:hover,
-body a.btn:hover,
-body button.btn:hover,
-body .inventory-jump-link:hover,
-body .card-toggle-btn:hover {
-  color: #000 !important;
-  background-color: #f2f2f2 !important;
-  border-color: #000 !important;
-}
-body .btn.active,
-body .btn.primary,
-body .btn[aria-pressed="true"],
-body .btn[aria-expanded="true"],
-body a.btn.active,
-body button.btn.active,
-body .inventory-jump-link.active,
-body .inventory-jump-link[aria-pressed="true"],
-body .card-toggle-btn.active,
-body .card-toggle-btn[aria-expanded="true"],
-body .collapsible-card:not(.collapsed) .card-toggle-btn,
-body .pill.active,
-body .status-pill.active {
-  color: #fff !important;
-  background-color: #000 !important;
-  border-color: #000 !important;
-}
-</style>
-
-<style id="pst-orders-page-specific-black-pills-v2">
-/* Orders page only: preserve existing pill dimensions and typography. */
-
-/* Jump To pills — unselected. */
-body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar .btn,
-body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar a.btn,
-body #adminDashboardNav .inventory-jump-link {
-  color: #000 !important;
-  background: #fff !important;
-  background-color: #fff !important;
-  border-color: #000 !important;
-  box-shadow: none !important;
-}
-
-/* Jump To pills — hover. */
-body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar .btn:hover,
-body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar a.btn:hover,
-body #adminDashboardNav .inventory-jump-link:hover {
-  color: #000 !important;
-  background: #f2f2f2 !important;
-  background-color: #f2f2f2 !important;
-  border-color: #000 !important;
-}
-
-/* Jump To pills — selected and persistent. */
-body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar .btn.active,
-body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar .btn[aria-pressed="true"],
-body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar a.btn.active,
-body #adminDashboardNav.admin-dashboard-nav.inventory-jumpbar a.btn[aria-pressed="true"],
-body #adminDashboardNav .inventory-jump-link.active,
-body #adminDashboardNav .inventory-jump-link[aria-pressed="true"] {
-  color: #fff !important;
-  background: #000 !important;
-  background-color: #000 !important;
-  border-color: #000 !important;
-  box-shadow: none !important;
-}
-
-/* Section Open/Collapse pills — unselected/collapsed. */
-body .collapsible-card.collapsed > .card-header .card-toggle-btn.btn.secondary,
-body .collapsible-card > .card-header .card-toggle-btn.btn.secondary {
-  color: #000 !important;
-  background: #fff !important;
-  background-color: #fff !important;
-  border-color: #000 !important;
-  box-shadow: none !important;
-}
-
-/* Section Open/Collapse pills — hover. */
-body .collapsible-card > .card-header .card-toggle-btn.btn.secondary:hover {
-  color: #000 !important;
-  background: #f2f2f2 !important;
-  background-color: #f2f2f2 !important;
-  border-color: #000 !important;
-}
-
-/* Section Open/Collapse pills — open/selected and persistent. */
-body .collapsible-card:not(.collapsed) > .card-header .card-toggle-btn.btn.secondary,
-body .collapsible-card > .card-header .card-toggle-btn.btn.secondary.active,
-body .collapsible-card > .card-header .card-toggle-btn.btn.secondary[aria-expanded="true"] {
-  color: #fff !important;
-  background: #000 !important;
-  background-color: #000 !important;
-  border-color: #000 !important;
-  box-shadow: none !important;
-}
-</style>
 </head>
 <body class="admin-auth-pending">
-<header class="pst-admin-header">
-  <div class="pst-admin-nav-wrap">
-    <a class="pst-admin-logo-link" href="admin.html" aria-label="Pep Shop Texas Orders">
-      <img class="pst-admin-header-logo" src="admin header logo.png" alt="PST" width="133" height="36">
+<header>
+  <div class="topbar pst-admin-topbar-lock">
+    <a class="brand pst-admin-brand-lock" href="admin.html" aria-label="Pep Shop Texas Admin Home">
+      <span class="pst-admin-logo-mark">PST</span>
+      <span class="pst-admin-title-lock"><strong>PEP Shop Texas</strong><small>Orders Management</small></span>
     </a>
-    <nav class="pst-admin-nav" aria-label="Admin navigation">
-      <a class="active" href="admin.html" aria-current="page">Orders</a>
-      <a href="inventory.html">Inventory</a>
-      <a href="products.html">Products</a>
-      <a href="discounts.html">Discounts</a>
-      <a href="promotions.html">Promotions</a>
-      <a href="reports.html">Reports</a>
-      <a href="customers.html">Customers</a>
-      <a href="index.html">View Site</a>
+    <nav class="actions pst-admin-actions-lock" aria-label="Admin navigation">
+      <a class="btn secondary active" href="admin.html">Orders</a>
+      <a class="btn secondary" href="inventory.html">Inventory</a>
+      <a class="btn secondary" href="products.html">Products</a>
+      <a class="btn secondary" href="discounts.html">Discounts</a>
+      <a class="btn secondary" href="promotions.html">Promotions</a>
+      <a class="btn secondary" href="reports.html">Reports</a>
+      <a class="btn secondary" href="customers.html">Customers</a>
+      <a class="btn secondary" href="index.html">View Site</a>
     </nav>
   </div>
 </header>
@@ -3444,6 +3224,98 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   background-color: #bd0000;
   border-color: #bd0000;
   color: #ffffff;
+}
+</style>
+
+<style id="pst-admin-mobile-collapse-v1">
+/* Mobile admin header: collapse the complete navigation beneath the brand,
+   matching the customer-facing header behavior and eliminating sideways scrolling. */
+@media (max-width: 760px) {
+  header,
+  header .pst-admin-topbar-lock,
+  header .topbar {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  header .pst-admin-topbar-lock,
+  header .topbar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto !important;
+    gap: 8px !important;
+    padding: 8px 10px 10px !important;
+    align-items: center !important;
+  }
+
+  header .pst-admin-brand-lock,
+  header .brand {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 40px !important;
+    height: auto !important;
+    margin: 0 !important;
+    justify-content: center !important;
+    justify-self: center !important;
+  }
+
+  header .pst-admin-actions-lock,
+  header .actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 5px 7px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  header .actions .btn {
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 0 8px !important;
+    border-width: 0 0 2px !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  header .pst-admin-actions-lock .btn.active,
+  header .pst-admin-actions-lock .btn.primary,
+  header .actions .btn.active {
+    background: transparent !important;
+    color: inherit !important;
+    border-bottom-color: currentColor !important;
+  }
+}
+
+@media (max-width: 390px) {
+  header .pst-admin-actions-lock,
+  header .actions {
+    gap: 3px 5px !important;
+  }
+  header .pst-admin-actions-lock .btn,
+  header .actions .btn {
+    padding: 0 6px !important;
+    font-size: 11px !important;
+  }
 }
 </style>
 </head><body><div class="sheet">
