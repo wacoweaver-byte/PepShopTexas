@@ -1,0 +1,58 @@
+name: One-time fix admin checkboxes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-fix-admin-checkboxes.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fix checkbox and radio sizing
+        run: |
+          cat >> css/admin.css <<'CSS'
+
+/* Native compact selection controls — never inherit text-field dimensions. */
+input[type="checkbox"],
+input[type="radio"] {
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  box-sizing: border-box !important;
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #fff !important;
+  border: 1px solid #7a7f87 !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  vertical-align: middle !important;
+  cursor: pointer !important;
+  accent-color: #000 !important;
+}
+input[type="radio"] { border-radius: 50% !important; }
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  outline: 2px solid #000 !important;
+  outline-offset: 2px !important;
+}
+CSS
+          rm -f .github/workflows/one-time-fix-admin-checkboxes.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add css/admin.css .github/workflows/one-time-fix-admin-checkboxes.yml
+          git commit -m "Fix oversized admin checkboxes and radios"
+          git push
