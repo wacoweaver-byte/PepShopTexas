@@ -5,8 +5,21 @@
 .catalog-dose-option > strong,
 .catalog-variant > strong,
 .catalog-product-row > strong {
+  width: 76px !important;
+  min-width: 76px !important;
+  justify-self: end !important;
+  margin-left: 0 !important;
+  text-align: right !important;
   font-size: 16px !important;
   font-weight: 900 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Keep every status label aligned by reserving one consistent price column. */
+.catalog-dose-option,
+.catalog-variant,
+.catalog-product-row {
+  grid-template-columns: minmax(52px, auto) 76px minmax(68px, 1fr) max-content !important;
 }
 
 .card-cart-button,
@@ -30,4 +43,20 @@
   pointer-events: none !important;
   transition: none !important;
   transform: none !important;
+}
+
+@media (max-width: 480px) {
+  .catalog-dose-option,
+  .catalog-variant,
+  .catalog-product-row {
+    grid-template-columns: minmax(38px, auto) 68px minmax(52px, 1fr) max-content !important;
+  }
+
+  .catalog-price,
+  .catalog-dose-option > strong,
+  .catalog-variant > strong,
+  .catalog-product-row > strong {
+    width: 68px !important;
+    min-width: 68px !important;
+  }
 }
