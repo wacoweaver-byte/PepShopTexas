@@ -1,0 +1,64 @@
+name: One-time reorder table layout fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-fix-reorder-table-layout.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Restore professional reorder table layout
+        run: |
+          cat >> css/admin.css <<'CSS'
+
+/* Inventory reorder review table — disciplined column layout. */
+.reorder-table-wrap{width:100%;overflow-x:auto}
+.reorder-table{width:100%;min-width:1120px;table-layout:fixed;border-collapse:collapse}
+.reorder-table th,.reorder-table td{vertical-align:middle}
+.reorder-table th:nth-child(1),.reorder-table td:nth-child(1){width:38px;text-align:center}
+.reorder-table th:nth-child(2),.reorder-table td:nth-child(2){width:190px;text-align:left}
+.reorder-table th:nth-child(3),.reorder-table td:nth-child(3){width:90px;text-align:left}
+.reorder-table th:nth-child(4),.reorder-table td:nth-child(4){width:84px;text-align:center}
+.reorder-table th:nth-child(5),.reorder-table td:nth-child(5){width:76px;text-align:center}
+.reorder-table th:nth-child(6),.reorder-table td:nth-child(6){width:82px;text-align:center}
+.reorder-table th:nth-child(7),.reorder-table td:nth-child(7){width:92px;text-align:center}
+.reorder-table th:nth-child(8),.reorder-table td:nth-child(8){width:104px;text-align:center}
+.reorder-table th:nth-child(9),.reorder-table td:nth-child(9){width:142px;text-align:center}
+.reorder-table th:nth-child(10),.reorder-table td:nth-child(10){width:150px;text-align:center}
+.reorder-table th:nth-child(11),.reorder-table td:nth-child(11){width:132px;text-align:center}
+.reorder-table .name-cell{display:table-cell!important;white-space:normal;overflow-wrap:anywhere;line-height:1.2}
+.reorder-table .name-cell strong{display:block;margin:0 0 3px;font-size:12px;line-height:1.2;color:var(--pst-admin-ink)}
+.reorder-table .name-cell span{display:block;color:var(--pst-admin-muted);font-size:10px;font-weight:600;line-height:1.2;letter-spacing:.01em}
+.reorder-table td:nth-child(4),
+.reorder-table td:nth-child(5),
+.reorder-table td:nth-child(6),
+.reorder-table td:nth-child(7),
+.reorder-table td:nth-child(8),
+.reorder-table td:nth-child(9),
+.reorder-table td:nth-child(11){font-variant-numeric:tabular-nums}
+.reorder-table td:nth-child(4) strong,
+.reorder-table td:nth-child(11) strong{display:inline;margin:0}
+CSS
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('inventory.html')
+          s = p.read_text()
+          import re
+          s = re.sub(r'css/admin\.css\?v=\d+', 'css/admin.css?v=8', s)
+          p.write_text(s)
+          PY
+          rm -f .github/workflows/one-time-fix-reorder-table-layout.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add css/admin.css inventory.html .github/workflows/one-time-fix-reorder-table-layout.yml
+          git commit -m "Fix inventory reorder table column layout"
+          git push
