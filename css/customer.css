@@ -1,5 +1,5 @@
 /* Pep Shop Texas — shared stylesheet for customer-facing pages other than index.html.
-   The homepage header and hero remain isolated in css/index.css. */
+   Homepage-only header and hero rules remain in css/index.css. */
 
 :root {
   --pst-black: #050505;
@@ -72,20 +72,16 @@ img {
   padding: 36px 0 64px;
 }
 
-/* Approved non-home customer header.
-   Uses "customer facing header logo.png" on the left and all controls on the right. */
+/* Approved non-home customer header: logo left, controls right, no hero. */
 .pst-customer-header {
   position: sticky !important;
   top: 0 !important;
   z-index: 1000 !important;
   width: 100% !important;
-  height: 141px !important;
-  min-height: 141px !important;
-  max-height: 141px !important;
+  min-height: 88px !important;
   margin: 0 !important;
   padding: 0 !important;
-  overflow: hidden !important;
-  color: var(--pst-white) !important;
+  color: #fff !important;
   background: #000 !important;
   border: 0 !important;
   border-bottom: 1px solid #262626 !important;
@@ -99,39 +95,39 @@ img {
 .pst-customer-header-inner,
 .pst-customer-header__inner {
   width: 100% !important;
-  height: 141px !important;
-  min-height: 141px !important;
-  max-height: 141px !important;
+  min-height: 88px !important;
   margin: 0 !important;
-  padding: 0 24px !important;
+  padding: 10px clamp(18px, 3vw, 48px) !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
   justify-content: space-between !important;
   gap: 24px !important;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 .pst-customer-logo-link,
 .pst-customer-header__logo {
   flex: 0 0 auto !important;
-  height: 141px !important;
+  width: 220px !important;
+  max-width: 220px !important;
+  height: 68px !important;
   margin: 0 !important;
   padding: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: flex-start !important;
+  overflow: hidden !important;
   line-height: 0 !important;
-  text-decoration: none !important;
 }
 
 .pst-customer-header-logo,
 .pst-customer-header__logo img {
   display: block !important;
-  width: auto !important;
-  height: auto !important;
-  max-width: none !important;
-  max-height: none !important;
+  width: 220px !important;
+  max-width: 220px !important;
+  height: 68px !important;
+  max-height: 68px !important;
   margin: 0 !important;
   padding: 0 !important;
   object-fit: contain !important;
@@ -142,21 +138,20 @@ img {
 .pst-customer-header__controls {
   flex: 1 1 auto !important;
   min-width: 0 !important;
-  height: 141px !important;
   margin-left: auto !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  gap: 22px !important;
-  overflow: hidden !important;
+  gap: 18px !important;
+  overflow: visible !important;
 }
 
 .pst-customer-search,
 .pst-customer-header__search {
   flex: 0 1 280px !important;
   width: 280px !important;
-  min-width: 220px !important;
+  min-width: 210px !important;
   height: 42px !important;
   margin: 0 !important;
   padding: 0 !important;
@@ -180,7 +175,7 @@ img {
   background: #fff !important;
   border: 0 !important;
   border-radius: 0 !important;
-  outline: none !important;
+  outline: 0 !important;
   font-family: var(--pst-font) !important;
   font-size: 14px !important;
 }
@@ -214,7 +209,6 @@ img {
 .pst-customer-header__nav {
   flex: 0 1 auto !important;
   min-width: 0 !important;
-  height: 141px !important;
   margin: 0 !important;
   padding: 0 !important;
   display: flex !important;
@@ -222,15 +216,8 @@ img {
   flex-wrap: nowrap !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  gap: 22px !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  scrollbar-width: none !important;
-}
-
-.pst-customer-nav::-webkit-scrollbar,
-.pst-customer-header__nav::-webkit-scrollbar {
-  display: none !important;
+  gap: clamp(12px, 1.4vw, 22px) !important;
+  overflow: visible !important;
 }
 
 .pst-customer-nav a,
@@ -238,6 +225,11 @@ img {
 .pst-customer-header__account,
 .pst-customer-header__cart {
   flex: 0 0 auto !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   color: #fff !important;
   background: transparent !important;
   border: 0 !important;
@@ -248,16 +240,6 @@ img {
   text-decoration: none !important;
   white-space: nowrap !important;
   box-shadow: none !important;
-}
-
-.pst-customer-nav a {
-  height: 141px !important;
-  min-height: 141px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
 }
 
 .pst-customer-nav a:hover,
@@ -276,12 +258,12 @@ img {
 .main-nav a[data-account-link],
 .pst-account[data-account-link],
 .pst-customer-header__account[data-account-link] {
+  min-width: 112px !important;
   display: inline-flex !important;
   flex-direction: column !important;
   align-items: flex-start !important;
   justify-content: center !important;
   gap: 3px !important;
-  line-height: 1 !important;
 }
 
 .main-nav a[data-account-link]::after,
@@ -321,7 +303,8 @@ img {
   line-height: 1 !important;
 }
 
-/* Unified customer pill system. */
+/* Unified black-outline pill system. Specific catalog selectors are included
+   so legacy red, blue and gray rules cannot win through specificity. */
 .pst-pill,
 .btn,
 a.btn,
@@ -334,37 +317,37 @@ button.btn,
 .jump-link,
 .sort-btn,
 .status-pill,
-.reorder-guide-item {
-  min-width: 0;
-  min-height: var(--pst-pill-height);
-  height: var(--pst-pill-height);
-  padding: 0 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
+.reorder-guide-item,
+.card-cart-button,
+.catalog-card .card-cart-button,
+.catalog-dose-option .card-cart-button,
+.catalog-incoming-pill,
+.catalog-row-actions .catalog-incoming-pill,
+.coa-button,
+.primary-action,
+.secondary-action {
+  min-width: 0 !important;
+  min-height: var(--pst-pill-height) !important;
+  height: var(--pst-pill-height) !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
   color: #000 !important;
   background: #fff !important;
   border: 1px solid #000 !important;
-  border-radius: 6px;
+  border-radius: 6px !important;
   box-shadow: none !important;
-  font-family: var(--pst-font);
-  font-size: 13px;
-  font-weight: 900;
-  line-height: 1;
-  text-align: center;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
-}
-
-.center-card,
-.report-center-card {
-  color: #000 !important;
-  background: #fff !important;
-  border-color: #000 !important;
-  box-shadow: none !important;
+  font-family: var(--pst-font) !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease !important;
 }
 
 .pst-pill:hover,
@@ -380,25 +363,15 @@ button.btn:hover,
 .sort-btn:hover,
 .status-pill:hover,
 .reorder-guide-item:hover,
-.center-card:hover,
-.report-center-card:hover {
+.card-cart-button:hover,
+.catalog-card .card-cart-button:hover,
+.catalog-incoming-pill:hover,
+.coa-button:hover,
+.primary-action:hover,
+.secondary-action:hover {
   color: #000 !important;
   background: #f3f3f3 !important;
   border-color: #000 !important;
-}
-
-.pst-pill:active,
-.btn:active,
-.pill:active,
-.step:active,
-.collapse-toggle:active,
-.inventory-collapse-toggle:active,
-.inventory-jump-link:active,
-.jump-link:active,
-.sort-btn:active,
-.status-pill:active,
-.reorder-guide-item:active {
-  transform: translateY(1px);
 }
 
 .pst-pill[aria-pressed="true"],
@@ -406,11 +379,11 @@ button.btn:hover,
 .pst-pill.is-selected,
 .pst-pill.is-added,
 .btn.active,
-a.btn.active,
-button.btn.active,
 .btn[aria-pressed="true"],
 .btn[aria-current="page"],
+.btn.is-added,
 .pill.active,
+.pill.is-added,
 .step.active,
 .collapse-toggle.active,
 .inventory-collapse-toggle.active,
@@ -419,8 +392,9 @@ button.btn.active,
 .sort-btn.active,
 .status-pill.active,
 .reorder-guide-item.active,
-.center-card.active,
-.report-center-card.active {
+.card-cart-button.is-added,
+.catalog-card .card-cart-button.is-added,
+.primary-action.is-added {
   color: #fff !important;
   background: #000 !important;
   border-color: #000 !important;
@@ -429,8 +403,10 @@ button.btn.active,
 
 .pst-pill.is-added,
 .btn.is-added,
-.pill.is-added {
-  pointer-events: none;
+.pill.is-added,
+.card-cart-button.is-added,
+.primary-action.is-added {
+  pointer-events: none !important;
 }
 
 .pst-pill:disabled,
@@ -438,9 +414,18 @@ button.btn.active,
 .btn:disabled,
 .btn[aria-disabled="true"],
 .pill:disabled,
-.pill[aria-disabled="true"] {
-  opacity: 0.55;
-  cursor: not-allowed;
+.pill[aria-disabled="true"],
+.card-cart-button:disabled,
+.card-cart-button[aria-disabled="true"],
+.catalog-card .card-cart-button:disabled,
+.catalog-card .card-cart-button[aria-disabled="true"],
+.primary-action:disabled,
+.primary-action[aria-disabled="true"] {
+  color: #596579 !important;
+  background: #eef1f5 !important;
+  border-color: #c8d0dc !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
 }
 
 .pst-pill:focus-visible,
@@ -454,8 +439,11 @@ button.btn.active,
 .sort-btn:focus-visible,
 .status-pill:focus-visible,
 .reorder-guide-item:focus-visible,
-.center-card:focus-visible,
-.report-center-card:focus-visible {
+.card-cart-button:focus-visible,
+.catalog-incoming-pill:focus-visible,
+.coa-button:focus-visible,
+.primary-action:focus-visible,
+.secondary-action:focus-visible {
   outline: 2px solid #000 !important;
   outline-offset: 2px !important;
 }
@@ -497,18 +485,14 @@ button.btn.active,
 
 @media (max-width: 1400px) {
   .pst-customer-header {
-    height: auto !important;
+    position: relative !important;
     min-height: 0 !important;
-    max-height: none !important;
     overflow: visible !important;
   }
 
   .pst-customer-header-inner,
   .pst-customer-header__inner {
-    width: 100% !important;
-    height: auto !important;
     min-height: 0 !important;
-    max-height: none !important;
     padding: 10px 16px 14px !important;
     display: grid !important;
     grid-template-columns: 1fr !important;
@@ -523,9 +507,19 @@ button.btn.active,
   .pst-customer-header__logo {
     grid-column: 1 !important;
     grid-row: 1 !important;
-    width: auto !important;
-    height: auto !important;
+    width: 190px !important;
+    max-width: 190px !important;
+    height: 60px !important;
     justify-content: center !important;
+  }
+
+  .pst-customer-header-logo,
+  .pst-customer-header__logo img {
+    width: 190px !important;
+    max-width: 190px !important;
+    height: 60px !important;
+    max-height: 60px !important;
+    object-position: center !important;
   }
 
   .pst-customer-header-right,
@@ -533,8 +527,6 @@ button.btn.active,
     grid-column: 1 !important;
     grid-row: 2 / 4 !important;
     width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
     margin-left: 0 !important;
     display: contents !important;
   }
@@ -562,7 +554,6 @@ button.btn.active,
     grid-column: 1 !important;
     grid-row: 3 !important;
     width: 100% !important;
-    height: auto !important;
     min-height: 40px !important;
     display: flex !important;
     flex-direction: row !important;
@@ -572,12 +563,6 @@ button.btn.active,
     gap: 8px 22px !important;
     overflow: visible !important;
   }
-
-  .pst-customer-nav a,
-  .pst-customer-header__nav a {
-    height: 40px !important;
-    min-height: 40px !important;
-  }
 }
 
 @media (max-width: 640px) {
@@ -585,6 +570,21 @@ button.btn.active,
   .pst-customer-header__inner {
     padding-left: 12px !important;
     padding-right: 12px !important;
+  }
+
+  .pst-customer-logo-link,
+  .pst-customer-header__logo {
+    width: 170px !important;
+    max-width: 170px !important;
+    height: 54px !important;
+  }
+
+  .pst-customer-header-logo,
+  .pst-customer-header__logo img {
+    width: 170px !important;
+    max-width: 170px !important;
+    height: 54px !important;
+    max-height: 54px !important;
   }
 
   .pst-page-shell {
