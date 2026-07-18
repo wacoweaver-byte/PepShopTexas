@@ -1,5 +1,5 @@
-/* Pep Shop Texas — shared customer-facing stylesheet
-   Foundation only. HTML migration will happen after visual approval. */
+/* Pep Shop Texas — shared stylesheet for customer-facing pages other than index.html.
+   The homepage header and hero remain isolated in css/index.css. */
 
 :root {
   --pst-black: #050505;
@@ -22,13 +22,13 @@
   box-sizing: border-box;
 }
 
-html {
+html,
+body {
   min-width: 320px;
 }
 
 body {
   margin: 0;
-  min-width: 320px;
   color: var(--pst-ink);
   background: var(--pst-soft);
   font-family: var(--pst-font);
@@ -66,173 +66,275 @@ img {
   border: 0 !important;
 }
 
-/* Shared page shell */
 .pst-page-shell {
   width: min(var(--pst-page-width), calc(100% - 40px));
   margin: 0 auto;
   padding: 36px 0 64px;
 }
 
-/* Customer header — non-home pages include the left-aligned logo. */
+/* Approved non-home customer header.
+   Uses "customer facing header logo.png" on the left and all controls on the right. */
 .pst-customer-header {
-  position: relative;
-  z-index: 50;
-  width: 100%;
-  min-height: 88px;
-  color: var(--pst-white);
-  background: var(--pst-black);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  height: 141px !important;
+  min-height: 141px !important;
+  max-height: 141px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  color: var(--pst-white) !important;
+  background: #000 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #262626 !important;
+  box-shadow: none !important;
 }
 
+.pst-customer-header * {
+  box-sizing: border-box !important;
+}
+
+.pst-customer-header-inner,
 .pst-customer-header__inner {
-  width: 100%;
-  min-height: 88px;
-  padding: 10px clamp(18px, 4vw, 60px);
-  display: flex;
-  align-items: center;
-  gap: 24px;
+  width: 100% !important;
+  height: 141px !important;
+  min-height: 141px !important;
+  max-height: 141px !important;
+  margin: 0 !important;
+  padding: 0 24px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  overflow: hidden !important;
 }
 
+.pst-customer-logo-link,
 .pst-customer-header__logo {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  line-height: 0;
+  flex: 0 0 auto !important;
+  height: 141px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  line-height: 0 !important;
+  text-decoration: none !important;
 }
 
+.pst-customer-header-logo,
 .pst-customer-header__logo img {
-  display: block;
-  width: auto;
-  height: 64px;
-  max-width: 220px;
-  object-fit: contain;
-  object-position: left center;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  object-fit: contain !important;
+  object-position: left center !important;
 }
 
+.pst-customer-header-right,
 .pst-customer-header__controls {
-  min-width: 0;
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  height: 141px !important;
+  margin-left: auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 22px !important;
+  overflow: hidden !important;
 }
 
+.pst-customer-search,
+.pst-customer-header__search {
+  flex: 0 1 280px !important;
+  width: 280px !important;
+  min-width: 220px !important;
+  height: 42px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+
+.pst-customer-search input,
+.pst-customer-header__search input {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: 42px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  color: #111 !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  font-family: var(--pst-font) !important;
+  font-size: 14px !important;
+}
+
+.pst-customer-search button,
+.pst-customer-header__search button {
+  flex: 0 0 42px !important;
+  width: 42px !important;
+  height: 42px !important;
+  margin: 0 !important;
+  padding: 9px !important;
+  display: grid !important;
+  place-items: center !important;
+  color: #000 !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+}
+
+.pst-customer-search svg,
+.pst-customer-header__search svg {
+  width: 22px !important;
+  height: 22px !important;
+  fill: none !important;
+  stroke: #000 !important;
+  stroke-width: 2 !important;
+}
+
+.pst-customer-nav,
 .pst-customer-header__nav {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: clamp(12px, 1.7vw, 24px);
-  font-size: 14px;
-  font-weight: 800;
-  white-space: nowrap;
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  height: 141px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 22px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none !important;
 }
 
+.pst-customer-nav::-webkit-scrollbar,
+.pst-customer-header__nav::-webkit-scrollbar {
+  display: none !important;
+}
+
+.pst-customer-nav a,
 .pst-customer-header__nav a,
 .pst-customer-header__account,
 .pst-customer-header__cart {
-  color: var(--pst-white);
+  flex: 0 0 auto !important;
+  color: #fff !important;
+  background: transparent !important;
+  border: 0 !important;
+  font-family: var(--pst-font) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
 }
 
+.pst-customer-nav a {
+  height: 141px !important;
+  min-height: 141px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.pst-customer-nav a:hover,
+.pst-customer-nav a:focus-visible,
 .pst-customer-header__nav a:hover,
 .pst-customer-header__nav a:focus-visible,
 .pst-customer-header__account:hover,
 .pst-customer-header__account:focus-visible,
 .pst-customer-header__cart:hover,
 .pst-customer-header__cart:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 5px;
+  color: #fff !important;
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
 }
 
-.pst-customer-header__search {
-  flex: 0 1 280px;
-  width: 280px;
-  min-width: 210px;
-  height: 42px;
-  display: flex;
-  align-items: stretch;
-  overflow: hidden;
-  background: var(--pst-white);
-  border: 1px solid var(--pst-line);
-  border-radius: 8px;
+.main-nav a[data-account-link],
+.pst-account[data-account-link],
+.pst-customer-header__account[data-account-link] {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  line-height: 1 !important;
 }
 
-.pst-customer-header__search input {
-  min-width: 0;
-  flex: 1 1 auto;
-  height: 100%;
-  padding: 0 13px;
-  color: var(--pst-ink);
-  background: var(--pst-white);
-  border: 0;
-  outline: 0;
-}
-
-.pst-customer-header__search button {
-  flex: 0 0 42px;
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  color: var(--pst-black);
-  background: var(--pst-white);
-  border: 0;
-  cursor: pointer;
-}
-
-.pst-customer-header__account {
-  flex: 0 0 auto;
-  display: grid;
-  align-content: center;
-  line-height: 1.1;
-  text-align: left;
-  white-space: nowrap;
-}
-
-.pst-customer-header__account strong {
+.main-nav a[data-account-link]::after,
+.pst-account[data-account-link]::after,
+.pst-customer-header__account[data-account-link]::after {
+  content: "MY ACCOUNT";
   display: block;
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.pst-customer-header__account small {
-  display: block;
-  margin-top: 4px;
+  color: #fff;
+  font-family: var(--pst-font);
   font-size: 11px;
-  font-weight: 700;
-}
-
-.pst-customer-header__cart {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 800;
+  font-weight: 500;
+  line-height: 1;
   white-space: nowrap;
 }
 
-.pst-customer-header__cart-count {
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  display: inline-grid;
-  place-items: center;
-  color: var(--pst-white);
-  background: var(--pst-red);
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
+.main-nav a[data-account-link][href^="login.html"]::after,
+.pst-account[data-account-link][href^="login.html"]::after,
+.pst-customer-header__account[data-account-link][href^="login.html"]::after {
+  content: "ACCOUNT";
 }
 
-/* Shared black-outline pill system.
-   Dimensions mirror the live catalog's compact add/filter controls. */
+.pst-cart-count,
+.pst-customer-header__cart-count {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 20px !important;
+  height: 20px !important;
+  margin-left: 6px !important;
+  padding: 0 6px !important;
+  color: #000 !important;
+  background: #fff !important;
+  border-radius: 999px !important;
+  font-family: var(--pst-font) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+/* Unified customer pill system. */
 .pst-pill,
-button.pst-pill,
-a.pst-pill {
+.btn,
+a.btn,
+button.btn,
+.pill,
+.step,
+.collapse-toggle,
+.inventory-collapse-toggle,
+.inventory-jump-link,
+.jump-link,
+.sort-btn,
+.status-pill,
+.reorder-guide-item {
   min-width: 0;
   min-height: var(--pst-pill-height);
   height: var(--pst-pill-height);
@@ -241,51 +343,125 @@ a.pst-pill {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  color: var(--pst-black);
-  background: var(--pst-white);
-  border: 1px solid var(--pst-black);
+  color: #000 !important;
+  background: #fff !important;
+  border: 1px solid #000 !important;
   border-radius: 6px;
+  box-shadow: none !important;
   font-family: var(--pst-font);
   font-size: 13px;
   font-weight: 900;
   line-height: 1;
   text-align: center;
+  text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
 }
 
-.pst-pill:hover,
-.pst-pill:focus-visible {
-  background: #f0f0f0;
+.center-card,
+.report-center-card {
+  color: #000 !important;
+  background: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
 }
 
-.pst-pill:active {
+.pst-pill:hover,
+.btn:hover,
+a.btn:hover,
+button.btn:hover,
+.pill:hover,
+.step:hover,
+.collapse-toggle:hover,
+.inventory-collapse-toggle:hover,
+.inventory-jump-link:hover,
+.jump-link:hover,
+.sort-btn:hover,
+.status-pill:hover,
+.reorder-guide-item:hover,
+.center-card:hover,
+.report-center-card:hover {
+  color: #000 !important;
+  background: #f3f3f3 !important;
+  border-color: #000 !important;
+}
+
+.pst-pill:active,
+.btn:active,
+.pill:active,
+.step:active,
+.collapse-toggle:active,
+.inventory-collapse-toggle:active,
+.inventory-jump-link:active,
+.jump-link:active,
+.sort-btn:active,
+.status-pill:active,
+.reorder-guide-item:active {
   transform: translateY(1px);
 }
 
 .pst-pill[aria-pressed="true"],
 .pst-pill[aria-current="page"],
 .pst-pill.is-selected,
-.pst-pill.is-added {
-  color: var(--pst-white);
-  background: var(--pst-black);
-  border-color: var(--pst-black);
+.pst-pill.is-added,
+.btn.active,
+a.btn.active,
+button.btn.active,
+.btn[aria-pressed="true"],
+.btn[aria-current="page"],
+.pill.active,
+.step.active,
+.collapse-toggle.active,
+.inventory-collapse-toggle.active,
+.inventory-jump-link.active,
+.jump-link.active,
+.sort-btn.active,
+.status-pill.active,
+.reorder-guide-item.active,
+.center-card.active,
+.report-center-card.active {
+  color: #fff !important;
+  background: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
 }
 
-.pst-pill.is-added {
+.pst-pill.is-added,
+.btn.is-added,
+.pill.is-added {
   pointer-events: none;
 }
 
 .pst-pill:disabled,
-.pst-pill[aria-disabled="true"] {
+.pst-pill[aria-disabled="true"],
+.btn:disabled,
+.btn[aria-disabled="true"],
+.pill:disabled,
+.pill[aria-disabled="true"] {
   opacity: 0.55;
   cursor: not-allowed;
 }
 
-/* Shared cards, forms and buttons */
+.pst-pill:focus-visible,
+.btn:focus-visible,
+.pill:focus-visible,
+.step:focus-visible,
+.collapse-toggle:focus-visible,
+.inventory-collapse-toggle:focus-visible,
+.inventory-jump-link:focus-visible,
+.jump-link:focus-visible,
+.sort-btn:focus-visible,
+.status-pill:focus-visible,
+.reorder-guide-item:focus-visible,
+.center-card:focus-visible,
+.report-center-card:focus-visible {
+  outline: 2px solid #000 !important;
+  outline-offset: 2px !important;
+}
+
 .pst-card {
-  background: var(--pst-white);
+  background: #fff;
   border: 1px solid var(--pst-line);
   border-radius: var(--pst-radius);
   box-shadow: 0 10px 28px rgba(18, 26, 38, 0.10);
@@ -309,7 +485,7 @@ a.pst-pill {
   min-height: 42px;
   padding: 9px 12px;
   color: var(--pst-ink);
-  background: var(--pst-white);
+  background: #fff;
   border: 1px solid var(--pst-line);
   border-radius: 8px;
 }
@@ -319,95 +495,100 @@ a.pst-pill {
   resize: vertical;
 }
 
-.pst-button {
-  min-height: 42px;
-  padding: 0 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--pst-white);
-  background: var(--pst-red);
-  border: 1px solid var(--pst-red);
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-}
+@media (max-width: 1400px) {
+  .pst-customer-header {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
 
-.pst-button--secondary {
-  color: var(--pst-ink);
-  background: var(--pst-white);
-  border-color: var(--pst-line);
-}
-
-/* Collapse the full control group before it collides with the logo.
-   The exact breakpoint can be tuned after the final header contents are installed. */
-@media (max-width: 1180px) {
+  .pst-customer-header-inner,
   .pst-customer-header__inner {
-    flex-direction: column;
-    justify-content: center;
-    gap: 12px;
-    padding-top: 12px;
-    padding-bottom: 16px;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 10px 16px 14px !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto !important;
+    align-items: center !important;
+    justify-items: center !important;
+    gap: 10px !important;
+    overflow: visible !important;
   }
 
+  .pst-customer-logo-link,
   .pst-customer-header__logo {
-    align-self: flex-start;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    justify-content: center !important;
   }
 
+  .pst-customer-header-right,
   .pst-customer-header__controls {
-    width: 100%;
-    margin-left: 0;
-    flex-direction: column;
-    justify-content: center;
-    gap: 12px;
+    grid-column: 1 !important;
+    grid-row: 2 / 4 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin-left: 0 !important;
+    display: contents !important;
   }
 
+  .pst-customer-search,
   .pst-customer-header__search {
-    width: min(420px, 100%);
-    min-width: 0;
-    flex-basis: auto;
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: min(100%, 430px) !important;
+    min-width: 0 !important;
+    max-width: 430px !important;
+    height: 52px !important;
+    margin: 0 auto !important;
   }
 
+  .pst-customer-search input,
+  .pst-customer-search button,
+  .pst-customer-header__search input,
+  .pst-customer-header__search button {
+    height: 52px !important;
+  }
+
+  .pst-customer-nav,
   .pst-customer-header__nav {
-    width: 100%;
-    flex-direction: column;
-    justify-content: center;
-    gap: 10px;
-    text-align: center;
-    white-space: normal;
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 40px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px 22px !important;
+    overflow: visible !important;
   }
 
-  .pst-customer-header__account,
-  .pst-customer-header__cart {
-    text-align: center;
-    justify-content: center;
+  .pst-customer-nav a,
+  .pst-customer-header__nav a {
+    height: 40px !important;
+    min-height: 40px !important;
   }
 }
 
 @media (max-width: 640px) {
+  .pst-customer-header-inner,
   .pst-customer-header__inner {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  .pst-customer-header__logo {
-    align-self: center;
-  }
-
-  .pst-customer-header__logo img {
-    height: 56px;
-    max-width: 190px;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
   }
 
   .pst-page-shell {
     width: min(100% - 24px, var(--pst-page-width));
     padding-top: 24px;
-  }
-
-  .pst-pill,
-  button.pst-pill,
-  a.pst-pill {
-    width: auto;
   }
 }
