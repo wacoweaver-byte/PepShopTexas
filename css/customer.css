@@ -12,7 +12,7 @@
   --pst-success: #0f8a3b;
   --pst-page-width: 1280px;
   --pst-radius: 10px;
-  --pst-pill-height: 40px;
+  --pst-pill-height: 34px;
   --pst-font: Arial, Helvetica, sans-serif;
 }
 
@@ -228,25 +228,26 @@ img {
   font-weight: 900;
 }
 
-/* Shared black-outline pill system */
+/* Shared black-outline pill system.
+   Dimensions mirror the live catalog's compact add/filter controls. */
 .pst-pill,
 button.pst-pill,
 a.pst-pill {
-  min-width: 96px;
+  min-width: 0;
   min-height: var(--pst-pill-height);
   height: var(--pst-pill-height);
-  padding: 0 16px;
+  padding: 0 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
   color: var(--pst-black);
   background: var(--pst-white);
-  border: 2px solid var(--pst-black);
-  border-radius: 999px;
+  border: 1px solid var(--pst-black);
+  border-radius: 6px;
   font-family: var(--pst-font);
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 900;
   line-height: 1;
   text-align: center;
   white-space: nowrap;
@@ -407,6 +408,6 @@ a.pst-pill {
   .pst-pill,
   button.pst-pill,
   a.pst-pill {
-    width: 100%;
+    width: auto;
   }
 }
