@@ -1,0 +1,334 @@
+/* Pep Shop Texas — shared admin stylesheet.
+   Consolidates admin/inventory controls after removal of legacy root CSS. */
+
+:root {
+  --pst-admin-black: #050505;
+  --pst-admin-ink: #101820;
+  --pst-admin-white: #ffffff;
+  --pst-admin-red: #bd0000;
+  --pst-admin-muted: #596579;
+  --pst-admin-line: #c9ced6;
+  --pst-admin-soft: #f7f9fc;
+  --pst-admin-green: #0c6b3a;
+  --pst-admin-blue: #003f9e;
+  --pst-admin-warn: #8a5a00;
+  --pst-admin-danger: #8a1f17;
+  --pst-admin-pill-height: 26px;
+  --pst-admin-font: Arial, Helvetica, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-width: 320px;
+}
+
+body {
+  margin: 0;
+  color: var(--pst-admin-ink);
+  background: var(--pst-admin-soft);
+  font-family: var(--pst-admin-font);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Shared compact admin action and status system. */
+.btn,
+a.btn,
+button.btn,
+.inventory-jump-link,
+.inventory-collapse-toggle,
+.row-save,
+.row-audit-btn,
+.edit-incoming-btn,
+.close-incoming-edit-btn,
+.cancel-incoming-btn,
+.receive-incoming-btn,
+.transit-incoming-btn,
+.save-incoming-edit-btn,
+.incoming-line-remove,
+.reorder-action-btn,
+.status-pill,
+.reorder-badge,
+.incoming-pill,
+.vendor-id-pill,
+.active-pill,
+.inactive-pill,
+.inventory-restored-pill,
+.inventory-restore-needed-pill,
+.inventory-deduct-pill,
+.inventory-deduct-needed-pill {
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-admin-pill-height) !important;
+  height: var(--pst-admin-pill-height) !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--pst-admin-ink) !important;
+  background: var(--pst-admin-white) !important;
+  border: 1px solid currentColor !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+}
+
+.btn,
+a.btn,
+button.btn,
+.inventory-jump-link,
+.inventory-collapse-toggle,
+.row-save,
+.row-audit-btn,
+.edit-incoming-btn,
+.close-incoming-edit-btn,
+.cancel-incoming-btn,
+.receive-incoming-btn,
+.transit-incoming-btn,
+.save-incoming-edit-btn,
+.incoming-line-remove,
+.reorder-action-btn {
+  cursor: pointer !important;
+}
+
+.btn:hover,
+a.btn:hover,
+button.btn:hover,
+.inventory-jump-link:hover,
+.inventory-collapse-toggle:hover,
+.row-save:hover,
+.row-audit-btn:hover,
+.edit-incoming-btn:hover,
+.close-incoming-edit-btn:hover,
+.cancel-incoming-btn:hover,
+.receive-incoming-btn:hover,
+.transit-incoming-btn:hover,
+.save-incoming-edit-btn:hover,
+.incoming-line-remove:hover,
+.reorder-action-btn:hover {
+  background: #f3f3f3 !important;
+}
+
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+.inventory-collapse-toggle.active,
+.inventory-collapse-toggle[aria-expanded="true"] {
+  color: var(--pst-admin-white) !important;
+  background: var(--pst-admin-black) !important;
+  border-color: var(--pst-admin-black) !important;
+}
+
+.btn.success,
+a.btn.success,
+button.btn.success,
+.receive-incoming-btn,
+.row-save,
+.status-pill.in_stock,
+.status-pill.available,
+.active-pill,
+.incoming-received,
+.reorder-healthy {
+  color: var(--pst-admin-green) !important;
+  background: var(--pst-admin-white) !important;
+  border-color: var(--pst-admin-green) !important;
+}
+
+.btn.warning,
+a.btn.warning,
+button.btn.warning,
+.transit-incoming-btn,
+.status-pill.limited,
+.incoming-in_transit,
+.reorder-now,
+.reorder-watch {
+  color: var(--pst-admin-warn) !important;
+  background: var(--pst-admin-white) !important;
+  border-color: var(--pst-admin-warn) !important;
+}
+
+.btn.danger,
+a.btn.danger,
+button.btn.danger,
+.cancel-incoming-btn,
+.inactive-pill,
+.status-pill.low,
+.status-pill.out_of_stock,
+.status-pill.out,
+.status-pill.inactive,
+.incoming-cancelled,
+.incoming-issue_shorted,
+.reorder-critical {
+  color: var(--pst-admin-danger) !important;
+  background: var(--pst-admin-white) !important;
+  border-color: var(--pst-admin-danger) !important;
+}
+
+.inventory-jump-link,
+.incoming-ordered {
+  color: var(--pst-admin-blue) !important;
+  background: var(--pst-admin-white) !important;
+  border-color: var(--pst-admin-blue) !important;
+}
+
+.btn.secondary,
+a.btn.secondary,
+button.btn.secondary,
+.edit-incoming-btn,
+.close-incoming-edit-btn,
+.row-audit-btn,
+.incoming-line-remove,
+.reorder-none,
+.reorder-unknown {
+  color: var(--pst-admin-ink) !important;
+  background: var(--pst-admin-white) !important;
+  border-color: var(--pst-admin-line) !important;
+}
+
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button.btn[aria-disabled="true"],
+.btn.disabled,
+.reorder-action-btn:disabled,
+.reorder-select[disabled] {
+  color: #6f7680 !important;
+  background: var(--pst-admin-white) !important;
+  border-color: var(--pst-admin-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+.inventory-readonly-value,
+.inventory-current-readonly,
+.inventory-price-readonly,
+.inventory-category,
+.inventory-strength {
+  min-height: var(--pst-admin-pill-height) !important;
+  height: var(--pst-admin-pill-height) !important;
+  padding: 0 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--pst-admin-muted) !important;
+  background: var(--pst-admin-white) !important;
+  border: 1px solid var(--pst-admin-line) !important;
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.bulk-tools,
+.bulk,
+.actions,
+.pst-admin-actions-lock,
+.inventory-card-actions,
+.reorder-controls,
+.reorder-selected-actions,
+.incoming-actions,
+.incoming-edit-actions,
+.back-to-inventory-top,
+.inventory-jumpbar {
+  gap: 6px !important;
+}
+
+td .btn,
+td button.btn,
+td a.btn,
+td .status-pill,
+td .reorder-badge,
+td .incoming-pill,
+td .vendor-id-pill,
+td .inventory-readonly-value {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+}
+
+.btn:focus-visible,
+a.btn:focus-visible,
+button.btn:focus-visible,
+.inventory-jump-link:focus-visible,
+.inventory-collapse-toggle:focus-visible,
+.reorder-action-btn:focus-visible {
+  outline: 2px solid var(--pst-admin-black) !important;
+  outline-offset: 2px !important;
+}
+
+@media (max-width: 700px) {
+  :root {
+    --pst-admin-pill-height: 25px;
+  }
+
+  .btn,
+  a.btn,
+  button.btn,
+  .inventory-jump-link,
+  .inventory-collapse-toggle,
+  .row-save,
+  .row-audit-btn,
+  .edit-incoming-btn,
+  .close-incoming-edit-btn,
+  .cancel-incoming-btn,
+  .receive-incoming-btn,
+  .transit-incoming-btn,
+  .save-incoming-edit-btn,
+  .incoming-line-remove,
+  .reorder-action-btn,
+  .status-pill,
+  .reorder-badge,
+  .incoming-pill,
+  .vendor-id-pill,
+  .active-pill,
+  .inactive-pill {
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+}
