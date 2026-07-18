@@ -1,0 +1,227 @@
+name: One-time refine admin dashboard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-refine-admin-dashboard.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Refine shared admin dashboard components
+        run: |
+          cat >> css/admin.css <<'CSS'
+
+/* Admin dashboard component refinement — shared across admin pages. */
+input[type="checkbox"],
+input[type="radio"] {
+  appearance:auto!important;
+  -webkit-appearance:auto!important;
+  box-sizing:border-box!important;
+  flex:0 0 16px!important;
+  width:16px!important;
+  min-width:16px!important;
+  max-width:16px!important;
+  height:16px!important;
+  min-height:16px!important;
+  max-height:16px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid #777!important;
+  border-radius:3px!important;
+  box-shadow:none!important;
+  vertical-align:middle!important;
+  accent-color:#000!important;
+  cursor:pointer!important;
+}
+input[type="radio"]{border-radius:50%!important}
+
+/* Orders dashboard proportions and card rhythm. */
+.admin-dashboard-grid {
+  grid-template-columns:minmax(760px,1.45fr) minmax(420px,.85fr)!important;
+  gap:16px!important;
+}
+.admin-dashboard-grid>.card { align-self:start; }
+#order-list-card .card-header,
+#detailCard .card-header { min-height:64px; padding:14px 18px!important; }
+#order-list-card .card-header h2,
+#detailCard .card-header h2 { margin:0; font-size:22px; line-height:1.15; }
+#detailCard { top:74px!important; }
+.detail-empty { padding:20px 18px!important; color:var(--pst-admin-muted); font-size:14px; line-height:1.45; }
+
+/* Compact jump navigation. */
+.admin-dashboard-nav,
+.inventory-jumpbar {
+  padding:8px 12px!important;
+  gap:6px!important;
+  border-radius:10px!important;
+  overflow-x:auto;
+  flex-wrap:nowrap!important;
+  scrollbar-width:thin;
+}
+.admin-dashboard-nav .btn,
+.inventory-jumpbar .btn,
+.inventory-jump-link {
+  flex:0 0 auto!important;
+  height:26px!important;
+  min-height:26px!important;
+  padding:0 9px!important;
+  font-size:9.5px!important;
+}
+
+/* Filters align as one deliberate row. */
+#order-list-card .card-body { padding:14px 16px!important; }
+#order-list-card .filters {
+  grid-template-columns:minmax(210px,1.35fr) repeat(4,minmax(120px,.75fr)) auto!important;
+  gap:10px!important;
+  align-items:end!important;
+}
+#order-list-card .field { min-width:0; }
+#order-list-card .field label { margin:0; font-size:10px; }
+#order-list-card input[type="search"],
+#order-list-card select {
+  min-height:36px!important;
+  height:36px!important;
+  padding:7px 10px!important;
+  font-size:13px!important;
+}
+#clearFiltersBtn { height:28px!important; min-height:28px!important; align-self:end; }
+
+/* Attention summary: compact, aligned, neutral. */
+#orderAttentionSummary.attention-summary {
+  grid-template-columns:repeat(5,minmax(118px,1fr))!important;
+  gap:8px!important;
+  padding:10px 16px!important;
+}
+#orderAttentionSummary .attention-card {
+  min-height:78px!important;
+  padding:10px 8px!important;
+  display:grid!important;
+  place-content:center!important;
+  text-align:center!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+#orderAttentionSummary .attention-card strong { font-size:18px!important; margin-bottom:4px!important; }
+#orderAttentionSummary .attention-card span { font-size:9.5px!important; line-height:1.25!important; }
+
+/* Bulk toolbar: compact selection summary plus grouped actions. */
+#order-list-card .bulk-bar {
+  grid-template-columns:max-content minmax(0,1fr)!important;
+  min-height:58px!important;
+  padding:10px 16px!important;
+  gap:16px!important;
+  align-items:center!important;
+}
+#order-list-card .bulk-left {
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-width:110px;
+  font-size:13px!important;
+  font-weight:700!important;
+  white-space:nowrap!important;
+}
+#order-list-card .bulk-left input { flex:0 0 16px!important; }
+#selectedCount { display:inline!important; font-size:12px!important; font-weight:700!important; line-height:1!important; }
+#order-list-card .bulk-actions {
+  display:flex!important;
+  flex-wrap:wrap!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+#order-list-card .bulk-actions .btn {
+  height:26px!important;
+  min-height:26px!important;
+  padding:0 9px!important;
+  font-size:9.5px!important;
+}
+
+/* Orders table: stable columns and readable density. */
+#order-list-card .table-wrap { min-height:300px; max-height:62vh; overflow:auto; }
+#order-list-card table { min-width:1060px; table-layout:fixed; }
+#order-list-card th,
+#order-list-card td { padding:9px 8px!important; font-size:12px!important; line-height:1.3; }
+#order-list-card th { font-size:9.5px!important; }
+#order-list-card th:nth-child(1),#order-list-card td:nth-child(1){width:42px;text-align:center}
+#order-list-card th:nth-child(2),#order-list-card td:nth-child(2){width:98px}
+#order-list-card th:nth-child(3),#order-list-card td:nth-child(3){width:105px}
+#order-list-card th:nth-child(4),#order-list-card td:nth-child(4){width:205px}
+#order-list-card th:nth-child(5),#order-list-card td:nth-child(5){width:82px;text-align:right}
+#order-list-card th:nth-child(6),#order-list-card td:nth-child(6){width:92px}
+#order-list-card th:nth-child(7),#order-list-card td:nth-child(7){width:92px}
+#order-list-card th:nth-child(8),#order-list-card td:nth-child(8){width:92px}
+#order-list-card th:nth-child(9),#order-list-card td:nth-child(9){width:150px}
+#order-list-card th:nth-child(10),#order-list-card td:nth-child(10){width:150px}
+#order-list-card td:nth-child(4){overflow-wrap:anywhere}
+#order-list-card tbody tr{background:#fff}
+#order-list-card tbody tr:nth-child(even){background:#fafbfc}
+#order-list-card tbody tr:hover{background:#f1f3f5!important}
+
+/* Detail panel structure and generated form controls. */
+#detailCard .detail-section { padding:14px 16px!important; }
+#detailCard .detail-section h3 { margin:0 0 10px; font-size:14px; }
+#detailCard .kv-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:8px!important; }
+#detailCard .kv { padding:9px 10px!important; border-radius:8px!important; font-size:12px; }
+#detailCard .edit-grid { gap:10px!important; }
+#detailCard input:not([type="checkbox"]):not([type="radio"]),
+#detailCard select,
+#detailCard textarea {
+  min-height:36px!important;
+  padding:7px 10px!important;
+  font-size:13px!important;
+}
+#detailCard textarea { min-height:72px!important; }
+#detailCard label { font-size:10px!important; }
+#detailCard .audit-item { padding:9px 10px!important; font-size:12px; border-radius:8px!important; }
+#detailCard .item { padding:9px 10px!important; border-radius:8px!important; }
+#detailCard .card-header .btn { height:26px!important; min-height:26px!important; font-size:9.5px!important; }
+
+@media(max-width:1250px){
+  .admin-dashboard-grid{grid-template-columns:minmax(680px,1.25fr) minmax(360px,.75fr)!important}
+  #order-list-card .filters{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  #clearFiltersBtn{align-self:end}
+}
+@media(max-width:1050px){
+  .admin-dashboard-grid{grid-template-columns:1fr!important}
+  #detailCard{position:static!important;max-height:none!important}
+}
+@media(max-width:720px){
+  #order-list-card .filters{grid-template-columns:1fr!important}
+  #orderAttentionSummary.attention-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #order-list-card .bulk-bar{grid-template-columns:1fr!important;gap:10px!important}
+  #order-list-card .bulk-actions{justify-content:flex-start!important}
+  #detailCard .kv-grid,#detailCard .edit-grid{grid-template-columns:1fr!important}
+}
+CSS
+          python - <<'PY'
+          from pathlib import Path
+          pages = [
+              'admin.html','inventory.html','products.html','discounts.html',
+              'promotions.html','customers.html','reports.html','report-writer.html',
+              'discounts_promotions.html'
+          ]
+          for name in pages:
+              p = Path(name)
+              if not p.exists():
+                  continue
+              s = p.read_text()
+              import re
+              s = re.sub(r'css/admin\.css\?v=\d+', 'css/admin.css?v=7', s)
+              p.write_text(s)
+          PY
+          rm -f .github/workflows/one-time-refine-admin-dashboard.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add css/admin.css admin.html inventory.html products.html discounts.html promotions.html customers.html reports.html report-writer.html discounts_promotions.html .github/workflows/one-time-refine-admin-dashboard.yml
+          git commit -m "Refine shared admin dashboard layout and controls"
+          git push
