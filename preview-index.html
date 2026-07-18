@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Homepage Style Preview | PEP Shop Texas</title>
+  <link rel="stylesheet" href="css/customer.css">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+  <header class="pst-customer-header pst-home-header">
+    <div class="pst-customer-header__inner">
+      <div class="pst-customer-header__controls">
+        <nav class="pst-customer-header__nav" aria-label="Main navigation">
+          <a href="catalog.html">PEPTIDES A-Z</a>
+          <a href="catalog.html?category=Stack">TOP STACKS</a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact.html">CONTACT</a>
+        </nav>
+
+        <a class="pst-customer-header__account" href="account.html">
+          <strong>Hello, John</strong>
+          <small>My Account</small>
+        </a>
+
+        <form class="pst-customer-header__search" role="search" action="catalog.html" method="get">
+          <label class="sr-only" for="home-preview-search">Search peptides</label>
+          <input id="home-preview-search" name="search" type="search" placeholder="Search peptides...">
+          <button type="submit" aria-label="Search">⌕</button>
+        </form>
+
+        <a class="pst-customer-header__cart" href="cart.html">CART <span class="pst-customer-header__cart-count">2</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="pst-home-hero" aria-label="PEP Shop Texas research peptides hero">
+      <img src="pst-hero-final.png" alt="PEP Shop Texas premium research peptides">
+    </section>
+
+    <section class="pst-home-section">
+      <div class="pst-home-grid">
+        <article class="pst-card pst-home-card">
+          <h2>PEPTIDES A-Z</h2>
+          <p>Browse all peptides alphabetically.</p>
+          <a class="pst-pill" href="catalog.html">Browse</a>
+        </article>
+        <article class="pst-card pst-home-card">
+          <h2>TOP STACKS</h2>
+          <p>Browse popular blend and stack products.</p>
+          <a class="pst-pill is-selected" href="catalog.html?category=Stack" aria-current="page">Selected</a>
+        </article>
+        <article class="pst-card pst-home-card">
+          <h2>ADD STATE</h2>
+          <p>Approved visual confirmation after a successful add.</p>
+          <button class="pst-pill is-added" type="button" aria-pressed="true">Added</button>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
