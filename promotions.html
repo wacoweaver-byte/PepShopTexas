@@ -1737,42 +1737,51 @@ button.btn[aria-disabled="true"],
     outline-offset: 2px !important;
   }
 </style>
-<style id="pst-promotions-black-outline-pill-fix">
-/* Promotions page only: preserve existing pill dimensions, padding, radius, and typography. */
-#saveBtn,
-#newBtn,
-#deleteBtn,
-.pst-mini-pill.is-active,
-.pst-mini-pill.is-inactive,
-.pst-mini-pill.is-sort,
-.pst-mini-pill.is-code {
-  color: #000 !important;
-  background: #fff !important;
-  background-color: #fff !important;
-  border-color: #000 !important;
-  box-shadow: none !important;
-}
 
-#saveBtn:hover,
-#newBtn:hover,
-#deleteBtn:hover {
-  color: #000 !important;
-  background: #f2f2f2 !important;
-  background-color: #f2f2f2 !important;
-  border-color: #000 !important;
-}
+<style id="pst-admin-mobile-link-behavior-only">
+@media (max-width: 980px) {
+  .pst-admin-header {
+    height: auto !important;
+    min-height: 40px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
 
-#saveBtn:active,
-#newBtn:active,
-#deleteBtn:active,
-#saveBtn[aria-pressed="true"],
-#newBtn[aria-pressed="true"],
-#deleteBtn[aria-pressed="true"] {
-  color: #fff !important;
-  background: #000 !important;
-  background-color: #000 !important;
-  border-color: #000 !important;
-  box-shadow: none !important;
+  .pst-admin-nav-wrap {
+    height: auto !important;
+    min-height: 40px !important;
+    max-height: none !important;
+    padding: 0 14px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .pst-admin-logo-link {
+    flex: 0 0 auto !important;
+    align-self: flex-start !important;
+  }
+
+  .pst-admin-nav {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px 18px !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+  }
+
+  .pst-admin-nav a {
+    width: auto !important;
+    min-height: 32px !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
 }
 </style>
 </head><body><header class="pst-admin-header">

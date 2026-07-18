@@ -2995,6 +2995,53 @@ td .inventory-readonly-value {
     outline-offset: 2px !important;
   }
 </style>
+
+<style id="pst-admin-mobile-link-behavior-only">
+@media (max-width: 980px) {
+  .pst-admin-header {
+    height: auto !important;
+    min-height: 40px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .pst-admin-nav-wrap {
+    height: auto !important;
+    min-height: 40px !important;
+    max-height: none !important;
+    padding: 0 14px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .pst-admin-logo-link {
+    flex: 0 0 auto !important;
+    align-self: flex-start !important;
+  }
+
+  .pst-admin-nav {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px 18px !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+  }
+
+  .pst-admin-nav a {
+    width: auto !important;
+    min-height: 32px !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+}
+</style>
 </head>
 <body>
 <header class="pst-admin-header">
@@ -3381,7 +3428,6 @@ let vendorsAvailable = false;
 const PST_INCOMING_LEAD_DAYS = 10;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 const PST_INCOMING_MIGRATION_KEY = "pst_incoming_inventory_migrated_to_supabase_v1";
-const PST_REPORT_WRITER_PO_HANDOFF_KEY = "pst_report_writer_po_handoff_v1";
 let salesByInventoryId = {};
 let movementByInventoryId = {};
 let reorderSalesLoadError = "";
@@ -4120,37 +4166,6 @@ function addSelectedReorderRowsToIncomingDraft() {
 
   setStatus(`Added ${selectedRows.length} reorder line(s) to Incoming Inventory / Purchase Orders. PO quantities are full 10-vial kits only. Kit cost auto-fills from product cost per vial × 10. Enter vendor, tracking, and shipping/fees, then click Save Incoming Order.`, "good");
   setTimeout(() => $("incomingKitCost")?.focus(), 350);
-}
-
-function consumeReportWriterPurchaseOrderHandoff() {
-  let handoff = null;
-  try { handoff = JSON.parse(localStorage.getItem(PST_REPORT_WRITER_PO_HANDOFF_KEY) || "null"); } catch (e) {}
-  if (!handoff || !Array.isArray(handoff.lines) || !handoff.lines.length) return false;
-  const added = [];
-  handoff.lines.forEach(line => {
-    const product = allItems.find(item => String(item.id) === String(line.productId))
-      || allItems.find(item => String(item.product_key || "").toLowerCase() === String(line.productKey || "").toLowerCase());
-    if (!product) return;
-    incomingDraftLines.push({
-      id: crypto?.randomUUID ? crypto.randomUUID() : `report_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-      productId: product.id,
-      productKey: product._catalog_product_key || product.product_key || line.productKey || null,
-      productName: incomingProductLabel(product),
-      qty: incomingRoundQtyToFullKits(Number(line.qty || PST_KIT_VIAL_COUNT)),
-      kitCost: Number(line.kitCost || 0) > 0 ? Number(line.kitCost) : incomingAutoKitCostForProduct(product)
-    });
-    added.push(product);
-  });
-  localStorage.removeItem(PST_REPORT_WRITER_PO_HANDOFF_KEY);
-  if (!added.length) { setStatus("The Report Writer selection could not be matched to current inventory products.", "bad"); return false; }
-  syncIncomingTotalCostField();
-  setIncomingOrderDateToday(false);
-  setIncomingUserField(true);
-  const card = $("incomingInventoryCard");
-  if (card) { setInventoryCardOpen(card, true); setTimeout(() => scrollInventoryToCard(card), 80); }
-  setStatus(`Added ${added.length} product${added.length === 1 ? "" : "s"} from ${handoff.reportName || "Report Writer"} to a new purchase order draft. Quantities default to one 10-vial kit and remain editable before saving.`, "good");
-  setTimeout(() => $("incomingVendorSelect")?.focus(), 300);
-  return true;
 }
 
 function startIncomingOrderFromReorder(productId, suggestedQty) {
@@ -5640,7 +5655,6 @@ async function init() {
     if (!ok) return;
     await loadInventory();
     await loadVendors();
-    consumeReportWriterPurchaseOrderHandoff();
   } catch (err) {
     console.error(err);
     setStatus(err.message || "Inventory admin failed to load.", "bad");
