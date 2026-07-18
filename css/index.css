@@ -1,83 +1,306 @@
 /* Pep Shop Texas — homepage-only stylesheet
-   index.html is the only customer page with a hero and no header logo. */
+   Mirrors the approved live index header and hero implementation. */
 
-.pst-home-header .pst-customer-header__inner {
-  justify-content: center;
+#pst-header-v3 {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-height: 66px !important;
+  margin: 0 !important;
+  padding: 0 28px !important;
+  background: #050505 !important;
+  display: grid !important;
+  grid-template-columns: minmax(380px, 1fr) 180px minmax(520px, 1fr) !important;
+  align-items: center !important;
+  gap: 20px !important;
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 10 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
 }
 
-.pst-home-header .pst-customer-header__controls {
-  width: 100%;
-  margin-left: 0;
-  justify-content: space-between;
+#pst-header-v3 * { box-sizing: border-box !important; }
+
+#pst-header-v3 .pst-left,
+#pst-header-v3 .pst-right {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
 }
 
-.pst-home-header .pst-customer-header__nav {
-  justify-content: flex-start;
+#pst-header-v3 .pst-left {
+  justify-content: flex-start !important;
+  gap: clamp(18px, 2vw, 34px) !important;
 }
 
-.pst-home-header .pst-customer-header__account,
-.pst-home-header .pst-customer-header__cart {
-  justify-self: end;
+#pst-header-v3 .pst-right {
+  justify-content: flex-end !important;
+  gap: 18px !important;
 }
 
-.pst-home-hero {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background: #000;
-  line-height: 0;
+#pst-header-v3 a {
+  color: #fff !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
 }
 
-.pst-home-hero img,
-.pst-home-hero picture {
+#pst-header-v3 .pst-left a {
+  font-size: clamp(12px, .95vw, 15px) !important;
+}
+
+#pst-header-v3 .pst-logo {
+  display: block !important;
+  justify-self: center !important;
+  line-height: 0 !important;
+}
+
+#pst-header-v3 .pst-logo img {
+  display: block !important;
+  width: 180px !important;
+  height: 84px !important;
+  object-fit: contain !important;
+}
+
+#pst-header-v3 .pst-account {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  line-height: 1.05 !important;
+}
+
+#pst-header-v3 .pst-account strong {
+  display: block !important;
+  font-size: 14px !important;
+}
+
+#pst-header-v3 .pst-account small {
+  display: block !important;
+  margin-top: 4px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+#pst-header-v3 .pst-account-icon {
+  font-size: 22px !important;
+}
+
+#pst-header-v3 .pst-admin {
+  border-left: 1px solid rgba(255,255,255,.45) !important;
+  padding-left: 18px !important;
+  font-size: 14px !important;
+}
+
+#pst-header-v3 .pst-search {
+  width: 280px !important;
+  min-width: 220px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: #fff !important;
+  border-radius: 7px !important;
+  overflow: hidden !important;
+  flex: 0 1 280px !important;
+}
+
+#pst-header-v3 .pst-search input {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 46px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  padding: 0 14px !important;
+  background: #fff !important;
+  color: #111 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 15px !important;
+  outline: none !important;
+}
+
+#pst-header-v3 .pst-search button {
+  flex: 0 0 46px !important;
+  width: 46px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 11px !important;
+  border: 0 !important;
+  background: #fff !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+#pst-header-v3 .pst-search svg {
+  width: 23px !important;
+  height: 23px !important;
+  fill: none !important;
+  stroke: #000 !important;
+  stroke-width: 2 !important;
+}
+
+#pst-hero-v3 {
+  width: 100% !important;
+  height: 469px !important;
+  max-height: 469px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #fff !important;
+}
+
+#pst-hero-v3 img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  object-fit: fill !important;
+  object-position: center 48% !important;
+}
+
+.main-nav a[data-account-link],
+.pst-account[data-account-link] {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  line-height: 1 !important;
+}
+
+.main-nav a[data-account-link]::after,
+.pst-account[data-account-link]::after {
+  content: "MY ACCOUNT";
   display: block;
-  width: 100%;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
 }
 
-.pst-home-hero img {
-  height: auto;
-  max-height: none;
-  object-fit: cover;
-  object-position: center;
+.main-nav a[data-account-link][href^="login.html"]::after,
+.pst-account[data-account-link][href^="login.html"]::after {
+  content: "ACCOUNT";
 }
 
-.pst-home-section {
-  width: min(var(--pst-page-width), calc(100% - 40px));
-  margin: 0 auto;
-  padding: 28px 0;
-}
-
-.pst-home-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-}
-
-@media (max-width: 1180px) {
-  .pst-home-header .pst-customer-header__controls {
-    align-items: center;
-    justify-content: center;
+@media (max-width: 1400px) {
+  #pst-hero-v3 {
+    height: auto !important;
+    max-height: none !important;
+    background: #000 !important;
   }
 
-  .pst-home-header .pst-customer-header__nav {
-    justify-content: center;
+  #pst-hero-v3 img {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    object-position: center top !important;
+  }
+
+  #pst-header-v3 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto !important;
+    padding: 10px 16px 14px !important;
+    gap: 10px !important;
+    align-items: center !important;
+    justify-items: center !important;
+  }
+
+  #pst-header-v3 .pst-logo {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    justify-self: center !important;
+    width: auto !important;
+  }
+
+  #pst-header-v3 .pst-logo img {
+    width: 155px !important;
+    height: 70px !important;
+  }
+
+  #pst-header-v3 .pst-right {
+    grid-column: 1 !important;
+    grid-row: 2 / 4 !important;
+    width: 100% !important;
+    display: contents !important;
+  }
+
+  #pst-header-v3 .pst-search {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: min(100%, 430px) !important;
+    min-width: 0 !important;
+    max-width: 430px !important;
+    height: 52px !important;
+    margin: 0 auto !important;
+  }
+
+  #pst-header-v3 .pst-search input,
+  #pst-header-v3 .pst-search button {
+    height: 52px !important;
+  }
+
+  #pst-header-v3 .pst-left,
+  #pst-header-v3 .main-nav {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px 22px !important;
   }
 }
 
-@media (max-width: 900px) {
-  .pst-home-grid {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 760px) {
+  #pst-header-v3 {
+    padding: 8px 12px 12px !important;
+    gap: 9px !important;
+  }
+
+  #pst-header-v3 .pst-logo img {
+    width: 132px !important;
+    height: 60px !important;
+  }
+
+  #pst-header-v3 .pst-left {
+    gap: 7px 14px !important;
+  }
+
+  #pst-header-v3 .pst-left a {
+    font-size: 11.5px !important;
+  }
+
+  #pst-header-v3 .pst-account strong { font-size: 12px !important; }
+  #pst-header-v3 .pst-account small { font-size: 9.5px !important; }
+
+  #pst-header-v3 .pst-admin {
+    padding-left: 12px !important;
+    font-size: 12px !important;
   }
 }
 
-@media (max-width: 640px) {
-  .pst-home-section {
-    width: min(100% - 24px, var(--pst-page-width));
-    padding: 20px 0;
+@media (max-width: 420px) {
+  #pst-header-v3 .pst-logo img {
+    width: 112px !important;
+    height: 52px !important;
   }
 
-  .pst-home-grid {
-    grid-template-columns: 1fr;
+  #pst-header-v3 .pst-left {
+    gap: 6px 11px !important;
+  }
+
+  #pst-header-v3 .pst-left a {
+    font-size: 10px !important;
+  }
+
+  #pst-header-v3 .pst-account-icon {
+    display: none !important;
   }
 }
