@@ -1,18 +1,19 @@
 @import url("https://cdn.jsdelivr.net/gh/wacoweaver-byte/PepShopTexas@c2c50bc4d2f96ee0c3ea1b83c0202cf0566e6ce9/css/customer.css");
 
-/* Catalog typography refinement: product information leads; controls stay secondary. */
+/* Catalog typography: preserve the original price emphasis; keep controls secondary. */
 .catalog-price,
 .catalog-dose-option > strong,
 .catalog-variant > strong,
 .catalog-product-row > strong {
-  font-weight: 700 !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
 }
 
 .card-cart-button,
 .catalog-incoming-pill,
 .catalog-row-actions .card-cart-button,
 .catalog-row-actions .catalog-incoming-pill {
-  font-size: 12px !important;
+  font-size: 11px !important;
   font-weight: 600 !important;
   letter-spacing: 0 !important;
 }
