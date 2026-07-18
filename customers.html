@@ -2576,23 +2576,144 @@ td .inventory-readonly-value {
   }
 }
 </style>
+
+<style id="pst-admin-header-final">
+  .pst-admin-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    overflow: hidden !important;
+    background: #000 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #262626 !important;
+    box-shadow: none !important;
+  }
+  .pst-admin-nav-wrap {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-height: 40px !important;
+    margin: 0 auto !important;
+    padding: 0 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+  }
+  .pst-admin-logo-link {
+    position: static !important;
+    transform: none !important;
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+  .pst-admin-header-logo {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    object-fit: contain !important;
+  }
+  .pst-admin-nav {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 24px !important;
+    flex-wrap: wrap !important;
+  }
+  .pst-admin-nav a {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #fff !important;
+    font: 800 14px/1 Arial, Helvetica, sans-serif !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+  }
+  .pst-admin-nav a:hover,
+  .pst-admin-nav a:focus-visible {
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+  .pst-admin-nav a.active::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 3px !important;
+    height: 2px !important;
+    background: #fff !important;
+  }
+  @media (max-width: 980px) {
+    .pst-admin-header {
+      height: auto !important;
+      min-height: 40px !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+    .pst-admin-nav-wrap {
+      height: auto !important;
+      min-height: 40px !important;
+      max-height: none !important;
+      padding: 0 14px 10px !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
+      gap: 8px !important;
+    }
+    .pst-admin-logo-link {
+      flex: 0 0 auto !important;
+      align-self: flex-start !important;
+    }
+    .pst-admin-nav {
+      width: 100% !important;
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: wrap !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px 18px !important;
+      overflow-x: visible !important;
+      overflow-y: visible !important;
+    }
+    .pst-admin-nav a {
+      width: auto !important;
+      min-height: 32px !important;
+      flex: 0 0 auto !important;
+      white-space: nowrap !important;
+    }
+  }
+</style>
 </head>
 <body>
-<header>
-  <div class="topbar pst-admin-topbar-lock">
-    <a class="brand pst-admin-brand-lock" href="admin.html" aria-label="Pep Shop Texas Admin Home">
-      <span class="pst-admin-logo-mark">PST</span>
-      <span class="pst-admin-title-lock"><strong>PEP Shop Texas</strong><small>Customer Database</small></span>
+<header class="pst-admin-header">
+  <div class="pst-admin-nav-wrap">
+    <a class="pst-admin-logo-link" href="admin.html" aria-label="Pep Shop Texas Admin Home">
+      <img src="admin header logo.png" alt="PST" class="pst-admin-header-logo">
     </a>
-    <nav class="actions pst-admin-actions-lock" aria-label="Admin navigation">
-      <a class="btn secondary" href="admin.html">Orders</a>
-      <a class="btn secondary" href="inventory.html">Inventory</a>
-      <a class="btn secondary" href="products.html">Products</a>
-      <a class="btn secondary" href="discounts.html">Discounts</a>
-      <a class="btn secondary" href="promotions.html">Promotions</a>
-      <a class="btn secondary" href="reports.html">Reports</a>
-      <a class="btn secondary active" href="customers.html">Customers</a>
-      <a class="btn secondary" href="index.html">View Site</a>
+    <nav class="pst-admin-nav" aria-label="Admin navigation">
+      <a href="admin.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="products.html">Products</a>
+      <a href="discounts.html">Discounts</a>
+      <a href="promotions.html">Promotions</a>
+      <a href="reports.html">Reports</a>
+      <a href="customers.html" class="active">Customers</a>
+      <a href="index.html">View Site</a>
     </nav>
   </div>
 </header>
