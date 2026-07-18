@@ -1945,8 +1945,11 @@ td .inventory-readonly-value {
     min-height: 40px !important;
     max-height: none !important;
     flex-direction: column !important;
-    align-items: stretch !important;
+    align-items: flex-start !important;
     justify-content: flex-start !important;
+    gap: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 8px !important;
   }
 
   .pst-admin-logo-link {
@@ -1956,15 +1959,18 @@ td .inventory-readonly-value {
   .pst-admin-nav {
     width: 100% !important;
     flex: 0 0 auto !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    justify-content: flex-start !important;
-    gap: 0 !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    column-gap: 18px !important;
+    row-gap: 0 !important;
     overflow: visible !important;
   }
 
   .pst-admin-nav a {
-    width: 100% !important;
+    width: auto !important;
+    min-height: 32px !important;
   }
 }
 </style>
