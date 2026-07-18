@@ -3,17 +3,15 @@
   --pst-admin-black: #050505;
   --pst-admin-ink: #101820;
   --pst-admin-white: #fff;
-  --pst-admin-red: #bd0000;
   --pst-admin-muted: #596579;
   --pst-admin-line: #d9e2ec;
   --pst-admin-soft: #f5f8fb;
   --pst-admin-panel: #fbfcfe;
   --pst-admin-green: #0c6b3a;
-  --pst-admin-blue: #003f9e;
   --pst-admin-warn: #8a5a00;
   --pst-admin-danger: #8a1f17;
   --pst-admin-radius: 12px;
-  --pst-admin-shadow: 0 10px 30px rgba(16, 24, 32, .08);
+  --pst-admin-shadow: 0 10px 30px rgba(16,24,32,.08);
   --pst-admin-pill-height: 26px;
   --pst-admin-font: Arial, Helvetica, sans-serif;
 }
@@ -36,12 +34,12 @@ a { color: inherit; text-decoration: none; }
   padding: 0 !important;
   margin: -1px !important;
   overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
+  clip: rect(0,0,0,0) !important;
   white-space: nowrap !important;
   border: 0 !important;
 }
 
-/* Shared admin header and navigation. */
+/* Header and navigation. */
 .pst-admin-header,
 header.pst-admin-header,
 body > header:has(.topbar) {
@@ -51,11 +49,11 @@ body > header:has(.topbar) {
   width: 100%;
   background: var(--pst-admin-white);
   border-bottom: 1px solid var(--pst-admin-line);
-  box-shadow: 0 3px 18px rgba(16, 24, 32, .05);
+  box-shadow: 0 3px 18px rgba(16,24,32,.05);
 }
 .pst-admin-header-inner,
 header .topbar {
-  width: min(1540px, 100%);
+  width: min(1540px,100%);
   min-height: 82px;
   margin: 0 auto;
   padding: 12px 18px;
@@ -80,9 +78,6 @@ header .brand {
   max-width: 230px;
   object-fit: contain;
 }
-.pst-admin-brand-copy,
-header .brand > span,
-header .brand > div { min-width: 0; }
 .pst-master-page-label,
 .pst-admin-page-label,
 header .brand small {
@@ -102,10 +97,10 @@ header .actions {
   gap: 7px;
 }
 
-/* Shared page structure. */
+/* Page structure. */
 .pst-admin-main,
 body > main {
-  width: min(1540px, 100%);
+  width: min(1540px,100%);
   margin: 0 auto;
   padding: 24px 18px 56px;
 }
@@ -122,19 +117,18 @@ body > main {
 body > main > h1 {
   margin: 0 0 6px;
   color: var(--pst-admin-ink);
-  font-size: clamp(25px, 3vw, 38px);
+  font-size: clamp(25px,3vw,38px);
   font-weight: 700;
   line-height: 1.1;
 }
 h2, h3, h4 { color: var(--pst-admin-ink); }
-.subtitle,
-.muted { color: var(--pst-admin-muted); line-height: 1.45; }
+.subtitle, .muted { color: var(--pst-admin-muted); line-height: 1.45; }
 
-/* Panels, grids and cards. */
+/* Cards and grids. */
 .grid,
 .pst-admin-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(360px, .85fr);
+  grid-template-columns: minmax(0,1.15fr) minmax(360px,.85fr);
   gap: 18px;
   align-items: start;
 }
@@ -169,15 +163,12 @@ h2, h3, h4 { color: var(--pst-admin-ink); }
 .toolbar,
 .edit-grid,
 .form-grid,
-.kv-grid {
-  display: grid;
-  gap: 10px;
-}
-.filters { grid-template-columns: minmax(220px, 1.2fr) repeat(4, minmax(125px, .7fr)) auto; align-items: end; }
-.toolbar { grid-template-columns: minmax(220px, 1fr) 180px; }
+.kv-grid { display: grid; gap: 10px; }
+.filters { grid-template-columns: minmax(220px,1.2fr) repeat(4,minmax(125px,.7fr)) auto; align-items: end; }
+.toolbar { grid-template-columns: minmax(220px,1fr) 180px; }
 .edit-grid,
 .form-grid,
-.kv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kv-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .full { grid-column: 1 / -1; }
 .field,
 .form-field,
@@ -206,9 +197,9 @@ textarea { min-height: 84px; resize: vertical; }
 input:focus,
 select:focus,
 textarea:focus {
-  outline: 2px solid rgba(0, 63, 158, .22);
+  outline: 2px solid var(--pst-admin-black);
   outline-offset: 1px;
-  border-color: var(--pst-admin-blue);
+  border-color: var(--pst-admin-black);
 }
 input[readonly] { background: #f3f5f7; }
 .check,
@@ -254,7 +245,7 @@ th {
 }
 tbody tr { transition: background .15s ease; }
 tbody tr:hover { background: #f7f9fc; }
-tbody tr.active { background: rgba(189, 0, 0, .07); }
+tbody tr.active { background: #ededed; }
 .sort-btn {
   padding: 0;
   display: inline-flex;
@@ -267,7 +258,7 @@ tbody tr.active { background: rgba(189, 0, 0, .07); }
   cursor: pointer;
 }
 
-/* Status, notices and utility blocks. */
+/* Notices and utility blocks. */
 .status,
 .notice,
 .problem-banner,
@@ -306,7 +297,7 @@ tbody tr.active { background: rgba(189, 0, 0, .07); }
 .bulk-bar {
   padding: 12px 16px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0,1fr);
   align-items: center;
   gap: 12px;
   background: var(--pst-admin-panel);
@@ -328,7 +319,11 @@ tbody tr.active { background: rgba(189, 0, 0, .07); }
 }
 .bulk-actions { justify-content: flex-end; }
 
-/* Shared compact admin action and status system. */
+/*
+  INTERACTIVE PILL SYSTEM
+  Default = white/black. Hover = light gray. Active = black/white.
+  Semantic class names must not recolor clickable controls.
+*/
 .btn,
 a.btn,
 button.btn,
@@ -343,18 +338,7 @@ button.btn,
 .transit-incoming-btn,
 .save-incoming-edit-btn,
 .incoming-line-remove,
-.reorder-action-btn,
-.status-pill,
-.pill,
-.reorder-badge,
-.incoming-pill,
-.vendor-id-pill,
-.active-pill,
-.inactive-pill,
-.inventory-restored-pill,
-.inventory-restore-needed-pill,
-.inventory-deduct-pill,
-.inventory-deduct-needed-pill {
+.reorder-action-btn {
   box-sizing: border-box !important;
   flex: 0 0 auto !important;
   width: auto !important;
@@ -367,9 +351,9 @@ button.btn,
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  color: var(--pst-admin-ink) !important;
+  color: var(--pst-admin-black) !important;
   background: var(--pst-admin-white) !important;
-  border: 1px solid currentColor !important;
+  border: 1px solid var(--pst-admin-black) !important;
   border-radius: 999px !important;
   box-shadow: none !important;
   font-family: var(--pst-admin-font) !important;
@@ -382,22 +366,9 @@ button.btn,
   text-decoration: none !important;
   white-space: nowrap !important;
   vertical-align: middle !important;
+  cursor: pointer !important;
+  transition: background .15s ease, color .15s ease, border-color .15s ease !important;
 }
-.btn,
-a.btn,
-button.btn,
-.inventory-jump-link,
-.inventory-collapse-toggle,
-.row-save,
-.row-audit-btn,
-.edit-incoming-btn,
-.close-incoming-edit-btn,
-.cancel-incoming-btn,
-.receive-incoming-btn,
-.transit-incoming-btn,
-.save-incoming-edit-btn,
-.incoming-line-remove,
-.reorder-action-btn { cursor: pointer !important; }
 .btn:hover,
 a.btn:hover,
 button.btn:hover,
@@ -412,83 +383,50 @@ button.btn:hover,
 .transit-incoming-btn:hover,
 .save-incoming-edit-btn:hover,
 .incoming-line-remove:hover,
-.reorder-action-btn:hover { background: #f1f2f3 !important; }
+.reorder-action-btn:hover {
+  color: var(--pst-admin-black) !important;
+  background: #ededed !important;
+  border-color: var(--pst-admin-black) !important;
+}
 .btn.active,
 .btn.primary,
 .btn[aria-pressed="true"],
+.btn[aria-current="page"],
+.inventory-jump-link.active,
+.inventory-jump-link[aria-current="page"],
 .inventory-collapse-toggle.active,
-.inventory-collapse-toggle[aria-expanded="true"] {
+.inventory-collapse-toggle[aria-expanded="true"],
+.row-save.active,
+.row-audit-btn.active,
+.edit-incoming-btn.active,
+.close-incoming-edit-btn.active,
+.cancel-incoming-btn.active,
+.receive-incoming-btn.active,
+.transit-incoming-btn.active,
+.save-incoming-edit-btn.active,
+.incoming-line-remove.active,
+.reorder-action-btn.active {
   color: var(--pst-admin-white) !important;
   background: var(--pst-admin-black) !important;
   border-color: var(--pst-admin-black) !important;
 }
-.btn.success,
-a.btn.success,
-button.btn.success,
-.receive-incoming-btn,
-.row-save,
-.status-pill.in_stock,
-.status-pill.available,
-.pill.paid,
-.pill.complete,
-.pill.shipped,
-.pill.delivered,
-.active-pill,
-.incoming-received,
-.reorder-healthy {
-  color: var(--pst-admin-green) !important;
-  border-color: var(--pst-admin-green) !important;
-}
-.btn.warning,
-a.btn.warning,
-button.btn.warning,
-.transit-incoming-btn,
-.status-pill.limited,
-.pill.pending,
-.pill.awaiting_payment,
-.incoming-in_transit,
-.reorder-now,
-.reorder-watch {
-  color: var(--pst-admin-warn) !important;
-  border-color: var(--pst-admin-warn) !important;
-}
-.btn.danger,
-a.btn.danger,
-button.btn.danger,
-.cancel-incoming-btn,
-.inactive-pill,
-.status-pill.low,
-.status-pill.out_of_stock,
-.status-pill.out,
-.status-pill.inactive,
-.pill.cancelled,
-.pill.rejected,
-.pill.refunded,
-.pill.failed,
-.incoming-cancelled,
-.incoming-issue_shorted,
-.reorder-critical {
-  color: var(--pst-admin-danger) !important;
-  border-color: var(--pst-admin-danger) !important;
-}
-.inventory-jump-link,
-.incoming-ordered,
-.pill.processing,
-.pill.packed {
-  color: var(--pst-admin-blue) !important;
-  border-color: var(--pst-admin-blue) !important;
-}
-.btn.secondary,
-a.btn.secondary,
-button.btn.secondary,
-.edit-incoming-btn,
-.close-incoming-edit-btn,
-.row-audit-btn,
-.incoming-line-remove,
-.reorder-none,
-.reorder-unknown {
-  color: var(--pst-admin-ink) !important;
-  border-color: var(--pst-admin-line) !important;
+.btn:focus-visible,
+a.btn:focus-visible,
+button.btn:focus-visible,
+.inventory-jump-link:focus-visible,
+.inventory-collapse-toggle:focus-visible,
+.row-save:focus-visible,
+.row-audit-btn:focus-visible,
+.edit-incoming-btn:focus-visible,
+.close-incoming-edit-btn:focus-visible,
+.cancel-incoming-btn:focus-visible,
+.receive-incoming-btn:focus-visible,
+.transit-incoming-btn:focus-visible,
+.save-incoming-edit-btn:focus-visible,
+.incoming-line-remove:focus-visible,
+.reorder-action-btn:focus-visible {
+  outline: 2px solid var(--pst-admin-black) !important;
+  outline-offset: 2px !important;
 }
 .btn:disabled,
 button.btn:disabled,
@@ -497,13 +435,62 @@ button.btn[aria-disabled="true"],
 .btn.disabled,
 .reorder-action-btn:disabled,
 .reorder-select[disabled] {
-  color: #6f7680 !important;
-  background: var(--pst-admin-white) !important;
-  border-color: var(--pst-admin-line) !important;
+  color: #777 !important;
+  background: #e5e5e5 !important;
+  border-color: #aaa !important;
   opacity: 1 !important;
   cursor: not-allowed !important;
   pointer-events: none !important;
 }
+
+/* Non-interactive status pills. */
+.status-pill,
+.pill,
+.reorder-badge,
+.incoming-pill,
+.vendor-id-pill,
+.active-pill,
+.inactive-pill,
+.inventory-restored-pill,
+.inventory-restore-needed-pill,
+.inventory-deduct-pill,
+.inventory-deduct-needed-pill {
+  box-sizing: border-box !important;
+  width: auto !important;
+  min-height: var(--pst-admin-pill-height) !important;
+  height: var(--pst-admin-pill-height) !important;
+  padding: 0 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--pst-admin-black) !important;
+  background: var(--pst-admin-white) !important;
+  border: 1px solid var(--pst-admin-black) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+.status-pill.out,
+.status-pill.out_of_stock,
+.status-pill.inactive,
+.pill.cancelled,
+.pill.rejected,
+.pill.refunded,
+.pill.failed,
+.inactive-pill,
+.incoming-cancelled,
+.incoming-issue_shorted,
+.reorder-critical {
+  color: #666 !important;
+  background: #dedede !important;
+  border-color: #aaa !important;
+}
+
 .inventory-readonly-value,
 .inventory-current-readonly,
 .inventory-price-readonly,
@@ -522,15 +509,6 @@ button.btn[aria-disabled="true"],
   font-weight: 700 !important;
   white-space: nowrap !important;
 }
-.btn:focus-visible,
-a.btn:focus-visible,
-button.btn:focus-visible,
-.inventory-jump-link:focus-visible,
-.inventory-collapse-toggle:focus-visible,
-.reorder-action-btn:focus-visible {
-  outline: 2px solid var(--pst-admin-black) !important;
-  outline-offset: 2px !important;
-}
 
 /* Modal. */
 .modal-backdrop {
@@ -541,17 +519,17 @@ button.btn:focus-visible,
   align-items: center;
   justify-content: center;
   padding: 18px;
-  background: rgba(3, 6, 10, .62);
+  background: rgba(3,6,10,.62);
 }
 .modal-backdrop.open { display: flex; }
 .modal {
-  width: min(620px, 100%);
+  width: min(620px,100%);
   max-height: calc(100vh - 36px);
   overflow: auto;
   background: var(--pst-admin-white);
   border: 1px solid var(--pst-admin-line);
   border-radius: var(--pst-admin-radius);
-  box-shadow: 0 22px 70px rgba(3, 6, 10, .32);
+  box-shadow: 0 22px 70px rgba(3,6,10,.32);
 }
 .modal-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid var(--pst-admin-line); }
 .modal-body { padding: 16px; }
@@ -559,7 +537,7 @@ button.btn:focus-visible,
 @media (max-width: 1100px) {
   .grid,
   .pst-admin-grid { grid-template-columns: 1fr; }
-  .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters { grid-template-columns: repeat(2,minmax(0,1fr)); }
   #detailCard { position: static; max-height: none; overflow: visible; }
 }
 @media (max-width: 760px) {
