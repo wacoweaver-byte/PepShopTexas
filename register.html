@@ -1,612 +1,48 @@
 <!-- PST_REGISTER_PATCH_V4_PROFILE_TRIGGER_METADATA -->
 <!-- PST_REGISTER_PATCH_V2_MARKETING_OPT_IN -->
 <!-- PST_REGISTER_PATCH_V3_RESEARCH_ROLE_REQUIRED -->
-<!DOCTYPE html>
-<!-- PST_REGISTER_PATCH_V1_SAME_AS_BILLING -->
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Create Account | Pep Shop Texas</title>
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#bd0000"><link rel="stylesheet" href="styles.css?v=19">
-<style>
-:root{--blue:#003f9e;--black:#050505;--line:#e6e6e6;--soft:#f7f7f7;--muted:#555}*{box-sizing:border-box}body{margin:0;background:#fff;color:#050505;font-family:Arial,Helvetica,sans-serif}.top-strip{background:#050505;color:#fff;font-size:13px;font-weight:800;text-transform:uppercase;display:flex;justify-content:space-between;gap:20px;padding:9px 36px}header{background:#fff;border-bottom:1px solid var(--line)}.nav{max-width:1280px;margin:auto;padding:14px 34px;display:flex;justify-content:space-between;align-items:center;gap:24px}.brand{font-family:Impact,'Arial Black',Arial,sans-serif;font-size:34px;text-decoration:none;color:#111;letter-spacing:.5px}.brand span{color:var(--blue)}.menu{display:flex;gap:22px;align-items:center;text-transform:uppercase;font-weight:900;font-size:14px}.menu a{color:#111;text-decoration:none}.menu a.active{color:var(--blue);border-bottom:2px solid var(--blue);padding-bottom:6px}.wrap{max-width:980px;margin:auto;padding:34px}.auth-card{border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 12px 35px rgba(0,0,0,.08);padding:30px}.section-title{font-family:Impact,'Arial Black',Arial,sans-serif;text-transform:uppercase;font-size:38px;margin:0}.underline{width:42px;height:4px;background:var(--blue);margin:8px 0 22px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.full{grid-column:1 / -1}label{font-size:12px;font-weight:900;text-transform:uppercase;color:#333;display:block;margin:0 0 6px}input,select,textarea{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:6px;font-size:15px}textarea{min-height:110px}.check-row{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-weight:800;line-height:1.4}.check-row input{width:auto;margin-top:3px}.btn{display:inline-block;border:2px solid var(--blue);border-radius:4px;padding:13px 26px;font-weight:900;text-transform:uppercase;cursor:pointer;text-decoration:none}.btn.primary{background:var(--blue);color:#fff}.btn.secondary{background:#fff;color:var(--blue)}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}.notice{display:none;margin:18px 0 0;padding:12px;border-radius:6px;font-weight:800;line-height:1.45}.notice.ok{display:block;background:#edf8f0;color:#147a32;border:1px solid #bfe8c8}.notice.err{display:block;background:#fff0f0;color:#b00020;border:1px solid #ffb8c0}.small{font-size:13px;color:#555;line-height:1.5}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}.admin-table{width:100%;border-collapse:collapse;font-size:14px}.admin-table th,.admin-table td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.admin-table th{background:#f4f8ff;text-transform:uppercase;font-size:12px}.status-pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f4f8ff;color:#003f9e;font-weight:900;font-size:12px;text-transform:uppercase}.password-wrap{position:relative}.password-wrap input{padding-right:86px}.password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:#f4f8ff;color:var(--blue);font-weight:900;border-radius:5px;padding:7px 9px;cursor:pointer;text-transform:uppercase;font-size:12px}.password-toggle:hover{background:#e8f1ff}@media(max-width:720px){.grid{grid-template-columns:1fr}.menu{display:none}.wrap,.nav{padding-left:18px;padding-right:18px}.top-strip{display:none}}
-
-
-/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
-   Purpose: standardize font hierarchy and logo display across public/admin pages.
-   Keep actions/prices readable without the heavy all-bold/Impact look.
-*/
-:root {
-  --pst-ui-font: Arial, Helvetica, sans-serif;
-}
-body, input, button, select, textarea {
-  font-family: var(--pst-ui-font) !important;
-}
-.brand, .logo, .logo-mark {
-  display: inline-flex !important;
-  align-items: center !important;
-  text-decoration: none !important;
-}
-.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
-  display: block !important;
-  height: auto !important;
-  object-fit: contain !important;
-}
-.brand-logo-img, .account-logo-img {
-  width: clamp(155px, 18vw, 220px) !important;
-  max-width: 100% !important;
-}
-.pst-master-admin-logo {
-  width: clamp(150px, 16vw, 210px) !important;
-  max-width: 100% !important;
-}
-.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
-.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
-.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
-.product-title, .discount-title, .customer-title, h1, h2, h3 {
-  font-family: var(--pst-ui-font) !important;
-  font-weight: 600 !important;
-  letter-spacing: .01em !important;
-}
-.page-title {
-  font-weight: 600 !important;
-  text-transform: none !important;
-}
-.menu, .menu a, .account-status, .account-status a, .account-status button,
-.btn, button, label, th, .profile-row strong, .order-meta strong,
-.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
-  font-weight: 600 !important;
-}
-p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
-.email-pref-copy, .security-copy, .footer-disclaimer {
-  font-weight: 400 !important;
-}
-strong {
-  font-weight: 600 !important;
-}
-@media(max-width:560px) {
-  .brand-logo-img, .account-logo-img {
-    width: clamp(135px, 42vw, 170px) !important;
-  }
-}
-.site-header .brand { display: inline-grid !important; }
-.site-header .brand-main { font-size: 28px !important; font-weight: 900 !important; }
-.site-header .brand-sub { font-size: 14px !important; }
-.site-header .main-nav a, .site-header .cart-link { color: #fff !important; }
-.site-header .search input { color: #fff !important; }
-.wrap { max-width: 980px; margin: auto; padding: 42px 34px; }
-.auth-card { border-radius: 8px; }
-.section-title { font-size: 38px !important; }
-.btn.primary { background: #bd0000; border-color: #bd0000; color: #fff; }
-.btn.secondary { color: #080b10; border-color: #d8dde5; }
-</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
-const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-</script><style id="pst-customer-header-final">
-  .pst-customer-header {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-    width: 100% !important;
-    height: 141px !important;
-    min-height: 141px !important;
-    max-height: 141px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    background: #000 !important;
-    border: 0 !important;
-    border-bottom: 1px solid #262626 !important;
-    box-shadow: none !important;
-  }
-
-  .pst-customer-header * {
-    box-sizing: border-box !important;
-  }
-
-  .pst-customer-header-inner {
-    width: 100% !important;
-    height: 141px !important;
-    min-height: 141px !important;
-    max-height: 141px !important;
-    margin: 0 !important;
-    padding: 0 24px !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 24px !important;
-    overflow: hidden !important;
-  }
-
-  .pst-customer-logo-link {
-    flex: 0 0 auto !important;
-    height: 141px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    line-height: 0 !important;
-    text-decoration: none !important;
-  }
-
-  .pst-customer-header-logo {
-    display: block !important;
-    width: auto !important;
-    height: auto !important;
-    max-width: none !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    object-fit: contain !important;
-  }
-
-  .pst-customer-header-right {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    height: 141px !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 22px !important;
-    overflow: hidden !important;
-  }
-
-  .pst-customer-search {
-    flex: 0 1 280px !important;
-    width: 280px !important;
-    min-width: 220px !important;
-    height: 42px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: stretch !important;
-    background: #fff !important;
-    border: 0 !important;
-    border-radius: 6px !important;
-    overflow: hidden !important;
-  }
-
-  .pst-customer-search input {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    width: auto !important;
-    height: 42px !important;
-    margin: 0 !important;
-    padding: 0 12px !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    outline: none !important;
-    background: #fff !important;
-    color: #111 !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 14px !important;
-  }
-
-  .pst-customer-search button {
-    flex: 0 0 42px !important;
-    width: 42px !important;
-    height: 42px !important;
-    margin: 0 !important;
-    padding: 9px !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: #fff !important;
-    display: grid !important;
-    place-items: center !important;
-    cursor: pointer !important;
-  }
-
-  .pst-customer-search svg {
-    width: 22px !important;
-    height: 22px !important;
-    fill: none !important;
-    stroke: #000 !important;
-    stroke-width: 2 !important;
-  }
-
-  .pst-customer-nav {
-    flex: 0 1 auto !important;
-    min-width: 0 !important;
-    height: 141px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 22px !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scrollbar-width: none !important;
-  }
-
-  .pst-customer-nav::-webkit-scrollbar {
-    display: none !important;
-  }
-
-  .pst-customer-nav a {
-    flex: 0 0 auto !important;
-    height: 141px !important;
-    min-height: 141px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: #fff !important;
-    background: transparent !important;
-    border: 0 !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    text-decoration: none !important;
-    white-space: nowrap !important;
-    box-shadow: none !important;
-  }
-
-  .pst-customer-nav a:hover,
-  .pst-customer-nav a:focus-visible {
-    color: #fff !important;
-    text-decoration: underline !important;
-    text-underline-offset: 4px !important;
-  }
-
-  @media (max-width: 1400px) {
-    .pst-customer-header-inner {
-      padding: 0 16px !important;
-      gap: 16px !important;
-    }
-
-    .pst-customer-header-right {
-      gap: 16px !important;
-    }
-
-    .pst-customer-search {
-      flex-basis: 230px !important;
-      width: 230px !important;
-      min-width: 190px !important;
-    }
-
-    .pst-customer-nav {
-      gap: 16px !important;
-    }
-  }
-
-  @media (max-width: 760px) {
-    .pst-customer-header-inner {
-      padding: 0 12px !important;
-      gap: 12px !important;
-    }
-
-    .pst-customer-header-right {
-      gap: 12px !important;
-      overflow-x: auto !important;
-      scrollbar-width: none !important;
-    }
-
-    .pst-customer-header-right::-webkit-scrollbar {
-      display: none !important;
-    }
-
-    .pst-customer-search {
-      flex: 0 0 210px !important;
-      width: 210px !important;
-      min-width: 210px !important;
-    }
-
-    .pst-customer-nav {
-      overflow: visible !important;
-    }
-  }
-
-  .pst-cart-count {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 20px !important;
-    height: 20px !important;
-    margin-left: 6px !important;
-    padding: 0 6px !important;
-    border-radius: 999px !important;
-    background: #fff !important;
-    color: #000 !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 11px !important;
-    font-weight: 800 !important;
-    line-height: 1 !important;
-  }
-
-</style>
-<style id="pst-account-link-clean-style">
-  .main-nav a[data-account-link],
-  .pst-account[data-account-link] {
-    display: inline-flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: center !important;
-    gap: 3px !important;
-    line-height: 1 !important;
-  }
-
-  .main-nav a[data-account-link]::after,
-  .pst-account[data-account-link]::after {
-    content: "MY ACCOUNT";
-    display: block;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1;
-    white-space: nowrap;
-  }
-
-  .main-nav a[data-account-link][href^="login.html"]::after,
-  .pst-account[data-account-link][href^="login.html"]::after {
-    content: "ACCOUNT";
-  }
-</style>
-<style id="pst-customer-single-collapse-fix">
-/* One-step responsive collapse for all customer-facing headers.
-   Desktop stays one row. At the collapse breakpoint it switches immediately
-   to: centered logo, centered search, centered links. No intermediate stage. */
-
-@media (max-width: 1400px) {
-  .pst-customer-header {
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-  }
-
-  .pst-customer-header-inner {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    padding: 10px 16px 14px !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto auto !important;
-    align-items: center !important;
-    justify-items: center !important;
-    gap: 10px !important;
-    overflow: visible !important;
-  }
-
-  .pst-customer-logo-link {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    width: auto !important;
-    height: auto !important;
-    justify-content: center !important;
-  }
-
-  .pst-customer-header-right {
-    grid-column: 1 !important;
-    grid-row: 2 / 4 !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    display: contents !important;
-  }
-
-  .pst-customer-search {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-    width: min(100%, 430px) !important;
-    min-width: 0 !important;
-    max-width: 430px !important;
-    height: 52px !important;
-    margin: 0 auto !important;
-  }
-
-  .pst-customer-search input,
-  .pst-customer-search button {
-    height: 52px !important;
-  }
-
-  .pst-customer-nav {
-    grid-column: 1 !important;
-    grid-row: 3 !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 40px !important;
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px 22px !important;
-    overflow: visible !important;
-  }
-
-  .pst-customer-nav a {
-    height: 40px !important;
-    min-height: 40px !important;
-  }
-
-  #pst-header-v3 {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto auto !important;
-    padding: 10px 16px 14px !important;
-    gap: 10px !important;
-    align-items: center !important;
-    justify-items: center !important;
-  }
-
-  #pst-header-v3 .pst-logo {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    justify-self: center !important;
-    width: auto !important;
-  }
-
-  #pst-header-v3 .pst-right {
-    grid-column: 1 !important;
-    grid-row: 2 / 4 !important;
-    width: 100% !important;
-    display: contents !important;
-  }
-
-  #pst-header-v3 .pst-search {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-    width: min(100%, 430px) !important;
-    min-width: 0 !important;
-    max-width: 430px !important;
-    height: 52px !important;
-    margin: 0 auto !important;
-  }
-
-  #pst-header-v3 .pst-search input,
-  #pst-header-v3 .pst-search button {
-    height: 52px !important;
-  }
-
-  #pst-header-v3 .pst-left,
-  #pst-header-v3 .main-nav {
-    grid-column: 1 !important;
-    grid-row: 3 !important;
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px 22px !important;
-  }
-}
-</style>
-<style id="pst-black-pill-system">
-  /* Unified pill, tab, and jump-link styling. */
-  .btn,
-  a.btn,
-  button.btn,
-  .pill,
-  .step,
-  .collapse-toggle,
-  .inventory-collapse-toggle,
-  .inventory-jump-link,
-  .jump-link,
-  .sort-btn,
-  .status-pill,
-  .reorder-guide-item,
-  .center-card,
-  .report-center-card {
-    border-color: #000 !important;
-    color: #000 !important;
-    background: #fff !important;
-    box-shadow: none !important;
-  }
-
-  .btn:hover,
-  a.btn:hover,
-  button.btn:hover,
-  .step:hover,
-  .collapse-toggle:hover,
-  .inventory-collapse-toggle:hover,
-  .inventory-jump-link:hover,
-  .jump-link:hover,
-  .sort-btn:hover,
-  .status-pill:hover,
-  .center-card:hover,
-  .report-center-card:hover {
-    border-color: #000 !important;
-    color: #000 !important;
-    background: #f3f3f3 !important;
-  }
-
-  .btn.active,
-  a.btn.active,
-  button.btn.active,
-  .btn[aria-pressed="true"],
-  .btn[aria-current="page"],
-  .pill.active,
-  .step.active,
-  .collapse-toggle.active,
-  .inventory-collapse-toggle.active,
-  .inventory-jump-link.active,
-  .jump-link.active,
-  .sort-btn.active,
-  .status-pill.active,
-  .center-card.active,
-  .report-center-card.active {
-    border-color: #000 !important;
-    color: #fff !important;
-    background: #000 !important;
-    box-shadow: none !important;
-  }
-
-  .btn.active *,
-  a.btn.active *,
-  button.btn.active *,
-  .pill.active *,
-  .step.active *,
-  .collapse-toggle.active *,
-  .inventory-collapse-toggle.active *,
-  .inventory-jump-link.active *,
-  .jump-link.active *,
-  .sort-btn.active *,
-  .status-pill.active *,
-  .center-card.active *,
-  .report-center-card.active * {
-    color: #fff !important;
-  }
-
-  .btn:focus-visible,
-  a.btn:focus-visible,
-  button.btn:focus-visible,
-  .step:focus-visible,
-  .collapse-toggle:focus-visible,
-  .inventory-collapse-toggle:focus-visible,
-  .inventory-jump-link:focus-visible,
-  .jump-link:focus-visible,
-  .sort-btn:focus-visible,
-  .status-pill:focus-visible,
-  .center-card:focus-visible,
-  .report-center-card:focus-visible {
-    outline: 2px solid #000 !important;
-    outline-offset: 2px !important;
-  }
-</style>
-</head><body><header class="pst-customer-header">
-  <div class="pst-customer-header-inner">
-    <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
-      <img src="customer facing header logo.png" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
-    </a>
-
-    <div class="pst-customer-header-right">
-      <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
-        <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
-        <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-        <button type="submit" aria-label="Search">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
-          </svg>
-        </button>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create Account | Pep Shop Texas</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#bd0000">
+  <link rel="stylesheet" href="css/customer.css?v=12">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+    const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  </script>
+</head>
+<body>
+  <header class="pst-customer-header"><div class="pst-customer-header-inner"><a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home"><img src="customer facing header logo.png" alt="PST Pep Shop Texas" class="pst-customer-header-logo"></a><div class="pst-customer-header-right"><form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form><label class="sr-only" for="pst-customer-search-input">Search peptides</label><input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off"><button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button></form><nav class="pst-customer-nav main-nav" aria-label="Main navigation"><a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a><a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a><a href="account.html" data-account-link>LOGIN</a><a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a></nav></div></div></header>
+  <main class="wrap">
+    <section class="auth-card">
+      <h1 class="section-title">Create Account</h1><div class="underline"></div>
+      <p class="small">Create your Pep Shop Texas customer account. Products are listed for research purposes only.</p>
+      <form id="registerForm" class="grid">
+        <div><label>First Name</label><input name="first_name" required></div><div><label>Last Name</label><input name="last_name" required></div>
+        <div><label>Email Address</label><input name="email" type="email" required></div><div><label>Phone Number</label><input name="phone" type="tel"></div>
+        <div><label>Username</label><input name="username" required></div>
+        <div><label for="password">Password</label><div class="password-wrap"><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required><button class="password-toggle" type="button" data-toggle-password="password" aria-label="Show password">Show</button></div></div>
+        <div class="full"><label>Research Role / Organization Type</label><select name="research_role" required><option value="">Select one</option><option value="Independent Researcher">Independent Researcher</option><option value="Laboratory / Research Facility">Laboratory / Research Facility</option><option value="Healthcare / Medical Office">Healthcare / Medical Office</option><option value="Compounding / Formulation Business">Compounding / Formulation Business</option><option value="Academic / University Research">Academic / University Research</option><option value="Biotech / Pharmaceutical Research">Biotech / Pharmaceutical Research</option><option value="Other Research-Related Use">Other Research-Related Use</option></select></div>
+        <div><label>Billing Address</label><input name="billing_address" required></div><div><label>Billing City</label><input name="billing_city" required></div><div><label>Billing State</label><input name="billing_state" required></div><div><label>Billing ZIP</label><input name="billing_zip" required></div>
+        <div class="full"><label class="check-row"><input type="checkbox" id="sameAsBilling" name="same_as_billing"> Shipping address is the same as billing address.</label></div>
+        <div><label>Shipping Address</label><input name="shipping_address" required></div><div><label>Shipping City</label><input name="shipping_city" required></div><div><label>Shipping State</label><input name="shipping_state" required></div><div><label>Shipping ZIP</label><input name="shipping_zip" required></div>
+        <div class="full"><label class="check-row"><input type="checkbox" name="age" required> I confirm I am at least 18 years old.</label><label class="check-row"><input type="checkbox" name="research" required> I confirm that this account and any purchases are for research purposes only.</label><label class="check-row"><input type="checkbox" name="tos" required> I agree to the Terms of Service.</label><label class="check-row"><input type="checkbox" name="marketing_opt_in" id="marketingOptIn"> I agree to receive Pep Shop Texas updates, promotions, and product availability emails. I understand I can unsubscribe at any time.</label></div>
+        <div class="full actions"><button class="btn primary" type="submit">Create Account</button><a class="btn secondary" href="login.html">Already have an account?</a></div>
       </form>
-
-      <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
-        <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
-        <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">CONTACT</a>
-        <a href="account.html" data-account-link>LOGIN</a>
-<a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
-      </nav>
-    </div>
-  </div>
-</header><main class="wrap"><section class="auth-card"><h1 class="section-title">Create Account</h1><div class="underline"></div><p class="small">Create your Pep Shop Texas customer account. Products are listed for research purposes only.</p><form id="registerForm" class="grid"><div><label>First Name</label><input name="first_name" required></div><div><label>Last Name</label><input name="last_name" required></div><div><label>Email Address</label><input name="email" type="email" required></div><div><label>Phone Number</label><input name="phone" type="tel"></div><div><label>Username</label><input name="username" required></div><div><label for="password">Password</label><div class="password-wrap"><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required><button class="password-toggle" type="button" data-toggle-password="password" aria-label="Show password">Show</button></div></div><div class="full"><label>Research Role / Organization Type</label><select name="research_role" required><option value="">Select one</option><option value="Independent Researcher">Independent Researcher</option><option value="Laboratory / Research Facility">Laboratory / Research Facility</option><option value="Healthcare / Medical Office">Healthcare / Medical Office</option><option value="Compounding / Formulation Business">Compounding / Formulation Business</option><option value="Academic / University Research">Academic / University Research</option><option value="Biotech / Pharmaceutical Research">Biotech / Pharmaceutical Research</option><option value="Other Research-Related Use">Other Research-Related Use</option></select></div><div><label>Billing Address</label><input name="billing_address" required></div><div><label>Billing City</label><input name="billing_city" required></div><div><label>Billing State</label><input name="billing_state" required></div><div><label>Billing ZIP</label><input name="billing_zip" required></div><div class="full"><label class="check-row"><input type="checkbox" id="sameAsBilling" name="same_as_billing"> Shipping address is the same as billing address.</label></div><div><label>Shipping Address</label><input name="shipping_address" required></div><div><label>Shipping City</label><input name="shipping_city" required></div><div><label>Shipping State</label><input name="shipping_state" required></div><div><label>Shipping ZIP</label><input name="shipping_zip" required></div><div class="full"><label class="check-row"><input type="checkbox" name="age" required> I confirm I am at least 18 years old.</label><label class="check-row"><input type="checkbox" name="research" required> I confirm that this account and any purchases are for research purposes only.</label><label class="check-row"><input type="checkbox" name="tos" required> I agree to the Terms of Service.</label><label class="check-row"><input type="checkbox" name="marketing_opt_in" id="marketingOptIn"> I agree to receive Pep Shop Texas updates, promotions, and product availability emails. I understand I can unsubscribe at any time.</label></div><div class="full actions"><button class="btn primary" type="submit">Create Account</button><a class="btn secondary" href="login.html">Already have an account?</a></div></form><div id="notice" class="notice"></div></section></main><script>
-
+      <div id="notice" class="notice"></div>
+    </section>
+  </main>
+  <script>
 function setupPasswordToggles(){
   document.querySelectorAll('[data-toggle-password]').forEach(function(btn){
     const input = document.getElementById(btn.getAttribute('data-toggle-password'));
@@ -620,26 +56,16 @@ function setupPasswordToggles(){
   });
 }
 setupPasswordToggles();
-
 function showNotice(id, message, type) {
   const el = document.getElementById(id);
   if (!el) { alert(message); return; }
   el.textContent = message;
   el.className = 'notice ' + (type === 'ok' ? 'ok' : 'err');
 }
-
 const registerForm = document.getElementById('registerForm');
 const submitButton = registerForm.querySelector('button[type="submit"]');
-
-
 const sameAsBillingCheckbox = document.getElementById('sameAsBilling');
-const addressPairs = [
-  ['billing_address', 'shipping_address'],
-  ['billing_city', 'shipping_city'],
-  ['billing_state', 'shipping_state'],
-  ['billing_zip', 'shipping_zip']
-];
-
+const addressPairs = [['billing_address','shipping_address'],['billing_city','shipping_city'],['billing_state','shipping_state'],['billing_zip','shipping_zip']];
 function copyBillingToShipping() {
   if (!sameAsBillingCheckbox || !sameAsBillingCheckbox.checked) return;
   addressPairs.forEach(([billingName, shippingName]) => {
@@ -648,91 +74,32 @@ function copyBillingToShipping() {
     if (billingInput && shippingInput) shippingInput.value = billingInput.value;
   });
 }
-
 if (sameAsBillingCheckbox) {
-  sameAsBillingCheckbox.addEventListener('change', () => {
-    copyBillingToShipping();
-  });
+  sameAsBillingCheckbox.addEventListener('change', copyBillingToShipping);
   addressPairs.forEach(([billingName]) => {
     const billingInput = registerForm.querySelector(`[name="${billingName}"]`);
-    if (billingInput) {
-      billingInput.addEventListener('input', copyBillingToShipping);
-      billingInput.addEventListener('change', copyBillingToShipping);
-    }
+    if (billingInput) { billingInput.addEventListener('input', copyBillingToShipping); billingInput.addEventListener('change', copyBillingToShipping); }
   });
 }
-
 registerForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   showNotice('notice', 'Creating account... please wait.', 'ok');
   submitButton.disabled = true;
   submitButton.textContent = 'Creating...';
-
   try {
     copyBillingToShipping();
-
-    if (!window.supabase || !pstSupabaseClient) {
-      throw new Error('Supabase did not load. Check the CDN script or internet connection.');
-    }
-
+    if (!window.supabase || !pstSupabaseClient) throw new Error('Supabase did not load. Check the CDN script or internet connection.');
     const f = new FormData(e.target);
     const formValue = (name) => String(f.get(name) || '').trim();
     const email = formValue('email').toLowerCase();
     const password = String(f.get('password') || '');
     const marketingOptIn = f.get('marketing_opt_in') === 'on';
-
-    const profileData = {
-      first_name: formValue('first_name'),
-      last_name: formValue('last_name'),
-      email,
-      phone: formValue('phone'),
-      username: formValue('username'),
-      research_role: formValue('research_role'),
-      billing_address: formValue('billing_address'),
-      billing_city: formValue('billing_city'),
-      billing_state: formValue('billing_state'),
-      billing_zip: formValue('billing_zip'),
-      shipping_address: formValue('shipping_address'),
-      shipping_city: formValue('shipping_city'),
-      shipping_state: formValue('shipping_state'),
-      shipping_zip: formValue('shipping_zip'),
-      marketing_opt_in: marketingOptIn,
-      marketing_opt_out: false,
-      marketing_source: marketingOptIn ? 'registration' : null
-    };
-
-    const { error } = await pstSupabaseClient.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: 'https://www.pepshoptexas.com/login.html',
-        data: profileData
-      }
-    });
-
-    if (error) {
-      throw error;
-    }
-
+    const profileData = {first_name:formValue('first_name'),last_name:formValue('last_name'),email,phone:formValue('phone'),username:formValue('username'),research_role:formValue('research_role'),billing_address:formValue('billing_address'),billing_city:formValue('billing_city'),billing_state:formValue('billing_state'),billing_zip:formValue('billing_zip'),shipping_address:formValue('shipping_address'),shipping_city:formValue('shipping_city'),shipping_state:formValue('shipping_state'),shipping_zip:formValue('shipping_zip'),marketing_opt_in:marketingOptIn,marketing_opt_out:false,marketing_source:marketingOptIn?'registration':null};
+    const { error } = await pstSupabaseClient.auth.signUp({email,password,options:{emailRedirectTo:'https://www.pepshoptexas.com/login.html',data:profileData}});
+    if (error) throw error;
     try {
-      await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
-        },
-        body: JSON.stringify({
-          type: 'account_created',
-          to: email,
-          customer_email: email,
-          customer_name: [profileData.first_name, profileData.last_name].filter(Boolean).join(' '),
-          ...profileData
-        })
-      });
-    } catch (emailError) {
-      console.warn('Account created email did not send', emailError);
-    }
-
+      await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_PUBLISHABLE_KEY}`},body:JSON.stringify({type:'account_created',to:email,customer_email:email,customer_name:[profileData.first_name,profileData.last_name].filter(Boolean).join(' '),...profileData})});
+    } catch (emailError) { console.warn('Account created email did not send', emailError); }
     showNotice('notice', 'Account created. Check your email to confirm your account, then log in.', 'ok');
     e.target.reset();
   } catch (err) {
@@ -742,4 +109,6 @@ registerForm.addEventListener('submit', async (e) => {
     submitButton.textContent = 'Create Account';
   }
 });
-</script></body></html>
+  </script>
+</body>
+</html>
