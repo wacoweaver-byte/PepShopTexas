@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="styles.css?v=52">
   <link rel="stylesheet" href="catalog-mobile-fix.css?v=7">
   <link rel="stylesheet" href="catalog-dose-text-fix.css?v=1">
-  <link rel="stylesheet" href="css/customer.css?v=4">
+  <link rel="stylesheet" href="css/customer.css?v=6">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=40"></script>
   <script defer src="catalog-inventory-fix.js?v=6"></script>
@@ -49,19 +49,12 @@
   </header>
 
   <main class="catalog-page">
-    <section class="page-heading">
-      <p>Research products</p>
-      <h1>Peptides A-Z</h1>
-    </section>
+    <section class="page-heading"><p>Research products</p><h1>Peptides A-Z</h1></section>
     <section class="catalog-toolbar">
       <input type="search" data-catalog-search placeholder="Filter products...">
-      <select data-category-filter aria-label="Filter by category">
-        <option value="">All categories</option>
-      </select>
+      <select data-category-filter aria-label="Filter by category"><option value="">All categories</option></select>
     </section>
-    <section class="catalog-grid" data-catalog-grid>
-      <p class="loading-row">Loading products...</p>
-    </section>
+    <section class="catalog-grid" data-catalog-grid><p class="loading-row">Loading products...</p></section>
   </main>
 </body>
 </html>
