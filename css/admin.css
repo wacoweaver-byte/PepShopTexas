@@ -1,56 +1,34 @@
-/* Pep Shop Texas — shared admin stylesheet.
-   Consolidates admin/inventory controls after removal of legacy root CSS. */
-
+/* Pep Shop Texas — shared admin design system. */
 :root {
   --pst-admin-black: #050505;
   --pst-admin-ink: #101820;
-  --pst-admin-white: #ffffff;
+  --pst-admin-white: #fff;
   --pst-admin-red: #bd0000;
   --pst-admin-muted: #596579;
-  --pst-admin-line: #c9ced6;
-  --pst-admin-soft: #f7f9fc;
+  --pst-admin-line: #d9e2ec;
+  --pst-admin-soft: #f5f8fb;
+  --pst-admin-panel: #fbfcfe;
   --pst-admin-green: #0c6b3a;
   --pst-admin-blue: #003f9e;
   --pst-admin-warn: #8a5a00;
   --pst-admin-danger: #8a1f17;
+  --pst-admin-radius: 12px;
+  --pst-admin-shadow: 0 10px 30px rgba(16, 24, 32, .08);
   --pst-admin-pill-height: 26px;
   --pst-admin-font: Arial, Helvetica, sans-serif;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  min-width: 320px;
-}
-
+*, *::before, *::after { box-sizing: border-box; }
+html, body { min-width: 320px; }
 body {
   margin: 0;
   color: var(--pst-admin-ink);
   background: var(--pst-admin-soft);
   font-family: var(--pst-admin-font);
 }
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-[hidden] {
-  display: none !important;
-}
-
+button, input, select, textarea { font: inherit; }
+a { color: inherit; text-decoration: none; }
+[hidden] { display: none !important; }
 .sr-only {
   position: absolute !important;
   width: 1px !important;
@@ -62,6 +40,293 @@ a {
   white-space: nowrap !important;
   border: 0 !important;
 }
+
+/* Shared admin header and navigation. */
+.pst-admin-header,
+header.pst-admin-header,
+body > header:has(.topbar) {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: var(--pst-admin-white);
+  border-bottom: 1px solid var(--pst-admin-line);
+  box-shadow: 0 3px 18px rgba(16, 24, 32, .05);
+}
+.pst-admin-header-inner,
+header .topbar {
+  width: min(1540px, 100%);
+  min-height: 82px;
+  margin: 0 auto;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.pst-admin-brand,
+header .brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 800;
+}
+.pst-master-admin-logo,
+.pst-admin-logo {
+  display: block;
+  width: auto;
+  height: 54px;
+  max-width: 230px;
+  object-fit: contain;
+}
+.pst-admin-brand-copy,
+header .brand > span,
+header .brand > div { min-width: 0; }
+.pst-master-page-label,
+.pst-admin-page-label,
+header .brand small {
+  display: block;
+  color: var(--pst-admin-muted);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-transform: none;
+}
+.pst-admin-nav,
+header .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+/* Shared page structure. */
+.pst-admin-main,
+body > main {
+  width: min(1540px, 100%);
+  margin: 0 auto;
+  padding: 24px 18px 56px;
+}
+.page-title,
+.pst-admin-page-heading {
+  margin: 0 0 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.page-title h1,
+.pst-admin-page-heading h1,
+body > main > h1 {
+  margin: 0 0 6px;
+  color: var(--pst-admin-ink);
+  font-size: clamp(25px, 3vw, 38px);
+  font-weight: 700;
+  line-height: 1.1;
+}
+h2, h3, h4 { color: var(--pst-admin-ink); }
+.subtitle,
+.muted { color: var(--pst-admin-muted); line-height: 1.45; }
+
+/* Panels, grids and cards. */
+.grid,
+.pst-admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, .85fr);
+  gap: 18px;
+  align-items: start;
+}
+.card,
+.pst-admin-card {
+  min-width: 0;
+  overflow: hidden;
+  background: var(--pst-admin-white);
+  border: 1px solid var(--pst-admin-line);
+  border-radius: var(--pst-admin-radius);
+  box-shadow: var(--pst-admin-shadow);
+}
+.card-header,
+.pst-admin-card-header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid var(--pst-admin-line);
+}
+.card-body,
+.pst-admin-card-body,
+.detail-section { padding: 16px; }
+.detail-section { border-bottom: 1px solid var(--pst-admin-line); }
+.detail-section:last-child { border-bottom: 0; }
+#detailCard { position: sticky; top: 98px; max-height: calc(100vh - 120px); overflow: auto; }
+
+/* Forms and filters. */
+.filters,
+.toolbar,
+.edit-grid,
+.form-grid,
+.kv-grid {
+  display: grid;
+  gap: 10px;
+}
+.filters { grid-template-columns: minmax(220px, 1.2fr) repeat(4, minmax(125px, .7fr)) auto; align-items: end; }
+.toolbar { grid-template-columns: minmax(220px, 1fr) 180px; }
+.edit-grid,
+.form-grid,
+.kv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.full { grid-column: 1 / -1; }
+.field,
+.form-field,
+label:not(.check):not(.override-check):not(.same-row) { display: grid; gap: 6px; }
+label,
+.field > span,
+.form-field > span {
+  color: var(--pst-admin-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 10px;
+  color: var(--pst-admin-ink);
+  background: var(--pst-admin-white);
+  border: 1px solid var(--pst-admin-line);
+  border-radius: 9px;
+}
+textarea { min-height: 84px; resize: vertical; }
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid rgba(0, 63, 158, .22);
+  outline-offset: 1px;
+  border-color: var(--pst-admin-blue);
+}
+input[readonly] { background: #f3f5f7; }
+.check,
+.override-check,
+.same-row {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 9px;
+  color: var(--pst-admin-ink);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.check input,
+.override-check input,
+.same-row input,
+.row-check { width: 18px; min-height: 18px; height: 18px; }
+
+/* Tables. */
+.table-wrap {
+  width: 100%;
+  overflow: auto;
+  position: relative;
+  border-radius: 0 0 var(--pst-admin-radius) var(--pst-admin-radius);
+}
+table { width: 100%; border-collapse: collapse; }
+th, td {
+  padding: 11px 10px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--pst-admin-line);
+  font-size: 14px;
+}
+th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  color: var(--pst-admin-muted);
+  background: var(--pst-admin-panel);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+tbody tr { transition: background .15s ease; }
+tbody tr:hover { background: #f7f9fc; }
+tbody tr.active { background: rgba(189, 0, 0, .07); }
+.sort-btn {
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Status, notices and utility blocks. */
+.status,
+.notice,
+.problem-banner,
+.lock-banner,
+.note,
+.email-box,
+.override-panel,
+.kv,
+.item,
+.audit-item,
+.generated-id {
+  padding: 11px 13px;
+  background: var(--pst-admin-white);
+  border: 1px solid var(--pst-admin-line);
+  border-radius: 10px;
+  line-height: 1.45;
+}
+.status { min-height: 42px; margin: 12px 0 18px; color: var(--pst-admin-muted); }
+.status.good,
+.status.success { color: var(--pst-admin-green); background: #eff9f2; border-color: #b8dfc3; }
+.status.bad,
+.status.error,
+.problem-banner { color: var(--pst-admin-danger); background: #fff3f3; border-color: #e8bcbc; }
+.status.warning,
+.lock-banner,
+.note { color: var(--pst-admin-warn); background: #fff8e8; border-color: #e8d29b; }
+.kv strong,
+.generated-id span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--pst-admin-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.bulk-bar {
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  background: var(--pst-admin-panel);
+  border-bottom: 1px solid var(--pst-admin-line);
+}
+.bulk-actions,
+.actions,
+.btn-row,
+.inventory-card-actions,
+.reorder-controls,
+.reorder-selected-actions,
+.incoming-actions,
+.incoming-edit-actions,
+.inventory-jumpbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.bulk-actions { justify-content: flex-end; }
 
 /* Shared compact admin action and status system. */
 .btn,
@@ -80,6 +345,7 @@ button.btn,
 .incoming-line-remove,
 .reorder-action-btn,
 .status-pill,
+.pill,
 .reorder-badge,
 .incoming-pill,
 .vendor-id-pill,
@@ -117,7 +383,6 @@ button.btn,
   white-space: nowrap !important;
   vertical-align: middle !important;
 }
-
 .btn,
 a.btn,
 button.btn,
@@ -132,10 +397,7 @@ button.btn,
 .transit-incoming-btn,
 .save-incoming-edit-btn,
 .incoming-line-remove,
-.reorder-action-btn {
-  cursor: pointer !important;
-}
-
+.reorder-action-btn { cursor: pointer !important; }
 .btn:hover,
 a.btn:hover,
 button.btn:hover,
@@ -150,10 +412,7 @@ button.btn:hover,
 .transit-incoming-btn:hover,
 .save-incoming-edit-btn:hover,
 .incoming-line-remove:hover,
-.reorder-action-btn:hover {
-  background: #f3f3f3 !important;
-}
-
+.reorder-action-btn:hover { background: #f1f2f3 !important; }
 .btn.active,
 .btn.primary,
 .btn[aria-pressed="true"],
@@ -163,7 +422,6 @@ button.btn:hover,
   background: var(--pst-admin-black) !important;
   border-color: var(--pst-admin-black) !important;
 }
-
 .btn.success,
 a.btn.success,
 button.btn.success,
@@ -171,27 +429,29 @@ button.btn.success,
 .row-save,
 .status-pill.in_stock,
 .status-pill.available,
+.pill.paid,
+.pill.complete,
+.pill.shipped,
+.pill.delivered,
 .active-pill,
 .incoming-received,
 .reorder-healthy {
   color: var(--pst-admin-green) !important;
-  background: var(--pst-admin-white) !important;
   border-color: var(--pst-admin-green) !important;
 }
-
 .btn.warning,
 a.btn.warning,
 button.btn.warning,
 .transit-incoming-btn,
 .status-pill.limited,
+.pill.pending,
+.pill.awaiting_payment,
 .incoming-in_transit,
 .reorder-now,
 .reorder-watch {
   color: var(--pst-admin-warn) !important;
-  background: var(--pst-admin-white) !important;
   border-color: var(--pst-admin-warn) !important;
 }
-
 .btn.danger,
 a.btn.danger,
 button.btn.danger,
@@ -201,21 +461,23 @@ button.btn.danger,
 .status-pill.out_of_stock,
 .status-pill.out,
 .status-pill.inactive,
+.pill.cancelled,
+.pill.rejected,
+.pill.refunded,
+.pill.failed,
 .incoming-cancelled,
 .incoming-issue_shorted,
 .reorder-critical {
   color: var(--pst-admin-danger) !important;
-  background: var(--pst-admin-white) !important;
   border-color: var(--pst-admin-danger) !important;
 }
-
 .inventory-jump-link,
-.incoming-ordered {
+.incoming-ordered,
+.pill.processing,
+.pill.packed {
   color: var(--pst-admin-blue) !important;
-  background: var(--pst-admin-white) !important;
   border-color: var(--pst-admin-blue) !important;
 }
-
 .btn.secondary,
 a.btn.secondary,
 button.btn.secondary,
@@ -226,10 +488,8 @@ button.btn.secondary,
 .reorder-none,
 .reorder-unknown {
   color: var(--pst-admin-ink) !important;
-  background: var(--pst-admin-white) !important;
   border-color: var(--pst-admin-line) !important;
 }
-
 .btn:disabled,
 button.btn:disabled,
 .btn[aria-disabled="true"],
@@ -244,7 +504,6 @@ button.btn[aria-disabled="true"],
   cursor: not-allowed !important;
   pointer-events: none !important;
 }
-
 .inventory-readonly-value,
 .inventory-current-readonly,
 .inventory-price-readonly,
@@ -255,43 +514,14 @@ button.btn[aria-disabled="true"],
   padding: 0 10px !important;
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: center !important;
   color: var(--pst-admin-muted) !important;
   background: var(--pst-admin-white) !important;
   border: 1px solid var(--pst-admin-line) !important;
   border-radius: 999px !important;
   font-size: 10px !important;
   font-weight: 700 !important;
-  line-height: 1 !important;
   white-space: nowrap !important;
 }
-
-.bulk-tools,
-.bulk,
-.actions,
-.pst-admin-actions-lock,
-.inventory-card-actions,
-.reorder-controls,
-.reorder-selected-actions,
-.incoming-actions,
-.incoming-edit-actions,
-.back-to-inventory-top,
-.inventory-jumpbar {
-  gap: 6px !important;
-}
-
-td .btn,
-td button.btn,
-td a.btn,
-td .status-pill,
-td .reorder-badge,
-td .incoming-pill,
-td .vendor-id-pill,
-td .inventory-readonly-value {
-  margin-top: 2px !important;
-  margin-bottom: 2px !important;
-}
-
 .btn:focus-visible,
 a.btn:focus-visible,
 button.btn:focus-visible,
@@ -302,11 +532,51 @@ button.btn:focus-visible,
   outline-offset: 2px !important;
 }
 
-@media (max-width: 700px) {
-  :root {
-    --pst-admin-pill-height: 25px;
-  }
+/* Modal. */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(3, 6, 10, .62);
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  width: min(620px, 100%);
+  max-height: calc(100vh - 36px);
+  overflow: auto;
+  background: var(--pst-admin-white);
+  border: 1px solid var(--pst-admin-line);
+  border-radius: var(--pst-admin-radius);
+  box-shadow: 0 22px 70px rgba(3, 6, 10, .32);
+}
+.modal-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid var(--pst-admin-line); }
+.modal-body { padding: 16px; }
 
+@media (max-width: 1100px) {
+  .grid,
+  .pst-admin-grid { grid-template-columns: 1fr; }
+  .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #detailCard { position: static; max-height: none; overflow: visible; }
+}
+@media (max-width: 760px) {
+  .pst-admin-header-inner,
+  header .topbar { align-items: flex-start; flex-direction: column; }
+  .pst-admin-nav,
+  header .actions { justify-content: flex-start; }
+  .page-title,
+  .pst-admin-page-heading { flex-direction: column; }
+  .filters,
+  .toolbar,
+  .edit-grid,
+  .form-grid,
+  .kv-grid,
+  .bulk-bar { grid-template-columns: 1fr; }
+  .bulk-actions { justify-content: flex-start; }
+  :root { --pst-admin-pill-height: 25px; }
   .btn,
   a.btn,
   button.btn,
@@ -323,12 +593,10 @@ button.btn:focus-visible,
   .incoming-line-remove,
   .reorder-action-btn,
   .status-pill,
+  .pill,
   .reorder-badge,
   .incoming-pill,
   .vendor-id-pill,
   .active-pill,
-  .inactive-pill {
-    padding: 0 9px !important;
-    font-size: 9.5px !important;
-  }
+  .inactive-pill { padding: 0 9px !important; font-size: 9.5px !important; }
 }
