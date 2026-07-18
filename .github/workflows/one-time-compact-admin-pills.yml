@@ -1,0 +1,36 @@
+name: One-time compact admin pills
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-compact-admin-pills.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  compact-pills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compact shared admin pills
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('css/admin.css')
+          s = p.read_text()
+          s = s.replace('--pst-admin-pill-height:36px;', '--pst-admin-pill-height:28px;')
+          s = s.replace('padding:0 14px!important;', 'padding:0 10px!important;')
+          s = s.replace('font-size:12px!important;', 'font-size:10px!important;', 1)
+          s = s.replace('min-height:28px!important;height:28px!important;padding:0 10px!important;', 'min-height:24px!important;height:24px!important;padding:0 8px!important;')
+          s = s.replace('font-size:10px!important;font-weight:700!important;line-height:1!important;white-space:nowrap!important;cursor:default!important;', 'font-size:9px!important;font-weight:700!important;line-height:1!important;white-space:nowrap!important;cursor:default!important;')
+          p.write_text(s)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add css/admin.css
+          git commit -m "Compact shared admin pills"
+          git push
