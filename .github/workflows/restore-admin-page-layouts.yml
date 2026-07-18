@@ -1,0 +1,234 @@
+name: Restore admin page layouts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/restore-admin-page-layouts.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  restore-layouts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore page-specific layout rules only
+        shell: bash
+        run: |
+          python3 <<'PY'
+          import re
+          import subprocess
+          from pathlib import Path
+
+          OLD = "75d8d6e50c9eaa642d4f5eaef44f23ad88df14aa"
+          pages = [
+              "admin.html",
+              "customers.html",
+              "discounts.html",
+              "discounts_promotions.html",
+              "inventory.html",
+              "products.html",
+              "promotions.html",
+              "report-writer.html",
+              "reports.html",
+          ]
+
+          protected_selector_terms = (
+              "header", "footer", ".topbar", ".brand", ".brand-mark",
+              ".pst-master", ".actions", ".pill", ".status",
+              ".payment-method-pill", ".locked-pill"
+          )
+
+          allowed_exact = {
+              "display", "position", "top", "right", "bottom", "left", "inset",
+              "float", "clear", "overflow", "overflow-x", "overflow-y", "resize",
+              "box-sizing", "width", "height", "min-width", "max-width", "min-height", "max-height",
+              "margin", "margin-top", "margin-right", "margin-bottom", "margin-left",
+              "padding", "padding-top", "padding-right", "padding-bottom", "padding-left",
+              "gap", "row-gap", "column-gap", "align-items", "align-content", "align-self",
+              "justify-items", "justify-content", "justify-self", "place-items", "place-content", "place-self",
+              "flex", "flex-basis", "flex-grow", "flex-shrink", "flex-flow", "flex-direction", "flex-wrap",
+              "order", "grid", "grid-template", "grid-template-columns", "grid-template-rows",
+              "grid-template-areas", "grid-auto-columns", "grid-auto-rows", "grid-auto-flow",
+              "grid-column", "grid-column-start", "grid-column-end", "grid-row", "grid-row-start", "grid-row-end",
+              "grid-area", "table-layout", "border-collapse", "border-spacing", "caption-side",
+              "border", "border-top", "border-right", "border-bottom", "border-left",
+              "border-width", "border-style", "border-radius", "border-color",
+              "background", "background-color", "background-image", "background-position", "background-size", "background-repeat",
+              "box-shadow", "outline", "outline-offset", "opacity", "visibility",
+              "white-space", "word-break", "overflow-wrap", "text-overflow", "text-align", "vertical-align",
+              "object-fit", "object-position", "z-index", "transform", "transform-origin",
+              "clip", "clip-path", "columns", "column-count", "column-width"
+          }
+
+          def old_file(path):
+              return subprocess.check_output(["git", "show", f"{OLD}:{path}"], text=True)
+
+          def style_blocks(html):
+              return re.findall(r"<style(?:\s[^>]*)?>(.*?)</style>", html, flags=re.I | re.S)
+
+          def split_declarations(body):
+              out, buf, depth, quote = [], [], 0, None
+              for ch in body:
+                  if quote:
+                      buf.append(ch)
+                      if ch == quote:
+                          quote = None
+                      continue
+                  if ch in "\"'":
+                      quote = ch; buf.append(ch)
+                  elif ch == '(':
+                      depth += 1; buf.append(ch)
+                  elif ch == ')':
+                      depth = max(0, depth - 1); buf.append(ch)
+                  elif ch == ';' and depth == 0:
+                      out.append(''.join(buf)); buf = []
+                  else:
+                      buf.append(ch)
+              if ''.join(buf).strip():
+                  out.append(''.join(buf))
+              return out
+
+          def filter_declarations(body):
+              kept = []
+              for decl in split_declarations(body):
+                  if ':' not in decl:
+                      continue
+                  prop, val = decl.split(':', 1)
+                  prop = prop.strip().lower()
+                  val = val.strip()
+                  if not prop or not val:
+                      continue
+                  if prop == "color" or prop.startswith("font") or prop in {"line-height", "letter-spacing", "text-transform", "text-decoration", "content"}:
+                      continue
+                  if prop in allowed_exact:
+                      kept.append(f"{prop}:{val}")
+              return ';'.join(kept) + (';' if kept else '')
+
+          def scope_selector(selector, page_class):
+              parts = []
+              for raw in selector.split(','):
+                  s = raw.strip()
+                  low = s.lower()
+                  if not s:
+                      continue
+                  if any(term in low for term in protected_selector_terms):
+                      continue
+                  if low in {":root", "html", "body", "*", "html body"}:
+                      continue
+                  if low.startswith("@"):
+                      continue
+                  parts.append(f"body.{page_class} {s}")
+              return ',\n'.join(parts)
+
+          def parse_rules(css, page_class):
+              css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+              out = []
+              i, n = 0, len(css)
+              while i < n:
+                  while i < n and css[i].isspace(): i += 1
+                  if i >= n: break
+                  brace = css.find('{', i)
+                  if brace < 0: break
+                  head = css[i:brace].strip()
+                  depth, j, quote = 1, brace + 1, None
+                  while j < n and depth:
+                      ch = css[j]
+                      if quote:
+                          if ch == quote and css[j-1] != '\\': quote = None
+                      elif ch in "\"'": quote = ch
+                      elif ch == '{': depth += 1
+                      elif ch == '}': depth -= 1
+                      j += 1
+                  body = css[brace+1:j-1]
+                  i = j
+                  if not head:
+                      continue
+                  low = head.lower()
+                  if low.startswith('@media') or low.startswith('@supports') or low.startswith('@container'):
+                      nested = parse_rules(body, page_class)
+                      if nested.strip():
+                          out.append(f"{head}{{\n{nested}\n}}")
+                  elif low.startswith('@keyframes') or low.startswith('@font-face') or low.startswith('@page'):
+                      continue
+                  elif low.startswith('@'):
+                      continue
+                  else:
+                      scoped = scope_selector(head, page_class)
+                      declarations = filter_declarations(body)
+                      if scoped and declarations:
+                          out.append(f"{scoped}{{{declarations}}}")
+              return '\n'.join(out)
+
+          generated = []
+          stats = []
+          for page in pages:
+              html = old_file(page)
+              blocks = style_blocks(html)
+              page_class = "admin-page-" + re.sub(r"[^a-z0-9]+", "-", page.rsplit('.', 1)[0].lower()).strip('-')
+              css = '\n'.join(parse_rules(block, page_class) for block in blocks)
+              if css.strip():
+                  generated.append(f"\n/* RESTORED LAYOUT: {page} */\n{css}\n")
+                  stats.append((page, css.count('{')))
+
+              current_path = Path(page)
+              current = current_path.read_text()
+              body_match = re.search(r"<body([^>]*)>", current, flags=re.I)
+              if not body_match:
+                  raise RuntimeError(f"No body tag found in {page}")
+              attrs = body_match.group(1)
+              class_match = re.search(r'class=["\']([^"\']*)["\']', attrs, flags=re.I)
+              if class_match:
+                  classes = class_match.group(1).split()
+                  if page_class not in classes:
+                      new_classes = ' '.join(classes + [page_class])
+                      new_attrs = attrs[:class_match.start()] + f'class="{new_classes}"' + attrs[class_match.end():]
+                  else:
+                      new_attrs = attrs
+              else:
+                  new_attrs = attrs + f' class="{page_class}"'
+              current = current[:body_match.start()] + f"<body{new_attrs}>" + current[body_match.end():]
+              current_path.write_text(current)
+
+          admin_css = Path("css/admin.css")
+          existing = admin_css.read_text()
+          start = "/* ADMIN PAGE LAYOUT RESTORE START */"
+          end = "/* ADMIN PAGE LAYOUT RESTORE END */"
+          existing = re.sub(re.escape(start) + r".*?" + re.escape(end), "", existing, flags=re.S).rstrip() + "\n"
+          restored = '\n'.join(generated)
+
+          # Hard validation: restored section may not redefine protected UI or text color.
+          lowered = restored.lower()
+          for forbidden in ("color:", ".pill", "header", "footer", ".topbar", ".pst-master"):
+              if forbidden in lowered:
+                  raise RuntimeError(f"Protected shared styling leaked into restored CSS: {forbidden}")
+
+          admin_css.write_text(existing + "\n" + start + "\n" + restored + "\n" + end + "\n")
+
+          workflow = Path(".github/workflows/restore-admin-page-layouts.yml")
+          if workflow.exists():
+              workflow.unlink()
+
+          print("Restored scoped layout rules:")
+          for page, count in stats:
+              print(f"  {page}: {count} rule blocks")
+          PY
+
+      - name: Commit verified layout restoration
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add css/admin.css admin.html customers.html discounts.html discounts_promotions.html inventory.html products.html promotions.html report-writer.html reports.html .github/workflows/restore-admin-page-layouts.yml
+          if git diff --cached --quiet; then
+            echo "No changes generated"
+            exit 0
+          fi
+          git commit -m "Restore admin page formatting while preserving shared CSS"
+          git push
