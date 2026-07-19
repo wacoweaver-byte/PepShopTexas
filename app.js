@@ -1190,8 +1190,13 @@ async function insertWithColumnFallback(tableName, payload) {
   const maxAttempts = Object.keys(working).length + 5;
   const droppedColumns = [];
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const { error } = await client.from(tableName).insert(working);
-    if (!error) return working;
+const { data, error } = await client
+  .from(tableName)
+  .insert(working)
+  .select()
+  .single();
+
+if (!error) return data;
     const missing = missingColumnFromError(error, tableName);
     if (missing && Object.prototype.hasOwnProperty.call(working, missing)) {
       delete working[missing];
