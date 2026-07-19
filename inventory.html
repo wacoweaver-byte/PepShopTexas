@@ -4721,7 +4721,7 @@ function renderIncomingInventory() {
     const orderedAt = row.ordered_at || row.created_at || new Date().toISOString();
     const leadTimeDays = incomingLeadTimeForRow(row);
     const expected = incomingExpectedArrivalForRow(row);
-    const days = daysBetween(orderedAt);
+    const days = daysBetween(orderedAt, row.received_at || new Date().toISOString());
     const qty = Number(row.ordered_quantity || 0);
     const status = String(row.status || "ordered").toLowerCase();
     const isReceived = status === "received";
