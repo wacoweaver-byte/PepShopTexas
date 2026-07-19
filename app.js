@@ -1061,7 +1061,7 @@ async function handleCheckoutSubmit(event) {
     const storeCreditApplied = wantsStoreCredit ? roundMoney(Math.min(storeCredit.balance, baseTotal)) : 0;
     const { subtotal, shipping, tax, discount, taxRate, taxRegion } = totals;
     const total = roundMoney(baseTotal - storeCreditApplied);
-    const orderNumberValue = await nextOrderNumber();
+    const orderNumberValue = null;
     const now = new Date().toISOString();
     const customerName = accountCustomerName(profile, user);
     const customerEmail = accountCustomerEmail(profile, user);
