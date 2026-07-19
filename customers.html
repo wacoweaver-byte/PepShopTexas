@@ -3046,9 +3046,10 @@ function buildCustomerRows() {
     if (inactiveDays !== null && inactiveDays >= 90) tags.push("Inactive 90+");
     else if (inactiveDays !== null && inactiveDays >= 60) tags.push("Inactive 60+");
 
-    return {
-      id: userId || email,
-      name: fullName,
+return {
+  id: userId || email,
+  customer_number: pick(profile, ["customer_number"]),
+  name: fullName,
       email,
       phone: pick(profile, ["phone", "phone_number", "mobile", "billing_phone"]),
       subscription: subscription.label,
