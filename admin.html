@@ -341,6 +341,9 @@ header .header-actions .btn.secondary.active {
   gap: 18px;
   align-items: start;
 }
+#ordersGrid:not(.has-selected-order) #order-list-card {
+  grid-column: 1 / -1;
+}
 .collapsible-card { scroll-margin-top: 178px; }
 .collapsible-card > .card-header { cursor: pointer; }
 .collapsible-card.collapsed > :not(.card-header) { display: none !important; }
@@ -2004,10 +2007,10 @@ td .inventory-readonly-value {
     <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="packed-ready" data-admin-target="order-list-card">Packed / Ready to Ship</button>
     <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="shipped-completed" data-admin-target="order-list-card">Shipped / Completed Orders</button>
     <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="rejected-cancelled" data-admin-target="order-list-card">Rejected / Cancelled Orders</button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="order-tools-email" data-admin-target="detailCard">Order Tools / Email Tools</button>
+    <button class="btn secondary inventory-jump-link" id="detailCardJump" type="button" aria-pressed="false" data-admin-jump="order-tools-email" data-admin-target="detailCard" hidden>Order Tools / Email Tools</button>
   </nav>
 
-  <section class="grid admin-dashboard-grid">
+  <section class="grid admin-dashboard-grid" id="ordersGrid">
     <div class="card collapsible-card collapsed" id="order-list-card" data-admin-card="order-list">
       <div class="card-header" data-admin-header="order-list-card"><h2>Order List</h2><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="order-list-card">Open</button></div>
       <div class="card-body">
@@ -2038,9 +2041,8 @@ td .inventory-readonly-value {
       <div class="table-wrap"><table><thead><tr><th></th><th>Order</th><th>Date</th><th>Customer</th><th>Total</th><th>Order</th><th>Payment</th><th>Method</th><th>Tracking</th><th>Attention</th></tr></thead><tbody id="ordersBody"><tr><td colspan="10" class="muted">Loading orders...</td></tr></tbody></table></div>
       <div class="admin-back-top"><button class="btn secondary" type="button" data-admin-back-top>Back to Top ↑</button></div>
     </div>
-
-    <div class="card collapsible-card collapsed" id="detailCard" data-admin-card="order-tools-email" hidden>
-        <div class="card-header" data-admin-header="detailCard"><h2>Order Tools / Email Tools</h2><button class="btn secondary card-toggle-btn" type="button" data-admin-collapse-target="detailCard">Open</button></div>
+<div class="card collapsible-card collapsed" id="detailCard" data-admin-card="order-tools-email" hidden>
+<div class="card-header" data-admin-header="detailCard"><h2>Order Tools / Email Tools</h2><button class="btn secondary" id="closeOrderDetail" type="button">Close Details</button><button class="btn secondary card-toggle-btn" type="button" data-admin-card-toggle="detailCard">Open</button></div>
       <div class="detail-empty">Select an order to view and manage details.</div>
     </div>
   </section>
@@ -2580,18 +2582,32 @@ td .inventory-readonly-value {
         <td>${inventoryRestoreCompactMarkup(order)}${attentionReason(order)}</td>
       </tr>`;
     }).join("");
-   document.querySelectorAll("tr.order-row").forEach(row =>
+document.querySelectorAll("tr.order-row").forEach(row =>
   row.addEventListener("click", () => {
     const order = allOrders.find(
       o => String(o.id) === String(row.dataset.orderId)
     );
 
     if (order) {
+      document
+        .getElementById("ordersGrid")
+        .classList.add("has-selected-order");
+
       document.getElementById("detailCard").hidden = false;
+      document.getElementById("detailCardJump").hidden = false;
+      
       renderOrderDetail(order);
     }
   })
 );
+    document.getElementById("closeOrderDetail").addEventListener("click", () => {
+  document.getElementById("detailCard").hidden = true;
+  document.getElementById("detailCardJump").hidden = true;
+
+  document
+    .getElementById("ordersGrid")
+    .classList.remove("has-selected-order");
+});
     document.querySelectorAll(".row-check").forEach(cb => cb.addEventListener("change", e => { const id=e.target.dataset.checkId; e.target.checked ? selectedOrderIds.add(id) : selectedOrderIds.delete(id); renderSelectedCount(); }));
   }
 
