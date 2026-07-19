@@ -169,7 +169,7 @@ async function loadAccount() {
   const {data:orders,error:ordersError}=await pstAccountSupabase
   .from("orders")
   .select("id,order_number,status,total,subtotal,shipping,tax,payment_status,tracking_number,tracking_carrier,created_at")
-  .eq("user_id", user.id)
+  .eq("customer_id", user.id)
   .order("created_at",{ascending:false});
   if(ordersError){setStatus("Could not load orders. "+pstEsc(ordersError.message),"error");if(grid)grid.style.display="grid";return;}
   pstAccountOrders=orders||[]; const orderIds=pstAccountOrders.map(order=>order.id); pstAccountItemsByOrder={};
