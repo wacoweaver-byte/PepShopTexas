@@ -166,7 +166,11 @@ async function loadAccount() {
   pstCurrentProfile=profile||{user_id:user.id,email:user.email,first_name:user.user_metadata?.first_name||"",last_name:user.user_metadata?.last_name||"",username:user.user_metadata?.username||""};
   const accountGreetingLink=document.getElementById("accountGreetingLink"); if(accountGreetingLink) accountGreetingLink.textContent="Hello "+accountFirstName(pstCurrentProfile,user);
   updateProfileDisplay(pstCurrentProfile,user); populateProfileForm(pstCurrentProfile,user);
-  const {data:orders,error:ordersError}=await pstAccountSupabase.from("orders").select("id,order_number,status,total,subtotal,shipping,tax,payment_status,tracking_number,tracking_carrier,created_at").order("created_at",{ascending:false});
+  const {data:orders,error:ordersError}=await pstAccountSupabase
+  .from("orders")
+  .select("id,order_number,status,total,subtotal,shipping,tax,payment_status,tracking_number,tracking_carrier,created_at")
+  .eq("user_id", user.id)
+  .order("created_at",{ascending:false});
   if(ordersError){setStatus("Could not load orders. "+pstEsc(ordersError.message),"error");if(grid)grid.style.display="grid";return;}
   pstAccountOrders=orders||[]; const orderIds=pstAccountOrders.map(order=>order.id); pstAccountItemsByOrder={};
   if(orderIds.length){const {data:items,error:itemsError}=await pstAccountSupabase.from("order_items").select("id,order_id,product_id,product_name,product_strength,product_category,quantity,unit_price,line_total").in("order_id",orderIds);if(itemsError){setStatus("Orders loaded, but order items could not be loaded. "+pstEsc(itemsError.message),"error");}else{(items||[]).forEach(item=>{if(!pstAccountItemsByOrder[item.order_id])pstAccountItemsByOrder[item.order_id]=[];pstAccountItemsByOrder[item.order_id].push(item);});}}
