@@ -4025,6 +4025,9 @@ async function init(){
         <span class="pst-global-match-type">Product</span>
         <strong>${pstGlobalEsc(product.product_key || product.id || "Product")}</strong>
         <span>${pstGlobalEsc(product.display_name || product.product_name || "Unnamed product")}${product.strength ? ` · ${pstGlobalEsc(product.strength)}` : ""}${product.category ? ` · ${pstGlobalEsc(product.category)}` : ""}</span>
+        ${product.description ? `<span><strong>Description:</strong> ${pstGlobalEsc(product.description)}</span>` : ""}
+        ${product.research_notes ? `<span><strong>Research notes:</strong> ${pstGlobalEsc(product.research_notes)}</span>` : ""}
+        ${product.admin_only ? `<span><strong>Admin only:</strong> ${pstGlobalEsc(product.admin_only)}</span>` : ""}
       </div>`;
     }).join("");
   }
@@ -4082,8 +4085,8 @@ async function init(){
         try{
           const {data: products, error} = await supabaseClient
             .from(tableName)
-            .select("id,product_key,display_name,strength,category")
-            .or(`product_key.ilike.%${safeQ}%,display_name.ilike.%${safeQ}%,strength.ilike.%${safeQ}%`)
+            .select("id,product_key,display_name,strength,category,description,research_notes,admin_only")
+            .or(`product_key.ilike.%${safeQ}%,display_name.ilike.%${safeQ}%,strength.ilike.%${safeQ}%,description.ilike.%${safeQ}%,research_notes.ilike.%${safeQ}%,admin_only.ilike.%${safeQ}%`)
             .limit(15);
 
           if(error) console.warn(`Global ${tableName} lookup:`, error.message || error);
