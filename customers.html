@@ -3435,7 +3435,7 @@ function openCustomerModal(c) {
   $("modalCustomerEmail").textContent = c.email || "No email on file";
 
   const safeDetails = [
-    ["Customer ID", c.id],
+    ["Customer #", `PST-C${c.customer_number}`],
     ["Phone", c.phone],
     ["Email Status", c.subscription],
     ["Research Role", c.research_role],
