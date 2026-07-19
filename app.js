@@ -1135,7 +1135,7 @@ async function handleCheckoutSubmit(event) {
       });
     }
 
-   await sendOrderReceivedEmail(
+await sendOrderReceivedEmail(
   { ...order, items: itemPayloads },
   {
     customerName,
