@@ -3259,6 +3259,27 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
           <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatuses.map(s=>`<option value="${s}" ${norm(orderStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
           <div class="field"><label for="editPaymentStatus">Payment Status</label><select id="editPaymentStatus">${paymentStatuses.map(s=>`<option value="${s}" ${norm(paymentStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
           <div class="field"><label>Payment Method</label><input value="${esc(paymentMethod(order))}" readonly /></div>
+          <div class="field">
+  <label for="editShippingCost">Shipping Cost</label>
+  <input
+    id="editShippingCost"
+    type="number"
+    min="0"
+    step="0.01"
+    value="${Number(orderShipping(order) || 0).toFixed(2)}"
+  />
+</div>
+
+<div class="field">
+  <label for="editTaxAmount">Tax Amount</label>
+  <input
+    id="editTaxAmount"
+    type="number"
+    min="0"
+    step="0.01"
+    value="${Number(orderTax(order) || 0).toFixed(2)}"
+  />
+</div>
           <div class="field"><label for="editCarrier">Carrier</label><input id="editCarrier" value="${esc(carrier)}" placeholder="USPS, UPS, FedEx..." /></div>
           <div class="field"><label for="editTracking">Tracking Number</label><input id="editTracking" value="${esc(tracking)}" placeholder="Tracking number" /></div>
           <div class="field full"><label for="editTrackingUrl">Tracking URL</label><input id="editTrackingUrl" value="${esc(order.tracking_url || turl)}" placeholder="Optional tracking URL" /></div>
