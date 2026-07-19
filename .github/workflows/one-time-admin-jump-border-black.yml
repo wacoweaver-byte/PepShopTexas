@@ -1,10 +1,9 @@
 name: One-time admin jump border black
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/one-time-admin-jump-border-black.yml'
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
