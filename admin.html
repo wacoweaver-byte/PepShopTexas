@@ -2580,7 +2580,18 @@ td .inventory-readonly-value {
         <td>${inventoryRestoreCompactMarkup(order)}${attentionReason(order)}</td>
       </tr>`;
     }).join("");
-    document.querySelectorAll("tr.order-row").forEach(row => row.addEventListener("click", () => { const order = allOrders.find(o => String(o.id) === String(row.dataset.orderId)); if(order) renderOrderDetail(order); }));
+   document.querySelectorAll("tr.order-row").forEach(row =>
+  row.addEventListener("click", () => {
+    const order = allOrders.find(
+      o => String(o.id) === String(row.dataset.orderId)
+    );
+
+    if (order) {
+      document.getElementById("detailCard").hidden = false;
+      renderOrderDetail(order);
+    }
+  })
+);
     document.querySelectorAll(".row-check").forEach(cb => cb.addEventListener("change", e => { const id=e.target.dataset.checkId; e.target.checked ? selectedOrderIds.add(id) : selectedOrderIds.delete(id); renderSelectedCount(); }));
   }
 
