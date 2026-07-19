@@ -19,8 +19,149 @@ main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:f
 .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px}.summary-card{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;min-height:76px}.summary-card strong{display:block;font-size:20px;line-height:1.05;font-weight:600;color:#0077c8;margin-bottom:7px;word-break:break-word}.summary-card span{display:block;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.045em;line-height:1.2}.empty{padding:22px;color:var(--muted);font-size:13px;line-height:1.4;background:#fbfcfe;border:1px dashed var(--border);border-radius:14px}
 .po-select-cell{width:42px;text-align:center!important}.po-select-cell input{width:16px;height:16px;min-height:16px;margin:0;vertical-align:middle}.po-toolbar-note{font-size:12px;color:var(--muted);font-weight:600}.po-unmatched{opacity:.45;cursor:not-allowed}
 @media(max-width:1240px){.topbar{min-height:150px;align-items:flex-start;justify-content:flex-start;flex-wrap:wrap}.brand{flex:0 0 390px}.actions{flex:0 0 100%;width:100%;justify-content:flex-start}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.check-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.center-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.topbar{padding:12px 16px;min-height:138px}.brand{flex-basis:100%;width:100%;min-width:0;max-width:none;height:54px;grid-template-columns:112px minmax(0,1fr)}.logo-mark{width:112px;height:54px;font-size:22px}.title-lock{width:auto;height:54px}.title-lock strong{font-size:18px}.title-lock small{font-size:12px}.btn{height:25px;min-height:25px;padding:0 9px;font-size:9.5px}.page-title{flex-direction:column}.center-grid,.form-grid,.check-grid,.summary-grid{grid-template-columns:1fr}.filter-row{grid-template-columns:1fr}.span-6{grid-column:span 12}}
-</style></head>
-<body><header><div class="topbar"><a class="brand" href="admin.html"><span class="logo-mark">PST</span><span class="title-lock"><strong>PEP Shop Texas</strong><small>Report Writer</small></span></a><nav class="actions"><a class="btn secondary" href="admin.html">Orders</a><a class="btn secondary" href="inventory.html">Inventory</a><a class="btn secondary" href="products.html">Products</a><a class="btn secondary" href="discounts.html">Discounts</a><a class="btn secondary" href="promotions.html">Promotions</a><a class="btn secondary active" href="reports.html">Reports</a><a class="btn secondary" href="customers.html">Customers</a><a class="btn secondary" href="index.html">View Site</a></nav></div></header>
+</style><style id="pst-admin-header-final">
+  .pst-admin-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    overflow: hidden !important;
+    background: #000 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #262626 !important;
+    box-shadow: none !important;
+  }
+
+  .pst-admin-nav-wrap {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-height: 40px !important;
+    margin: 0 auto !important;
+    padding: 0 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    position: relative !important;
+  }
+
+  .pst-admin-logo-link {
+    position: static !important;
+    transform: none !important;
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-header-logo {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    object-fit: contain !important;
+  }
+
+  .pst-admin-nav {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 24px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .pst-admin-nav a {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #fff !important;
+    font: 800 14px/1 Arial, Helvetica, sans-serif !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+  }
+
+  .pst-admin-nav a:hover,
+  .pst-admin-nav a:focus-visible {
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-nav a.active::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 3px !important;
+    height: 2px !important;
+    background: #fff !important;
+  }
+
+  @media (max-width: 980px) {
+    .pst-admin-nav-wrap {
+      height: 40px !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      padding: 0 14px !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 16px !important;
+    }
+
+    .pst-admin-nav {
+      flex: 1 1 auto !important;
+      flex-wrap: nowrap !important;
+      justify-content: flex-end !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scrollbar-width: none !important;
+    }
+
+    .pst-admin-nav::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pst-admin-nav-wrap {
+      padding: 0 10px !important;
+      gap: 12px !important;
+    }
+
+    .pst-admin-nav {
+      gap: 16px !important;
+    }
+  }
+</style>
+</head>
+<body><header class="pst-admin-header">
+  <div class="pst-admin-nav-wrap">
+    <a class="pst-admin-logo-link" href="admin.html" aria-label="Pep Shop Texas Admin Home">
+      <img src="admin header logo.png" alt="PST" class="pst-admin-header-logo">
+    </a>
+    <nav class="pst-admin-nav" aria-label="Admin navigation">
+      <a href="admin.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="products.html">Products</a>
+      <a href="discounts.html">Discounts</a>
+      <a href="promotions.html">Promotions</a>
+      <a href="reports.html" class="active">Reports</a>
+      <a href="customers.html">Customers</a>
+      <a href="index.html">View Site</a>
+    </nav>
+  </div>
+</header>
 <main><div class="page-title"><div><h1>Report Center</h1><p class="subtitle">Build custom reports using the actual Supabase tables and fields in Pep Shop Texas.</p></div><div class="actions"><a class="btn secondary" href="reports.html">Back to Reports</a><button class="btn secondary" onclick="window.print()">Print</button></div></div><div id="statusLine" class="status">Checking admin access...</div>
 <section class="center-grid"><a class="center-card" href="reports.html#quick-snapshot-card"><span class="center-icon">📊</span><span><strong>Dashboard</strong><span>Quick KPIs and charts</span></span></a><a class="center-card active" href="#report-writer"><span class="center-icon">📝</span><span><strong>Report Writer</strong><span>Build custom reports</span></span></a><a class="center-card" href="#saved-reports"><span class="center-icon">⭐</span><span><strong>Saved Reports</strong><span>One-click favorites</span></span></a><a class="center-card" href="#exports"><span class="center-icon">📤</span><span><strong>Exports</strong><span>Download history and scheduled reports</span></span></a></section>
 <section class="grid"><div class="card span-12" id="report-writer"><div class="card-header"><h2>📝 Report Writer</h2><span class="pill info" id="sourcePill">No source selected</span></div><div class="card-body"><div class="steps"><button class="step active" data-step="1">1. Data Source</button><button class="step" data-step="2">2. Fields</button><button class="step" data-step="3">3. Filters</button><button class="step" data-step="4">4. Preview</button><button class="step" data-step="5">5. Export</button></div>
