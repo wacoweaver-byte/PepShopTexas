@@ -1977,6 +1977,58 @@ td .inventory-readonly-value {
   }
 }
 </style>
+
+<style id="pst-global-admin-lookup-style">
+  .pst-global-lookup {
+    margin: 0 0 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: var(--shadow);
+  }
+  .pst-global-lookup h2 { margin: 0 0 6px; font-size: 18px; }
+  .pst-global-lookup-help { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+  .pst-global-lookup-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+  .pst-global-lookup-results { display: grid; gap: 8px; margin-top: 12px; }
+  .pst-global-lookup-empty {
+    padding: 12px;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    background: #fbfcfe;
+  }
+  .pst-global-match {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fbfcfe;
+    color: var(--dark);
+    text-align: left;
+    cursor: pointer;
+  }
+  .pst-global-match:hover { background: #f2f4f7; }
+  .pst-global-match strong { display: block; margin-bottom: 3px; }
+  .pst-global-match span { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; }
+  .pst-global-match-type {
+    display: inline-flex !important;
+    width: auto;
+    margin-bottom: 5px;
+    padding: 3px 7px;
+    border: 1px solid #000;
+    border-radius: 999px;
+    color: #000 !important;
+    background: #fff;
+    font-size: 10px !important;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  @media (max-width: 640px) {
+    .pst-global-lookup-row { grid-template-columns: 1fr; }
+  }
+</style>
+
 </head>
 <body class="admin-auth-pending">
 <header class="pst-admin-header">
@@ -1999,6 +2051,19 @@ td .inventory-readonly-value {
 
 <main>
   <div id="statusLine" class="status">Checking admin access...</div>
+
+  <section class="pst-global-lookup" id="pstGlobalLookup">
+    <h2>Global Lookup</h2>
+    <p class="pst-global-lookup-help">Search any reference a customer gives you: order number, customer number, refund number, tracking number, email, phone, name, product name, or item number.</p>
+    <div class="pst-global-lookup-row">
+      <input id="pstGlobalLookupInput" type="search" autocomplete="off" placeholder="Example: PST-O100040, PST-C100008, email, phone, tracking, product..." />
+      <button class="btn secondary" id="pstGlobalLookupClear" type="button">Clear</button>
+    </div>
+    <div class="pst-global-lookup-results" id="pstGlobalLookupResults">
+      <div class="pst-global-lookup-empty">Enter at least 2 characters to see possible matches.</div>
+    </div>
+  </section>
+
 
   <nav class="admin-dashboard-nav inventory-jumpbar" id="adminDashboardNav" aria-label="Orders dashboard quick links">
     <span class="inventory-jumpbar-label">Jump To</span>
@@ -3857,6 +3922,232 @@ async function init(){
     setStatus(error.message || "Something went wrong loading Admin Orders.", "bad");
   }
 }
+
+
+  // PST_GLOBAL_ADMIN_LOOKUP_RESTORED
+  function pstGlobalEsc(value){
+    return String(value ?? "").replace(/[&<>'"]/g, char => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"
+    }[char]));
+  }
+
+  function pstGlobalClean(value){
+    return String(value ?? "").trim().toLowerCase();
+  }
+
+  function pstGlobalDigits(value){
+    return String(value ?? "").replace(/\D/g, "");
+  }
+
+  function pstGlobalCustomerNumber(value){
+    const clean = String(value ?? "").trim();
+    if(!clean) return "";
+    return clean.toUpperCase().startsWith("PST-C") ? clean.toUpperCase() : `PST-C${clean}`;
+  }
+
+  function pstGlobalOrderNumber(order){
+    return String(order?.order_number || order?.legacy_order_number || order?.id || "");
+  }
+
+  function pstGlobalOrderHaystack(order){
+    const profile = order?.profile || {};
+    const items = Array.isArray(order?.items) ? order.items : [];
+    return [
+      order?.order_number,
+      order?.order_sequence_number,
+      order?.legacy_order_number,
+      order?.refund_number,
+      order?.tracking_number,
+      order?.tracking_carrier,
+      order?.shipping_name,
+      order?.shipping_email,
+      order?.shipping_phone,
+      order?.customer_email,
+      order?.customer_number,
+      profile?.customer_number,
+      profile?.email,
+      profile?.phone,
+      profile?.first_name,
+      profile?.last_name,
+      ...items.flatMap(item => [
+        item?.product_id,
+        item?.product_key,
+        item?.product_name,
+        item?.product_strength,
+        item?.product_category
+      ])
+    ].filter(Boolean).join(" ").toLowerCase();
+  }
+
+  function pstGlobalOrderMatches(order, raw){
+    const q = pstGlobalClean(raw);
+    const digits = pstGlobalDigits(raw);
+    if(pstGlobalOrderHaystack(order).includes(q)) return true;
+    if(digits.length >= 3 && pstGlobalDigits(pstGlobalOrderHaystack(order)).includes(digits)) return true;
+    return false;
+  }
+
+  function pstGlobalRender(results){
+    const box = document.getElementById("pstGlobalLookupResults");
+    if(!box) return;
+
+    if(!results.length){
+      box.innerHTML = '<div class="pst-global-lookup-empty">No possible matches found.</div>';
+      return;
+    }
+
+    box.innerHTML = results.slice(0, 40).map(result => {
+      if(result.type === "order"){
+        const order = result.row;
+        const profile = order.profile || {};
+        const customerNo = pstGlobalCustomerNumber(order.customer_number || profile.customer_number);
+        const refundNo = order.refund_number ? ` · Refund R${order.refund_number}` : "";
+        return `<button class="pst-global-match" type="button" data-global-type="order" data-global-id="${pstGlobalEsc(order.id)}">
+          <span class="pst-global-match-type">Order</span>
+          <strong>${pstGlobalEsc(pstGlobalOrderNumber(order))}</strong>
+          <span>${pstGlobalEsc(customerName(order))}${customerNo ? ` · ${pstGlobalEsc(customerNo)}` : ""}${refundNo} · ${pstGlobalEsc(customerEmail(order) || "No email")}</span>
+        </button>`;
+      }
+
+      if(result.type === "customer"){
+        const customer = result.row;
+        const fullName = [customer.first_name, customer.last_name].filter(Boolean).join(" ") || "Customer";
+        const customerNo = pstGlobalCustomerNumber(customer.customer_number);
+        return `<button class="pst-global-match" type="button" data-global-type="customer" data-global-email="${pstGlobalEsc(customer.email || "")}" data-global-name="${pstGlobalEsc(fullName)}">
+          <span class="pst-global-match-type">Customer</span>
+          <strong>${pstGlobalEsc(customerNo || fullName)}</strong>
+          <span>${pstGlobalEsc(fullName)} · ${pstGlobalEsc(customer.email || "No email")}${customer.phone ? ` · ${pstGlobalEsc(customer.phone)}` : ""}</span>
+        </button>`;
+      }
+
+      const product = result.row;
+      return `<div class="pst-global-match">
+        <span class="pst-global-match-type">Product</span>
+        <strong>${pstGlobalEsc(product.product_key || product.id || "Product")}</strong>
+        <span>${pstGlobalEsc(product.display_name || product.product_name || "Unnamed product")}${product.strength ? ` · ${pstGlobalEsc(product.strength)}` : ""}${product.category ? ` · ${pstGlobalEsc(product.category)}` : ""}</span>
+      </div>`;
+    }).join("");
+  }
+
+  async function pstRunGlobalLookup(){
+    const input = document.getElementById("pstGlobalLookupInput");
+    const raw = input?.value?.trim() || "";
+    const resultsBox = document.getElementById("pstGlobalLookupResults");
+    if(!resultsBox) return;
+
+    if(raw.length < 2){
+      resultsBox.innerHTML = '<div class="pst-global-lookup-empty">Enter at least 2 characters to see possible matches.</div>';
+      return;
+    }
+
+    resultsBox.innerHTML = '<div class="pst-global-lookup-empty">Searching possible matches...</div>';
+
+    const results = [];
+    const seen = new Set();
+
+    (allOrders || []).filter(order => pstGlobalOrderMatches(order, raw)).forEach(order => {
+      const key = `order:${order.id}`;
+      if(!seen.has(key)){ seen.add(key); results.push({type:"order", row:order}); }
+    });
+
+    const q = pstGlobalClean(raw);
+    const digits = pstGlobalDigits(raw);
+    const customerFilters = [
+      `email.ilike.%${q.replace(/,/g, "")}%`,
+      `first_name.ilike.%${q.replace(/,/g, "")}%`,
+      `last_name.ilike.%${q.replace(/,/g, "")}%`,
+      `phone.ilike.%${q.replace(/,/g, "")}%`
+    ];
+    if(digits) customerFilters.push(`customer_number.eq.${digits}`);
+
+    try{
+      const {data: customers, error} = await supabaseClient
+        .from("customer_profiles")
+        .select("user_id,customer_number,email,first_name,last_name,phone")
+        .or(customerFilters.join(","))
+        .limit(25);
+
+      if(error) console.warn("Global customer lookup:", error.message || error);
+      (customers || []).forEach(customer => {
+        const key = `customer:${customer.user_id || customer.email}`;
+        if(!seen.has(key)){ seen.add(key); results.push({type:"customer", row:customer}); }
+      });
+    }catch(error){
+      console.warn("Global customer lookup failed:", error);
+    }
+
+    const safeQ = q.replace(/[%_,]/g, "");
+    if(safeQ){
+      for(const tableName of ["product_inventory", "product_catalog"]){
+        try{
+          const {data: products, error} = await supabaseClient
+            .from(tableName)
+            .select("id,product_key,display_name,strength,category")
+            .or(`product_key.ilike.%${safeQ}%,display_name.ilike.%${safeQ}%,strength.ilike.%${safeQ}%`)
+            .limit(15);
+
+          if(error) console.warn(`Global ${tableName} lookup:`, error.message || error);
+          (products || []).forEach(product => {
+            const key = `product:${product.product_key || product.id}`;
+            if(!seen.has(key)){ seen.add(key); results.push({type:"product", row:product}); }
+          });
+        }catch(error){
+          console.warn(`Global ${tableName} lookup failed:`, error);
+        }
+      }
+    }
+
+    pstGlobalRender(results);
+  }
+
+  let pstGlobalLookupTimer = null;
+  document.getElementById("pstGlobalLookupInput")?.addEventListener("input", () => {
+    clearTimeout(pstGlobalLookupTimer);
+    pstGlobalLookupTimer = setTimeout(pstRunGlobalLookup, 250);
+  });
+
+  document.getElementById("pstGlobalLookupInput")?.addEventListener("keydown", event => {
+    if(event.key === "Enter"){
+      event.preventDefault();
+      clearTimeout(pstGlobalLookupTimer);
+      pstRunGlobalLookup();
+    }
+  });
+
+  document.getElementById("pstGlobalLookupClear")?.addEventListener("click", () => {
+    const input = document.getElementById("pstGlobalLookupInput");
+    if(input) input.value = "";
+    pstGlobalRender([]);
+    const box = document.getElementById("pstGlobalLookupResults");
+    if(box) box.innerHTML = '<div class="pst-global-lookup-empty">Enter at least 2 characters to see possible matches.</div>';
+    input?.focus();
+  });
+
+  document.getElementById("pstGlobalLookupResults")?.addEventListener("click", async event => {
+    const match = event.target.closest("[data-global-type]");
+    if(!match) return;
+
+    if(match.dataset.globalType === "order"){
+      const order = (allOrders || []).find(row => String(row.id) === String(match.dataset.globalId));
+      if(order){
+        await renderOrderDetail(order);
+        document.getElementById("detailCard")?.scrollIntoView({behavior:"smooth", block:"start"});
+      }
+      return;
+    }
+
+    if(match.dataset.globalType === "customer"){
+      const search = document.getElementById("searchInput");
+      const value = match.dataset.globalEmail || match.dataset.globalName || "";
+      if(search){
+        search.value = value;
+        clearOrderDashboardFilters();
+        applyFilters();
+        setAdminCardOpen("order-list-card", true);
+        document.getElementById("order-list-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+      }
+    }
+  });
 
 init();
 </script>
