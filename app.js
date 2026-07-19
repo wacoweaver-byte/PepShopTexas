@@ -1254,9 +1254,13 @@ function buildOrderEmailPayload(order, context = {}, overrides = {}) {
     type: overrides.type || "order_placed",
     originalType: overrides.originalType || overrides.type || "order_placed",
     to: overrides.to || context.customerEmail || order.customer_email || order.email,
-    customerName: context.customerName || order.customer_name || order.name || "Customer",
-    customerEmail: context.customerEmail || order.customer_email || order.email || "",
-    orderNumber: order.order_number || order.id,
+customerName: context.customerName || order.customer_name || order.name || "Customer",
+customerEmail: context.customerEmail || order.customer_email || order.email || "",
+customerNumber:
+  context.customerNumber ||
+  order.customer_number ||
+  "",
+orderNumber: order.order_number || order.id,
     orderDate: order.created_at,
     subtotal: order.subtotal ?? order.subtotal_amount ?? 0,
     discount: order.discount ?? order.discount_amount ?? 0,
