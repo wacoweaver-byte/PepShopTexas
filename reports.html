@@ -30,7 +30,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#bd0000"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="theme-color" content="#000000"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
     *{box-sizing:border-box}
@@ -371,7 +371,7 @@ strong {
 .report-center-icon{font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px}
 .report-center-card strong{display:block;color:var(--dark);font-size:15px;font-weight:600;line-height:1.15;margin-bottom:4px}
 .report-center-card span{display:block;color:var(--muted);font-size:12px;font-weight:400;line-height:1.25}
-.report-center-card:hover{border-color:#bd0000;box-shadow:0 8px 22px rgba(16,24,32,.08)}
+.report-center-card:hover{border-color:#000000;box-shadow:0 8px 22px rgba(16,24,32,.08)}
 @media(max-width:1050px){.report-center-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.report-center-grid{grid-template-columns:1fr}.report-center-card{min-height:74px}}
 @media print{.report-center-grid{display:none!important}}
@@ -511,8 +511,8 @@ header .pst-admin-actions-lock .btn.secondary {
 }
 header .actions .btn.secondary.active,
 header .pst-admin-actions-lock .btn.secondary.active {
-  background: #bd0000 !important;
-  border-color: #bd0000 !important;
+  background: #000000 !important;
+  border-color: #000000 !important;
   color: #ffffff !important;
 }
 header .actions .btn.danger,
@@ -716,8 +716,8 @@ header .pst-admin-actions-lock .btn.secondary {
 }
 header .actions .btn.secondary.active,
 header .pst-admin-actions-lock .btn.secondary.active {
-  background: #bd0000 !important;
-  border-color: #bd0000 !important;
+  background: #000000 !important;
+  border-color: #000000 !important;
   color: #ffffff !important;
 }
 header .actions .btn.danger,
@@ -1475,8 +1475,8 @@ header .pst-admin-actions-lock button.btn {
 header .pst-admin-actions-lock .btn.active,
 header .pst-admin-actions-lock .btn.primary {
   color: #ffffff !important;
-  background: #bd0000 !important;
-  border-color: #bd0000 !important;
+  background: #000000 !important;
+  border-color: #000000 !important;
 }
 @media (max-width: 980px) {
   header .pst-admin-topbar-lock { grid-template-columns: 1fr !important; align-items: start !important; }
@@ -1500,10 +1500,10 @@ header .pst-admin-actions-lock .btn.primary {
 </style>
 <style id="pst-admin-red-button-overrides">
 :root {
-  --blue: #bd0000 !important;
-  --pst-blue: #bd0000 !important;
-  --pst-admin-blue: #bd0000 !important;
-  --pst-admin-accent: #bd0000 !important;
+  --blue: #000000 !important;
+  --pst-blue: #000000 !important;
+  --pst-admin-blue: #000000 !important;
+  --pst-admin-accent: #000000 !important;
 }
 header .actions .btn.active,
 header .actions .btn.primary,
@@ -1527,18 +1527,18 @@ header .pst-admin-actions-lock .btn.primary,
 .btn.secondary.active,
 button.btn.primary,
 a.btn.primary {
-  background: #bd0000 !important;
-  border-color: #bd0000 !important;
+  background: #000000 !important;
+  border-color: #000000 !important;
   color: #ffffff !important;
 }
 .btn:not(.secondary):not(.danger):not(.success):not(.warning) {
-  background-color: #bd0000;
-  border-color: #bd0000;
+  background-color: #000000;
+  border-color: #000000;
   color: #ffffff;
 }
 button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
-  background-color: #bd0000;
-  border-color: #bd0000;
+  background-color: #000000;
+  border-color: #000000;
   color: #ffffff;
 }
 </style>
@@ -1557,8 +1557,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   --pst-reports-pill-pad-x: 10px;
   --pst-reports-pill-line: #c9ced6;
   --pst-reports-pill-ink: #101820;
-  --pst-reports-pill-blue: #003f9e;
-  --pst-reports-pill-red: #bd0000;
+  --pst-reports-pill-blue: #000000;
+  --pst-reports-pill-red: #000000;
   --pst-reports-pill-green: #0c6b3a;
   --pst-reports-pill-warn: #8a5a00;
   --pst-reports-pill-danger: #8a1f17;
@@ -1672,15 +1672,15 @@ header .pst-admin-actions-lock .btn.primary,
 .collapse-toggle[aria-expanded="true"],
 .card.collapsible-card:not(.collapsed) .collapse-toggle {
   color: #ffffff !important;
-  background: var(--pst-reports-pill-red) !important;
-  border-color: var(--pst-reports-pill-red) !important;
+  background: #000000 !important;
+  border-color: #000000) !important;
 }
 
 /* Quick links use the catalog On Order blue-outline language. */
 .reports-jumpbar a:not(.active):not([aria-pressed="true"]) {
-  color: var(--pst-reports-pill-blue) !important;
+  color: #000000 !important;
   background: #ffffff !important;
-  border-color: var(--pst-reports-pill-blue) !important;
+  border-color: #000000 !important;
 }
 
 .reports-jumpbar {
