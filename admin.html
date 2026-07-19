@@ -3312,6 +3312,16 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     const url = $("editTrackingUrl").value.trim();
     const trackingNotRequired = !!$("editNoTrackingRequired")?.checked;
     const trackingReason = cleanValue($("editNoTrackingReason")?.value);
+    const shippingCost = Number($("editShippingCost")?.value || 0);
+    const taxAmount = Number($("editTaxAmount")?.value || 0);
+
+    const subtotalAmount = Number(orderSubtotal(order) || 0);
+    const discountAmount = Number(orderDiscount(order) || 0);
+ 
+    const revisedTotal = Math.max(
+      0,
+      subtotalAmount - discountAmount + shippingCost + taxAmount
+    );
 
     // Payment accepted should automatically advance a newly paid order into Processing.
     // Do not move backwards or override higher fulfillment stages like Packed/Shipped/Delivered.
@@ -3337,7 +3347,27 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     if(trackingChange) changes.push(trackingChange);
     if(trackingUrlChange) changes.push(trackingUrlChange);
     if(noTrackingRequired(order) !== trackingNotRequired) changes.push(trackingNotRequired ? "No tracking required enabled" : "No tracking required removed");
-    const updates = { order_status: os, status: os, payment_status: ps, tracking_carrier: carrier || null, carrier: carrier || null, tracking_number: tracking || null, tracking: tracking || null, tracking_url: url || null, no_tracking_required: trackingNotRequired, no_tracking_reason: trackingReason || null, last_admin_actor: adminDisplayName(), last_admin_actor_email: cleanValue(currentUser?.email), updated_at: now };
+    const updates = {
+  order_status: os,
+  status: os,
+  payment_status: ps,
+
+  shipping: shippingCost,
+  tax: taxAmount,
+  total: revisedTotal,
+
+  tracking_carrier: carrier || null,
+  carrier: carrier || null,
+  tracking_number: tracking || null,
+  tracking: tracking || null,
+  tracking_url: url || null,
+  no_tracking_required: trackingNotRequired,
+  no_tracking_reason: trackingReason || null,
+
+  last_admin_actor: adminDisplayName(),
+  last_admin_actor_email: cleanValue(currentUser?.email),
+  updated_at: now
+};
 
     if(isRiskyLockedChange(order, updates)){
       updates.last_admin_actor = adminDisplayName();
