@@ -1,9 +1,10 @@
 name: One-time admin jump border black
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-admin-jump-border-black.yml'
 
 permissions:
   contents: write
@@ -22,23 +23,23 @@ jobs:
           old = '''.admin-dashboard-nav .btn {
   background: #fff;
   color: var(--dark);
-  border: 1px solid var(--border);
+  border: 1px solid #d9e2ec;
 }'''
           new = '''.admin-dashboard-nav .btn {
   background: #fff;
   color: var(--dark);
-  border: 1px solid #000;
+  border: 1px solid #000000;
 }'''
           count = text.count(old)
           if count != 1:
               raise SystemExit(f'Expected exactly one admin jump-link block; found {count}')
           path.write_text(text.replace(old, new, 1))
           PY
-      - name: Commit exact change
+      - name: Remove temporary workflow and commit exact change
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/one-time-admin-jump-border-black.yml
           git add admin.html
-          git diff --cached --quiet && exit 0
           git commit -m "Make admin jump-link outlines black"
           git push
