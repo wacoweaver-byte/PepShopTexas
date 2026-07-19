@@ -1135,7 +1135,19 @@ async function handleCheckoutSubmit(event) {
       });
     }
 
-    await sendOrderReceivedEmail({ ...order, items: itemPayloads }, { customerName, customerEmail, paymentMethod, paymentInstructions, paymentQr });
+   await sendOrderReceivedEmail(
+  { ...order, items: itemPayloads },
+  {
+    customerName,
+    customerEmail,
+    customerNumber: profile?.customer_number
+      ? `PST-C${profile.customer_number}`
+      : "",
+    paymentMethod,
+    paymentInstructions,
+    paymentQr
+  }
+);
 
     writeCart([]);
     setStatus(`Order ${order.order_number || orderNumberValue} submitted. It is now in Order Management.`, "good");
