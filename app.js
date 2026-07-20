@@ -1398,6 +1398,7 @@ function checkoutFormHtml(rows, context) {
       <label>Payment Method <select name="payment_method">${methods.map((method) => `<option value="${escapeAttribute(method.id)}" data-label="${escapeAttribute(method.label)}" data-instructions="${escapeAttribute(paymentInstructionsText(method))}" data-qr="${escapeAttribute(paymentQrImage(method))}">${escapeHtml(method.label)}</option>`).join("")}</select></label>
       <p class="payment-instructions" data-payment-instructions></p>
       <div data-payment-qr></div>
+      <p class="checkout-note">Shipping is standard flat fee for anywhere in US. Any charges over 12.00 will be paid by PepShopTexas.</p>
       <label>Order Notes <textarea name="customer_notes" placeholder="Optional notes for support"></textarea></label>
       ${cartBlocked ? `<p class="checkout-status bad">${escapeHtml(blockMessage)}</p>` : ""}
       <button class="primary-action" type="submit" ${rows.length && !cartBlocked ? "" : "disabled"}>${cartBlocked ? "Update Cart Before Checkout" : "Place Order"}</button>
