@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V25_APPLY_TRACKING_BY_DATE_VENDOR -->
 <!-- PST_INVENTORY_PATCH_V23_PO_VENDOR_ITEM_SORTABLE_HEADERS -->
 <!-- PST_INVENTORY_PATCH_V24_RECEIVED_7_DAY_HISTORY -->
 <!-- PST_INVENTORY_PATCH_V22_VENDOR_LEAD_TIME_EXPECTED_ARRIVAL_FIX -->
@@ -4680,6 +4681,7 @@ function incomingEditRowHTML(row) {
         </div>
         <div class="incoming-edit-actions">
           <button class="btn primary save-incoming-edit-btn" data-incoming-id="${id}" type="button">Save Changes</button>
+          <button class="btn secondary apply-po-tracking-btn" data-incoming-id="${id}" type="button">Apply Tracking to PO</button>
           <button class="btn secondary close-incoming-edit-btn" type="button">Close</button>
         </div>
       </div>
@@ -4769,6 +4771,12 @@ function renderIncomingInventory() {
     saveIncomingEdit(btn.dataset.incomingId).catch(err => {
       console.error("Incoming order edit failed:", err);
       setStatus(err.message || "Incoming order edit failed.", "bad");
+    });
+  }));
+  document.querySelectorAll(".apply-po-tracking-btn").forEach(btn => btn.addEventListener("click", () => {
+    applyTrackingToIncomingPurchaseOrder(btn.dataset.incomingId).catch(err => {
+      console.error("Purchase order tracking update failed:", err);
+      setStatus(err.message || "Purchase order tracking update failed.", "bad");
     });
   }));
   document.querySelectorAll(".close-incoming-edit-btn").forEach(btn => btn.addEventListener("click", () => {
@@ -4958,6 +4966,73 @@ async function updateIncomingStatus(id, status) {
 function incomingEditField(id, field) {
   return Array.from(document.querySelectorAll("[data-incoming-edit]"))
     .find(el => String(el.dataset.incomingEdit) === String(id) && el.dataset.field === field) || null;
+}
+
+function incomingPurchaseOrderGroupRows(row) {
+  const vendorId = cleanText(row?.vendor_id);
+  const orderedDate = incomingDateInputValue(row?.ordered_at || row?.created_at);
+  if (!vendorId || !orderedDate) return [];
+
+  return incomingInventoryRows.filter(candidate =>
+    cleanText(candidate.vendor_id) === vendorId &&
+    incomingDateInputValue(candidate.ordered_at || candidate.created_at) === orderedDate
+  );
+}
+
+async function applyTrackingToIncomingPurchaseOrder(id) {
+  const row = incomingInventoryRows.find(candidate => String(candidate.id) === String(id));
+  if (!row) return;
+
+  const trackingNumber = cleanText(incomingEditField(id, "tracking_number")?.value || "");
+  if (!trackingNumber) {
+    alert("Enter the tracking number first.");
+    incomingEditField(id, "tracking_number")?.focus();
+    return;
+  }
+
+  if (!cleanText(row.vendor_id)) {
+    alert("This incoming order does not have a Vendor ID, so it cannot be matched by Date Ordered + Vendor ID.");
+    return;
+  }
+
+  const matchingRows = incomingPurchaseOrderGroupRows(row);
+  if (!matchingRows.length) {
+    alert("No incoming order lines matched this Date Ordered + Vendor ID.");
+    return;
+  }
+
+  const orderedDate = incomingDateInputValue(row.ordered_at || row.created_at);
+  const vendor = vendorForIncomingRow(row);
+  const vendorName = vendor?.company_name || row.vendor_name || row.supplier_name || row.vendor_id;
+  const confirmed = confirm(`Apply tracking number ${trackingNumber} to all ${matchingRows.length} item line(s) ordered on ${orderedDate} from ${vendorName}?`);
+  if (!confirmed) return;
+
+  const matchingIds = matchingRows.map(candidate => candidate.id).filter(Boolean);
+  const updatedAt = new Date().toISOString();
+
+  if (incomingUsesSupabase) {
+    const { data, error } = await db
+      .from("incoming_inventory")
+      .update({ tracking_number: trackingNumber, updated_at: updatedAt })
+      .in("id", matchingIds)
+      .select("id");
+    if (error) throw error;
+    if ((data || []).length !== matchingIds.length) {
+      throw new Error(`Tracking updated ${data?.length || 0} of ${matchingIds.length} matching purchase order line(s).`);
+    }
+  } else {
+    const matchingIdSet = new Set(matchingIds.map(String));
+    incomingInventoryRows = incomingInventoryRows.map(candidate =>
+      matchingIdSet.has(String(candidate.id))
+        ? { ...candidate, tracking_number: trackingNumber, updated_at: updatedAt }
+        : candidate
+    );
+    saveIncomingLocalRows(incomingInventoryRows);
+  }
+
+  setStatus(`Tracking ${trackingNumber} applied to ${matchingRows.length} purchase order line(s) for ${orderedDate} and Vendor ID ${row.vendor_id}.`, "good");
+  editingIncomingId = null;
+  await loadIncomingInventory();
 }
 
 async function saveIncomingEdit(id) {
