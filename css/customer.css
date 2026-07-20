@@ -254,7 +254,8 @@
   font-weight: 700;
 }
 .shipping-address-choice {
-  display: flex !important;
+  display: grid !important;
+  grid-template-columns: 22px minmax(0, 1fr);
   width: 100%;
   align-items: center;
   gap: 8px;
@@ -269,6 +270,12 @@
   width: auto !important;
   min-height: 0 !important;
   margin: 0;
+  justify-self: end;
+}
+.shipping-address-choice span {
+  min-width: 0;
+  justify-self: start;
+  text-align: left;
 }
 .new-shipping-address {
   display: grid;
