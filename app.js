@@ -1497,11 +1497,8 @@ function checkoutFormHtml(rows, context) {
       ` : ""}
       <fieldset class="shipping-address-checkout">
         <legend>Confirm Shipping Address</legend>
-        <div class="shipping-address-on-file">
-          <span>${escapeHtml(savedAddress)}</span>
-        </div>
-        <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="on_file" required> <span>Use the shipping address on file.</span></label>
-        <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="new" required> <span>Use a new shipping address.</span></label>
+        <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="on_file" required> <span>${escapeHtml(savedAddress)}</span></label>
+        <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="new" required> <span>New address</span></label>
         <div class="new-shipping-address" data-new-shipping-address hidden>
           <label>Recipient Name<input name="new_shipping_name" autocomplete="shipping name"></label>
           <label>Address<input name="new_shipping_address1" autocomplete="shipping address-line1"></label>
