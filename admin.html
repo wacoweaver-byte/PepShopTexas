@@ -3789,7 +3789,11 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
   }
   async function restoreInventoryForDeletedTestOrders(orders){
     const totals = new Map();
-    (orders || []).forEach(order => {
+    (orders || []).filter(order =>
+      norm(paymentStatus(order)) === "paid" &&
+      orderInventoryDeducted(order) &&
+      !orderInventoryRestored(order)
+    ).forEach(order => {
       (order.items || []).forEach(item => {
         const key = itemStockKey(item);
         const qty = itemQty(item);
@@ -3839,7 +3843,12 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       setStatus('Delete cancelled. Confirmation text did not match.', 'bad');
       return;
     }
-    const shouldRestore = confirm('Restore selected order item quantities back into Inventory before deleting?\n\nChoose OK if you want to reverse test inventory deductions. Choose Cancel if you want to delete the test orders only and leave inventory as-is.');
+    const restorableOrders = selectedOrders.filter(order =>
+      norm(paymentStatus(order)) === "paid" &&
+      orderInventoryDeducted(order) &&
+      !orderInventoryRestored(order)
+    );
+    const shouldRestore = restorableOrders.length > 0 && confirm('Restore selected paid order item quantities back into Inventory before deleting?\n\nChoose OK if you want to reverse test inventory deductions. Choose Cancel if you want to delete the test orders only and leave inventory as-is.');
 
     try{
       setStatus(`Deleting ${selectedOrders.length} selected test order(s)...`);
@@ -3847,7 +3856,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       if(shouldRestore){
         await confirmAdminPasswordForProtectedAction('restore selected test order quantities back into inventory');
         setStatus('Restoring inventory from selected test orders...');
-        restoreResult = await restoreInventoryForDeletedTestOrders(selectedOrders);
+        restoreResult = await restoreInventoryForDeletedTestOrders(restorableOrders);
       }
 
       // Delete child item rows first so foreign-key constraints cannot block order deletion.
