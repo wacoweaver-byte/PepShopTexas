@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="css/customer.css?v=15">
+  <link rel="stylesheet" href="css/customer.css?v=17">
   <style>
     /* Cart visual refresh — presentation only; existing behavior remains unchanged. */
     :root {
@@ -597,7 +597,7 @@
     }
   </style>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=44"></script>
+  <script defer src="app.js?v=46"></script>
   <script defer src="cart-payment-discounts.js?v=1"></script>
   <script defer src="cart-store-credit-auto.js?v=1"></script>
 </head>
@@ -623,7 +623,12 @@
   <main class="cart-page">
     <section class="page-heading"><p>Shopping cart</p><h1>Your Cart</h1></section>
     <section class="cart-layout">
-      <div class="cart-items" data-cart-items></div>
+      <div class="cart-main-column">
+        <div class="cart-items" data-cart-items></div>
+        <section class="new-shipping-address-host" data-new-shipping-address-host hidden>
+          <h2>New Shipping Address</h2>
+        </section>
+      </div>
       <aside class="cart-summary" data-cart-summary></aside>
     </section>
   </main>

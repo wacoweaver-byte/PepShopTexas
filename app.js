@@ -684,6 +684,8 @@ function bindCartPageButtons() {
     const qrBox = form.querySelector("[data-payment-qr]");
     const addressChoices = form.querySelectorAll("[name='shipping_address_choice']");
     const newAddressFields = form.querySelector("[data-new-shipping-address]");
+    const newAddressHost = document.querySelector("[data-new-shipping-address-host]");
+    newAddressFields?.querySelectorAll("input").forEach((input) => input.setAttribute("form", "checkoutForm"));
     const syncPaymentInstructions = () => {
       const option = select?.selectedOptions?.[0];
       const text = option?.dataset?.instructions || "";
@@ -695,7 +697,9 @@ function bindCartPageButtons() {
     syncPaymentInstructions();
     const syncShippingAddressChoice = () => {
       const choice = form.querySelector("[name='shipping_address_choice']:checked")?.value || "";
+      if (newAddressFields && newAddressHost && !newAddressHost.contains(newAddressFields)) newAddressHost.appendChild(newAddressFields);
       if (newAddressFields) newAddressFields.hidden = choice !== "new";
+      if (newAddressHost) newAddressHost.hidden = choice !== "new";
       updateCheckoutTaxPreview(form);
     };
     addressChoices.forEach((input) => input.addEventListener("change", syncShippingAddressChoice));
@@ -1275,6 +1279,8 @@ await sendOrderReceivedEmail(
       <p class="checkout-status good">Order ${escapeHtml(order.order_number || orderNumberValue)} is now in Order Management.</p>
       <a class="primary-action" href="account.html">View My Account</a>
     `;
+    const newAddressHost = document.querySelector("[data-new-shipping-address-host]");
+    if (newAddressHost) newAddressHost.hidden = true;
     const itemsNode = document.querySelector("[data-cart-items]");
     if (itemsNode) itemsNode.innerHTML = `<div class="empty-cart"><h2>Order submitted</h2><p>Your cart has been cleared.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>`;
   } catch (error) {
@@ -1487,7 +1493,7 @@ function checkoutFormHtml(rows, context) {
   const profileState = profile.shipping_state || profile.state || "";
   const savedAddress = context.address || "No complete shipping address is currently saved.";
   return `
-    <form class="checkout-form" data-checkout-form data-subtotal="${Number(totals.subtotal || 0)}" data-shipping="${Number(totals.shipping || 0)}" data-profile-shipping-state="${escapeAttribute(profileState)}">
+    <form id="checkoutForm" class="checkout-form" data-checkout-form data-subtotal="${Number(totals.subtotal || 0)}" data-shipping="${Number(totals.shipping || 0)}" data-profile-shipping-state="${escapeAttribute(profileState)}">
       <p class="account-checkout-note">This order will use the contact email and shipping details saved on your account.</p>
       ${storeCredit.balance > 0 ? `
         <label style="display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:14px;color:#101820;">
@@ -1498,7 +1504,7 @@ function checkoutFormHtml(rows, context) {
       <fieldset class="shipping-address-checkout">
         <legend>Confirm Shipping Address</legend>
         <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="on_file" required> <span>${escapeHtml(savedAddress)}</span></label>
-        <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="new" required> <span>New address</span></label>
+        <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="new" required> <span>new address</span></label>
         <div class="new-shipping-address" data-new-shipping-address hidden>
           <label>Recipient Name<input name="new_shipping_name" autocomplete="shipping name"></label>
           <label>Address<input name="new_shipping_address1" autocomplete="shipping address-line1"></label>
