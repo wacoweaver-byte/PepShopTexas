@@ -162,8 +162,8 @@
     .cart-items .pst-cart-column-header,
     .cart-items .pst-cart-product-row {
       display: grid !important;
-      grid-template-columns: minmax(180px, 1fr) 105px 74px 125px 72px;
-      gap: 10px;
+      grid-template-columns: minmax(150px, 1fr) 68px 52px 88px 64px;
+      gap: 6px;
       align-items: center;
       width: 100%;
     }
@@ -178,6 +178,17 @@
       font-weight: 700;
       letter-spacing: .06em;
       text-transform: uppercase;
+    }
+
+    .cart-items .pst-cart-column-header > span {
+      min-width: 0;
+      white-space: normal;
+      line-height: 1.15;
+    }
+
+    .cart-items .pst-cart-column-header > span:nth-child(2),
+    .cart-items .pst-cart-column-header > span:nth-child(4) {
+      max-width: 64px;
     }
 
     .cart-items .pst-cart-product-row {
@@ -560,7 +571,7 @@
           const header = document.createElement('div');
           header.className = 'pst-cart-column-header';
           header.setAttribute('aria-hidden', 'true');
-          header.innerHTML = '<span>Product</span><span>Unit Price</span><span>Qty</span><span>Extended Price</span><span>Remove</span>';
+          header.innerHTML = '<span>Product</span><span>Unit<br>Price</span><span>Qty</span><span>Extended<br>Price</span><span>Remove</span>';
           cartItems.prepend(header);
         }
 
