@@ -1498,7 +1498,6 @@ function checkoutFormHtml(rows, context) {
       <fieldset class="shipping-address-checkout">
         <legend>Confirm Shipping Address</legend>
         <div class="shipping-address-on-file">
-          <strong>Address on file</strong>
           <span>${escapeHtml(savedAddress)}</span>
         </div>
         <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="on_file" required> <span>Use the shipping address on file.</span></label>
