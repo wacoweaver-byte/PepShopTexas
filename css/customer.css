@@ -220,6 +220,7 @@
 
 /* Cart shipping-address confirmation. */
 .shipping-address-checkout {
+  display: block !important;
   margin: 18px 0 0;
   padding: 16px;
   border: 1px solid #d9dde3;
@@ -238,11 +239,15 @@
 }
 .shipping-address-choice {
   display: flex !important;
+  width: 100%;
   align-items: center;
   gap: 8px;
   margin: 8px 0 0 !important;
   font-size: 14px !important;
   font-weight: 600;
+}
+.shipping-address-checkout > .shipping-address-choice + .shipping-address-choice {
+  margin-top: 8px !important;
 }
 .shipping-address-choice input {
   width: auto !important;
