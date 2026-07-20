@@ -387,6 +387,16 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .cart-summary .pst-summary-amount {
+      grid-column: 2 !important;
+      width: 7.5ch !important;
+      margin: 0 !important;
+      justify-self: end !important;
+      text-align: right !important;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
     .cart-summary .pst-summary-total-row {
       margin-top: 7px;
       padding-top: 13px;
@@ -565,6 +575,10 @@
           if (text.length > 80 || element.children.length > 3) return;
           if (/^(Subtotal|Shipping|Tax\b|Estimated Tax\b|Total\b|Grand Total\b)/i.test(text)) {
             element.classList.add('pst-summary-money-row');
+            const amount = [...element.querySelectorAll('span, strong, b, em')]
+              .reverse()
+              .find((candidate) => /^\$\s*[\d,]+\.\d{2}$/.test((candidate.textContent || '').trim()));
+            if (amount) amount.classList.add('pst-summary-amount');
             if (/^(Total\b|Grand Total\b)/i.test(text)) {
               element.classList.add('pst-summary-total-row');
             }
