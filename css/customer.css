@@ -219,6 +219,25 @@
 .empty-state { padding: 18px; color: #596579; background: #f7f9fc; border-radius: 8px; }
 
 /* Cart shipping-address confirmation. */
+.cart-main-column {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-width: 0;
+}
+.new-shipping-address-host {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #d9dde3;
+  background: #fff;
+}
+.new-shipping-address-host[hidden] { display: none !important; }
+.new-shipping-address-host h2 {
+  margin: 0 0 16px;
+  font-size: 22px;
+}
 .shipping-address-checkout {
   display: block !important;
   box-sizing: border-box;
