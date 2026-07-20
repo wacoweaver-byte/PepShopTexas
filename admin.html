@@ -1993,6 +1993,7 @@ td .inventory-readonly-value {
   .pst-global-lookup-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
   .pst-global-lookup-row input { background: #fff; color: #000; }
   .pst-global-lookup-results { display: grid; gap: 8px; margin-top: 12px; }
+  .pst-global-lookup-results:empty { display: none; }
   .pst-global-lookup-empty {
     padding: 12px;
     border: 1px dashed var(--border);
@@ -2061,9 +2062,7 @@ td .inventory-readonly-value {
       <input id="pstGlobalLookupInput" type="search" autocomplete="off" placeholder="Example: PST-O100040, PST-C100008, email, phone, tracking, product..." />
       <button class="btn secondary" id="pstGlobalLookupClear" type="button">Clear</button>
     </div>
-    <div class="pst-global-lookup-results" id="pstGlobalLookupResults">
-      <div class="pst-global-lookup-empty">Enter at least 2 characters to see possible matches.</div>
-    </div>
+    <div class="pst-global-lookup-results" id="pstGlobalLookupResults"></div>
   </section>
 
 
@@ -4111,7 +4110,7 @@ async function init(){
     if(!resultsBox) return;
 
     if(raw.length < 2){
-      resultsBox.innerHTML = '<div class="pst-global-lookup-empty">Enter at least 2 characters to see possible matches.</div>';
+      resultsBox.innerHTML = '';
       return;
     }
 
@@ -4194,7 +4193,7 @@ async function init(){
     if(input) input.value = "";
     pstGlobalRender([]);
     const box = document.getElementById("pstGlobalLookupResults");
-    if(box) box.innerHTML = '<div class="pst-global-lookup-empty">Enter at least 2 characters to see possible matches.</div>';
+    if(box) box.innerHTML = '';
     input?.focus();
   });
 
