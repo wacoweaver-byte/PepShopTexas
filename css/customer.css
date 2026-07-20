@@ -218,6 +218,73 @@
 .item-name span { color: #596579; font-size: 12px; }
 .empty-state { padding: 18px; color: #596579; background: #f7f9fc; border-radius: 8px; }
 
+/* Cart shipping-address confirmation. */
+.shipping-address-checkout {
+  margin: 18px 0 0;
+  padding: 16px;
+  border: 1px solid #d9dde3;
+}
+.shipping-address-checkout legend {
+  padding: 0 7px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.shipping-address-on-file {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.shipping-address-choice {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0 !important;
+  font-size: 14px !important;
+  font-weight: 600;
+}
+.shipping-address-choice input {
+  width: auto !important;
+  min-height: 0 !important;
+  margin: 0;
+}
+.new-shipping-address {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e5e9;
+}
+.new-shipping-address[hidden] { display: none !important; }
+.new-shipping-address label {
+  display: grid !important;
+  gap: 6px;
+  margin: 0 !important;
+  font-size: 12px !important;
+  font-weight: 700;
+}
+.new-shipping-address label:nth-child(2),
+.new-shipping-address label:nth-child(3),
+.new-shipping-address p { grid-column: 1 / -1; }
+.new-shipping-address input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #aeb2b8;
+  border-radius: 2px;
+  background: #fff;
+  font: inherit;
+}
+.new-shipping-address p {
+  margin: 0;
+  color: #596579;
+  font-size: 12px;
+}
+.optional-field { color: #737982; font-weight: 400; }
+
 /* Shared customer footer and trust bar. */
 .trust-bar {
   display: grid;
@@ -317,6 +384,10 @@
   .item-line { grid-template-columns: minmax(0, 1fr) auto; }
   .site-footer-inner { width: calc(100% - 24px); flex-direction: column; align-items: flex-start; }
   .site-footer-links { justify-content: flex-start; }
+  .new-shipping-address { grid-template-columns: 1fr; }
+  .new-shipping-address label:nth-child(2),
+  .new-shipping-address label:nth-child(3),
+  .new-shipping-address p { grid-column: auto; }
 }
 @media (max-width: 480px) {
   .catalog-dose-option,
