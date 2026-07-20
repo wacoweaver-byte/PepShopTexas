@@ -255,10 +255,10 @@
 }
 .shipping-address-choice {
   display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 18px minmax(0, 1fr);
   width: 100%;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
   margin: 8px 0 0 !important;
   font-size: 14px !important;
   font-weight: 600;
@@ -270,10 +270,11 @@
   width: auto !important;
   min-height: 0 !important;
   margin: 0;
-  justify-self: end !important;
+  justify-self: center !important;
 }
 .shipping-address-choice span {
   min-width: 0;
+  margin: 0 !important;
   justify-self: start !important;
   text-align: left !important;
 }
