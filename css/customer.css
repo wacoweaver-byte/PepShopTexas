@@ -221,6 +221,10 @@
 /* Cart shipping-address confirmation. */
 .shipping-address-checkout {
   display: block !important;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   margin: 18px 0 0;
   padding: 16px;
   border: 1px solid #d9dde3;
@@ -229,13 +233,6 @@
   padding: 0 7px;
   font-size: 15px;
   font-weight: 700;
-}
-.shipping-address-on-file {
-  display: grid;
-  gap: 4px;
-  margin-bottom: 12px;
-  font-size: 14px;
-  line-height: 1.4;
 }
 .shipping-address-choice {
   display: flex !important;
@@ -256,6 +253,10 @@
 }
 .new-shipping-address {
   display: grid;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 16px;
