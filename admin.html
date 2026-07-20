@@ -1618,7 +1618,8 @@ header .pst-admin-actions-lock .btn.primary,
   position: relative;
 }
 
-.admin-jump-count {
+.inventory-jump-link.has-count::after {
+  content: attr(data-count);
   position: absolute;
   top: -8px;
   right: -8px;
@@ -1629,15 +1630,13 @@ header .pst-admin-actions-lock .btn.primary,
   height: 20px;
   padding: 0 5px;
   border-radius: 999px;
-  background: #000;
-  color: #fff;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
-}
-
-.admin-jump-count[hidden] {
-  display: none;
+  z-index: 2;
 }
 
 /* Action color variants keep meaning but use outlined compact pills. */
@@ -2094,11 +2093,11 @@ td .inventory-readonly-value {
 
   <nav class="admin-dashboard-nav inventory-jumpbar" id="adminDashboardNav" aria-label="Orders dashboard quick links">
     <span class="inventory-jumpbar-label">Jump To</span>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="open-pending" data-admin-target="order-list-card">Open / Pending Orders<span class="admin-jump-count" data-admin-jump-count hidden></span></button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="paid-processing" data-admin-target="order-list-card">Paid / Processing Orders<span class="admin-jump-count" data-admin-jump-count hidden></span></button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="packed-ready" data-admin-target="order-list-card">Packed / Ready to Ship<span class="admin-jump-count" data-admin-jump-count hidden></span></button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="shipped-completed" data-admin-target="order-list-card">Shipped / Completed Orders<span class="admin-jump-count" data-admin-jump-count hidden></span></button>
-    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="rejected-cancelled" data-admin-target="order-list-card">Rejected / Cancelled Orders<span class="admin-jump-count" data-admin-jump-count hidden></span></button>
+    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="open-pending" data-admin-target="order-list-card">Open / Pending Orders</button>
+    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="paid-processing" data-admin-target="order-list-card">Paid / Processing Orders</button>
+    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="packed-ready" data-admin-target="order-list-card">Packed / Ready to Ship</button>
+    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="shipped-completed" data-admin-target="order-list-card">Shipped / Completed Orders</button>
+    <button class="btn secondary inventory-jump-link" type="button" aria-pressed="false" data-admin-jump="rejected-cancelled" data-admin-target="order-list-card">Rejected / Cancelled Orders</button>
     <button class="btn secondary inventory-jump-link" id="detailCardJump" type="button" aria-pressed="false" data-admin-jump="order-tools-email" data-admin-target="detailCard" hidden>Order Tools / Email Tools</button>
   </nav>
 
@@ -2552,12 +2551,6 @@ td .inventory-readonly-value {
       const active = targetOpen && (jump === "order-tools-email" ? true : adminDashboardGroupFilter === jump);
       btn.classList.toggle("active", !!active);
       btn.setAttribute("aria-pressed", active ? "true" : "false");
-      const countBubble = btn.querySelector("[data-admin-jump-count]");
-      if(countBubble){
-        const count = allOrders.filter(order => matchesAdminDashboardGroup(order, jump)).length;
-        countBubble.textContent = String(count);
-        countBubble.hidden = count === 0;
-      }
     });
     document.querySelectorAll("[data-admin-collapse-target]").forEach(btn => {
       const target = $(btn.dataset.adminCollapseTarget);
@@ -2568,6 +2561,13 @@ td .inventory-readonly-value {
         btn.setAttribute("aria-expanded", open ? "true" : "false");
         btn.setAttribute("aria-pressed", open ? "true" : "false");
       }
+    });
+  }
+  function syncAdminJumpCounts(){
+    document.querySelectorAll("#adminDashboardNav [data-admin-jump]:not([data-admin-jump='order-tools-email'])").forEach(btn => {
+      const count = allOrders.filter(order => matchesAdminDashboardGroup(order, btn.dataset.adminJump)).length;
+      btn.dataset.count = String(count);
+      btn.classList.toggle("has-count", count > 0);
     });
   }
   function toggleAdminCardFromJump(btn){
@@ -2695,6 +2695,7 @@ td .inventory-readonly-value {
       return {...o, items: itemsByOrder[o.id] || [], profile};
     });
     selectedOrderIds = new Set([...selectedOrderIds].filter(id => allOrders.some(o => o.id === id)));
+    syncAdminJumpCounts();
     applyFilters();
     setStatus(`Loaded ${allOrders.length} order${allOrders.length===1?"":"s"}.`, "good");
   }
