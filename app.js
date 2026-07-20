@@ -33,7 +33,7 @@ const STATE_ABBREVIATIONS = {
   "SOUTH DAKOTA":"SD", TENNESSEE:"TN", TEXAS:"TX", UTAH:"UT", VERMONT:"VT",
   VIRGINIA:"VA", WASHINGTON:"WA", "WEST VIRGINIA":"WV", WISCONSIN:"WI", WYOMING:"WY"
 };
-const DEFAULT_TAX_REGION = "TX";
+const DEFAULT_TAX_REGION = "";
 const DEFAULT_PAYMENT_METHODS = [
   { id:"pending", label:"Payment pending", enabled:true, account:"", instructions:"Your order will be reviewed and payment instructions will be confirmed before processing." },
   { id:"venmo", label:"Venmo", enabled:false, account:"", instructions:"Please include your order number in the Venmo note. Your order will remain pending until payment is verified." },
@@ -767,7 +767,7 @@ function summaryHtml(rows, context = {}) {
     <h2>Order Summary</h2>
     <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(totals.subtotal)}</strong></div>
     <div class="summary-line"><span>Shipping — USPS Priority Mail 3 Day</span><strong>${formatMoney(totals.shipping)}</strong></div>
-    <div class="summary-line"><span>Tax ${escapeHtml(totals.taxLabel)}</span><strong>${formatMoney(totals.tax)}</strong></div>
+    <div class="summary-line"><span>Tax ${escapeHtml(totals.taxLabel)}</span><strong>${totals.taxRegion ? formatMoney(totals.tax) : ""}</strong></div>
     ${storeCredit.balance > 0 ? `<div class="summary-line"><span>Available Store Credit</span><strong>${formatMoney(storeCredit.balance)}</strong></div>` : ""}
     <div class="summary-line summary-total"><span>Total Before Store Credit</span><strong>${formatMoney(totals.total)}</strong></div>
     ${cartBlocked ? `<p class="checkout-status bad">${escapeHtml(blockMessage)}</p>` : `<p class="checkout-note">Submit your order to PEP Shop Texas. It will appear in Order Management for review and payment confirmation.</p>`}
@@ -803,7 +803,7 @@ function calculateCartTotals(rows, profile = {}) {
 }
 
 function customerTaxRegion(profile = {}) {
-  const rawState = profile.shipping_state || profile.state || profile.billing_state || DEFAULT_TAX_REGION;
+  const rawState = profile.shipping_state || profile.state || DEFAULT_TAX_REGION;
   const state = String(rawState || DEFAULT_TAX_REGION).trim().toUpperCase();
   return STATE_ABBREVIATIONS[state] || state || DEFAULT_TAX_REGION;
 }
