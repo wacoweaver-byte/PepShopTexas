@@ -8,7 +8,7 @@ const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,
 const EMAIL_FUNCTION_NAME = "send-order-email";
 const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
 const PAYMENT_LEGACY_STORAGE_KEY = "pst_payment_options_v1";
-const STANDARD_SHIPPING_RATE = 9.95;
+const STANDARD_SHIPPING_RATE = 12.00;
 const TAX_RATES = { TX: 0.0825 };
 const DEFAULT_TAX_REGION = "TX";
 const DEFAULT_PAYMENT_METHODS = [
@@ -743,7 +743,7 @@ function summaryHtml(rows, context = {}) {
   return `
     <h2>Order Summary</h2>
     <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(totals.subtotal)}</strong></div>
-    <div class="summary-line"><span>Shipping</span><strong>${formatMoney(totals.shipping)}</strong></div>
+    <div class="summary-line"><span>Shipping — USPS Priority Mail 3 Day</span><strong>${formatMoney(totals.shipping)}</strong></div>
     <div class="summary-line"><span>Tax ${escapeHtml(totals.taxLabel)}</span><strong>${formatMoney(totals.tax)}</strong></div>
     ${storeCredit.balance > 0 ? `<div class="summary-line"><span>Available Store Credit</span><strong>${formatMoney(storeCredit.balance)}</strong></div>` : ""}
     <div class="summary-line summary-total"><span>Total Before Store Credit</span><strong>${formatMoney(totals.total)}</strong></div>
@@ -1486,5 +1486,4 @@ function validHexColor(value) {
   const color = String(value || "").trim();
   return /^#[0-9a-f]{6}$/i.test(color) ? color : "";
 }
-
 
