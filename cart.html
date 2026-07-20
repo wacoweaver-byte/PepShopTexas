@@ -107,7 +107,7 @@
     .cart-summary h2,
     .cart-summary h3 {
       margin: 0 0 20px;
-      font-size: 25px;
+      font-size: 22px;
       line-height: 1.2;
       letter-spacing: -.02em;
     }
@@ -201,7 +201,13 @@
       margin: 0 !important;
     }
 
+    .cart-items .pst-cart-product-cell {
+      grid-column: 1;
+      min-width: 0;
+    }
+
     .cart-items .pst-cart-product {
+      grid-column: 1;
       font-size: 18px;
       font-weight: 700;
       line-height: 1.25;
@@ -213,18 +219,40 @@
       white-space: nowrap;
     }
 
+    .cart-items .pst-cart-unit-price {
+      grid-column: 2;
+    }
+
     .cart-items .pst-cart-extended-price {
+      grid-column: 4;
       font-weight: 700;
     }
 
     .cart-items .pst-cart-qty {
+      grid-column: 3;
       width: 70px !important;
       margin: 0 !important;
     }
 
     .cart-items .pst-cart-remove {
+      grid-column: 5;
+      justify-self: start;
+      width: auto !important;
       min-height: 38px;
-      padding: 7px 12px;
+      padding: 7px 20px;
+      border: 1px solid #000 !important;
+      border-radius: 999px !important;
+      background: #fff !important;
+      color: #000 !important;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .cart-items .pst-cart-remove:hover {
+      border-color: #000 !important;
+      background: #000 !important;
+      color: #fff !important;
     }
 
     .cart-items h2,
@@ -300,25 +328,31 @@
     }
 
     .cart-summary .pst-summary-money-row {
-      display: flex !important;
-      justify-content: space-between !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 7.5ch !important;
       align-items: baseline;
-      gap: 24px !important;
+      column-gap: 8px !important;
       width: 100%;
       padding: 5px 0;
+      font-size: 15px;
+      line-height: 1.25;
     }
 
     .cart-summary .pst-summary-money-row > :last-child {
-      margin-left: auto;
-      text-align: right;
+      grid-column: 2;
+      width: 7.5ch;
+      margin: 0;
+      justify-self: end;
+      text-align: right !important;
       white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
 
     .cart-summary .pst-summary-total-row {
       margin-top: 7px;
       padding-top: 13px;
       border-top: 1px solid var(--cart-line);
-      font-size: 19px;
+      font-size: 16px;
       font-weight: 700;
     }
 
@@ -401,6 +435,17 @@
 
       .cart-items .pst-cart-product {
         grid-column: 1 / -1;
+      }
+
+      .cart-items .pst-cart-product-cell {
+        grid-column: 1 / -1;
+      }
+
+      .cart-items .pst-cart-unit-price,
+      .cart-items .pst-cart-qty,
+      .cart-items .pst-cart-extended-price,
+      .cart-items .pst-cart-remove {
+        grid-column: auto;
       }
 
       .cart-items .pst-cart-unit-price::before {
@@ -523,7 +568,11 @@
 
           if (product) product.classList.add('pst-cart-product');
           if (qty) qty.classList.add('pst-cart-qty');
-          if (priceCandidates[0]) priceCandidates[0].classList.add('pst-cart-unit-price');
+          if (product && product.parentElement !== row) product.parentElement.classList.add('pst-cart-product-cell');
+          if (priceCandidates[0]) {
+            priceCandidates[0].classList.add('pst-cart-unit-price');
+            if (priceCandidates[0].parentElement !== row) row.appendChild(priceCandidates[0]);
+          }
           if (priceCandidates[1]) priceCandidates[1].classList.add('pst-cart-extended-price');
           removeButton.classList.add('pst-cart-remove');
 
