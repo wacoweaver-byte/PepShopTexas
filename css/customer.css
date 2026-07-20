@@ -20,9 +20,15 @@
   grid-template-columns: minmax(52px, auto) 76px minmax(68px, 1fr) max-content !important;
 }
 .card-cart-button,
+.catalog-stock,
 .catalog-incoming-pill,
 .catalog-row-actions .card-cart-button,
 .catalog-row-actions .catalog-incoming-pill {
+  width: 114px !important;
+  min-width: 114px !important;
+  box-sizing: border-box !important;
+  justify-content: center !important;
+  text-align: center !important;
   font-size: 11px !important;
   font-weight: 600 !important;
   letter-spacing: 0 !important;
@@ -258,7 +264,7 @@
   grid-template-columns: 18px minmax(0, 1fr);
   width: 100%;
   align-items: center;
-  gap: 2px;
+  gap: 2px !important;
   margin: 8px 0 0 !important;
   font-size: 14px !important;
   font-weight: 600;
