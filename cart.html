@@ -11,6 +11,174 @@
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#bd0000">
   <link rel="stylesheet" href="css/customer.css?v=12">
+  <style>
+    /* Cart visual refresh — presentation only; existing behavior remains unchanged. */
+    :root {
+      --cart-ink: #171717;
+      --cart-muted: #666b73;
+      --cart-line: #e4e6e9;
+      --cart-soft: #fafafa;
+      --cart-accent: #bd0000;
+      --cart-radius: 0;
+      --cart-shadow: none;
+    }
+
+    .cart-page {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 46px 0 80px;
+      color: var(--cart-ink);
+    }
+
+    .cart-page .page-heading {
+      margin: 0 0 22px;
+      padding: 0;
+      text-align: left;
+    }
+
+    .cart-page .page-heading p {
+      margin: 0 0 7px;
+      color: var(--cart-accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .cart-page .page-heading h1 {
+      margin: 0;
+      font-size: clamp(30px, 3.5vw, 42px);
+      line-height: 1.05;
+      letter-spacing: -.035em;
+    }
+
+    .cart-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(320px, .8fr);
+      gap: 34px;
+      align-items: start;
+    }
+
+    .cart-items,
+    .cart-summary {
+      box-sizing: border-box;
+      min-width: 0;
+      border: 1px solid var(--cart-line);
+      border-radius: 0;
+      background: #fff;
+      box-shadow: none;
+    }
+
+    .cart-items {
+      overflow: hidden;
+    }
+
+    .cart-summary {
+      position: sticky;
+      top: 24px;
+      padding: 28px;
+    }
+
+    .cart-items table,
+    .cart-summary table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .cart-items th,
+    .cart-summary th {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--cart-line);
+      background: #fff;
+      color: var(--cart-muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .cart-items td,
+    .cart-summary td {
+      padding: 18px 12px;
+      border-bottom: 1px solid var(--cart-line);
+      vertical-align: middle;
+    }
+
+    .cart-summary h2,
+    .cart-summary h3 {
+      margin: 0 0 20px;
+      font-size: 25px;
+      line-height: 1.2;
+      letter-spacing: -.02em;
+    }
+
+    .cart-summary hr {
+      height: 1px;
+      margin: 20px 0;
+      border: 0;
+      background: var(--cart-line);
+    }
+
+    .cart-summary button,
+    .cart-summary .button,
+    .cart-summary [class*="checkout"] {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 48px;
+      border-radius: 2px;
+    }
+
+    .cart-summary input,
+    .cart-summary select {
+      box-sizing: border-box;
+      min-height: 44px;
+      border-radius: 2px;
+    }
+
+    .cart-summary [class*="total"] {
+      font-weight: 700;
+    }
+
+    .cart-summary [class*="grand"],
+    .cart-summary [class*="final"] {
+      color: var(--cart-accent);
+      font-size: 1.2em;
+    }
+
+    @media (max-width: 820px) {
+      .cart-page {
+        width: min(100% - 24px, 680px);
+        padding: 34px 0 56px;
+      }
+
+      .cart-layout {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .cart-summary {
+        position: static;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .cart-page {
+        width: min(100% - 20px, 480px);
+      }
+
+      .cart-summary {
+        padding: 20px 16px;
+      }
+
+      .cart-items th,
+      .cart-items td,
+      .cart-summary th,
+      .cart-summary td {
+        padding-right: 10px;
+        padding-left: 10px;
+      }
+    }
+  </style>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=39"></script>
   <script defer src="cart-payment-discounts.js?v=1"></script>
