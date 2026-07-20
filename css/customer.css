@@ -270,12 +270,12 @@
   width: auto !important;
   min-height: 0 !important;
   margin: 0;
-  justify-self: end;
+  justify-self: end !important;
 }
 .shipping-address-choice span {
   min-width: 0;
-  justify-self: start;
-  text-align: left;
+  justify-self: start !important;
+  text-align: left !important;
 }
 .new-shipping-address {
   display: grid;
