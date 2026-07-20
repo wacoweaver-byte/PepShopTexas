@@ -12,6 +12,29 @@
   <meta name="theme-color" content="#bd0000">
   <link rel="stylesheet" href="css/customer.css?v=13">
   <link rel="stylesheet" href="css/index.css?v=8">
+  <style>
+    #pst-header-v3 .pst-header-cart {
+      display: inline-flex;
+      align-items: center;
+      align-self: center;
+      gap: 6px;
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    #pst-header-v3 .pst-header-cart [data-cart-count] {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: #fff;
+      color: #000;
+      line-height: 1;
+    }
+  </style>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=39"></script>
 </head>
@@ -25,6 +48,7 @@
     </nav>
     <span aria-hidden="true" class="pst-logo"></span>
     <div class="pst-right main-nav">
+      <a class="cart-link pst-header-cart" href="cart.html">CART <span data-cart-count>0</span></a>
       <a class="pst-account" href="account.html" data-account-link>
         <span aria-hidden="true" class="pst-account-icon">◯</span>
         <strong>LOGIN</strong>
