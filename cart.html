@@ -145,6 +145,236 @@
       font-size: 1.2em;
     }
 
+    /* Style the elements created dynamically by app.js. */
+    .cart-items > article,
+    .cart-items > .cart-item,
+    .cart-items > [class*="cart-item"] {
+      box-sizing: border-box;
+      min-height: 0;
+      padding: 26px 28px;
+      border-bottom: 1px solid var(--cart-line);
+    }
+
+    .cart-items > :last-child {
+      border-bottom: 0;
+    }
+
+    .cart-items .pst-cart-column-header,
+    .cart-items .pst-cart-product-row {
+      display: grid !important;
+      grid-template-columns: minmax(220px, 1fr) 130px 90px 150px 90px;
+      gap: 18px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .cart-items .pst-cart-column-header {
+      box-sizing: border-box;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--cart-line);
+      background: var(--cart-soft);
+      color: var(--cart-muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .cart-items .pst-cart-product-row {
+      box-sizing: border-box;
+      padding: 21px 28px;
+      border-bottom: 1px solid var(--cart-line);
+    }
+
+    .cart-items .pst-cart-product-row:last-child {
+      border-bottom: 0;
+    }
+
+    .cart-items .pst-cart-controls-contents {
+      display: contents !important;
+    }
+
+    .cart-items .pst-cart-product,
+    .cart-items .pst-cart-unit-price,
+    .cart-items .pst-cart-extended-price,
+    .cart-items .pst-cart-remove {
+      margin: 0 !important;
+    }
+
+    .cart-items .pst-cart-product {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .cart-items .pst-cart-unit-price,
+    .cart-items .pst-cart-extended-price {
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    .cart-items .pst-cart-extended-price {
+      font-weight: 700;
+    }
+
+    .cart-items .pst-cart-qty {
+      width: 70px !important;
+      margin: 0 !important;
+    }
+
+    .cart-items .pst-cart-remove {
+      min-height: 38px;
+      padding: 7px 12px;
+    }
+
+    .cart-items h2,
+    .cart-items h3,
+    .cart-items [class*="name"] {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: -.02em;
+    }
+
+    .cart-items p {
+      margin: 0 0 18px;
+      color: var(--cart-muted);
+    }
+
+    .cart-items input[type="number"] {
+      box-sizing: border-box;
+      width: 70px;
+      height: 42px;
+      margin: 0 8px 0 0;
+      padding: 8px 10px;
+      border: 1px solid #aeb2b8;
+      border-radius: 2px;
+      background: #fff;
+      font: inherit;
+      vertical-align: middle;
+    }
+
+    .cart-items button {
+      min-height: 42px;
+      padding: 8px 15px;
+      border: 1px solid #292929;
+      border-radius: 2px;
+      background: #fff;
+      color: #171717;
+      font: inherit;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    .cart-items button:hover {
+      background: #171717;
+      color: #fff;
+    }
+
+    .cart-items strong,
+    .cart-items [class*="price"] {
+      margin-right: 10px;
+    }
+
+    .cart-summary > div,
+    .cart-summary [class*="summary-row"],
+    .cart-summary [class*="total-row"],
+    .cart-summary [class*="subtotal"],
+    .cart-summary [class*="shipping"],
+    .cart-summary [class*="tax"] {
+      box-sizing: border-box;
+    }
+
+    .cart-summary [class*="summary-row"],
+    .cart-summary [class*="total-row"],
+    .cart-summary [class*="subtotal"],
+    .cart-summary [class*="shipping"],
+    .cart-summary [class*="tax"] {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 24px;
+      width: 100%;
+      margin: 0;
+      padding: 5px 0;
+    }
+
+    .cart-summary .pst-summary-money-row {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: baseline;
+      gap: 24px !important;
+      width: 100%;
+      padding: 5px 0;
+    }
+
+    .cart-summary .pst-summary-money-row > :last-child {
+      margin-left: auto;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .cart-summary .pst-summary-total-row {
+      margin-top: 7px;
+      padding-top: 13px;
+      border-top: 1px solid var(--cart-line);
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .cart-summary [class*="summary-row"] > :last-child,
+    .cart-summary [class*="total-row"] > :last-child,
+    .cart-summary [class*="subtotal"] > :last-child,
+    .cart-summary [class*="shipping"] > :last-child,
+    .cart-summary [class*="tax"] > :last-child {
+      margin-left: auto;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .cart-summary p {
+      margin: 18px 0 0;
+      color: #3f4247;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .cart-summary label {
+      display: block;
+      margin: 22px 0 7px;
+      color: #3f4247;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .cart-summary select,
+    .cart-summary input:not([type="checkbox"]):not([type="radio"]) {
+      width: 100%;
+      min-height: 46px;
+      padding: 9px 12px;
+      border: 1px solid #aeb2b8;
+      background: #fff;
+      font: inherit;
+    }
+
+    .cart-summary button,
+    .cart-summary .button {
+      margin-top: 18px;
+      padding: 11px 18px;
+      border: 1px solid var(--cart-accent);
+      background: var(--cart-accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .cart-summary button:hover,
+    .cart-summary .button:hover {
+      border-color: #930000;
+      background: #930000;
+    }
+
     @media (max-width: 820px) {
       .cart-page {
         width: min(100% - 24px, 680px);
@@ -158,6 +388,31 @@
 
       .cart-summary {
         position: static;
+      }
+
+      .cart-items .pst-cart-column-header {
+        display: none !important;
+      }
+
+      .cart-items .pst-cart-product-row {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 12px;
+      }
+
+      .cart-items .pst-cart-product {
+        grid-column: 1 / -1;
+      }
+
+      .cart-items .pst-cart-unit-price::before {
+        content: "Unit: ";
+        color: var(--cart-muted);
+        font-weight: 400;
+      }
+
+      .cart-items .pst-cart-extended-price::before {
+        content: "Total: ";
+        color: var(--cart-muted);
+        font-weight: 400;
       }
     }
 
@@ -211,5 +466,80 @@
     </section>
   </main>
   <footer class="site-footer"><div class="site-footer-inner"><div class="site-footer-brand"><strong>Pep Shop Texas</strong><span>Research-use catalog. Not for human or veterinary use.</span></div><nav class="site-footer-links" aria-label="Footer policies"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="shipping.html">Shipping</a><a href="returns.html">Returns</a><a href="contact.html">Contact</a></nav></div></footer>
+  <script>
+    /* Presentation-only hooks for the order-total rows rendered by app.js. */
+    (() => {
+      const summary = document.querySelector('[data-cart-summary]');
+      if (!summary) return;
+
+      const markMoneyRows = () => {
+        summary.querySelectorAll('div, p, li').forEach((element) => {
+          const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
+          if (text.length > 80 || element.children.length > 3) return;
+          if (/^(Subtotal|Shipping|Tax\b|Estimated Tax\b|Total\b|Grand Total\b)/i.test(text)) {
+            element.classList.add('pst-summary-money-row');
+            if (/^(Total\b|Grand Total\b)/i.test(text)) {
+              element.classList.add('pst-summary-total-row');
+            }
+          }
+        });
+      };
+
+      markMoneyRows();
+      new MutationObserver(markMoneyRows).observe(summary, { childList: true, subtree: true });
+    })();
+  </script>
+  <script>
+    /* Presentation-only column layout for cart items rendered by app.js. */
+    (() => {
+      const cartItems = document.querySelector('[data-cart-items]');
+      if (!cartItems) return;
+
+      const formatRows = () => {
+        const removeButtons = [...cartItems.querySelectorAll('button')]
+          .filter((button) => /remove/i.test(button.textContent || ''));
+
+        if (!removeButtons.length) return;
+
+        if (!cartItems.querySelector('.pst-cart-column-header')) {
+          const header = document.createElement('div');
+          header.className = 'pst-cart-column-header';
+          header.setAttribute('aria-hidden', 'true');
+          header.innerHTML = '<span>Product</span><span>Unit Price</span><span>Qty</span><span>Extended Price</span><span>Remove</span>';
+          cartItems.prepend(header);
+        }
+
+        removeButtons.forEach((removeButton) => {
+          let row = removeButton.parentElement;
+          while (row && row.parentElement !== cartItems) row = row.parentElement;
+          if (!row || row === cartItems) return;
+
+          row.classList.add('pst-cart-product-row');
+
+          const product = row.querySelector('h1, h2, h3, h4, [class*="name"]');
+          const qty = row.querySelector('input[type="number"], select[class*="qty"], select[class*="quantity"]');
+          const priceCandidates = [...row.querySelectorAll('p, strong, [class*="price"]')]
+            .filter((element) => /\$\s*\d/.test(element.textContent || '') && !element.contains(qty));
+
+          if (product) product.classList.add('pst-cart-product');
+          if (qty) qty.classList.add('pst-cart-qty');
+          if (priceCandidates[0]) priceCandidates[0].classList.add('pst-cart-unit-price');
+          if (priceCandidates[1]) priceCandidates[1].classList.add('pst-cart-extended-price');
+          removeButton.classList.add('pst-cart-remove');
+
+          if (qty) {
+            let controls = qty.parentElement;
+            while (controls && controls !== row && !controls.contains(removeButton)) {
+              controls = controls.parentElement;
+            }
+            if (controls && controls !== row) controls.classList.add('pst-cart-controls-contents');
+          }
+        });
+      };
+
+      formatRows();
+      new MutationObserver(formatRows).observe(cartItems, { childList: true, subtree: true });
+    })();
+  </script>
 </body>
 </html>
