@@ -682,6 +682,8 @@ function bindCartPageButtons() {
     const select = form.querySelector("[name='payment_method']");
     const instructions = form.querySelector("[data-payment-instructions]");
     const qrBox = form.querySelector("[data-payment-qr]");
+    const addressChoices = form.querySelectorAll("[name='shipping_address_choice']");
+    const newAddressFields = form.querySelector("[data-new-shipping-address]");
     const syncPaymentInstructions = () => {
       const option = select?.selectedOptions?.[0];
       const text = option?.dataset?.instructions || "";
@@ -691,6 +693,14 @@ function bindCartPageButtons() {
     };
     select?.addEventListener("change", syncPaymentInstructions);
     syncPaymentInstructions();
+    const syncShippingAddressChoice = () => {
+      const choice = form.querySelector("[name='shipping_address_choice']:checked")?.value || "";
+      if (newAddressFields) newAddressFields.hidden = choice !== "new";
+      updateCheckoutTaxPreview(form);
+    };
+    addressChoices.forEach((input) => input.addEventListener("change", syncShippingAddressChoice));
+    form.querySelector("[name='new_shipping_state']")?.addEventListener("input", () => updateCheckoutTaxPreview(form));
+    syncShippingAddressChoice();
   }
 }
 
@@ -752,7 +762,7 @@ function summaryHtml(rows, context = {}) {
   const user = context.user || null;
   const paymentMethods = context.paymentMethods || enabledPaymentMethods(DEFAULT_PAYMENT_METHODS);
   const storeCredit = context.storeCredit || { balance:0, credits:[] };
-  const totals = calculateCartTotals(rows, profile);
+  const totals = calculateCartTotals(rows, {});
   const unavailable = unavailableCartRows(rows);
   const insufficient = insufficientCartRows(rows);
   const cartBlocked = unavailable.length > 0 || insufficient.length > 0;
@@ -767,14 +777,14 @@ function summaryHtml(rows, context = {}) {
     <h2>Order Summary</h2>
     <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(totals.subtotal)}</strong></div>
     <div class="summary-line"><span>Shipping — USPS Priority Mail 3 Day</span><strong>${formatMoney(totals.shipping)}</strong></div>
-    <div class="summary-line"><span>Tax ${escapeHtml(totals.taxLabel)}</span><strong>${totals.taxRegion ? formatMoney(totals.tax) : ""}</strong></div>
+    <div class="summary-line"><span data-summary-tax-label>Tax ${escapeHtml(totals.taxLabel)}</span><strong data-summary-tax-amount>${totals.taxRegion ? formatMoney(totals.tax) : ""}</strong></div>
     ${storeCredit.balance > 0 ? `<div class="summary-line"><span>Available Store Credit</span><strong>${formatMoney(storeCredit.balance)}</strong></div>` : ""}
-    <div class="summary-line summary-total"><span>Total Before Store Credit</span><strong>${formatMoney(totals.total)}</strong></div>
+    <div class="summary-line summary-total"><span>Total Before Store Credit</span><strong data-summary-total>${formatMoney(totals.total)}</strong></div>
     ${cartBlocked ? `<p class="checkout-status bad">${escapeHtml(blockMessage)}</p>` : `<p class="checkout-note">Submit your order to PEP Shop Texas. It will appear in Order Management for review and payment confirmation.</p>`}
     ${!rows.length ? `
       <p class="checkout-note">${user ? "You are signed in. Add products to your cart when you are ready to place an order." : "Add products to your cart, then log in or create an account to place the order."}</p>
       <a class="primary-action" href="catalog.html">Browse Products</a>
-    ` : user ? checkoutFormHtml(rows, { name, email, phone, address, paymentMethods, storeCredit, totals, cartBlocked, blockMessage }) : `
+    ` : user ? checkoutFormHtml(rows, { name, email, phone, address, profile, paymentMethods, storeCredit, totals, cartBlocked, blockMessage }) : `
       <p class="checkout-note">Log in or create an account before placing an order so it can be saved to your account.</p>
       <a class="primary-action ${rows.length ? "" : "disabled"}" href="login.html?redirect=cart.html">Log In to Checkout</a>
       <a class="secondary-action" href="register.html">Create Account</a>
@@ -806,6 +816,83 @@ function customerTaxRegion(profile = {}) {
   const rawState = profile.shipping_state || profile.state || DEFAULT_TAX_REGION;
   const state = String(rawState || DEFAULT_TAX_REGION).trim().toUpperCase();
   return STATE_ABBREVIATIONS[state] || state || DEFAULT_TAX_REGION;
+}
+
+function updateCheckoutTaxPreview(form) {
+  if (!form) return;
+  const choice = form.querySelector("[name='shipping_address_choice']:checked")?.value || "";
+  const rawState = choice === "on_file"
+    ? form.dataset.profileShippingState || ""
+    : choice === "new"
+      ? form.querySelector("[name='new_shipping_state']")?.value || ""
+      : "";
+  const taxRegion = customerTaxRegion({ shipping_state:rawState });
+  const hasState = Object.prototype.hasOwnProperty.call(TAX_RATES, taxRegion);
+  const taxRate = hasState ? TAX_RATES[taxRegion] : 0;
+  const subtotal = Number(form.dataset.subtotal || 0);
+  const shipping = Number(form.dataset.shipping || 0);
+  const tax = hasState ? roundMoney(subtotal * taxRate) : 0;
+  const label = document.querySelector("[data-summary-tax-label]");
+  const amount = document.querySelector("[data-summary-tax-amount]");
+  const total = document.querySelector("[data-summary-total]");
+  if (label) label.textContent = hasState ? `Tax (${taxRegion} ${(taxRate * 100).toFixed(2)}%)` : "Tax";
+  if (amount) amount.textContent = hasState ? formatMoney(tax) : "";
+  if (total) total.textContent = formatMoney(roundMoney(subtotal + shipping + tax));
+}
+
+function checkoutShippingAddress(formData, profile = {}, user = {}) {
+  const choice = String(formData.get("shipping_address_choice") || "");
+  if (choice === "on_file") {
+    const address = {
+      recipientName: accountCustomerName(profile, user),
+      line1: String(profile.shipping_address || profile.address1 || profile.address || "").trim(),
+      line2: String(profile.shipping_address2 || profile.address2 || "").trim(),
+      city: String(profile.shipping_city || profile.city || "").trim(),
+      state: String(profile.shipping_state || profile.state || "").trim(),
+      zip: String(profile.shipping_zip || profile.zip || "").trim()
+    };
+    if (!address.line1 || !address.city || !address.state || !address.zip) throw new Error("The shipping address on file is incomplete. Select a new shipping address.");
+    return { ...address, state:validatedShippingState(address.state), save:false };
+  }
+  if (choice === "new") {
+    const address = {
+      recipientName: String(formData.get("new_shipping_name") || accountCustomerName(profile, user)).trim(),
+      line1: String(formData.get("new_shipping_address1") || "").trim(),
+      line2: String(formData.get("new_shipping_address2") || "").trim(),
+      city: String(formData.get("new_shipping_city") || "").trim(),
+      state: String(formData.get("new_shipping_state") || "").trim(),
+      zip: String(formData.get("new_shipping_zip") || "").trim()
+    };
+    if (!address.recipientName || !address.line1 || !address.city || !address.state || !address.zip) throw new Error("Complete every required new shipping-address field.");
+    return { ...address, state:validatedShippingState(address.state), save:true };
+  }
+  throw new Error("Confirm the shipping address on file or select a new shipping address.");
+}
+
+function validatedShippingState(value) {
+  const region = customerTaxRegion({ shipping_state:value });
+  if (!Object.prototype.hasOwnProperty.call(TAX_RATES, region)) throw new Error("Enter a valid U.S. shipping state.");
+  return region;
+}
+
+function formattedShippingAddress(address) {
+  return [address.line1, address.line2, address.city, address.state, address.zip].filter(Boolean).join(", ");
+}
+
+async function saveAdditionalShippingAddress(user, address) {
+  const client = requireSupabaseClient();
+  const { error } = await client.from("customer_addresses").insert({
+    user_id:user.id,
+    label:"Additional address",
+    recipient_name:address.recipientName,
+    address_line1:address.line1,
+    address_line2:address.line2 || null,
+    city:address.city,
+    state:address.state,
+    zip:address.zip,
+    updated_at:new Date().toISOString()
+  });
+  if (error) throw new Error(`The additional shipping address could not be saved. ${error.message || error}`);
 }
 
 function roundMoney(value) {
@@ -1072,11 +1159,13 @@ async function handleCheckoutSubmit(event) {
     }
 
     const formData = new FormData(form);
+    const selectedShippingAddress = checkoutShippingAddress(formData, profile, user);
+    if (selectedShippingAddress.save) await saveAdditionalShippingAddress(user, selectedShippingAddress);
     const selectedOption = form.querySelector("[name='payment_method']")?.selectedOptions?.[0];
     const paymentMethod = selectedOption?.dataset?.label || String(formData.get("payment_method") || "Payment pending");
     const paymentInstructions = selectedOption?.dataset?.instructions || "";
     const paymentQr = selectedOption?.dataset?.qr || "";
-    const totals = calculateCartTotals(rows, profile);
+    const totals = calculateCartTotals(rows, { shipping_state:selectedShippingAddress.state });
     const baseTotal = totals.total;
     const wantsStoreCredit = formData.get("apply_store_credit") === "yes";
     const storeCredit = wantsStoreCredit ? await getAvailableStoreCredit(user, profile) : { balance:0, credits:[] };
@@ -1088,7 +1177,7 @@ async function handleCheckoutSubmit(event) {
     const customerName = accountCustomerName(profile, user);
     const customerEmail = accountCustomerEmail(profile, user);
     const customerPhone = accountCustomerPhone(profile);
-    const shippingAddressValue = accountShippingAddress(profile);
+    const shippingAddressValue = formattedShippingAddress(selectedShippingAddress);
     const customerNotes = String(formData.get("customer_notes") || "").trim();
     const paymentNote = [
       paymentInstructions ? `Payment method selected: ${paymentMethod} | ${paymentInstructions}` : `Payment method selected: ${paymentMethod}`,
@@ -1107,6 +1196,14 @@ async function handleCheckoutSubmit(event) {
       customer_email: customerEmail,
       customer_phone: customerPhone,
       shipping_address: shippingAddressValue,
+      shipping_name: selectedShippingAddress.recipientName,
+      shipping_email: customerEmail,
+      shipping_phone: customerPhone,
+      shipping_address_line1: selectedShippingAddress.line1,
+      shipping_address_line2: selectedShippingAddress.line2 || null,
+      shipping_city: selectedShippingAddress.city,
+      shipping_state: selectedShippingAddress.state,
+      shipping_zip: selectedShippingAddress.zip,
       status: "pending",
       order_status: "pending",
       payment_status: "pending",
@@ -1386,8 +1483,11 @@ function checkoutFormHtml(rows, context) {
   const cartBlocked = context.cartBlocked === true;
   const blockMessage = context.blockMessage || "Update your cart before checkout.";
   const creditPreview = storeCredit.balance > 0 ? Math.min(storeCredit.balance, totals.total) : 0;
+  const profile = context.profile || {};
+  const profileState = profile.shipping_state || profile.state || "";
+  const savedAddress = context.address || "No complete shipping address is currently saved.";
   return `
-    <form class="checkout-form" data-checkout-form>
+    <form class="checkout-form" data-checkout-form data-subtotal="${Number(totals.subtotal || 0)}" data-shipping="${Number(totals.shipping || 0)}" data-profile-shipping-state="${escapeAttribute(profileState)}">
       <p class="account-checkout-note">This order will use the contact email and shipping details saved on your account.</p>
       ${storeCredit.balance > 0 ? `
         <label style="display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:14px;color:#101820;">
@@ -1395,6 +1495,24 @@ function checkoutFormHtml(rows, context) {
           <span><strong>Apply available store credit</strong><br><span class="checkout-note">Available: ${formatMoney(storeCredit.balance)}. This order can use up to ${formatMoney(creditPreview)}.</span></span>
         </label>
       ` : ""}
+      <fieldset class="shipping-address-checkout">
+        <legend>Confirm Shipping Address</legend>
+        <div class="shipping-address-on-file">
+          <strong>Address on file</strong>
+          <span>${escapeHtml(savedAddress)}</span>
+        </div>
+        <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="on_file" required> <span>Use the shipping address on file.</span></label>
+        <label class="shipping-address-choice"><input type="radio" name="shipping_address_choice" value="new" required> <span>Use a new shipping address.</span></label>
+        <div class="new-shipping-address" data-new-shipping-address hidden>
+          <label>Recipient Name<input name="new_shipping_name" autocomplete="shipping name"></label>
+          <label>Address<input name="new_shipping_address1" autocomplete="shipping address-line1"></label>
+          <label>Address Line 2 <span class="optional-field">Optional</span><input name="new_shipping_address2" autocomplete="shipping address-line2"></label>
+          <label>City<input name="new_shipping_city" autocomplete="shipping address-level2"></label>
+          <label>State<input name="new_shipping_state" autocomplete="shipping address-level1"></label>
+          <label>ZIP Code<input name="new_shipping_zip" autocomplete="shipping postal-code"></label>
+          <p>This address will be saved to your account as an additional address.</p>
+        </div>
+      </fieldset>
       <label>Payment Method <select name="payment_method">${methods.map((method) => `<option value="${escapeAttribute(method.id)}" data-label="${escapeAttribute(method.label)}" data-instructions="${escapeAttribute(paymentInstructionsText(method))}" data-qr="${escapeAttribute(paymentQrImage(method))}">${escapeHtml(method.label)}</option>`).join("")}</select></label>
       <p class="payment-instructions" data-payment-instructions></p>
       <div data-payment-qr></div>

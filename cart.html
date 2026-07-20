@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="css/customer.css?v=12">
+  <link rel="stylesheet" href="css/customer.css?v=13">
   <style>
     /* Cart visual refresh — presentation only; existing behavior remains unchanged. */
     :root {
@@ -422,6 +422,71 @@
       line-height: 1.55;
     }
 
+    .cart-summary [data-payment-qr]:empty {
+      display: none !important;
+      min-height: 0 !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .cart-summary .payment-instructions + [data-payment-qr]:empty + .checkout-note {
+      margin-top: 14px !important;
+    }
+
+    .cart-summary .checkout-form {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 0 !important;
+    }
+
+    .cart-summary .checkout-form > label:has(> select[name="payment_method"]) {
+      margin-bottom: 0 !important;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--cart-line);
+    }
+
+    .cart-summary .checkout-form .payment-instructions {
+      margin: 14px 0 0 !important;
+      min-height: 0 !important;
+      height: auto !important;
+      padding: 0 !important;
+    }
+
+    .cart-summary .checkout-form > [data-payment-qr]:not(:has(img)) {
+      display: none !important;
+      min-height: 0 !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .cart-summary .checkout-form .payment-instructions + [data-payment-qr] + .checkout-note {
+      margin: 14px 0 0 !important;
+    }
+
+    .cart-summary .checkout-form > label:has(> textarea[name="customer_notes"]) {
+      display: block !important;
+      margin: 16px 0 0 !important;
+    }
+
+    .cart-summary .checkout-form textarea[name="customer_notes"] {
+      display: block;
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 58px;
+      margin-top: 7px;
+    }
+
+    .cart-summary .checkout-form > button[type="submit"] {
+      margin-top: 16px !important;
+    }
+
+    .cart-summary .checkout-form > .checkout-status:empty {
+      display: none !important;
+      margin: 0 !important;
+    }
+
     .cart-summary label {
       display: block;
       margin: 22px 0 7px;
@@ -532,7 +597,7 @@
     }
   </style>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=41"></script>
+  <script defer src="app.js?v=42"></script>
   <script defer src="cart-payment-discounts.js?v=1"></script>
   <script defer src="cart-store-credit-auto.js?v=1"></script>
 </head>
