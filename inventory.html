@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V27_APPLY_STATUS_BY_DATE_VENDOR -->
 <!-- PST_INVENTORY_PATCH_V26_GLOBAL_SEARCH_INCOMING_TARGET -->
 <!-- PST_INVENTORY_PATCH_V25_APPLY_TRACKING_BY_DATE_VENDOR -->
 <!-- PST_INVENTORY_PATCH_V23_PO_VENDOR_ITEM_SORTABLE_HEADERS -->
@@ -4683,6 +4684,7 @@ function incomingEditRowHTML(row) {
         <div class="incoming-edit-actions">
           <button class="btn primary save-incoming-edit-btn" data-incoming-id="${id}" type="button">Save Changes</button>
           <button class="btn secondary apply-po-tracking-btn" data-incoming-id="${id}" type="button">Apply Tracking to PO</button>
+          <button class="btn secondary apply-po-status-btn" data-incoming-id="${id}" type="button">Apply Status to PO</button>
           <button class="btn secondary close-incoming-edit-btn" type="button">Close</button>
         </div>
       </div>
@@ -4778,6 +4780,12 @@ function renderIncomingInventory() {
     applyTrackingToIncomingPurchaseOrder(btn.dataset.incomingId).catch(err => {
       console.error("Purchase order tracking update failed:", err);
       setStatus(err.message || "Purchase order tracking update failed.", "bad");
+    });
+  }));
+  document.querySelectorAll(".apply-po-status-btn").forEach(btn => btn.addEventListener("click", () => {
+    applyStatusToIncomingPurchaseOrder(btn.dataset.incomingId).catch(err => {
+      console.error("Purchase order status update failed:", err);
+      setStatus(err.message || "Purchase order status update failed.", "bad");
     });
   }));
   document.querySelectorAll(".close-incoming-edit-btn").forEach(btn => btn.addEventListener("click", () => {
@@ -5038,6 +5046,73 @@ async function applyTrackingToIncomingPurchaseOrder(id) {
   }
 
   setStatus(`Tracking ${trackingNumber} applied to ${matchingRows.length} purchase order line(s) for ${orderedDate} and Vendor ID ${row.vendor_id}.`, "good");
+  editingIncomingId = null;
+  await loadIncomingInventory();
+}
+
+async function applyStatusToIncomingPurchaseOrder(id) {
+  const row = incomingInventoryRows.find(candidate => String(candidate.id) === String(id));
+  if (!row) return;
+
+  const status = String(incomingEditField(id, "status")?.value || "").trim().toLowerCase();
+  if (!status) {
+    alert("Select the status to apply first.");
+    incomingEditField(id, "status")?.focus();
+    return;
+  }
+  if (status === "received") {
+    alert("Received cannot be applied to an entire purchase order. Use each line's Receive button so physical inventory is increased correctly.");
+    return;
+  }
+  if (!cleanText(row.vendor_id)) {
+    alert("This incoming order does not have a Vendor ID, so it cannot be matched by Date Ordered + Vendor ID.");
+    return;
+  }
+
+  const groupRows = incomingPurchaseOrderGroupRows(row);
+  const protectedReceivedRows = groupRows.filter(candidate => String(candidate.status || "").toLowerCase() === "received");
+  const matchingRows = groupRows.filter(candidate => String(candidate.status || "").toLowerCase() !== "received");
+  const rowsToUpdate = matchingRows.filter(candidate => String(candidate.status || "ordered").toLowerCase() !== status);
+  if (!matchingRows.length) {
+    alert("No eligible incoming order lines matched this Date Ordered + Vendor ID. Received lines are protected.");
+    return;
+  }
+  if (!rowsToUpdate.length) {
+    alert(`Every eligible line on this purchase order is already ${incomingStatusLabel(status)}.`);
+    return;
+  }
+
+  const orderedDate = incomingDateInputValue(row.ordered_at || row.created_at);
+  const vendor = vendorForIncomingRow(row);
+  const vendorName = vendor?.company_name || row.vendor_name || row.supplier_name || row.vendor_id;
+  const protectedNote = protectedReceivedRows.length ? ` ${protectedReceivedRows.length} received line(s) will remain Received.` : "";
+  const confirmed = confirm(`Apply status ${incomingStatusLabel(status)} to ${rowsToUpdate.length} item line(s) ordered on ${orderedDate} from ${vendorName}?${protectedNote}`);
+  if (!confirmed) return;
+
+  const matchingIds = rowsToUpdate.map(candidate => candidate.id).filter(Boolean);
+  const updatedAt = new Date().toISOString();
+
+  if (incomingUsesSupabase) {
+    const { data, error } = await db
+      .from("incoming_inventory")
+      .update({ status, updated_at: updatedAt })
+      .in("id", matchingIds)
+      .select("id");
+    if (error) throw error;
+    if ((data || []).length !== matchingIds.length) {
+      throw new Error(`Status updated ${data?.length || 0} of ${matchingIds.length} matching purchase order line(s).`);
+    }
+  } else {
+    const matchingIdSet = new Set(matchingIds.map(String));
+    incomingInventoryRows = incomingInventoryRows.map(candidate =>
+      matchingIdSet.has(String(candidate.id))
+        ? { ...candidate, status, updated_at: updatedAt }
+        : candidate
+    );
+    saveIncomingLocalRows(incomingInventoryRows);
+  }
+
+  setStatus(`${incomingStatusLabel(status)} applied to ${rowsToUpdate.length} purchase order line(s) for ${orderedDate} and Vendor ID ${row.vendor_id}.${protectedNote}`, "good");
   editingIncomingId = null;
   await loadIncomingInventory();
 }
