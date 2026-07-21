@@ -10,6 +10,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#bd0000">
+  <link rel="preload" as="image" href="pst-hero-final.webp" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="css/customer.css?v=13">
   <link rel="stylesheet" href="css/index.css?v=8">
   <style>
@@ -67,7 +68,10 @@
   </header>
   <main>
     <section aria-label="PEP Shop Texas research peptides hero" id="pst-hero-v3">
-      <img alt="PEP Shop Texas premium research peptides" src="pst-hero-final.png">
+      <picture>
+        <source srcset="pst-hero-final.webp" type="image/webp">
+        <img alt="PEP Shop Texas premium research peptides" src="pst-hero-final.png" width="1739" height="469" decoding="async" fetchpriority="high">
+      </picture>
     </section>
     <section aria-label="Primary links" class="quick-panel">
       <a class="quick-link" href="catalog.html">
