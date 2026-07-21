@@ -111,7 +111,7 @@
         : `<div class="summary-line" data-payment-discount-line hidden><span>Payment Savings</span><strong>-${formatPaymentMoney(0)}</strong></div>`;
 
       return html
-        .replace(`<div class="summary-line"><span>Shipping</span><strong>${formatPaymentMoney(totals.shipping)}</strong></div>`, `${paymentLine}<div class="summary-line"><span>Shipping</span><strong>${formatPaymentMoney(totals.shipping)}</strong></div>`)
+        .replace(`<div class="summary-line"><span>Subtotal</span><strong>${formatPaymentMoney(totals.subtotal)}</strong></div>`, `<div class="summary-line"><span>Subtotal</span><strong>${formatPaymentMoney(totals.subtotal)}</strong></div>${paymentLine}`)
         .replace(/<div class="summary-line summary-total"><span>Total Before Store Credit<\/span><strong>[^<]*<\/strong><\/div>/, `<div class="summary-line summary-total"><span>Total Before Store Credit</span><strong data-cart-total-display data-base-total="${baseTotal}">${formatPaymentMoney(totals.total)}</strong></div>`);
     };
 
