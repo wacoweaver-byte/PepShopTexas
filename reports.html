@@ -87,6 +87,10 @@
     .report-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:12px;border:1px solid var(--border);background:#fbfcfe;border-radius:14px}
     .report-controls .field{display:flex;flex-direction:column;gap:6px;min-width:220px}
     .report-controls .field.small{min-width:160px}
+    .global-report-range-card{margin:0 0 18px;overflow:visible}
+    .global-report-range-card .card-body{padding:14px}
+    .global-report-range-card .report-controls{margin:0}
+    .global-report-range-card .report-note{flex:1 1 320px}
     .report-note{color:var(--muted);font-size:13px;line-height:1.35;font-weight:700}
     .report-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px}
     .financial-summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 14px}
@@ -2330,32 +2334,46 @@ button.btn[aria-disabled="true"],
     </div>
   </nav>
 
+  <!-- PST_REPORTS_PATCH_V44_GLOBAL_REPORT_RANGE -->
+  <section class="card global-report-range-card no-print" aria-labelledby="globalReportRangeTitle">
+    <div class="card-header">
+      <div>
+        <h2 id="globalReportRangeTitle">Global Report Range</h2>
+        <p class="muted" style="margin:5px 0 0;">Controls the date-dependent Order, Sales, Financials, Quick Snapshot order totals, and Inventory Audit reports below.</p>
+      </div>
+      <span class="pill info">Applies to Reports</span>
+    </div>
+    <div class="card-body">
+      <div class="report-controls">
+        <div class="field">
+          <label for="orderReportRange">Global Report Range</label>
+          <select id="orderReportRange">
+            <option value="today">Today</option>
+            <option value="last7" selected>Last 7 Days</option>
+            <option value="last30">Last 30 Days</option>
+            <option value="last90">Last 90 Days</option>
+            <option value="custom">Custom Date Range</option>
+            <option value="all">All Time</option>
+          </select>
+        </div>
+        <div class="field small">
+          <label for="orderReportStartDate">Start Date</label>
+          <input id="orderReportStartDate" type="date" />
+        </div>
+        <div class="field small">
+          <label for="orderReportEndDate">End Date</label>
+          <input id="orderReportEndDate" type="date" />
+        </div>
+        <div class="report-note" id="orderReportNote">Select a preset range or choose custom start and end dates. Your selection is remembered for this browser session.</div>
+      </div>
+    </div>
+  </section>
+
   <section class="grid">
         <!-- PST_REPORTS_PATCH_V43_ORDER_DATE_RANGE_FIRST -->
 <div class="card span-8 print-report-only collapsible-card collapsed" id="order-report-card" style="scroll-margin-top:185px;">
       <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v18 FINANCIALS FIX</span></h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill info">Read Only</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="order-report-card" aria-expanded="false">Open</button></div></div>
       <div class="card-body">
-        <div class="report-controls">
-          <div class="field">
-            <label for="orderReportRange">Order Report Range</label>
-            <select id="orderReportRange">
-              <option value="today">Today</option>
-              <option value="last7" selected>Last 7 Days</option>
-              <option value="last30">Last 30 Days</option>
-              <option value="custom">Custom Date Range</option>
-              <option value="all">All Time</option>
-            </select>
-          </div>
-          <div class="field small">
-            <label for="orderReportStartDate">Start Date</label>
-            <input id="orderReportStartDate" type="date" />
-          </div>
-          <div class="field small">
-            <label for="orderReportEndDate">End Date</label>
-            <input id="orderReportEndDate" type="date" />
-          </div>
-          <div class="report-note" id="orderReportNote">Showing recent operational orders. Select a preset range or choose custom start/end dates.</div>
-        </div>
         <div class="report-actions">
           <button class="btn secondary" id="exportOrderCsvBtn" type="button">Export CSV</button>
         </div>
@@ -2444,7 +2462,7 @@ button.btn[aria-disabled="true"],
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill good">Live Sales</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="sales-report-card" aria-expanded="false">Open</button></div>
       </div>
       <div class="card-body">
-        <p class="muted" id="salesReportNote" style="margin-top:0;">Uses the same selected date range as Order Report. Realized sales count orders marked Shipped, Delivered, Complete, or Completed.</p>
+        <p class="muted" id="salesReportNote" style="margin-top:0;">Uses the Global Report Range. Realized sales count orders marked Shipped, Delivered, Complete, or Completed.</p>
         <div class="financial-summary-grid" id="salesSummaryGrid">
           <div class="financial-summary-card"><strong id="salesRealizedRevenue">—</strong><span>Realized Sales</span></div>
           <div class="financial-summary-card"><strong id="salesPendingRevenue">—</strong><span>Pending / Open Sales</span></div>
@@ -2569,7 +2587,7 @@ button.btn[aria-disabled="true"],
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="inventoryAuditCount">Loading inventory movements...</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="inventory-audit" aria-expanded="false">Open</button></div>
       </div>
       <div class="card-body">
-        <p class="muted" style="margin-top:0;">Shows received, removed, exact count, out-of-stock, and other inventory adjustments recorded from Inventory Management. Use this to verify broken/damaged vial removals and stock corrections.</p>
+        <p class="muted" id="inventoryAuditRangeContext" style="margin-top:0;">Uses the Global Report Range. Shows received, removed, exact count, out-of-stock, and other inventory adjustments recorded from Inventory Management.</p>
         <div class="table-wrap">
           <table class="finance-table">
             <thead><tr><th>Date / Time</th><th>Product</th><th>SKU / Key</th><th>Movement</th><th>Qty Change</th><th>Previous Qty</th><th>New Qty</th><th>Admin</th><th>Reason / Note</th></tr></thead>
@@ -2640,6 +2658,7 @@ const $ = (id) => document.getElementById(id);
 let currentUser = null;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 const PST_EXPENSE_STORAGE_KEY = "pst_operating_expenses_v1";
+const PST_GLOBAL_REPORT_RANGE_SESSION_KEY = "pst_global_report_range_v1";
 const PST_EXPENSE_COLUMN_WIDTHS_KEY = "pst_reports_expense_column_widths_v1";
 let localExpenseRows = [];
 let allReportOrders = [];
@@ -2872,14 +2891,10 @@ async function loadReports(){
     return { ...order, profile };
   });
 
-  const openStatuses = new Set(["pending","awaiting_payment","processing","packed","shipped"]);
-  const openOrders = orders.filter(o => openStatuses.has(norm(orderStatus(o))));
   const activePromos = discounts.filter(isActiveHomepagePromo);
   const lowStock = inventory.filter(row => { const q = qtyValue(row); return Number.isFinite(q) && q > 0 && q <= 3; });
   const outStock = inventory.filter(row => { const q = qtyValue(row); return Number.isFinite(q) && q <= 0; });
 
-  $("statOrders").textContent = orders.length;
-  $("statOpenOrders").textContent = openOrders.length;
   $("statInventory").textContent = inventory.length;
   $("statPromos").textContent = activePromos.length;
   $("statLowStock").textContent = lowStock.length;
@@ -2888,7 +2903,6 @@ async function loadReports(){
 
   allReportOrders = orders;
   refreshOrderReport();
-  renderInventoryAudit();
   const warnings = [];
   if (ordersRes.status === "fulfilled" && ordersRes.value.error) warnings.push("orders");
   if (inventoryRes.status === "fulfilled" && inventoryRes.value.error) warnings.push("inventory");
@@ -2944,6 +2958,12 @@ function setPresetDateInputs(range){
     setDateInput("orderReportStartDate", start);
     setDateInput("orderReportEndDate", today);
   }
+  if (range === "last90") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 89);
+    setDateInput("orderReportStartDate", start);
+    setDateInput("orderReportEndDate", today);
+  }
   if (range === "all") {
     if ($("orderReportStartDate")) $("orderReportStartDate").value = "";
     if ($("orderReportEndDate")) $("orderReportEndDate").value = "";
@@ -2954,6 +2974,7 @@ function reportRangeLabel(range, startDate, endDate){
   if (range === "today") return "today";
   if (range === "last7") return "the last 7 days";
   if (range === "last30") return "the last 30 days";
+  if (range === "last90") return "the last 90 days";
   if (range === "custom") return `${fmt(startDate)} through ${fmt(endDate)}`;
   return "all stored orders";
 }
@@ -2980,6 +3001,10 @@ function filteredReportOrders(){
 }
 function refreshOrderReport(){
   const orders = filteredReportOrders();
+  const openStatuses = new Set(["pending","awaiting_payment","processing","packed","shipped"]);
+  const openOrders = orders.filter(order => openStatuses.has(norm(orderStatus(order))));
+  setText("statOrders", orders.length);
+  setText("statOpenOrders", openOrders.length);
   renderOperationalInsights(orders);
   renderSalesReport(orders);
   renderFinancialSummary(orders);
@@ -2987,18 +3012,46 @@ function refreshOrderReport(){
   renderDetailedOrders(orders);
   renderProductSalesReport(orders);
   renderFinancials(orders);
+  renderInventoryAudit();
   const note = $("orderReportNote");
   const range = $("orderReportRange")?.value || "last7";
   const startDate = range === "all" ? null : dateInputValue("orderReportStartDate");
   const endDate = range === "all" ? null : dateInputValue("orderReportEndDate");
   const label = reportRangeLabel(range, startDate, endDate);
-  if (note) note.textContent = `Showing ${orders.length} of ${allReportOrders.length} orders from ${label}. All Time includes old test/history rows.`;
+  if (note) note.textContent = `Global range: ${label}. Showing ${orders.length} of ${allReportOrders.length} orders. Date-dependent reports refresh automatically; current inventory and settings remain current.`;
+  if ($("snapshotUpdated")) $("snapshotUpdated").textContent = `${label} · Updated ${new Date().toLocaleString()}`;
+  if ($("inventoryAuditRangeContext")) $("inventoryAuditRangeContext").textContent = `Using ${label}. Shows received, removed, exact count, out-of-stock, and other inventory adjustments recorded from Inventory Management.`;
 }
 function switchToCustomRange(){
   if ($("orderReportRange")?.value !== "custom") {
     $("orderReportRange").value = "custom";
   }
+  saveGlobalReportRange();
   refreshOrderReport();
+}
+
+function saveGlobalReportRange(){
+  try {
+    sessionStorage.setItem(PST_GLOBAL_REPORT_RANGE_SESSION_KEY, JSON.stringify({
+      range: $("orderReportRange")?.value || "last7",
+      start: $("orderReportStartDate")?.value || "",
+      end: $("orderReportEndDate")?.value || ""
+    }));
+  } catch (error) {}
+}
+
+function restoreGlobalReportRange(){
+  let saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem(PST_GLOBAL_REPORT_RANGE_SESSION_KEY) || "null"); } catch (error) {}
+  const allowed = new Set(["today","last7","last30","last90","custom","all"]);
+  const range = allowed.has(saved?.range) ? saved.range : "last7";
+  if ($("orderReportRange")) $("orderReportRange").value = range;
+  if (range === "custom") {
+    if ($("orderReportStartDate")) $("orderReportStartDate").value = saved?.start || "";
+    if ($("orderReportEndDate")) $("orderReportEndDate").value = saved?.end || "";
+  } else {
+    setPresetDateInputs(range);
+  }
 }
 
 function reportTotals(orders, mode="all"){
@@ -3755,7 +3808,10 @@ function renderInventoryAudit(){
     if (count) count.textContent = "Audit unavailable";
     return;
   }
-  const rows = (allInventoryMovementRows || []).slice().sort((a,b)=>new Date(b.created_at || b.date || 0)-new Date(a.created_at || a.date || 0));
+  const rows = (allInventoryMovementRows || [])
+    .filter(row => rowDateInSelectedRange(row.created_at || row.date || row.updated_at))
+    .slice()
+    .sort((a,b)=>new Date(b.created_at || b.date || 0)-new Date(a.created_at || a.date || 0));
   if (count) count.textContent = `${rows.length} movement${rows.length === 1 ? "" : "s"} shown`;
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="9" class="muted">No inventory movements have been recorded yet.</td></tr>`;
@@ -3992,7 +4048,11 @@ async function deleteExpense(id){
 async function init(){
   try{
     $("refreshBtn")?.addEventListener("click", loadReports);
-    $("orderReportRange")?.addEventListener("change", () => { setPresetDateInputs($("orderReportRange")?.value || "last7"); refreshOrderReport(); });
+    $("orderReportRange")?.addEventListener("change", () => {
+      setPresetDateInputs($("orderReportRange")?.value || "last7");
+      saveGlobalReportRange();
+      refreshOrderReport();
+    });
     $("orderReportStartDate")?.addEventListener("change", switchToCustomRange);
     $("orderReportEndDate")?.addEventListener("change", switchToCustomRange);
     $("exportOrderCsvBtn")?.addEventListener("click", exportOrderCsv);
@@ -4004,7 +4064,7 @@ async function init(){
     if ($("expenseDate") && !$("expenseDate").value) $("expenseDate").value = new Date().toISOString().slice(0,10);
     $("addExpenseBtn")?.addEventListener("click", addExpense);
     setupExpenseColumnResizing();
-    setPresetDateInputs("last7");
+    restoreGlobalReportRange();
     const isAdmin = await checkAdminAccess();
     if (isAdmin) await loadReports();
   }catch(error){
