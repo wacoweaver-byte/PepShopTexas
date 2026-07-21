@@ -2436,9 +2436,13 @@ td .inventory-readonly-value {
   }
   function shippingAddress(order){
     const p = profileOf(order);
+    const capitalizeInitial = value => {
+      const text = cleanValue(value);
+      return text ? text.charAt(0).toUpperCase() + text.slice(1) : "";
+    };
     const line1 = cleanValue(order.shipping_address_line1 || order.address_line1 || order.shipping_address || order.address || p.shipping_address || p.address_line1 || p.address1 || p.address);
     const line2 = cleanValue(order.shipping_address_line2 || order.address_line2 || p.shipping_address2 || p.address_line2 || p.address2);
-    const city = cleanValue(order.shipping_city || order.city || p.shipping_city || p.city);
+    const city = capitalizeInitial(order.shipping_city || order.city || p.shipping_city || p.city);
     const state = cleanValue(order.shipping_state || order.state || p.shipping_state || p.state);
     const zip = cleanValue(order.shipping_zip || order.shipping_postal_code || order.postal_code || order.zip || p.shipping_zip || p.postal_code || p.zip);
     const cityStateZip = [city, [state, zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
