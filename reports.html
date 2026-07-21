@@ -2329,8 +2329,8 @@ button.btn[aria-disabled="true"],
     <div class="reports-jumpbar-title">Jump to</div>
     <div class="reports-jumpbar-links">
       <a href="report-writer.html">Report Writer</a>
-      <a href="#sales-report-card" data-jump-target="sales-report-card">Sales Report</a>
       <a href="#order-report-card" data-jump-target="order-report-card">Order Report</a>
+      <a href="#sales-report-card" data-jump-target="sales-report-card">Sales Report</a>
       <a href="#tax-settings-card" data-jump-target="tax-settings-card">Checkout Tax Settings</a>
       <a href="#financials" data-jump-target="financials">Financials / Expenses</a>
       <a href="#inventory-audit" data-jump-target="inventory-audit">Inventory Audit / Movement History</a>
@@ -2341,63 +2341,8 @@ button.btn[aria-disabled="true"],
   </nav>
 
   <section class="grid">
-    <div class="card span-12 no-print collapsible-card collapsed" id="quick-snapshot-card" style="scroll-margin-top:185px;">
-      <div class="card-header"><h2>Quick Report Snapshot</h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="snapshotUpdated">Not loaded yet</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="quick-snapshot-card" aria-expanded="false">Open</button></div></div>
-      <div class="card-body">
-        <div class="stat-grid">
-          <div class="stat"><strong id="statOrders">—</strong><span>Total Orders</span></div>
-          <div class="stat"><strong id="statOpenOrders">—</strong><span>Open Orders</span></div>
-          <div class="stat"><strong id="statInventory">—</strong><span>Inventory Rows</span></div>
-          <div class="stat"><strong id="statPromos">—</strong><span>Active Homepage Promos</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card span-12 print-report-only collapsible-card collapsed" id="sales-report-card" style="scroll-margin-top:185px;">
-      <div class="card-header">
-        <h2>Sales Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v36</span></h2>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill good">Live Sales</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="sales-report-card" aria-expanded="false">Open</button></div>
-      </div>
-      <div class="card-body">
-        <p class="muted" id="salesReportNote" style="margin-top:0;">Uses the same selected date range as Order Report. Realized sales count orders marked Shipped, Delivered, Complete, or Completed.</p>
-        <div class="financial-summary-grid" id="salesSummaryGrid">
-          <div class="financial-summary-card"><strong id="salesRealizedRevenue">—</strong><span>Realized Sales</span></div>
-          <div class="financial-summary-card"><strong id="salesPendingRevenue">—</strong><span>Pending / Open Sales</span></div>
-          <div class="financial-summary-card"><strong id="salesRealizedOrders">—</strong><span>Realized Orders</span></div>
-          <div class="financial-summary-card"><strong id="salesAverageOrder">—</strong><span>Average Order</span></div>
-          <div class="financial-summary-card"><strong id="salesUnitsSold">—</strong><span>Units Sold</span></div>
-          <div class="financial-summary-card"><strong id="salesTopProduct">—</strong><span>Top Product</span></div>
-        </div>
-        <div class="report-actions">
-          <button class="btn secondary" id="exportSalesCsvBtn" type="button">Export Sales CSV</button>
-        </div>
-
-        <div class="detail-report-head">
-          <h3>Daily Sales Breakdown</h3>
-          <span class="muted" id="dailySalesCount">Loading...</span>
-        </div>
-        <div class="table-wrap">
-          <table class="finance-table">
-            <thead><tr><th>Date</th><th>Realized Orders</th><th>Realized Sales</th><th>Units Sold</th><th>Tax Collected</th><th>Shipping Collected</th><th>Avg Order</th></tr></thead>
-            <tbody id="dailySalesBody"><tr><td colspan="7" class="muted">Loading daily sales...</td></tr></tbody>
-          </table>
-        </div>
-
-        <div class="detail-report-head">
-          <h3>Top Products by Sales</h3>
-          <span class="muted" id="topSalesProductsCount">Loading...</span>
-        </div>
-        <div class="table-wrap">
-          <table class="finance-table">
-            <thead><tr><th>Rank</th><th>Product</th><th>SKU</th><th>Qty Sold</th><th>Sales</th><th>Avg Price</th><th>% of Sales</th></tr></thead>
-            <tbody id="topSalesProductsBody"><tr><td colspan="7" class="muted">Loading product sales...</td></tr></tbody>
-          </table>
-        </div>
-        <div class="section-backtop"><a href="#reportsTop">Back to Top ↑</a></div>
-      </div>
-    </div>
-
-    <div class="card span-8 print-report-only collapsible-card collapsed" id="order-report-card" style="scroll-margin-top:185px;">
+        <!-- PST_REPORTS_PATCH_V43_ORDER_DATE_RANGE_FIRST -->
+<div class="card span-8 print-report-only collapsible-card collapsed" id="order-report-card" style="scroll-margin-top:185px;">
       <div class="card-header"><h2>Order Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v18 FINANCIALS FIX</span></h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill info">Read Only</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="order-report-card" aria-expanded="false">Open</button></div></div>
       <div class="card-body">
         <div class="report-controls">
@@ -2489,6 +2434,64 @@ button.btn[aria-disabled="true"],
         <p class="muted" style="margin:14px 0 0;">This uses best-effort inventory fields and is meant as a quick warning, not the final inventory authority.</p>
       </div>
     </div>
+
+<div class="card span-12 no-print collapsible-card collapsed" id="quick-snapshot-card" style="scroll-margin-top:185px;">
+      <div class="card-header"><h2>Quick Report Snapshot</h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="snapshotUpdated">Not loaded yet</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="quick-snapshot-card" aria-expanded="false">Open</button></div></div>
+      <div class="card-body">
+        <div class="stat-grid">
+          <div class="stat"><strong id="statOrders">—</strong><span>Total Orders</span></div>
+          <div class="stat"><strong id="statOpenOrders">—</strong><span>Open Orders</span></div>
+          <div class="stat"><strong id="statInventory">—</strong><span>Inventory Rows</span></div>
+          <div class="stat"><strong id="statPromos">—</strong><span>Active Homepage Promos</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-12 print-report-only collapsible-card collapsed" id="sales-report-card" style="scroll-margin-top:185px;">
+      <div class="card-header">
+        <h2>Sales Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v36</span></h2>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill good">Live Sales</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="sales-report-card" aria-expanded="false">Open</button></div>
+      </div>
+      <div class="card-body">
+        <p class="muted" id="salesReportNote" style="margin-top:0;">Uses the same selected date range as Order Report. Realized sales count orders marked Shipped, Delivered, Complete, or Completed.</p>
+        <div class="financial-summary-grid" id="salesSummaryGrid">
+          <div class="financial-summary-card"><strong id="salesRealizedRevenue">—</strong><span>Realized Sales</span></div>
+          <div class="financial-summary-card"><strong id="salesPendingRevenue">—</strong><span>Pending / Open Sales</span></div>
+          <div class="financial-summary-card"><strong id="salesRealizedOrders">—</strong><span>Realized Orders</span></div>
+          <div class="financial-summary-card"><strong id="salesAverageOrder">—</strong><span>Average Order</span></div>
+          <div class="financial-summary-card"><strong id="salesUnitsSold">—</strong><span>Units Sold</span></div>
+          <div class="financial-summary-card"><strong id="salesTopProduct">—</strong><span>Top Product</span></div>
+        </div>
+        <div class="report-actions">
+          <button class="btn secondary" id="exportSalesCsvBtn" type="button">Export Sales CSV</button>
+        </div>
+
+        <div class="detail-report-head">
+          <h3>Daily Sales Breakdown</h3>
+          <span class="muted" id="dailySalesCount">Loading...</span>
+        </div>
+        <div class="table-wrap">
+          <table class="finance-table">
+            <thead><tr><th>Date</th><th>Realized Orders</th><th>Realized Sales</th><th>Units Sold</th><th>Tax Collected</th><th>Shipping Collected</th><th>Avg Order</th></tr></thead>
+            <tbody id="dailySalesBody"><tr><td colspan="7" class="muted">Loading daily sales...</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="detail-report-head">
+          <h3>Top Products by Sales</h3>
+          <span class="muted" id="topSalesProductsCount">Loading...</span>
+        </div>
+        <div class="table-wrap">
+          <table class="finance-table">
+            <thead><tr><th>Rank</th><th>Product</th><th>SKU</th><th>Qty Sold</th><th>Sales</th><th>Avg Price</th><th>% of Sales</th></tr></thead>
+            <tbody id="topSalesProductsBody"><tr><td colspan="7" class="muted">Loading product sales...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="section-backtop"><a href="#reportsTop">Back to Top ↑</a></div>
+      </div>
+    </div>
+
+    
 
 
     <div class="card span-12 no-print collapsible-card collapsed" id="tax-settings-card" style="scroll-margin-top:185px;">
