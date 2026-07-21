@@ -3,7 +3,6 @@
 (function () {
   const PAYMENT_DISCOUNT_RATES = {
     bitcoin: 0.10,
-    venmo: 0.05,
     zelle: 0.05,
     apple_pay: 0.05,
     apple_cash: 0.05
@@ -11,7 +10,6 @@
 
   const PAYMENT_DISPLAY_LABELS = {
     bitcoin: "Bitcoin — Save 10% 🔥",
-    venmo: "Venmo — Save 5%",
     zelle: "Zelle — Save 5%",
     apple_pay: "Apple Cash — Save 5%",
     apple_cash: "Apple Cash — Save 5%",
