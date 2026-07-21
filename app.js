@@ -36,13 +36,13 @@ const STATE_ABBREVIATIONS = {
 };
 const DEFAULT_TAX_REGION = "";
 const DEFAULT_PAYMENT_METHODS = [
-  { id:"pending", label:"Payment pending", enabled:true, account:"", instructions:"Your order will be reviewed and payment instructions will be confirmed before processing." },
-  { id:"venmo", label:"Venmo", enabled:false, account:"", instructions:"Please include your order number in the Venmo note. Your order will remain pending until payment is verified." },
-  { id:"zelle", label:"Zelle", enabled:false, account:"", instructions:"Please send payment by Zelle and include your order number if possible. Your order will remain pending until payment is verified." },
-  { id:"bitcoin", label:"Bitcoin", enabled:false, account:"", instructions:"Send the exact order total. Your order will remain pending until the transaction is confirmed." },
-  { id:"credit_card", label:"Credit Card", enabled:false, account:"", instructions:"Credit card payment instructions will be provided after order review. Your order will remain pending until payment is verified." },
-  { id:"apple_pay", label:"Apple Pay", enabled:false, account:"", instructions:"Send payment using Apple Cash / Apple Pay and include your order number. Your order will remain pending until payment is verified." },
-  { id:"google_pay", label:"Google Pay", enabled:false, account:"", instructions:"Send payment using Google Pay and include your order number. Your order will remain pending until payment is verified." }
+  { id:"pending", label:"Payment pending", enabled:true, discountPercent:0, account:"", instructions:"Your order will be reviewed and payment instructions will be confirmed before processing." },
+  { id:"venmo", label:"Venmo", enabled:false, discountPercent:0, account:"", instructions:"Please include your order number in the Venmo note. Your order will remain pending until payment is verified." },
+  { id:"zelle", label:"Zelle", enabled:false, discountPercent:5, account:"", instructions:"Please send payment by Zelle and include your order number if possible. Your order will remain pending until payment is verified." },
+  { id:"bitcoin", label:"Bitcoin", enabled:false, discountPercent:10, account:"", instructions:"Send the exact order total. Your order will remain pending until the transaction is confirmed." },
+  { id:"credit_card", label:"Credit Card", enabled:false, discountPercent:0, account:"", instructions:"Credit card payment instructions will be provided after order review. Your order will remain pending until payment is verified." },
+  { id:"apple_pay", label:"Apple Pay", enabled:false, discountPercent:5, account:"", instructions:"Send payment using Apple Cash / Apple Pay and include your order number. Your order will remain pending until payment is verified." },
+  { id:"google_pay", label:"Google Pay", enabled:false, discountPercent:0, account:"", instructions:"Send payment using Google Pay and include your order number. Your order will remain pending until payment is verified." }
 ];
 
 let pstSupabaseClient = null;
@@ -1038,6 +1038,12 @@ function accountShippingAddress(profile = {}) {
   ].filter(Boolean).join(", ");
 }
 
+function normalizePaymentDiscountPercent(value, fallback=0) {
+  const number = Number(value);
+  const resolved = Number.isFinite(number) ? number : Number(fallback || 0);
+  return Math.min(100, Math.max(0, resolved));
+}
+
 function normalizePaymentMethods(row) {
   let methods = null;
   if (Array.isArray(row)) methods = row;
@@ -1047,16 +1053,27 @@ function normalizePaymentMethods(row) {
   }
 
   const defaults = DEFAULT_PAYMENT_METHODS.map((method) => ({ ...method }));
+  const orderedIds = defaults.map((method) => method.id);
   const byId = Object.fromEntries(defaults.map((method) => [method.id, method]));
   (methods || []).forEach((method) => {
     const id = String(method.id || method.key || "").trim();
-    if (!id || !byId[id]) return;
+    if (!id) return;
+    const existing = byId[id] || {
+      id,
+      label:String(method.label || id).trim(),
+      enabled:false,
+      discountPercent:0,
+      account:"",
+      instructions:"Order will remain pending until payment is confirmed."
+    };
+    if (!byId[id]) orderedIds.push(id);
     byId[id] = {
-      ...byId[id],
+      ...existing,
       ...method,
       enabled: method.enabled === true || String(method.enabled || "").toLowerCase() === "true",
+      discountPercent: normalizePaymentDiscountPercent(method.discountPercent ?? method.discount_percent, existing.discountPercent),
       account: String(method.account || method.handle || method.wallet || method.value || "").trim(),
-      instructions: String(method.instructions || method.note || method.notes || byId[id].instructions || "").trim(),
+      instructions: String(method.instructions || method.note || method.notes || existing.instructions || "").trim(),
       qr_image: String(method.qr_image || method.qrUrl || method.qr_url || method.qr || method.qr_code || method.qr_code_image || method.qr_image_url || method.image || method.image_url || method.payment_image || "").trim()
     };
   });
@@ -1070,7 +1087,7 @@ function normalizePaymentMethods(row) {
     }
   }
 
-  return defaults.map((method) => byId[method.id]);
+  return orderedIds.map((id) => byId[id]);
 }
 
 function enabledPaymentMethods(methods) {
