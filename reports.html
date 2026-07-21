@@ -2620,6 +2620,7 @@ button.btn[aria-disabled="true"],
         <p class="muted" style="line-height:1.45;margin-top:0"><strong>QR upload:</strong> Use the QR Image Upload button on each method. It stores the QR image with that payment method setting. You can also paste an image URL if you prefer to upload QR images into GitHub assets.</p>
         <div id="paymentMethodsAdminList" class="payment-methods-admin-list"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <button class="btn secondary" type="button" id="addPaymentMethodBtn">Add Payment Method</button>
           <button class="btn" type="button" onclick="savePSTPaymentOptions()">Save Payment Methods</button>
           <button class="btn secondary" type="button" onclick="loadPSTPaymentOptionsAdmin()">Reload</button>
         </div>
@@ -4229,6 +4230,38 @@ function readPSTPaymentOptionsForm(){
     };
   });
 }
+function addPSTPaymentMethod(){
+  const current = readPSTPaymentOptionsForm();
+  const existingIds = new Set(current.map(method => method.id));
+  let sequence = current.filter(method => String(method.id || "").startsWith("custom_")).length + 1;
+  let id = `custom_${sequence}`;
+  while (existingIds.has(id)) {
+    sequence += 1;
+    id = `custom_${sequence}`;
+  }
+  pstAdminPaymentMethods = [
+    ...current,
+    {
+      id,
+      label:"New Payment Method",
+      accountLabel:"Send payment to",
+      enabled:false,
+      discountPercent:0,
+      account:"",
+      qrUrl:"",
+      instructions:"Order will remain pending until payment is confirmed."
+    }
+  ];
+  renderPSTPaymentMethodsAdmin();
+  const card = document.querySelector(`.payment-method-card[data-method-id="${id}"]`);
+  card?.scrollIntoView({ behavior:"smooth", block:"center" });
+  const nameField = card?.querySelector('[data-pay-field="label"]');
+  if (nameField) {
+    nameField.focus();
+    nameField.select();
+  }
+  paymentOptionsStatus("New payment method added. Complete its settings, turn it on when ready, then click Save Payment Methods.", "good");
+}
 function fillPSTPaymentOptionsForm(settings){
   pstAdminPaymentMethods = normalizePSTPaymentMethodsAdmin(settings);
   renderPSTPaymentMethodsAdmin();
@@ -4273,8 +4306,12 @@ async function savePSTPaymentOptions(){
   }
 }
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", loadPSTPaymentOptionsAdmin);
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("addPaymentMethodBtn")?.addEventListener("click", addPSTPaymentMethod);
+    loadPSTPaymentOptionsAdmin();
+  });
 } else {
+  document.getElementById("addPaymentMethodBtn")?.addEventListener("click", addPSTPaymentMethod);
   loadPSTPaymentOptionsAdmin();
 }
 </script>
