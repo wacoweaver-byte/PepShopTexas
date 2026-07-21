@@ -103,6 +103,13 @@
     .finance-table{width:100%;border-collapse:collapse;min-width:860px}
     .finance-table th,.finance-table td{border-bottom:1px solid var(--border);padding:10px;text-align:left;vertical-align:middle;font-size:13px}
     .finance-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}
+    .expense-table{width:1050px;min-width:0;table-layout:fixed}
+    .expense-table th{position:relative;overflow:visible}
+    .expense-table th,.expense-table td{overflow:hidden;text-overflow:ellipsis}
+    .expense-column-resizer{position:absolute;top:0;right:-4px;width:8px;height:100%;cursor:col-resize;touch-action:none;z-index:4}
+    .expense-column-resizer::after{content:"";position:absolute;top:18%;bottom:18%;left:3px;width:1px;background:#9aa6b2;opacity:.65}
+    .expense-column-resizer:hover::after,.expense-column-resizer.dragging::after{background:#000;opacity:1}
+    .expense-table.resizing,.expense-table.resizing *{cursor:col-resize!important;user-select:none!important}
     .money-negative{color:var(--danger);font-weight:900}.money-positive{color:var(--success);font-weight:900}
     @media(max-width:1200px){.finance-controls{grid-template-columns:1fr 1fr}.finance-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
     @media(max-width:700px){.finance-controls,.finance-summary-grid{grid-template-columns:1fr}}
@@ -2577,8 +2584,17 @@ button.btn[aria-disabled="true"],
         </div>
 
         <div class="table-wrap" style="margin-top:14px;">
-          <table class="finance-table">
-            <thead><tr><th>Date</th><th>Company</th><th>Category</th><th>Description</th><th>Method</th><th>Amount</th><th>Action</th></tr></thead>
+          <table class="finance-table expense-table" id="expenseTable">
+            <colgroup>
+              <col data-expense-column="date">
+              <col data-expense-column="company">
+              <col data-expense-column="category">
+              <col data-expense-column="description">
+              <col data-expense-column="method">
+              <col data-expense-column="amount">
+              <col data-expense-column="action">
+            </colgroup>
+            <thead><tr><th data-expense-column="date">Date</th><th data-expense-column="company">Company</th><th data-expense-column="category">Category</th><th data-expense-column="description">Description</th><th data-expense-column="method">Method</th><th data-expense-column="amount">Amount</th><th data-expense-column="action">Action</th></tr></thead>
             <tbody id="expenseBody"><tr><td colspan="7" class="muted">Loading expenses...</td></tr></tbody>
           </table>
         </div>
@@ -2664,6 +2680,7 @@ const $ = (id) => document.getElementById(id);
 let currentUser = null;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 const PST_EXPENSE_STORAGE_KEY = "pst_operating_expenses_v1";
+const PST_EXPENSE_COLUMN_WIDTHS_KEY = "pst_reports_expense_column_widths_v1";
 let localExpenseRows = [];
 let allReportOrders = [];
 let allOrderItemsByOrder = {};
@@ -3854,6 +3871,65 @@ function renderFinancials(orders){
     note.textContent = `Financials for the selected report range: ${realizedTotals.orders} realized order(s), ${pendingTotals.orders} pending/open order(s), ${excludedTotals.orders} excluded order(s), ${expensesInRange.length} expense row(s), and ${incomingInRange.length} incoming inventory cost row(s). Data source: ${sourceText}. Potential Inventory Revenue equals current inventory quantity times current selling price for every inventory row. Revenue and estimated profit are realized only when order status is Shipped, Delivered, Complete, or Completed. Pending, Processing, Packed, Inventory Failed, Rejected, Cancelled, Refunded, and Void orders are not counted as realized revenue/profit.`;
   }
 }
+function setupExpenseColumnResizing(){
+  const table = $("expenseTable");
+  if (!table) return;
+  const defaults = { date:110, company:150, category:140, description:250, method:120, amount:120, action:160 };
+  const saved = readJsonStorage(PST_EXPENSE_COLUMN_WIDTHS_KEY, {});
+  const widths = { ...defaults, ...(saved && typeof saved === "object" ? saved : {}) };
+  const columns = Array.from(table.querySelectorAll("col[data-expense-column]"));
+
+  const applyWidths = () => {
+    let total = 0;
+    columns.forEach(col => {
+      const key = col.dataset.expenseColumn;
+      const width = Math.max(70, Number(widths[key] || defaults[key] || 100));
+      widths[key] = width;
+      col.style.width = `${width}px`;
+      total += width;
+    });
+    table.style.width = `${total}px`;
+  };
+
+  table.querySelectorAll("th[data-expense-column]").forEach(header => {
+    if (header.querySelector(".expense-column-resizer")) return;
+    const key = header.dataset.expenseColumn;
+    const resizer = document.createElement("span");
+    resizer.className = "expense-column-resizer";
+    resizer.setAttribute("role", "separator");
+    resizer.setAttribute("aria-label", `Resize ${header.textContent.trim()} column`);
+    header.appendChild(resizer);
+
+    resizer.addEventListener("pointerdown", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const startX = event.clientX;
+      const startWidth = Number(widths[key] || header.getBoundingClientRect().width);
+      resizer.setPointerCapture(event.pointerId);
+      resizer.classList.add("dragging");
+      table.classList.add("resizing");
+
+      const move = moveEvent => {
+        widths[key] = Math.max(70, Math.round(startWidth + moveEvent.clientX - startX));
+        applyWidths();
+      };
+      const finish = () => {
+        resizer.classList.remove("dragging");
+        table.classList.remove("resizing");
+        writeJsonStorage(PST_EXPENSE_COLUMN_WIDTHS_KEY, widths);
+        resizer.removeEventListener("pointermove", move);
+        resizer.removeEventListener("pointerup", finish);
+        resizer.removeEventListener("pointercancel", finish);
+      };
+
+      resizer.addEventListener("pointermove", move);
+      resizer.addEventListener("pointerup", finish);
+      resizer.addEventListener("pointercancel", finish);
+    });
+  });
+
+  applyWidths();
+}
 function renderExpenseTable(rows){
   const body = $("expenseBody");
   if (!body) return;
@@ -3980,6 +4056,7 @@ async function init(){
     });
     if ($("expenseDate") && !$("expenseDate").value) $("expenseDate").value = new Date().toISOString().slice(0,10);
     $("addExpenseBtn")?.addEventListener("click", addExpense);
+    setupExpenseColumnResizing();
     setPresetDateInputs("last7");
     $("saveTaxSettingsBtn")?.addEventListener("click", saveTaxSettings);
     $("resetTaxSettingsBtn")?.addEventListener("click", () => { fillTaxForm(PST_DEFAULT_TAX_SETTINGS); saveTaxSettings(); });
