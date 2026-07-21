@@ -1,3 +1,4 @@
+<!-- PST_CUSTOMERS_ADMIN_V5_DIRECT_ACCOUNT_LINK -->
 <!-- PST_CUSTOMERS_ADMIN_V3_FIX_LOADING_ADMIN_STATUS -->
 <!-- PST_CUSTOMERS_ADMIN_V2_MATCH_ORDERS_HEADER -->
 <!-- PST_CUSTOMERS_ADMIN_V4_RESEARCH_ROLE_COLUMN -->
@@ -3164,6 +3165,7 @@ async function loadCustomers() {
   $("loadStatus").textContent = creditResult.error
     ? "Loaded " + customers.length + " customers. Store credit needs the Supabase setup SQL before it can be used."
     : "Loaded " + customers.length + " customer records.";
+  openLinkedCustomerAccount();
 }
 
 function stripUnsafeFields(profile) {
@@ -3193,6 +3195,8 @@ function applyFilters() {
 
   filteredCustomers = customers.filter(c => {
     const haystack = [
+      c.customer_number,
+      c.customer_number ? `PST-C${c.customer_number}` : "",
       c.name, c.email, c.phone, c.research_role, c.city_state, c.tags, c.notes
     ].join(" ").toLowerCase();
 
@@ -3465,6 +3469,31 @@ function openCustomerModal(c) {
   renderStoreCredit(c);
 
   $("customerModal").classList.add("active");
+}
+
+function openLinkedCustomerAccount() {
+  const params = new URLSearchParams(window.location.search);
+  const targetId = String(params.get("customer_id") || "").trim();
+  const targetNumber = String(params.get("customer_number") || "").trim().replace(/^PST-C/i, "");
+  const targetEmail = normalizeEmail(params.get("email") || "");
+  if (!targetId && !targetNumber && !targetEmail) return;
+
+  const customer = customers.find(candidate => {
+    const rawId = String(pick(candidate.raw || {}, ["user_id", "id", "customer_id", "profile_id"]) || candidate.id || "").trim();
+    const number = String(candidate.customer_number || "").trim().replace(/^PST-C/i, "");
+    return (targetId && rawId === targetId)
+      || (targetNumber && number === targetNumber)
+      || (targetEmail && normalizeEmail(candidate.email) === targetEmail);
+  });
+
+  if (!customer) {
+    $("filterStatus").textContent = "The linked customer account could not be found.";
+    return;
+  }
+
+  $("searchInput").value = customer.customer_number ? `PST-C${customer.customer_number}` : customer.email;
+  applyFilters();
+  openCustomerModal(customer);
 }
 
 function closeCustomerModal() {
