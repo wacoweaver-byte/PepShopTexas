@@ -2726,14 +2726,48 @@ td .inventory-readonly-value {
       if(itemError) throw itemError;
       const productIds = [...new Set((items||[]).map(item => cleanValue(item.product_id)).filter(Boolean))];
       const productsById = {};
-      if(productIds.length){
-        const { data: products, error: productError } = await supabaseClient.from("products").select("id,product_key").in("id", productIds);
-        if(productError) console.warn("Product-key lookup failed:", productError.message || productError);
-        (products||[]).forEach(product => { productsById[String(product.id)] = product; });
+      const productsByLabel = {};
+      const productMatchKey = (name, strength="") => {
+        const clean = value => cleanValue(value).toLowerCase().replace(/[^a-z0-9]+/g, "");
+        return `${clean(name)}|${clean(strength)}`;
+      };
+      {
+        const lookups = await Promise.allSettled([
+          supabaseClient.from("product_catalog").select("id,product_key,display_name,strength"),
+          supabaseClient.from("product_inventory").select("id,product_key,display_name,strength"),
+          productIds.length
+            ? supabaseClient.from("products").select("id,product_key").in("id", productIds)
+            : Promise.resolve({ data: [], error: null })
+        ]);
+        lookups.forEach(result => {
+          if(result.status !== "fulfilled") return;
+          if(result.value?.error){
+            console.warn("Product-key lookup skipped:", result.value.error.message || result.value.error);
+            return;
+          }
+          (result.value?.data || []).forEach(product => {
+            if(product?.id && product?.product_key) productsById[String(product.id)] = product;
+            if(product?.product_key && product?.display_name){
+              const exactKey = productMatchKey(product.display_name, product.strength);
+              const nameKey = productMatchKey(product.display_name);
+              if(!productsByLabel[exactKey]) productsByLabel[exactKey] = product;
+              if(!productsByLabel[nameKey]) productsByLabel[nameKey] = product;
+            }
+          });
+        });
       }
       (items||[]).forEach(item => {
-        const product = productsById[String(item.product_id)] || {};
-        const enrichedItem = {...item, product_key: item.product_key || product.product_key || ""};
+        const itemName = item.product_name || item.name || item.display_name || item.label_name || "";
+        const itemStrength = item.strength || item.dose || item.dosage || item.product_strength || item.label_dose || "";
+        const product = productsById[String(item.product_id)]
+          || productsByLabel[productMatchKey(itemName, itemStrength)]
+          || productsByLabel[productMatchKey(itemName)]
+          || {};
+        const enrichedItem = {
+          ...item,
+          product_key: item.product_key || product.product_key || "",
+          strength: itemStrength || product.strength || ""
+        };
         const k=enrichedItem.order_id;
         if(!itemsByOrder[k]) itemsByOrder[k]=[];
         itemsByOrder[k].push(enrichedItem);
@@ -3122,9 +3156,17 @@ document.querySelectorAll("tr.order-row").forEach(row =>
     return "";
   }
 
-  /* PST_ADMIN_PATCH_V10_FULFILLMENT_SHEET_PRINT */
+  /* PST_ADMIN_PATCH_V11_FULFILLMENT_ITEM_NUMBER_FIX */
+  function fulfillmentLooksLikeUuid(value){
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanValue(value));
+  }
   function fulfillmentItemSku(item={}){
-    return cleanValue(item.product_key || item.sku || item.product_sku || item.item_number || item.item_no || item.product_id || item.id);
+    const candidates = [item.product_key, item.sku, item.product_sku, item.item_number, item.item_no];
+    for(const candidate of candidates){
+      const value = cleanValue(candidate);
+      if(value && !fulfillmentLooksLikeUuid(value)) return value;
+    }
+    return "";
   }
   function fulfillmentItemStrength(item={}){
     return cleanValue(item.strength || item.dose || item.dosage || item.product_strength || item.label_dose);
@@ -3466,7 +3508,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       <div class="grid"><div class="box"><h3>Customer / Ship To</h3><p><strong>${esc(customerName(order))}</strong><br>${esc(shippingAddress(order))}<br>${esc(customerEmail(order) || "No email")}<br>${esc(customerPhone(order))}</p></div><div class="box"><h3>Order Snapshot</h3><div class="line"><span>Date</span><strong>${esc(fmtDate(order.created_at || order.order_date))}</strong></div><div class="line"><span>Order Status</span><span class="pill">${esc(String(orderStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Payment Status</span><span class="pill">${esc(String(paymentStatus(order)).replaceAll("_"," "))}</span></div><div class="line"><span>Shipping</span><strong>${money(orderShipping(order))}</strong></div><div class="line"><span>Total</span><strong>${money(orderTotal(order))}</strong></div></div></div>
       <table><thead><tr><th>#</th><th>Product / Vial Label</th><th>Strength</th><th>SKU / Item</th><th>Qty</th><th>Picked</th></tr></thead><tbody>${rows}</tbody></table>
       <div class="checklist"><div class="checkitem">□ Correct product/SKU pulled</div><div class="checkitem">□ Correct quantity pulled</div><div class="checkitem">□ Vial label checked</div><div class="checkitem">□ Lot/COA checked if applicable</div><div class="checkitem">□ Items protected in packaging</div><div class="checkitem">□ Packing slip/order sheet included</div><div class="checkitem">□ Shipping label matches customer address</div><div class="checkitem">□ Final package sealed</div></div>
-      <div class="grid"><div class="box"><h3>Fulfillment Notes</h3><p style="min-height:52px">&nbsp;</p></div><div class="box"><h3>Tracking / Carrier</h3><p>Carrier: ${esc(order.tracking_carrier || order.carrier || "—")}<br>Tracking: ${esc(order.tracking_number || order.tracking || "—")}</p></div></div>
+      <div class="grid"><div class="box"><h3>Fulfillment Notes</h3><p style="min-height:52px">&nbsp;</p></div><div class="box"><h3>Tracking / Carrier</h3><p>Carrier: ____________________<br>Tracking: __________________</p></div></div>
       <div class="sign"><div class="sigline">Packed by / Date</div><div class="sigline">Final check / Date</div></div><div class="footer">Internal fulfillment document only. Not a customer-facing marketing insert.</div>
     </div><script>window.addEventListener('load',function(){setTimeout(function(){window.focus();window.print();},250);});<\/script></body></html>`;
   }
