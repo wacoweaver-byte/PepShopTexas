@@ -94,7 +94,7 @@
     .financial-summary-card strong{display:block;font-size:20px;line-height:1.05;font-weight:900;color:var(--blue);margin-bottom:7px;word-break:break-word}
     .financial-summary-card span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.045em;line-height:1.2}
     .finance-panel{margin-top:18px}
-    .finance-controls{display:grid;grid-template-columns:.8fr 1fr 1.2fr .7fr .8fr auto;gap:10px;align-items:end;padding:14px;border-bottom:1px solid var(--border);background:#fbfcfe}
+    .finance-controls{display:grid;grid-template-columns:.8fr 1fr 1fr 1.2fr .7fr .8fr auto;gap:10px;align-items:end;padding:14px;border-bottom:1px solid var(--border);background:#fbfcfe}
     .finance-summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 14px}
     .finance-summary-card{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;min-height:82px}
     .finance-summary-card strong{display:block;font-size:20px;line-height:1.05;font-weight:900;color:var(--blue);margin-bottom:7px;word-break:break-word}
@@ -2544,6 +2544,10 @@ button.btn[aria-disabled="true"],
             <input id="expenseDate" type="date" />
           </div>
           <div class="field">
+            <label for="expenseCompanyName">Company Name</label>
+            <input id="expenseCompanyName" type="text" placeholder="Company name" />
+          </div>
+          <div class="field">
             <label for="expenseCategory">Category</label>
             <select id="expenseCategory">
               <option value="Supplies">Supplies</option>
@@ -2574,8 +2578,8 @@ button.btn[aria-disabled="true"],
 
         <div class="table-wrap" style="margin-top:14px;">
           <table class="finance-table">
-            <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Method</th><th>Amount</th><th>Action</th></tr></thead>
-            <tbody id="expenseBody"><tr><td colspan="6" class="muted">Loading expenses...</td></tr></tbody>
+            <thead><tr><th>Date</th><th>Company</th><th>Category</th><th>Description</th><th>Method</th><th>Amount</th><th>Action</th></tr></thead>
+            <tbody id="expenseBody"><tr><td colspan="7" class="muted">Loading expenses...</td></tr></tbody>
           </table>
         </div>
         <div id="financeNote" class="finance-note">Financials use the selected report date range. These are operational estimates, not tax/accounting statements.</div>
@@ -2670,6 +2674,7 @@ let allInventoryMovementRows = [];
 let reportsMovementUsesSupabase = false;
 let reportsIncomingUsesSupabase = false;
 let reportsExpensesUsesSupabase = false;
+let editingExpenseId = null;
 
 function setStatus(message, type="") {
   const el = $("statusLine");
@@ -3678,6 +3683,7 @@ async function migrateLocalExpenseRowsToSupabase(){
     id: row.id || (crypto?.randomUUID ? crypto.randomUUID() : `expense_${Date.now()}_${Math.random().toString(16).slice(2)}`),
     date: row.date || (row.created_at ? String(row.created_at).slice(0,10) : new Date().toISOString().slice(0,10)),
     category: row.category || "Expense",
+    company_name: row.company_name || "",
     description: row.description || "",
     amount: Number(row.amount || 0),
     method: row.method || "",
@@ -3852,57 +3858,95 @@ function renderExpenseTable(rows){
   const body = $("expenseBody");
   if (!body) return;
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="6" class="muted">No expenses recorded in the selected report range.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="7" class="muted">No expenses recorded in the selected report range.</td></tr>`;
     return;
   }
   const sorted = rows.slice().sort((a,b)=>new Date(b.date || b.created_at || 0)-new Date(a.date || a.created_at || 0));
   body.innerHTML = sorted.map(row => `<tr>
     <td>${safe(row.date || shortDateTime(row.created_at))}</td>
+    <td>${safe(row.company_name || "—")}</td>
     <td>${safe(row.category || "Expense")}</td>
     <td>${safe(row.description || "—")}</td>
     <td>${safe(row.method || "—")}</td>
     <td><strong>${money(row.amount || 0)}</strong></td>
-    <td><button class="btn danger delete-expense-btn" data-expense-id="${safe(row.id)}" type="button">Delete</button></td>
+    <td><button class="btn secondary edit-expense-btn" data-expense-id="${safe(row.id)}" type="button">Edit</button> <button class="btn danger delete-expense-btn" data-expense-id="${safe(row.id)}" type="button">Delete</button></td>
   </tr>`).join("");
+  document.querySelectorAll(".edit-expense-btn").forEach(btn => btn.addEventListener("click", () => editExpense(btn.dataset.expenseId)));
   document.querySelectorAll(".delete-expense-btn").forEach(btn => btn.addEventListener("click", () => deleteExpense(btn.dataset.expenseId)));
+}
+function editExpense(id){
+  const row = (allExpenseRows || []).find(item => String(item.id) === String(id));
+  if (!row) return;
+  editingExpenseId = id;
+  if ($("expenseDate")) $("expenseDate").value = row.date || (row.created_at ? String(row.created_at).slice(0,10) : new Date().toISOString().slice(0,10));
+  if ($("expenseCompanyName")) $("expenseCompanyName").value = row.company_name || "";
+  if ($("expenseCategory")) $("expenseCategory").value = row.category || "Expense";
+  if ($("expenseDescription")) $("expenseDescription").value = row.description || "";
+  if ($("expenseAmount")) $("expenseAmount").value = Number(row.amount || 0);
+  if ($("expenseMethod")) $("expenseMethod").value = row.method || "";
+  if ($("addExpenseBtn")) $("addExpenseBtn").textContent = "Save Expense";
 }
 async function addExpense(){
   const amount = Number($("expenseAmount")?.value || 0);
   if (!amount || amount <= 0) { alert("Enter an expense amount greater than zero."); return; }
-  const row = {
-    id: crypto?.randomUUID ? crypto.randomUUID() : `expense_${Date.now()}`,
+  const values = {
     date: $("expenseDate")?.value || new Date().toISOString().slice(0,10),
+    company_name: $("expenseCompanyName")?.value.trim() || "",
     category: $("expenseCategory")?.value || "Expense",
     description: $("expenseDescription")?.value.trim() || "",
     amount,
     method: $("expenseMethod")?.value.trim() || "",
-    created_at: new Date().toISOString(),
-    created_by: currentUser?.id || null,
-    created_by_email: currentUser?.email || null
+    updated_at: new Date().toISOString()
   };
 
-  if (reportsExpensesUsesSupabase) {
-    const { data, error } = await supabaseClient.from("operating_expenses").insert(row).select("*").maybeSingle();
-    if (error) {
-      console.warn("Supabase expense insert failed; saving locally:", error.message || error);
+  if (editingExpenseId) {
+    if (reportsExpensesUsesSupabase) {
+      const { data, error } = await supabaseClient.from("operating_expenses").update(values).eq("id", editingExpenseId).select("*").maybeSingle();
+      if (error) {
+        alert("Expense update failed: " + (error.message || error));
+        return;
+      }
+      allExpenseRows = (allExpenseRows || []).map(item => String(item.id) === String(editingExpenseId) ? (data || { ...item, ...values }) : item);
+    } else {
+      const rows = expenseRowsLocalRaw().map(item => String(item.id) === String(editingExpenseId) ? { ...item, ...values } : item);
+      writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+      allExpenseRows = rows;
+    }
+  } else {
+    const row = {
+      id: crypto?.randomUUID ? crypto.randomUUID() : `expense_${Date.now()}`,
+      ...values,
+      created_at: new Date().toISOString(),
+      created_by: currentUser?.id || null,
+      created_by_email: currentUser?.email || null
+    };
+
+    if (reportsExpensesUsesSupabase) {
+      const { data, error } = await supabaseClient.from("operating_expenses").insert(row).select("*").maybeSingle();
+      if (error) {
+        console.warn("Supabase expense insert failed; saving locally:", error.message || error);
+        const rows = expenseRowsLocalRaw();
+        rows.unshift(row);
+        writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+        allExpenseRows = rows;
+        reportsExpensesUsesSupabase = false;
+      } else {
+        allExpenseRows = [data || row, ...(allExpenseRows || [])];
+      }
+    } else {
       const rows = expenseRowsLocalRaw();
       rows.unshift(row);
       writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
       allExpenseRows = rows;
-      reportsExpensesUsesSupabase = false;
-    } else {
-      allExpenseRows = [data || row, ...(allExpenseRows || [])];
     }
-  } else {
-    const rows = expenseRowsLocalRaw();
-    rows.unshift(row);
-    writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
-    allExpenseRows = rows;
   }
 
+  editingExpenseId = null;
+  if ($("expenseCompanyName")) $("expenseCompanyName").value = "";
   if ($("expenseAmount")) $("expenseAmount").value = "";
   if ($("expenseDescription")) $("expenseDescription").value = "";
   if ($("expenseMethod")) $("expenseMethod").value = "";
+  if ($("addExpenseBtn")) $("addExpenseBtn").textContent = "Add Expense";
   refreshOrderReport();
 }
 async function deleteExpense(id){
