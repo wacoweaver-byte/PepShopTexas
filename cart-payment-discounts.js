@@ -1,33 +1,32 @@
 /* Pep Shop Texas cart payment-method discounts.
    Styling intentionally unchanged: this script reuses existing cart classes. */
 (function () {
-  const PAYMENT_DISCOUNT_RATES = {
-    bitcoin: 0.10,
-    zelle: 0.05,
-    apple_pay: 0.05,
-    apple_cash: 0.05
-  };
-
-  const PAYMENT_DISPLAY_LABELS = {
-    bitcoin: "Bitcoin — Save 10% 🔥",
-    zelle: "Zelle — Save 5%",
-    apple_pay: "Apple Cash — Save 5%",
-    apple_cash: "Apple Cash — Save 5%",
-    credit_card: "Credit Card",
-    google_pay: "Google Pay",
-    pending: "Payment pending"
-  };
-
-  const PAYMENT_BASE_LABELS = {
-    bitcoin: "Bitcoin",
+  let paymentMethodDiscountRates = {};
+  let paymentMethodLabels = {
+    pending: "Payment pending",
     venmo: "Venmo",
     zelle: "Zelle",
-    apple_pay: "Apple Cash",
-    apple_cash: "Apple Cash",
+    bitcoin: "Bitcoin",
     credit_card: "Credit Card",
-    google_pay: "Google Pay",
-    pending: "Payment pending"
+    apple_pay: "Apple Pay",
+    apple_cash: "Apple Cash",
+    google_pay: "Google Pay"
   };
+
+  function normalizePaymentDiscountPercent(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.min(100, Math.max(0, number)) : 0;
+  }
+
+  function registerPaymentMethods(methods = []) {
+    paymentMethodDiscountRates = {};
+    methods.forEach((method) => {
+      const id = String(method.id || method.key || "").trim();
+      if (!id) return;
+      paymentMethodDiscountRates[id] = normalizePaymentDiscountPercent(method.discountPercent ?? method.discount_percent);
+      paymentMethodLabels[id] = String(method.label || paymentMethodLabels[id] || id).trim();
+    });
+  }
 
   function methodIdFromSelect() {
     const select = document.querySelector("[data-checkout-form] [name='payment_method']");
@@ -35,24 +34,28 @@
   }
 
   function paymentDiscountRate(methodId) {
-    return PAYMENT_DISCOUNT_RATES[String(methodId || "").trim()] || 0;
-  }
-
-  function paymentDisplayLabel(method = {}) {
-    const id = String(method.id || method.key || "").trim();
-    return PAYMENT_DISPLAY_LABELS[id] || method.label || id || "Payment method";
+    const percent = normalizePaymentDiscountPercent(paymentMethodDiscountRates[String(methodId || "").trim()]);
+    return percent / 100;
   }
 
   function paymentBaseLabel(method = {}) {
     const id = String(method.id || method.key || "").trim();
-    return PAYMENT_BASE_LABELS[id] || method.label || id || "Payment method";
+    return String(method.label || paymentMethodLabels[id] || id || "Payment method").trim();
+  }
+
+  function paymentDisplayLabel(method = {}) {
+    const id = String(method.id || method.key || "").trim();
+    const base = paymentBaseLabel(method);
+    const percent = Math.round(paymentDiscountRate(id) * 10000) / 100;
+    if (!percent) return base;
+    return `${base} — Save ${percent}%${id === "bitcoin" ? " 🔥" : ""}`;
   }
 
   function paymentDiscountLabel(methodId) {
     const rate = paymentDiscountRate(methodId);
     if (!rate) return "";
-    const base = PAYMENT_BASE_LABELS[methodId] || "Payment";
-    return `${base} Savings (-${Math.round(rate * 100)}%)`;
+    const base = paymentMethodLabels[methodId] || "Payment";
+    return `${base} Savings (-${Math.round(rate * 10000) / 100}%)`;
   }
 
   function roundPaymentDiscount(value) {
@@ -122,6 +125,7 @@
 
     checkoutFormHtml = function patchedCheckoutFormHtml(rows, context) {
       const nextContext = { ...context };
+      registerPaymentMethods(context.paymentMethods || []);
       const methods = (context.paymentMethods || []).map((method) => ({
         ...method,
         label: paymentBaseLabel(method),
@@ -198,7 +202,7 @@
 
     if (message) {
       if (discount > 0) {
-        const base = PAYMENT_BASE_LABELS[methodId] || "this payment method";
+        const base = paymentMethodLabels[methodId] || "this payment method";
         message.hidden = false;
         message.textContent = `✓ Payment discount applied. You saved ${formatPaymentMoney(discount)} by paying with ${base}.`;
       } else {
