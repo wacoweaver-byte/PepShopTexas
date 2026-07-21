@@ -1,3 +1,4 @@
+<!-- PST_ADMIN_PATCH_V16_GLOBAL_INCOMING_PO_SEARCH -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
 <!DOCTYPE html>
@@ -4169,6 +4170,19 @@ async function init(){
         </button>`;
       }
 
+      if(result.type === "incoming"){
+        const incoming = result.row;
+        const vendor = incoming.vendor_name || incoming.supplier_name || incoming.supplier || "Vendor not set";
+        const product = incoming.product_name || incoming.display_name || incoming.product_key || "Incoming product";
+        const orderedDate = incoming.ordered_at || incoming.created_at;
+        return `<button class="pst-global-match" type="button" data-global-type="incoming" data-global-id="${pstGlobalEsc(incoming.id || "")}">
+          <span class="pst-global-match-type">Incoming PO</span>
+          <strong>${pstGlobalEsc(product)}${incoming.product_key ? ` · ${pstGlobalEsc(incoming.product_key)}` : ""}</strong>
+          <span>${pstGlobalEsc(vendor)}${orderedDate ? ` · Ordered ${pstGlobalEsc(fmtDate(orderedDate))}` : ""}${incoming.status ? ` · ${pstGlobalEsc(String(incoming.status).replaceAll("_", " "))}` : ""}</span>
+          <span>Qty: ${pstGlobalEsc(incoming.ordered_quantity ?? incoming.qty_ordered ?? "—")}${incoming.tracking_number ? ` · Tracking: ${pstGlobalEsc(incoming.tracking_number)}` : ""}</span>
+        </button>`;
+      }
+
       const product = result.row;
       return `<button class="pst-global-match" type="button" data-global-type="product" data-global-key="${pstGlobalEsc(product.product_key || "")}">
         <span class="pst-global-match-type">Product</span>
@@ -4228,6 +4242,46 @@ async function init(){
       console.warn("Global customer lookup failed:", error);
     }
 
+    let incomingRowsForLookup = [];
+    try{
+      const {data: incomingRows, error} = await supabaseClient
+        .from("incoming_inventory")
+        .select("*")
+        .order("ordered_at", {ascending:false})
+        .limit(250);
+
+      if(error) console.warn("Global incoming inventory lookup:", error.message || error);
+      incomingRowsForLookup = incomingRows || [];
+      (incomingRows || []).forEach(incoming => {
+        const haystack = [
+          incoming.id,
+          incoming.product_id,
+          incoming.product_key,
+          incoming.product_name,
+          incoming.display_name,
+          incoming.vendor_id,
+          incoming.vendor_name,
+          incoming.supplier_name,
+          incoming.supplier,
+          incoming.tracking_number,
+          incoming.status,
+          incoming.notes,
+          incoming.audit_note,
+          incoming.ordered_at,
+          incoming.expected_arrival_date,
+          incoming.ordered_quantity,
+          incoming.ordered_at ? fmtDate(incoming.ordered_at) : ""
+        ].filter(Boolean).join(" ").toLowerCase();
+        const matchesText = haystack.includes(q);
+        const matchesDigits = digits.length >= 3 && pstGlobalDigits(haystack).includes(digits);
+        if(!matchesText && !matchesDigits) return;
+        const key = `incoming:${incoming.id}`;
+        if(!seen.has(key)){ seen.add(key); results.push({type:"incoming", row:incoming}); }
+      });
+    }catch(error){
+      console.warn("Global incoming inventory lookup failed:", error);
+    }
+
     const safeQ = q.replace(/[%_,]/g, "");
     if(safeQ){
       for(const tableName of ["product_inventory", "product_catalog"]){
@@ -4242,6 +4296,13 @@ async function init(){
           (products || []).forEach(product => {
             const key = `product:${product.product_key || product.id}`;
             if(!seen.has(key)){ seen.add(key); results.push({type:"product", row:product}); }
+            incomingRowsForLookup.forEach(incoming => {
+              const sameProduct = (product.product_key && incoming.product_key && String(product.product_key) === String(incoming.product_key))
+                || (product.id && incoming.product_id && String(product.id) === String(incoming.product_id));
+              if(!sameProduct) return;
+              const incomingKey = `incoming:${incoming.id}`;
+              if(!seen.has(incomingKey)){ seen.add(incomingKey); results.push({type:"incoming", row:incoming}); }
+            });
           });
         }catch(error){
           console.warn(`Global ${tableName} lookup failed:`, error);
@@ -4309,6 +4370,12 @@ async function init(){
     if(match.dataset.globalType === "product"){
       const productKey = String(match.dataset.globalKey || "").trim();
       if(productKey) window.location.href = `inventory.html?product_key=${encodeURIComponent(productKey)}`;
+      return;
+    }
+
+    if(match.dataset.globalType === "incoming"){
+      const incomingId = String(match.dataset.globalId || "").trim();
+      if(incomingId) window.location.href = `inventory.html?incoming_id=${encodeURIComponent(incomingId)}`;
     }
   });
 
