@@ -169,6 +169,9 @@
     const line = document.querySelector("[data-payment-discount-line]");
     const message = document.querySelector("[data-payment-discount-message]");
     const totalDisplay = document.querySelector("[data-cart-total-display]");
+    const storeCreditCheckbox = document.querySelector("[data-checkout-form] [name='apply_store_credit']");
+    const availableStoreCredit = Number(document.querySelector("[data-available-store-credit]")?.dataset?.availableStoreCredit || 0);
+    const storeCreditLine = document.querySelector("[data-store-credit-applied-line]");
 
     if (line) {
       if (discount > 0) {
@@ -184,6 +187,15 @@
       const baseTotal = parsePaymentMoney(totalDisplay.dataset.baseTotal || totalDisplay.textContent);
       totalDisplay.dataset.baseTotal = String(baseTotal);
       totalDisplay.textContent = formatPaymentMoney(roundPaymentDiscount(baseTotal - discount));
+    }
+
+    if (storeCreditLine) {
+      const discountedTotal = totalDisplay ? parsePaymentMoney(totalDisplay.textContent) : 0;
+      const storeCreditApplied = storeCreditCheckbox?.checked
+        ? roundPaymentDiscount(Math.min(availableStoreCredit, discountedTotal))
+        : 0;
+      storeCreditLine.hidden = storeCreditApplied <= 0;
+      storeCreditLine.querySelector("strong").textContent = `-${formatPaymentMoney(storeCreditApplied)}`;
     }
 
     if (message) {
@@ -206,6 +218,11 @@
       if (select && !select.dataset.paymentDiscountBound) {
         select.dataset.paymentDiscountBound = "true";
         select.addEventListener("change", updatePaymentDiscountDisplay);
+      }
+      const storeCreditCheckbox = document.querySelector("[data-checkout-form] [name='apply_store_credit']");
+      if (storeCreditCheckbox && !storeCreditCheckbox.dataset.storeCreditDisplayBound) {
+        storeCreditCheckbox.dataset.storeCreditDisplayBound = "true";
+        storeCreditCheckbox.addEventListener("change", updatePaymentDiscountDisplay);
       }
       updatePaymentDiscountDisplay();
     };
