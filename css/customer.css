@@ -440,4 +440,12 @@
   .trust-bar > div + div::after { display: none; }
   .trust-bar > div { padding: 20px 16px; }
   .trust-bar > div::before { width: 38px; height: 38px; }
+  .catalog-incoming-pill,
+  .catalog-row-actions .catalog-incoming-pill {
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 6px 10px !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+  }
 }
