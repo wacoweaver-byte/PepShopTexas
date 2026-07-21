@@ -1,3 +1,5 @@
+<!-- PST_ADMIN_PATCH_V18_EXACT_SEQUENCE_GLOBAL_SEARCH -->
+<!-- PST_ADMIN_PATCH_V17_FAST_CURRENT_GLOBAL_SEARCH -->
 <!-- PST_ADMIN_PATCH_V16_GLOBAL_INCOMING_PO_SEARCH -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
@@ -2748,13 +2750,10 @@ td .inventory-readonly-value {
         const clean = value => cleanValue(value).toLowerCase().replace(/[^a-z0-9]+/g, "");
         return `${clean(name)}|${clean(strength)}`;
       };
-      {
+      if(productIds.length){
         const lookups = await Promise.allSettled([
           supabaseClient.from("product_catalog").select("id,product_key,display_name,strength"),
-          supabaseClient.from("product_inventory").select("id,product_key,display_name,strength"),
-          productIds.length
-            ? supabaseClient.from("products").select("id,product_key").in("id", productIds)
-            : Promise.resolve({ data: [], error: null })
+          supabaseClient.from("product_inventory").select("id,product_key,display_name,strength").in("id", productIds)
         ]);
         lookups.forEach(result => {
           if(result.status !== "fulfilled") return;
@@ -4089,6 +4088,10 @@ async function init(){
     return String(value ?? "").replace(/\D/g, "");
   }
 
+  function pstGlobalNumericOnly(value){
+    return /^\d+$/.test(String(value ?? "").trim());
+  }
+
   function pstGlobalCustomerNumber(value){
     const clean = String(value ?? "").trim();
     if(!clean) return "";
@@ -4133,7 +4136,7 @@ async function init(){
     const q = pstGlobalClean(raw);
     const digits = pstGlobalDigits(raw);
     if(pstGlobalOrderHaystack(order).includes(q)) return true;
-    if(digits.length >= 3 && pstGlobalDigits(pstGlobalOrderHaystack(order)).includes(digits)) return true;
+    if(pstGlobalNumericOnly(raw) && digits.length >= 3 && pstGlobalDigits(pstGlobalOrderHaystack(order)).includes(digits)) return true;
     return false;
   }
 
@@ -4195,7 +4198,10 @@ async function init(){
     }).join("");
   }
 
-  async function pstRunGlobalLookup(){
+  let pstGlobalIncomingRowsCache = null;
+  let pstGlobalLookupRequest = 0;
+
+  async function pstRunGlobalLookup(requestId = ++pstGlobalLookupRequest){
     const input = document.getElementById("pstGlobalLookupInput");
     const raw = input?.value?.trim() || "";
     const resultsBox = document.getElementById("pstGlobalLookupResults");
@@ -4224,7 +4230,7 @@ async function init(){
       `last_name.ilike.%${q.replace(/,/g, "")}%`,
       `phone.ilike.%${q.replace(/,/g, "")}%`
     ];
-    if(digits) customerFilters.push(`customer_number.eq.${digits}`);
+    if(pstGlobalNumericOnly(raw) && digits) customerFilters.push(`customer_number.eq.${digits}`);
 
     try{
       const {data: customers, error} = await supabaseClient
@@ -4242,17 +4248,19 @@ async function init(){
       console.warn("Global customer lookup failed:", error);
     }
 
-    let incomingRowsForLookup = [];
+    let incomingRowsForLookup = pstGlobalIncomingRowsCache || [];
     try{
-      const {data: incomingRows, error} = await supabaseClient
-        .from("incoming_inventory")
-        .select("*")
-        .order("ordered_at", {ascending:false})
-        .limit(250);
-
-      if(error) console.warn("Global incoming inventory lookup:", error.message || error);
-      incomingRowsForLookup = incomingRows || [];
-      (incomingRows || []).forEach(incoming => {
+      if(pstGlobalIncomingRowsCache === null){
+        const {data: incomingRows, error} = await supabaseClient
+          .from("incoming_inventory")
+          .select("*")
+          .order("ordered_at", {ascending:false})
+          .limit(250);
+        if(error) console.warn("Global incoming inventory lookup:", error.message || error);
+        pstGlobalIncomingRowsCache = incomingRows || [];
+      }
+      incomingRowsForLookup = pstGlobalIncomingRowsCache || [];
+      incomingRowsForLookup.forEach(incoming => {
         const haystack = [
           incoming.id,
           incoming.product_id,
@@ -4273,7 +4281,7 @@ async function init(){
           incoming.ordered_at ? fmtDate(incoming.ordered_at) : ""
         ].filter(Boolean).join(" ").toLowerCase();
         const matchesText = haystack.includes(q);
-        const matchesDigits = digits.length >= 3 && pstGlobalDigits(haystack).includes(digits);
+        const matchesDigits = pstGlobalNumericOnly(raw) && digits.length >= 3 && pstGlobalDigits(haystack).includes(digits);
         if(!matchesText && !matchesDigits) return;
         const key = `incoming:${incoming.id}`;
         if(!seen.has(key)){ seen.add(key); results.push({type:"incoming", row:incoming}); }
@@ -4284,7 +4292,7 @@ async function init(){
 
     const safeQ = q.replace(/[%_,]/g, "");
     if(safeQ){
-      for(const tableName of ["product_inventory", "product_catalog"]){
+      for(const tableName of ["product_catalog"]){
         try{
           const {data: products, error} = await supabaseClient
             .from(tableName)
@@ -4294,6 +4302,16 @@ async function init(){
 
           if(error) console.warn(`Global ${tableName} lookup:`, error.message || error);
           (products || []).forEach(product => {
+            const productHaystack = [
+              product.product_key,
+              product.display_name,
+              product.strength,
+              product.category,
+              product.description,
+              product.research_notes,
+              product.admin_only
+            ].filter(Boolean).join(" ").toLowerCase();
+            if(!productHaystack.includes(q)) return;
             const key = `product:${product.product_key || product.id}`;
             if(!seen.has(key)){ seen.add(key); results.push({type:"product", row:product}); }
             incomingRowsForLookup.forEach(incoming => {
@@ -4310,24 +4328,29 @@ async function init(){
       }
     }
 
+    const currentRaw = document.getElementById("pstGlobalLookupInput")?.value?.trim() || "";
+    if(requestId !== pstGlobalLookupRequest || currentRaw !== raw) return;
     pstGlobalRender(results);
   }
 
   let pstGlobalLookupTimer = null;
   document.getElementById("pstGlobalLookupInput")?.addEventListener("input", () => {
     clearTimeout(pstGlobalLookupTimer);
-    pstGlobalLookupTimer = setTimeout(pstRunGlobalLookup, 250);
+    const requestId = ++pstGlobalLookupRequest;
+    pstGlobalLookupTimer = setTimeout(() => pstRunGlobalLookup(requestId), 250);
   });
 
   document.getElementById("pstGlobalLookupInput")?.addEventListener("keydown", event => {
     if(event.key === "Enter"){
       event.preventDefault();
       clearTimeout(pstGlobalLookupTimer);
-      pstRunGlobalLookup();
+      const requestId = ++pstGlobalLookupRequest;
+      pstRunGlobalLookup(requestId);
     }
   });
 
   document.getElementById("pstGlobalLookupClear")?.addEventListener("click", () => {
+    pstGlobalLookupRequest += 1;
     const input = document.getElementById("pstGlobalLookupInput");
     if(input) input.value = "";
     pstGlobalRender([]);
