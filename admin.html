@@ -2131,7 +2131,6 @@ td .inventory-readonly-value {
           <button class="btn warning" id="bulkShippedBtn" type="button">Shipped</button>
           <button class="btn secondary" id="bulkNoTrackingBtn" type="button">No Tracking Req.</button>
           <button class="btn danger" id="bulkRejectedBtn" type="button">Reject</button>
-          <button class="btn danger" id="bulkDeleteTestBtn" type="button">Delete Test Orders</button>
           <button class="btn secondary" id="bulkClearBtn" type="button">Clear Selection</button>
         </div>
       </div>
@@ -3819,130 +3818,6 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
 
 
 
-  function itemStockKey(item){
-    return cleanValue(item.product_key || item.product_id || item.sku || item.item_number || item.product_sku);
-  }
-  function itemQty(item){
-    const n = Number(item.quantity ?? item.qty ?? item.count ?? 0);
-    return Number.isFinite(n) ? n : 0;
-  }
-  async function restoreInventoryForDeletedTestOrders(orders){
-    const totals = new Map();
-    (orders || []).filter(order =>
-      norm(paymentStatus(order)) === "paid" &&
-      orderInventoryDeducted(order) &&
-      !orderInventoryRestored(order)
-    ).forEach(order => {
-      (order.items || []).forEach(item => {
-        const key = itemStockKey(item);
-        const qty = itemQty(item);
-        if(key && qty > 0) totals.set(key, (totals.get(key) || 0) + qty);
-      });
-    });
-    if(!totals.size) return { restored:0, failed:0 };
-    let restored = 0;
-    let failed = 0;
-    for(const [key, qty] of totals.entries()){
-      try{
-        const { data: rows, error: readError } = await supabaseClient
-          .from("product_inventory")
-          .select("*")
-          .eq("product_key", key)
-          .limit(1);
-        if(readError) throw readError;
-        const row = (rows || [])[0];
-        if(!row){ failed++; console.warn("No product_inventory row found for deleted test order item", key); continue; }
-        const current = Number(row.current_inventory ?? row.inventory ?? row.qty ?? row.quantity ?? 0) || 0;
-        const next = current + qty;
-        const updatePayload = { current_inventory: next, updated_at: new Date().toISOString() };
-        const { error: updateError } = await supabaseClient
-          .from("product_inventory")
-          .update(updatePayload)
-          .eq("product_key", key);
-        if(updateError) throw updateError;
-        restored++;
-      }catch(error){
-        failed++;
-        console.error("Inventory restore failed for", key, error);
-      }
-    }
-    return { restored, failed };
-  }
-
-  async function bulkDeleteSelectedTestOrders(){
-    const ids = selectedOrdersArray();
-    if(!ids.length){ alert("Select one or more test orders first."); return; }
-    const selectedOrders = allOrders.filter(o => ids.includes(String(o.id)));
-    if(!selectedOrders.length){ setStatus("Delete stopped: selected rows were not found in the loaded order list. Refresh and try again.", "bad"); return; }
-
-    const firstConfirm = confirm(`Delete ${selectedOrders.length} selected TEST order(s)?\n\nThis permanently removes the selected orders and their item rows from Supabase. Use this only for test orders.`);
-    if(!firstConfirm) return;
-    const typed = prompt('Type DELETE TEST ORDERS to confirm permanent deletion.');
-    if(String(typed || '').trim().toUpperCase() !== 'DELETE TEST ORDERS'){
-      setStatus('Delete cancelled. Confirmation text did not match.', 'bad');
-      return;
-    }
-    const restorableOrders = selectedOrders.filter(order =>
-      norm(paymentStatus(order)) === "paid" &&
-      orderInventoryDeducted(order) &&
-      !orderInventoryRestored(order)
-    );
-    const shouldRestore = restorableOrders.length > 0 && confirm('Restore selected paid order item quantities back into Inventory before deleting?\n\nChoose OK if you want to reverse test inventory deductions. Choose Cancel if you want to delete the test orders only and leave inventory as-is.');
-
-    try{
-      setStatus(`Deleting ${selectedOrders.length} selected test order(s)...`);
-      let restoreResult = { restored:0, failed:0 };
-      if(shouldRestore){
-        await confirmAdminPasswordForProtectedAction('restore selected test order quantities back into inventory');
-        setStatus('Restoring inventory from selected test orders...');
-        restoreResult = await restoreInventoryForDeletedTestOrders(restorableOrders);
-      }
-
-      // Delete child item rows first so foreign-key constraints cannot block order deletion.
-      setStatus('Deleting matching order item rows...');
-      const { data: deletedItems, error: itemDeleteError } = await supabaseClient
-        .from('order_items')
-        .delete()
-        .in('order_id', ids)
-        .select('id, order_id');
-      if(itemDeleteError){
-        console.error('Order item delete failed:', itemDeleteError);
-        setStatus(`Order item delete failed: ${itemDeleteError.message || itemDeleteError}. Orders were not deleted.`, 'bad');
-        return;
-      }
-
-      // Delete parent orders. Use .select() so we can verify Supabase actually removed rows.
-      setStatus('Deleting selected order rows...');
-      const { data: deletedOrders, error: orderDeleteError } = await supabaseClient
-        .from('orders')
-        .delete()
-        .in('id', ids)
-        .select('id');
-      if(orderDeleteError){
-        console.error('Order delete failed:', orderDeleteError);
-        setStatus(`Test order delete failed: ${orderDeleteError.message || orderDeleteError}`, 'bad');
-        return;
-      }
-
-      const deletedOrderCount = (deletedOrders || []).length;
-      const deletedItemCount = (deletedItems || []).length;
-      if(deletedOrderCount === 0){
-        setStatus('Delete did not remove any orders. This usually means the selected IDs did not match Supabase rows or Row Level Security blocked the delete without returning rows. Refresh and try again; if it still happens, we will add a SQL cleanup button/script.', 'bad');
-        return;
-      }
-
-      selectedOrderIds.clear();
-      activeOrderId = null;
-      await loadOrders();
-      const parts = [`Deleted ${deletedOrderCount} test order(s)`, `deleted ${deletedItemCount} item row(s)`];
-      if(shouldRestore) parts.push(`inventory restored for ${restoreResult.restored} product(s)${restoreResult.failed ? `, ${restoreResult.failed} restore issue(s)` : ''}`);
-      setStatus(parts.join('. ') + '.', restoreResult.failed ? 'bad' : 'good');
-    }catch(error){
-      console.error('Delete test orders unexpected error:', error);
-      setStatus(`Delete failed unexpectedly: ${error.message || error}`, 'bad');
-    }
-  }
-
   async function bulkSetNoTrackingRequired(){
     const ids = selectedOrdersArray();
     if(!ids.length){ alert("Select one or more orders first."); return; }
@@ -4020,7 +3895,6 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
     $("bulkShippedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"shipped", status:"shipped" }, "Selected orders marked shipped."));
     $("bulkNoTrackingBtn")?.addEventListener("click", bulkSetNoTrackingRequired);
     $("bulkRejectedBtn")?.addEventListener("click", () => bulkUpdate({ order_status:"rejected", status:"rejected" }, "Selected orders marked rejected."));
-    $("bulkDeleteTestBtn")?.addEventListener("click", bulkDeleteSelectedTestOrders);
     $("bulkClearBtn")?.addEventListener("click", () => { selectedOrderIds.clear(); renderOrders(); renderSelectedCount(); });
   }
 
