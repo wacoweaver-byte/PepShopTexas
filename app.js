@@ -829,7 +829,7 @@ function updateCheckoutTaxPreview(form) {
   const rawState = choice === "on_file"
     ? form.dataset.profileShippingState || ""
     : choice === "new"
-      ? form.querySelector("[name='new_shipping_state']")?.value || ""
+      ? document.querySelector("[name='new_shipping_state'][form='checkoutForm']")?.value || form.querySelector("[name='new_shipping_state']")?.value || ""
       : "";
   const taxRegion = customerTaxRegion({ shipping_state:rawState });
   const hasState = Object.prototype.hasOwnProperty.call(TAX_RATES, taxRegion);
