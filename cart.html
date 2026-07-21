@@ -643,7 +643,7 @@
         summary.querySelectorAll('div, p, li').forEach((element) => {
           const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
           if (text.length > 80 || element.children.length > 3) return;
-          if (/^(Subtotal|Shipping|Tax\b|Estimated Tax\b|Total\b|Grand Total\b)/i.test(text)) {
+          if (/^(Subtotal|Shipping|Tax\b|Estimated Tax\b|(?:Bitcoin|Venmo|Zelle|Apple Cash) Savings\b|Store Credit Applied\b|Total\b|Grand Total\b)/i.test(text)) {
             element.classList.add('pst-summary-money-row');
             const amount = [...element.querySelectorAll('span, strong, b, em')]
               .reverse()
