@@ -1,6 +1,7 @@
 const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const CART_KEY = "pst_cart_v1";
+const REORDER_NOTICE_KEY = "pst_reorder_notice_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const ADMIN_ORDER_NOTIFICATION_EMAILS = ["wacoweaver@gmail.com"];
 const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
@@ -563,10 +564,17 @@ async function renderCartPage() {
       return product ? { product, quantity: item.quantity, cartKey: item.key } : null;
     }).filter(Boolean);
 
+    let reorderNotice = "";
+    try {
+      reorderNotice = sessionStorage.getItem(REORDER_NOTICE_KEY) || "";
+      if (reorderNotice) sessionStorage.removeItem(REORDER_NOTICE_KEY);
+    } catch {}
+    const reorderNoticeHtml = reorderNotice ? `<p class="checkout-status good">${escapeHtml(reorderNotice)}</p>` : "";
+
     if (!cart.length) {
       itemsNode.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Add products from the catalog to begin an order.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>`;
     } else {
-      itemsNode.innerHTML = rows.map(cartRow).join("");
+      itemsNode.innerHTML = reorderNoticeHtml + rows.map(cartRow).join("");
     }
     summaryNode.innerHTML = summaryHtml(rows, { user, profile, paymentMethods, storeCredit });
     bindCartPageButtons();
