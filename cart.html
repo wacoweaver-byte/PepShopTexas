@@ -366,6 +366,11 @@
       padding: 5px 0;
     }
 
+    .cart-summary [data-payment-discount-line][hidden],
+    .cart-summary [data-store-credit-applied-line][hidden] {
+      display: none !important;
+    }
+
     .cart-summary .pst-summary-money-row {
       display: grid !important;
       grid-template-columns: minmax(0, 1fr) 7.5ch !important;
