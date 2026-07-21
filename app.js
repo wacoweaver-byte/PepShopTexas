@@ -784,7 +784,7 @@ function summaryHtml(rows, context = {}) {
     <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(totals.subtotal)}</strong></div>
     <div class="summary-line"><span>Shipping — USPS Priority Mail 3 Day</span><strong>${formatMoney(totals.shipping)}</strong></div>
     <div class="summary-line"><span data-summary-tax-label>Tax ${escapeHtml(totals.taxLabel)}</span><strong data-summary-tax-amount>${totals.taxRegion ? formatMoney(totals.tax) : ""}</strong></div>
-    ${storeCredit.balance > 0 ? `<div class="summary-line"><span>Available Store Credit</span><strong>${formatMoney(storeCredit.balance)}</strong></div>` : ""}
+    ${storeCredit.balance > 0 ? `<div class="summary-line" data-available-store-credit="${Number(storeCredit.balance || 0)}"><span>Available Store Credit</span><strong>${formatMoney(storeCredit.balance)}</strong></div><div class="summary-line" data-store-credit-applied-line hidden><span>Store Credit Applied</span><strong>-${formatMoney(0)}</strong></div>` : ""}
     <div class="summary-line summary-total"><span>Total Before Store Credit</span><strong data-summary-total>${formatMoney(totals.total)}</strong></div>
     ${cartBlocked ? `<p class="checkout-status bad">${escapeHtml(blockMessage)}</p>` : `<p class="checkout-note">Submit your order to PEP Shop Texas. It will appear in Order Management for review and payment confirmation.</p>`}
     ${!rows.length ? `
