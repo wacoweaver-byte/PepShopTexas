@@ -704,7 +704,8 @@ function bindCartPageButtons() {
       updateCheckoutTaxPreview(form);
     };
     addressChoices.forEach((input) => input.addEventListener("change", syncShippingAddressChoice));
-    form.querySelector("[name='new_shipping_state']")?.addEventListener("input", () => updateCheckoutTaxPreview(form));
+    const newShippingStateInput = form.querySelector("[name='new_shipping_state']");
+    newShippingStateInput?.addEventListener("input", () => updateCheckoutTaxPreview(form, newShippingStateInput.value));
     syncShippingAddressChoice();
   }
 }
@@ -823,13 +824,15 @@ function customerTaxRegion(profile = {}) {
   return STATE_ABBREVIATIONS[state] || state || DEFAULT_TAX_REGION;
 }
 
-function updateCheckoutTaxPreview(form) {
+function updateCheckoutTaxPreview(form, newShippingStateValue = null) {
   if (!form) return;
   const choice = form.querySelector("[name='shipping_address_choice']:checked")?.value || "";
   const rawState = choice === "on_file"
     ? form.dataset.profileShippingState || ""
     : choice === "new"
-      ? document.querySelector("[name='new_shipping_state'][form='checkoutForm']")?.value || form.querySelector("[name='new_shipping_state']")?.value || ""
+      ? newShippingStateValue !== null
+        ? newShippingStateValue
+        : document.querySelector("[name='new_shipping_state'][form='checkoutForm']")?.value || form.querySelector("[name='new_shipping_state']")?.value || ""
       : "";
   const taxRegion = customerTaxRegion({ shipping_state:rawState });
   const hasState = Object.prototype.hasOwnProperty.call(TAX_RATES, taxRegion);
