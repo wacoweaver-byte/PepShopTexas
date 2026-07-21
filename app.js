@@ -254,46 +254,15 @@ async function mergeIncomingInventoryStatus(products = []) {
 
 async function fetchIncomingStatusRows(keys = []) {
   const client = requireSupabaseClient();
+  const productKeys = Array.from(new Set((keys || []).map((key) => String(key || "").trim()).filter(Boolean)));
+  if (!productKeys.length) return [];
 
-  const viewResult = await client
-    .from("product_incoming_status")
-    .select("product_key,incoming_quantity,incoming_status,incoming_expected_arrival_date")
-    .in("product_key", keys);
-
-  if (!viewResult.error) return viewResult.data || [];
-
-  console.warn("Incoming status view unavailable; trying safe incoming inventory fallback", viewResult.error);
-
-  const rawResult = await client
-    .from("incoming_inventory")
-    .select("product_key,ordered_quantity,received_quantity,status,expected_arrival_date")
-    .in("product_key", keys)
-    .in("status", ["ordered", "in_transit"]);
-
-  if (rawResult.error) throw rawResult.error;
-
-  const byKey = new Map();
-  (rawResult.data || []).forEach((row) => {
-    const key = String(row.product_key || "").trim();
-    if (!key) return;
-    const orderedQty = Number(row.ordered_quantity || 0);
-    const receivedQty = Number(row.received_quantity || 0);
-    const openQty = Math.max(0, orderedQty - receivedQty);
-    if (openQty <= 0) return;
-
-    const current = byKey.get(key) || { product_key:key, incoming_quantity:0, statuses:new Set(), dates:[] };
-    current.incoming_quantity += openQty;
-    current.statuses.add(String(row.status || "ordered").toLowerCase());
-    if (row.expected_arrival_date) current.dates.push(row.expected_arrival_date);
-    byKey.set(key, current);
+  const { data, error } = await client.rpc("get_public_product_incoming_status", {
+    p_product_keys: productKeys
   });
 
-  return [...byKey.values()].map((row) => ({
-    product_key: row.product_key,
-    incoming_quantity: row.incoming_quantity,
-    incoming_status: row.statuses.has("in_transit") ? "in_transit" : "ordered",
-    incoming_expected_arrival_date: row.dates.sort()[0] || ""
-  }));
+  if (error) throw error;
+  return data || [];
 }
 
 function sortProductsForCatalog(products) {
