@@ -442,10 +442,10 @@
   .trust-bar > div::before { width: 38px; height: 38px; }
   .catalog-incoming-pill,
   .catalog-row-actions .catalog-incoming-pill {
-    width: auto !important;
-    min-width: 0 !important;
-    padding: 6px 10px !important;
-    font-size: 10px !important;
+width: 60px !important;
+min-width: 60px !important;
+padding: 5px 3px !important;
+    font-size: 9px !important;
     font-weight: 500 !important;
   }
 }
