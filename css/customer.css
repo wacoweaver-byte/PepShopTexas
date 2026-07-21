@@ -429,9 +429,27 @@
   .new-shipping-address p { grid-column: auto; }
 }
 @media (max-width: 480px) {
-  .catalog-dose-option,
-  .catalog-variant,
-  .catalog-product-row { grid-template-columns: minmax(38px, auto) 68px minmax(52px, 1fr) max-content !important; }
+.catalog-dose-option,
+.catalog-variant,
+.catalog-product-row {
+  grid-template-columns: minmax(90px, auto) 1fr !important;
+  row-gap: 12px !important;
+}
+.catalog-stock {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  justify-self: start !important;
+  white-space: nowrap !important;
+}
+.catalog-row-actions {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
   .catalog-price,
   .catalog-dose-option > strong,
   .catalog-variant > strong,
