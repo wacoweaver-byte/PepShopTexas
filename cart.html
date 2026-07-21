@@ -431,6 +431,10 @@
       line-height: 1.55;
     }
 
+    .cart-summary [data-payment-qr][hidden] {
+      display: none !important;
+    }
+
     .cart-summary [data-payment-qr]:empty {
       display: none !important;
       min-height: 0 !important;
@@ -609,7 +613,7 @@
     }
   </style>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=50"></script>
+  <script defer src="app.js?v=51"></script>
   <script defer src="cart-payment-discounts.js?v=3"></script>
   <script defer src="cart-store-credit-auto.js?v=1"></script>
 </head>
