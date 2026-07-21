@@ -139,11 +139,8 @@
     .risk-unknown,.risk-dot-unknown{background:#f2f4f7;color:#475467;border-color:#d0d5dd}
 
 
-    .tax-settings-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:end}
-    .tax-settings-grid .full{grid-column:1/-1}
     label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted);display:block;margin-bottom:6px}
     input,select{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}
-    .settings-status{margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#fbfcfe;color:var(--muted);font-size:13px;line-height:1.35;font-weight:700}
     @media(max-width:1200px){.financial-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
     @media(max-width:700px){.financial-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:1100px){.span-8,.span-6,.span-4{grid-column:span 12}.stat-grid{grid-template-columns:1fr 1fr}.ops-grid{grid-template-columns:1fr}}
@@ -1589,12 +1586,10 @@ header .pst-admin-actions-lock button.btn,
 .finance-controls .btn,
 .payment-options-grid .btn,
 .payment-method-card .btn,
-.tax-settings-grid .btn,
 .section-backtop a,
 .pill,
 .risk-badge,
 .reorder-guide-item,
-.settings-status .pill,
 #inventoryWatchBadge {
   display: inline-flex !important;
   align-items: center !important;
@@ -1637,7 +1632,6 @@ button.btn,
 .finance-controls .btn,
 .payment-options-grid .btn,
 .payment-method-card .btn,
-.tax-settings-grid .btn,
 .section-backtop a {
   cursor: pointer !important;
 }
@@ -1846,7 +1840,6 @@ button.btn[aria-disabled="true"],
 
 /* Status message boxes remain message boxes, not action pills. */
 .status,
-.settings-status,
 .payment-options-status {
   font-size: 13px !important;
   font-weight: 400 !important;
@@ -1891,7 +1884,6 @@ button.btn[aria-disabled="true"],
   .finance-controls .btn,
   .payment-options-grid .btn,
   .payment-method-card .btn,
-  .tax-settings-grid .btn,
   .section-backtop a,
   .pill,
   .risk-badge,
@@ -1936,7 +1928,6 @@ button.btn[aria-disabled="true"],
   .finance-controls .btn,
   .payment-options-grid .btn,
   .payment-method-card .btn,
-  .tax-settings-grid .btn,
   .section-backtop a,
   .pill,
   .risk-badge,
@@ -2331,7 +2322,6 @@ button.btn[aria-disabled="true"],
       <a href="report-writer.html">Report Writer</a>
       <a href="#order-report-card" data-jump-target="order-report-card">Order Report</a>
       <a href="#sales-report-card" data-jump-target="sales-report-card">Sales Report</a>
-      <a href="#tax-settings-card" data-jump-target="tax-settings-card">Checkout Tax Settings</a>
       <a href="#financials" data-jump-target="financials">Financials / Expenses</a>
       <a href="#inventory-audit" data-jump-target="inventory-audit">Inventory Audit / Movement History</a>
       <a href="#admin-resources-card" data-jump-target="admin-resources-card">Admin Resources</a>
@@ -2493,41 +2483,6 @@ button.btn[aria-disabled="true"],
     </div>
 
     
-
-
-    <div class="card span-12 no-print collapsible-card collapsed" id="tax-settings-card" style="scroll-margin-top:185px;">
-      <div class="card-header"><h2>Checkout Tax Settings</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="tax-settings-card" aria-expanded="false">Open</button></div>
-      <div class="card-body">
-        <div class="tax-settings-grid">
-          <div>
-            <label for="taxEnabled">Tax Enabled</label>
-            <select id="taxEnabled"><option value="true">Yes</option><option value="false">No</option></select>
-          </div>
-          <div>
-            <label for="taxRate">Default Tax Rate (%)</label>
-            <input id="taxRate" type="number" min="0" step="0.001" value="8.25" />
-          </div>
-          <div>
-            <label for="taxShipping">Tax Shipping</label>
-            <select id="taxShipping"><option value="true">Yes</option><option value="false">No</option></select>
-          </div>
-          <div>
-            <label for="taxRegion">Tax Region / Note</label>
-            <input id="taxRegion" type="text" value="Texas default 8.25%" />
-          </div>
-          <div class="full">
-            <label for="taxLabel">Cart Tax Label</label>
-            <input id="taxLabel" type="text" value="Estimated Sales Tax" />
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-          <button class="btn success" id="saveTaxSettingsBtn" type="button">Save Tax Settings</button>
-          <button class="btn secondary" id="resetTaxSettingsBtn" type="button">Reset Texas 8.25%</button>
-        </div>
-        <div id="taxSettingsStatus" class="settings-status">Default is enabled at 8.25%. Settings save in this browser only until a sitewide settings table is intentionally added.</div>
-      </div>
-    </div>
-
 
 
     <div class="card span-12 no-print collapsible-card collapsed" id="financials" style="scroll-margin-top:185px;">
@@ -2815,54 +2770,6 @@ function isActiveHomepagePromo(row){
   if (start && !Number.isNaN(start.getTime()) && start > now) return false;
   if (end && !Number.isNaN(end.getTime()) && end < now) return false;
   return true;
-}
-
-const PST_DEFAULT_TAX_SETTINGS = { enabled:true, rate:0.0825, taxShipping:true, label:"Estimated Sales Tax", region:"Texas default 8.25%" };
-let pstTaxSettings = { ...PST_DEFAULT_TAX_SETTINGS };
-function normalizeTaxRate(value){ const n=Number(value || 0); if(!Number.isFinite(n) || n < 0) return 0; return n > 1 ? n / 100 : n; }
-function normalizeTaxSettings(raw){
-  const source = raw && typeof raw === "object" ? raw : {};
-  return {
-    enabled: source.enabled !== false,
-    rate: normalizeTaxRate(source.rate ?? source.tax_rate ?? PST_DEFAULT_TAX_SETTINGS.rate),
-    taxShipping: source.taxShipping !== false && source.tax_shipping !== false,
-    label: String(source.label || source.tax_label || PST_DEFAULT_TAX_SETTINGS.label),
-    region: String(source.region || source.tax_region || PST_DEFAULT_TAX_SETTINGS.region)
-  };
-}
-function taxStatus(message){ const el=$("taxSettingsStatus"); if(el) el.textContent = message; }
-function fillTaxForm(settings){
-  const s = normalizeTaxSettings(settings);
-  pstTaxSettings = s;
-  if($("taxEnabled")) $("taxEnabled").value = String(!!s.enabled);
-  if($("taxRate")) $("taxRate").value = (s.rate * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, "");
-  if($("taxShipping")) $("taxShipping").value = String(!!s.taxShipping);
-  if($("taxLabel")) $("taxLabel").value = s.label;
-  if($("taxRegion")) $("taxRegion").value = s.region;
-}
-function readTaxForm(){
-  return normalizeTaxSettings({
-    enabled: $("taxEnabled")?.value === "true",
-    rate: normalizeTaxRate($("taxRate")?.value),
-    taxShipping: $("taxShipping")?.value === "true",
-    label: $("taxLabel")?.value || PST_DEFAULT_TAX_SETTINGS.label,
-    region: $("taxRegion")?.value || PST_DEFAULT_TAX_SETTINGS.region
-  });
-}
-async function loadTaxSettings(){
-  let settings = { ...PST_DEFAULT_TAX_SETTINGS };
-  try{
-    const local = localStorage.getItem("pst_tax_settings");
-    if(local) settings = normalizeTaxSettings(JSON.parse(local));
-  }catch(e){}
-  fillTaxForm(settings);
-  taxStatus("Using local/default tax settings. No optional Supabase settings table lookup is being attempted.");
-}
-async function saveTaxSettings(){
-  const settings = readTaxForm();
-  pstTaxSettings = settings;
-  try{ localStorage.setItem("pst_tax_settings", JSON.stringify(settings)); }catch(e){}
-  taxStatus(`Tax settings saved in this browser: ${settings.enabled ? "enabled" : "disabled"}, ${(settings.rate * 100).toFixed(3).replace(/\.0+$/, "").replace(/0+$/, "")}%${settings.taxShipping ? ", shipping taxable" : ", shipping not taxable"}.`);
 }
 
 async function checkAdminAccess(){
@@ -4097,10 +4004,8 @@ async function init(){
     $("addExpenseBtn")?.addEventListener("click", addExpense);
     setupExpenseColumnResizing();
     setPresetDateInputs("last7");
-    $("saveTaxSettingsBtn")?.addEventListener("click", saveTaxSettings);
-    $("resetTaxSettingsBtn")?.addEventListener("click", () => { fillTaxForm(PST_DEFAULT_TAX_SETTINGS); saveTaxSettings(); });
     const isAdmin = await checkAdminAccess();
-    if (isAdmin) { await loadTaxSettings(); await loadReports(); }
+    if (isAdmin) await loadReports();
   }catch(error){
     console.error(error);
     setStatus(error.message || "Something went wrong loading Reports.", "bad");
