@@ -96,30 +96,17 @@
     const productKeys = Array.from(new Set((keys || []).map((key) => String(key || "").trim()).filter(Boolean)));
     if (!productKeys.length) return [];
 
+    const { data, error } = await client.rpc("get_public_product_incoming_status", {
+      p_product_keys: productKeys
+    });
+
+    if (error) {
+      console.warn("Incoming inventory status unavailable", error);
+      return [];
+    }
+
     const byKey = new Map();
-
-    const viewResult = await client
-      .from("product_incoming_status")
-      .select("*")
-      .in("product_key", productKeys);
-
-    if (!viewResult.error) {
-      (viewResult.data || []).forEach((row) => addIncomingRow(byKey, row));
-    } else {
-      console.warn("Incoming status view unavailable; trying incoming_inventory fallback", viewResult.error);
-    }
-
-    const rawResult = await client
-      .from("incoming_inventory")
-      .select("*")
-      .in("product_key", productKeys);
-
-    if (!rawResult.error) {
-      (rawResult.data || []).forEach((row) => addIncomingRow(byKey, row));
-    } else if (byKey.size === 0) {
-      console.warn("Incoming inventory fallback unavailable", rawResult.error);
-    }
-
+    (data || []).forEach((row) => addIncomingRow(byKey, row));
     return toIncomingRows(byKey);
   }
 
