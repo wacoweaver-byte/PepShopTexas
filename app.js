@@ -692,7 +692,10 @@ function bindCartPageButtons() {
       const text = option?.dataset?.instructions || "";
       const qr = option?.dataset?.qr || "";
       if (instructions) instructions.textContent = text;
-      if (qrBox) qrBox.innerHTML = paymentQrMarkup(qr);
+      if (qrBox) {
+        qrBox.innerHTML = paymentQrMarkup(qr);
+        qrBox.hidden = !String(qr || "").trim();
+      }
     };
     select?.addEventListener("change", syncPaymentInstructions);
     syncPaymentInstructions();
