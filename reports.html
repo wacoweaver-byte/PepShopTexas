@@ -4075,12 +4075,12 @@ init();
 const PST_PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
 const PST_PAYMENT_LEGACY_STORAGE_KEY = "pst_payment_options_v1";
 const PST_DEFAULT_PAYMENT_METHODS_ADMIN = [
-  { id:"venmo", label:"Venmo", accountLabel:"Send payment to", enabled:false, account:"", qrUrl:"", instructions:"Please include your order number in the Venmo note. Your order will remain pending until payment is verified." },
-  { id:"zelle", label:"Zelle", accountLabel:"Send payment to", enabled:false, account:"", qrUrl:"", instructions:"Please send payment by Zelle and include your order number if possible. Your order will remain pending until payment is verified." },
-  { id:"bitcoin", label:"Bitcoin", accountLabel:"Wallet address", enabled:false, account:"", qrUrl:"", instructions:"Send the exact order total. Your order will remain pending until the transaction is confirmed." },
-  { id:"credit_card", label:"Credit Card", accountLabel:"Payment instructions", enabled:false, account:"", qrUrl:"", instructions:"Credit card payment instructions will be provided after order review. Your order will remain pending until payment is verified." },
-  { id:"apple_pay", label:"Apple Pay", accountLabel:"Send payment to", enabled:false, account:"", qrUrl:"", instructions:"Send payment using Apple Cash / Apple Pay and include your order number. Your order will remain pending until payment is verified." },
-  { id:"google_pay", label:"Google Pay", accountLabel:"Send payment to", enabled:false, account:"", qrUrl:"", instructions:"Send payment using Google Pay and include your order number. Your order will remain pending until payment is verified." }
+  { id:"venmo", label:"Venmo", accountLabel:"Send payment to", enabled:false, discountPercent:0, account:"", qrUrl:"", instructions:"Please include your order number in the Venmo note. Your order will remain pending until payment is verified." },
+  { id:"zelle", label:"Zelle", accountLabel:"Send payment to", enabled:false, discountPercent:5, account:"", qrUrl:"", instructions:"Please send payment by Zelle and include your order number if possible. Your order will remain pending until payment is verified." },
+  { id:"bitcoin", label:"Bitcoin", accountLabel:"Wallet address", enabled:false, discountPercent:10, account:"", qrUrl:"", instructions:"Send the exact order total. Your order will remain pending until the transaction is confirmed." },
+  { id:"credit_card", label:"Credit Card", accountLabel:"Payment instructions", enabled:false, discountPercent:0, account:"", qrUrl:"", instructions:"Credit card payment instructions will be provided after order review. Your order will remain pending until payment is verified." },
+  { id:"apple_pay", label:"Apple Pay", accountLabel:"Send payment to", enabled:false, discountPercent:5, account:"", qrUrl:"", instructions:"Send payment using Apple Cash / Apple Pay and include your order number. Your order will remain pending until payment is verified." },
+  { id:"google_pay", label:"Google Pay", accountLabel:"Send payment to", enabled:false, discountPercent:0, account:"", qrUrl:"", instructions:"Send payment using Google Pay and include your order number. Your order will remain pending until payment is verified." }
 ];
 let pstAdminPaymentMethods = PST_DEFAULT_PAYMENT_METHODS_ADMIN.map(m => ({...m}));
 function paymentOptionsStatus(message, type){
@@ -4090,24 +4090,49 @@ function paymentOptionsStatus(message, type){
   el.className = "payment-options-status" + (type ? " " + type : "");
 }
 function escPay(value){ return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch])); }
+function normalizePSTDiscountPercent(value, fallback=0){
+  const number = Number(value);
+  const resolved = Number.isFinite(number) ? number : Number(fallback || 0);
+  return Math.min(100, Math.max(0, resolved));
+}
 function normalizePSTPaymentMethodsAdmin(row){
   let methods = null;
   if (Array.isArray(row)) methods = row;
   else if (row && Array.isArray(row.payment_methods)) methods = row.payment_methods;
   else if (row && row.payment_methods && typeof row.payment_methods === "string") { try { methods = JSON.parse(row.payment_methods); } catch(_){} }
   const defaults = PST_DEFAULT_PAYMENT_METHODS_ADMIN.map(m => ({...m}));
+  const orderedIds = defaults.map(m => m.id);
   const byId = Object.fromEntries(defaults.map(m => [m.id, m]));
   (methods || []).forEach(m => {
     const id = String(m.id || m.key || "").trim();
-    if (!id || !byId[id]) return;
-    byId[id] = { ...byId[id], ...m, enabled: m.enabled === true || String(m.enabled || "").toLowerCase() === "true", account:String(m.account || m.handle || m.wallet || m.value || "").trim(), qrUrl:String(m.qrUrl || m.qr_url || m.qr || "").trim(), instructions:String(m.instructions || m.note || m.notes || byId[id].instructions || "").trim() };
+    if (!id) return;
+    const existing = byId[id] || {
+      id,
+      label:String(m.label || id).trim(),
+      accountLabel:"Send payment to",
+      enabled:false,
+      discountPercent:0,
+      account:"",
+      qrUrl:"",
+      instructions:"Order will remain pending until payment is confirmed."
+    };
+    if (!byId[id]) orderedIds.push(id);
+    byId[id] = {
+      ...existing,
+      ...m,
+      enabled: m.enabled === true || String(m.enabled || "").toLowerCase() === "true",
+      discountPercent: normalizePSTDiscountPercent(m.discountPercent ?? m.discount_percent, existing.discountPercent),
+      account:String(m.account || m.handle || m.wallet || m.value || "").trim(),
+      qrUrl:String(m.qrUrl || m.qr_url || m.qr || "").trim(),
+      instructions:String(m.instructions || m.note || m.notes || existing.instructions || "").trim()
+    };
   });
   if (row && (row.venmo_enabled || row.venmo_handle || row.venmo_note)) {
     byId.venmo.enabled = row.venmo_enabled === true || String(row.venmo_enabled || "").toLowerCase() === "true";
     byId.venmo.account = String(row.venmo_handle || byId.venmo.account || "").trim();
     byId.venmo.instructions = String(row.venmo_note || byId.venmo.instructions || "").trim();
   }
-  return defaults.map(d => byId[d.id]);
+  return orderedIds.map(id => byId[id]);
 }
 function renderPSTPaymentMethodsAdmin(){
   const wrap = document.getElementById("paymentMethodsAdminList");
@@ -4117,6 +4142,7 @@ function renderPSTPaymentMethodsAdmin(){
       <h3>${escPay(m.label)}</h3>
       <div class="payment-method-fields">
         <div><label>Enabled</label><select data-pay-field="enabled"><option value="false" ${m.enabled ? "" : "selected"}>Off / Hidden</option><option value="true" ${m.enabled ? "selected" : ""}>On / Show in Cart</option></select></div>
+        <div><label>Discount (%)</label><input data-pay-field="discountPercent" type="number" min="0" max="100" step="0.01" value="${escPay(normalizePSTDiscountPercent(m.discountPercent))}"></div>
         <div><label>Display Name</label><input data-pay-field="label" value="${escPay(m.label)}"></div>
         <div><label>Account Label</label><input data-pay-field="accountLabel" value="${escPay(m.accountLabel || "Send payment to")}" placeholder="Send payment to / Wallet address"></div>
         <div><label>Account / Handle / Wallet</label><input data-pay-field="account" value="${escPay(m.account || "")}" placeholder="@handle, phone/email, wallet address"></div>
@@ -4252,6 +4278,7 @@ function readPSTPaymentOptionsForm(){
       label: String(get("label")?.value || existing.label || id).trim(),
       accountLabel: String(get("accountLabel")?.value || existing.accountLabel || "Send payment to").trim(),
       enabled: get("enabled")?.value === "true",
+      discountPercent: normalizePSTDiscountPercent(get("discountPercent")?.value, existing.discountPercent),
       account: String(get("account")?.value || "").trim(),
       qrUrl: String(get("qrUrl")?.value || existing.qrUrl || "").trim(),
       instructions: String(get("instructions")?.value || existing.instructions || "Order will remain pending until payment is confirmed.").trim()
