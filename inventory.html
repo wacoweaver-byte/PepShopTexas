@@ -3043,6 +3043,39 @@ td .inventory-readonly-value {
   }
 }
 </style>
+
+<style id="pst-manual-customer-order-v1">
+#manualCustomerOrderDialog {
+  width: min(980px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  border: 1px solid #000;
+  border-radius: 16px;
+  background: #fff;
+  color: #101820;
+  overflow: hidden;
+}
+#manualCustomerOrderDialog::backdrop { background: rgba(0,0,0,.55); }
+.manual-order-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 18px; border-bottom:1px solid var(--line); }
+.manual-order-head h2 { margin:0; }
+.manual-order-body { max-height:calc(100vh - 150px); overflow:auto; padding:18px; }
+.manual-order-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.manual-order-grid .full { grid-column:1 / -1; }
+.manual-customer-results { display:grid; gap:6px; max-height:180px; overflow:auto; margin-top:8px; }
+.manual-customer-result { width:100% !important; max-width:none !important; height:auto !important; min-height:38px !important; justify-content:flex-start !important; padding:8px 12px !important; text-align:left !important; white-space:normal !important; }
+.manual-customer-selected { margin-top:8px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:#f7f9fc; }
+.manual-order-lines { width:100% !important; min-width:700px !important; }
+.manual-order-lines th { position:static !important; }
+.manual-order-lines .manual-order-qty { width:82px !important; min-width:82px !important; text-align:center !important; }
+.manual-order-summary { margin-top:14px; margin-left:auto; width:min(100%, 420px); display:grid; gap:7px; }
+.manual-order-summary div { display:flex; justify-content:space-between; gap:18px; }
+.manual-order-summary .total { margin-top:5px; padding-top:9px; border-top:1px solid var(--line); font-size:18px; font-weight:900; }
+.manual-order-actions { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; margin-top:16px; }
+.manual-order-status { margin-top:12px; min-height:20px; color:var(--muted); font-weight:700; }
+.manual-order-status.bad { color:var(--red); }
+.manual-order-status.good { color:var(--green); }
+@media(max-width:700px){ .manual-order-grid { grid-template-columns:1fr; } .manual-order-grid .full { grid-column:1; } }
+</style>
 </head>
 <body>
 <header class="pst-admin-header">
@@ -3340,7 +3373,7 @@ td .inventory-readonly-value {
       <label class="bulk-left"><input id="selectAll" type="checkbox" /> <span><span id="selectedCount">0</span> selected</span></label>
       <div class="bulk-tools inventory-selected-tools">
         <p class="note">Use the Physical Count field on each row to record audit corrections. New inventory should be added through Incoming Inventory / Purchase Orders.</p>
-        <button class="btn danger" id="bulkOutBtn" type="button">Mark Selected Out of Stock</button>
+        <button class="btn success" id="createCustomerOrderBtn" type="button">Create Customer Order</button>
       </div>
     </div>
 
@@ -3404,6 +3437,48 @@ td .inventory-readonly-value {
   </section>
 </main>
 
+<dialog id="manualCustomerOrderDialog" aria-labelledby="manualCustomerOrderTitle">
+  <div class="manual-order-head">
+    <h2 id="manualCustomerOrderTitle">Create Customer Order</h2>
+    <button class="btn secondary" id="closeManualOrderBtn" type="button">Close</button>
+  </div>
+  <form id="manualCustomerOrderForm" class="manual-order-body">
+    <div class="manual-order-grid">
+      <div class="field full">
+        <label for="manualCustomerSearch">Customer</label>
+        <input id="manualCustomerSearch" type="search" placeholder="Search customer number, name, email, or phone" autocomplete="off">
+        <div id="manualCustomerResults" class="manual-customer-results"></div>
+        <div id="manualCustomerSelected" class="manual-customer-selected" hidden></div>
+      </div>
+      <div class="field"><label for="manualShippingAddress">Shipping Address</label><input id="manualShippingAddress" type="text" required></div>
+      <div class="field"><label for="manualShippingAddress2">Address Line 2</label><input id="manualShippingAddress2" type="text"></div>
+      <div class="field"><label for="manualShippingCity">City</label><input id="manualShippingCity" type="text" required></div>
+      <div class="field"><label for="manualShippingState">State</label><input id="manualShippingState" type="text" maxlength="20" required></div>
+      <div class="field"><label for="manualShippingZip">ZIP</label><input id="manualShippingZip" type="text" required></div>
+      <div class="field"><label for="manualPaymentMethod">Payment Method</label><select id="manualPaymentMethod" required></select></div>
+      <div class="field full"><label for="manualOrderNotes">Order Notes</label><textarea id="manualOrderNotes" rows="3" placeholder="Optional note about this admin-created order"></textarea></div>
+    </div>
+    <div class="incoming-table-wrap" style="margin-top:16px;">
+      <table class="manual-order-lines">
+        <thead><tr><th>Product</th><th>Available</th><th>Unit Price</th><th>Qty</th><th>Extended</th></tr></thead>
+        <tbody id="manualOrderLinesBody"></tbody>
+      </table>
+    </div>
+    <div class="manual-order-summary">
+      <div><span>Subtotal</span><strong id="manualOrderSubtotal">$0.00</strong></div>
+      <div id="manualOrderDiscountLine" hidden><span id="manualOrderDiscountLabel">Payment Discount</span><strong id="manualOrderDiscount">-$0.00</strong></div>
+      <div><span>Shipping</span><strong id="manualOrderShipping">$0.00</strong></div>
+      <div><span id="manualOrderTaxLabel">Tax</span><strong id="manualOrderTax">$0.00</strong></div>
+      <div class="total"><span>Total</span><strong id="manualOrderTotal">$0.00</strong></div>
+    </div>
+    <div id="manualOrderStatus" class="manual-order-status"></div>
+    <div class="manual-order-actions">
+      <button class="btn secondary" id="cancelManualOrderBtn" type="button">Cancel</button>
+      <button class="btn success" id="submitManualOrderBtn" type="submit">Submit Customer Order</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
 const PST_SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
 const PST_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
@@ -3434,6 +3509,28 @@ let movementByInventoryId = {};
 let reorderSalesLoadError = "";
 let productCatalogLabelLookup = null;
 const CATEGORY_OPTIONS = ["Peptide", "Blend", "Stack", "Supply"];
+const PST_MANUAL_ORDER_SHIPPING = 12;
+const PST_MANUAL_ORDER_FREE_SHIPPING = 250;
+const PST_MANUAL_ORDER_TAX_RATES = {
+  AL:.04,AK:0,AZ:.056,AR:.065,CA:.0725,CO:.029,CT:.0635,DE:0,FL:.06,GA:.04,
+  HI:.04,ID:.06,IL:.0625,IN:.07,IA:.06,KS:.065,KY:.06,LA:.05,ME:.055,MD:.06,
+  MA:.0625,MI:.06,MN:.06875,MS:.07,MO:.04225,MT:0,NE:.055,NV:.0685,NH:0,NJ:.06625,
+  NM:.04875,NY:.04,NC:.0475,ND:.05,OH:.0575,OK:.045,OR:0,PA:.06,RI:.07,SC:.06,
+  SD:.042,TN:.07,TX:.0625,UT:.061,VT:.06,VA:.053,WA:.065,WV:.06,WI:.05,WY:.04
+};
+const PST_MANUAL_ORDER_STATE_CODES = {
+  ALABAMA:"AL",ALASKA:"AK",ARIZONA:"AZ",ARKANSAS:"AR",CALIFORNIA:"CA",COLORADO:"CO",CONNECTICUT:"CT",DELAWARE:"DE",FLORIDA:"FL",GEORGIA:"GA",
+  HAWAII:"HI",IDAHO:"ID",ILLINOIS:"IL",INDIANA:"IN",IOWA:"IA",KANSAS:"KS",KENTUCKY:"KY",LOUISIANA:"LA",MAINE:"ME",MARYLAND:"MD",
+  MASSACHUSETTS:"MA",MICHIGAN:"MI",MINNESOTA:"MN",MISSISSIPPI:"MS",MISSOURI:"MO",MONTANA:"MT",NEBRASKA:"NE",NEVADA:"NV","NEW HAMPSHIRE":"NH","NEW JERSEY":"NJ",
+  "NEW MEXICO":"NM","NEW YORK":"NY","NORTH CAROLINA":"NC","NORTH DAKOTA":"ND",OHIO:"OH",OKLAHOMA:"OK",OREGON:"OR",PENNSYLVANIA:"PA","RHODE ISLAND":"RI","SOUTH CAROLINA":"SC",
+  "SOUTH DAKOTA":"SD",TENNESSEE:"TN",TEXAS:"TX",UTAH:"UT",VERMONT:"VT",VIRGINIA:"VA",WASHINGTON:"WA","WEST VIRGINIA":"WV",WISCONSIN:"WI",WYOMING:"WY"
+};
+const PST_MANUAL_ORDER_DEFAULT_PAYMENTS = [
+  { id:"pending", label:"Payment pending", enabled:true, discountPercent:0, instructions:"Your order will be reviewed and payment instructions will be confirmed before processing." }
+];
+let manualOrderCustomers = [];
+let manualOrderCustomer = null;
+let manualOrderPaymentMethods = PST_MANUAL_ORDER_DEFAULT_PAYMENTS.map(method => ({ ...method }));
 
 
 const $ = id => document.getElementById(id);
@@ -3753,6 +3850,7 @@ function mergeInventoryCatalogLabel(item) {
 
   return {
     ...item,
+    _catalog_id: catalog.id || null,
     _catalog_product_key: catalog.product_key || item.product_key || null,
     _catalog_display_name: catalog.display_name || item.display_name || null,
     _catalog_strength: catalog.strength || item.strength || null,
@@ -5489,51 +5587,343 @@ async function saveDirtyRows() {
   setStatus(`Saved ${ids.length} edited row${ids.length === 1 ? "" : "s"}.`, "good");
 }
 
-async function bulkUpdate(type) {
-  const ids = Array.from(selectedIds);
-  if (!ids.length) {
-    alert("Select one or more products first.");
+function manualOrderMoney(value) {
+  return Number(value || 0).toLocaleString("en-US", { style:"currency", currency:"USD" });
+}
+
+function manualOrderRound(value) {
+  return Math.round((Number(value) || 0) * 100) / 100;
+}
+
+function manualOrderStateCode(value) {
+  const state = cleanText(value).toUpperCase();
+  return PST_MANUAL_ORDER_STATE_CODES[state] || state;
+}
+
+function manualOrderCustomerName(customer = {}) {
+  return cleanText([customer.first_name, customer.last_name].filter(Boolean).join(" ") || customer.full_name || customer.name || customer.email || "Customer");
+}
+
+function manualOrderCustomerId(customer = {}) {
+  return cleanText(customer.user_id || customer.customer_id || customer.id);
+}
+
+function manualOrderCustomerLabel(customer = {}) {
+  const number = cleanText(customer.customer_number);
+  const customerNumber = number ? `PST-C${number.replace(/^PST-C/i, "")}` : "No customer #";
+  return `${customerNumber} · ${manualOrderCustomerName(customer)} · ${cleanText(customer.email) || "No email"}`;
+}
+
+function manualOrderSelectedItems() {
+  return allItems.filter(item => selectedIds.has(item.id));
+}
+
+function normalizeManualPaymentMethods(row) {
+  let configured = [];
+  if (Array.isArray(row)) configured = row;
+  else if (Array.isArray(row?.payment_methods)) configured = row.payment_methods;
+  else if (typeof row?.payment_methods === "string") {
+    try { configured = JSON.parse(row.payment_methods); } catch (_) {}
+  }
+  const methods = new Map(PST_MANUAL_ORDER_DEFAULT_PAYMENTS.map(method => [method.id, { ...method }]));
+  configured.forEach(method => {
+    const id = cleanText(method.id || method.key);
+    if (!id) return;
+    const existing = methods.get(id) || { id, label:id, enabled:false, discountPercent:0, instructions:"" };
+    methods.set(id, {
+      ...existing,
+      ...method,
+      id,
+      label: cleanText(method.label || existing.label || id),
+      enabled: method.enabled === true || String(method.enabled).toLowerCase() === "true",
+      discountPercent: Math.min(100, Math.max(0, Number(method.discountPercent ?? method.discount_percent ?? existing.discountPercent ?? 0) || 0)),
+      instructions: cleanText(method.instructions || method.note || existing.instructions)
+    });
+  });
+  const enabled = [...methods.values()].filter(method => method.enabled);
+  return enabled.length ? enabled : PST_MANUAL_ORDER_DEFAULT_PAYMENTS.map(method => ({ ...method }));
+}
+
+async function loadManualOrderPaymentMethods() {
+  let settings = PST_MANUAL_ORDER_DEFAULT_PAYMENTS;
+  try {
+    const { data, error } = await db.from("site_payment_options").select("*").eq("id", 1).maybeSingle();
+    if (!error && data) settings = data;
+  } catch (_) {}
+  manualOrderPaymentMethods = normalizeManualPaymentMethods(settings);
+  const select = $("manualPaymentMethod");
+  if (select) {
+    select.innerHTML = manualOrderPaymentMethods.map(method => {
+      const savings = Number(method.discountPercent || 0) > 0 ? ` — Save ${Number(method.discountPercent)}%` : "";
+      return `<option value="${esc(method.id)}">${esc(method.label + savings)}</option>`;
+    }).join("");
+  }
+}
+
+async function loadManualOrderCustomers() {
+  const { data, error } = await db.from("customer_profiles").select("*").order("last_name", { ascending:true });
+  if (error) throw error;
+  manualOrderCustomers = (data || []).filter(customer => manualOrderCustomerId(customer));
+}
+
+function renderManualCustomerResults(search = "") {
+  const host = $("manualCustomerResults");
+  if (!host) return;
+  const query = cleanText(search).toLowerCase();
+  if (!query) {
+    host.innerHTML = `<div class="note">Enter at least two characters to find a customer.</div>`;
     return;
   }
+  const digits = query.replace(/\D/g, "");
+  const matches = manualOrderCustomers.filter(customer => {
+    const haystack = [customer.customer_number, customer.first_name, customer.last_name, customer.full_name, customer.email, customer.phone]
+      .map(value => cleanText(value).toLowerCase()).join(" ");
+    return haystack.includes(query) || (digits && cleanText(customer.customer_number).includes(digits));
+  }).slice(0, 25);
+  host.innerHTML = matches.length
+    ? matches.map(customer => `<button class="btn secondary manual-customer-result" type="button" data-manual-customer-id="${esc(manualOrderCustomerId(customer))}">${esc(manualOrderCustomerLabel(customer))}</button>`).join("")
+    : `<div class="note">No matching customers found.</div>`;
+  host.querySelectorAll("[data-manual-customer-id]").forEach(button => {
+    button.addEventListener("click", () => selectManualOrderCustomer(button.dataset.manualCustomerId));
+  });
+}
 
-  if (type !== "out_of_stock") return;
+function selectManualOrderCustomer(customerId) {
+  manualOrderCustomer = manualOrderCustomers.find(customer => manualOrderCustomerId(customer) === String(customerId)) || null;
+  if (!manualOrderCustomer) return;
+  $("manualCustomerSelected").hidden = false;
+  $("manualCustomerSelected").innerHTML = `<strong>${esc(manualOrderCustomerLabel(manualOrderCustomer))}</strong>`;
+  $("manualCustomerResults").innerHTML = "";
+  $("manualCustomerSearch").value = manualOrderCustomerName(manualOrderCustomer);
+  $("manualShippingAddress").value = cleanText(manualOrderCustomer.shipping_address || manualOrderCustomer.address_line1 || manualOrderCustomer.address1 || manualOrderCustomer.billing_address);
+  $("manualShippingAddress2").value = cleanText(manualOrderCustomer.shipping_address2 || manualOrderCustomer.address_line2 || manualOrderCustomer.address2 || manualOrderCustomer.billing_address2);
+  $("manualShippingCity").value = cleanText(manualOrderCustomer.shipping_city || manualOrderCustomer.city || manualOrderCustomer.billing_city);
+  $("manualShippingState").value = cleanText(manualOrderCustomer.shipping_state || manualOrderCustomer.state || manualOrderCustomer.billing_state).toUpperCase();
+  $("manualShippingZip").value = cleanText(manualOrderCustomer.shipping_zip || manualOrderCustomer.zip || manualOrderCustomer.billing_zip);
+  updateManualOrderTotals();
+}
 
-  const note = prompt("Reason/note for marking selected products out of stock:");
-  if (!note || !note.trim()) {
-    alert("A reason/note is required.");
+function renderManualOrderLines() {
+  const items = manualOrderSelectedItems();
+  const body = $("manualOrderLinesBody");
+  if (!body) return;
+  body.innerHTML = items.map(item => {
+    const available = Math.max(0, Number(item.current_inventory || 0));
+    const price = Number(item._catalog_price ?? item.price ?? 0);
+    return `<tr data-manual-order-item="${esc(item.id)}">
+      <td><strong>${esc(item.display_name || item.product_key)}</strong><div class="note">${esc(item._catalog_strength || item.strength || "")} · ${esc(item._catalog_product_key || item.product_key || "")}</div></td>
+      <td>${available}</td>
+      <td>${manualOrderMoney(price)}</td>
+      <td><input class="manual-order-qty" type="number" min="1" max="${available}" step="1" value="1" ${available < 1 ? "disabled" : ""}></td>
+      <td data-manual-line-total>${manualOrderMoney(available > 0 ? price : 0)}</td>
+    </tr>`;
+  }).join("");
+  body.querySelectorAll(".manual-order-qty").forEach(input => input.addEventListener("input", updateManualOrderTotals));
+}
+
+function manualOrderLines() {
+  return Array.from(document.querySelectorAll("[data-manual-order-item]")).map(row => {
+    const item = allItems.find(candidate => String(candidate.id) === String(row.dataset.manualOrderItem));
+    const qty = Number(row.querySelector(".manual-order-qty")?.value || 0);
+    const price = Number(item?._catalog_price ?? item?.price ?? 0);
+    return { row, item, qty, price, lineTotal:manualOrderRound(qty * price) };
+  }).filter(line => line.item);
+}
+
+function selectedManualPaymentMethod() {
+  const id = $("manualPaymentMethod")?.value;
+  return manualOrderPaymentMethods.find(method => method.id === id) || manualOrderPaymentMethods[0] || PST_MANUAL_ORDER_DEFAULT_PAYMENTS[0];
+}
+
+function updateManualOrderTotals() {
+  const lines = manualOrderLines();
+  lines.forEach(line => { const cell = line.row.querySelector("[data-manual-line-total]"); if (cell) cell.textContent = manualOrderMoney(line.lineTotal); });
+  const subtotal = manualOrderRound(lines.reduce((sum, line) => sum + line.lineTotal, 0));
+  const method = selectedManualPaymentMethod();
+  const discount = manualOrderRound(subtotal * (Number(method.discountPercent || 0) / 100));
+  const shipping = subtotal > 0 && subtotal < PST_MANUAL_ORDER_FREE_SHIPPING ? PST_MANUAL_ORDER_SHIPPING : 0;
+  const state = manualOrderStateCode($("manualShippingState")?.value);
+  const hasState = Object.prototype.hasOwnProperty.call(PST_MANUAL_ORDER_TAX_RATES, state);
+  const taxRate = hasState ? PST_MANUAL_ORDER_TAX_RATES[state] : 0;
+  const tax = manualOrderRound(subtotal * taxRate);
+  const total = manualOrderRound(subtotal - discount + shipping + tax);
+  $("manualOrderSubtotal").textContent = manualOrderMoney(subtotal);
+  $("manualOrderDiscountLine").hidden = discount <= 0;
+  $("manualOrderDiscountLabel").textContent = `${method.label} Savings (-${Number(method.discountPercent || 0)}%)`;
+  $("manualOrderDiscount").textContent = `-${manualOrderMoney(discount)}`;
+  $("manualOrderShipping").textContent = manualOrderMoney(shipping);
+  $("manualOrderTaxLabel").textContent = hasState ? `Tax (${state} ${(taxRate * 100).toFixed(2)}%)` : "Tax";
+  $("manualOrderTax").textContent = hasState ? manualOrderMoney(tax) : "—";
+  $("manualOrderTotal").textContent = manualOrderMoney(total);
+  return { subtotal, discount, shipping, tax, taxRate, taxRegion:state, total, hasState, method };
+}
+
+function manualOrderMissingColumn(error, tableName) {
+  const message = String(error?.message || error || "");
+  const patterns = [
+    new RegExp(`column\\s+${tableName}\\.([a-zA-Z0-9_]+)\\s+does\\s+not\\s+exist`, "i"),
+    new RegExp(`column\\s+\\"?([a-zA-Z0-9_]+)\\"?\\s+of\\s+relation\\s+\\"?${tableName}\\"?\\s+does\\s+not\\s+exist`, "i"),
+    /Could not find the ['"]([a-zA-Z0-9_]+)['"] column/i,
+    /Could not find ['"]([a-zA-Z0-9_]+)['"] in the schema cache/i
+  ];
+  for (const pattern of patterns) { const match = message.match(pattern); if (match?.[1]) return match[1]; }
+  return "";
+}
+
+async function manualOrderInsert(tableName, payload, multiple=false) {
+  let working = multiple ? payload.map(row => ({ ...row })) : { ...payload };
+  const columnCount = Object.keys(multiple ? (working[0] || {}) : working).length;
+  for (let attempt = 0; attempt < columnCount + 5; attempt += 1) {
+    const query = db.from(tableName).insert(working);
+    const result = multiple ? await query.select() : await query.select().single();
+    if (!result.error) return result.data;
+    const missing = manualOrderMissingColumn(result.error, tableName);
+    const contains = multiple ? working.some(row => Object.prototype.hasOwnProperty.call(row, missing)) : Object.prototype.hasOwnProperty.call(working, missing);
+    if (!missing || !contains) throw result.error;
+    if (multiple) working = working.map(row => { const next = { ...row }; delete next[missing]; return next; });
+    else delete working[missing];
+  }
+  throw new Error(`Could not create ${tableName}; Supabase repeatedly rejected the record fields.`);
+}
+
+async function sendManualOrderEmail(order, items, method) {
+  const email = cleanText(manualOrderCustomer?.email);
+  if (!email) return false;
+  try {
+    const { data } = await db.auth.getSession();
+    const token = data?.session?.access_token || PST_SUPABASE_PUBLISHABLE_KEY;
+    const response = await fetch(`${PST_SUPABASE_URL}/functions/v1/send-order-email`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", Authorization:`Bearer ${token}`, apikey:PST_SUPABASE_PUBLISHABLE_KEY },
+      body:JSON.stringify({
+        type:"order_placed", originalType:"order_placed", to:email,
+        customerName:manualOrderCustomerName(manualOrderCustomer), customerEmail:email,
+        customerNumber:cleanText(manualOrderCustomer.customer_number), orderNumber:order.order_number || order.id,
+        orderDate:order.created_at, subtotal:order.subtotal, discount:order.discount, shipping:order.shipping,
+        tax:order.tax, total:order.total, paymentMethod:method.label, paymentStatus:"pending",
+        paymentInstructions:cleanText(method.instructions), statusNote:cleanText(method.instructions) || "Your order has been received and is pending payment/processing.",
+        items:items.map(item => ({ name:item.product_name, quantity:item.quantity, price:item.unit_price, total:item.line_total }))
+      })
+    });
+    if (!response.ok) throw new Error(`Email service returned ${response.status}.`);
+    return true;
+  } catch (error) {
+    console.warn("Manual customer order email was not sent", error);
+    return false;
+  }
+}
+
+async function openManualCustomerOrder() {
+  const items = manualOrderSelectedItems();
+  if (!items.length) { alert("Select one or more products first."); return; }
+  if (items.some(item => Number(item.current_inventory || 0) <= 0)) {
+    alert("Remove out-of-stock products from the selection before creating a customer order.");
     return;
   }
+  manualOrderCustomer = null;
+  $("manualCustomerOrderForm").reset();
+  $("manualCustomerSelected").hidden = true;
+  $("manualCustomerResults").innerHTML = `<div class="note">Loading customers...</div>`;
+  $("manualOrderStatus").textContent = "";
+  renderManualOrderLines();
+  $("manualCustomerOrderDialog").showModal();
+  try {
+    await Promise.all([loadManualOrderCustomers(), loadManualOrderPaymentMethods()]);
+    renderManualCustomerResults("");
+    updateManualOrderTotals();
+    $("manualCustomerSearch").focus();
+  } catch (error) {
+    $("manualOrderStatus").className = "manual-order-status bad";
+    $("manualOrderStatus").textContent = `Could not load customer order data: ${error.message || error}`;
+  }
+}
 
-  for (const id of ids) {
-    const item = allItems.find(i => i.id === id);
-    if (!item) continue;
+function closeManualCustomerOrder() {
+  $("manualCustomerOrderDialog")?.close();
+}
 
-    const previousQty = Number(item.current_inventory || 0);
-    const newQty = 0;
-    const qtyChange = -previousQty;
-    const updates = {
-      current_inventory: 0,
-      status_override: "out_of_stock",
-      admin_note: note.trim(),
-      updated_at: new Date().toISOString()
+async function submitManualCustomerOrder(event) {
+  event.preventDefault();
+  const status = $("manualOrderStatus");
+  const button = $("submitManualOrderBtn");
+  try {
+    if (!manualOrderCustomer) throw new Error("Select an existing customer before submitting the order.");
+    const lines = manualOrderLines();
+    if (!lines.length) throw new Error("No products are selected for this order.");
+    for (const line of lines) {
+      const available = Number(line.item.current_inventory || 0);
+      if (!Number.isInteger(line.qty) || line.qty < 1) throw new Error(`Enter a whole-number quantity for ${line.item.display_name || line.item.product_key}.`);
+      if (line.qty > available) throw new Error(`${line.item.display_name || line.item.product_key} only has ${available} available.`);
+    }
+    const totals = updateManualOrderTotals();
+    if (!totals.hasState) throw new Error("Enter a valid U.S. shipping state or abbreviation so tax can be calculated.");
+    const customerId = manualOrderCustomerId(manualOrderCustomer);
+    const email = cleanText(manualOrderCustomer.email);
+    const firstName = cleanText(manualOrderCustomer.first_name);
+    const lastName = cleanText(manualOrderCustomer.last_name);
+    const customerName = manualOrderCustomerName(manualOrderCustomer);
+    const phone = cleanText(manualOrderCustomer.phone);
+    const address1 = cleanText($("manualShippingAddress").value);
+    const address2 = cleanText($("manualShippingAddress2").value);
+    const city = cleanText($("manualShippingCity").value);
+    const state = totals.taxRegion;
+    const zip = cleanText($("manualShippingZip").value);
+    if (!address1 || !city || !state || !zip) throw new Error("Complete the customer shipping address before submitting.");
+    const now = new Date().toISOString();
+    const orderId = crypto.randomUUID();
+    const notes = cleanText($("manualOrderNotes").value);
+    const adminAudit = `Customer order created by admin ${cleanText(currentUser?.email) || "Admin"} from selected Inventory products.`;
+    const shippingAddress = [address1, address2, city, state, zip].filter(Boolean).join(", ");
+    const orderPayload = {
+      id:orderId, order_number:null, user_id:customerId, customer_id:customerId, customer_uuid:customerId,
+      profile_id:manualOrderCustomer.id || customerId, customer_number:manualOrderCustomer.customer_number || null,
+      customer_name:customerName, customer_email:email, customer_phone:phone,
+      shipping_address:shippingAddress, shipping_name:customerName, shipping_email:email, shipping_phone:phone,
+      shipping_address_line1:address1, shipping_address_line2:address2 || null, shipping_city:city, shipping_state:state, shipping_zip:zip,
+      status:"pending", order_status:"pending", payment_status:"pending", payment_method:totals.method.label,
+      payment_instructions_snapshot:cleanText(totals.method.instructions),
+      customer_notes:[notes, `Payment method selected: ${totals.method.label}`].filter(Boolean).join("\n\n"),
+      admin_note:adminAudit, admin_notes:adminAudit,
+      subtotal:totals.subtotal, discount:totals.discount, store_credit_applied:0,
+      shipping:totals.shipping, tax:totals.tax, tax_rate:totals.taxRate, tax_region:state, tax_jurisdiction:state, total:totals.total,
+      source:"admin_manual_order", created_at:now, updated_at:now
     };
-
-    const { error } = await db.from("product_inventory").update(updates).eq("id", id);
-    if (error) throw error;
-
-    const catalogKeys = [...new Set([item._catalog_product_key, item.product_key].map(cleanText).filter(Boolean))];
-    const catalogQuery = db.from("product_catalog").update({ current_inventory: 0, updated_at: updates.updated_at });
-    const { error: catalogError } = catalogKeys.length > 1
-      ? await catalogQuery.in("product_key", catalogKeys)
-      : await catalogQuery.eq("product_key", catalogKeys[0] || item.product_key);
-    if (catalogError) throw catalogError;
-
-    await logMovement(item, "out_of_stock", qtyChange, previousQty, newQty, note.trim());
+    button.disabled = true;
+    button.textContent = "Submitting...";
+    status.className = "manual-order-status";
+    status.textContent = "Creating customer order...";
+    const order = await manualOrderInsert("orders", orderPayload, false);
+    const itemPayloads = lines.map(line => ({
+      order_id:order.id, user_id:customerId, customer_id:customerId,
+      product_id:line.item._catalog_id || line.item.id, product_key:line.item._catalog_product_key || line.item.product_key,
+      product_name:line.item.display_name || line.item.product_key, product_strength:line.item._catalog_strength || line.item.strength || "",
+      product_category:line.item.category || "", quantity:line.qty, unit_price:line.price, line_total:line.lineTotal,
+      created_at:now, updated_at:now
+    }));
+    try {
+      await manualOrderInsert("order_items", itemPayloads, true);
+    } catch (itemError) {
+      const { error:rollbackError } = await db.from("orders").delete().eq("id", order.id);
+      if (rollbackError) {
+        throw new Error(`The order items could not be saved, and Supabase could not remove incomplete order ${order.id}. Review that order in Order Management. ${itemError.message || itemError}`);
+      }
+      throw new Error(`The order items could not be saved, so the incomplete order was rolled back. ${itemError.message || itemError}`);
+    }
+    status.textContent = "Order created. Sending confirmation email...";
+    const emailSent = await sendManualOrderEmail({ ...order, ...orderPayload }, itemPayloads, totals.method);
+    selectedIds.clear();
+    renderTable();
+    renderSelectedCount();
+    closeManualCustomerOrder();
+    setStatus(`Customer order ${order.order_number || order.id} created for ${customerName}.${emailSent ? " Confirmation email sent." : " Order saved; confirmation email was not sent."}`, "good");
+  } catch (error) {
+    console.error("Manual customer order failed", error);
+    status.className = "manual-order-status bad";
+    status.textContent = error.message || "The customer order could not be created.";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Submit Customer Order";
   }
-
-  selectedIds.clear();
-  setStatus("Selected products marked out of stock.", "good");
-  await loadInventory();
 }
 
 async function importProductsJson() {
@@ -5719,7 +6109,22 @@ function wireEvents() {
 
   $("importProductsBtn")?.addEventListener("click", importProductsJson);
   $("saveDirtyBtn")?.addEventListener("click", saveDirtyRows);
-  $("bulkOutBtn")?.addEventListener("click", () => bulkUpdate("out_of_stock"));
+  $("createCustomerOrderBtn")?.addEventListener("click", openManualCustomerOrder);
+  $("closeManualOrderBtn")?.addEventListener("click", closeManualCustomerOrder);
+  $("cancelManualOrderBtn")?.addEventListener("click", closeManualCustomerOrder);
+  $("manualCustomerOrderForm")?.addEventListener("submit", submitManualCustomerOrder);
+  $("manualCustomerSearch")?.addEventListener("input", event => {
+    manualOrderCustomer = null;
+    $("manualCustomerSelected").hidden = true;
+    const value = event.target.value;
+    if (cleanText(value).length >= 2) renderManualCustomerResults(value);
+    else renderManualCustomerResults("");
+  });
+  $("manualShippingState")?.addEventListener("input", updateManualOrderTotals);
+  $("manualPaymentMethod")?.addEventListener("change", updateManualOrderTotals);
+  $("manualCustomerOrderDialog")?.addEventListener("click", event => {
+    if (event.target === $("manualCustomerOrderDialog")) closeManualCustomerOrder();
+  });
 }
 
 async function init() {
