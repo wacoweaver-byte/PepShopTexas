@@ -6,6 +6,8 @@ let pstAccountOrders = [];
 let pstAccountItemsByOrder = {};
 let pstCurrentUser = null;
 let pstCurrentProfile = null;
+const PST_ACCOUNT_CART_KEY = "pst_cart_v1";
+const PST_REORDER_NOTICE_KEY = "pst_reorder_notice_v1";
 
 function refreshAccountCartCount() {
   try {
@@ -188,7 +190,62 @@ function renderOrders() {
   list.innerHTML=pstAccountOrders.map(order=>{const items=pstAccountItemsByOrder[order.id]||[];const tracking=order.tracking_number?`${pstEsc(order.tracking_carrier||"Tracking")}: ${pstEsc(order.tracking_number)}`:"Not added yet";return `<article class="order-card"><div class="order-head"><div class="order-meta"><strong>Order</strong><span class="order-number">${pstEsc(order.order_number||order.id)}</span></div><div class="order-meta"><strong>Date</strong><span>${formatDate(order.created_at)}</span></div><div class="order-meta"><strong>Status</strong><span class="badge">${pstEsc(order.status||"Pending")}</span></div><div class="order-meta"><strong>Total</strong><span>${pstMoney(order.total)}</span></div></div><div class="order-actions"><button class="btn" type="button" onclick="toggleOrderDetails('${order.id}')">View Order</button><button class="btn primary" type="button" onclick="reorder('${order.id}')">Reorder</button><span class="badge">Payment: ${pstEsc(order.payment_status||"Pending")}</span><span class="badge">Tracking: ${tracking}</span></div><div id="items-${order.id}" class="order-items">${items.length?items.map(item=>`<div class="item-line"><div class="item-name"><strong>${pstEsc(item.product_name)}</strong><span>${pstEsc(item.product_strength||item.product_category||"")}</span></div><div>Qty ${Number(item.quantity||0)}</div><div>${pstMoney(item.unit_price)}</div><div><strong>${pstMoney(item.line_total)}</strong></div></div>`).join(""):`<div class="item-line"><div>No item details found for this order.</div></div>`}<div class="item-line"><div><strong>Subtotal</strong></div><div></div><div></div><div>${pstMoney(order.subtotal)}</div></div><div class="item-line"><div><strong>Shipping</strong></div><div></div><div></div><div>${pstMoney(order.shipping)}</div></div><div class="item-line"><div><strong>Tax</strong></div><div></div><div></div><div>${pstMoney(order.tax)}</div></div><div class="item-line"><div><strong>Total</strong></div><div></div><div></div><div><strong>${pstMoney(order.total)}</strong></div></div></div></article>`;}).join("");
 }
 function toggleOrderDetails(orderId){document.getElementById("items-"+orderId)?.classList.toggle("active");}
-function reorder(orderId){const items=pstAccountItemsByOrder[orderId]||[];if(!items.length){setStatus("This order has no items available to reorder.","error");return;}const cartItems=items.map(item=>{const productId=item.product_id||"";const isStack=String(productId).startsWith("stack:")||item.product_category==="Stack";return{id:String(productId).startsWith("product:")||String(productId).startsWith("stack:")?productId:"product:"+productId,key:isStack?undefined:productId,type:isStack?"stack":"product",display:item.product_name,strength:item.product_strength||"",price:Number(item.unit_price||0),quantity:Number(item.quantity||1),product_id:productId,product_name:item.product_name,product_strength:item.product_strength,product_category:item.product_category,unit_price:Number(item.unit_price||0)};});localStorage.setItem("pstPendingReorderCart",JSON.stringify(cartItems));window.location.href="index.html?reorder=1";}
+function readAccountCart(){
+  try {
+    const parsed=JSON.parse(localStorage.getItem(PST_ACCOUNT_CART_KEY)||"[]");
+    return Array.isArray(parsed)?parsed.filter(item=>item?.key&&Number(item.quantity)>0):[];
+  } catch {
+    return [];
+  }
+}
+async function reorder(orderId){
+  const items=pstAccountItemsByOrder[orderId]||[];
+  if(!items.length){setStatus("This order has no items available to reorder.","error");return;}
+  setStatus("Checking current product availability...","info");
+  try {
+    const productIds=[...new Set(items.map(item=>String(item.product_id||"").trim()).filter(Boolean))];
+    const uuidIds=productIds.filter(value=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value));
+    const legacyKeys=productIds.filter(value=>!uuidIds.includes(value)).map(value=>value.replace(/^(?:product|stack):/i,""));
+    const queries=[];
+    if(uuidIds.length)queries.push(pstAccountSupabase.from("product_catalog").select("id,product_key,current_inventory,is_active").in("id",uuidIds));
+    if(legacyKeys.length)queries.push(pstAccountSupabase.from("product_catalog").select("id,product_key,current_inventory,is_active").in("product_key",legacyKeys));
+    const results=await Promise.all(queries);
+    const failed=results.find(result=>result.error);
+    if(failed?.error)throw failed.error;
+    const products=results.flatMap(result=>result.data||[]);
+    const byId=new Map(products.map(product=>[String(product.id),product]));
+    const byKey=new Map(products.map(product=>[String(product.product_key),product]));
+    const cart=readAccountCart();
+    let addedQuantity=0;
+    let adjustedLines=0;
+    let skippedLines=0;
+    items.forEach(item=>{
+      const rawId=String(item.product_id||"").trim();
+      const cleanKey=rawId.replace(/^(?:product|stack):/i,"");
+      const product=byId.get(rawId)||byKey.get(cleanKey);
+      const available=Math.max(0,Number(product?.current_inventory||0));
+      if(!product||product.is_active===false||available<=0){skippedLines+=1;return;}
+      const requested=Math.max(1,Math.floor(Number(item.quantity)||1));
+      const existing=cart.find(cartItem=>cartItem.key===product.product_key);
+      const existingQuantity=Math.max(0,Number(existing?.quantity||0));
+      const quantityToAdd=Math.max(0,Math.min(requested,available-existingQuantity));
+      if(quantityToAdd<=0){skippedLines+=1;return;}
+      if(existing)existing.quantity=existingQuantity+quantityToAdd;
+      else cart.push({key:product.product_key,quantity:quantityToAdd});
+      addedQuantity+=quantityToAdd;
+      if(quantityToAdd<requested)adjustedLines+=1;
+    });
+    if(!addedQuantity){setStatus("None of this order's items are currently available to add to the cart.","error");return;}
+    localStorage.setItem(PST_ACCOUNT_CART_KEY,JSON.stringify(cart));
+    const order=pstAccountOrders.find(row=>String(row.id)===String(orderId));
+    const orderLabel=order?.order_number||"the previous order";
+    const changes=skippedLines||adjustedLines?` ${skippedLines} unavailable item line(s) were skipped and ${adjustedLines} line(s) were limited to current stock.`:"";
+    sessionStorage.setItem(PST_REORDER_NOTICE_KEY,`Added ${addedQuantity} item(s) from ${orderLabel} using current prices and inventory.${changes}`);
+    window.location.href="cart.html?reorder=1";
+  } catch(err){
+    setStatus("The order could not be added to the cart. "+pstEsc(err.message||err),"error");
+  }
+}
 function wireProfileEditor(){document.getElementById("saveEmailPrefsBtn")?.addEventListener("click",saveEmailPreferences);document.getElementById("editProfileBtn")?.addEventListener("click",()=>setEditMode(true));document.getElementById("cancelEditBtn")?.addEventListener("click",()=>setEditMode(false));document.getElementById("profileForm")?.addEventListener("submit",saveProfile);document.getElementById("sameAsBilling")?.addEventListener("change",event=>{if(event.target.checked)copyBillingToShipping();});["billing_address","billing_city","billing_state","billing_zip"].forEach(name=>{formEl(name)?.addEventListener("input",()=>{if(document.getElementById("sameAsBilling")?.checked)copyBillingToShipping();});});["shipping_address","shipping_city","shipping_state","shipping_zip"].forEach(name=>{formEl(name)?.addEventListener("input",updateSameAsBillingChecked);});}
 document.getElementById("logoutBtn")?.addEventListener("click",async()=>{await pstAccountSupabase.auth.signOut();window.location.href="index.html?loggedout=1";});
 document.addEventListener("DOMContentLoaded",()=>{refreshAccountCartCount();wireProfileEditor();loadAccount();});
