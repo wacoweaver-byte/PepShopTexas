@@ -2182,6 +2182,8 @@ td .inventory-readonly-value {
 
   const orderStatuses = ["pending","awaiting_payment","processing","packed","shipped","delivered","complete","inventory_failed","cancelled","rejected","refunded"];
   const paymentStatuses = ["pending","paid","failed","refunded","manual_review"];
+  const defaultAdminPaymentMethods = [{ id:"pending", label:"Payment pending", enabled:true, instructions:"" }];
+  let activeAdminPaymentMethods = defaultAdminPaymentMethods.map(method => ({ ...method }));
 
   function setStatus(message, type="") { const el = $("statusLine"); el.textContent = message; el.className = `status ${type}`.trim(); }
   function esc(value){return String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));}
@@ -2228,6 +2230,61 @@ td .inventory-readonly-value {
     const method = paymentMethod(order);
     const cls = norm(method, "manual");
     return `<span class="payment-method-pill ${esc(cls)}">${esc(method.replaceAll("_", " "))}</span>`;
+  }
+  function normalizeAdminPaymentMethods(row){
+    let configured = [];
+    if(Array.isArray(row)) configured = row;
+    else if(Array.isArray(row?.payment_methods)) configured = row.payment_methods;
+    else if(typeof row?.payment_methods === "string"){
+      try{ configured = JSON.parse(row.payment_methods); }catch(_){}
+    }
+    const methods = new Map(defaultAdminPaymentMethods.map(method => [method.id, { ...method }]));
+    configured.forEach(method => {
+      const id = cleanValue(method.id || method.key);
+      if(!id) return;
+      const existing = methods.get(id) || { id, label:id, enabled:false, instructions:"" };
+      methods.set(id, {
+        ...existing,
+        ...method,
+        id,
+        label:cleanValue(method.label || existing.label || id),
+        enabled:method.enabled === true || String(method.enabled || "").toLowerCase() === "true",
+        instructions:cleanValue(method.instructions || method.note || existing.instructions)
+      });
+    });
+    const enabled = [...methods.values()].filter(method => method.enabled);
+    return enabled.length ? enabled : defaultAdminPaymentMethods.map(method => ({ ...method }));
+  }
+  async function loadActiveAdminPaymentMethods(){
+    let settings = defaultAdminPaymentMethods;
+    try{
+      const { data, error } = await supabaseClient
+        .from("site_payment_options")
+        .select("payment_methods")
+        .eq("id", 1)
+        .maybeSingle();
+      if(error) throw error;
+      if(data) settings = data;
+    }catch(error){
+      console.warn("Active payment methods could not be loaded for Order Details:", error.message || error);
+    }
+    activeAdminPaymentMethods = normalizeAdminPaymentMethods(settings);
+  }
+  function paymentMethodOptions(order){
+    const current = paymentMethod(order);
+    const methods = activeAdminPaymentMethods.map(method => ({ ...method }));
+    if(current && !methods.some(method => method.label.toLowerCase() === current.toLowerCase())){
+      methods.unshift({ id:"current", label:current, enabled:true, instructions:paymentInstructions(order) });
+    }
+    return methods.map(method => `<option value="${esc(method.label)}" ${method.label.toLowerCase() === current.toLowerCase() ? "selected" : ""}>${esc(method.label)}</option>`).join("");
+  }
+  function adminPaymentMethodByLabel(label){
+    const value = cleanValue(label).toLowerCase();
+    return activeAdminPaymentMethods.find(method => cleanValue(method.label).toLowerCase() === value) || null;
+  }
+  function paymentMethodNeedsSelection(value){
+    const method = norm(value, "");
+    return !method || ["pending","payment_pending","manual","manual_/_not_selected","manual_not_selected","not_selected"].includes(method);
   }
 
   function paymentInstructions(order){
@@ -2792,6 +2849,7 @@ document.querySelectorAll("tr.order-row").forEach(row =>
     const labels = {
       order_received: "Order received",
       payment_status_changed: "Payment status changed",
+      payment_method_changed: "Payment method changed",
       order_status_changed: "Order status changed",
       tracking_changed: "Tracking changed",
       tracking_carrier_changed: "Tracking carrier changed",
@@ -2830,6 +2888,24 @@ document.querySelectorAll("tr.order-row").forEach(row =>
       .order("created_at", { ascending:false });
     if(error){ console.warn("Could not load order audit log:", error.message || error); return { ...order, audit_log: [] }; }
     return { ...order, audit_log: data || [] };
+  }
+
+  async function recordPaymentMethodAudit(order, nextMethod){
+    const previousMethod = paymentMethod(order);
+    if(cleanValue(previousMethod).toLowerCase() === cleanValue(nextMethod).toLowerCase()) return;
+    const auditText = `Payment method changed by ${adminDisplayName()}: ${previousMethod} → ${nextMethod}`;
+    const { error } = await supabaseClient.from("order_audit_log").insert({
+      order_id:order.id,
+      action_type:"payment_method_changed",
+      field_name:"payment_method",
+      old_value:previousMethod,
+      new_value:nextMethod,
+      changed_by:adminDisplayName(),
+      changed_by_email:cleanValue(currentUser?.email),
+      created_at:new Date().toISOString()
+    });
+    if(error) console.warn("Payment method audit table entry could not be added:", error.message || error);
+    await appendAdminAudit(order, auditText);
   }
 
   function parseAuditEntry(entry){
@@ -3421,7 +3497,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <div class="edit-grid">
           <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatuses.map(s=>`<option value="${s}" ${norm(orderStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
           <div class="field"><label for="editPaymentStatus">Payment Status</label><select id="editPaymentStatus">${paymentStatuses.map(s=>`<option value="${s}" ${norm(paymentStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div><div class="field"><label for="editCommunicationPreference">Customer Notification Preference</label><select id="editCommunicationPreference"><option value="email" ${communicationPreference(order)==="email"?"selected":""}>Email</option><option value="text" ${communicationPreference(order)==="text"?"selected":""}>Text</option><option value="both" ${communicationPreference(order)==="both"?"selected":""}>Both</option></select></div>
-          <div class="field"><label>Payment Method</label><input value="${esc(paymentMethod(order))}" readonly /></div>
+          <div class="field"><label for="editPaymentMethod">Payment Method</label><select id="editPaymentMethod">${paymentMethodOptions(order)}</select></div>
           <div class="field">
   <label for="editShippingCost">Shipping Cost</label>
   <input
@@ -3480,6 +3556,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   function buildUpdatesFromForm(order={}){
     let os = $("editOrderStatus").value;
     const ps = $("editPaymentStatus").value;
+    const selectedPaymentMethod = cleanValue($("editPaymentMethod")?.value || paymentMethod(order));
+    const selectedPaymentConfig = adminPaymentMethodByLabel(selectedPaymentMethod);
     const carrier = $("editCarrier").value.trim();
     const tracking = $("editTracking").value.trim();
     const url = $("editTrackingUrl").value.trim();
@@ -3502,6 +3580,9 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     if(ps === "paid" && ["pending","awaiting_payment"].includes(norm(os)) && ["pending","awaiting_payment"].includes(currentOrderStage)){
       os = "processing";
     }
+    if(ps === "paid" && paymentMethodNeedsSelection(selectedPaymentMethod)){
+      throw new Error("Choose how the order was paid before marking Payment Status as Paid.");
+    }
 
     if(["shipped","delivered","complete","completed"].includes(norm(os)) && (!carrier || !tracking) && !trackingNotRequired) throw new Error("Tracking is required for shipped/delivered/complete orders unless No tracking required is checked.");
     const now = new Date().toISOString();
@@ -3512,6 +3593,9 @@ if(norm(orderStatus(order)) !== norm(os)) {
 
 if(norm(paymentStatus(order)) !== norm(ps)) {
   changes.push(`Payment status changed by ${adminDisplayName()}: ${String(paymentStatus(order)).replaceAll("_"," ")} → ${String(ps).replaceAll("_"," ")}`);
+}
+if(cleanValue(paymentMethod(order)).toLowerCase() !== selectedPaymentMethod.toLowerCase()) {
+  changes.push(`Payment method changed by ${adminDisplayName()}: ${paymentMethod(order)} → ${selectedPaymentMethod}`);
 }
     const carrierChange = describeFieldChange("Carrier", order.tracking_carrier || order.carrier, carrier);
     const trackingChange = describeFieldChange("Tracking", order.tracking_number || order.tracking, tracking);
@@ -3524,6 +3608,11 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
   order_status: os,
   status: os,
   payment_status: ps,
+  payment_method: selectedPaymentMethod,
+  payment_type: selectedPaymentMethod,
+  pay_method: selectedPaymentMethod,
+  selected_payment_method: selectedPaymentMethod,
+  payment_instructions_snapshot: cleanValue(selectedPaymentConfig?.instructions || paymentInstructions(order)) || null,
 
   shipping: shippingCost,
   tax: taxAmount,
@@ -3671,6 +3760,7 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
       const emailTypes = detectCustomerEmailTypes(order, updates);
       setStatus("Saving order updates...");
       await safeUpdateOrder(order.id, updates, order);
+      await recordPaymentMethodAudit(order, updates.payment_method);
       await saveCommunicationPreference(order);
 
       const restoreResult = await restoreInventoryForOrderIfNeeded(order, updates);
@@ -3843,6 +3933,13 @@ if(norm(paymentStatus(order)) !== norm(ps)) {
 
     const payload = { ...updates, updated_at: new Date().toISOString() };
     const selectedOrders = ids.map(id => allOrders.find(o => String(o.id) === String(id))).filter(Boolean);
+    if(norm(updates.payment_status, "") === "paid"){
+      const missingMethods = selectedOrders.filter(order => paymentMethodNeedsSelection(paymentMethod(order)));
+      if(missingMethods.length){
+        alert(`${missingMethods.length} selected order(s) do not identify how payment was received. Open each order, choose its Payment Method, and then mark it Paid.`);
+        return;
+      }
+    }
     const protectedOrders = selectedOrders.filter(order => inventorySensitiveOrderChange(order, payload));
 
     if(protectedOrders.length){
@@ -3908,6 +4005,7 @@ async function init(){
     }
 
     if(await checkAdminAccess()){
+      await loadActiveAdminPaymentMethods();
       await loadOrders();
     }
   }catch(error){
