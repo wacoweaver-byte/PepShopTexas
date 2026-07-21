@@ -148,7 +148,7 @@
 
       html = html.replace(
         `<p class="payment-instructions" data-payment-instructions></p>`,
-        `<p class="payment-instructions" data-payment-instructions></p><p class="checkout-note" data-payment-discount-message></p>`
+        `<p class="payment-instructions" data-payment-instructions></p><p class="checkout-note" data-payment-discount-message hidden></p>`
       );
 
       return html;
@@ -201,9 +201,11 @@
     if (message) {
       if (discount > 0) {
         const base = PAYMENT_BASE_LABELS[methodId] || "this payment method";
+        message.hidden = false;
         message.textContent = `✓ Payment discount applied. You saved ${formatPaymentMoney(discount)} by paying with ${base}.`;
       } else {
         message.textContent = "";
+        message.hidden = true;
       }
     }
   }
