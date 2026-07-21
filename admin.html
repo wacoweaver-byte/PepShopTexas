@@ -2041,6 +2041,9 @@ td .inventory-readonly-value {
     color: #000;
     text-align: left;
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
   }
   .pst-global-match:hover { background: #f2f4f7; }
   .pst-global-match strong { display: block; margin-bottom: 3px; }
@@ -4167,14 +4170,14 @@ async function init(){
       }
 
       const product = result.row;
-      return `<div class="pst-global-match">
+      return `<button class="pst-global-match" type="button" data-global-type="product" data-global-key="${pstGlobalEsc(product.product_key || "")}">
         <span class="pst-global-match-type">Product</span>
         <strong>${pstGlobalEsc(product.product_key || product.id || "Product")}</strong>
         <span>${pstGlobalEsc(product.display_name || product.product_name || "Unnamed product")}${product.strength ? ` · ${pstGlobalEsc(product.strength)}` : ""}${product.category ? ` · ${pstGlobalEsc(product.category)}` : ""}</span>
         ${product.description ? `<span><strong>Description:</strong> ${pstGlobalEsc(product.description)}</span>` : ""}
         ${product.research_notes ? `<span><strong>Research notes:</strong> ${pstGlobalEsc(product.research_notes)}</span>` : ""}
         ${product.admin_only ? `<span><strong>Admin only:</strong> ${pstGlobalEsc(product.admin_only)}</span>` : ""}
-      </div>`;
+      </button>`;
     }).join("");
   }
 
@@ -4279,8 +4282,13 @@ async function init(){
     if(match.dataset.globalType === "order"){
       const order = (allOrders || []).find(row => String(row.id) === String(match.dataset.globalId));
       if(order){
+        document.getElementById("ordersGrid")?.classList.add("has-selected-order");
+        const detailCard = document.getElementById("detailCard");
+        if(detailCard) detailCard.hidden = false;
+        const detailJump = document.getElementById("detailCardJump");
+        if(detailJump) detailJump.hidden = false;
         await renderOrderDetail(order);
-        document.getElementById("detailCard")?.scrollIntoView({behavior:"smooth", block:"start"});
+        setTimeout(() => scrollAdminToTarget("detailCard"), 60);
       }
       return;
     }
@@ -4289,12 +4297,18 @@ async function init(){
       const search = document.getElementById("searchInput");
       const value = match.dataset.globalEmail || match.dataset.globalName || "";
       if(search){
-        search.value = value;
         clearOrderDashboardFilters();
+        search.value = value;
         applyFilters();
         setAdminCardOpen("order-list-card", true);
-        document.getElementById("order-list-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+        setTimeout(() => scrollAdminToTarget("order-list-card"), 60);
       }
+      return;
+    }
+
+    if(match.dataset.globalType === "product"){
+      const productKey = String(match.dataset.globalKey || "").trim();
+      if(productKey) window.location.href = `inventory.html?product_key=${encodeURIComponent(productKey)}`;
     }
   });
 
