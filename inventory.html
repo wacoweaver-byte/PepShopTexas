@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V28_REPORT_WRITER_PO_HANDOFF -->
 <!-- PST_INVENTORY_PATCH_V27_APPLY_STATUS_BY_DATE_VENDOR -->
 <!-- PST_INVENTORY_PATCH_V26_GLOBAL_SEARCH_INCOMING_TARGET -->
 <!-- PST_INVENTORY_PATCH_V25_APPLY_TRACKING_BY_DATE_VENDOR -->
@@ -3431,6 +3432,8 @@ let vendorsAvailable = false;
 const PST_INCOMING_LEAD_DAYS = 10;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 const PST_INCOMING_MIGRATION_KEY = "pst_incoming_inventory_migrated_to_supabase_v1";
+const PST_REPORT_WRITER_PO_HANDOFF_KEY = "pst_report_writer_po_handoff_v1";
+const PST_REPORT_WRITER_PO_HANDOFF_MAX_AGE_MS = 60 * 60 * 1000;
 let salesByInventoryId = {};
 let movementByInventoryId = {};
 let reorderSalesLoadError = "";
@@ -4169,6 +4172,87 @@ function addSelectedReorderRowsToIncomingDraft() {
 
   setStatus(`Added ${selectedRows.length} reorder line(s) to Incoming Inventory / Purchase Orders. PO quantities are full 10-vial kits only. Kit cost auto-fills from product cost per vial × 10. Enter vendor, tracking, and shipping/fees, then click Save Incoming Order.`, "good");
   setTimeout(() => $("incomingKitCost")?.focus(), 350);
+}
+
+function consumeReportWriterPurchaseOrderHandoff() {
+  let handoff = null;
+  try {
+    handoff = JSON.parse(localStorage.getItem(PST_REPORT_WRITER_PO_HANDOFF_KEY) || "null");
+  } catch (err) {
+    console.warn("Could not read the Report Writer purchase-order handoff.", err);
+    localStorage.removeItem(PST_REPORT_WRITER_PO_HANDOFF_KEY);
+    return false;
+  }
+
+  if (!handoff || !Array.isArray(handoff.lines) || !handoff.lines.length) return false;
+
+  const createdAt = new Date(handoff.createdAt || 0).getTime();
+  if (createdAt && Date.now() - createdAt > PST_REPORT_WRITER_PO_HANDOFF_MAX_AGE_MS) {
+    localStorage.removeItem(PST_REPORT_WRITER_PO_HANDOFF_KEY);
+    setStatus("The selected Report Writer items expired before they could be transferred. Return to Report Writer and create the purchase order again.", "bad");
+    return true;
+  }
+
+  const unmatchedLines = [];
+  let addedCount = 0;
+
+  handoff.lines.forEach((line, index) => {
+    const productId = cleanText(line?.productId);
+    const productKey = cleanText(line?.productKey).toLowerCase();
+    const product = allItems.find(item => productId && String(item.id) === productId)
+      || allItems.find(item => {
+        const keys = [item._catalog_product_key, item.product_key, item.sku]
+          .map(value => cleanText(value).toLowerCase())
+          .filter(Boolean);
+        return productKey && keys.includes(productKey);
+      });
+
+    if (!product) {
+      unmatchedLines.push(line);
+      return;
+    }
+
+    const requestedQty = Number(line.qty || DEFAULT_KIT_VIAL_COUNT);
+    const requestedKitCost = Number(line.kitCost || 0);
+    incomingDraftLines.push({
+      id: crypto?.randomUUID ? crypto.randomUUID() : `report_${Date.now()}_${index}_${Math.random().toString(16).slice(2)}`,
+      productId: product.id,
+      productKey: product._catalog_product_key || product.product_key || line.productKey || null,
+      productName: incomingProductLabel(product),
+      qty: incomingRoundQtyToFullKits(requestedQty),
+      kitCost: requestedKitCost > 0 ? requestedKitCost : incomingAutoKitCostForProduct(product)
+    });
+    addedCount += 1;
+  });
+
+  if (unmatchedLines.length) {
+    localStorage.setItem(PST_REPORT_WRITER_PO_HANDOFF_KEY, JSON.stringify({ ...handoff, lines: unmatchedLines }));
+  } else {
+    localStorage.removeItem(PST_REPORT_WRITER_PO_HANDOFF_KEY);
+  }
+
+  if (!addedCount) {
+    setStatus("The selected report rows could not be matched to inventory products. Confirm those report rows include Product ID or Product Key.", "bad");
+    return true;
+  }
+
+  syncIncomingTotalCostField();
+  setIncomingOrderDateToday(false);
+  setIncomingUserField(true);
+
+  const card = $("incomingInventoryCard");
+  if (card) {
+    setInventoryCardOpen(card, true);
+    setTimeout(() => scrollInventoryToCard(card), 80);
+  }
+
+  const sourceName = cleanText(handoff.reportName || handoff.source || "Report Writer");
+  const unmatchedNote = unmatchedLines.length
+    ? ` ${unmatchedLines.length} row(s) could not be matched and were not added.`
+    : "";
+  setStatus(`Added ${addedCount} selected item(s) from ${sourceName} to the incoming purchase-order draft.${unmatchedNote}`, unmatchedLines.length ? "bad" : "good");
+  setTimeout(() => $("incomingVendorSelect")?.focus(), 350);
+  return true;
 }
 
 function startIncomingOrderFromReorder(productId, suggestedQty) {
@@ -5259,7 +5343,10 @@ async function loadInventory() {
   setTimeout(scrollToInventoryTargetFromUrl, 120);
   renderReorderReview();
   await loadIncomingInventory();
-  setStatus(`Loaded ${allItems.length} inventory item${allItems.length === 1 ? "" : "s"}.`, "good");
+  const handoffHandled = consumeReportWriterPurchaseOrderHandoff();
+  if (!handoffHandled) {
+    setStatus(`Loaded ${allItems.length} inventory item${allItems.length === 1 ? "" : "s"}.`, "good");
+  }
 }
 
 function populateCategoryFilter() {
