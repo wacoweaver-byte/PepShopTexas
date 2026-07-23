@@ -4,6 +4,7 @@
 <!-- PST_ADMIN_PATCH_V16_GLOBAL_INCOMING_PO_SEARCH -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
+<!-- PST_ADMIN_PATCH_V12_GLOBAL_ORDER_RESULT_DATE -->
 <!DOCTYPE html>
 <!-- PST_ADMIN_PATCH_V13_DB_AUDIT_LOG -->
 <!-- PST_ADMIN_PATCH_V12_HISTORY_WHO_DID_WHAT -->
@@ -4156,9 +4157,11 @@ async function init(){
         const profile = order.profile || {};
         const customerNo = pstGlobalCustomerNumber(order.customer_number || profile.customer_number);
         const refundNo = order.refund_number ? ` · Refund R${order.refund_number}` : "";
+        const orderPlacedAt = order.created_at || order.order_date || null;
         return `<button class="pst-global-match" type="button" data-global-type="order" data-global-id="${pstGlobalEsc(order.id)}">
           <span class="pst-global-match-type">Order</span>
           <strong>${pstGlobalEsc(pstGlobalOrderNumber(order))}</strong>
+          <span><strong>Placed:</strong> ${pstGlobalEsc(orderPlacedAt ? fmtDate(orderPlacedAt) : "Date unavailable")}</span>
           <span>${pstGlobalEsc(customerName(order))}${customerNo ? ` · ${pstGlobalEsc(customerNo)}` : ""}${refundNo} · ${pstGlobalEsc(customerEmail(order) || "No email")}</span>
         </button>`;
       }
