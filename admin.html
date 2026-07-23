@@ -4,6 +4,7 @@
 <!-- PST_ADMIN_PATCH_V16_GLOBAL_INCOMING_PO_SEARCH -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
+<!-- PST_ADMIN_PATCH_V14_GLOBAL_SEARCH_HIGHLIGHT -->
 <!-- PST_ADMIN_PATCH_V12_GLOBAL_ORDER_RESULT_DATE -->
 <!DOCTYPE html>
 <!-- PST_ADMIN_PATCH_V13_DB_AUDIT_LOG -->
@@ -2053,6 +2054,14 @@ td .inventory-readonly-value {
   .pst-global-match:hover { background: #f2f4f7; }
   .pst-global-match strong { display: block; margin-bottom: 3px; }
   .pst-global-match span { display: block; color: #000; font-size: 12px; line-height: 1.35; }
+  .pst-global-match mark.pst-global-search-highlight {
+    padding: 0 2px;
+    border-radius: 3px;
+    background: #ffe66b;
+    color: #000;
+    font: inherit;
+    font-weight: 800;
+  }
   .pst-global-match-type {
     display: inline-flex !important;
     width: auto;
@@ -4142,6 +4151,37 @@ async function init(){
     return false;
   }
 
+  function pstGlobalHighlightRenderedText(container, raw){
+    const query = String(raw || "").trim();
+    if(!container || !query) return;
+
+    const queryLower = query.toLowerCase();
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while(walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach(node => {
+      const text = node.nodeValue || "";
+      const textLower = text.toLowerCase();
+      if(!textLower.includes(queryLower)) return;
+
+      const fragment = document.createDocumentFragment();
+      let cursor = 0;
+      let matchIndex = textLower.indexOf(queryLower, cursor);
+      while(matchIndex !== -1){
+        if(matchIndex > cursor) fragment.append(document.createTextNode(text.slice(cursor, matchIndex)));
+        const mark = document.createElement("mark");
+        mark.className = "pst-global-search-highlight";
+        mark.textContent = text.slice(matchIndex, matchIndex + query.length);
+        fragment.append(mark);
+        cursor = matchIndex + query.length;
+        matchIndex = textLower.indexOf(queryLower, cursor);
+      }
+      if(cursor < text.length) fragment.append(document.createTextNode(text.slice(cursor)));
+      node.replaceWith(fragment);
+    });
+  }
+
   function pstGlobalRender(results){
     const box = document.getElementById("pstGlobalLookupResults");
     if(!box) return;
@@ -4200,6 +4240,8 @@ async function init(){
         ${product.admin_only ? `<span><strong>Admin only:</strong> ${pstGlobalEsc(product.admin_only)}</span>` : ""}
       </button>`;
     }).join("");
+
+    pstGlobalHighlightRenderedText(box, document.getElementById("pstGlobalLookupInput")?.value || "");
   }
 
   let pstGlobalCustomerRowsCache = null;
