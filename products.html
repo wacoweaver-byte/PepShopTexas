@@ -56,6 +56,29 @@
     tr:hover, tr.active { background: #f7fbff; }
     .pill { display: inline-flex; padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 900; background: rgba(0,119,200,.08); color: var(--blue); }
     .pill.off { background: rgba(180,35,24,.08); color: var(--danger); }
+    /* PST_PRODUCTS_COA_LIST_INDICATOR_V2 */
+    .coa-list-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 74px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: default;
+    }
+    .coa-list-indicator.has-coa { color: var(--success); }
+    .coa-list-indicator input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      min-height: 17px;
+      margin: 0;
+      padding: 0;
+      accent-color: var(--success);
+      opacity: 1;
+      pointer-events: none;
+    }
     .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .full { grid-column: 1 / -1; }
     .margin-tool { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; }
@@ -976,9 +999,10 @@ td .pill {
                 <th><button class="sort-btn" type="button" data-sort-field="price">Price</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="current_inventory">Inventory</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="is_active">Status</button></th>
+                <th>COA</th>
               </tr>
             </thead>
-            <tbody id="productRows"><tr><td colspan="7" class="empty">Loading products...</td></tr></tbody>
+            <tbody id="productRows"><tr><td colspan="8" class="empty">Loading products...</td></tr></tbody>
           </table>
         </div>
       </article>
@@ -1172,8 +1196,9 @@ td .pill {
           <td>${money(product.sale_enabled && product.sale_price ? product.sale_price : product.price)}</td>
           <td>${Number(product.current_inventory || 0)}</td>
           <td><span class="pill ${product.is_active ? "" : "off"}">${product.is_active ? "Active" : "Inactive"}</span></td>
+          <td><span class="coa-list-indicator ${String(product.coa_url || "").trim() ? "has-coa" : ""}" title="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"><input type="checkbox" tabindex="-1" disabled ${String(product.coa_url || "").trim() ? "checked" : ""} aria-label="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"><span>${String(product.coa_url || "").trim() ? "Uploaded" : "None"}</span></span></td>
         </tr>
-      `).join("") : `<tr><td colspan="7" class="empty">No products match that filter.</td></tr>`;
+      `).join("") : `<tr><td colspan="8" class="empty">No products match that filter.</td></tr>`;
       document.querySelectorAll("[data-product-id]").forEach(row => {
         row.addEventListener("click", () => {
           activeProduct = products.find(product => product.id === row.dataset.productId);
