@@ -4,8 +4,10 @@
 <!-- PST_ADMIN_PATCH_V16_GLOBAL_INCOMING_PO_SEARCH -->
 <!-- PST_ADMIN_PATCH_V15_INVENTORY_ACTION_PASSWORD_CONFIRMATION -->
 <!-- PST_ADMIN_PATCH_V14_ADD_CUSTOMERS_NAV_LINK -->
-<!-- PST_ADMIN_PATCH_V14_GLOBAL_SEARCH_HIGHLIGHT -->
-<!-- PST_ADMIN_PATCH_V12_GLOBAL_ORDER_RESULT_DATE -->
+<!-- PST_ADMIN_PATCH_V23_GLOBAL_SEARCH_WHOLE_TERM -->
+<!-- PST_ADMIN_PATCH_V22_GLOBAL_SEARCH_VISIBLE_MATCH -->
+<!-- PST_ADMIN_PATCH_V21_GLOBAL_SEARCH_HIGHLIGHT -->
+<!-- PST_ADMIN_PATCH_V20_GLOBAL_ORDER_RESULT_DATE -->
 <!DOCTYPE html>
 <!-- PST_ADMIN_PATCH_V13_DB_AUDIT_LOG -->
 <!-- PST_ADMIN_PATCH_V12_HISTORY_WHO_DID_WHAT -->
@@ -2062,6 +2064,13 @@ td .inventory-readonly-value {
     font: inherit;
     font-weight: 800;
   }
+  .pst-global-match .pst-global-match-evidence {
+    margin-top: 7px;
+    padding-top: 7px;
+    border-top: 1px solid #d9d9d9;
+    color: #000;
+    font-size: 12px;
+  }
   .pst-global-match-type {
     display: inline-flex !important;
     width: auto;
@@ -4103,6 +4112,52 @@ async function init(){
     return /^\d+$/.test(String(value ?? "").trim());
   }
 
+  function pstGlobalRegexEscape(value){
+    return String(value ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function pstGlobalRequiresWholeTerm(value){
+    const query = String(value ?? "").trim();
+    return /[a-z]/i.test(query) && /^[a-z0-9]+(?:\s+[a-z0-9]+)*$/i.test(query);
+  }
+
+  function pstGlobalTextMatches(value, raw){
+    const text = String(value ?? "");
+    const query = String(raw ?? "").trim();
+    if(!query) return false;
+    if(!pstGlobalRequiresWholeTerm(query)) return text.toLowerCase().includes(query.toLowerCase());
+    const pattern = new RegExp(`(^|[^a-z0-9])${pstGlobalRegexEscape(query)}(?=$|[^a-z0-9])`, "i");
+    return pattern.test(text);
+  }
+
+  function pstGlobalTextMatchRanges(value, raw){
+    const text = String(value ?? "");
+    const query = String(raw ?? "").trim();
+    if(!query) return [];
+
+    if(!pstGlobalRequiresWholeTerm(query)){
+      const ranges = [];
+      const lower = text.toLowerCase();
+      const queryLower = query.toLowerCase();
+      let index = lower.indexOf(queryLower);
+      while(index !== -1){
+        ranges.push([index, index + query.length]);
+        index = lower.indexOf(queryLower, index + query.length);
+      }
+      return ranges;
+    }
+
+    const ranges = [];
+    const pattern = new RegExp(`(^|[^a-z0-9])(${pstGlobalRegexEscape(query)})(?=$|[^a-z0-9])`, "ig");
+    let match;
+    while((match = pattern.exec(text)) !== null){
+      const start = match.index + match[1].length;
+      ranges.push([start, start + match[2].length]);
+      if(pattern.lastIndex <= match.index) pattern.lastIndex = match.index + 1;
+    }
+    return ranges;
+  }
+
   function pstGlobalCustomerNumber(value){
     const clean = String(value ?? "").trim();
     if(!clean) return "";
@@ -4146,37 +4201,113 @@ async function init(){
   function pstGlobalOrderMatches(order, raw){
     const q = pstGlobalClean(raw);
     const digits = pstGlobalDigits(raw);
-    if(pstGlobalOrderHaystack(order).includes(q)) return true;
+    if(pstGlobalTextMatches(pstGlobalOrderHaystack(order), q)) return true;
     if(pstGlobalNumericOnly(raw) && digits.length >= 3 && pstGlobalDigits(pstGlobalOrderHaystack(order)).includes(digits)) return true;
     return false;
+  }
+
+  function pstGlobalMatchEvidence(type, row, raw){
+    const profile = row?.profile || {};
+    const items = Array.isArray(row?.items) ? row.items : [];
+    let candidates = [];
+
+    if(type === "order"){
+      candidates = [
+        ["Order number", pstGlobalOrderNumber(row)],
+        ["Order sequence", row?.order_sequence_number],
+        ["Refund number", row?.refund_number ? `R${row.refund_number}` : ""],
+        ["Tracking number", row?.tracking_number],
+        ["Carrier", row?.tracking_carrier],
+        ["Customer name", customerName(row)],
+        ["Customer number", pstGlobalCustomerNumber(row?.customer_number || profile?.customer_number)],
+        ["Email", customerEmail(row)],
+        ["Phone", customerPhone(row)],
+        ...items.flatMap(item => [
+          ["Item number", item?.product_key || item?.product_id],
+          ["Product", item?.product_name],
+          ["Strength", item?.product_strength],
+          ["Category", item?.product_category]
+        ])
+      ];
+    }else if(type === "customer"){
+      const fullName = [row?.first_name, row?.last_name].filter(Boolean).join(" ");
+      candidates = [
+        ["Customer number", pstGlobalCustomerNumber(row?.customer_number)],
+        ["Customer name", fullName],
+        ["Email", row?.email],
+        ["Phone", row?.phone]
+      ];
+    }else if(type === "incoming"){
+      candidates = [
+        ["Incoming PO ID", row?.id],
+        ["Product ID", row?.product_id],
+        ["Item number", row?.product_key],
+        ["Product", row?.product_name || row?.display_name],
+        ["Vendor ID", row?.vendor_id],
+        ["Vendor", row?.vendor_name || row?.supplier_name || row?.supplier],
+        ["Tracking number", row?.tracking_number],
+        ["Status", row?.status ? String(row.status).replaceAll("_", " ") : ""],
+        ["Notes", row?.notes],
+        ["Audit note", row?.audit_note],
+        ["Date ordered", row?.ordered_at ? fmtDate(row.ordered_at) : ""],
+        ["Expected arrival", row?.expected_arrival_date ? fmtDate(row.expected_arrival_date) : ""],
+        ["Quantity", row?.ordered_quantity ?? row?.qty_ordered]
+      ];
+    }else{
+      candidates = [
+        ["Item number", row?.product_key || row?.id],
+        ["Product", row?.display_name || row?.product_name],
+        ["Strength", row?.strength],
+        ["Category", row?.category],
+        ["Description", row?.description],
+        ["Research notes", row?.research_notes],
+        ["Admin only", row?.admin_only]
+      ];
+    }
+
+    const query = String(raw || "").trim();
+    const queryDigits = pstGlobalDigits(query);
+    const normalized = candidates
+      .filter(([, value]) => value !== undefined && value !== null && String(value).trim())
+      .map(([label, value]) => ({label, value:String(value)}));
+    const exact = normalized.find(candidate => pstGlobalTextMatches(candidate.value, query));
+    if(exact) return exact;
+    if(pstGlobalNumericOnly(query) && queryDigits.length >= 3){
+      const numeric = normalized.find(candidate => pstGlobalDigits(candidate.value).includes(queryDigits));
+      if(numeric) return {...numeric, appendQuery:true};
+    }
+    return {label:"Search", value:query, appendQuery:false};
+  }
+
+  function pstGlobalMatchEvidenceMarkup(type, row, raw){
+    const evidence = pstGlobalMatchEvidence(type, row, raw);
+    const searchSuffix = evidence.appendQuery ? ` · Search: ${pstGlobalEsc(raw)}` : "";
+    return `<span class="pst-global-match-evidence"><b>Matched:</b> ${pstGlobalEsc(evidence.label)} — ${pstGlobalEsc(evidence.value)}${searchSuffix}</span>`;
   }
 
   function pstGlobalHighlightRenderedText(container, raw){
     const query = String(raw || "").trim();
     if(!container || !query) return;
 
-    const queryLower = query.toLowerCase();
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
     const textNodes = [];
     while(walker.nextNode()) textNodes.push(walker.currentNode);
 
     textNodes.forEach(node => {
       const text = node.nodeValue || "";
-      const textLower = text.toLowerCase();
-      if(!textLower.includes(queryLower)) return;
+      const ranges = pstGlobalTextMatchRanges(text, query);
+      if(!ranges.length) return;
 
       const fragment = document.createDocumentFragment();
       let cursor = 0;
-      let matchIndex = textLower.indexOf(queryLower, cursor);
-      while(matchIndex !== -1){
-        if(matchIndex > cursor) fragment.append(document.createTextNode(text.slice(cursor, matchIndex)));
+      ranges.forEach(([start, end]) => {
+        if(start > cursor) fragment.append(document.createTextNode(text.slice(cursor, start)));
         const mark = document.createElement("mark");
         mark.className = "pst-global-search-highlight";
-        mark.textContent = text.slice(matchIndex, matchIndex + query.length);
+        mark.textContent = text.slice(start, end);
         fragment.append(mark);
-        cursor = matchIndex + query.length;
-        matchIndex = textLower.indexOf(queryLower, cursor);
-      }
+        cursor = end;
+      });
       if(cursor < text.length) fragment.append(document.createTextNode(text.slice(cursor)));
       node.replaceWith(fragment);
     });
@@ -4185,6 +4316,7 @@ async function init(){
   function pstGlobalRender(results){
     const box = document.getElementById("pstGlobalLookupResults");
     if(!box) return;
+    const raw = document.getElementById("pstGlobalLookupInput")?.value?.trim() || "";
 
     if(!results.length){
       box.innerHTML = '<div class="pst-global-lookup-empty">No possible matches found.</div>';
@@ -4203,6 +4335,7 @@ async function init(){
           <strong>${pstGlobalEsc(pstGlobalOrderNumber(order))}</strong>
           <span><strong>Placed:</strong> ${pstGlobalEsc(orderPlacedAt ? fmtDate(orderPlacedAt) : "Date unavailable")}</span>
           <span>${pstGlobalEsc(customerName(order))}${customerNo ? ` · ${pstGlobalEsc(customerNo)}` : ""}${refundNo} · ${pstGlobalEsc(customerEmail(order) || "No email")}</span>
+          ${pstGlobalMatchEvidenceMarkup("order", order, raw)}
         </button>`;
       }
 
@@ -4214,6 +4347,7 @@ async function init(){
           <span class="pst-global-match-type">Customer</span>
           <strong>${pstGlobalEsc(customerNo || fullName)}</strong>
           <span>${pstGlobalEsc(fullName)} · ${pstGlobalEsc(customer.email || "No email")}${customer.phone ? ` · ${pstGlobalEsc(customer.phone)}` : ""}</span>
+          ${pstGlobalMatchEvidenceMarkup("customer", customer, raw)}
         </button>`;
       }
 
@@ -4227,6 +4361,7 @@ async function init(){
           <strong>${pstGlobalEsc(product)}${incoming.product_key ? ` · ${pstGlobalEsc(incoming.product_key)}` : ""}</strong>
           <span>${pstGlobalEsc(vendor)}${orderedDate ? ` · Ordered ${pstGlobalEsc(fmtDate(orderedDate))}` : ""}${incoming.status ? ` · ${pstGlobalEsc(String(incoming.status).replaceAll("_", " "))}` : ""}</span>
           <span>Qty: ${pstGlobalEsc(incoming.ordered_quantity ?? incoming.qty_ordered ?? "—")}${incoming.tracking_number ? ` · Tracking: ${pstGlobalEsc(incoming.tracking_number)}` : ""}</span>
+          ${pstGlobalMatchEvidenceMarkup("incoming", incoming, raw)}
         </button>`;
       }
 
@@ -4238,10 +4373,11 @@ async function init(){
         ${product.description ? `<span><strong>Description:</strong> ${pstGlobalEsc(product.description)}</span>` : ""}
         ${product.research_notes ? `<span><strong>Research notes:</strong> ${pstGlobalEsc(product.research_notes)}</span>` : ""}
         ${product.admin_only ? `<span><strong>Admin only:</strong> ${pstGlobalEsc(product.admin_only)}</span>` : ""}
+        ${pstGlobalMatchEvidenceMarkup("product", product, raw)}
       </button>`;
     }).join("");
 
-    pstGlobalHighlightRenderedText(box, document.getElementById("pstGlobalLookupInput")?.value || "");
+    pstGlobalHighlightRenderedText(box, raw);
   }
 
   let pstGlobalCustomerRowsCache = null;
@@ -4289,7 +4425,7 @@ async function init(){
           customer.last_name,
           customer.phone
         ].filter(Boolean).join(" ").toLowerCase();
-        const matchesText = customerHaystack.includes(q);
+        const matchesText = pstGlobalTextMatches(customerHaystack, q);
         const matchesDigits = pstGlobalNumericOnly(raw) && digits.length >= 3 && pstGlobalDigits(customerHaystack).includes(digits);
         if(!matchesText && !matchesDigits) return;
         const key = `customer:${customer.user_id || customer.email}`;
@@ -4331,7 +4467,7 @@ async function init(){
           incoming.ordered_quantity,
           incoming.ordered_at ? fmtDate(incoming.ordered_at) : ""
         ].filter(Boolean).join(" ").toLowerCase();
-        const matchesText = haystack.includes(q);
+        const matchesText = pstGlobalTextMatches(haystack, q);
         const matchesDigits = pstGlobalNumericOnly(raw) && digits.length >= 3 && pstGlobalDigits(haystack).includes(digits);
         if(!matchesText && !matchesDigits) return;
         const key = `incoming:${incoming.id}`;
@@ -4349,7 +4485,7 @@ async function init(){
             .from(tableName)
             .select("id,product_key,display_name,strength,category,description,research_notes,admin_only")
             .or(`product_key.ilike.%${safeQ}%,display_name.ilike.%${safeQ}%,strength.ilike.%${safeQ}%,description.ilike.%${safeQ}%,research_notes.ilike.%${safeQ}%,admin_only.ilike.%${safeQ}%`)
-            .limit(15);
+            .limit(250);
 
           if(error) console.warn(`Global ${tableName} lookup:`, error.message || error);
           (products || []).forEach(product => {
@@ -4362,7 +4498,7 @@ async function init(){
               product.research_notes,
               product.admin_only
             ].filter(Boolean).join(" ").toLowerCase();
-            if(!productHaystack.includes(q)) return;
+            if(!pstGlobalTextMatches(productHaystack, q)) return;
             const key = `product:${product.product_key || product.id}`;
             if(!seen.has(key)){ seen.add(key); results.push({type:"product", row:product}); }
             incomingRowsForLookup.forEach(incoming => {
