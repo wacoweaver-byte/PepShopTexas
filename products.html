@@ -61,8 +61,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      min-width: 74px;
+      gap: 0;
+      min-width: 28px;
       color: var(--muted);
       font-size: 12px;
       font-weight: 800;
@@ -1196,7 +1196,7 @@ td .pill {
           <td>${money(product.sale_enabled && product.sale_price ? product.sale_price : product.price)}</td>
           <td>${Number(product.current_inventory || 0)}</td>
           <td><span class="pill ${product.is_active ? "" : "off"}">${product.is_active ? "Active" : "Inactive"}</span></td>
-          <td><span class="coa-list-indicator ${String(product.coa_url || "").trim() ? "has-coa" : ""}" title="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"><input type="checkbox" tabindex="-1" disabled ${String(product.coa_url || "").trim() ? "checked" : ""} aria-label="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"><span>${String(product.coa_url || "").trim() ? "Uploaded" : "None"}</span></span></td>
+          <td><span class="coa-list-indicator ${String(product.coa_url || "").trim() ? "has-coa" : ""}" title="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"><input type="checkbox" tabindex="-1" disabled ${String(product.coa_url || "").trim() ? "checked" : ""} aria-label="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"></span></td>
         </tr>
       `).join("") : `<tr><td colspan="8" class="empty">No products match that filter.</td></tr>`;
       document.querySelectorAll("[data-product-id]").forEach(row => {
