@@ -632,6 +632,25 @@ header .header-actions .btn.secondary.active {
 .incoming-stat { border:1px solid var(--line); border-radius:12px; padding:11px; background:#fbfcff; }
 .incoming-stat strong { display:block; font-size:22px; color:var(--blue); line-height:1; margin-bottom:6px; }
 .incoming-stat span { color:var(--muted); font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; }
+.incoming-po-center { margin:14px; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff; }
+.incoming-po-center-head { padding:12px 14px; border-bottom:1px solid var(--line); background:#fbfcff; }
+.incoming-po-center-head h3 { margin:0 0 4px; }
+.incoming-po-center-list { display:grid; overflow-x:auto; }
+.incoming-po-group { border-bottom:1px solid var(--line); }
+.incoming-po-group:last-child { border-bottom:0; }
+.incoming-po-list-head,
+.incoming-po-group-summary { display:grid; grid-template-columns:minmax(155px,1fr) 120px minmax(160px,1fr) 105px 115px 125px 105px; gap:10px; align-items:center; min-width:1040px; padding:10px 14px; }
+.incoming-po-list-head { background:#fff; border-bottom:1px solid var(--line); color:var(--muted); font-size:10px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; }
+.incoming-po-number-btn { border:0; padding:0; background:transparent; color:var(--blue); font-size:14px; font-weight:900; cursor:pointer; text-align:left; }
+.incoming-po-number-btn::before { content:"▸ "; }
+.incoming-po-group.open .incoming-po-number-btn::before { content:"▾ "; }
+.incoming-po-group-detail { display:none; padding:0 14px 14px; }
+.incoming-po-group.open .incoming-po-group-detail { display:block; }
+.incoming-po-selection-tools { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; padding:10px; border:1px solid var(--line); border-radius:10px; background:#fbfcff; }
+.incoming-po-line-table { width:100%; min-width:760px !important; margin-top:10px; }
+.incoming-po-line-table th { position:static; }
+.incoming-po-line-select-cell { width:42px; text-align:center; }
+.incoming-po-empty { padding:14px; color:var(--muted); }
 @media(max-width:1150px){ .incoming-form-grid { grid-template-columns:1fr 1fr; } .incoming-summary-grid { grid-template-columns:1fr 1fr; } }
 @media(max-width:1100px){ .incoming-edit-grid { grid-template-columns:1fr 1fr; } }
 @media(max-width:640px){ .incoming-form-grid,.incoming-summary-grid,.incoming-edit-grid { grid-template-columns:1fr; } }
@@ -3195,6 +3214,16 @@ td .inventory-readonly-value {
       <div class="incoming-stat"><strong id="incomingDueSoonCount">—</strong><span>Due Within 7 Days</span></div>
       <div class="incoming-stat"><strong id="incomingOverdueCount">—</strong><span>Past Expected Arrival</span></div>
     </div>
+    <section class="incoming-po-center" aria-labelledby="incomingPoCenterTitle">
+      <div class="incoming-po-center-head">
+        <h3 id="incomingPoCenterTitle">Outstanding Purchase Orders</h3>
+        <div class="note">Open a PO number to inspect its lines, select verified items, apply tracking or status, and receive selected or all remaining lines.</div>
+        <button class="btn secondary" id="togglePoHistoryBtn" type="button" style="margin-top:8px;">Show Historical POs</button>
+      </div>
+      <div class="incoming-po-center-list" id="incomingPoCenterList">
+        <div class="incoming-po-empty">Loading outstanding purchase orders...</div>
+      </div>
+    </section>
     <div class="incoming-form-grid">
       <div class="field">
         <label>Product / SKU</label>
@@ -3428,6 +3457,9 @@ let incomingReceivedHistoryVisible = false;
 let editingIncomingId = null;
 let incomingDraftLines = [];
 let incomingSort = { key:"ordered_at", direction:"desc" };
+let expandedIncomingPoNumbers = new Set();
+let selectedIncomingPoLineIds = new Set();
+let incomingPoHistoryVisible = false;
 let vendors = [];
 let vendorsAvailable = false;
 const PST_INCOMING_LEAD_DAYS = 10;
@@ -4770,14 +4802,299 @@ function incomingEditRowHTML(row) {
         </div>
         <div class="incoming-edit-actions">
           <button class="btn primary save-incoming-edit-btn" data-incoming-id="${id}" type="button">Save Changes</button>
-          <button class="btn secondary apply-po-tracking-btn" data-incoming-id="${id}" type="button">Apply Tracking to PO</button>
-          <button class="btn secondary apply-po-status-btn" data-incoming-id="${id}" type="button">Apply Status to PO</button>
-          <button class="btn success receive-entire-po-btn" data-incoming-id="${id}" type="button">Receive Entire PO</button>
           <button class="btn secondary close-incoming-edit-btn" type="button">Close</button>
         </div>
       </div>
     </td>
   </tr>`;
+}
+
+function incomingPoAggregateStatus(rows) {
+  const statuses = rows.map(row => String(row.status || "ordered").toLowerCase());
+  const receivedCount = statuses.filter(status => status === "received").length;
+  const openStatuses = statuses.filter(status => !["received", "cancelled"].includes(status));
+  if (receivedCount && openStatuses.length) return { label:"Partially Received", value:"partial", cls:"incoming-in_transit" };
+  if (!openStatuses.length && receivedCount) return { label:"Received", value:"received", cls:"incoming-received" };
+  const uniqueOpen = [...new Set(openStatuses)];
+  if (uniqueOpen.length === 1) return { label:incomingStatusLabel(uniqueOpen[0]), value:uniqueOpen[0], cls:`incoming-${uniqueOpen[0]}` };
+  if (uniqueOpen.length > 1) return { label:"Mixed Status", value:uniqueOpen[0], cls:"incoming-in_transit" };
+  return { label:"Cancelled", value:"cancelled", cls:"incoming-cancelled" };
+}
+
+function incomingPoCenterGroupElement(poNumber) {
+  return Array.from(document.querySelectorAll(".incoming-po-group"))
+    .find(element => cleanText(element.dataset.poNumber).toLowerCase() === cleanText(poNumber).toLowerCase()) || null;
+}
+
+function renderIncomingPurchaseOrderCenter() {
+  const container = $("incomingPoCenterList");
+  if (!container) return;
+  const title = $("incomingPoCenterTitle");
+  const historyButton = $("togglePoHistoryBtn");
+  if (title) title.textContent = incomingPoHistoryVisible ? "Historical Purchase Orders" : "Open Purchase Orders";
+  if (historyButton) historyButton.textContent = incomingPoHistoryVisible ? "Show Open POs" : "Show Historical POs";
+
+  const poMap = new Map();
+  (incomingInventoryRows || []).forEach(row => {
+    const poNumber = cleanText(row.po_number);
+    if (!poNumber) return;
+    if (!poMap.has(poNumber)) poMap.set(poNumber, []);
+    poMap.get(poNumber).push(row);
+  });
+
+  const now = new Date();
+  const historyCutoff = new Date(now);
+  historyCutoff.setHours(0, 0, 0, 0);
+  historyCutoff.setDate(historyCutoff.getDate() - 7);
+
+  const allGroups = [...poMap.entries()].map(([poNumber, rows]) => {
+    const openRows = rows.filter(row => !["received", "cancelled"].includes(String(row.status || "").toLowerCase()));
+    const terminalDates = rows.map(row => {
+      const status = String(row.status || "").toLowerCase();
+      const raw = status === "received" ? (row.received_at || row.updated_at) : row.updated_at;
+      const time = new Date(raw || 0).getTime();
+      return Number.isFinite(time) ? time : 0;
+    });
+    const completedAtMs = openRows.length ? 0 : Math.max(...terminalDates, 0);
+    const orderedAtMs = Math.min(...rows.map(row => new Date(row.ordered_at || row.created_at || 0).getTime() || 0));
+    return {
+      poNumber,
+      rows,
+      openRows,
+      status:incomingPoAggregateStatus(rows),
+      orderedAtMs,
+      completedAtMs,
+      isOpen:openRows.length > 0,
+      isRecentCompleted:!openRows.length && completedAtMs >= historyCutoff.getTime()
+    };
+  });
+
+  const groups = allGroups
+    .filter(group => incomingPoHistoryVisible ? !group.isOpen : (group.isOpen || group.isRecentCompleted))
+    .sort((a, b) => (b.isOpen - a.isOpen) || (b.orderedAtMs - a.orderedAtMs));
+
+  const eligibleIds = new Set(allGroups.flatMap(group => group.openRows.map(row => String(row.id))));
+  selectedIncomingPoLineIds = new Set([...selectedIncomingPoLineIds].filter(id => eligibleIds.has(String(id))));
+
+  if (!groups.length) {
+    container.innerHTML = `<div class="incoming-po-empty">${incomingPoHistoryVisible ? "No historical purchase orders." : "No open or recently completed purchase orders."}</div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="incoming-po-list-head">
+    <span>PO Number</span><span>Date of PO</span><span>Vendor</span><span>Days on Order</span>
+    <span>Add Tracking</span><span>Change Status</span><span>Receive All</span>
+  </div>` + groups.map(group => {
+    const isOpen = expandedIncomingPoNumbers.has(group.poNumber);
+    const eligibleRows = group.openRows;
+    const allSelected = eligibleRows.length > 0 && eligibleRows.every(row => selectedIncomingPoLineIds.has(String(row.id)));
+    const vendor = vendorForIncomingRow(group.rows[0]);
+    const vendorName = vendor?.company_name || group.rows[0]?.vendor_name || group.rows[0]?.supplier_name || "Vendor not listed";
+    const orderedAt = group.rows[0]?.ordered_at || group.rows[0]?.created_at;
+    const daysOnOrder = daysBetween(orderedAt, group.completedAtMs ? new Date(group.completedAtMs) : new Date());
+    const disabled = group.isOpen ? "" : "disabled";
+
+    return `<article class="incoming-po-group ${isOpen ? "open" : ""}" data-po-number="${esc(group.poNumber)}">
+      <div class="incoming-po-group-summary">
+        <button class="incoming-po-number-btn" type="button" data-toggle-po="${esc(group.poNumber)}">${esc(group.poNumber)}</button>
+        <span>${esc(fmtShortDate(orderedAt))}</span>
+        <span>${esc(vendorName)}</span>
+        <span>${daysOnOrder} day${daysOnOrder === 1 ? "" : "s"}<br><span class="incoming-pill ${esc(group.status.cls)}">${esc(group.status.label)}</span></span>
+        <button class="btn secondary" type="button" data-po-apply-tracking="${esc(group.poNumber)}" ${disabled}>Add Tracking</button>
+        <button class="btn secondary" type="button" data-po-apply-status="${esc(group.poNumber)}" ${disabled}>Change Status</button>
+        <button class="btn success" type="button" data-po-receive-all="${esc(group.poNumber)}" ${disabled}>Receive All</button>
+      </div>
+      <div class="incoming-po-group-detail">
+        <div class="incoming-po-selection-tools">
+          <div><strong>${esc(group.status.label)}</strong><div class="note">${group.rows.length} total line(s) · ${eligibleRows.length} remaining${group.completedAtMs ? ` · Completed ${esc(fmtShortDate(new Date(group.completedAtMs)))}` : ""}</div></div>
+          <button class="btn success" type="button" data-po-receive-selected="${esc(group.poNumber)}" ${eligibleRows.some(row => selectedIncomingPoLineIds.has(String(row.id))) ? "" : "disabled"}>Receive Selected</button>
+        </div>
+        <div class="incoming-table-wrap">
+          <table class="incoming-po-line-table">
+            <thead><tr>
+              <th class="incoming-po-line-select-cell"><input type="checkbox" data-po-select-all="${esc(group.poNumber)}" ${allSelected ? "checked" : ""} aria-label="Select all eligible lines on ${esc(group.poNumber)}"></th>
+              <th>Product</th><th>Vendor Item #</th><th>Qty</th><th>Status</th><th>Date Ordered</th>
+            </tr></thead>
+            <tbody>${group.rows.map(row => {
+              const status = String(row.status || "ordered").toLowerCase();
+              const eligible = group.isOpen && !["received", "cancelled"].includes(status);
+              const checked = selectedIncomingPoLineIds.has(String(row.id));
+              return `<tr>
+                <td class="incoming-po-line-select-cell"><input type="checkbox" data-po-line-select="${esc(row.id)}" data-po-number="${esc(group.poNumber)}" ${checked ? "checked" : ""} ${eligible ? "" : "disabled"} aria-label="Select ${esc(row.product_name || row.product_key || "product")}"></td>
+                <td><strong>${esc(row.product_name || row.product_key || "Product")}</strong><div class="note">${esc(row.product_key || "")}</div></td>
+                <td>${esc(incomingVendorItemNumber(row) || "—")}</td>
+                <td><strong>${Number(row.ordered_quantity || 0)}</strong></td>
+                <td>${incomingStatusPill(status)}</td>
+                <td>${esc(fmtShortDate(row.ordered_at || row.created_at))}</td>
+              </tr>`;
+            }).join("")}</tbody>
+          </table>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+
+  bindIncomingPurchaseOrderCenterEvents();
+}
+
+function bindIncomingPurchaseOrderCenterEvents() {
+  document.querySelectorAll("[data-toggle-po]").forEach(button => button.addEventListener("click", () => {
+    const poNumber = cleanText(button.dataset.togglePo);
+    if (expandedIncomingPoNumbers.has(poNumber)) expandedIncomingPoNumbers.delete(poNumber);
+    else expandedIncomingPoNumbers.add(poNumber);
+    renderIncomingPurchaseOrderCenter();
+  }));
+  document.querySelectorAll("[data-po-line-select]").forEach(checkbox => checkbox.addEventListener("change", () => {
+    const id = String(checkbox.dataset.poLineSelect || "");
+    if (checkbox.checked) selectedIncomingPoLineIds.add(id);
+    else selectedIncomingPoLineIds.delete(id);
+    renderIncomingPurchaseOrderCenter();
+  }));
+  document.querySelectorAll("[data-po-select-all]").forEach(checkbox => checkbox.addEventListener("change", () => {
+    const poNumber = cleanText(checkbox.dataset.poSelectAll);
+    const rows = (incomingInventoryRows || []).filter(row =>
+      cleanText(row.po_number).toLowerCase() === poNumber.toLowerCase() &&
+      !["received", "cancelled"].includes(String(row.status || "").toLowerCase())
+    );
+    rows.forEach(row => checkbox.checked
+      ? selectedIncomingPoLineIds.add(String(row.id))
+      : selectedIncomingPoLineIds.delete(String(row.id)));
+    renderIncomingPurchaseOrderCenter();
+  }));
+  document.querySelectorAll("[data-po-apply-tracking]").forEach(button => button.addEventListener("click", () =>
+    applyTrackingFromPurchaseOrderCenter(button.dataset.poApplyTracking).catch(error => {
+      console.error(error);
+      setStatus(error.message || "PO tracking could not be updated.", "bad");
+    })
+  ));
+  document.querySelectorAll("[data-po-apply-status]").forEach(button => button.addEventListener("click", () =>
+    applyStatusFromPurchaseOrderCenter(button.dataset.poApplyStatus).catch(error => {
+      console.error(error);
+      setStatus(error.message || "PO status could not be updated.", "bad");
+    })
+  ));
+  document.querySelectorAll("[data-po-receive-selected]").forEach(button => button.addEventListener("click", () =>
+    receivePurchaseOrderLines(button.dataset.poReceiveSelected, false).catch(error => {
+      console.error(error);
+      setStatus(error.message || "Selected PO lines could not be received.", "bad");
+    })
+  ));
+  document.querySelectorAll("[data-po-receive-all]").forEach(button => button.addEventListener("click", () =>
+    receivePurchaseOrderLines(button.dataset.poReceiveAll, true).catch(error => {
+      console.error(error);
+      setStatus(error.message || "The PO could not be received.", "bad");
+    })
+  ));
+}
+
+async function applyTrackingFromPurchaseOrderCenter(poNumber) {
+  const rows = (incomingInventoryRows || []).filter(row => cleanText(row.po_number).toLowerCase() === cleanText(poNumber).toLowerCase());
+  if (!rows.length) return;
+  const currentTracking = cleanText(rows.find(row => cleanText(row.tracking_number))?.tracking_number);
+  const trackingNumber = cleanText(prompt(`Enter the tracking number for ${poNumber}:`, currentTracking) || "");
+  if (!trackingNumber) return;
+  if (!confirm(`Apply tracking number ${trackingNumber} to all ${rows.length} line(s) on ${poNumber}?`)) return;
+
+  const ids = rows.map(row => row.id).filter(Boolean);
+  const updatedAt = new Date().toISOString();
+  if (incomingUsesSupabase) {
+    const { data, error } = await db.from("incoming_inventory")
+      .update({ tracking_number:trackingNumber, updated_at:updatedAt })
+      .in("id", ids)
+      .select("id");
+    if (error) throw error;
+    if ((data || []).length !== ids.length) throw new Error(`Tracking updated ${data?.length || 0} of ${ids.length} PO line(s).`);
+  } else {
+    const idSet = new Set(ids.map(String));
+    incomingInventoryRows = incomingInventoryRows.map(row => idSet.has(String(row.id)) ? { ...row, tracking_number:trackingNumber, updated_at:updatedAt } : row);
+    saveIncomingLocalRows(incomingInventoryRows);
+  }
+  setStatus(`Tracking ${trackingNumber} applied to ${poNumber}.`, "good");
+  await loadIncomingInventory();
+}
+
+async function applyStatusFromPurchaseOrderCenter(poNumber) {
+  const rows = (incomingInventoryRows || []).filter(row => cleanText(row.po_number).toLowerCase() === cleanText(poNumber).toLowerCase());
+  const eligibleRows = rows.filter(row => !["received", "cancelled"].includes(String(row.status || "").toLowerCase()));
+  if (!eligibleRows.length) {
+    alert(`${poNumber} has no open lines to update.`);
+    return;
+  }
+
+  const entered = cleanText(prompt(
+    `Change the status of all open lines on ${poNumber}.\n\nEnter: Ordered, In Transit, Issue / Shorted, or Cancelled:`,
+    incomingStatusLabel(eligibleRows[0].status || "ordered")
+  ) || "").toLowerCase().replace(/\s*\/\s*/g, "_").replace(/\s+/g, "_");
+  const aliases = {
+    ordered:"ordered",
+    in_transit:"in_transit",
+    transit:"in_transit",
+    issue_shorted:"issue_shorted",
+    issue:"issue_shorted",
+    shorted:"issue_shorted",
+    cancelled:"cancelled",
+    canceled:"cancelled"
+  };
+  const status = aliases[entered];
+  if (!status) {
+    if (entered) alert("Status not recognized. Use Ordered, In Transit, Issue / Shorted, or Cancelled.");
+    return;
+  }
+  if (status === "cancelled" && !confirm(`Cancel all ${eligibleRows.length} remaining line(s) on ${poNumber}? Cancelled quantities will not enter inventory.`)) return;
+  if (status !== "cancelled" && !confirm(`Apply ${incomingStatusLabel(status)} to all ${eligibleRows.length} open line(s) on ${poNumber}?`)) return;
+
+  const ids = eligibleRows.map(row => row.id).filter(Boolean);
+  const updatedAt = new Date().toISOString();
+  if (incomingUsesSupabase) {
+    const { data, error } = await db.from("incoming_inventory")
+      .update({ status, updated_at:updatedAt })
+      .in("id", ids)
+      .select("id");
+    if (error) throw error;
+    if ((data || []).length !== ids.length) throw new Error(`Status updated ${data?.length || 0} of ${ids.length} PO line(s).`);
+  } else {
+    const idSet = new Set(ids.map(String));
+    incomingInventoryRows = incomingInventoryRows.map(row => idSet.has(String(row.id)) ? { ...row, status, updated_at:updatedAt } : row);
+    saveIncomingLocalRows(incomingInventoryRows);
+  }
+  setStatus(`${poNumber} updated to ${incomingStatusLabel(status)}.`, "good");
+  await loadIncomingInventory();
+}
+
+async function receivePurchaseOrderLines(poNumber, receiveAll) {
+  if (!incomingUsesSupabase) {
+    alert("PO receiving requires the shared Supabase incoming inventory connection.");
+    return;
+  }
+  const allOpenRows = (incomingInventoryRows || []).filter(row =>
+    cleanText(row.po_number).toLowerCase() === cleanText(poNumber).toLowerCase() &&
+    !["received", "cancelled"].includes(String(row.status || "").toLowerCase())
+  );
+  const rowsToReceive = receiveAll
+    ? allOpenRows
+    : allOpenRows.filter(row => selectedIncomingPoLineIds.has(String(row.id)));
+  if (!rowsToReceive.length) {
+    alert(receiveAll ? `${poNumber} has no remaining lines to receive.` : "Select one or more verified PO lines first.");
+    return;
+  }
+
+  const totalQty = rowsToReceive.reduce((sum, row) => sum + Number(row.ordered_quantity || 0), 0);
+  const summary = rowsToReceive.map(row => `• ${row.product_name || row.product_key || "Product"} — ${Number(row.ordered_quantity || 0)} vial(s)`).join("\n");
+  const actionLabel = receiveAll ? "Receive all remaining lines" : "Receive selected lines";
+  if (!confirm(`${actionLabel} on ${poNumber}?\n\n${summary}\n\nTotal: ${rowsToReceive.length} line(s), ${totalQty} vial(s).\n\nConfirm only after these line items have been inspected and counted.`)) return;
+
+  const ids = rowsToReceive.map(row => String(row.id));
+  const { data, error } = await db.rpc("receive_incoming_purchase_order_lines", {
+    p_po_number:poNumber,
+    p_line_ids:ids
+  });
+  if (error) throw error;
+
+  ids.forEach(id => selectedIncomingPoLineIds.delete(id));
+  const receivedLines = Number(data?.received_lines ?? rowsToReceive.length);
+  const receivedVials = Number(data?.received_vials ?? totalQty);
+  setStatus(`${poNumber}: received ${receivedLines} line(s), ${receivedVials} vial(s).`, "good");
+  await loadInventory();
 }
 
 function renderIncomingInventory() {
@@ -4804,6 +5121,7 @@ function renderIncomingInventory() {
   if ($("incomingReceivedCost")) $("incomingReceivedCost").textContent = incomingMoney(allRows.filter(row => String(row.status || "").toLowerCase() === "received").reduce((sum,row)=>sum + incomingTotalCost(row),0));
   if ($("incomingDueSoonCount")) $("incomingDueSoonCount").textContent = String(dueSoon.length);
   if ($("incomingOverdueCount")) $("incomingOverdueCount").textContent = String(overdue.length);
+  renderIncomingPurchaseOrderCenter();
 
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="12" class="note">No incoming inventory orders recorded yet.</td></tr>`;
@@ -4863,24 +5181,6 @@ function renderIncomingInventory() {
     saveIncomingEdit(btn.dataset.incomingId).catch(err => {
       console.error("Incoming order edit failed:", err);
       setStatus(err.message || "Incoming order edit failed.", "bad");
-    });
-  }));
-  document.querySelectorAll(".apply-po-tracking-btn").forEach(btn => btn.addEventListener("click", () => {
-    applyTrackingToIncomingPurchaseOrder(btn.dataset.incomingId).catch(err => {
-      console.error("Purchase order tracking update failed:", err);
-      setStatus(err.message || "Purchase order tracking update failed.", "bad");
-    });
-  }));
-  document.querySelectorAll(".apply-po-status-btn").forEach(btn => btn.addEventListener("click", () => {
-    applyStatusToIncomingPurchaseOrder(btn.dataset.incomingId).catch(err => {
-      console.error("Purchase order status update failed:", err);
-      setStatus(err.message || "Purchase order status update failed.", "bad");
-    });
-  }));
-  document.querySelectorAll(".receive-entire-po-btn").forEach(btn => btn.addEventListener("click", () => {
-    receiveEntireIncomingPurchaseOrder(btn.dataset.incomingId).catch(err => {
-      console.error("Purchase order receipt failed:", err);
-      setStatus(err.message || "Purchase order could not be received.", "bad");
     });
   }));
   document.querySelectorAll(".close-incoming-edit-btn").forEach(btn => btn.addEventListener("click", () => {
@@ -5991,6 +6291,12 @@ function wireEvents() {
     incomingReceivedHistoryVisible = !incomingReceivedHistoryVisible;
     $("toggleReceivedHistoryBtn").textContent = incomingReceivedHistoryVisible ? "Hide Received History" : "Show Received History";
     renderIncomingInventory();
+  });
+  if ($("togglePoHistoryBtn")) $("togglePoHistoryBtn")?.addEventListener("click", () => {
+    incomingPoHistoryVisible = !incomingPoHistoryVisible;
+    expandedIncomingPoNumbers.clear();
+    selectedIncomingPoLineIds.clear();
+    renderIncomingPurchaseOrderCenter();
   });
 
   $("selectAll")?.addEventListener("change", e => {
