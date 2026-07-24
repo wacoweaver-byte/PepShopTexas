@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V32_PO_CUSTOMER_STATUS_ONLY -->
 <!-- PST_INVENTORY_PATCH_V31_PO_STATUS_COLUMN_CENTERED -->
 <!-- PST_INVENTORY_PATCH_V28_REPORT_WRITER_PO_HANDOFF -->
 <!-- PST_INVENTORY_PATCH_V27_APPLY_STATUS_BY_DATE_VENDOR -->
@@ -5036,26 +5037,20 @@ async function applyStatusFromPurchaseOrderCenter(poNumber) {
   }
 
   const entered = cleanText(prompt(
-    `Change the status of all open lines on ${poNumber}.\n\nEnter: Ordered, In Transit, Issue / Shorted, or Cancelled:`,
+    `Change the customer-facing status of all open lines on ${poNumber}.\n\nEnter: Ordered or In Transit:`,
     incomingStatusLabel(eligibleRows[0].status || "ordered")
   ) || "").toLowerCase().replace(/\s*\/\s*/g, "_").replace(/\s+/g, "_");
   const aliases = {
     ordered:"ordered",
     in_transit:"in_transit",
-    transit:"in_transit",
-    issue_shorted:"issue_shorted",
-    issue:"issue_shorted",
-    shorted:"issue_shorted",
-    cancelled:"cancelled",
-    canceled:"cancelled"
+    transit:"in_transit"
   };
   const status = aliases[entered];
   if (!status) {
-    if (entered) alert("Status not recognized. Use Ordered, In Transit, Issue / Shorted, or Cancelled.");
+    if (entered) alert("Status not recognized. Use Ordered or In Transit.");
     return;
   }
-  if (status === "cancelled" && !confirm(`Cancel all ${eligibleRows.length} remaining line(s) on ${poNumber}? Cancelled quantities will not enter inventory.`)) return;
-  if (status !== "cancelled" && !confirm(`Apply ${incomingStatusLabel(status)} to all ${eligibleRows.length} open line(s) on ${poNumber}?`)) return;
+  if (!confirm(`Apply ${incomingStatusLabel(status)} to all ${eligibleRows.length} open line(s) on ${poNumber}?`)) return;
 
   const ids = eligibleRows.map(row => row.id).filter(Boolean);
   const updatedAt = new Date().toISOString();
