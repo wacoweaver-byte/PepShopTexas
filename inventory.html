@@ -639,8 +639,12 @@ header .header-actions .btn.secondary.active {
 .incoming-po-group { border-bottom:1px solid var(--line); }
 .incoming-po-group:last-child { border-bottom:0; }
 .incoming-po-list-head,
-.incoming-po-group-summary { display:grid; grid-template-columns:minmax(155px,1fr) 120px minmax(160px,1fr) 105px 115px 125px 105px; gap:10px; align-items:center; min-width:1040px; padding:10px 14px; }
+.incoming-po-group-summary { display:grid; grid-template-columns:minmax(155px,1fr) 120px minmax(160px,1fr) 115px 105px 115px 125px 105px; gap:10px; align-items:center; min-width:1160px; padding:10px 14px; }
 .incoming-po-list-head { background:#fff; border-bottom:1px solid var(--line); color:var(--muted); font-size:10px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; }
+.incoming-po-list-head > *,
+.incoming-po-group-summary > * { justify-self:center; text-align:center; }
+.incoming-po-list-head > :first-child,
+.incoming-po-group-summary > :first-child { justify-self:start; text-align:left; }
 .incoming-po-number-btn { border:0; padding:0; background:transparent; color:var(--blue); font-size:14px; font-weight:900; cursor:pointer; text-align:left; }
 .incoming-po-number-btn::before { content:"▸ "; }
 .incoming-po-group.open .incoming-po-number-btn::before { content:"▾ "; }
@@ -4883,7 +4887,7 @@ function renderIncomingPurchaseOrderCenter() {
   }
 
   container.innerHTML = `<div class="incoming-po-list-head">
-    <span>PO Number</span><span>Date of PO</span><span>Vendor</span><span>Days on Order</span>
+    <span>PO Number</span><span>Date of PO</span><span>Vendor</span><span>Status</span><span>Days on Order</span>
     <span>Add Tracking</span><span>Change Status</span><span>Receive All</span>
   </div>` + groups.map(group => {
     const isOpen = expandedIncomingPoNumbers.has(group.poNumber);
@@ -4900,7 +4904,8 @@ function renderIncomingPurchaseOrderCenter() {
         <button class="incoming-po-number-btn" type="button" data-toggle-po="${esc(group.poNumber)}">${esc(group.poNumber)}</button>
         <span>${esc(fmtShortDate(orderedAt))}</span>
         <span>${esc(vendorName)}</span>
-        <span>${daysOnOrder} day${daysOnOrder === 1 ? "" : "s"}<br><span class="incoming-pill ${esc(group.status.cls)}">${esc(group.status.label)}</span></span>
+        <span class="incoming-pill ${esc(group.status.cls)}">${esc(group.status.label)}</span>
+        <span>${daysOnOrder} day${daysOnOrder === 1 ? "" : "s"}</span>
         <button class="btn secondary" type="button" data-po-apply-tracking="${esc(group.poNumber)}" ${disabled}>Add Tracking</button>
         <button class="btn secondary" type="button" data-po-apply-status="${esc(group.poNumber)}" ${disabled}>Change Status</button>
         <button class="btn success" type="button" data-po-receive-all="${esc(group.poNumber)}" ${disabled}>Receive All</button>
