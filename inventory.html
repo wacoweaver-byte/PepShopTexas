@@ -3276,6 +3276,7 @@ td .inventory-readonly-value {
       <table class="incoming-table">
         <thead>
           <tr>
+            <th class="incoming-sortable" data-incoming-sort="po_number">PO Number</th>
             <th class="incoming-sortable" data-incoming-sort="product">Product</th>
             <th class="incoming-sortable" data-incoming-sort="vendor_item">Vendor Item #</th>
             <th class="incoming-sortable" data-incoming-sort="qty">Qty Ordered</th>
@@ -3290,7 +3291,7 @@ td .inventory-readonly-value {
           </tr>
         </thead>
         <tbody id="incomingInventoryBody">
-          <tr><td colspan="11" class="note">Loading incoming inventory...</td></tr>
+          <tr><td colspan="12" class="note">Loading incoming inventory...</td></tr>
         </tbody>
       </table>
     </div>
@@ -4421,6 +4422,7 @@ function incomingVendorItemNumber(itemOrRow) {
 
 function incomingSortValue(row, key) {
   const orderedAt = row.ordered_at || row.created_at || 0;
+  if (key === "po_number") return row.po_number || "";
   if (key === "product") return row.product_name || row.display_name || row.product_key || "";
   if (key === "vendor_item") return incomingVendorItemNumber(row);
   if (key === "qty") return Number(row.ordered_quantity || 0);
@@ -4491,6 +4493,7 @@ function normalizeIncomingRowForSupabase(row) {
   const totalCost = Number(row.total_cost ?? row.total_paid ?? row.amount_paid ?? 0) || (((qty / PST_KIT_VIAL_COUNT) * kitCost) + shippingCost);
   return {
     id: String(row.id || (crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}_${Math.random().toString(16).slice(2)}`)),
+    po_number: cleanText(row.po_number) || null,
     product_id: row.product_id ? String(row.product_id) : null,
     product_key: row.product_key || row.product_sku || row.sku || null,
     product_name: row.product_name || row.display_name || row.product_key || "Product",
@@ -4753,7 +4756,7 @@ function incomingAuditText(row) {
 function incomingEditRowHTML(row) {
   const id = esc(row.id);
   return `<tr class="incoming-edit-row" data-editing-incoming-id="${id}">
-    <td colspan="11">
+    <td colspan="12">
       <div class="incoming-edit-panel">
         <div class="incoming-edit-grid">
           <label>Date Ordered<input data-incoming-edit="${id}" data-field="ordered_at" type="date" value="${esc(incomingDateInputValue(row.ordered_at || row.created_at))}"></label>
@@ -4769,6 +4772,7 @@ function incomingEditRowHTML(row) {
           <button class="btn primary save-incoming-edit-btn" data-incoming-id="${id}" type="button">Save Changes</button>
           <button class="btn secondary apply-po-tracking-btn" data-incoming-id="${id}" type="button">Apply Tracking to PO</button>
           <button class="btn secondary apply-po-status-btn" data-incoming-id="${id}" type="button">Apply Status to PO</button>
+          <button class="btn success receive-entire-po-btn" data-incoming-id="${id}" type="button">Receive Entire PO</button>
           <button class="btn secondary close-incoming-edit-btn" type="button">Close</button>
         </div>
       </div>
@@ -4802,7 +4806,7 @@ function renderIncomingInventory() {
   if ($("incomingOverdueCount")) $("incomingOverdueCount").textContent = String(overdue.length);
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="11" class="note">No incoming inventory orders recorded yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="12" class="note">No incoming inventory orders recorded yet.</td></tr>`;
     bindIncomingSortableHeaders();
     return;
   }
@@ -4822,6 +4826,7 @@ function renderIncomingInventory() {
     const totalCost = incomingTotalCost(row);
     const auditClass = incomingAuditVisible ? "incoming-audit open" : "incoming-audit";
     const baseRow = `<tr data-incoming-id="${esc(row.id)}">
+      <td><strong>${esc(row.po_number || "Legacy PO")}</strong></td>
       <td><strong>${esc(row.product_name || row.display_name || row.product_key || "Product")}</strong><div class="note">${esc(row.product_key || "")}</div></td>
       <td><span class="vendor-item-number">${esc(incomingVendorItemNumber(row) || "—")}</span><div class="note">Products: Admin Only</div></td>
       <td><strong>${esc(qty)}</strong></td>
@@ -4870,6 +4875,12 @@ function renderIncomingInventory() {
     applyStatusToIncomingPurchaseOrder(btn.dataset.incomingId).catch(err => {
       console.error("Purchase order status update failed:", err);
       setStatus(err.message || "Purchase order status update failed.", "bad");
+    });
+  }));
+  document.querySelectorAll(".receive-entire-po-btn").forEach(btn => btn.addEventListener("click", () => {
+    receiveEntireIncomingPurchaseOrder(btn.dataset.incomingId).catch(err => {
+      console.error("Purchase order receipt failed:", err);
+      setStatus(err.message || "Purchase order could not be received.", "bad");
     });
   }));
   document.querySelectorAll(".close-incoming-edit-btn").forEach(btn => btn.addEventListener("click", () => {
@@ -4977,6 +4988,13 @@ async function addIncomingInventory() {
   const status = $("incomingStatus")?.value || "ordered";
   const userNote = $("incomingNotes")?.value.trim() || shortLoggedInUserName() || null;
   const orderGroupId = crypto?.randomUUID ? crypto.randomUUID() : `po_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  let poNumber = `PST-POLOCAL-${Date.now()}`;
+  if (incomingUsesSupabase) {
+    const { data: generatedPoNumber, error: poNumberError } = await db.rpc("next_incoming_po_number");
+    if (poNumberError) throw poNumberError;
+    poNumber = cleanText(generatedPoNumber);
+    if (!poNumber) throw new Error("A purchase order number could not be generated.");
+  }
 
   const rows = lines.map((line, index) => {
     const qty = Number(line.qty || 0);
@@ -4989,6 +5007,7 @@ async function addIncomingInventory() {
     const unitCost = incomingLandedUnitCost(qty, kitCost, allocatedShipping);
     return {
       id: crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}_${index}`,
+      po_number: poNumber,
       product_id: line.productId,
       product_key: line.productKey || null,
       product_name: line.productName,
@@ -5011,7 +5030,7 @@ async function addIncomingInventory() {
       updated_at: orderedAt,
       created_by: currentUser?.id || null,
       created_by_email: currentUser?.email || null,
-      audit_note: `Incoming purchase order ${orderGroupId}. Line ${index + 1} of ${lines.length}. Vendor ${vendor ? vendorLabel(vendor) : "not selected"}. Entered by ${shortLoggedInUserName()}. Qty ${qty} vial(s) (${kits.toFixed(2)} kit(s)). Kit cost ${incomingMoney(kitCost)} per 10-vial kit. Allocated shipping/fees ${incomingMoney(allocatedShipping)} from total PO shipping/fees ${incomingMoney(totalShipping)}. Blanket PO discount allocated ${incomingMoney(allocatedDiscount)} from total PO discount ${incomingMoney(totalDiscount)}. Discount reduces PO total only and does not change kit cost or landed cost per vial. Landed cost ${incomingMoney(unitCost)}/vial before blanket discount. Expected arrival ${fmtShortDate(expectedArrival)} using ${leadTimeDays}-day vendor lead time.`
+      audit_note: `Incoming purchase order ${poNumber} (${orderGroupId}). Line ${index + 1} of ${lines.length}. Vendor ${vendor ? vendorLabel(vendor) : "not selected"}. Entered by ${shortLoggedInUserName()}. Qty ${qty} vial(s) (${kits.toFixed(2)} kit(s)). Kit cost ${incomingMoney(kitCost)} per 10-vial kit. Allocated shipping/fees ${incomingMoney(allocatedShipping)} from total PO shipping/fees ${incomingMoney(totalShipping)}. Blanket PO discount allocated ${incomingMoney(allocatedDiscount)} from total PO discount ${incomingMoney(totalDiscount)}. Discount reduces PO total only and does not change kit cost or landed cost per vial. Landed cost ${incomingMoney(unitCost)}/vial before blanket discount. Expected arrival ${fmtShortDate(expectedArrival)} using ${leadTimeDays}-day vendor lead time.`
     };
   });
 
@@ -5042,7 +5061,7 @@ async function addIncomingInventory() {
   if ($("incomingNotes")) $("incomingNotes").value = "";
   setIncomingOrderDateToday(true);
   setIncomingUserField(true);
-  setStatus(`Incoming purchase order saved with ${rows.length} line(s). Shipping/fees allocated across ${totalKits.toFixed(2)} kit(s).`, "good");
+  setStatus(`${poNumber} saved with ${rows.length} line(s). Shipping/fees allocated across ${totalKits.toFixed(2)} kit(s).`, "good");
   await loadIncomingInventory();
 }
 
@@ -5068,6 +5087,13 @@ function incomingEditField(id, field) {
 }
 
 function incomingPurchaseOrderGroupRows(row) {
+  const poNumber = cleanText(row?.po_number);
+  if (poNumber) {
+    return incomingInventoryRows.filter(candidate =>
+      cleanText(candidate.po_number).toLowerCase() === poNumber.toLowerCase()
+    );
+  }
+
   const vendorId = cleanText(row?.vendor_id);
   const orderedDate = incomingDateInputValue(row?.ordered_at || row?.created_at);
   if (!vendorId || !orderedDate) return [];
@@ -5076,6 +5102,12 @@ function incomingPurchaseOrderGroupRows(row) {
     cleanText(candidate.vendor_id) === vendorId &&
     incomingDateInputValue(candidate.ordered_at || candidate.created_at) === orderedDate
   );
+}
+
+function incomingPurchaseOrderLabel(row) {
+  const poNumber = cleanText(row?.po_number);
+  if (poNumber) return poNumber;
+  return `${incomingDateInputValue(row?.ordered_at || row?.created_at)} / Vendor ID ${cleanText(row?.vendor_id) || "missing"}`;
 }
 
 async function applyTrackingToIncomingPurchaseOrder(id) {
@@ -5089,7 +5121,7 @@ async function applyTrackingToIncomingPurchaseOrder(id) {
     return;
   }
 
-  if (!cleanText(row.vendor_id)) {
+  if (!cleanText(row.po_number) && !cleanText(row.vendor_id)) {
     alert("This incoming order does not have a Vendor ID, so it cannot be matched by Date Ordered + Vendor ID.");
     return;
   }
@@ -5103,7 +5135,8 @@ async function applyTrackingToIncomingPurchaseOrder(id) {
   const orderedDate = incomingDateInputValue(row.ordered_at || row.created_at);
   const vendor = vendorForIncomingRow(row);
   const vendorName = vendor?.company_name || row.vendor_name || row.supplier_name || row.vendor_id;
-  const confirmed = confirm(`Apply tracking number ${trackingNumber} to all ${matchingRows.length} item line(s) ordered on ${orderedDate} from ${vendorName}?`);
+  const poLabel = incomingPurchaseOrderLabel(row);
+  const confirmed = confirm(`Apply tracking number ${trackingNumber} to all ${matchingRows.length} item line(s) on ${poLabel} from ${vendorName}?`);
   if (!confirmed) return;
 
   const matchingIds = matchingRows.map(candidate => candidate.id).filter(Boolean);
@@ -5129,7 +5162,7 @@ async function applyTrackingToIncomingPurchaseOrder(id) {
     saveIncomingLocalRows(incomingInventoryRows);
   }
 
-  setStatus(`Tracking ${trackingNumber} applied to ${matchingRows.length} purchase order line(s) for ${orderedDate} and Vendor ID ${row.vendor_id}.`, "good");
+  setStatus(`Tracking ${trackingNumber} applied to ${matchingRows.length} line(s) on ${poLabel}.`, "good");
   editingIncomingId = null;
   await loadIncomingInventory();
 }
@@ -5145,10 +5178,10 @@ async function applyStatusToIncomingPurchaseOrder(id) {
     return;
   }
   if (status === "received") {
-    alert("Received cannot be applied to an entire purchase order. Use each line's Receive button so physical inventory is increased correctly.");
+    alert("Use Receive Entire PO for a complete shipment, or use a line's Receive button for a partial shipment.");
     return;
   }
-  if (!cleanText(row.vendor_id)) {
+  if (!cleanText(row.po_number) && !cleanText(row.vendor_id)) {
     alert("This incoming order does not have a Vendor ID, so it cannot be matched by Date Ordered + Vendor ID.");
     return;
   }
@@ -5170,7 +5203,8 @@ async function applyStatusToIncomingPurchaseOrder(id) {
   const vendor = vendorForIncomingRow(row);
   const vendorName = vendor?.company_name || row.vendor_name || row.supplier_name || row.vendor_id;
   const protectedNote = protectedReceivedRows.length ? ` ${protectedReceivedRows.length} received line(s) will remain Received.` : "";
-  const confirmed = confirm(`Apply status ${incomingStatusLabel(status)} to ${rowsToUpdate.length} item line(s) ordered on ${orderedDate} from ${vendorName}?${protectedNote}`);
+  const poLabel = incomingPurchaseOrderLabel(row);
+  const confirmed = confirm(`Apply status ${incomingStatusLabel(status)} to ${rowsToUpdate.length} item line(s) on ${poLabel} from ${vendorName}?${protectedNote}`);
   if (!confirmed) return;
 
   const matchingIds = rowsToUpdate.map(candidate => candidate.id).filter(Boolean);
@@ -5196,9 +5230,66 @@ async function applyStatusToIncomingPurchaseOrder(id) {
     saveIncomingLocalRows(incomingInventoryRows);
   }
 
-  setStatus(`${incomingStatusLabel(status)} applied to ${rowsToUpdate.length} purchase order line(s) for ${orderedDate} and Vendor ID ${row.vendor_id}.${protectedNote}`, "good");
+  setStatus(`${incomingStatusLabel(status)} applied to ${rowsToUpdate.length} line(s) on ${poLabel}.${protectedNote}`, "good");
   editingIncomingId = null;
   await loadIncomingInventory();
+}
+
+async function receiveEntireIncomingPurchaseOrder(id) {
+  const row = incomingInventoryRows.find(candidate => String(candidate.id) === String(id));
+  if (!row) return;
+
+  const poNumber = cleanText(row.po_number);
+  if (!poNumber) {
+    alert("This legacy incoming order does not have a PO number. Reload the page after the PO-number update is installed.");
+    return;
+  }
+  if (!incomingUsesSupabase) {
+    alert("Receive Entire PO requires the shared Supabase incoming inventory connection.");
+    return;
+  }
+
+  const groupRows = incomingPurchaseOrderGroupRows(row);
+  const alreadyReceived = groupRows.filter(candidate => String(candidate.status || "").toLowerCase() === "received");
+  const cancelledRows = groupRows.filter(candidate => String(candidate.status || "").toLowerCase() === "cancelled");
+  const rowsToReceive = groupRows.filter(candidate => !["received", "cancelled"].includes(String(candidate.status || "").toLowerCase()));
+
+  if (!rowsToReceive.length) {
+    alert(alreadyReceived.length ? `${poNumber} has already been fully received.` : `${poNumber} has no eligible lines to receive.`);
+    return;
+  }
+
+  const missingProducts = rowsToReceive.filter(incomingRow => !allItems.some(item =>
+    String(item.id) === String(incomingRow.product_id) ||
+    cleanText(item.product_key).toLowerCase() === cleanText(incomingRow.product_key).toLowerCase()
+  ));
+  if (missingProducts.length) {
+    alert(`Cannot receive ${poNumber}. ${missingProducts.length} line(s) could not be matched to physical inventory.`);
+    return;
+  }
+
+  const totalQty = rowsToReceive.reduce((sum, candidate) => sum + Number(candidate.ordered_quantity || 0), 0);
+  const lineSummary = rowsToReceive
+    .map(candidate => `• ${candidate.product_name || candidate.product_key || "Product"} — ${Number(candidate.ordered_quantity || 0)} vial(s)`)
+    .join("\n");
+  const skipped = [
+    alreadyReceived.length ? `${alreadyReceived.length} already received` : "",
+    cancelledRows.length ? `${cancelledRows.length} cancelled` : ""
+  ].filter(Boolean).join(", ");
+  const skipNote = skipped ? `\n\nProtected/skipped: ${skipped}.` : "";
+  const confirmed = confirm(
+    `Receive ${poNumber} in one transaction?\n\n${lineSummary}\n\nTotal: ${rowsToReceive.length} line(s), ${totalQty} vial(s).${skipNote}\n\nConfirm only after every vial has been inspected and counted.`
+  );
+  if (!confirmed) return;
+
+  const { data, error } = await db.rpc("receive_incoming_purchase_order", { p_po_number: poNumber });
+  if (error) throw error;
+
+  const receivedLines = Number(data?.received_lines ?? rowsToReceive.length);
+  const receivedVials = Number(data?.received_vials ?? totalQty);
+  editingIncomingId = null;
+  setStatus(`${poNumber} received: ${receivedLines} line(s), ${receivedVials} vial(s). Physical inventory and movement history were updated together.`, "good");
+  await loadInventory();
 }
 
 async function saveIncomingEdit(id) {
