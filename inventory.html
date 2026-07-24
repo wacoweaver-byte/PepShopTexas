@@ -651,6 +651,7 @@ header .header-actions .btn.secondary.active {
 .incoming-po-line-table th { position:static; }
 .incoming-po-line-select-cell { width:42px; text-align:center; }
 .incoming-po-empty { padding:14px; color:var(--muted); }
+.incoming-line-register { display:none !important; }
 @media(max-width:1150px){ .incoming-form-grid { grid-template-columns:1fr 1fr; } .incoming-summary-grid { grid-template-columns:1fr 1fr; } }
 @media(max-width:1100px){ .incoming-edit-grid { grid-template-columns:1fr 1fr; } }
 @media(max-width:640px){ .incoming-form-grid,.incoming-summary-grid,.incoming-edit-grid { grid-template-columns:1fr; } }
@@ -3301,7 +3302,7 @@ td .inventory-readonly-value {
       </div>
     </div>
     <div class="incoming-note" id="incomingInventoryNote">Date ordered is editable. Expected arrival uses the selected vendor standard lead time. Add one or more product lines to the same incoming purchase order. Kit cost is auto-calculated from each product's cost per vial × 10. Use Kit Cost Override only when needed. PO Discount is a blanket vendor/order discount against the purchase order total only; it does not change kit cost or landed cost per vial. Shipping/fees are allocated by kit count.</div>
-    <div class="incoming-table-wrap">
+    <div class="incoming-table-wrap incoming-line-register" aria-hidden="true">
       <table class="incoming-table">
         <thead>
           <tr>
@@ -4913,7 +4914,7 @@ function renderIncomingPurchaseOrderCenter() {
           <table class="incoming-po-line-table">
             <thead><tr>
               <th class="incoming-po-line-select-cell"><input type="checkbox" data-po-select-all="${esc(group.poNumber)}" ${allSelected ? "checked" : ""} aria-label="Select all eligible lines on ${esc(group.poNumber)}"></th>
-              <th>Product</th><th>Vendor Item #</th><th>Qty</th><th>Status</th><th>Date Ordered</th>
+              <th>Product</th><th>Vendor Item #</th><th>Qty</th><th>Status</th><th>Date Ordered</th><th>Action</th>
             </tr></thead>
             <tbody>${group.rows.map(row => {
               const status = String(row.status || "ordered").toLowerCase();
@@ -4926,6 +4927,7 @@ function renderIncomingPurchaseOrderCenter() {
                 <td><strong>${Number(row.ordered_quantity || 0)}</strong></td>
                 <td>${incomingStatusPill(status)}</td>
                 <td>${esc(fmtShortDate(row.ordered_at || row.created_at))}</td>
+                <td><button class="btn danger" type="button" data-po-cancel-line="${esc(row.id)}" ${eligible ? "" : "disabled"}>Cancel Line</button></td>
               </tr>`;
             }).join("")}</tbody>
           </table>
@@ -4983,6 +4985,12 @@ function bindIncomingPurchaseOrderCenterEvents() {
     receivePurchaseOrderLines(button.dataset.poReceiveAll, true).catch(error => {
       console.error(error);
       setStatus(error.message || "The PO could not be received.", "bad");
+    })
+  ));
+  document.querySelectorAll("[data-po-cancel-line]").forEach(button => button.addEventListener("click", () =>
+    updateIncomingStatus(button.dataset.poCancelLine, "cancelled").catch(error => {
+      console.error(error);
+      setStatus(error.message || "The PO line could not be cancelled.", "bad");
     })
   ));
 }
