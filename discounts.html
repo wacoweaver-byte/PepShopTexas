@@ -1118,6 +1118,10 @@ body:has(.discount-row.selected) #formModeBadge.form-mode-badge {
   }
 }
 </style>
+
+<style id="pst-discount-assignment-cards">
+.active-discount-grid{display:grid;gap:12px}.assignment-card{border:1px solid var(--pst-border);border-radius:14px;background:#fff;overflow:hidden}.assignment-card summary{cursor:pointer;list-style:none;padding:14px;display:grid;grid-template-columns:minmax(150px,.7fr) minmax(130px,.6fr) minmax(160px,1fr) auto;gap:12px;align-items:center}.assignment-card summary::-webkit-details-marker{display:none}.assignment-card-code{font-weight:900;color:#bd0000}.assignment-card-meta{display:block;color:var(--pst-muted);font-size:12px;margin-top:3px}.assignment-card-body{padding:14px;border-top:1px solid var(--pst-border);background:#fbfcfe}.assignment-controls{display:grid;grid-template-columns:minmax(220px,320px) auto 1fr;gap:10px;align-items:end}.customer-manager{margin-top:12px}.customer-manager[hidden]{display:none!important}.customer-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) auto auto;gap:8px;margin-bottom:10px}.customer-checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:330px;overflow:auto;padding:4px}.customer-choice{display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;align-items:start;padding:9px;border:1px solid var(--pst-border);border-radius:10px;background:#fff;color:var(--pst-dark);text-transform:none;letter-spacing:0;font-size:13px;font-weight:500}.customer-choice input{width:18px;min-height:18px;margin:1px 0 0}.customer-choice strong{display:block;color:var(--pst-dark)}.customer-choice span span{display:block;color:var(--pst-muted);font-size:11px;margin-top:2px}.assignment-empty{padding:14px;color:var(--pst-muted);border:1px dashed var(--pst-border);border-radius:10px}@media(max-width:760px){.assignment-card summary,.assignment-controls,.customer-toolbar{grid-template-columns:1fr}.customer-checklist{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <header class="pst-admin-header">
@@ -1141,6 +1145,12 @@ body:has(.discount-row.selected) #formModeBadge.form-mode-badge {
 <main>
   <div id="statusLine" class="status-line">Checking admin access...</div>
 
+  <section class="card" id="activeDiscountAssignmentsCard" style="margin-top:18px;">
+    <div class="card-header"><div><h2>Active Discount Customer Assignments</h2><div class="muted" style="margin-top:4px;">Choose All Customers or assign specific customer accounts to each active discount.</div></div><button class="btn secondary" id="refreshAssignmentsBtn" type="button">Refresh</button></div>
+    <div class="card-body"><div id="activeDiscountCards" class="active-discount-grid"><div class="muted">Loading active discounts and customers...</div></div><div id="assignmentStatus" class="status-line" style="margin-top:12px;">Customer assignments load from Supabase.</div></div>
+  </section>
+
+
   <section class="card" style="margin-top:18px;">
     <div class="card-header">
       <h2>Create / Manage Discount <span id="formModeBadge" class="form-mode-badge">New</span></h2>
@@ -1156,7 +1166,6 @@ body:has(.discount-row.selected) #formModeBadge.form-mode-badge {
         <div class="field"><label for="discountTypeAdmin">Type</label><select id="discountTypeAdmin"><option value="standard">Standard</option><option value="one_time">One-time use</option><option value="friends_family">Friends & Family / Permanent</option></select><span class="field-hint">Controls how the discount can be used.</span></div>
         <div class="field"><label for="discountPercentAdmin">Percent Off</label><input id="discountPercentAdmin" type="number" min="0" max="100" step="0.01" placeholder="15" /><span class="field-hint">Shows as the percentage discount, if used.</span></div>
         <div class="field"><label for="discountAmountAdmin">Dollar Off</label><input id="discountAmountAdmin" type="number" min="0" step="0.01" placeholder="20.00" /><span class="field-hint">Shows as the dollar discount, if used instead of percent.</span></div>
-        <div class="field"><label for="discountEmailAdmin">Assigned Email</label><input id="discountEmailAdmin" type="email" placeholder="Optional customer@email.com" /><span class="field-hint">Limits the code to one customer email when filled in.</span></div>
         <div class="field"><label for="discountExpiresAdmin">Expiration Date</label><input id="discountExpiresAdmin" type="date" /><span class="field-hint">When the code/promotion expires.</span></div>
         <div class="field"><label for="discountMaxUsesAdmin">Max Uses</label><input id="discountMaxUsesAdmin" type="number" min="0" step="1" placeholder="0 = unlimited" /><span class="field-hint">Limits total use count. 0 means unlimited.</span></div>
         <div class="field"><label for="discountActiveAdmin">Status</label><select id="discountActiveAdmin"><option value="true">Active</option><option value="false">Inactive</option></select><span class="field-hint">Inactive codes will not be usable.</span></div>
@@ -1184,7 +1193,7 @@ body:has(.discount-row.selected) #formModeBadge.form-mode-badge {
         <div class="muted" style="margin-bottom:8px;"><strong>Saved Discounts & Promotions:</strong> click any row to load its full details back into the form above.</div>
         <table>
           <thead>
-            <tr><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Email</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
+            <tr><th>Code</th><th>Promotion</th><th>Hero Banner Text</th><th>Type</th><th>Discount</th><th>Audience</th><th>Uses</th><th>Expires</th><th>Promo Banner</th><th>Status</th></tr>
           </thead>
           <tbody id="discountCodesBody"><tr><td colspan="10" class="muted">Loading discount codes...</td></tr></tbody>
         </table>
@@ -1200,6 +1209,8 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let discountRows = [];
+let customerRows = [];
+let assignmentRows = [];
 let selectedDiscountCode = null;
 const $ = (id) => document.getElementById(id);
 
@@ -1254,7 +1265,7 @@ function setFormMode(mode, code = "") {
 
 function resetDiscountForm() {
   selectedDiscountCode = null;
-  ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","discountEmailAdmin","discountExpiresAdmin","discountMaxUsesAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin","promoStartsAdmin","promoEndsAdmin"].forEach(id => {
+  ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","discountExpiresAdmin","discountMaxUsesAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin","promoStartsAdmin","promoEndsAdmin"].forEach(id => {
     const el = $(id);
     if (el) el.value = "";
   });
@@ -1279,7 +1290,6 @@ function selectDiscountCode(code) {
   setVal("discountTypeAdmin", row.discount_type || "standard");
   setVal("discountPercentAdmin", Number(row.percent_off || row.discount_percent || 0) || "");
   setVal("discountAmountAdmin", Number(row.amount_off || row.discount_amount || 0) || "");
-  setVal("discountEmailAdmin", row.assigned_email || "");
   setVal("discountExpiresAdmin", toDateInputValue(row.expires_at));
   setVal("discountMaxUsesAdmin", Number(row.max_uses || 0) || "");
   setVal("discountActiveAdmin", row.active ? "true" : "false");
@@ -1347,6 +1357,50 @@ async function checkAdminAccess() {
   return true;
 }
 
+
+function setAssignmentStatus(message,type=""){const el=$("assignmentStatus");if(!el)return;el.textContent=message;el.className="status-line";if(type)el.classList.add(type);}
+function customerDisplayName(row){return [row.first_name,row.last_name].filter(Boolean).join(" ").trim()||row.email||"Customer";}
+function assignedCustomerIds(id){return new Set(assignmentRows.filter(row=>String(row.discount_id)===String(id)).map(row=>String(row.customer_id)));}
+function assignmentCountForDiscount(id){return assignmentRows.filter(row=>String(row.discount_id)===String(id)).length;}
+function renderActiveDiscountCards(){
+ const host=$("activeDiscountCards");if(!host)return;const now=Date.now();
+ const active=discountRows.filter(row=>row.active===true&&(!row.expires_at||new Date(row.expires_at).getTime()>=now));
+ if(!active.length){host.innerHTML='<div class="assignment-empty">No active discounts are available.</div>';return;}
+ host.innerHTML=active.map(row=>{
+  const audience=row.audience==="selected"?"selected":"all", assigned=assignedCustomerIds(row.id), count=assigned.size;
+  const customers=customerRows.map(customer=>{
+   const id=String(customer.user_id||""),name=customerDisplayName(customer),number=customer.customer_number?"PST-C"+customer.customer_number:"No customer number",search=[name,number,customer.email].filter(Boolean).join(" ").toLowerCase();
+   return '<label class="customer-choice" data-customer-search-text="'+safe(search)+'"><input type="checkbox" data-assignment-customer value="'+safe(id)+'"'+(assigned.has(id)?" checked":"")+'><span><strong>'+safe(name)+'</strong><span>'+safe(number)+' · '+safe(customer.email||"")+'</span></span></label>';
+  }).join("");
+  return '<details class="assignment-card" data-assignment-card="'+safe(row.id)+'"><summary><span><span class="assignment-card-code">'+safe(row.code)+'</span><span class="assignment-card-meta">'+safe(discountLabelFromRow(row))+'</span></span><span><strong>'+(audience==="all"?"All Customers":count+" Selected")+'</strong><span class="assignment-card-meta">Audience</span></span><span>'+(row.expires_at?"Expires "+safe(formatDate(row.expires_at)):"No expiration")+'</span><span class="discount-pill promo-on">Active</span></summary><div class="assignment-card-body"><div class="assignment-controls"><div class="field"><label>Audience</label><select data-assignment-audience><option value="all"'+(audience==="all"?" selected":"")+'>All Customers</option><option value="selected"'+(audience==="selected"?" selected":"")+'>Selected Customers</option></select></div><button class="btn success" type="button" data-save-assignments>Save Assignments</button><span class="muted" data-assignment-count>'+count+' customer'+(count===1?"":"s")+' selected</span></div><div class="customer-manager"'+(audience==="selected"?"":" hidden")+' data-customer-manager><div class="customer-toolbar"><input type="search" data-customer-assignment-search placeholder="Search name, customer number, or email"><button class="btn secondary" type="button" data-select-visible-customers>Select Visible</button><button class="btn secondary" type="button" data-clear-customers>Clear All</button></div><div class="customer-checklist">'+(customers||'<div class="assignment-empty">No customer accounts found.</div>')+'</div></div></div></details>';
+ }).join("");bindAssignmentCardEvents();
+}
+function updateAssignmentCardCount(card){const count=card.querySelectorAll("[data-assignment-customer]:checked").length,label=card.querySelector("[data-assignment-count]");if(label)label.textContent=count+" customer"+(count===1?"":"s")+" selected";}
+function bindAssignmentCardEvents(){
+ document.querySelectorAll("[data-assignment-card]").forEach(card=>{
+  const audience=card.querySelector("[data-assignment-audience]"),manager=card.querySelector("[data-customer-manager]");
+  audience?.addEventListener("change",()=>{if(manager)manager.hidden=audience.value!=="selected";});
+  card.querySelector("[data-customer-assignment-search]")?.addEventListener("input",event=>{const q=String(event.target.value||"").trim().toLowerCase();card.querySelectorAll(".customer-choice").forEach(choice=>{choice.hidden=Boolean(q)&&!String(choice.dataset.customerSearchText||"").includes(q);});});
+  card.querySelector("[data-select-visible-customers]")?.addEventListener("click",()=>{card.querySelectorAll(".customer-choice:not([hidden]) [data-assignment-customer]").forEach(box=>{box.checked=true;});updateAssignmentCardCount(card);});
+  card.querySelector("[data-clear-customers]")?.addEventListener("click",()=>{card.querySelectorAll("[data-assignment-customer]").forEach(box=>{box.checked=false;});updateAssignmentCardCount(card);});
+  card.querySelectorAll("[data-assignment-customer]").forEach(box=>box.addEventListener("change",()=>updateAssignmentCardCount(card)));
+  card.querySelector("[data-save-assignments]")?.addEventListener("click",()=>saveDiscountAssignments(card));
+ });
+}
+async function loadDiscountAudienceData(){
+ const result=await Promise.all([supabaseClient.from("customer_profiles").select("user_id,first_name,last_name,email,customer_number,account_status").order("first_name",{ascending:true}),supabaseClient.from("discount_customer_assignments").select("discount_id,customer_id")]);
+ if(result[0].error)throw result[0].error;if(result[1].error)throw result[1].error;
+ customerRows=(result[0].data||[]).filter(row=>String(row.account_status||"active").toLowerCase()!=="deleted");assignmentRows=result[1].data||[];renderActiveDiscountCards();
+}
+async function saveDiscountAssignments(card){
+ const id=card.dataset.assignmentCard,audience=card.querySelector("[data-assignment-audience]")?.value||"all",customerIds=[...card.querySelectorAll("[data-assignment-customer]:checked")].map(box=>box.value);
+ if(audience==="selected"&&!customerIds.length){setAssignmentStatus("Select at least one customer or change the audience to All Customers.","bad");return;}
+ const button=card.querySelector("[data-save-assignments]");if(button){button.disabled=true;button.textContent="Saving...";}setAssignmentStatus("Saving customer assignments...");
+ const result=await supabaseClient.rpc("admin_set_discount_customer_assignments",{p_discount_id:id,p_audience:audience,p_customer_ids:customerIds});
+ if(result.error){if(button){button.disabled=false;button.textContent="Save Assignments";}setAssignmentStatus(result.error.message,"bad");return;}
+ await Promise.all([loadDiscountCodes(),loadDiscountAudienceData()]);setAssignmentStatus("Discount audience and customer assignments saved.","good");
+}
+
 async function loadDiscountCodes() {
   const body = $("discountCodesBody");
   if (!body) return;
@@ -1362,6 +1416,7 @@ async function loadDiscountCodes() {
   }
 
   discountRows = data || [];
+  renderActiveDiscountCards();
 
   if (!discountRows.length) {
     body.innerHTML = `<tr><td colspan="10" class="muted">No discount codes yet.</td></tr>`;
@@ -1381,7 +1436,7 @@ async function loadDiscountCodes() {
       <td>${safe(heroText)}</td>
       <td>${safe(row.discount_type || "standard")}</td>
       <td>${safe(discountText)}</td>
-      <td>${safe(row.assigned_email || "Any customer")}</td>
+      <td>${row.audience === "selected" ? safe(assignmentCountForDiscount(row.id) + " selected") : "All customers"}</td>
       <td>${uses}</td>
       <td>${row.expires_at ? formatDate(row.expires_at) : "No expiration"}</td>
       <td><span class="discount-pill ${promoClass}">${row.hero_banner_active ? "Homepage" : "Off"}</span></td>
@@ -1399,7 +1454,6 @@ async function createDiscountCode() {
   const discountType = $("discountTypeAdmin")?.value || "standard";
   const percentOff = Number($("discountPercentAdmin")?.value || 0);
   const amountOff = Number($("discountAmountAdmin")?.value || 0);
-  const assignedEmail = ($("discountEmailAdmin")?.value || "").trim().toLowerCase() || null;
   const expiresValue = $("discountExpiresAdmin")?.value || "";
   const maxUsesRaw = Number($("discountMaxUsesAdmin")?.value || 0);
   const active = ($("discountActiveAdmin")?.value || "true") === "true";
@@ -1414,12 +1468,14 @@ async function createDiscountCode() {
   if (percentOff <= 0 && amountOff <= 0) return setDiscountAdminStatus("Enter either a percent off or dollar off amount.", "bad");
   if (percentOff > 100) return setDiscountAdminStatus("Percent off cannot be more than 100%.", "bad");
 
+  const existingDiscount = discountRows.find(row => String(row.code || "").toUpperCase() === code);
   const payload = {
     code,
     discount_type: discountType,
     percent_off: percentOff || 0,
     amount_off: amountOff || 0,
-    assigned_email: assignedEmail,
+    assigned_email: null,
+    audience: existingDiscount?.audience || "all",
     one_time_use: discountType === "one_time",
     max_uses: maxUsesRaw || (discountType === "one_time" ? 1 : null),
     active,
@@ -1447,7 +1503,8 @@ async function createDiscountCode() {
 
 async function init() {
   try {
-    $("refreshBtn")?.addEventListener("click", loadDiscountCodes);
+    $("refreshBtn")?.addEventListener("click", async () => { await Promise.all([loadDiscountCodes(), loadDiscountAudienceData()]); });
+    $("refreshAssignmentsBtn")?.addEventListener("click", async () => { await Promise.all([loadDiscountCodes(), loadDiscountAudienceData()]); setAssignmentStatus("Assignments refreshed.", "good"); });
     $("createDiscountBtn").addEventListener("click", createDiscountCode);
     $("newDiscountBtn")?.addEventListener("click", resetDiscountForm);
     ["discountCodeAdmin","discountPercentAdmin","discountAmountAdmin","promoTitleAdmin","promoDescriptionAdmin","heroBannerTextAdmin"].forEach(id => {
@@ -1462,7 +1519,8 @@ async function init() {
     const isAdmin = await checkAdminAccess();
     if (!isAdmin) return;
 
-    await loadDiscountCodes();
+    await Promise.all([loadDiscountCodes(), loadDiscountAudienceData()]);
+    renderActiveDiscountCards();
     updatePromotionPreview();
   } catch (error) {
     console.error(error);
