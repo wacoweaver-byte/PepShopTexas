@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V33_APPLY_STOCK_LIMITS_TO_ALL -->
 <!-- PST_INVENTORY_PATCH_V32_PO_CUSTOMER_STATUS_ONLY -->
 <!-- PST_INVENTORY_PATCH_V31_PO_STATUS_COLUMN_CENTERED -->
 <!-- PST_INVENTORY_PATCH_V28_REPORT_WRITER_PO_HANDOFF -->
@@ -3072,6 +3073,50 @@ td .inventory-readonly-value {
   }
 }
 </style>
+<style id="pst-inventory-global-stock-limits">
+  .inventory-global-thresholds {
+    padding: 12px 14px !important;
+    border-bottom: 1px solid var(--line) !important;
+    background: #fbfcff !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .inventory-global-thresholds-copy {
+    flex: 1 1 300px !important;
+    align-self: center !important;
+    margin: 0 !important;
+  }
+
+  .inventory-global-thresholds .field {
+    flex: 0 0 150px !important;
+  }
+
+  .inventory-global-thresholds input {
+    width: 150px !important;
+    min-height: 38px !important;
+  }
+
+  #applyStockLimitsAllBtn {
+    flex: 0 0 auto !important;
+  }
+
+  @media (max-width: 640px) {
+    .inventory-global-thresholds {
+      align-items: stretch !important;
+    }
+
+    .inventory-global-thresholds-copy,
+    .inventory-global-thresholds .field,
+    .inventory-global-thresholds input,
+    #applyStockLimitsAllBtn {
+      width: 100% !important;
+      flex-basis: 100% !important;
+    }
+  }
+</style>
 </head>
 <body>
 <header class="pst-admin-header">
@@ -3374,6 +3419,21 @@ td .inventory-readonly-value {
         <button class="btn warning" id="importProductsBtn" type="button">Import products.json</button>
         <button class="btn success" id="saveDirtyBtn" type="button">Save Edited Rows</button>
       </div>
+    </div>
+
+    <div class="inventory-global-thresholds" aria-label="Apply stock limits to all products">
+      <p class="note inventory-global-thresholds-copy">
+        Set the automatic stock-status limits for every product at once. Individual rows can still be changed afterward.
+      </p>
+      <div class="field">
+        <label for="globalLowStockThreshold">Low Stock Through</label>
+        <input id="globalLowStockThreshold" type="number" min="0" step="1" value="5">
+      </div>
+      <div class="field">
+        <label for="globalLimitedStockThreshold">Limited Through</label>
+        <input id="globalLimitedStockThreshold" type="number" min="0" step="1" value="10">
+      </div>
+      <button class="btn success" id="applyStockLimitsAllBtn" type="button">Apply Limits to All Products</button>
     </div>
 
     <div class="bulk">
@@ -6053,6 +6113,8 @@ async function saveRow(id) {
 
   const catalogUpdates = {
     current_inventory: Number(data.current_inventory || 0),
+    low_stock_threshold: Number(data.low_stock_threshold || 5),
+    limited_stock_threshold: Number(data.limited_stock_threshold || 10),
     updated_at: data.updated_at
   };
   const catalogKeys = [...new Set([original._catalog_product_key, original.product_key].map(cleanText).filter(Boolean))];
@@ -6080,6 +6142,87 @@ async function saveDirtyRows() {
   }
   for (const id of ids) await saveRow(id);
   setStatus(`Saved ${ids.length} edited row${ids.length === 1 ? "" : "s"}.`, "good");
+}
+
+async function applyStockLimitsToAllProducts() {
+  const low = Number($("globalLowStockThreshold")?.value);
+  const limited = Number($("globalLimitedStockThreshold")?.value);
+
+  if (!Number.isInteger(low) || low < 0) {
+    alert("Low Stock Through must be a whole number of zero or greater.");
+    $("globalLowStockThreshold")?.focus();
+    return;
+  }
+
+  if (!Number.isInteger(limited) || limited < low) {
+    alert("Limited Through must be a whole number equal to or greater than the Low Stock limit.");
+    $("globalLimitedStockThreshold")?.focus();
+    return;
+  }
+
+  if (!allItems.length) {
+    alert("No inventory products are loaded.");
+    return;
+  }
+
+  const message =
+    `Apply these automatic stock limits to all ${allItems.length} products?\n\n` +
+    `0 = Out of Stock\n` +
+    `1–${low} = Low Stock\n` +
+    `${low + 1}–${limited} = Limited\n` +
+    `${limited + 1}+ = In Stock\n\n` +
+    `Individual product limits can still be changed afterward.`;
+
+  if (!confirm(message)) return;
+
+  const button = $("applyStockLimitsAllBtn");
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Applying...";
+  }
+
+  try {
+    const ids = allItems.map(item => item.id).filter(Boolean);
+    const updatedAt = new Date().toISOString();
+    const { error } = await db
+      .from("product_inventory")
+      .update({
+        low_stock_threshold: low,
+        limited_stock_threshold: limited,
+        status_override: null,
+        updated_at: updatedAt
+      })
+      .in("id", ids);
+
+    if (error) throw error;
+
+    const productKeys = allItems
+      .flatMap(item => [item._catalog_product_key, item.product_key])
+      .map(cleanText)
+      .filter(Boolean);
+    const uniqueProductKeys = [...new Set(productKeys)];
+    const { error: catalogError } = await db
+      .from("product_catalog")
+      .update({
+        low_stock_threshold: low,
+        limited_stock_threshold: limited,
+        updated_at: updatedAt
+      })
+      .in("product_key", uniqueProductKeys);
+
+    if (catalogError) throw catalogError;
+
+    setStatus(
+      `Applied stock limits to ${ids.length} products: Low Stock 1–${low}, Limited ${low + 1}–${limited}, and In Stock ${limited + 1}+.`,
+      "good"
+    );
+    await loadInventory();
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Apply Limits to All Products";
+    }
+  }
 }
 
 async function bulkUpdate(type) {
@@ -6318,6 +6461,12 @@ function wireEvents() {
 
   $("importProductsBtn")?.addEventListener("click", importProductsJson);
   $("saveDirtyBtn")?.addEventListener("click", saveDirtyRows);
+  $("applyStockLimitsAllBtn")?.addEventListener("click", () => {
+    applyStockLimitsToAllProducts().catch(err => {
+      console.error("Bulk stock limit update failed:", err);
+      setStatus(err.message || "Stock limits could not be applied to all products.", "bad");
+    });
+  });
   $("bulkOutBtn")?.addEventListener("click", () => bulkUpdate("out_of_stock"));
 }
 
