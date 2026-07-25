@@ -797,7 +797,7 @@ function summaryHtml(rows, context = {}) {
   return `
     <h2>Order Summary</h2>
     <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(totals.subtotal)}</strong></div>
-    ${totals.discount > 0 ? `<div class="summary-line"><span>Discount (${escapeHtml(appliedCartDiscount?.code || "Code")})</span><strong>-${formatMoney(totals.discount)}</strong></div>` : ""}
+    ${totals.discount > 0 ? `<div class="summary-line" data-promo-discount-line><span>Discount (${escapeHtml(appliedCartDiscount?.code || "Code")})</span><strong>-${formatMoney(totals.discount)}</strong></div>` : ""}
     <div class="summary-line"><span>Shipping — USPS Priority Mail 3 Day</span><strong>${formatMoney(totals.shipping)}</strong></div>
     <div class="summary-line"><span data-summary-tax-label>Tax ${escapeHtml(totals.taxLabel)}</span><strong data-summary-tax-amount>${totals.taxRegion ? formatMoney(totals.tax) : ""}</strong></div>
     ${storeCredit.balance > 0 ? `<div class="summary-line" data-available-store-credit="${Number(storeCredit.balance || 0)}"><span>Available Store Credit</span><strong>${formatMoney(storeCredit.balance)}</strong></div><div class="summary-line" data-store-credit-applied-line hidden><span>Store Credit Applied</span><strong>-${formatMoney(0)}</strong></div>` : ""}
