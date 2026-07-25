@@ -1701,10 +1701,11 @@ function productStockThresholds(product = {}) {
 
 function stockText(product) {
   const count = Number(product.current_inventory || 0);
-  const { limited } = productStockThresholds(product);
+  const { low, limited } = productStockThresholds(product);
   if (count <= 0) return "Out of Stock";
+  if (count <= low) return "Low Stock";
   if (count <= limited) return "Limited";
-  return "";
+  return "In Stock";
 }
 
 function stockClass(product) {
