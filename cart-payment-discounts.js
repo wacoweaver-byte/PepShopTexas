@@ -167,7 +167,8 @@
     const subtotalText = document.querySelector("[data-cart-summary] .summary-line:first-of-type strong")?.textContent || "";
     const subtotal = parsePaymentMoney(subtotalText);
     const rate = paymentDiscountRate(methodId);
-    const discount = roundPaymentDiscount(subtotal * rate);
+    const promotionalDiscountApplied = Boolean(document.querySelector("[data-promo-discount-line]"));
+    const discount = promotionalDiscountApplied ? 0 : roundPaymentDiscount(subtotal * rate);
     const line = document.querySelector("[data-payment-discount-line]");
     const message = document.querySelector("[data-payment-discount-message]");
     const totalDisplay = document.querySelector("[data-cart-total-display]");
@@ -205,6 +206,9 @@
         const base = paymentMethodLabels[methodId] || "this payment method";
         message.hidden = false;
         message.textContent = `✓ Payment discount applied. You saved ${formatPaymentMoney(discount)} by paying with ${base}.`;
+      } else if (promotionalDiscountApplied && rate > 0) {
+        message.hidden = false;
+        message.textContent = "The promotional code is applied, so the payment-method discount is not combined with it.";
       } else {
         message.textContent = "";
         message.hidden = true;
