@@ -86,8 +86,11 @@
 
   function improvedStockText(product = {}) {
     const count = Number(product.current_inventory || 0);
+    const low = Math.max(0, Number(product.low_stock_threshold ?? 5) || 0);
+    const limited = Math.max(low, Number(product.limited_stock_threshold ?? 10) || 0);
     if (count <= 0) return "Out of Stock";
-    if (count <= 10) return "Limited";
+    if (count <= low) return "Low Stock";
+    if (count <= limited) return "Limited";
     return "In Stock";
   }
 
