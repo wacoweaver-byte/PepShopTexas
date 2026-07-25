@@ -1705,7 +1705,7 @@ function stockText(product) {
   if (count <= 0) return "Out of Stock";
   if (count <= low) return "Low Stock";
   if (count <= limited) return "Limited";
-  return "In Stock";
+  return "";
 }
 
 function stockClass(product) {
