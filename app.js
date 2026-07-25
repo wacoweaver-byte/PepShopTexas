@@ -4,7 +4,7 @@ const CART_KEY = "pst_cart_v1";
 const REORDER_NOTICE_KEY = "pst_reorder_notice_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const ADMIN_ORDER_NOTIFICATION_EMAILS = ["wacoweaver@gmail.com"];
-const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
+const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,is_active,starts_at,ends_at,sort_order,accent_color";
 const EMAIL_FUNCTION_NAME = "send-order-email";
 const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
@@ -1693,18 +1693,26 @@ function productIncomingPill(product = {}) {
   return `<span class="catalog-incoming-pill">${escapeHtml(text)}</span>`;
 }
 
+function productStockThresholds(product = {}) {
+  const low = Math.max(0, Number(product.low_stock_threshold ?? 5) || 0);
+  const limited = Math.max(low, Number(product.limited_stock_threshold ?? 10) || 0);
+  return { low, limited };
+}
+
 function stockText(product) {
   const count = Number(product.current_inventory || 0);
-  const incoming = productIncomingLabel(product);
+  const { low, limited } = productStockThresholds(product);
   if (count <= 0) return "Out of Stock";
-  if (count <= 10) return "Limited";
+  if (count <= low) return "Low Stock";
+  if (count <= limited) return "Limited";
   return "In Stock";
 }
 
 function stockClass(product) {
   const count = Number(product.current_inventory || 0);
+  const { limited } = productStockThresholds(product);
   if (count <= 0) return productIncomingLabel(product) ? "out incoming" : "out";
-  if (count <= 10) return "limited";
+  if (count <= limited) return "limited";
   return "available";
 }
 
