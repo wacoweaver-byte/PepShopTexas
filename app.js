@@ -47,6 +47,7 @@ const DEFAULT_PAYMENT_METHODS = [
 ];
 
 let pstSupabaseClient = null;
+let appliedCartDiscount = null;
 const params = new URLSearchParams(window.location.search);
 
 boot();
@@ -657,6 +658,40 @@ function bindCartPageButtons() {
   const form = document.querySelector("[data-checkout-form]");
   if (form) {
     form.addEventListener("submit", handleCheckoutSubmit);
+    const discountInput = form.querySelector("[name='discount_code']");
+    const discountStatus = form.querySelector("[data-discount-status]");
+    const applyDiscountButton = form.querySelector("[data-apply-discount]");
+    const removeDiscountButton = form.querySelector("[data-remove-discount]");
+    applyDiscountButton?.addEventListener("click", async () => {
+      const code = String(discountInput?.value || "").trim();
+      if (!code) {
+        if (discountStatus) {
+          discountStatus.textContent = "Enter a discount code first.";
+          discountStatus.className = "checkout-status bad";
+        }
+        return;
+      }
+      try {
+        applyDiscountButton.disabled = true;
+        if (discountStatus) {
+          discountStatus.textContent = "Checking discount code...";
+          discountStatus.className = "checkout-status";
+        }
+        appliedCartDiscount = await validateCartDiscountCode(code);
+        renderCartPage();
+      } catch (error) {
+        appliedCartDiscount = null;
+        if (discountStatus) {
+          discountStatus.textContent = error.message || "This discount code cannot be applied.";
+          discountStatus.className = "checkout-status bad";
+        }
+        applyDiscountButton.disabled = false;
+      }
+    });
+    removeDiscountButton?.addEventListener("click", () => {
+      appliedCartDiscount = null;
+      renderCartPage();
+    });
     const select = form.querySelector("[name='payment_method']");
     const instructions = form.querySelector("[data-payment-instructions]");
     const qrBox = form.querySelector("[data-payment-qr]");
@@ -762,6 +797,7 @@ function summaryHtml(rows, context = {}) {
   return `
     <h2>Order Summary</h2>
     <div class="summary-line"><span>Subtotal</span><strong>${formatMoney(totals.subtotal)}</strong></div>
+    ${totals.discount > 0 ? `<div class="summary-line"><span>Discount (${escapeHtml(appliedCartDiscount?.code || "Code")})</span><strong>-${formatMoney(totals.discount)}</strong></div>` : ""}
     <div class="summary-line"><span>Shipping — USPS Priority Mail 3 Day</span><strong>${formatMoney(totals.shipping)}</strong></div>
     <div class="summary-line"><span data-summary-tax-label>Tax ${escapeHtml(totals.taxLabel)}</span><strong data-summary-tax-amount>${totals.taxRegion ? formatMoney(totals.tax) : ""}</strong></div>
     ${storeCredit.balance > 0 ? `<div class="summary-line" data-available-store-credit="${Number(storeCredit.balance || 0)}"><span>Available Store Credit</span><strong>${formatMoney(storeCredit.balance)}</strong></div><div class="summary-line" data-store-credit-applied-line hidden><span>Store Credit Applied</span><strong>-${formatMoney(0)}</strong></div>` : ""}
@@ -781,7 +817,7 @@ function summaryHtml(rows, context = {}) {
 function calculateCartTotals(rows, profile = {}) {
   const subtotal = rows.reduce((sum, row) => sum + unitPrice(row.product) * row.quantity, 0);
   const shipping = rows.length && subtotal < FREE_SHIPPING_THRESHOLD ? STANDARD_SHIPPING_RATE : 0;
-  const discount = 0;
+  const discount = cartDiscountAmount(subtotal);
   const taxRegion = customerTaxRegion(profile);
   const taxRate = TAX_RATES[taxRegion] || 0;
   const tax = roundMoney(subtotal * taxRate);
@@ -795,6 +831,34 @@ function calculateCartTotals(rows, profile = {}) {
     taxRate,
     taxRegion,
     taxLabel: taxRate ? `(${taxRegion} ${(taxRate * 100).toFixed(2)}%)` : ""
+  };
+}
+
+function cartDiscountAmount(subtotal, discount = appliedCartDiscount) {
+  const base = Math.max(0, Number(subtotal || 0));
+  if (!discount || base <= 0) return 0;
+  const type = String(discount.discount_type || "").toLowerCase();
+  const percent = Math.max(0, Number(discount.percent_off || 0));
+  const amount = Math.max(0, Number(discount.amount_off || 0));
+  if (type === "percent" || percent > 0) return roundMoney(Math.min(base, base * percent / 100));
+  if (type === "amount" || type === "fixed" || amount > 0) return roundMoney(Math.min(base, amount));
+  return 0;
+}
+
+async function validateCartDiscountCode(code) {
+  const client = requireSupabaseClient();
+  const normalizedCode = String(code || "").trim();
+  if (!normalizedCode) throw new Error("Enter a discount code first.");
+  const { data, error } = await client.rpc("validate_cart_discount_code", { p_code:normalizedCode });
+  if (error) throw error;
+  const result = data && typeof data === "object" ? data : {};
+  if (!result.valid) throw new Error(result.message || "This discount code is not valid for this account.");
+  return {
+    id: result.discount_id,
+    code: result.code,
+    discount_type: result.discount_type,
+    percent_off: Number(result.percent_off || 0),
+    amount_off: Number(result.amount_off || 0)
   };
 }
 
@@ -825,7 +889,7 @@ function updateCheckoutTaxPreview(form, newShippingStateValue = null) {
   const total = document.querySelector("[data-summary-total]");
   if (label) label.textContent = hasState ? `Tax (${taxRegion} ${(taxRate * 100).toFixed(2)}%)` : "Tax";
   if (amount) amount.textContent = hasState ? formatMoney(tax) : "";
-  if (total) total.textContent = formatMoney(roundMoney(subtotal + shipping + tax));
+  if (total) total.textContent = formatMoney(roundMoney(subtotal + shipping + tax - cartDiscountAmount(subtotal)));
 }
 
 function checkoutShippingAddress(formData, profile = {}, user = {}) {
@@ -1164,6 +1228,13 @@ async function handleCheckoutSubmit(event) {
     }
 
     const formData = new FormData(form);
+    const enteredDiscountCode = String(formData.get("discount_code") || "").trim();
+    if (enteredDiscountCode && (!appliedCartDiscount || enteredDiscountCode.toLowerCase() !== String(appliedCartDiscount.code || "").toLowerCase())) {
+      throw new Error("Click Apply beside the discount code before placing the order.");
+    }
+    if (appliedCartDiscount) {
+      appliedCartDiscount = await validateCartDiscountCode(appliedCartDiscount.code);
+    }
     const selectedShippingAddress = checkoutShippingAddress(formData, profile, user);
     if (selectedShippingAddress.save) await saveAdditionalShippingAddress(user, selectedShippingAddress);
     const selectedOption = form.querySelector("[name='payment_method']")?.selectedOptions?.[0];
@@ -1218,6 +1289,13 @@ async function handleCheckoutSubmit(event) {
       customer_notes: [customerNotes, paymentNote].filter(Boolean).join("\n\n"),
       subtotal,
       discount,
+      subtotal_before_discount: subtotal,
+      discount_code: appliedCartDiscount?.code || null,
+      discount_id: appliedCartDiscount?.id || null,
+      discount_type: appliedCartDiscount?.discount_type || null,
+      discount_percent: appliedCartDiscount ? Number(appliedCartDiscount.percent_off || 0) : 0,
+      discount_amount: discount,
+      discount_code_amount: discount,
       store_credit_applied: storeCreditApplied,
       shipping,
       tax,
@@ -1274,6 +1352,7 @@ await sendOrderReceivedEmail(
 );
 
     writeCart([]);
+    appliedCartDiscount = null;
     setStatus(`Order ${order.order_number || orderNumberValue} submitted. It is now in Order Management.`, "good");
     form.innerHTML = `
       <h3>Order Submitted</h3>
@@ -1516,6 +1595,17 @@ function checkoutFormHtml(rows, context) {
           <p>This address will be saved to your account as an additional address.</p>
         </div>
       </fieldset>
+      <div class="cart-discount-box">
+        <label>Discount Code
+          <span style="display:flex;gap:8px;align-items:center;">
+            <input name="discount_code" type="text" autocomplete="off" value="${escapeAttribute(appliedCartDiscount?.code || "")}" placeholder="Enter code" ${appliedCartDiscount ? "readonly" : ""}>
+            ${appliedCartDiscount
+              ? `<button class="secondary-action" type="button" data-remove-discount>Remove</button>`
+              : `<button class="secondary-action" type="button" data-apply-discount>Apply</button>`}
+          </span>
+        </label>
+        <p class="checkout-status ${appliedCartDiscount ? "good" : ""}" data-discount-status>${appliedCartDiscount ? `${escapeHtml(appliedCartDiscount.code)} applied. The discount appears in the order summary.` : "Codes assigned to an email require that customer to be logged in."}</p>
+      </div>
       <label>Payment Method <select name="payment_method">${methods.map((method) => `<option value="${escapeAttribute(method.id)}" data-label="${escapeAttribute(method.label)}" data-instructions="${escapeAttribute(paymentInstructionsText(method))}" data-qr="${escapeAttribute(paymentQrImage(method))}">${escapeHtml(method.label)}</option>`).join("")}</select></label>
       <p class="payment-instructions" data-payment-instructions></p>
       <div data-payment-qr></div>
