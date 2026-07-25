@@ -89,8 +89,9 @@
     const low = Math.max(0, Number(product.low_stock_threshold ?? 5) || 0);
     const limited = Math.max(low, Number(product.limited_stock_threshold ?? 10) || 0);
     if (count <= 0) return "Out of Stock";
+    if (count <= low) return "Low Stock";
     if (count <= limited) return "Limited";
-    return "";
+    return "In Stock";
   }
 
   async function robustFetchIncomingStatusRows(keys = []) {
@@ -138,8 +139,8 @@
         stock.textContent = "Limited";
         stock.setAttribute("aria-label", "Limited");
       } else if (stock.classList.contains("available")) {
-        stock.textContent = "";
-        stock.removeAttribute("aria-label");
+        stock.textContent = "In Stock";
+        stock.setAttribute("aria-label", "In Stock");
       }
     });
   }
