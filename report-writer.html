@@ -4,6 +4,7 @@
 <title>Pep Shop Texas | Report Writer</title>
 <link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="site.webmanifest"><meta name="theme-color" content="#bd0000">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <style>
 :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
 *{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}a{color:inherit;text-decoration:none}
@@ -190,24 +191,24 @@ main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:f
   </div>
 </header>
 <main><div class="page-title"><div><h1>Report Center</h1><p class="subtitle">Build custom reports using the actual Supabase tables and fields in Pep Shop Texas.</p></div><div class="actions"><a class="btn secondary" href="reports.html">Back to Reports</a><button class="btn secondary" onclick="printReport()">Print Report</button></div></div><div id="statusLine" class="status">Checking admin access...</div>
-<section class="center-grid"><a class="center-card" href="reports.html#quick-snapshot-card"><span class="center-icon">📊</span><span><strong>Dashboard</strong><span>Quick KPIs and charts</span></span></a><a class="center-card active" href="#report-writer"><span class="center-icon">📝</span><span><strong>Report Writer</strong><span>Build custom reports</span></span></a><a class="center-card" href="#saved-reports"><span class="center-icon">⭐</span><span><strong>Saved Reports</strong><span>One-click favorites</span></span></a><a class="center-card" href="#exports"><span class="center-icon">📤</span><span><strong>Exports</strong><span>Download history and scheduled reports</span></span></a></section>
+<section class="center-grid"><a class="center-card" href="reports.html#quick-snapshot-card"><span class="center-icon">📊</span><span><strong>Dashboard</strong><span>Quick KPIs and charts</span></span></a><a class="center-card active" href="#report-writer"><span class="center-icon">📝</span><span><strong>Report Writer</strong><span>Build custom reports</span></span></a><a class="center-card" href="#saved-reports"><span class="center-icon">⭐</span><span><strong>Saved Reports</strong><span>One-click favorites</span></span></a></section>
 <section class="grid"><div class="card span-12" id="report-writer"><div class="card-header"><h2>📝 Report Writer</h2><span class="pill info" id="sourcePill">No source selected</span></div><div class="card-body"><div class="steps"><button class="step active" data-step="1">1. Data Source</button><button class="step" data-step="2">2. Fields</button><button class="step" data-step="3">3. Filters</button><button class="step" data-step="4">4. Preview</button><button class="step" data-step="5">5. Export</button></div>
 <div class="panel active" data-panel="1"><div class="form-grid"><div class="field"><label>Report Name</label><input id="reportName" value="Custom Report"></div><div class="field"><label>Data Source</label><select id="dataSource"></select></div><div class="field"><label>Date Range</label><select id="datePreset"><option value="all">All dates</option><option value="today">Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="mtd">Month-to-date</option><option value="custom">Custom</option></select></div><div class="field"><label>Preview Limit</label><select id="limitRows"><option>50</option><option>100</option><option>250</option><option>500</option><option>1000</option></select></div><div class="field"><label>Start Date</label><input id="startDate" type="date"></div><div class="field"><label>End Date</label><input id="endDate" type="date"></div><div class="sort-builder"><div class="sort-builder-title">Sort Order</div><div id="sortRows"><div class="sort-row" data-sort-priority="1"><div class="field"><div class="sort-priority">Primary sort</div><label for="sortField">Sort By</label><select id="sortField" class="sort-field"></select></div><div class="field"><label for="sortDirection">Sort Direction</label><select id="sortDirection" class="sort-direction"><option value="desc">Descending</option><option value="asc">Ascending</option></select></div><span aria-hidden="true"></span></div></div><div class="sort-actions"><button class="btn secondary" id="addSort" type="button">Add Another Sort</button><span class="muted">Additional sorts are applied in the order shown.</span></div></div></div><p class="muted">These fields now match your actual Supabase schema.</p><div class="actions"><button class="btn primary" data-next="2">Next: Fields</button></div></div>
 <div class="panel" data-panel="2"><div class="actions" style="justify-content:flex-start;margin-bottom:10px"><button class="btn secondary" id="selectAllFields">Select All</button><button class="btn secondary" id="clearFields">Clear</button></div><div class="check-grid" id="fieldList"></div><p class="field-order-note">Column order follows the order shown here. Use ↑ and ↓ to move fields before running/exporting the report.</p><div class="actions" style="margin-top:14px;justify-content:flex-start"><button class="btn secondary" data-prev="1">Back</button><button class="btn primary" data-next="3">Next: Filters</button></div></div>
 <div class="panel" data-panel="3"><div id="filtersList"></div><div class="actions" style="justify-content:flex-start"><button class="btn secondary" id="addFilter">Add Filter</button><button class="btn secondary" id="clearFilters">Clear Filters</button></div><p class="muted">Filters are optional. Filter only by actual fields on the selected table.</p><div class="actions" style="margin-top:14px;justify-content:flex-start"><button class="btn secondary" data-prev="2">Back</button><button class="btn primary" data-next="4">Next: Preview</button></div></div>
 <div class="panel" data-panel="4"><div class="print-only print-report-header"><h1 id="printReportTitle">Custom Report</h1><div class="print-report-meta" id="printReportMeta"></div></div><div class="summary-grid" id="previewSummary"></div><div class="actions" style="justify-content:flex-start;margin-bottom:12px"><button class="btn success" id="runPreview">Run Preview</button><button class="btn secondary" id="saveReport">Save Template</button><button class="btn primary" id="createInventoryPO" disabled>Create Inventory PO</button><span class="po-toolbar-note" id="poSelectionNote">Product-level reports can be sent to an inventory purchase order.</span></div><div class="table-wrap" id="previewTable"><div class="empty">Choose a data source and fields, then run preview.</div></div><div class="actions" style="margin-top:14px;justify-content:flex-start"><button class="btn secondary" data-prev="3">Back</button><button class="btn primary" data-next="5">Next: Export</button></div></div>
-<div class="panel" data-panel="5"><div class="actions" style="justify-content:flex-start;margin-bottom:12px"><button class="btn success" id="exportCsv">Export CSV</button><button class="btn secondary" id="copyCsv">Copy CSV</button><button class="btn secondary" onclick="printReport()">Print / Save PDF</button></div><p class="muted">CSV and PDF exports use the current preview results.</p><div class="actions" style="margin-top:14px;justify-content:flex-start"><button class="btn secondary" data-prev="4">Back</button></div></div>
-</div></div><div class="card span-6" id="saved-reports"><div class="card-header"><h2>⭐ Saved Reports</h2><span class="pill info" id="savedCount">0 saved</span></div><div class="card-body"><div id="savedReportsList"></div></div></div><div class="card span-6" id="exports"><div class="card-header"><h2>📤 Exports</h2><span class="pill info" id="exportCount">0 exports</span></div><div class="card-body"><div id="exportsList"></div></div></div></section></main>
+<div class="panel" data-panel="5"><div class="actions" style="justify-content:flex-start;margin-bottom:12px"><button class="btn success" id="exportExcel">Export Excel Workbook</button><button class="btn secondary" id="exportCsv">Export CSV</button><button class="btn secondary" id="copyCsv">Copy CSV</button><button class="btn secondary" onclick="printReport()">Print / Save PDF</button></div><p class="muted">Excel exports are formatted for immediate review and clean landscape printing. CSV and PDF remain available when needed.</p><div class="actions" style="margin-top:14px;justify-content:flex-start"><button class="btn secondary" data-prev="4">Back</button></div></div>
+</div></div><div class="card span-12" id="saved-reports"><div class="card-header"><h2>⭐ Saved Reports</h2><span class="pill info" id="savedCount">0 saved</span></div><div class="card-body"><div id="savedReportsList"></div></div></div></section></main>
 <script>
-const SUPABASE_URL="https://ucejjztsbmrogiteivxl.supabase.co",SUPABASE_KEY="sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX",SAVED_KEY="pst_report_writer_saved_v2",SAVED_MIGRATION_KEY="pst_report_writer_saved_v2_migrated_to_supabase",EXPORT_KEY="pst_report_writer_exports_v2",PO_HANDOFF_KEY="pst_report_writer_po_handoff_v1";
+const SUPABASE_URL="https://ucejjztsbmrogiteivxl.supabase.co",SUPABASE_KEY="sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX",SAVED_KEY="pst_report_writer_saved_v2",SAVED_MIGRATION_KEY="pst_report_writer_saved_v2_migrated_to_supabase",PO_HANDOFF_KEY="pst_report_writer_po_handoff_v1";
 const SOURCES={"orders":{"label":"Orders","table":"orders","dateField":"created_at","fields":["id","customer_id","order_number","status","subtotal","shipping","tax","total","shipping_name","shipping_email","shipping_phone","shipping_address_line1","shipping_address_line2","shipping_city","shipping_state","shipping_zip","payment_method","payment_status","tracking_number","tracking_carrier","customer_notes","admin_notes","created_at","updated_at","inventory_deducted","inventory_restored","inventory_deducted_at","inventory_restored_at","inventory_failure_reason","admin_note","rejection_reason","rejected_at","shipped_at","order_status","shipping_carrier","subtotal_before_discount","discount_code","discount_id","discount_type","discount_percent","discount_amount","discount_code_amount","vial_discount_amount","no_tracking_required","no_tracking_reason","last_admin_actor","last_admin_actor_email","refund_number","refund_status","refund_reason","refund_amount","refund_requested_at","refund_issued_at","order_sequence_number","legacy_order_number"]},"order_items":{"label":"Order Items","table":"order_items","dateField":"created_at","fields":["id","order_id","product_id","product_name","product_strength","product_category","quantity","unit_price","line_total","created_at"]},"customer_profiles":{"label":"Customers","table":"customer_profiles","dateField":"created_at","fields":["user_id","first_name","last_name","email","phone","username","billing_address","billing_city","billing_state","billing_zip","shipping_address","shipping_city","shipping_state","shipping_zip","account_status","age_confirmed","research_use_acknowledged","tos_accepted","admin_notes","created_at","updated_at","marketing_opt_in","marketing_opt_out","marketing_opt_in_at","marketing_opt_out_at","marketing_source","customer_tags","card_last4","bank_last4","research_role","research_role_confirmed_at","customer_number"]},"product_inventory":{"label":"Product Inventory","table":"product_inventory","dateField":"updated_at","fields":["id","product_key","display_name","category","strength","price","current_inventory","low_stock_threshold","limited_stock_threshold","status_override","is_active","image_file","image_data","featured","blend_stack","admin_note","created_at","updated_at","cost_per_unit","coa_url","coa_label"]},"product_catalog":{"label":"Product Catalog","table":"product_catalog","dateField":"updated_at","fields":["id","product_key","display_name","strength","category","series","description","research_notes","admin_only","price","current_inventory","low_stock_threshold","limited_stock_threshold","is_active","featured","blend_stack","image_file","image_data","coa_file","coa_image","testing_statement","sort_name","created_at","updated_at","image_status","hot_peptide","label_line_1","label_line_2","label_line_3","label_dose","sale_enabled","sale_price","sale_label","coa_url","coa_label"]},"incoming_inventory":{"label":"Incoming Inventory","table":"incoming_inventory","dateField":"ordered_at","fields":["id","product_id","product_key","product_name","ordered_quantity","kit_cost","kit_vial_count","cost_per_unit","shipping_cost","total_cost","supplier_name","tracking_number","status","notes","ordered_at","expected_arrival_date","received_at","received_quantity","created_by","created_by_email","audit_note","created_at","updated_at","vendor_id","vendor_name","lead_time_days"]},"inventory_movements":{"label":"Inventory Audit / Movement","table":"inventory_movements","dateField":"created_at","fields":["id","product_id","product_key","movement_type","quantity_change","previous_quantity","new_quantity","admin_note","created_by","created_by_email","created_at"]},"operating_expenses":{"label":"Operating Expenses","table":"operating_expenses","dateField":"date","fields":["id","date","category","description","amount","method","created_by","created_by_email","created_at","updated_at"]},"discount_codes":{"label":"Discount Codes","table":"discount_codes","dateField":"created_at","fields":["id","code","discount_type","percent_off","amount_off","assigned_email","one_time_use","max_uses","times_used","uses","active","expires_at","created_by","created_at","updated_at","promotion_title","promotion_description","hero_banner_text","hero_banner_active","promotion_starts_at","promotion_ends_at"]},"discount_usage":{"label":"Discount Usage","table":"discount_usage","dateField":"used_at","fields":["id","discount_id","order_id","customer_email","amount_saved","used_at"]},"customer_credits":{"label":"Customer Credits","table":"customer_credits","dateField":"created_at","fields":["id","user_id","customer_email","customer_name","amount","remaining_amount","reason","related_order_id","related_order_number","parent_credit_id","source","status","created_by","created_by_email","created_at","updated_at"]},"order_audit_log":{"label":"Order Audit Log","table":"order_audit_log","dateField":"created_at","fields":["id","order_id","order_number","action_type","field_name","old_value","new_value","changed_by","changed_by_email","created_at"]},"site_promotions":{"label":"Site Promotions","table":"site_promotions","dateField":"created_at","fields":["id","title","body","badge","button_text","button_link","image_url","is_active","starts_at","ends_at","sort_order","title_bold","title_italic","title_underline","body_bold","body_italic","body_underline","title_size","body_size","text_align","text_color","background_color","accent_color","created_at","updated_at","discount_id","auto_apply_discount","audience"]},"site_payment_options":{"label":"Payment Options","table":"site_payment_options","dateField":"updated_at","fields":["id","payment_methods","venmo_enabled","venmo_handle","venmo_note","venmo_qr","venmo_qr_image","venmo_image","qr_image","updated_at"]},"admin_users":{"label":"Admin Users","table":"admin_users","dateField":"created_at","fields":["user_id","created_at","email","is_active"]},"vendors":{"label":"Vendors","table":"vendors","dateField":"created_at","fields":["id","pst_vendor_id","company_name","address","contact_name","standard_shipping_lead_time","whatsapp_number","is_active","created_at","updated_at"]},"product_key_aliases":{"label":"Product Key Aliases","table":"product_key_aliases","dateField":"created_at","fields":["old_product_key","new_product_key","product_id","display_name","strength","migration_label","created_at"]}};
 let client=null,currentRows=[],currentExportRows=[],currentPoRows=[],selectedPoIndexes=new Set(),inventoryProductLookup=[],incomingInventoryLookup=[],savedReportTemplates=[],currentAdminUser=null;
 const $=id=>document.getElementById(id),esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])),labelize=v=>String(v||"").replace(/_/g," ").replace(/\b\w/g,m=>m.toUpperCase());
 function cfg(){return SOURCES[$("dataSource").value]}function selectedFields(){return [...document.querySelectorAll("#fieldList input:checked")].map(i=>i.value)}function filters(){return [...document.querySelectorAll(".filter-row")].map(r=>({field:r.querySelector(".filter-field").value,op:r.querySelector(".filter-op").value,value:r.querySelector(".filter-value").value.trim()})).filter(f=>f.value)}function sortLevels(){return [...document.querySelectorAll("#sortRows .sort-row")].map(r=>({field:r.querySelector(".sort-field")?.value||"",direction:r.querySelector(".sort-direction")?.value||"desc"})).filter(s=>s.field)}
 function money(v){const n=Number(v||0);return Number.isFinite(n)?n.toLocaleString(undefined,{style:"currency",currency:"USD"}):""}function formatCell(f,v){if(v==null)return"";if(/amount|total|price|cost|tax|shipping|credit|subtotal|refund|percent|value/i.test(f))return money(v);if(typeof v==="object")return JSON.stringify(v);return String(v)}
-async function boot(){client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);setupUi();currentAdminUser=await requireAdmin();if(!currentAdminUser)return;await loadSourceFields();await migrateLocalSavedReports();await loadSavedReports();renderExports()}
+async function boot(){client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);setupUi();currentAdminUser=await requireAdmin();if(!currentAdminUser)return;await loadSourceFields();await migrateLocalSavedReports();await loadSavedReports()}
 async function requireAdmin(){try{const{data:userData,error}=await client.auth.getUser();if(error||!userData?.user){location.href=`login.html?redirect=${encodeURIComponent("report-writer.html")}`;return null}const u=userData.user,checks=[client.from("admin_users").select("*").eq("user_id",u.id).maybeSingle(),client.from("admin_users").select("*").eq("email",u.email).maybeSingle()],results=await Promise.allSettled(checks),admin=results.find(r=>r.status==="fulfilled"&&r.value?.data)?.value?.data;if(!admin||!(admin.is_active===true||admin.active===true||admin.is_admin===true||admin.email===u.email)){$("statusLine").className="status bad";$("statusLine").textContent="Admin access required.";return null}$("statusLine").className="status good";$("statusLine").textContent="Admin access confirmed. Actual Supabase fields loaded.";return u}catch(e){$("statusLine").className="status bad";$("statusLine").textContent=`Admin check failed: ${e.message||e}`;return null}}
-function setupUi(){$("dataSource").innerHTML=Object.entries(SOURCES).map(([k,c])=>`<option value="${k}">${esc(c.label)}</option>`).join("");$("dataSource").onchange=()=>loadSourceFields();$("datePreset").onchange=applyDatePreset;document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>showStep(b.dataset.step));document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>showStep(b.dataset.next));document.querySelectorAll("[data-prev]").forEach(b=>b.onclick=()=>showStep(b.dataset.prev));$("selectAllFields").onclick=()=>document.querySelectorAll("#fieldList input").forEach(i=>i.checked=true);$("clearFields").onclick=()=>document.querySelectorAll("#fieldList input").forEach(i=>i.checked=false);$("addFilter").onclick=()=>addFilterRow();$("clearFilters").onclick=()=>$("filtersList").innerHTML="";$("addSort").onclick=()=>addSortRow({field:"",direction:"asc"});$("runPreview").onclick=runPreview;$("saveReport").onclick=saveReport;$("createInventoryPO").onclick=createInventoryPurchaseOrder;$("exportCsv").onclick=exportCsv;$("copyCsv").onclick=copyCsv;applyDatePreset();renderFields();renderSortFields();renderFilters();updateSourcePill()}
+function setupUi(){$("dataSource").innerHTML=Object.entries(SOURCES).map(([k,c])=>`<option value="${k}">${esc(c.label)}</option>`).join("");$("dataSource").onchange=()=>loadSourceFields();$("datePreset").onchange=applyDatePreset;document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>showStep(b.dataset.step));document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>showStep(b.dataset.next));document.querySelectorAll("[data-prev]").forEach(b=>b.onclick=()=>showStep(b.dataset.prev));$("selectAllFields").onclick=()=>document.querySelectorAll("#fieldList input").forEach(i=>i.checked=true);$("clearFields").onclick=()=>document.querySelectorAll("#fieldList input").forEach(i=>i.checked=false);$("addFilter").onclick=()=>addFilterRow();$("clearFilters").onclick=()=>$("filtersList").innerHTML="";$("addSort").onclick=()=>addSortRow({field:"",direction:"asc"});$("runPreview").onclick=runPreview;$("saveReport").onclick=saveReport;$("createInventoryPO").onclick=createInventoryPurchaseOrder;$("exportExcel").onclick=exportExcel;$("exportCsv").onclick=exportCsv;$("copyCsv").onclick=copyCsv;applyDatePreset();renderFields();renderSortFields();renderFilters();updateSourcePill()}
 function showStep(s){document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.dataset.panel===String(s)));document.querySelectorAll(".step").forEach(p=>p.classList.toggle("active",p.dataset.step===String(s)));if(s==="4")runPreview()}
 async function loadSourceFields(){const c=cfg();if(!c)return;try{$("sourcePill").textContent=`${c.label} • loading fields`;const{data,error}=await client.from(c.table).select("*").limit(1);if(error){console.warn("Dynamic field load failed; using fallback field list.",error);$("statusLine").className="status bad";$("statusLine").textContent=`Could not auto-load ${c.label} fields. Using saved fallback list: ${error.message}`;}else if(data&&data[0]){const dynamic=Object.keys(data[0]);c.fields=[...new Set([...dynamic,...(c.fields||[])])];$("statusLine").className="status good";$("statusLine").textContent=`${c.label}: ${c.fields.length} fields loaded from Supabase.`;}else{$("statusLine").className="status good";$("statusLine").textContent=`${c.label}: no rows found, using saved fallback field list.`;}}catch(e){console.warn("Dynamic field load failed; using fallback field list.",e);$("statusLine").className="status bad";$("statusLine").textContent=`Could not auto-load fields. Using saved fallback list: ${e.message||e}`;}renderFields();renderSortFields();renderFilters();updateSourcePill()}
 function updateSourcePill(){$("sourcePill").textContent=cfg().label}function moveFieldButton(button,direction){const item=button.closest(".check-item"),list=$("fieldList");if(!item||!list)return;if(direction<0&&item.previousElementSibling)list.insertBefore(item,item.previousElementSibling);if(direction>0&&item.nextElementSibling)list.insertBefore(item,item.nextElementSibling,item)}function applyFieldOrder(fields=[]){const list=$("fieldList");if(!list||!fields.length)return;[...fields].reverse().forEach(field=>{const input=list.querySelector(`input[value="${CSS.escape(field)}"]`);const item=input?.closest(".check-item");if(item)list.prepend(item)})}function renderFields(){const fields=cfg().fields;$("fieldList").innerHTML=fields.map((f,i)=>`<label class="check-item"><input type="checkbox" value="${esc(f)}" ${i<12?"checked":""}><span>${esc(labelize(f))}</span><button class="btn secondary field-order-btn" type="button" title="Move up" onclick="moveFieldButton(this,-1)">↑</button><button class="btn secondary field-order-btn" type="button" title="Move down" onclick="moveFieldButton(this,1)">↓</button></label>`).join("")}function sortFieldOptions(selected=""){return `<option value="">Default / none</option>`+cfg().fields.map(f=>`<option value="${esc(f)}" ${selected===f?"selected":""}>${esc(labelize(f))}</option>`).join("")}function renumberSortRows(){document.querySelectorAll("#sortRows .sort-row").forEach((row,index)=>{row.dataset.sortPriority=String(index+1);const label=row.querySelector(".sort-priority");if(label)label.textContent=index===0?"Primary sort":`Then sort by (${index+1})`})}function addSortRow(sort={}){const list=$("sortRows"),index=list.children.length,row=document.createElement("div"),primary=index===0;row.className="sort-row";row.dataset.sortPriority=String(index+1);row.innerHTML=`<div class="field"><div class="sort-priority">${primary?"Primary sort":`Then sort by (${index+1})`}</div><label>${primary?"Sort By":"Additional Sort"}</label><select class="sort-field" ${primary?'id="sortField"':""}>${sortFieldOptions(sort.field||"")}</select></div><div class="field"><label>Sort Direction</label><select class="sort-direction" ${primary?'id="sortDirection"':""}><option value="desc">Descending</option><option value="asc">Ascending</option></select></div>${primary?'<span aria-hidden="true"></span>':'<button class="btn danger remove-sort" type="button">Remove</button>'}`;row.querySelector(".sort-direction").value=sort.direction||"desc";row.querySelector(".remove-sort")?.addEventListener("click",()=>{row.remove();renumberSortRows()});list.appendChild(row);renumberSortRows()}function renderSortRows(sorts=[]){const list=$("sortRows");list.innerHTML="";(sorts.length?sorts:[{field:"",direction:"desc"}]).forEach(addSortRow)}function renderSortFields(){const current=sortLevels();renderSortRows(current.length?current:[{field:"",direction:"desc"}])}function renderFilters(){$("filtersList").innerHTML="";addFilterRow()}
@@ -290,7 +291,132 @@ window.deleteSaved=async i=>{
   if(error){alert(`Report template could not be deleted: ${error.message}`);return}
   await loadSavedReports()
 };
-function csv(){const fields=selectedFields(),source=$("dataSource").value,isProductReport=PRODUCT_REPORT_SOURCES.has(source),q=v=>`"${String(v??"").replace(/"/g,'""')}"`,headers=isProductReport?["Inventory Status","Last Ordered","Last Received",...fields]:fields;return[headers.map(q).join(","),...currentExportRows.map(r=>{const meta=isProductReport?inventoryHistoryFor(matchInventoryProduct(r,source)):{};const values=isProductReport?[meta.status||"",shortReportDate(meta.lastOrdered),shortReportDate(meta.lastReceived),...fields.map(f=>r[f])]:fields.map(f=>r[f]);return values.map(q).join(",")})].join("\n")}function exportCsv(){if(!currentExportRows.length){alert("Run Preview first.");return}const name=($("reportName").value||"report").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),file=`${name}-${new Date().toISOString().slice(0,10)}.csv`,blob=new Blob([csv()],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=file;a.click();URL.revokeObjectURL(url);const list=JSON.parse(localStorage.getItem(EXPORT_KEY)||"[]");list.unshift({file,rows:currentExportRows.length,created_at:new Date().toISOString()});localStorage.setItem(EXPORT_KEY,JSON.stringify(list.slice(0,50)));renderExports()}async function copyCsv(){if(!currentExportRows.length){alert("Run Preview first.");return}await navigator.clipboard.writeText(csv());alert(`CSV copied with ${currentExportRows.length} rows.`)}function renderExports(){const list=JSON.parse(localStorage.getItem(EXPORT_KEY)||"[]");$("exportCount").textContent=`${list.length} exports`;$("exportsList").innerHTML=list.length?list.map(e=>`<div class="empty" style="margin-bottom:8px"><strong>${esc(e.file)}</strong><br>${esc(e.rows)} rows • ${new Date(e.created_at).toLocaleString()}</div>`).join(""):'<div class="empty">Exports downloaded from this browser will appear here.</div>'}
+function reportExportData(){
+  const fields=selectedFields(),source=$("dataSource").value,isProductReport=PRODUCT_REPORT_SOURCES.has(source);
+  const headers=isProductReport?["Inventory Status","Last Ordered","Last Received",...fields]:fields;
+  const rows=currentExportRows.map(row=>{
+    const meta=isProductReport?inventoryHistoryFor(matchInventoryProduct(row,source)):{};
+    return isProductReport
+      ? [meta.status||"",shortReportDate(meta.lastOrdered),shortReportDate(meta.lastReceived),...fields.map(field=>row[field])]
+      : fields.map(field=>row[field]);
+  });
+  return{headers,rows};
+}
+function csv(){
+  const{headers,rows}=reportExportData(),quote=value=>`"${String(value??"").replace(/"/g,'""')}"`;
+  return[headers.map(quote).join(","),...rows.map(row=>row.map(quote).join(","))].join("\n");
+}
+function safeReportFileName(extension){
+  const base=($("reportName").value||"report").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"report";
+  return`${base}-${new Date().toISOString().slice(0,10)}.${extension}`;
+}
+function downloadBlob(blob,file){
+  const url=URL.createObjectURL(blob),link=document.createElement("a");
+  link.href=url;link.download=file;document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function excelDisplayValue(value){
+  if(value===null||value===undefined)return"";
+  if(typeof value==="object")return JSON.stringify(value);
+  return value;
+}
+function excelColumnLetter(number){
+  let result="";
+  while(number>0){number--;result=String.fromCharCode(65+(number%26))+result;number=Math.floor(number/26)}
+  return result;
+}
+async function exportExcel(){
+  if(!currentExportRows.length){alert("Run Preview first.");return}
+  if(!window.ExcelJS){alert("The Excel workbook tool did not load. Refresh the page and try again.");return}
+  const{headers,rows}=reportExportData(),workbook=new ExcelJS.Workbook();
+  workbook.creator="Pep Shop Texas Report Writer";
+  workbook.created=new Date();
+  workbook.modified=new Date();
+
+  const rawTitle=String($("reportName").value||"Custom Report").trim()||"Custom Report";
+  const sheetName=rawTitle.replace(/[\\\/?*\[\]:]/g," ").trim().slice(0,31)||"Report";
+  const sheet=workbook.addWorksheet(sheetName,{
+    views:[{state:"frozen",ySplit:4}],
+    pageSetup:{
+      paperSize:1,
+      orientation:"landscape",
+      fitToPage:true,
+      fitToWidth:1,
+      fitToHeight:0,
+      horizontalCentered:true,
+      margins:{left:0.25,right:0.25,top:0.5,bottom:0.5,header:0.2,footer:0.2}
+    }
+  });
+  sheet.properties.defaultRowHeight=18;
+
+  const lastColumn=excelColumnLetter(Math.max(1,headers.length));
+  sheet.mergeCells(`A1:${lastColumn}1`);
+  const titleCell=sheet.getCell("A1");
+  titleCell.value=rawTitle;
+  titleCell.font={name:"Arial",size:16,bold:true,color:{argb:"FFFFFFFF"}};
+  titleCell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF101820"}};
+  titleCell.alignment={vertical:"middle",horizontal:"left"};
+  sheet.getRow(1).height=28;
+
+  const sourceLabel=cfg()?.label||$("dataSource").value||"Report";
+  const start=$("startDate").value,end=$("endDate").value;
+  const rangeLabel=start||end?`Date range: ${start||"Beginning"} through ${end||"Today"}`:"Date range: All dates";
+  sheet.mergeCells(`A2:${lastColumn}2`);
+  sheet.getCell("A2").value=`${sourceLabel} • ${rangeLabel}`;
+  sheet.getCell("A2").font={name:"Arial",size:10,bold:true,color:{argb:"FF3D4A5D"}};
+  sheet.getCell("A2").alignment={vertical:"middle",wrapText:true};
+
+  sheet.mergeCells(`A3:${lastColumn}3`);
+  sheet.getCell("A3").value=`${rows.length} record${rows.length===1?"":"s"} • Generated ${new Date().toLocaleString()}`;
+  sheet.getCell("A3").font={name:"Arial",size:9,italic:true,color:{argb:"FF596579"}};
+
+  const headerRow=sheet.addRow(headers.map(labelize));
+  headerRow.height=30;
+  headerRow.eachCell(cell=>{
+    cell.font={name:"Arial",size:10,bold:true,color:{argb:"FFFFFFFF"}};
+    cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF003F9E"}};
+    cell.alignment={vertical:"middle",horizontal:"center",wrapText:true};
+    cell.border={top:{style:"thin",color:{argb:"FFB8C2CC"}},left:{style:"thin",color:{argb:"FFB8C2CC"}},bottom:{style:"thin",color:{argb:"FFB8C2CC"}},right:{style:"thin",color:{argb:"FFB8C2CC"}}};
+  });
+
+  rows.forEach((values,rowIndex)=>{
+    const row=sheet.addRow(values.map(excelDisplayValue));
+    row.alignment={vertical:"top",wrapText:true};
+    row.eachCell({includeEmpty:true},cell=>{
+      cell.font={name:"Arial",size:10,color:{argb:"FF101820"}};
+      cell.alignment={vertical:"top",horizontal:typeof cell.value==="number"?"right":"left",wrapText:true};
+      cell.border={top:{style:"hair",color:{argb:"FFD9E2EC"}},left:{style:"hair",color:{argb:"FFD9E2EC"}},bottom:{style:"hair",color:{argb:"FFD9E2EC"}},right:{style:"hair",color:{argb:"FFD9E2EC"}}};
+      if(rowIndex%2===1)cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF4F7FA"}};
+    });
+  });
+
+  headers.forEach((header,index)=>{
+    const values=[labelize(header),...rows.map(row=>row[index])];
+    const longest=values.reduce((max,value)=>{
+      const text=typeof value==="object"?JSON.stringify(value??""):String(value??"");
+      return Math.max(max,...text.split(/\r?\n/).map(line=>line.length));
+    },0);
+    sheet.getColumn(index+1).width=Math.min(45,Math.max(12,longest+2));
+  });
+
+  sheet.autoFilter={from:{row:4,column:1},to:{row:4,column:headers.length}};
+  sheet.pageSetup.printTitlesRow="1:4";
+  sheet.pageSetup.printArea=`A1:${lastColumn}${Math.max(4,sheet.rowCount)}`;
+  sheet.headerFooter.oddFooter="Page &P of &N";
+  sheet.headerFooter.oddHeader="&L Pep Shop Texas&C "+rawTitle+"&R&D";
+
+  const buffer=await workbook.xlsx.writeBuffer();
+  downloadBlob(new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),safeReportFileName("xlsx"));
+}
+function exportCsv(){
+  if(!currentExportRows.length){alert("Run Preview first.");return}
+  downloadBlob(new Blob([csv()],{type:"text/csv;charset=utf-8"}),safeReportFileName("csv"));
+}
+async function copyCsv(){
+  if(!currentExportRows.length){alert("Run Preview first.");return}
+  await navigator.clipboard.writeText(csv());
+  alert(`CSV copied with ${currentExportRows.length} rows.`);
+}
 function printReport(){
   if(!currentRows.length){alert("Run Preview before printing or saving this report as a PDF.");showStep(4);return}
   const reportTitle=String($("reportName")?.value||"").trim()||"Custom Report";
