@@ -2271,6 +2271,58 @@ button.btn[aria-disabled="true"],
   }
 }
 </style>
+
+<style id="pst-report-specific-print-v1">
+@media print {
+  body.pst-print-one-report .card {
+    display: none !important;
+  }
+  body.pst-print-one-report .card.pst-print-target {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  body.pst-print-one-report .card.pst-print-target .card-body {
+    display: block !important;
+    overflow: visible !important;
+  }
+  body.pst-print-one-report .card.pst-print-target .table-wrap {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+  body.pst-print-one-report .card.pst-print-target table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: auto !important;
+  }
+  body.pst-print-one-report .card.pst-print-target th,
+  body.pst-print-one-report .card.pst-print-target td {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    vertical-align: top !important;
+  }
+  body.pst-print-one-report .finance-controls,
+  body.pst-print-one-report .report-actions,
+  body.pst-print-one-report .section-backtop,
+  body.pst-print-one-report .collapse-toggle,
+  body.pst-print-one-report .expense-table [data-expense-column="action"] {
+    display: none !important;
+  }
+  body.pst-print-one-report .pst-print-range {
+    display: block !important;
+    margin: 0 0 12px !important;
+    padding: 0 0 8px !important;
+    border-bottom: 1px solid #999 !important;
+    color: #333 !important;
+    font: 600 11px/1.35 Arial, Helvetica, sans-serif !important;
+  }
+}
+.pst-print-range {
+  display: none;
+}
+</style>
+
 </head>
 <body>
 <header class="pst-admin-header">
@@ -2294,7 +2346,6 @@ button.btn[aria-disabled="true"],
 <main>
   <div class="print-actions">
       <a class="btn secondary" id="financialsJumpBtn" href="#financials">Financials / Expenses</a>
-      <button class="btn secondary" type="button" onclick="window.print()">Print / Save PDF</button>
     </div>
 
   <div id="statusLine" class="status">Checking admin access...</div>
@@ -2372,6 +2423,7 @@ button.btn[aria-disabled="true"],
       <div class="card-body">
         <div class="report-actions">
           <button class="btn secondary" id="exportOrderCsvBtn" type="button">Export CSV</button>
+          <button class="btn secondary" type="button" onclick="printReportCard('order-report-card')">Print / Save PDF</button>
         </div>
 
         <div class="insights-panel" id="operationalInsightsPanel">
@@ -2469,6 +2521,7 @@ button.btn[aria-disabled="true"],
         </div>
         <div class="report-actions">
           <button class="btn secondary" id="exportSalesCsvBtn" type="button">Export Sales CSV</button>
+          <button class="btn secondary" type="button" onclick="printReportCard('sales-report-card')">Print / Save PDF</button>
         </div>
 
         <div class="detail-report-head">
@@ -2502,7 +2555,7 @@ button.btn[aria-disabled="true"],
     <div class="card span-12 no-print collapsible-card collapsed" id="financials" style="scroll-margin-top:185px;">
       <div class="card-header">
         <h2>Financials / Expenses</h2>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill info">Operational Estimate</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="financials" aria-expanded="false">Open</button></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill info">Operational Estimate</span><button class="btn secondary" type="button" onclick="printReportCard('financials')">Print / Save PDF</button><button class="btn secondary collapse-toggle" type="button" data-collapse-target="financials" aria-expanded="false">Open</button></div>
       </div>
       <div class="card-body finance-panel">
         <div class="finance-summary-grid">
@@ -2580,7 +2633,7 @@ button.btn[aria-disabled="true"],
     <div class="card span-12 no-print collapsible-card collapsed" id="inventory-audit" style="scroll-margin-top:185px;">
       <div class="card-header">
         <h2>Inventory Audit / Movement History</h2>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="inventoryAuditCount">Loading inventory movements...</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="inventory-audit" aria-expanded="false">Open</button></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="inventoryAuditCount">Loading inventory movements...</span><button class="btn secondary" type="button" onclick="printReportCard('inventory-audit')">Print / Save PDF</button><button class="btn secondary collapse-toggle" type="button" data-collapse-target="inventory-audit" aria-expanded="false">Open</button></div>
       </div>
       <div class="card-body">
         <p class="muted" id="inventoryAuditRangeContext" style="margin-top:0;">Uses the Global Report Range. Shows received, removed, exact count, out-of-stock, and other inventory adjustments recorded from Inventory Management.</p>
@@ -4370,6 +4423,42 @@ if (document.readyState === "loading") {
   document.getElementById("addPaymentMethodBtn")?.addEventListener("click", addPSTPaymentMethod);
   loadPSTPaymentOptionsAdmin();
 }
+
+function reportRangePrintLabel(){
+  const select=document.getElementById("orderReportRange");
+  const preset=select?.selectedOptions?.[0]?.textContent?.trim()||"Selected range";
+  const start=document.getElementById("orderReportStart")?.value||"";
+  const end=document.getElementById("orderReportEnd")?.value||"";
+  return start||end ? `Global Report Range: ${preset} (${start||"Beginning"} through ${end||"Today"})` : `Global Report Range: ${preset}`;
+}
+function printReportCard(cardId){
+  const card=document.getElementById(cardId);
+  if(!card){alert("That report could not be found.");return}
+  document.querySelectorAll(".pst-print-target").forEach(element=>element.classList.remove("pst-print-target"));
+  document.querySelectorAll(".pst-print-range").forEach(element=>element.remove());
+
+  const range=document.createElement("div");
+  range.className="pst-print-range";
+  range.textContent=`${reportRangePrintLabel()} • Printed ${new Date().toLocaleString()}`;
+  const cardBody=card.querySelector(".card-body");
+  if(cardBody)cardBody.insertBefore(range,cardBody.firstChild);
+
+  card.classList.add("pst-print-target");
+  document.body.classList.add("pst-print-one-report");
+
+  let cleaned=false;
+  const cleanup=()=>{
+    if(cleaned)return;
+    cleaned=true;
+    card.classList.remove("pst-print-target");
+    document.body.classList.remove("pst-print-one-report");
+    range.remove();
+  };
+  window.addEventListener("afterprint",cleanup,{once:true});
+  setTimeout(()=>window.print(),50);
+  setTimeout(cleanup,30000);
+}
+
 </script>
 
 </body>
