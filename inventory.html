@@ -940,6 +940,12 @@ strong {
 .vendor-table th { background:#fff; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-size:11px; }
 .vendor-id-pill { display:inline-flex; align-items:center; justify-content:center; min-width:76px; padding:5px 8px; border-radius:999px; background:rgba(189,0,0,.08); color:#bd0000; font-size:11px; font-weight:900; }
 .vendor-inline-note { margin-top:4px; color:var(--muted); font-size:11px; line-height:1.25; }
+.vendor-edit-panel { padding:12px; border:1px solid var(--line); border-radius:12px; background:#fbfcff; }
+.vendor-edit-grid { display:grid; grid-template-columns:.7fr 1.2fr .9fr .9fr .7fr .7fr; gap:10px; align-items:end; }
+.vendor-edit-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.vendor-edit-row td { background:#fbfcff; }
+@media(max-width:1050px){ .vendor-edit-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:640px){ .vendor-edit-grid { grid-template-columns:1fr; } }
 @media(max-width:1150px){ .vendor-form-grid { grid-template-columns:1fr 1fr; } .vendor-form-grid .full { grid-column:1 / -1; } }
 @media(max-width:640px){ .vendor-form-grid { grid-template-columns:1fr; } }
 
@@ -3239,8 +3245,8 @@ td .inventory-readonly-value {
     <div class="vendor-note" id="vendorNote">Vendor records load from the Supabase vendors table. Run the vendor SQL setup once before using this section.</div>
     <div class="incoming-table-wrap">
       <table class="vendor-table">
-        <thead><tr><th>PST Vendor ID</th><th>Company</th><th>Contact</th><th>WhatsApp</th><th>Lead Time</th><th>Status</th></tr></thead>
-        <tbody id="vendorBody"><tr><td colspan="6" class="note">Loading vendors...</td></tr></tbody>
+        <thead><tr><th>PST Vendor ID</th><th>Company</th><th>Contact</th><th>WhatsApp</th><th>Lead Time</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="vendorBody"><tr><td colspan="7" class="note">Loading vendors...</td></tr></tbody>
       </table>
     </div>
     <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
@@ -3532,6 +3538,7 @@ let selectedIncomingPoLineIds = new Set();
 let incomingPoHistoryVisible = false;
 let vendors = [];
 let vendorsAvailable = false;
+let editingVendorId = null;
 const PST_INCOMING_LEAD_DAYS = 10;
 const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
 const PST_INCOMING_MIGRATION_KEY = "pst_incoming_inventory_migrated_to_supabase_v1";
@@ -3668,6 +3675,30 @@ function updateIncomingVendorInfo() {
   }
 }
 
+function vendorEditRowHTML(vendor) {
+  const id = esc(vendor.id);
+  return `
+    <tr class="vendor-edit-row" data-editing-vendor-id="${id}">
+      <td colspan="7">
+        <div class="vendor-edit-panel">
+          <div class="vendor-edit-grid">
+            <div class="field"><label>PST Vendor ID</label><input type="text" value="${esc(vendor.pst_vendor_id || "")}" readonly></div>
+            <div class="field"><label>Company Name</label><input data-vendor-edit="${id}" data-field="company_name" type="text" value="${esc(vendor.company_name || "")}"></div>
+            <div class="field"><label>Contact Name</label><input data-vendor-edit="${id}" data-field="contact_name" type="text" value="${esc(vendor.contact_name || "")}"></div>
+            <div class="field"><label>WhatsApp</label><input data-vendor-edit="${id}" data-field="whatsapp_number" type="text" value="${esc(vendor.whatsapp_number || "")}"></div>
+            <div class="field"><label>Lead Time (Days)</label><input data-vendor-edit="${id}" data-field="standard_shipping_lead_time" type="number" min="0" step="1" value="${Number(vendor.standard_shipping_lead_time ?? PST_INCOMING_LEAD_DAYS)}"></div>
+            <div class="field"><label>Status</label><select data-vendor-edit="${id}" data-field="is_active"><option value="true" ${vendor.is_active !== false ? "selected" : ""}>Active</option><option value="false" ${vendor.is_active === false ? "selected" : ""}>Inactive</option></select></div>
+          </div>
+          <div class="field" style="margin-top:10px;"><label>Address</label><input data-vendor-edit="${id}" data-field="address" type="text" value="${esc(vendor.address || "")}"></div>
+          <div class="vendor-edit-actions">
+            <button class="btn success save-vendor-edit-btn" data-vendor-id="${id}" type="button">Save Changes</button>
+            <button class="btn secondary cancel-vendor-edit-btn" type="button">Cancel</button>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+}
+
 function renderVendors() {
   const body = $("vendorBody");
   const note = $("vendorNote");
@@ -3676,24 +3707,86 @@ function renderVendors() {
   populateVendorDropdown();
   if (!body) return;
   if (!vendorsAvailable) {
-    body.innerHTML = `<tr><td colspan="6" class="note">Vendor table is not ready. Run the vendor SQL setup first.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="7" class="note">Vendor table is not ready. Run the vendor SQL setup first.</td></tr>`;
     if (note) note.textContent = "Vendor records are not available yet. Run the vendor SQL setup in Supabase, then refresh this page.";
     return;
   }
-  if (note) note.textContent = `Loaded ${vendors.length} vendor${vendors.length === 1 ? "" : "s"}. Incoming purchase orders can now use vendor lead times.`;
+  if (note) note.textContent = `Loaded ${vendors.length} vendor${vendors.length === 1 ? "" : "s"}. Select Edit to update company, contact, WhatsApp, address, lead time, or active status.`;
   if (!vendors.length) {
-    body.innerHTML = `<tr><td colspan="6" class="note">No vendors added yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="7" class="note">No vendors added yet.</td></tr>`;
     return;
   }
-  body.innerHTML = vendors.map(vendor => `
-    <tr>
-      <td><span class="vendor-id-pill">${esc(vendor.pst_vendor_id || "")}</span></td>
-      <td><strong>${esc(vendor.company_name || "")}</strong><div class="note">${esc(vendor.address || "")}</div></td>
-      <td>${esc(vendor.contact_name || "")}</td>
-      <td>${esc(vendor.whatsapp_number || "")}</td>
-      <td>${Number(vendor.standard_shipping_lead_time ?? PST_INCOMING_LEAD_DAYS)} day(s)</td>
-      <td>${vendor.is_active === false ? `<span class="status-pill inactive-pill">Inactive</span>` : `<span class="status-pill active-pill">Active</span>`}</td>
-    </tr>`).join("");
+  body.innerHTML = vendors.map(vendor => {
+    const baseRow = `
+      <tr>
+        <td><span class="vendor-id-pill">${esc(vendor.pst_vendor_id || "")}</span></td>
+        <td><strong>${esc(vendor.company_name || "")}</strong><div class="note">${esc(vendor.address || "")}</div></td>
+        <td>${esc(vendor.contact_name || "")}</td>
+        <td>${esc(vendor.whatsapp_number || "")}</td>
+        <td>${Number(vendor.standard_shipping_lead_time ?? PST_INCOMING_LEAD_DAYS)} day(s)</td>
+        <td>${vendor.is_active === false ? `<span class="status-pill inactive-pill">Inactive</span>` : `<span class="status-pill active-pill">Active</span>`}</td>
+        <td><button class="btn secondary edit-vendor-btn" data-vendor-id="${esc(vendor.id)}" type="button">Edit</button></td>
+      </tr>`;
+    return editingVendorId && String(editingVendorId) === String(vendor.id)
+      ? baseRow + vendorEditRowHTML(vendor)
+      : baseRow;
+  }).join("");
+
+  document.querySelectorAll(".edit-vendor-btn").forEach(btn => btn.addEventListener("click", () => {
+    editingVendorId = btn.dataset.vendorId;
+    renderVendors();
+    document.querySelector(`[data-editing-vendor-id="${CSS.escape(String(editingVendorId))}"]`)?.scrollIntoView({ behavior:"smooth", block:"nearest" });
+  }));
+  document.querySelectorAll(".cancel-vendor-edit-btn").forEach(btn => btn.addEventListener("click", () => {
+    editingVendorId = null;
+    renderVendors();
+  }));
+  document.querySelectorAll(".save-vendor-edit-btn").forEach(btn => btn.addEventListener("click", () => {
+    saveVendorEdit(btn.dataset.vendorId).catch(err => {
+      console.error("Vendor update failed:", err);
+      setStatus(err.message || "Vendor could not be updated.", "bad");
+    });
+  }));
+}
+
+function vendorEditField(id, field) {
+  return Array.from(document.querySelectorAll("[data-vendor-edit]"))
+    .find(el => String(el.dataset.vendorEdit) === String(id) && el.dataset.field === field) || null;
+}
+
+async function saveVendorEdit(id) {
+  const vendor = vendors.find(row => String(row.id) === String(id));
+  if (!vendor) throw new Error("Vendor record was not found.");
+
+  const companyName = cleanText(vendorEditField(id, "company_name")?.value);
+  if (!companyName) {
+    vendorEditField(id, "company_name")?.focus();
+    throw new Error("Company name is required.");
+  }
+
+  const lead = Number(vendorEditField(id, "standard_shipping_lead_time")?.value);
+  if (!Number.isFinite(lead) || lead < 0) {
+    vendorEditField(id, "standard_shipping_lead_time")?.focus();
+    throw new Error("Lead time must be zero or greater.");
+  }
+
+  const updates = {
+    company_name: companyName,
+    address: cleanText(vendorEditField(id, "address")?.value) || null,
+    contact_name: cleanText(vendorEditField(id, "contact_name")?.value) || null,
+    whatsapp_number: cleanText(vendorEditField(id, "whatsapp_number")?.value) || null,
+    standard_shipping_lead_time: lead,
+    is_active: vendorEditField(id, "is_active")?.value !== "false",
+    updated_at: new Date().toISOString()
+  };
+
+  const { data, error } = await db.from("vendors").update(updates).eq("id", id).select("*").single();
+  if (error) throw error;
+
+  vendors = vendors.map(row => String(row.id) === String(id) ? data : row);
+  editingVendorId = null;
+  renderVendors();
+  setStatus(`${vendor.pst_vendor_id || "Vendor"} updated: ${updates.company_name}.`, "good");
 }
 
 async function loadVendors() {
