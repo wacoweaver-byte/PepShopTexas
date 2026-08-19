@@ -13,7 +13,7 @@
 #pst-header-v3 {
   box-sizing: border-box !important;
   width: 100% !important;
-  min-height: 72px !important;
+  min-height: 64px !important;
   margin: 0 !important;
   padding: 0 34px !important;
   background: #fff !important;
@@ -46,7 +46,7 @@
 
 #pst-header-v3 .pst-right {
   justify-content: flex-end !important;
-  gap: 18px !important;
+  gap: 16px !important;
 }
 
 #pst-header-v3 a {
@@ -60,7 +60,7 @@
 
 #pst-header-v3 .pst-left a {
   position: relative !important;
-  padding: 27px 0 24px !important;
+  padding: 23px 0 20px !important;
   font-size: clamp(11px, .82vw, 13px) !important;
 }
 
@@ -71,7 +71,7 @@
   position: absolute !important;
   left: 0 !important;
   right: 0 !important;
-  bottom: 18px !important;
+  bottom: 14px !important;
   height: 1px !important;
   background: var(--pst-gold) !important;
   transform: scaleX(0) !important;
@@ -103,7 +103,7 @@
   display: inline-flex !important;
   align-items: center !important;
   align-self: center !important;
-  min-height: 72px !important;
+  min-height: 64px !important;
   gap: 7px !important;
   color: var(--pst-navy) !important;
   font-size: 12px !important;
@@ -157,9 +157,9 @@
 }
 
 #pst-header-v3 .pst-search {
-  width: clamp(190px, 18vw, 260px) !important;
+  width: clamp(190px, 17vw, 250px) !important;
   min-width: 180px !important;
-  height: 40px !important;
+  height: 36px !important;
   margin: 0 !important;
   padding: 0 !important;
   display: flex !important;
@@ -168,7 +168,7 @@
   border: 1px solid #d8dce2 !important;
   border-radius: 2px !important;
   overflow: hidden !important;
-  flex: 0 1 260px !important;
+  flex: 0 1 250px !important;
   transition: border-color .18s ease, box-shadow .18s ease !important;
 }
 
@@ -197,11 +197,11 @@
 }
 
 #pst-header-v3 .pst-search button {
-  flex: 0 0 40px !important;
-  width: 40px !important;
-  height: 38px !important;
+  flex: 0 0 38px !important;
+  width: 38px !important;
+  height: 36px !important;
   margin: 0 !important;
-  padding: 9px !important;
+  padding: 8px !important;
   border: 0 !important;
   border-left: 1px solid #ece8e1 !important;
   background: #fff !important;
@@ -211,8 +211,8 @@
 }
 
 #pst-header-v3 .pst-search svg {
-  width: 19px !important;
-  height: 19px !important;
+  width: 18px !important;
+  height: 18px !important;
   fill: none !important;
   stroke: var(--pst-navy) !important;
   stroke-width: 1.8 !important;
