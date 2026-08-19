@@ -1,52 +1,222 @@
 /* Pep Shop Texas — homepage-only stylesheet. */
 
+/* Stage 1: premium customer header. Functionality/links remain unchanged. */
+:root {
+  --pst-navy: #102a43;
+  --pst-navy-deep: #0b2037;
+  --pst-gold: #b79a63;
+  --pst-gold-soft: #d8c8a4;
+  --pst-header-line: #e8e3da;
+  --pst-header-muted: #6f7782;
+}
+
 #pst-header-v3 {
   box-sizing: border-box !important;
   width: 100% !important;
-  min-height: 66px !important;
+  min-height: 72px !important;
   margin: 0 !important;
-  padding: 0 28px !important;
-  background: #050505 !important;
+  padding: 0 34px !important;
+  background: #fff !important;
+  border-bottom: 1px solid var(--pst-header-line) !important;
   display: grid !important;
-  grid-template-columns: minmax(380px, 1fr) 180px minmax(520px, 1fr) !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
   align-items: center !important;
-  gap: 20px !important;
+  gap: 28px !important;
   position: relative !important;
   z-index: 10 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
+  font-family: "Avenir Next", "Segoe UI", Arial, Helvetica, sans-serif !important;
+  box-shadow: none !important;
 }
 
 #pst-header-v3 * { box-sizing: border-box !important; }
+#pst-header-v3 .pst-logo { display: none !important; }
+
 #pst-header-v3 .pst-left,
-#pst-header-v3 .pst-right { display: flex !important; align-items: center !important; min-width: 0 !important; }
-#pst-header-v3 .pst-left { justify-content: flex-start !important; gap: clamp(18px, 2vw, 34px) !important; }
-#pst-header-v3 .pst-right { justify-content: flex-end !important; gap: 18px !important; }
-#pst-header-v3 a { color: #fff !important; text-decoration: none !important; font-weight: 700 !important; white-space: nowrap !important; }
-#pst-header-v3 .pst-left a { font-size: clamp(12px, .95vw, 15px) !important; }
-#pst-header-v3 .pst-logo { display: block !important; justify-self: center !important; line-height: 0 !important; }
-#pst-header-v3 .pst-logo img { display: block !important; width: 180px !important; height: 84px !important; object-fit: contain !important; }
-#pst-header-v3 .pst-account { display: flex !important; align-items: center !important; gap: 9px !important; line-height: 1.05 !important; }
-#pst-header-v3 .pst-account strong { display: block !important; font-size: 14px !important; }
-#pst-header-v3 .pst-account small { display: block !important; margin-top: 4px !important; font-size: 11px !important; font-weight: 500 !important; }
-#pst-header-v3 .pst-account-icon { font-size: 22px !important; }
-#pst-header-v3 .pst-admin { border-left: 1px solid rgba(255,255,255,.45) !important; padding-left: 18px !important; font-size: 14px !important; }
+#pst-header-v3 .pst-right {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
+}
+
+#pst-header-v3 .pst-left {
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: clamp(16px, 2vw, 34px) !important;
+}
+
+#pst-header-v3 .pst-right {
+  justify-content: flex-end !important;
+  gap: 18px !important;
+}
+
+#pst-header-v3 a {
+  color: var(--pst-navy) !important;
+  text-decoration: none !important;
+  font-weight: 650 !important;
+  letter-spacing: .055em !important;
+  white-space: nowrap !important;
+  transition: color .18s ease, border-color .18s ease !important;
+}
+
+#pst-header-v3 .pst-left a {
+  position: relative !important;
+  padding: 27px 0 24px !important;
+  font-size: clamp(11px, .82vw, 13px) !important;
+}
+
+#pst-header-v3 .pst-left a::after,
+#pst-header-v3 .pst-account::after,
+#pst-header-v3 .pst-header-cart::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 18px !important;
+  height: 1px !important;
+  background: var(--pst-gold) !important;
+  transform: scaleX(0) !important;
+  transform-origin: center !important;
+  transition: transform .18s ease !important;
+}
+
+#pst-header-v3 .pst-left a:hover,
+#pst-header-v3 .pst-left a:focus-visible,
+#pst-header-v3 .pst-account:hover,
+#pst-header-v3 .pst-account:focus-visible,
+#pst-header-v3 .pst-header-cart:hover,
+#pst-header-v3 .pst-header-cart:focus-visible {
+  color: var(--pst-navy-deep) !important;
+}
+
+#pst-header-v3 .pst-left a:hover::after,
+#pst-header-v3 .pst-left a:focus-visible::after,
+#pst-header-v3 .pst-account:hover::after,
+#pst-header-v3 .pst-account:focus-visible::after,
+#pst-header-v3 .pst-header-cart:hover::after,
+#pst-header-v3 .pst-header-cart:focus-visible::after {
+  transform: scaleX(1) !important;
+}
+
+#pst-header-v3 .pst-header-cart,
+#pst-header-v3 .pst-account {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  align-self: center !important;
+  min-height: 72px !important;
+  gap: 7px !important;
+  color: var(--pst-navy) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: .055em !important;
+  line-height: 1 !important;
+}
+
+#pst-header-v3 .pst-header-cart [data-cart-count] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 21px !important;
+  height: 21px !important;
+  padding: 0 6px !important;
+  border: 1px solid var(--pst-gold-soft) !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  color: var(--pst-navy) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+#pst-header-v3 .pst-account strong {
+  display: block !important;
+  color: inherit !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+#pst-header-v3 .pst-account small {
+  display: block !important;
+  margin-top: 3px !important;
+  color: var(--pst-header-muted) !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+#pst-header-v3 .pst-account-icon {
+  color: var(--pst-gold) !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+}
+
+#pst-header-v3 .pst-admin {
+  border-left: 1px solid var(--pst-header-line) !important;
+  padding-left: 18px !important;
+  font-size: 12px !important;
+}
 
 #pst-header-v3 .pst-search {
-  width: 280px !important;
-  min-width: 220px !important;
-  height: 46px !important;
+  width: clamp(190px, 18vw, 260px) !important;
+  min-width: 180px !important;
+  height: 40px !important;
   margin: 0 !important;
   padding: 0 !important;
   display: flex !important;
   align-items: stretch !important;
   background: #fff !important;
-  border-radius: 7px !important;
+  border: 1px solid #d8dce2 !important;
+  border-radius: 2px !important;
   overflow: hidden !important;
-  flex: 0 1 280px !important;
+  flex: 0 1 260px !important;
+  transition: border-color .18s ease, box-shadow .18s ease !important;
 }
-#pst-header-v3 .pst-search input { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; height: 46px !important; margin: 0 !important; border: 0 !important; padding: 0 14px !important; background: #fff !important; color: #111 !important; font-size: 15px !important; outline: none !important; }
-#pst-header-v3 .pst-search button { flex: 0 0 46px !important; width: 46px !important; height: 46px !important; margin: 0 !important; padding: 11px !important; border: 0 !important; background: #fff !important; display: grid !important; place-items: center !important; }
-#pst-header-v3 .pst-search svg { width: 23px !important; height: 23px !important; fill: none !important; stroke: #000 !important; stroke-width: 2 !important; }
+
+#pst-header-v3 .pst-search:focus-within {
+  border-color: var(--pst-gold) !important;
+  box-shadow: 0 0 0 2px rgba(183,154,99,.10) !important;
+}
+
+#pst-header-v3 .pst-search input {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 38px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  padding: 0 12px !important;
+  background: #fff !important;
+  color: var(--pst-navy-deep) !important;
+  font-size: 13px !important;
+  outline: none !important;
+}
+
+#pst-header-v3 .pst-search input::placeholder {
+  color: #9097a1 !important;
+  opacity: 1 !important;
+}
+
+#pst-header-v3 .pst-search button {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 38px !important;
+  margin: 0 !important;
+  padding: 9px !important;
+  border: 0 !important;
+  border-left: 1px solid #ece8e1 !important;
+  background: #fff !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+}
+
+#pst-header-v3 .pst-search svg {
+  width: 19px !important;
+  height: 19px !important;
+  fill: none !important;
+  stroke: var(--pst-navy) !important;
+  stroke-width: 1.8 !important;
+}
 
 #pst-hero-v3 { width: 100% !important; height: 469px !important; max-height: 469px !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; background: #fff !important; }
 #pst-hero-v3 img { display: block !important; width: 100% !important; height: 100% !important; max-width: none !important; max-height: none !important; margin: 0 !important; object-fit: fill !important; object-position: center 48% !important; }
@@ -95,14 +265,41 @@
 @media (max-width: 1400px) {
   #pst-hero-v3 { height: auto !important; max-height: none !important; background: #000 !important; }
   #pst-hero-v3 img { width: 100% !important; height: auto !important; object-fit: contain !important; object-position: center top !important; }
-  #pst-header-v3 { grid-template-columns: 1fr !important; grid-template-rows: auto auto auto !important; padding: 10px 16px 14px !important; gap: 10px !important; align-items: center !important; justify-items: center !important; }
-  #pst-header-v3 .pst-logo { grid-column: 1 !important; grid-row: 1 !important; justify-self: center !important; width: auto !important; }
-  #pst-header-v3 .pst-logo img { width: 155px !important; height: 70px !important; }
-  #pst-header-v3 .pst-right { grid-column: 1 !important; grid-row: 2 / 4 !important; width: 100% !important; display: contents !important; }
-  #pst-header-v3 .pst-search { grid-column: 1 !important; grid-row: 2 !important; width: min(100%,430px) !important; min-width: 0 !important; max-width: 430px !important; height: 52px !important; margin: 0 auto !important; }
-  #pst-header-v3 .pst-search input,
-  #pst-header-v3 .pst-search button { height: 52px !important; }
-  #pst-header-v3 .pst-left { grid-column: 1 !important; grid-row: 3 !important; width: 100% !important; display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; align-items: center !important; justify-content: center !important; gap: 8px 22px !important; }
+}
+
+@media (max-width: 1100px) {
+  #pst-header-v3 {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    padding: 10px 20px 12px !important;
+  }
+  #pst-header-v3 .pst-left {
+    justify-content: center !important;
+    gap: 8px clamp(14px, 3vw, 28px) !important;
+    border-bottom: 1px solid #f0ece5 !important;
+  }
+  #pst-header-v3 .pst-left a {
+    padding: 10px 0 12px !important;
+  }
+  #pst-header-v3 .pst-left a::after { bottom: 6px !important; }
+  #pst-header-v3 .pst-right {
+    width: 100% !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 10px 16px !important;
+    padding-top: 10px !important;
+  }
+  #pst-header-v3 .pst-header-cart,
+  #pst-header-v3 .pst-account {
+    min-height: 40px !important;
+  }
+  #pst-header-v3 .pst-header-cart::after,
+  #pst-header-v3 .pst-account::after { bottom: 2px !important; }
+  #pst-header-v3 .pst-search {
+    width: min(100%, 420px) !important;
+    max-width: 420px !important;
+    flex-basis: 320px !important;
+  }
 }
 
 @media (max-width: 900px) {
@@ -112,12 +309,15 @@
 }
 
 @media (max-width: 600px) {
-  #pst-header-v3 { padding: 8px 12px 12px !important; gap: 9px !important; }
-  #pst-header-v3 .pst-logo img { width: 132px !important; height: 60px !important; }
-  #pst-header-v3 .pst-left { gap: 7px 14px !important; }
-  #pst-header-v3 .pst-left a { font-size: 11.5px !important; }
-  #pst-header-v3 .pst-account strong { font-size: 12px !important; }
-  #pst-header-v3 .pst-account small { font-size: 9.5px !important; }
+  #pst-header-v3 { padding: 8px 12px 10px !important; }
+  #pst-header-v3 .pst-left { gap: 4px 14px !important; }
+  #pst-header-v3 .pst-left a { font-size: 10.5px !important; letter-spacing: .04em !important; }
+  #pst-header-v3 .pst-right { gap: 7px 12px !important; }
+  #pst-header-v3 .pst-header-cart,
+  #pst-header-v3 .pst-account { font-size: 11px !important; }
+  #pst-header-v3 .pst-account strong { font-size: 11px !important; }
+  #pst-header-v3 .pst-account small { font-size: 9px !important; }
+  #pst-header-v3 .pst-search { order: 3 !important; flex: 1 1 100% !important; width: 100% !important; max-width: 100% !important; }
   .quick-panel { grid-template-columns: 1fr; width: calc(100% - 24px); }
   .quick-link { min-height: 132px; }
   .product-grid, .promo-band { width: calc(100% - 24px); }
