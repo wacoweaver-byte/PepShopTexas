@@ -467,3 +467,496 @@ padding: 5px 3px !important;
     font-weight: 500 !important;
   }
 }
+
+
+/* =========================================================
+   PST CUSTOMER STOREFRONT — PREMIUM NAVY / GOLD PASS
+   Shared customer header + catalog presentation
+   ========================================================= */
+
+:root {
+  --pst-navy: #132a46;
+  --pst-navy-deep: #0d2038;
+  --pst-gold: #c79a49;
+  --pst-gold-soft: #d7b66e;
+  --pst-text: #17283d;
+  --pst-muted: #6f7883;
+  --pst-line: #e5e0d7;
+  --pst-white: #ffffff;
+}
+
+html,
+body {
+  background: var(--pst-white) !important;
+}
+
+body {
+  color: var(--pst-text);
+}
+
+/* ---------- Shared customer header ---------- */
+
+.pst-customer-header {
+  width: 100% !important;
+  margin: 0 !important;
+  background: #fff !important;
+  border-bottom: 1px solid #ece8e0 !important;
+  box-shadow: none !important;
+  color: var(--pst-navy) !important;
+}
+
+.pst-customer-header-inner {
+  box-sizing: border-box !important;
+  width: min(1500px, calc(100% - 48px)) !important;
+  min-height: 72px !important;
+  margin: 0 auto !important;
+  padding: 8px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 28px !important;
+}
+
+.pst-customer-logo-link {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+}
+
+.pst-customer-header-logo {
+  display: block !important;
+  width: auto !important;
+  max-width: 172px !important;
+  max-height: 54px !important;
+  object-fit: contain !important;
+}
+
+.pst-customer-header-right {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 24px !important;
+}
+
+.pst-customer-nav {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: wrap !important;
+  gap: clamp(14px, 1.65vw, 28px) !important;
+}
+
+.pst-customer-nav a,
+.pst-customer-nav a:visited {
+  color: var(--pst-navy) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  letter-spacing: .045em !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  transition: color .16s ease !important;
+}
+
+.pst-customer-nav a:hover,
+.pst-customer-nav a:focus-visible {
+  color: var(--pst-gold) !important;
+}
+
+.pst-customer-nav a span[aria-hidden="true"] {
+  font-size: .8em !important;
+  color: currentColor !important;
+}
+
+.pst-cart-count {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  padding: 0 6px !important;
+  margin-left: 4px !important;
+  border: 1px solid var(--pst-gold) !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  color: var(--pst-navy) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+}
+
+.pst-customer-search {
+  flex: 0 1 240px !important;
+  width: 240px !important;
+  min-width: 190px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: #fff !important;
+  border: 1px solid #d9dde2 !important;
+  border-radius: 2px !important;
+  overflow: hidden !important;
+  transition: border-color .16s ease, box-shadow .16s ease !important;
+}
+
+.pst-customer-search:focus-within {
+  border-color: var(--pst-gold) !important;
+  box-shadow: 0 0 0 2px rgba(199,154,73,.10) !important;
+}
+
+.pst-customer-search input {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 38px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: #fff !important;
+  color: var(--pst-navy) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+}
+
+.pst-customer-search button {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 38px !important;
+  margin: 0 !important;
+  padding: 10px !important;
+  border: 0 !important;
+  background: #fff !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.pst-customer-search svg {
+  width: 18px !important;
+  height: 18px !important;
+  fill: none !important;
+  stroke: var(--pst-navy) !important;
+  stroke-width: 1.8 !important;
+}
+
+/* ---------- Catalog page shell ---------- */
+
+.catalog-page {
+  box-sizing: border-box !important;
+  width: min(1380px, calc(100% - 64px)) !important;
+  margin: 0 auto !important;
+  padding: 58px 0 80px !important;
+  background: #fff !important;
+}
+
+.page-heading {
+  margin: 0 0 34px !important;
+  text-align: center !important;
+}
+
+.page-heading p {
+  display: none !important;
+}
+
+.page-heading h1 {
+  margin: 0 !important;
+  color: var(--pst-navy) !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: clamp(36px, 4.6vw, 58px) !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: .025em !important;
+}
+
+.catalog-heading-rule {
+  width: 56px !important;
+  height: 2px !important;
+  margin: 17px auto 0 !important;
+  background: var(--pst-gold) !important;
+}
+
+/* ---------- Search / filter bar ---------- */
+
+.catalog-toolbar {
+  display: grid !important;
+  grid-template-columns: minmax(260px, 1fr) minmax(190px, 270px) !important;
+  gap: 16px !important;
+  width: min(930px, 100%) !important;
+  margin: 0 auto 44px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.catalog-toolbar input,
+.catalog-toolbar select {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-height: 46px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  color: var(--pst-navy) !important;
+  background: #fff !important;
+  border: 1px solid #d8dce1 !important;
+  border-radius: 2px !important;
+  outline: none !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: border-color .16s ease, box-shadow .16s ease !important;
+}
+
+.catalog-toolbar input:focus,
+.catalog-toolbar select:focus {
+  border-color: var(--pst-gold) !important;
+  box-shadow: 0 0 0 2px rgba(199,154,73,.10) !important;
+}
+
+/* ---------- Catalog grid ---------- */
+
+.catalog-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  column-gap: clamp(30px, 4vw, 62px) !important;
+  row-gap: 48px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.catalog-card {
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 0 24px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--pst-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.catalog-card-main {
+  display: grid !important;
+  align-content: start !important;
+  min-width: 0 !important;
+}
+
+.catalog-card-main > p {
+  order: 2 !important;
+  margin: 5px 0 0 !important;
+  color: var(--pst-muted) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: .08em !important;
+  line-height: 1.3 !important;
+  text-transform: uppercase !important;
+}
+
+.catalog-card-main > [data-catalog-sale] {
+  order: 3 !important;
+  margin-top: 8px !important;
+}
+
+.catalog-card h2 {
+  order: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: clamp(23px, 2vw, 30px) !important;
+  font-weight: 500 !important;
+  line-height: 1.12 !important;
+  letter-spacing: .01em !important;
+}
+
+.catalog-card h2 a,
+.catalog-card h2 a:visited {
+  color: var(--pst-navy) !important;
+  text-decoration: none !important;
+  transition: color .16s ease !important;
+}
+
+.catalog-card h2 a:hover,
+.catalog-card h2 a:focus-visible {
+  color: var(--pst-gold) !important;
+}
+
+.catalog-dose-options {
+  order: 4 !important;
+  display: grid !important;
+  gap: 0 !important;
+  width: 100% !important;
+  margin-top: 18px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid #ece9e3 !important;
+}
+
+.catalog-dose-option,
+.catalog-variant,
+.catalog-product-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-height: 38px !important;
+  padding: 7px 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #f0eee9 !important;
+  background: transparent !important;
+}
+
+.catalog-dose-option:last-child,
+.catalog-variant:last-child,
+.catalog-product-row:last-child {
+  border-bottom: 0 !important;
+}
+
+.catalog-dose-name,
+.catalog-dose-name:visited {
+  min-width: 0 !important;
+  color: var(--pst-navy) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: .025em !important;
+  text-decoration: none !important;
+}
+
+.catalog-dose-name:hover,
+.catalog-dose-name:focus-visible {
+  color: var(--pst-gold) !important;
+}
+
+.catalog-price,
+.catalog-dose-option > strong,
+.catalog-variant > strong,
+.catalog-product-row > strong {
+  width: auto !important;
+  min-width: 0 !important;
+  justify-self: end !important;
+  margin: 0 !important;
+  color: var(--pst-navy) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-align: right !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Operational warehouse information and direct catalog cart controls
+   stay in the DOM for compatibility but are intentionally not shown
+   in the premium customer catalog. */
+.catalog-stock,
+.catalog-incoming-pill,
+.catalog-row-actions,
+.card-cart-button {
+  display: none !important;
+}
+
+.loading-row {
+  grid-column: 1 / -1 !important;
+  padding: 40px 0 !important;
+  color: var(--pst-muted) !important;
+  text-align: center !important;
+}
+
+/* ---------- Responsive catalog ---------- */
+
+@media (max-width: 1100px) {
+  .pst-customer-header-inner {
+    width: calc(100% - 32px) !important;
+    flex-wrap: wrap !important;
+    gap: 12px 18px !important;
+  }
+
+  .pst-customer-logo-link {
+    order: 1 !important;
+  }
+
+  .pst-customer-header-right {
+    order: 2 !important;
+    flex: 1 1 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 14px !important;
+  }
+
+  .pst-customer-search {
+    width: 100% !important;
+    max-width: 430px !important;
+  }
+
+  .catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .pst-customer-header-inner {
+    width: calc(100% - 24px) !important;
+    min-height: 0 !important;
+    padding: 10px 0 12px !important;
+    justify-content: center !important;
+  }
+
+  .pst-customer-logo-link {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .pst-customer-header-logo {
+    max-width: 145px !important;
+    max-height: 48px !important;
+  }
+
+  .pst-customer-header-right {
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    width: 100% !important;
+  }
+
+  .pst-customer-search {
+    width: min(100%, 420px) !important;
+    max-width: 420px !important;
+    min-width: 0 !important;
+  }
+
+  .pst-customer-nav {
+    width: 100% !important;
+    justify-content: center !important;
+    gap: 9px 16px !important;
+  }
+
+  .pst-customer-nav a,
+  .pst-customer-nav a:visited {
+    font-size: 11.5px !important;
+  }
+
+  .catalog-page {
+    width: calc(100% - 28px) !important;
+    padding: 38px 0 58px !important;
+  }
+
+  .catalog-toolbar {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 34px !important;
+  }
+
+  .catalog-grid {
+    grid-template-columns: 1fr !important;
+    row-gap: 30px !important;
+  }
+
+  .catalog-card {
+    padding-bottom: 20px !important;
+  }
+}
+
