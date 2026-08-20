@@ -85,20 +85,20 @@
   white-space: nowrap !important;
 }
 
-/* Catalog strength selector — one compact control instead of stacked strength rows. */
-.catalog-variant-picker {
+/* Catalog quick-buy: strength + price in one control, with direct Add to Cart. */
+.catalog-quick-buy {
   order: 4 !important;
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
   align-items: center !important;
-  gap: 14px !important;
+  gap: 10px !important;
   width: 100% !important;
   margin-top: 18px !important;
   padding-top: 12px !important;
   border-top: 1px solid #ece9e3 !important;
 }
 
-.catalog-strength-select {
+.catalog-variant-box {
   box-sizing: border-box !important;
   width: 100% !important;
   min-width: 0 !important;
@@ -113,6 +113,12 @@
   font-family: Arial, Helvetica, sans-serif !important;
   font-size: 13px !important;
   font-weight: 700 !important;
+  line-height: 38px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.catalog-single-variant {
+  padding-right: 11px !important;
 }
 
 .catalog-strength-select:focus {
@@ -120,31 +126,47 @@
   box-shadow: 0 0 0 2px rgba(199, 154, 73, .10) !important;
 }
 
-.catalog-selected-price {
-  justify-self: end !important;
+.catalog-add-button,
+.catalog-add-button.card-cart-button {
+  box-sizing: border-box !important;
+  min-width: 112px !important;
+  height: 38px !important;
   margin: 0 !important;
-  color: var(--pst-navy) !important;
+  padding: 0 16px !important;
+  border: 1px solid var(--pst-navy) !important;
+  border-radius: 2px !important;
+  background: var(--pst-navy) !important;
+  color: #fff !important;
   font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 14px !important;
+  font-size: 12px !important;
   font-weight: 700 !important;
-  line-height: 1 !important;
-  text-align: right !important;
+  line-height: 36px !important;
+  letter-spacing: .045em !important;
+  text-transform: uppercase !important;
   white-space: nowrap !important;
-  font-variant-numeric: tabular-nums !important;
+  cursor: pointer !important;
 }
 
-.catalog-single-strength {
+.catalog-add-button:hover:not(:disabled),
+.catalog-add-button:focus-visible:not(:disabled),
+.catalog-add-button.card-cart-button:hover:not(:disabled),
+.catalog-add-button.card-cart-button:focus-visible:not(:disabled) {
+  border-color: var(--pst-gold) !important;
+  background: var(--pst-gold) !important;
   color: var(--pst-navy) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  letter-spacing: .025em !important;
-  text-decoration: none !important;
 }
 
-.catalog-single-strength:hover,
-.catalog-single-strength:focus-visible {
-  color: var(--pst-gold) !important;
+.catalog-add-button.is-added,
+.catalog-add-button.card-cart-button.is-added {
+  border-color: var(--pst-gold) !important;
+  background: var(--pst-gold) !important;
+  color: var(--pst-navy) !important;
+}
+
+.catalog-add-button:disabled,
+.catalog-add-button.card-cart-button:disabled {
+  opacity: .45 !important;
+  cursor: not-allowed !important;
 }
 
 @media (max-width: 700px) {
@@ -161,12 +183,26 @@
     font-size: 11px !important;
   }
 
-  .catalog-variant-picker {
-    gap: 10px !important;
+  .catalog-quick-buy {
+    gap: 8px !important;
   }
 
-  .catalog-strength-select {
+  .catalog-variant-box,
+  .catalog-add-button,
+  .catalog-add-button.card-cart-button {
     height: 36px !important;
+  }
+
+  .catalog-variant-box {
     font-size: 12px !important;
+    line-height: 36px !important;
+  }
+
+  .catalog-add-button,
+  .catalog-add-button.card-cart-button {
+    min-width: 102px !important;
+    padding: 0 12px !important;
+    font-size: 11px !important;
+    line-height: 34px !important;
   }
 }
