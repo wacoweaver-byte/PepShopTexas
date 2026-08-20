@@ -1,4 +1,4 @@
-/* PST catalog display refinement: smaller supporting blend/stack formula text. */
+/* PST catalog display refinement: compact blend names + strength dropdowns. */
 (function () {
   function formattedCatalogDisplayName(value) {
     const name = String(value || "").trim();
@@ -9,8 +9,33 @@
     return `${escapeHtml(primary)} <span class="catalog-formula">${escapeHtml(formula)}</span>`;
   }
 
-  /* app.js defines productCard as a global function in this classic-script page.
-     Replace only the catalog heading markup; dose/price/cart behavior remains unchanged. */
+  function variantOption(product) {
+    return `<option value="${escapeAttribute(product.product_key)}" data-url="${escapeAttribute(productUrl(product))}" data-price-html="${escapeAttribute(priceHtml(product))}">${escapeHtml(product.strength || product.product_key)}</option>`;
+  }
+
+  function catalogVariantPicker(variants) {
+    const selected = variants[0];
+    if (variants.length === 1) {
+      return `
+        <div class="catalog-variant-picker catalog-variant-picker-single">
+          <a class="catalog-single-strength" href="${productUrl(selected)}">${escapeHtml(selected.strength || selected.product_key)}</a>
+          <strong class="catalog-selected-price">${priceHtml(selected)}</strong>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="catalog-variant-picker" data-catalog-variant-picker>
+        <select class="catalog-strength-select" aria-label="Select strength">
+          ${variants.map(variantOption).join("")}
+        </select>
+        <strong class="catalog-selected-price" data-catalog-selected-price>${priceHtml(selected)}</strong>
+      </div>
+    `;
+  }
+
+  /* app.js groups variants by display name. Keep that grouping, but render one
+     compact selector instead of one visible row per strength. */
   window.productCard = function productCard(group) {
     const variants = Array.isArray(group) ? group : [group];
     const selected = variants[0];
@@ -20,28 +45,30 @@
           <p>${escapeHtml(selected.category || "Research product")}</p>
           <span data-catalog-sale>${saleBadge(selected)}</span>
           <h2><a href="${productUrl(selected)}" data-catalog-link>${formattedCatalogDisplayName(selected.display_name)}</a></h2>
-          ${catalogDoseOptions(variants)}
+          ${catalogVariantPicker(variants)}
         </div>
       </article>
     `;
   };
 
-  const style = document.createElement("style");
-  style.id = "pst-catalog-formula-style";
-  style.textContent = `
-    .catalog-card h2 .catalog-formula {
-      font-family: Arial, Helvetica, sans-serif !important;
-      font-size: 13px !important;
-      font-weight: 500 !important;
-      line-height: 1 !important;
-      letter-spacing: 0 !important;
-      white-space: nowrap !important;
-    }
-    @media (max-width: 700px) {
-      .catalog-card h2 .catalog-formula {
-        font-size: 11px !important;
-      }
-    }
-  `;
-  document.head.appendChild(style);
+  document.addEventListener("change", (event) => {
+    const select = event.target.closest(".catalog-strength-select");
+    if (!select) return;
+
+    const option = select.selectedOptions[0];
+    const card = select.closest("[data-catalog-card]");
+    const productLink = card?.querySelector("[data-catalog-link]");
+    const price = card?.querySelector("[data-catalog-selected-price]");
+    const url = option?.dataset?.url || "";
+
+    if (productLink && url) productLink.href = url;
+    if (price) price.innerHTML = option?.dataset?.priceHtml || "";
+  });
+
+  document.addEventListener("dblclick", (event) => {
+    const select = event.target.closest(".catalog-strength-select");
+    if (!select) return;
+    const url = select.selectedOptions[0]?.dataset?.url;
+    if (url) window.location.href = url;
+  });
 })();
