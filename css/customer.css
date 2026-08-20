@@ -57,21 +57,21 @@
 .page-title,
 .section-title {
   margin: 0;
-  color: #080b10;
+  color: #102a43;
   font-size: clamp(38px, 5vw, 60px);
   line-height: 1;
   font-weight: 700;
 }
 .subtitle,
 .small {
-  color: var(--pst-muted, #596579);
+  color: #66717f;
   line-height: 1.55;
 }
 .underline {
   width: 46px;
   height: 4px;
   margin: 10px 0 22px;
-  background: #bd0000;
+  background: #c79a49;
 }
 
 /* Forms and authentication. */
@@ -83,7 +83,7 @@
 .contact-card,
 .policy {
   background: #fff;
-  border: 1px solid var(--pst-line, #d9e2ec);
+  border: 1px solid #e6e0d7;
   border-radius: 10px;
   box-shadow: 0 10px 28px rgba(18, 26, 38, .08);
 }
@@ -115,7 +115,7 @@
   padding: 10px 12px;
   color: #101820;
   background: #fff;
-  border: 1px solid var(--pst-line, #d9e2ec);
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
 }
 .check-row,
@@ -157,7 +157,7 @@
 .help-box {
   margin-top: 16px;
   padding: 12px 14px;
-  border: 1px solid var(--pst-line, #d9e2ec);
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
   background: #fff;
   line-height: 1.45;
@@ -185,19 +185,19 @@
 .faq-card p:last-child,
 .policy-card p:last-child { margin-bottom: 0; }
 .faq-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.faq-actions a { min-height: 34px; padding: 0 12px; display: inline-flex; align-items: center; border: 1px solid #000; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.faq-actions a { min-height: 34px; padding: 0 12px; display: inline-flex; align-items: center; border: 1px solid #102a43; border-radius: 999px; font-size: 12px; font-weight: 700; }
 .contact-shell { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, .75fr); gap: 18px; }
 .contact-primary,
 .contact-card { padding: 26px; }
 .contact-email { display: inline-block; margin-top: 12px; font-weight: 700; text-decoration: underline; }
 .quick-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0; }
-.quick-links a { min-height: 34px; padding: 0 12px; display: inline-flex; align-items: center; border: 1px solid #000; border-radius: 999px; font-size: 12px; font-weight: 700; }
-.updated { display: inline-flex; margin-top: 10px; font-size: 13px; color: var(--pst-muted, #596579); }
+.quick-links a { min-height: 34px; padding: 0 12px; display: inline-flex; align-items: center; border: 1px solid #102a43; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.updated { display: inline-flex; margin-top: 10px; font-size: 13px; color: #66717f; }
 .legal-page > .notice { margin-bottom: 20px; }
 .policy { padding: 24px; margin-bottom: 18px; scroll-margin-top: 110px; }
 .policy h2 { margin: 0 0 14px; font-size: 28px; }
 .policy h3 { margin: 22px 0 7px; }
-.strong-warning { margin: 14px 0; padding: 13px 14px; border-left: 4px solid #000; background: #f3f3f3; font-weight: 700; }
+.strong-warning { margin: 14px 0; padding: 13px 14px; border-left: 4px solid #102a43; background: #f3f3f3; font-weight: 700; }
 
 /* Account. */
 .account-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .9fr); gap: 18px; margin-top: 20px; }
@@ -216,7 +216,7 @@
 .order-meta { display: grid; gap: 4px; }
 .order-meta strong { color: #596579; font-size: 11px; text-transform: uppercase; }
 .order-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.badge { min-height: 30px; padding: 0 10px; display: inline-flex; align-items: center; border: 1px solid #000; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.badge { min-height: 30px; padding: 0 10px; display: inline-flex; align-items: center; border: 1px solid #102a43; border-radius: 999px; font-size: 11px; font-weight: 600; }
 .order-items { display: none; margin-top: 14px; }
 .order-items.active { display: block; }
 .item-line { display: grid; grid-template-columns: minmax(0, 1fr) 70px 90px 100px; gap: 10px; padding: 9px 0; border-top: 1px solid #edf0f3; }
@@ -468,777 +468,183 @@ padding: 5px 3px !important;
   }
 }
 
-
 /* =========================================================
-   PST CUSTOMER STOREFRONT — PREMIUM NAVY / GOLD PASS
-   Shared customer header + catalog presentation
+   PST CUSTOMER STOREFRONT — UNIFIED NAVY / GOLD SYSTEM
    ========================================================= */
-
 :root {
-  --pst-navy: #132a46;
-  --pst-navy-deep: #0d2038;
+  --pst-navy: #102a43;
   --pst-gold: #c79a49;
-  --pst-gold-soft: #d7b66e;
-  --pst-text: #17283d;
-  --pst-muted: #6f7883;
-  --pst-line: #e5e0d7;
-  --pst-white: #ffffff;
+  --pst-muted: #66717f;
+  --pst-line: #e6e0d7;
 }
-
-html,
-body {
-  background: var(--pst-white) !important;
-}
-
-body {
-  color: var(--pst-text);
-}
-
-/* ---------- Shared customer header ---------- */
+html, body { background:#fff !important; }
+body { color:var(--pst-navy) !important; }
 
 .pst-customer-header {
-  width: 100% !important;
-  margin: 0 !important;
-  background: #fff !important;
-  border-bottom: 1px solid #ece8e0 !important;
-  box-shadow: none !important;
-  color: var(--pst-navy) !important;
+  width:100% !important;
+  margin:0 !important;
+  background:#fff !important;
+  border-bottom:1px solid var(--pst-line) !important;
+  box-shadow:none !important;
 }
-
 .pst-customer-header-inner {
-  box-sizing: border-box !important;
-  width: min(1500px, calc(100% - 48px)) !important;
-  min-height: 72px !important;
-  margin: 0 auto !important;
-  padding: 8px 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 28px !important;
+  box-sizing:border-box !important;
+  width:min(1500px, calc(100% - 48px)) !important;
+  min-height:72px !important;
+  margin:0 auto !important;
+  padding:8px 0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:28px !important;
 }
-
 .pst-customer-logo-link {
-  flex: 0 0 auto !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  text-decoration: none !important;
+  box-sizing:border-box !important;
+  width:190px !important;
+  height:62px !important;
+  flex:0 0 190px !important;
+  display:block !important;
+  background:url("../pst-logo-master.webp") center/contain no-repeat !important;
 }
-
-.pst-customer-header-logo {
-  display: block !important;
-  width: auto !important;
-  max-width: 172px !important;
-  max-height: 54px !important;
-  object-fit: contain !important;
-}
-
+.pst-customer-header-logo { width:100% !important; height:100% !important; opacity:0 !important; }
 .pst-customer-header-right {
-  min-width: 0 !important;
-  flex: 1 1 auto !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 24px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:24px !important;
 }
-
-.pst-customer-nav {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  flex-wrap: wrap !important;
-  gap: clamp(14px, 1.65vw, 28px) !important;
-}
-
-.pst-customer-nav a,
-.pst-customer-nav a:visited {
-  color: var(--pst-navy) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  line-height: 1.2 !important;
-  letter-spacing: .045em !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  transition: color .16s ease !important;
-}
-
-.pst-customer-nav a:hover,
-.pst-customer-nav a:focus-visible {
-  color: var(--pst-gold) !important;
-}
-
-.pst-customer-nav a span[aria-hidden="true"] {
-  font-size: .8em !important;
-  color: currentColor !important;
-}
-
-.pst-cart-count {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 22px !important;
-  height: 22px !important;
-  padding: 0 6px !important;
-  margin-left: 4px !important;
-  border: 1px solid var(--pst-gold) !important;
-  border-radius: 999px !important;
-  background: #fff !important;
-  color: var(--pst-navy) !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
-}
-
 .pst-customer-search {
-  flex: 0 1 240px !important;
-  width: 240px !important;
-  min-width: 190px !important;
-  height: 40px !important;
-  display: flex !important;
-  align-items: stretch !important;
-  background: #fff !important;
-  border: 1px solid #d9dde2 !important;
-  border-radius: 2px !important;
-  overflow: hidden !important;
-  transition: border-color .16s ease, box-shadow .16s ease !important;
+  flex:0 1 240px !important;
+  width:240px !important;
+  min-width:190px !important;
+  height:40px !important;
+  display:flex !important;
+  align-items:stretch !important;
+  background:#fff !important;
+  border:1px solid #d7dde4 !important;
+  border-radius:2px !important;
+  overflow:hidden !important;
 }
-
-.pst-customer-search:focus-within {
-  border-color: var(--pst-gold) !important;
-  box-shadow: 0 0 0 2px rgba(199,154,73,.10) !important;
-}
-
+.pst-customer-search:focus-within { border-color:var(--pst-gold) !important; box-shadow:0 0 0 2px rgba(199,154,73,.10) !important; }
 .pst-customer-search input {
-  flex: 1 1 auto !important;
-  width: auto !important;
-  min-width: 0 !important;
-  height: 38px !important;
-  margin: 0 !important;
-  padding: 0 12px !important;
-  border: 0 !important;
-  outline: 0 !important;
-  background: #fff !important;
-  color: var(--pst-navy) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  height:38px !important;
+  margin:0 !important;
+  padding:0 12px !important;
+  border:0 !important;
+  outline:0 !important;
+  color:var(--pst-navy) !important;
+  background:#fff !important;
+  font-family:Arial, Helvetica, sans-serif !important;
+  font-size:13px !important;
 }
+.pst-customer-search button { flex:0 0 40px !important; width:40px !important; height:38px !important; margin:0 !important; padding:10px !important; border:0 !important; background:#fff !important; display:grid !important; place-items:center !important; }
+.pst-customer-search svg { width:18px !important; height:18px !important; fill:none !important; stroke:var(--pst-navy) !important; stroke-width:1.8 !important; }
 
-.pst-customer-search button {
-  flex: 0 0 40px !important;
-  width: 40px !important;
-  height: 38px !important;
-  margin: 0 !important;
-  padding: 10px !important;
-  border: 0 !important;
-  background: #fff !important;
-  display: grid !important;
-  place-items: center !important;
-}
-
-.pst-customer-search svg {
-  width: 18px !important;
-  height: 18px !important;
-  fill: none !important;
-  stroke: var(--pst-navy) !important;
-  stroke-width: 1.8 !important;
-}
-
-/* ---------- Catalog page shell ---------- */
-
-.catalog-page {
-  box-sizing: border-box !important;
-  width: min(1380px, calc(100% - 64px)) !important;
-  margin: 0 auto !important;
-  padding: 58px 0 80px !important;
-  background: #fff !important;
-}
-
-.page-heading {
-  margin: 0 0 34px !important;
-  text-align: center !important;
-}
-
-.page-heading p {
-  display: none !important;
-}
-
-.page-heading h1 {
-  margin: 0 !important;
-  color: var(--pst-navy) !important;
-  font-family: Georgia, "Times New Roman", serif !important;
-  font-size: clamp(36px, 4.6vw, 58px) !important;
-  font-weight: 500 !important;
-  line-height: 1 !important;
-  letter-spacing: .025em !important;
-}
-
-.catalog-heading-rule {
-  width: 56px !important;
-  height: 2px !important;
-  margin: 17px auto 0 !important;
-  background: var(--pst-gold) !important;
-}
-
-/* ---------- Search / filter bar ---------- */
-
-.catalog-toolbar {
-  display: grid !important;
-  grid-template-columns: minmax(260px, 1fr) minmax(190px, 270px) !important;
-  gap: 16px !important;
-  width: min(930px, 100%) !important;
-  margin: 0 auto 44px !important;
-  padding: 0 !important;
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-
-.catalog-toolbar input,
-.catalog-toolbar select {
-  box-sizing: border-box !important;
-  width: 100% !important;
-  min-height: 46px !important;
-  margin: 0 !important;
-  padding: 0 14px !important;
-  color: var(--pst-navy) !important;
-  background: #fff !important;
-  border: 1px solid #d8dce1 !important;
-  border-radius: 2px !important;
-  outline: none !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  transition: border-color .16s ease, box-shadow .16s ease !important;
-}
-
-.catalog-toolbar input:focus,
-.catalog-toolbar select:focus {
-  border-color: var(--pst-gold) !important;
-  box-shadow: 0 0 0 2px rgba(199,154,73,.10) !important;
-}
-
-/* ---------- Catalog grid ---------- */
-
-.catalog-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  column-gap: clamp(30px, 4vw, 62px) !important;
-  row-gap: 48px !important;
-  width: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: transparent !important;
-}
-
-.catalog-card {
-  min-width: 0 !important;
-  margin: 0 !important;
-  padding: 0 0 24px !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-bottom: 1px solid var(--pst-line) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-.catalog-card-main {
-  display: grid !important;
-  align-content: start !important;
-  min-width: 0 !important;
-}
-
-.catalog-card-main > p {
-  order: 2 !important;
-  margin: 5px 0 0 !important;
-  color: var(--pst-muted) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  letter-spacing: .08em !important;
-  line-height: 1.3 !important;
-  text-transform: uppercase !important;
-}
-
-.catalog-card-main > [data-catalog-sale] {
-  order: 3 !important;
-  margin-top: 8px !important;
-}
-
-.catalog-card h2 {
-  order: 1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  font-family: Georgia, "Times New Roman", serif !important;
-  font-size: clamp(23px, 2vw, 30px) !important;
-  font-weight: 500 !important;
-  line-height: 1.12 !important;
-  letter-spacing: .01em !important;
-}
-
-.catalog-card h2 a,
-.catalog-card h2 a:visited {
-  color: var(--pst-navy) !important;
-  text-decoration: none !important;
-  transition: color .16s ease !important;
-}
-
-.catalog-card h2 a:hover,
-.catalog-card h2 a:focus-visible {
-  color: var(--pst-gold) !important;
-}
-
-.catalog-dose-options {
-  order: 4 !important;
-  display: grid !important;
-  gap: 0 !important;
-  width: 100% !important;
-  margin-top: 18px !important;
-  padding-top: 12px !important;
-  border-top: 1px solid #ece9e3 !important;
-}
-
-.catalog-dose-option,
-.catalog-variant,
-.catalog-product-row {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  align-items: center !important;
-  gap: 12px !important;
-  min-height: 38px !important;
-  padding: 7px 0 !important;
-  border: 0 !important;
-  border-bottom: 1px solid #f0eee9 !important;
-  background: transparent !important;
-}
-
-.catalog-dose-option:last-child,
-.catalog-variant:last-child,
-.catalog-product-row:last-child {
-  border-bottom: 0 !important;
-}
-
-.catalog-dose-name,
-.catalog-dose-name:visited {
-  min-width: 0 !important;
-  color: var(--pst-navy) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  letter-spacing: .025em !important;
-  text-decoration: none !important;
-}
-
-.catalog-dose-name:hover,
-.catalog-dose-name:focus-visible {
-  color: var(--pst-gold) !important;
-}
-
-.catalog-price,
-.catalog-dose-option > strong,
-.catalog-variant > strong,
-.catalog-product-row > strong {
-  width: auto !important;
-  min-width: 0 !important;
-  justify-self: end !important;
-  margin: 0 !important;
-  color: var(--pst-navy) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  line-height: 1 !important;
-  text-align: right !important;
-  font-variant-numeric: tabular-nums !important;
-}
-
-/* Operational warehouse information and direct catalog cart controls
-   stay in the DOM for compatibility but are intentionally not shown
-   in the premium customer catalog. */
-.catalog-stock,
-.catalog-incoming-pill,
-.catalog-row-actions,
-.card-cart-button {
-  display: none !important;
-}
-
-.loading-row {
-  grid-column: 1 / -1 !important;
-  padding: 40px 0 !important;
-  color: var(--pst-muted) !important;
-  text-align: center !important;
-}
-
-/* ---------- Responsive catalog ---------- */
-
-@media (max-width: 1100px) {
-  .pst-customer-header-inner {
-    width: calc(100% - 32px) !important;
-    flex-wrap: wrap !important;
-    gap: 12px 18px !important;
-  }
-
-  .pst-customer-logo-link {
-    order: 1 !important;
-  }
-
-  .pst-customer-header-right {
-    order: 2 !important;
-    flex: 1 1 100% !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    gap: 14px !important;
-  }
-
-  .pst-customer-search {
-    width: 100% !important;
-    max-width: 430px !important;
-  }
-
-  .catalog-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 700px) {
-  .pst-customer-header-inner {
-    width: calc(100% - 24px) !important;
-    min-height: 0 !important;
-    padding: 10px 0 12px !important;
-    justify-content: center !important;
-  }
-
-  .pst-customer-logo-link {
-    width: 100% !important;
-    justify-content: center !important;
-  }
-
-  .pst-customer-header-logo {
-    max-width: 145px !important;
-    max-height: 48px !important;
-  }
-
-  .pst-customer-header-right {
-    grid-template-columns: 1fr !important;
-    justify-items: center !important;
-    width: 100% !important;
-  }
-
-  .pst-customer-search {
-    width: min(100%, 420px) !important;
-    max-width: 420px !important;
-    min-width: 0 !important;
-  }
-
-  .pst-customer-nav {
-    width: 100% !important;
-    justify-content: center !important;
-    gap: 9px 16px !important;
-  }
-
-  .pst-customer-nav a,
-  .pst-customer-nav a:visited {
-    font-size: 11.5px !important;
-  }
-
-  .catalog-page {
-    width: calc(100% - 28px) !important;
-    padding: 38px 0 58px !important;
-  }
-
-  .catalog-toolbar {
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-    margin-bottom: 34px !important;
-  }
-
-  .catalog-grid {
-    grid-template-columns: 1fr !important;
-    row-gap: 30px !important;
-  }
-
-  .catalog-card {
-    padding-bottom: 20px !important;
-  }
-}
-
-
-/* =========================================================
-   PST CATALOG — TYPOGRAPHY / HEADER CORRECTION PASS
-   ========================================================= */
-
-/* New shared customer-facing header branding. */
-.pst-customer-header-logo {
-  width: auto !important;
-  max-width: 190px !important;
-  max-height: 62px !important;
-  object-fit: contain !important;
-}
-
-/* Product names were too dominant relative to the existing dose/price.
-   Dose and price sizing intentionally remain unchanged. */
-.catalog-card h2 {
-  font-size: 20px !important;
-  line-height: 1.18 !important;
-  font-weight: 500 !important;
-}
-
-/* Supporting blend/stack formulation text inside parentheses is visually
-   subordinate so long formulas are less likely to wrap. */
-.catalog-card h2 .catalog-formula {
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
-  white-space: nowrap !important;
-}
-
-@media (max-width: 700px) {
-  .catalog-card h2 {
-    font-size: 18px !important;
-  }
-
-  .catalog-card h2 .catalog-formula {
-    font-size: 11px !important;
-  }
-}
-
-
-/* =========================================================
-   PST SHARED HEADER — ACCOUNT LINK CONSISTENCY FIX
-   ========================================================= */
-
-/* The account greeting is generated separately from the static nav links.
-   Force its anchor and wrapper onto the exact same baseline/typography. */
-.pst-customer-nav #pst-account-link,
-.pst-customer-nav #pst-account-link:visited,
-#pst-account-link,
-#pst-account-link:visited {
-  display: inline-flex !important;
-  align-items: center !important;
-  align-self: center !important;
-  height: auto !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-  color: var(--pst-navy) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  line-height: 1.2 !important;
-  letter-spacing: .045em !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  vertical-align: middle !important;
-}
-
-.pst-customer-nav #pst-account-link:hover,
-.pst-customer-nav #pst-account-link:focus-visible,
-#pst-account-link:hover,
-#pst-account-link:focus-visible {
-  color: var(--pst-gold) !important;
-}
-
-@media (max-width: 700px) {
-  .pst-customer-nav #pst-account-link,
-  .pst-customer-nav #pst-account-link:visited,
-  #pst-account-link,
-  #pst-account-link:visited {
-    font-size: 11.5px !important;
-  }
-}
-
-
-/* =========================================================
-   PST CUSTOMER-FACING DESIGN SYSTEM — DOMAIN CONSISTENCY
-   One palette, one header treatment, one nav treatment.
-   ========================================================= */
-
-:root {
-  --pst-navy: #102a43 !important;
-  --pst-gold: #c79a49 !important;
-  --pst-white: #ffffff !important;
-  --pst-text: #102a43 !important;
-  --pst-muted: #66717f !important;
-  --pst-line: #e6e0d7 !important;
-}
-
-/* Domain-wide customer-facing palette */
-body {
-  color: var(--pst-text) !important;
-  background: var(--pst-white) !important;
-}
-
-a {
-  color: var(--pst-navy);
-}
-
-a:hover,
-a:focus-visible {
-  color: var(--pst-gold);
-}
-
-/* ---------- ONE shared customer header ---------- */
-
-.pst-customer-header {
-  background: #fff !important;
-  border-bottom: 1px solid var(--pst-line) !important;
-  box-shadow: none !important;
-}
-
-.pst-customer-header-inner {
-  min-height: 72px !important;
-  align-items: center !important;
-}
-
-/* Force the same approved PST branding on every customer-facing page
-   without requiring each HTML page to use the same old/new image filename. */
-.pst-customer-logo-link {
-  box-sizing: border-box !important;
-  width: 190px !important;
-  height: 62px !important;
-  flex: 0 0 190px !important;
-  display: block !important;
-  background: url("../pst-logo-master.webp") center center / contain no-repeat !important;
-}
-
-.pst-customer-header-logo {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  opacity: 0 !important;
-  object-fit: contain !important;
-}
-
-/* Every nav item — including dynamically changed LOGIN / Hello Name / ADMIN —
-   uses the exact same box, font, line-height and vertical center. */
 .pst-customer-nav {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: clamp(14px, 1.65vw, 28px) !important;
+  display:flex !important;
+  align-items:stretch !important;
+  justify-content:flex-end !important;
+  flex-wrap:nowrap !important;
+  gap:clamp(14px,1.65vw,28px) !important;
 }
-
 .pst-customer-nav > a,
 .pst-customer-nav > a:link,
 .pst-customer-nav > a:visited,
-.pst-customer-nav a[data-account-link],
-.pst-customer-nav a[data-admin-link] {
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  align-self: center !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  position: static !important;
-  top: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  vertical-align: middle !important;
-
-  color: var(--pst-navy) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  font-size: 13px !important;
-  font-style: normal !important;
-  font-weight: 700 !important;
-  line-height: 40px !important;
-  letter-spacing: .045em !important;
-  text-transform: none !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
+.pst-customer-nav > a[data-account-link],
+.pst-customer-nav > a[data-admin-link] {
+  box-sizing:border-box !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  align-self:stretch !important;
+  height:40px !important;
+  min-height:40px !important;
+  margin:0 !important;
+  padding:0 !important;
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  color:var(--pst-navy) !important;
+  font-family:Arial, Helvetica, sans-serif !important;
+  font-size:13px !important;
+  font-style:normal !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  letter-spacing:.045em !important;
+  text-decoration:none !important;
+  white-space:nowrap !important;
 }
-
 .pst-customer-nav > a:hover,
-.pst-customer-nav > a:focus-visible,
-.pst-customer-nav a[data-account-link]:hover,
-.pst-customer-nav a[data-account-link]:focus-visible,
-.pst-customer-nav a[data-admin-link]:hover,
-.pst-customer-nav a[data-admin-link]:focus-visible {
-  color: var(--pst-gold) !important;
-}
-
-/* Normalize any nested text that an older page may have inside a nav anchor. */
-.pst-customer-nav > a *,
-.pst-customer-nav a[data-account-link] *,
-.pst-customer-nav a[data-admin-link] * {
-  color: inherit !important;
-  font: inherit !important;
-  line-height: inherit !important;
-  letter-spacing: inherit !important;
-  vertical-align: middle !important;
-}
-
-/* Cart count remains a badge but stays vertically centered inside the same 40px nav box. */
+.pst-customer-nav > a:focus-visible { color:var(--pst-gold) !important; }
+.pst-customer-nav > a * { font:inherit !important; color:inherit !important; line-height:1 !important; vertical-align:baseline !important; }
 .pst-cart-count,
-[data-cart-count] {
-  align-self: center !important;
-  vertical-align: middle !important;
-}
+[data-cart-count] { align-self:center !important; vertical-align:middle !important; }
 
-/* Search field uses the same navy/gold system everywhere. */
-.pst-customer-search {
-  border-color: #d7dde4 !important;
-}
-
-.pst-customer-search:focus-within {
-  border-color: var(--pst-gold) !important;
-  box-shadow: 0 0 0 2px rgba(199, 154, 73, .10) !important;
-}
-
-.pst-customer-search input,
-.pst-customer-search button,
-.pst-customer-search svg {
-  color: var(--pst-navy) !important;
-}
-
-/* ---------- Shared typography colors ---------- */
-
-.page-heading h1,
-.page-title,
-.section-title,
-.catalog-card h2,
+/* Catalog */
+.catalog-page { box-sizing:border-box !important; width:min(1380px, calc(100% - 64px)) !important; margin:0 auto !important; padding:58px 0 80px !important; background:#fff !important; }
+.page-heading { margin:0 0 34px !important; text-align:center !important; }
+.page-heading p { display:none !important; }
+.page-heading h1 { margin:0 !important; color:var(--pst-navy) !important; font-family:Georgia,"Times New Roman",serif !important; font-size:clamp(36px,4.6vw,58px) !important; font-weight:500 !important; line-height:1 !important; letter-spacing:.025em !important; }
+.catalog-heading-rule { width:56px !important; height:2px !important; margin:17px auto 0 !important; background:var(--pst-gold) !important; }
+.catalog-toolbar { display:grid !important; grid-template-columns:minmax(260px,1fr) minmax(190px,270px) !important; gap:16px !important; width:min(930px,100%) !important; margin:0 auto 44px !important; padding:0 !important; background:transparent !important; border:0 !important; box-shadow:none !important; }
+.catalog-toolbar input,
+.catalog-toolbar select { box-sizing:border-box !important; width:100% !important; min-height:46px !important; margin:0 !important; padding:0 14px !important; color:var(--pst-navy) !important; background:#fff !important; border:1px solid #d8dce1 !important; border-radius:2px !important; outline:none !important; font-family:Arial,Helvetica,sans-serif !important; font-size:13px !important; font-weight:500 !important; }
+.catalog-toolbar input:focus,
+.catalog-toolbar select:focus { border-color:var(--pst-gold) !important; box-shadow:0 0 0 2px rgba(199,154,73,.10) !important; }
+.catalog-grid { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)) !important; column-gap:clamp(30px,4vw,62px) !important; row-gap:48px !important; width:100% !important; margin:0 !important; padding:0 !important; }
+.catalog-card { min-width:0 !important; margin:0 !important; padding:0 0 24px !important; background:transparent !important; border:0 !important; border-bottom:1px solid var(--pst-line) !important; border-radius:0 !important; box-shadow:none !important; }
+.catalog-card-main { display:grid !important; align-content:start !important; min-width:0 !important; }
+.catalog-card-main > p { order:2 !important; margin:5px 0 0 !important; color:var(--pst-muted) !important; font-family:Arial,Helvetica,sans-serif !important; font-size:11px !important; font-weight:600 !important; letter-spacing:.08em !important; line-height:1.3 !important; text-transform:uppercase !important; }
+.catalog-card-main > [data-catalog-sale] { order:3 !important; margin-top:8px !important; }
+.catalog-card h2 { order:1 !important; margin:0 !important; padding:0 !important; font-family:Georgia,"Times New Roman",serif !important; font-size:20px !important; font-weight:500 !important; line-height:1.18 !important; letter-spacing:.01em !important; }
 .catalog-card h2 a,
+.catalog-card h2 a:visited { color:var(--pst-navy) !important; text-decoration:none !important; }
+.catalog-card h2 a:hover,
+.catalog-card h2 a:focus-visible { color:var(--pst-gold) !important; }
+.catalog-dose-options { order:4 !important; display:grid !important; gap:0 !important; width:100% !important; margin-top:18px !important; padding-top:12px !important; border-top:1px solid #ece9e3 !important; }
+.catalog-dose-option,
+.catalog-variant,
+.catalog-product-row { display:grid !important; grid-template-columns:minmax(0,1fr) auto !important; align-items:center !important; gap:12px !important; min-height:38px !important; padding:7px 0 !important; border:0 !important; border-bottom:1px solid #f0eee9 !important; background:transparent !important; }
+.catalog-dose-option:last-child,
+.catalog-variant:last-child,
+.catalog-product-row:last-child { border-bottom:0 !important; }
 .catalog-dose-name,
+.catalog-dose-name:visited { min-width:0 !important; color:var(--pst-navy) !important; font-family:Arial,Helvetica,sans-serif !important; font-size:13px !important; font-weight:700 !important; letter-spacing:.025em !important; text-decoration:none !important; }
+.catalog-dose-name:hover,
+.catalog-dose-name:focus-visible { color:var(--pst-gold) !important; }
 .catalog-price,
 .catalog-dose-option > strong,
 .catalog-variant > strong,
-.catalog-product-row > strong {
-  color: var(--pst-navy) !important;
+.catalog-product-row > strong { width:auto !important; min-width:0 !important; justify-self:end !important; margin:0 !important; color:var(--pst-navy) !important; font-family:Arial,Helvetica,sans-serif !important; font-size:14px !important; font-weight:700 !important; line-height:1 !important; text-align:right !important; font-variant-numeric:tabular-nums !important; }
+.catalog-stock,
+.catalog-incoming-pill,
+.catalog-row-actions,
+.card-cart-button { display:none !important; }
+.loading-row { grid-column:1/-1 !important; padding:40px 0 !important; color:var(--pst-muted) !important; text-align:center !important; }
+
+@media (max-width:1100px) {
+  .pst-customer-header-inner { width:calc(100% - 32px) !important; flex-wrap:wrap !important; gap:12px 18px !important; }
+  .pst-customer-header-right { flex:1 1 100% !important; display:grid !important; grid-template-columns:minmax(0,1fr) auto !important; gap:14px !important; }
+  .pst-customer-search { width:100% !important; max-width:430px !important; }
+  .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
 }
-
-.catalog-heading-rule,
-.underline {
-  background: var(--pst-gold) !important;
-}
-
-/* Product-name scale stays reduced; dose and price sizes remain exactly as-is. */
-.catalog-card h2 {
-  font-size: 20px !important;
-  line-height: 1.18 !important;
-  font-weight: 500 !important;
-}
-
-/* Mobile: same system, only scaled as a group. */
-@media (max-width: 700px) {
-  .pst-customer-logo-link {
-    width: 160px !important;
-    height: 54px !important;
-    flex-basis: 160px !important;
-  }
-
+@media (max-width:700px) {
+  .pst-customer-header-inner { width:calc(100% - 24px) !important; min-height:0 !important; padding:10px 0 12px !important; justify-content:center !important; }
+  .pst-customer-logo-link { width:160px !important; height:54px !important; flex-basis:160px !important; }
+  .pst-customer-header-right { grid-template-columns:1fr !important; justify-items:center !important; width:100% !important; }
+  .pst-customer-search { width:min(100%,420px) !important; max-width:420px !important; min-width:0 !important; }
+  .pst-customer-nav { width:100% !important; justify-content:center !important; gap:9px 16px !important; flex-wrap:wrap !important; }
   .pst-customer-nav > a,
   .pst-customer-nav > a:link,
   .pst-customer-nav > a:visited,
-  .pst-customer-nav a[data-account-link],
-  .pst-customer-nav a[data-admin-link] {
-    height: 36px !important;
-    min-height: 36px !important;
-    font-size: 11.5px !important;
-    line-height: 36px !important;
-  }
+  .pst-customer-nav > a[data-account-link],
+  .pst-customer-nav > a[data-admin-link] { height:36px !important; min-height:36px !important; font-size:11.5px !important; }
+  .catalog-page { width:calc(100% - 28px) !important; padding:38px 0 58px !important; }
+  .catalog-toolbar { grid-template-columns:1fr !important; gap:10px !important; margin-bottom:34px !important; }
+  .catalog-grid { grid-template-columns:1fr !important; row-gap:30px !important; }
+  .catalog-card { padding-bottom:20px !important; }
 }
-
