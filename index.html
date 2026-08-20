@@ -10,9 +10,9 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#bd0000">
-  <link rel="preload" as="image" href="pst-hero-final.webp" type="image/webp" fetchpriority="high">
+  <link rel="preload" as="image" href="pst-logo-master.webp" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="css/customer.css?v=13">
-  <link rel="stylesheet" href="css/index.css?v=10">
+  <link rel="stylesheet" href="css/index.css?v=11">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=39"></script>
 </head>
@@ -41,33 +41,14 @@
     </div>
   </header>
   <main>
-    <section aria-label="PEP Shop Texas research peptides hero" id="pst-hero-v3">
-      <picture>
-        <source srcset="pst-hero-final.webp" type="image/webp">
-        <img alt="PEP Shop Texas premium research peptides" src="pst-hero-final.png" width="1739" height="469" decoding="async" fetchpriority="high">
-      </picture>
-    </section>
-    <section aria-label="Primary links" class="quick-panel">
-      <a class="quick-link" href="catalog.html">
-        <span class="quick-icon red">A<br>Z</span>
-        <strong>PEPTIDES A-Z</strong>
-        <span>Browse all peptides alphabetically</span>
-      </a>
-      <a class="quick-link" href="catalog.html?category=Stack">
-        <span class="quick-icon dark"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Zm-7 9 7 4 7-4M5 16l7 4 7-4"></path></svg></span>
-        <strong>TOP STACKS</strong>
-        <span>Popular blend and stack products</span>
-      </a>
-      <a class="quick-link" href="faq.html">
-        <span class="quick-icon dark"><svg viewBox="0 0 24 24"><path d="M9.5 9a3 3 0 1 1 4.6 2.53c-.88.52-1.6 1.13-1.6 2.47m0 3h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path></svg></span>
-        <strong>FAQ</strong>
-        <span>Answers to common questions</span>
-      </a>
-      <a class="quick-link" href="contact.html">
-        <span class="quick-icon red"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4V6Zm0 1 8 6 8-6"></path></svg></span>
-        <strong>CONTACT</strong>
-        <span>Get in touch with our team</span>
-      </a>
+    <section class="pst-masthead" aria-label="Pep Shop Texas">
+      <img class="pst-masthead-logo" src="pst-logo-master.webp" alt="Pep Shop Texas — Premium Purity, Proven Quality, Responsibly Sourced" width="1400" height="934" decoding="async" fetchpriority="high">
+      <nav class="pst-masthead-links" aria-label="Shop and information links">
+        <a href="catalog.html">PEPTIDES A-Z</a>
+        <a href="catalog.html?category=Stack">TOP STACKS</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">CONTACT</a>
+      </nav>
     </section>
     <section aria-label="Current promotion" class="promo-band" data-home-promotion hidden></section>
     <section aria-label="Featured peptide lists" class="product-grid">
