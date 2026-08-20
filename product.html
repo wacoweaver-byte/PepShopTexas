@@ -9,20 +9,21 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="css/customer.css?v=13">
+  <meta name="theme-color" content="#102a43">
+  <link rel="stylesheet" href="css/customer.css?v=23">
   <link rel="stylesheet" href="css/coa-viewer.css?v=1">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=40"></script>
+  <script defer src="app.js?v=55"></script>
+  <script defer src="product-detail-layout.js?v=1"></script>
   <script defer src="coa-viewer.js?v=1"></script>
-  <script defer src="catalog-inventory-fix.js?v=6"></script>
+  <script defer src="catalog-inventory-fix.js?v=9"></script>
   <script defer src="customer-footer.js?v=1"></script>
 </head>
 <body data-page="product-detail">
   <header class="pst-customer-header">
     <div class="pst-customer-header-inner">
       <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
-        <img src="customer facing header logo.png" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
+        <img src="pst-logo-master.webp" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
       </a>
       <div class="pst-customer-header-right">
         <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
@@ -36,7 +37,7 @@
           <a href="faq.html">FAQ</a>
           <a href="contact.html">CONTACT</a>
           <a href="account.html" data-account-link>LOGIN</a>
-          <a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
+          <a class="cart-link" href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
         </nav>
       </div>
     </div>
