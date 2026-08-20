@@ -960,3 +960,44 @@ body {
   }
 }
 
+
+/* =========================================================
+   PST CATALOG — TYPOGRAPHY / HEADER CORRECTION PASS
+   ========================================================= */
+
+/* New shared customer-facing header branding. */
+.pst-customer-header-logo {
+  width: auto !important;
+  max-width: 190px !important;
+  max-height: 62px !important;
+  object-fit: contain !important;
+}
+
+/* Product names were too dominant relative to the existing dose/price.
+   Dose and price sizing intentionally remain unchanged. */
+.catalog-card h2 {
+  font-size: 20px !important;
+  line-height: 1.18 !important;
+  font-weight: 500 !important;
+}
+
+/* Supporting blend/stack formulation text inside parentheses is visually
+   subordinate so long formulas are less likely to wrap. */
+.catalog-card h2 .catalog-formula {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 700px) {
+  .catalog-card h2 {
+    font-size: 18px !important;
+  }
+
+  .catalog-card h2 .catalog-formula {
+    font-size: 11px !important;
+  }
+}
+
