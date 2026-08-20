@@ -126,8 +126,13 @@
   box-shadow: 0 0 0 2px rgba(199, 154, 73, .10) !important;
 }
 
+/* Legacy storefront CSS hides .card-cart-button globally. This explicit display rule
+   restores only the new catalog quick-buy buttons. */
 .catalog-add-button,
 .catalog-add-button.card-cart-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   box-sizing: border-box !important;
   min-width: 112px !important;
   height: 38px !important;
@@ -140,7 +145,7 @@
   font-family: Arial, Helvetica, sans-serif !important;
   font-size: 12px !important;
   font-weight: 700 !important;
-  line-height: 36px !important;
+  line-height: 1 !important;
   letter-spacing: .045em !important;
   text-transform: uppercase !important;
   white-space: nowrap !important;
@@ -203,6 +208,5 @@
     min-width: 102px !important;
     padding: 0 12px !important;
     font-size: 11px !important;
-    line-height: 34px !important;
   }
 }
