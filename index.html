@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#bd0000">
   <link rel="preload" as="image" href="pst-logo-master.webp" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="css/customer.css?v=13">
-  <link rel="stylesheet" href="css/index.css?v=12">
+  <link rel="stylesheet" href="css/index.css?v=13">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=39"></script>
 </head>
@@ -50,41 +50,57 @@
         <a href="contact.html">CONTACT</a>
       </nav>
     </section>
-    <section aria-label="Current promotion" class="promo-band" data-home-promotion hidden></section>
-    <section aria-label="Featured peptide lists" class="product-grid">
-      <article class="list-card">
-        <h2><span class="title-icon red-text">♦</span> HOT PEPTIDES</h2>
-        <p>Featured active products</p>
-        <ul data-home-list="hot">
-          <li><a href="catalog.html"><span>BPC-157 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>TB-500 10 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>GHK-Cu 50 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>NAD+ 500 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>CJC No DAC 5 mg</span><strong>Research</strong><span>&gt;</span></a></li>
-        </ul>
-      </article>
-      <article class="list-card">
-        <h2><span class="title-icon">▱</span> TOP STACKS</h2>
-        <p>Popular blend and stack products</p>
-        <ul data-home-list="stacks">
-          <li><a href="catalog.html?category=Stack"><span>Performance Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html?category=Stack"><span>Recovery Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html?category=Stack"><span>Longevity Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html?category=Stack"><span>Cutting Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html?category=Stack"><span>Healing Stack</span><strong>Stack</strong><span>&gt;</span></a></li>
-        </ul>
-      </article>
-      <article class="list-card">
-        <h2><span class="title-icon">★</span> NEW ARRIVALS</h2>
-        <p>Products selected in admin</p>
-        <ul data-home-list="new">
-          <li><a href="catalog.html"><span>KPV 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>Selank 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>Semax 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>MOTS-C 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-          <li><a href="catalog.html"><span>Ipamorelin 10 mg</span><strong>Catalog</strong><span>&gt;</span></a></li>
-        </ul>
-      </article>
+    <section class="focus-section" aria-labelledby="focus-heading">
+      <h2 class="section-kicker" id="focus-heading">SHOP BY RESEARCH FOCUS</h2>
+      <div class="focus-grid">
+        <article class="focus-item">
+          <div class="focus-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M16 42c8-1 11-8 13-16l4 8 8-5 7 5"/><path d="M13 47h38"/><path d="M20 42V29m28 13V31"/></svg>
+          </div>
+          <h3>PERFORMANCE</h3>
+          <p>Researched for performance, endurance, and metabolic function.</p>
+          <a href="catalog.html?focus=performance">EXPLORE PERFORMANCE <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="focus-item">
+          <div class="focus-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M32 12v40M12 32h40"/><circle cx="32" cy="32" r="23"/></svg>
+          </div>
+          <h3>RECOVERY</h3>
+          <p>Researched for recovery, tissue repair, and inflammatory pathways.</p>
+          <a href="catalog.html?focus=recovery">EXPLORE RECOVERY <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="focus-item">
+          <div class="focus-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M20 12h24M20 52h24M23 12c0 12 18 12 18 20S23 40 23 52M41 12c0 12-18 12-18 20s18 8 18 20"/></svg>
+          </div>
+          <h3>LONGEVITY</h3>
+          <p>Researched for longevity, cellular health, and metabolic function.</p>
+          <a href="catalog.html?focus=longevity">EXPLORE LONGEVITY <span aria-hidden="true">→</span></a>
+        </article>
+      </div>
+    </section>
+
+    <section class="featured-section" aria-labelledby="featured-heading">
+      <h2 id="featured-heading">FEATURED PEPTIDES</h2>
+      <div class="featured-rule" aria-hidden="true"></div>
+      <div class="featured-grid">
+        <a class="featured-product" href="catalog.html?search=BPC-157">
+          <div class="vial-art" aria-hidden="true"><div class="vial-cap"></div><div class="vial-neck"></div><div class="vial-body"><div class="vial-label"><span class="vial-brand">PEP SHOP</span><strong>BPC-157</strong><small>10 MG</small><i></i></div></div></div>
+          <strong>BPC-157</strong><span>10 mg</span>
+        </a>
+        <a class="featured-product" href="catalog.html?search=GHK-Cu">
+          <div class="vial-art" aria-hidden="true"><div class="vial-cap"></div><div class="vial-neck"></div><div class="vial-body"><div class="vial-label"><span class="vial-brand">PEP SHOP</span><strong>GHK-Cu</strong><small>50 MG</small><i></i></div></div></div>
+          <strong>GHK-Cu</strong><span>50 mg</span>
+        </a>
+        <a class="featured-product" href="catalog.html?search=NAD%2B">
+          <div class="vial-art" aria-hidden="true"><div class="vial-cap"></div><div class="vial-neck"></div><div class="vial-body"><div class="vial-label"><span class="vial-brand">PEP SHOP</span><strong>NAD+</strong><small>500 MG</small><i></i></div></div></div>
+          <strong>NAD+</strong><span>500 mg</span>
+        </a>
+        <a class="featured-product" href="catalog.html?search=KPV">
+          <div class="vial-art" aria-hidden="true"><div class="vial-cap"></div><div class="vial-neck"></div><div class="vial-body"><div class="vial-label"><span class="vial-brand">PEP SHOP</span><strong>KPV</strong><small>10 MG</small><i></i></div></div></div>
+          <strong>KPV</strong><span>10 mg</span>
+        </a>
+      </div>
     </section>
   </main>
   <footer class="site-footer">
@@ -108,57 +124,5 @@
       </nav>
     </div>
   </footer>
-  <script id="pst-new-arrivals-featured-loader-v1">
-    (function () {
-      const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
-      const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
-      const MAX_NEW_ARRIVALS = 5;
-      function escapeHtml(value) {
-        return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
-      }
-      function productLabel(product) {
-        return [product.display_name, product.strength].filter(Boolean).join(" ").trim() || "Product";
-      }
-      function productTag(product) {
-        return product.category || "Catalog";
-      }
-      function productHref(product) {
-        const key = encodeURIComponent(product.product_key || product.id || "");
-        return key ? `product.html?key=${key}` : "catalog.html";
-      }
-      async function loadFeaturedNewArrivals() {
-        const list = document.querySelector('[data-home-list="new"]');
-        const card = list?.closest(".list-card");
-        if (!list || !window.supabase?.createClient) return false;
-        try {
-          const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-          const { data, error } = await db.from("product_catalog").select("id,product_key,display_name,strength,category,is_active,featured,sort_name").eq("is_active", true).eq("featured", true).order("sort_name", { ascending: true, nullsFirst: false }).order("display_name", { ascending: true }).limit(MAX_NEW_ARRIVALS);
-          if (error) throw error;
-          const products = data || [];
-          if (!products.length) {
-            if (card) card.hidden = true;
-            return true;
-          }
-          if (card) card.hidden = false;
-          list.innerHTML = products.map(product => `<li><a href="${productHref(product)}"><span>${escapeHtml(productLabel(product))}</span><strong>${escapeHtml(productTag(product))}</strong><span>&gt;</span></a></li>`).join("");
-          return true;
-        } catch (error) {
-          console.warn("Could not load admin-selected New Arrivals.", error);
-          return false;
-        }
-      }
-      function runWhenReady(attempt = 0) {
-        if (window.supabase?.createClient) {
-          loadFeaturedNewArrivals();
-          return;
-        }
-        if (attempt < 20) window.setTimeout(() => runWhenReady(attempt + 1), 100);
-      }
-      window.addEventListener("load", () => {
-        runWhenReady();
-        window.setTimeout(loadFeaturedNewArrivals, 750);
-      });
-    })();
-  </script>
 </body>
 </html>
