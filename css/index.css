@@ -249,7 +249,6 @@
   width: min(1120px, calc(100% - 24px));
   margin: clamp(24px, 3vw, 42px) auto 0;
   padding: 0 12px clamp(18px, 2.2vw, 28px);
-  border-bottom: 1px solid var(--pst-gold);
 }
 
 .pst-masthead-links a {
@@ -396,8 +395,8 @@
   white-space: nowrap;
 }
 .section-kicker::before,.section-kicker::after { content:""; height:1px; flex:1; background:#ded2bb; }
-.focus-grid { display:grid; grid-template-columns:repeat(3,1fr); }
-.focus-item { position:relative; padding: 0 46px 4px; text-align:center; }
+.focus-grid { display:grid; grid-template-columns:repeat(3,1fr); background:#fff; }
+.focus-item { position:relative; padding: 0 46px 4px; text-align:center; background:#fff; }
 .focus-item + .focus-item { border-left:1px solid #e8e3da; }
 .focus-mark {
   display:grid; place-items:center; width:64px; height:64px; margin:0 auto 14px;
