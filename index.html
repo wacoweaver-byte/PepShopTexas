@@ -12,9 +12,53 @@
   <meta name="theme-color" content="#bd0000">
   <link rel="preload" as="image" href="pst-logo-master.webp" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="css/customer.css?v=13">
-  <link rel="stylesheet" href="css/index.css?v=18">
+  <link rel="stylesheet" href="css/index.css?v=19">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="app.js?v=39"></script>
+
+  <style id="pst-featured-alignment-fix">
+    .featured-grid {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      align-items: end !important;
+    }
+    .featured-product {
+      min-width: 0 !important;
+      display: grid !important;
+      justify-items: center !important;
+      text-align: center !important;
+    }
+    .featured-image-box {
+      width: 100% !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: flex-end !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+    .featured-vial-image {
+      display: block !important;
+      width: auto !important;
+      max-width: 100% !important;
+      height: auto !important;
+      margin: 0 auto !important;
+      object-fit: contain !important;
+    }
+    .featured-product > strong,
+    .featured-product > span:not(.featured-image-box) {
+      width: 100% !important;
+      text-align: center !important;
+      justify-self: center !important;
+    }
+    @media (max-width: 600px) {
+      .featured-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 6px !important;
+      }
+    }
+  </style>
+
 </head>
 <body data-page="home">
   <header id="pst-header-v3">
@@ -85,19 +129,19 @@
       <div class="featured-rule" aria-hidden="true"></div>
       <div class="featured-grid" data-featured-peptides>
         <a class="featured-product" data-feature-slot="1" data-product="KLOW" href="catalog.html?search=KLOW">
-          <span class="featured-image-box"><img class="featured-vial-image" src="assets/featured/featured-klow-80mg.webp" alt="KLOW 80 MG Pep Shop Texas vial" width="1024" height="1536" decoding="async"></span>
+          <span class="featured-image-box"><img class="featured-vial-image" src="assets/featured/featured-klow-80mg.webp" alt="KLOW 80 MG Pep Shop Texas vial" width="278" height="716" decoding="async"></span>
           <strong>KLOW</strong><span>80 MG</span>
         </a>
         <a class="featured-product" data-feature-slot="2" data-product="Wolverine" href="catalog.html?search=Wolverine">
-          <span class="featured-image-box"><img class="featured-vial-image" src="assets/featured/featured-wolverine-10mg.webp" alt="Wolverine 10 MG Pep Shop Texas vial" width="1024" height="1536" decoding="async"></span>
+          <span class="featured-image-box"><img class="featured-vial-image" src="assets/featured/featured-wolverine-10mg.webp" alt="Wolverine 10 MG Pep Shop Texas vial" width="278" height="716" decoding="async"></span>
           <strong>Wolverine</strong><span>10 MG</span>
         </a>
         <a class="featured-product" data-feature-slot="3" data-product="MOTS-C" href="catalog.html?search=MOTS-C">
-          <span class="featured-image-box"><img class="featured-vial-image" src="assets/featured/featured-mots-c-40mg.webp" alt="MOTS-C 40 MG Pep Shop Texas vial" width="1122" height="1402" decoding="async"></span>
+          <span class="featured-image-box"><img class="featured-vial-image" src="assets/featured/featured-mots-c-40mg.webp" alt="MOTS-C 40 MG Pep Shop Texas vial" width="278" height="716" decoding="async"></span>
           <strong>MOTS-C</strong><span>40 MG</span>
         </a>
         <a class="featured-product" data-feature-slot="4" data-product="NAD+" href="catalog.html?search=NAD%2B">
-          <span class="featured-image-box"><img class="featured-vial-image" src="assets/featured/featured-nad-plus-500mg.webp" alt="NAD+ 500 MG Pep Shop Texas vial" width="1122" height="1402" decoding="async"></span>
+          <span class="featured-image-box"><img class="featured-vial-image" src="assets/featured/featured-nad-plus-500mg.webp" alt="NAD+ 500 MG Pep Shop Texas vial" width="278" height="716" decoding="async"></span>
           <strong>NAD+</strong><span>500 MG</span>
         </a>
       </div>
