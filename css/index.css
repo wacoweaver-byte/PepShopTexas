@@ -1,5 +1,18 @@
 /* Pep Shop Texas — homepage-only stylesheet. */
 
+
+/* Homepage canvas: force one continuous white background across the full viewport. */
+html,
+body,
+body[data-page="home"],
+body[data-page="home"] main {
+  background: #fff !important;
+}
+
+body[data-page="home"] {
+  margin: 0;
+}
+
 /* Stage 1: premium customer header. Functionality/links remain unchanged. */
 :root {
   --pst-navy: #102a43;
