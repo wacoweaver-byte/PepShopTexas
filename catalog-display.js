@@ -17,7 +17,7 @@
 
   function variantOption(product) {
     const out = Number(product.current_inventory || 0) <= 0;
-    return `<option value="${escapeAttribute(product.product_key)}" data-url="${escapeAttribute(productUrl(product))}" data-cart-key="${escapeAttribute(product.product_key)}" data-out="${out ? "true" : "false"}" ${out ? "disabled" : ""}>${escapeHtml(variantLabel(product))}${out ? " — Out of Stock" : ""}</option>`;
+    return `<option value="${escapeAttribute(product.product_key)}" data-url="${escapeAttribute(productUrl(product))}" data-cart-key="${escapeAttribute(product.product_key)}" data-out="${out ? "true" : "false"}">${escapeHtml(variantLabel(product))}${out ? " — Out of Stock" : ""}</option>`;
   }
 
   function firstAvailableVariant(variants) {
