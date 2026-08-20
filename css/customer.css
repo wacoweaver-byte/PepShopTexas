@@ -1048,3 +1048,197 @@ body {
   }
 }
 
+
+/* =========================================================
+   PST CUSTOMER-FACING DESIGN SYSTEM — DOMAIN CONSISTENCY
+   One palette, one header treatment, one nav treatment.
+   ========================================================= */
+
+:root {
+  --pst-navy: #102a43 !important;
+  --pst-gold: #c79a49 !important;
+  --pst-white: #ffffff !important;
+  --pst-text: #102a43 !important;
+  --pst-muted: #66717f !important;
+  --pst-line: #e6e0d7 !important;
+}
+
+/* Domain-wide customer-facing palette */
+body {
+  color: var(--pst-text) !important;
+  background: var(--pst-white) !important;
+}
+
+a {
+  color: var(--pst-navy);
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--pst-gold);
+}
+
+/* ---------- ONE shared customer header ---------- */
+
+.pst-customer-header {
+  background: #fff !important;
+  border-bottom: 1px solid var(--pst-line) !important;
+  box-shadow: none !important;
+}
+
+.pst-customer-header-inner {
+  min-height: 72px !important;
+  align-items: center !important;
+}
+
+/* Force the same approved PST branding on every customer-facing page
+   without requiring each HTML page to use the same old/new image filename. */
+.pst-customer-logo-link {
+  box-sizing: border-box !important;
+  width: 190px !important;
+  height: 62px !important;
+  flex: 0 0 190px !important;
+  display: block !important;
+  background: url("../pst-logo-master.webp") center center / contain no-repeat !important;
+}
+
+.pst-customer-header-logo {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  opacity: 0 !important;
+  object-fit: contain !important;
+}
+
+/* Every nav item — including dynamically changed LOGIN / Hello Name / ADMIN —
+   uses the exact same box, font, line-height and vertical center. */
+.pst-customer-nav {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: clamp(14px, 1.65vw, 28px) !important;
+}
+
+.pst-customer-nav > a,
+.pst-customer-nav > a:link,
+.pst-customer-nav > a:visited,
+.pst-customer-nav a[data-account-link],
+.pst-customer-nav a[data-admin-link] {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: static !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  vertical-align: middle !important;
+
+  color: var(--pst-navy) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+  line-height: 40px !important;
+  letter-spacing: .045em !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+}
+
+.pst-customer-nav > a:hover,
+.pst-customer-nav > a:focus-visible,
+.pst-customer-nav a[data-account-link]:hover,
+.pst-customer-nav a[data-account-link]:focus-visible,
+.pst-customer-nav a[data-admin-link]:hover,
+.pst-customer-nav a[data-admin-link]:focus-visible {
+  color: var(--pst-gold) !important;
+}
+
+/* Normalize any nested text that an older page may have inside a nav anchor. */
+.pst-customer-nav > a *,
+.pst-customer-nav a[data-account-link] *,
+.pst-customer-nav a[data-admin-link] * {
+  color: inherit !important;
+  font: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+  vertical-align: middle !important;
+}
+
+/* Cart count remains a badge but stays vertically centered inside the same 40px nav box. */
+.pst-cart-count,
+[data-cart-count] {
+  align-self: center !important;
+  vertical-align: middle !important;
+}
+
+/* Search field uses the same navy/gold system everywhere. */
+.pst-customer-search {
+  border-color: #d7dde4 !important;
+}
+
+.pst-customer-search:focus-within {
+  border-color: var(--pst-gold) !important;
+  box-shadow: 0 0 0 2px rgba(199, 154, 73, .10) !important;
+}
+
+.pst-customer-search input,
+.pst-customer-search button,
+.pst-customer-search svg {
+  color: var(--pst-navy) !important;
+}
+
+/* ---------- Shared typography colors ---------- */
+
+.page-heading h1,
+.page-title,
+.section-title,
+.catalog-card h2,
+.catalog-card h2 a,
+.catalog-dose-name,
+.catalog-price,
+.catalog-dose-option > strong,
+.catalog-variant > strong,
+.catalog-product-row > strong {
+  color: var(--pst-navy) !important;
+}
+
+.catalog-heading-rule,
+.underline {
+  background: var(--pst-gold) !important;
+}
+
+/* Product-name scale stays reduced; dose and price sizes remain exactly as-is. */
+.catalog-card h2 {
+  font-size: 20px !important;
+  line-height: 1.18 !important;
+  font-weight: 500 !important;
+}
+
+/* Mobile: same system, only scaled as a group. */
+@media (max-width: 700px) {
+  .pst-customer-logo-link {
+    width: 160px !important;
+    height: 54px !important;
+    flex-basis: 160px !important;
+  }
+
+  .pst-customer-nav > a,
+  .pst-customer-nav > a:link,
+  .pst-customer-nav > a:visited,
+  .pst-customer-nav a[data-account-link],
+  .pst-customer-nav a[data-admin-link] {
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 11.5px !important;
+    line-height: 36px !important;
+  }
+}
+
