@@ -75,6 +75,78 @@
   letter-spacing: 0 !important;
 }
 
+/* Catalog blend/stack supporting formula text. */
+.catalog-card h2 .catalog-formula {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Catalog strength selector — one compact control instead of stacked strength rows. */
+.catalog-variant-picker {
+  order: 4 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: 100% !important;
+  margin-top: 18px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid #ece9e3 !important;
+}
+
+.catalog-strength-select {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 38px !important;
+  margin: 0 !important;
+  padding: 0 34px 0 11px !important;
+  color: var(--pst-navy) !important;
+  background: #fff !important;
+  border: 1px solid #d8dce1 !important;
+  border-radius: 2px !important;
+  outline: none !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+.catalog-strength-select:focus {
+  border-color: var(--pst-gold) !important;
+  box-shadow: 0 0 0 2px rgba(199, 154, 73, .10) !important;
+}
+
+.catalog-selected-price {
+  justify-self: end !important;
+  margin: 0 !important;
+  color: var(--pst-navy) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.catalog-single-strength {
+  color: var(--pst-navy) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: .025em !important;
+  text-decoration: none !important;
+}
+
+.catalog-single-strength:hover,
+.catalog-single-strength:focus-visible {
+  color: var(--pst-gold) !important;
+}
+
 @media (max-width: 700px) {
   .pst-customer-nav > a,
   .pst-customer-nav > a:link,
@@ -83,5 +155,18 @@
   .pst-customer-nav a[data-admin-link] {
     font-size: 11.5px !important;
     line-height: 1 !important;
+  }
+
+  .catalog-card h2 .catalog-formula {
+    font-size: 11px !important;
+  }
+
+  .catalog-variant-picker {
+    gap: 10px !important;
+  }
+
+  .catalog-strength-select {
+    height: 36px !important;
+    font-size: 12px !important;
   }
 }
