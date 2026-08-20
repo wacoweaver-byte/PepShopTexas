@@ -49,11 +49,15 @@
   gap: 16px !important;
 }
 
-#pst-header-v3 a {
+#pst-header-v3 a,
+#pst-header-v3 .pst-admin {
   color: var(--pst-navy) !important;
-  text-decoration: none !important;
+  font-family: "Avenir Next", "Segoe UI", Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
   font-weight: 650 !important;
   letter-spacing: .055em !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
   white-space: nowrap !important;
   transition: color .18s ease, border-color .18s ease !important;
 }
@@ -61,7 +65,6 @@
 #pst-header-v3 .pst-left a {
   position: relative !important;
   padding: 23px 0 20px !important;
-  font-size: clamp(11px, .82vw, 13px) !important;
 }
 
 #pst-header-v3 .pst-left a::after,
@@ -84,8 +87,10 @@
 #pst-header-v3 .pst-account:hover,
 #pst-header-v3 .pst-account:focus-visible,
 #pst-header-v3 .pst-header-cart:hover,
-#pst-header-v3 .pst-header-cart:focus-visible {
-  color: var(--pst-navy-deep) !important;
+#pst-header-v3 .pst-header-cart:focus-visible,
+#pst-header-v3 .pst-admin:hover,
+#pst-header-v3 .pst-admin:focus-visible {
+  color: var(--pst-gold) !important;
 }
 
 #pst-header-v3 .pst-left a:hover::after,
@@ -106,8 +111,9 @@
   min-height: 64px !important;
   gap: 7px !important;
   color: var(--pst-navy) !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
+  font-family: "Avenir Next", "Segoe UI", Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
   letter-spacing: .055em !important;
   line-height: 1 !important;
 }
@@ -131,8 +137,8 @@
 #pst-header-v3 .pst-account strong {
   display: block !important;
   color: inherit !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
+  font: inherit !important;
+  letter-spacing: inherit !important;
 }
 
 #pst-header-v3 .pst-account small {
@@ -153,7 +159,6 @@
 #pst-header-v3 .pst-admin {
   border-left: 1px solid var(--pst-header-line) !important;
   padding-left: 18px !important;
-  font-size: 12px !important;
 }
 
 #pst-header-v3 .pst-search {
@@ -222,7 +227,7 @@
 .pst-masthead {
   width: 100%;
   margin: 0;
-  padding: clamp(34px, 4.5vw, 70px) 24px 0;
+  padding: clamp(10px, 1.3vw, 18px) 24px 0;
   background: #fff;
   text-align: center;
 }
@@ -348,17 +353,18 @@
 }
 
 @media (max-width: 600px) {
-  .pst-masthead { padding: 26px 12px 0; }
+  .pst-masthead { padding: 12px 12px 0; }
   .pst-masthead-logo { width: min(440px, 88vw); }
   .pst-masthead-links { gap: 8px 24px; width: 100%; margin-top: 22px; padding: 0 4px 18px; }
   .pst-masthead-links a { font-size: 10.5px; letter-spacing: .07em; }
   #pst-header-v3 { padding: 8px 12px 10px !important; }
   #pst-header-v3 .pst-left { gap: 4px 14px !important; }
-  #pst-header-v3 .pst-left a { font-size: 10.5px !important; letter-spacing: .04em !important; }
-  #pst-header-v3 .pst-right { gap: 7px 12px !important; }
+  #pst-header-v3 a,
+  #pst-header-v3 .pst-admin,
   #pst-header-v3 .pst-header-cart,
-  #pst-header-v3 .pst-account { font-size: 11px !important; }
-  #pst-header-v3 .pst-account strong { font-size: 11px !important; }
+  #pst-header-v3 .pst-account,
+  #pst-header-v3 .pst-account strong { font-size: 10.5px !important; font-weight: 650 !important; letter-spacing: .04em !important; }
+  #pst-header-v3 .pst-right { gap: 7px 12px !important; }
   #pst-header-v3 .pst-account small { font-size: 9px !important; }
   #pst-header-v3 .pst-search { order: 3 !important; flex: 1 1 100% !important; width: 100% !important; max-width: 100% !important; }
   .product-grid, .promo-band { width: calc(100% - 24px); }
