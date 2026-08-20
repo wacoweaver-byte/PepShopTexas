@@ -373,3 +373,75 @@
   .site-footer-inner { width: calc(100% - 24px); align-items: flex-start; flex-direction: column; }
   .site-footer-links { justify-content: flex-start; }
 }
+
+
+/* Stage 3: research-focus navigation + four featured products. */
+.focus-section {
+  width: min(1280px, calc(100% - 64px));
+  margin: 0 auto;
+  padding: 34px 0 38px;
+  background: #fff;
+}
+.section-kicker {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 26px;
+  color: var(--pst-gold);
+  font-family: "Avenir Next", "Segoe UI", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .28em;
+  text-align: center;
+  white-space: nowrap;
+}
+.section-kicker::before,.section-kicker::after { content:""; height:1px; flex:1; background:#ded2bb; }
+.focus-grid { display:grid; grid-template-columns:repeat(3,1fr); }
+.focus-item { position:relative; padding: 0 46px 4px; text-align:center; }
+.focus-item + .focus-item { border-left:1px solid #e8e3da; }
+.focus-mark {
+  display:grid; place-items:center; width:64px; height:64px; margin:0 auto 14px;
+  border:1px solid var(--pst-gold); border-radius:50%; color:var(--pst-gold);
+}
+.focus-mark svg { width:38px; height:38px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.focus-item h3 { margin:0 0 10px; color:var(--pst-navy-deep); font-family:Georgia,"Times New Roman",serif; font-size:20px; font-weight:500; letter-spacing:.12em; }
+.focus-item p { max-width:300px; min-height:42px; margin:0 auto 14px; color:#3f4752; font-size:13px; line-height:1.55; }
+.focus-item a { color:var(--pst-navy); font-size:11px; font-weight:750; letter-spacing:.12em; text-decoration:none; transition:color .18s ease; }
+.focus-item a:hover,.focus-item a:focus-visible { color:var(--pst-gold); }
+.focus-item a span { margin-left:5px; }
+
+.featured-section { border-top:1px solid #eee9e1; padding:34px 0 48px; background:#fff; }
+.featured-section > h2 { margin:0; color:var(--pst-navy-deep); font-family:Georgia,"Times New Roman",serif; font-size:27px; font-weight:500; letter-spacing:.06em; text-align:center; }
+.featured-rule { width:54px; height:1px; margin:12px auto 26px; background:var(--pst-gold); }
+.featured-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:22px; width:min(1120px,calc(100% - 64px)); margin:0 auto; }
+.featured-product { display:grid; justify-items:center; min-width:0; padding:8px 12px 16px; color:var(--pst-navy-deep); text-decoration:none; border-bottom:1px solid transparent; transition:border-color .18s ease, transform .18s ease; }
+.featured-product:hover,.featured-product:focus-visible { border-bottom-color:var(--pst-gold); transform:translateY(-2px); }
+.featured-product > strong { margin-top:10px; font-family:Georgia,"Times New Roman",serif; font-size:19px; font-weight:500; }
+.featured-product > span { margin-top:4px; color:#606875; font-size:12px; }
+
+/* Lightweight stand-in product art. Replace with final standardized vial photography without changing layout. */
+.vial-art { position:relative; width:118px; height:190px; margin:0 auto; filter:drop-shadow(0 9px 7px rgba(20,28,38,.12)); }
+.vial-cap { position:absolute; z-index:3; top:3px; left:29px; width:60px; height:24px; border:1px solid #8b9299; border-radius:7px 7px 3px 3px; background:linear-gradient(180deg,#f8f9fa 0%,#aeb4ba 28%,#e8eaec 50%,#8d949a 74%,#d7dade 100%); box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
+.vial-cap::after { content:""; position:absolute; left:7px; right:7px; bottom:3px; height:3px; border-radius:2px; background:#777f86; opacity:.7; }
+.vial-neck { position:absolute; z-index:1; top:23px; left:39px; width:40px; height:22px; border:2px solid #aeb5bb; border-bottom:0; border-radius:5px 5px 0 0; background:rgba(255,255,255,.72); }
+.vial-body { position:absolute; z-index:2; left:20px; bottom:4px; width:78px; height:151px; border:2px solid #aeb5bb; border-radius:14px 14px 19px 19px; background:linear-gradient(90deg,rgba(227,234,239,.7),#fff 18%,#fff 76%,rgba(216,225,231,.72)); box-shadow:inset 7px 0 9px rgba(208,218,225,.45), inset -6px 0 8px rgba(210,219,226,.35); }
+.vial-body::after { content:""; position:absolute; left:10px; right:10px; bottom:6px; height:7px; border-bottom:2px solid #b6bdc3; border-radius:50%; }
+.vial-label { position:absolute; left:5px; right:5px; top:37px; min-height:78px; padding:9px 5px 7px; border-top:1px solid #c6aa74; border-bottom:1px solid #c6aa74; background:#fff; text-align:center; }
+.vial-brand { display:block; margin-bottom:8px; color:#9d7b3f; font-size:6px; font-weight:700; letter-spacing:.22em; }
+.vial-label strong { display:block; color:#0b2037; font-family:"Avenir Next","Segoe UI",Arial,sans-serif; font-size:11px; line-height:1.05; }
+.vial-label small { display:block; margin-top:5px; color:#0b2037; font-size:7px; font-weight:700; letter-spacing:.08em; }
+.vial-label i { display:block; width:28px; height:1px; margin:7px auto 0; background:#b79a63; }
+
+@media (max-width: 900px) {
+  .focus-section { width:calc(100% - 32px); padding-top:28px; }
+  .focus-grid { grid-template-columns:1fr; }
+  .focus-item { padding:22px 20px 26px; }
+  .focus-item + .focus-item { border-left:0; border-top:1px solid #e8e3da; }
+  .focus-item:first-child { padding-top:0; }
+  .featured-grid { grid-template-columns:repeat(2,minmax(0,1fr)); width:calc(100% - 32px); gap:20px 10px; }
+}
+@media (max-width: 520px) {
+  .section-kicker { gap:10px; font-size:10px; letter-spacing:.19em; }
+  .featured-section > h2 { font-size:23px; }
+  .vial-art { transform:scale(.9); transform-origin:center bottom; margin-bottom:-10px; }
+}
