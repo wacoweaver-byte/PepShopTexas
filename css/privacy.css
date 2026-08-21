@@ -1,0 +1,19 @@
+body[data-page="privacy"],body[data-page="privacy"] main{background:#fff!important;color:var(--pst-navy)!important}
+.privacy-page{width:min(1180px,calc(100% - 40px));margin:0 auto;padding:44px 0 72px;font-family:Arial,Helvetica,sans-serif}
+.privacy-heading{margin:0 0 30px;padding:0 0 22px;border-bottom:1px solid #ece9e3}
+.privacy-heading>p{margin:0 0 7px;color:var(--pst-gold);font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+.privacy-heading h1{margin:0;color:var(--pst-navy);font-family:Georgia,"Times New Roman",serif;font-size:clamp(30px,3.5vw,42px);font-weight:500;line-height:1.05}
+.privacy-heading>span{display:block;max-width:760px;margin-top:10px;color:#5f6872;font-size:14px;line-height:1.6}
+.privacy-sections{display:grid;gap:0}
+.privacy-section{margin:0;padding:28px 0;border:0;border-bottom:1px solid #ece9e3;background:#fff;box-shadow:none}
+.privacy-section:first-child{border-top:1px solid #ece9e3}
+.privacy-section h2{margin:0 0 12px;color:var(--pst-navy);font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:500;line-height:1.2}
+.privacy-section p,.privacy-section li{max-width:850px;color:#36414c;font-size:14px;line-height:1.7}
+.privacy-section p{margin:0 0 10px}
+.privacy-section p:last-child{margin-bottom:0}
+.privacy-section ul{margin:8px 0 0;padding-left:22px}
+.privacy-section li+li{margin-top:5px}
+.privacy-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.privacy-actions a,.privacy-actions a:link,.privacy-actions a:visited{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:38px;padding:0 16px;border:1px solid var(--pst-navy);border-radius:2px;background:var(--pst-navy);color:#fff;font-size:12px;font-weight:700;line-height:1;letter-spacing:.045em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+.privacy-actions a:hover,.privacy-actions a:focus-visible{border-color:var(--pst-gold);background:var(--pst-gold);color:var(--pst-navy);outline:none}
+@media(max-width:620px){.privacy-page{width:min(100% - 28px,1180px);padding-top:30px}.privacy-actions a{max-width:100%;white-space:normal;text-align:center}}
