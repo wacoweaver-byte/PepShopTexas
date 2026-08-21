@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pep Shop Texas | Orders Management</title>
+</head>
+<body>
+  <noscript>JavaScript is required to load the Orders admin page.</noscript>
+  <script>
+    (async function(){
+      try{
+        const response = await fetch('admin.html', {cache:'no-store'});
+        if(!response.ok) throw new Error('Could not load admin.html');
+        let html = await response.text();
+        html = html.replace('</head>', '<link rel="stylesheet" href="css/admin.css?v=3"></head>');
+        html = html.replace(/<body([^>]*)>/i, '<body$1 data-admin-page="orders">');
+        html = html.replace('</body>', '<script src="admin-shell.js?v=1"><\/script><script src="admin-footer.js?v=2"><\/script></body>');
+        document.open();
+        document.write(html);
+        document.close();
+      }catch(error){
+        document.body.innerHTML = '<main style="font-family:Arial,Helvetica,sans-serif;padding:32px"><h1>Orders</h1><p>Unable to load the admin orders page.</p></main>';
+        console.error(error);
+      }
+    })();
+  </script>
+</body>
+</html>
