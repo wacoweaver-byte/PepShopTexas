@@ -55,7 +55,24 @@
 
     <div class="footer-legal">RESEARCH USE ONLY <span aria-hidden="true">•</span> NOT FOR HUMAN OR VETERINARY USE</div>`;
 
+  function installCustomerHeaderLogo() {
+    const page = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
+    if (page === "index.html" || page === "") return;
+
+    const logo = document.querySelector(".pst-customer-header-logo");
+    if (!logo) return;
+
+    logo.src = "pst-header-logo.webp";
+    logo.alt = "Pep Shop Texas";
+    logo.style.width = "54px";
+    logo.style.height = "54px";
+    logo.style.maxWidth = "54px";
+    logo.style.objectFit = "contain";
+  }
+
   function installCustomerFooter() {
+    installCustomerHeaderLogo();
+
     let footer = document.querySelector("footer.site-footer");
     if (!footer) {
       footer = document.createElement("footer");
