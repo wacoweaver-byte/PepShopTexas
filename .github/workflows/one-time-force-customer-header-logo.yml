@@ -1,0 +1,59 @@
+name: Force customer header logo
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-force-customer-header-logo.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update customer-facing pages
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          for path in Path('.').glob('*.html'):
+              if path.name == 'index.html':
+                  continue
+              text = path.read_text(encoding='utf-8')
+              if 'pst-customer-header' not in text:
+                  continue
+
+              # Replace only the logo image inside the shared customer header.
+              text = re.sub(
+                  r'(<img\s+[^>]*class=["\'][^"\']*pst-customer-header-logo[^"\']*["\'][^>]*src=["\'])[^"\']+(["\'])',
+                  r'\1pst-header-logo.webp?v=3\2',
+                  text,
+                  flags=re.I,
+              )
+              # Handle src before class as well.
+              text = re.sub(
+                  r'(<img\s+[^>]*src=["\'])[^"\']+(["\'][^>]*class=["\'][^"\']*pst-customer-header-logo[^"\']*["\'][^>]*>)',
+                  r'\1pst-header-logo.webp?v=3\2',
+                  text,
+                  flags=re.I,
+              )
+
+              stylesheet = '<link rel="stylesheet" href="css/header-logo.css?v=3">'
+              if 'css/header-logo.css' not in text:
+                  text = text.replace('</head>', f'  {stylesheet}\n</head>')
+
+              path.write_text(text, encoding='utf-8')
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add '*.html'
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+          else
+            git commit -m "Force new PST header logo on customer pages"
+            git push
+          fi
