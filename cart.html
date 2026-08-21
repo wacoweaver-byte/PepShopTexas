@@ -63,7 +63,7 @@
     (() => {
       const summary = document.querySelector('[data-cart-summary]');
       if (!summary) return;
-      const markMoneyRows = () => {
+      const refreshSummaryPresentation = () => {
         summary.querySelectorAll('div, p, li').forEach((element) => {
           const text = (element.textContent || '').replace(/\s+/g, ' ').trim();
           if (text.length > 80 || element.children.length > 3) return;
@@ -76,9 +76,13 @@
             if (/^(Total\b|Grand Total\b)/i.test(text)) element.classList.add('pst-summary-total-row');
           }
         });
+
+        [...summary.querySelectorAll('a.primary-action[href="catalog.html"]')]
+          .filter((link) => /browse products/i.test(link.textContent || ''))
+          .forEach((link) => link.remove());
       };
-      markMoneyRows();
-      new MutationObserver(markMoneyRows).observe(summary, { childList: true, subtree: true });
+      refreshSummaryPresentation();
+      new MutationObserver(refreshSummaryPresentation).observe(summary, { childList: true, subtree: true });
     })();
   </script>
 
