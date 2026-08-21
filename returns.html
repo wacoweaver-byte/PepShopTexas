@@ -9,25 +9,88 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="css/customer.css?v=12">
+  <meta name="theme-color" content="#102a43">
+  <link rel="stylesheet" href="css/customer.css?v=27">
+  <link rel="stylesheet" href="css/returns.css?v=1">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=39"></script>
+  <script defer src="app.js?v=55"></script>
+  <script defer src="customer-footer.js?v=2"></script>
 </head>
-<body>
-  <header class="pst-customer-header"><div class="pst-customer-header-inner"><a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home"><img src="customer facing header logo.png" alt="PST Pep Shop Texas" class="pst-customer-header-logo"></a><div class="pst-customer-header-right"><form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form><label class="sr-only" for="pst-customer-search-input">Search peptides</label><input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off"><button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button></form><nav class="pst-customer-nav main-nav" aria-label="Main navigation"><a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a><a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a><a href="account.html" data-account-link>LOGIN</a><a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a></nav></div></div></header>
-  <main class="faq-page policy-page">
-    <section class="page-heading policy-heading"><p>Policies</p></section>
-    <section class="faq-shell policy-shell" aria-label="Returns">
-      <article class="faq-card policy-card"><h2>Return &amp; Refund Policy</h2><p>Because products are research-use materials, returns may be restricted. This policy should be reviewed before public launch.</p></article>
-      <article class="faq-card policy-card"><h2>General Return Position</h2><p>Due to product integrity, storage, handling, and research-use considerations, Pep Shop Texas may not accept returns once products have shipped unless specifically approved by support.</p></article>
-      <article class="faq-card policy-card"><h2>Cancelled or Rejected Orders</h2><p>If an order is cancelled, rejected, payment-failed, or cannot be fulfilled before shipment, inventory may be restored and any applicable refund may be reviewed according to the payment method and order status.</p></article>
-      <article class="faq-card policy-card"><h2>Damaged Shipment Claims</h2><p>Customers should report damaged shipment issues promptly with order number, photos, packaging details, and tracking information. Pep Shop Texas may review the issue and determine whether replacement, credit, or other resolution is appropriate.</p></article>
-      <article class="faq-card policy-card"><h2>Incorrect Product Claims</h2><p>If a customer believes the wrong item was received, they should contact support before opening, using, discarding, or altering the product or packaging.</p></article>
-      <article class="faq-card policy-card"><h2>Refund Timing</h2><p>Refund timing depends on payment method, administrative review, and payment processor or platform timing.</p></article>
-      <article class="faq-card policy-card"><h2>No Human or Veterinary Use</h2><p>Products are not for human or veterinary use. Pep Shop Texas does not provide medical advice, dosing advice, or use guidance.</p></article>
+<body data-page="returns">
+  <header class="pst-customer-header">
+    <div class="pst-customer-header-inner">
+      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
+        <img src="pst-logo-master.webp" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
+      </a>
+      <div class="pst-customer-header-right">
+        <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
+          <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
+          <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+          <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button>
+        </form>
+        <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
+          <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
+          <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact.html">CONTACT</a>
+          <a href="account.html" data-account-link>LOGIN</a>
+          <a class="cart-link" href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="returns-page">
+    <section class="returns-heading">
+      <p>Policy</p>
+      <h1>Returns &amp; Refunds</h1>
+      <span>Review the return, refund, and shipment-issue policies that apply to Pep Shop Texas orders.</span>
+    </section>
+
+    <section class="returns-sections" aria-label="Returns and refunds policy">
+      <article class="returns-section">
+        <h2>Return &amp; Refund Policy</h2>
+        <p>Because products are research-use materials, returns may be restricted. This policy should be reviewed before public launch.</p>
+      </article>
+
+      <article class="returns-section">
+        <h2>General Return Position</h2>
+        <p>Due to product integrity, storage, handling, and research-use considerations, Pep Shop Texas may not accept returns once products have shipped unless specifically approved by support.</p>
+      </article>
+
+      <article class="returns-section">
+        <h2>Cancelled or Rejected Orders</h2>
+        <p>If an order is cancelled, rejected, payment-failed, or cannot be fulfilled before shipment, inventory may be restored and any applicable refund may be reviewed according to the payment method and order status.</p>
+      </article>
+
+      <article class="returns-section">
+        <h2>Damaged Shipment Claims</h2>
+        <p>Customers should report damaged shipment issues promptly with order number, photos, packaging details, and tracking information. Pep Shop Texas may review the issue and determine whether replacement, credit, or other resolution is appropriate.</p>
+      </article>
+
+      <article class="returns-section">
+        <h2>Incorrect Product Claims</h2>
+        <p>If a customer believes the wrong item was received, they should contact support before opening, using, discarding, or altering the product or packaging.</p>
+      </article>
+
+      <article class="returns-section">
+        <h2>Refund Timing</h2>
+        <p>Refund timing depends on payment method, administrative review, and payment processor or platform timing.</p>
+      </article>
+
+      <article class="returns-section">
+        <h2>No Human or Veterinary Use</h2>
+        <p>Products are not for human or veterinary use. Pep Shop Texas does not provide medical advice, dosing advice, or use guidance.</p>
+      </article>
+
+      <article class="returns-section">
+        <h2>Need Help With an Order?</h2>
+        <p>Contact support with your order number and a clear description of the issue so it can be reviewed.</p>
+        <div class="returns-actions"><a href="mailto:support@pepshoptexas.com">Email Support</a></div>
+      </article>
     </section>
   </main>
-  <footer class="site-footer"><div class="trust-bar"><div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div><div><span><strong>QUALITY</strong>Third-party tested</span></div><div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div><div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div></div><div class="site-footer-inner"><div class="site-footer-brand"><strong>Pep Shop Texas</strong><span>Research-use catalog. Not for human or veterinary use.</span></div><nav class="site-footer-links" aria-label="Footer policies"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="shipping.html">Shipping</a><a href="returns.html">Returns</a><a href="contact.html">Contact</a></nav></div></footer>
+
+  <footer class="site-footer"></footer>
 </body>
 </html>
