@@ -13,9 +13,61 @@
   opacity:0!important;
 }
 @media (max-width:700px){
+  .pst-customer-header-inner{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    gap:18px!important;
+    width:100%!important;
+  }
   .pst-customer-logo-link{
     width:160px!important;
     height:54px!important;
-    flex-basis:160px!important;
+    flex:0 0 54px!important;
+    margin:0 auto!important;
+  }
+  .pst-customer-header-right{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:14px!important;
+    width:100%!important;
+  }
+  .pst-customer-search{
+    width:100%!important;
+    margin:0!important;
+  }
+  .pst-customer-nav{
+    display:grid!important;
+    grid-template-columns:repeat(12,minmax(0,1fr))!important;
+    align-items:center!important;
+    justify-content:stretch!important;
+    column-gap:10px!important;
+    row-gap:14px!important;
+    width:100%!important;
+    margin:0!important;
+  }
+  .pst-customer-nav>a,
+  .pst-customer-nav>a:link,
+  .pst-customer-nav>a:visited,
+  .pst-customer-nav a[data-account-link],
+  .pst-customer-nav a[data-admin-link]{
+    justify-self:center!important;
+    width:auto!important;
+    font-size:12px!important;
+    line-height:1.15!important;
+    text-align:center!important;
+  }
+  .pst-customer-nav>a:nth-child(1){grid-column:1 / span 3!important;grid-row:1!important;}
+  .pst-customer-nav>a:nth-child(2){grid-column:4 / span 3!important;grid-row:1!important;}
+  .pst-customer-nav>a:nth-child(3){grid-column:7 / span 2!important;grid-row:1!important;}
+  .pst-customer-nav>a:nth-child(4){grid-column:9 / span 4!important;grid-row:1!important;}
+  .pst-customer-nav a[data-account-link]{grid-column:2 / span 4!important;grid-row:2!important;}
+  .pst-customer-nav a[data-admin-link]{grid-column:6 / span 3!important;grid-row:2!important;}
+  .pst-customer-nav .cart-link{grid-column:9 / span 3!important;grid-row:2!important;}
+  .pst-cart-count,[data-cart-count]{
+    min-width:24px!important;
+    height:24px!important;
+    margin-left:5px!important;
   }
 }
