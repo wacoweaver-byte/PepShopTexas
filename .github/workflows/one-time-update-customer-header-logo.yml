@@ -1,0 +1,38 @@
+name: One-time update customer header logo
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-update-customer-header-logo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-logo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update customer-facing header logo
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            sed -i 's/src="pst-logo-master\.webp"/src="pst-header-logo.webp"/g' "$file"
+            sed -i 's/src="customer facing header logo\.png"/src="pst-header-logo.webp"/g' "$file"
+          done < <(find . -maxdepth 1 -type f -name '*.html' ! -name 'index.html' -print0)
+      - name: Commit updates
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'No changes needed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- '*.html'
+          git commit -m 'Use new PST header logo on customer pages'
+          git push
