@@ -9,34 +9,36 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="css/customer.css?v=12">
+  <meta name="theme-color" content="#102a43">
+  <link rel="stylesheet" href="css/customer.css?v=27">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=22"></script>
+  <script defer src="app.js?v=55"></script>
+  <script defer src="customer-footer.js?v=2"></script>
 </head>
-<body>
+<body data-page="faq">
   <header class="pst-customer-header">
-  <div class="pst-customer-header-inner">
-    <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
-      <img src="customer facing header logo.png" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
-    </a>
-    <div class="pst-customer-header-right">
-      <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
-        <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
-        <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-        <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button>
-      </form>
-      <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
-        <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
-        <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">CONTACT</a>
-        <a href="account.html" data-account-link>LOGIN</a>
-        <a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
-      </nav>
+    <div class="pst-customer-header-inner">
+      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
+        <img src="pst-logo-master.webp" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
+      </a>
+      <div class="pst-customer-header-right">
+        <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
+          <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
+          <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+          <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button>
+        </form>
+        <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
+          <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
+          <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact.html">CONTACT</a>
+          <a href="account.html" data-account-link>LOGIN</a>
+          <a class="cart-link" href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
+        </nav>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
+
   <main class="faq-page">
     <section class="page-heading"><p>Support</p><h1>FAQ</h1></section>
     <section class="faq-shell" aria-label="Frequently asked questions">
@@ -48,11 +50,7 @@
       <article class="faq-card"><h2>Do you ship orders?</h2><p>Shipping information is provided during order handling. For help with a specific order, contact support.</p><div class="faq-actions"><a href="shipping.html">Shipping Info</a></div></article>
     </section>
   </main>
-  <footer class="trust-bar">
-    <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
-    <div><span><strong>QUALITY</strong>Third-party tested</span></div>
-    <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
-    <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
-  </footer>
+
+  <footer class="site-footer"></footer>
 </body>
 </html>
