@@ -1,0 +1,30 @@
+name: Apply exact PST header logo
+
+on:
+  push:
+    paths:
+      - '.logo-apply'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-logo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Rebuild exact uploaded header logo
+        run: |
+          cat .logo-parts/part00.txt .logo-parts/part01.txt .logo-parts/part02.txt .logo-parts/part03.txt .logo-parts/part04.txt > /tmp/pst-header-logo.b64
+          base64 --decode /tmp/pst-header-logo.b64 > pst-header-logo.webp
+          test "$(stat -c%s pst-header-logo.webp)" -gt 30000
+      - name: Commit exact logo asset
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pst-header-logo.webp
+          git diff --cached --quiet && exit 0
+          git commit -m 'Replace header with exact uploaded PST logo'
+          git push
