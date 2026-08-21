@@ -1,3 +1,2 @@
-.pst-customer-logo-link{display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 60px!important;width:60px!important;height:60px!important;margin:0 22px 0 0!important;padding:0!important;overflow:visible!important}
-.pst-customer-header-logo{display:block!important;width:58px!important;height:58px!important;max-width:58px!important;max-height:58px!important;object-fit:contain!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important}
-@media(max-width:760px){.pst-customer-logo-link{flex-basis:52px!important;width:52px!important;height:52px!important;margin-right:12px!important}.pst-customer-header-logo{width:50px!important;height:50px!important;max-width:50px!important;max-height:50px!important}}
+.pst-customer-logo-link{display:none!important}
+.pst-customer-header-logo{display:none!important}
