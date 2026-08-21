@@ -1,47 +1,68 @@
 (function () {
   "use strict";
 
-  const trustBarMarkup = `
-    <div class="trust-bar" aria-label="Customer assurances">
-      <div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div>
-      <div><span><strong>QUALITY</strong>Third-party tested</span></div>
-      <div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div>
-      <div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div>
-    </div>`;
-
-  const footerInnerMarkup = `
-    <div class="site-footer-inner">
-      <div class="site-footer-brand">
-        <strong>Pep Shop Texas</strong>
-        <span>Research-use catalog. Not for human or veterinary use.</span>
+  const footerMarkup = `
+    <section class="footer-trust" aria-label="Pep Shop Texas standards">
+      <div class="footer-trust-item">
+        <strong>INDEPENDENTLY TESTED</strong>
+        <span>Identity, purity &amp; content verification</span>
       </div>
-      <nav class="site-footer-links" aria-label="Footer policies">
-        <a href="terms.html">Terms</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="shipping.html">Shipping</a>
-        <a href="returns.html">Returns</a>
-        <a href="contact.html">Contact</a>
-      </nav>
-    </div>`;
+      <div class="footer-trust-item">
+        <strong>QUALITY STANDARD</strong>
+        <span>Responsibly sourced research compounds</span>
+      </div>
+      <div class="footer-trust-item">
+        <strong>DISCREET SHIPPING</strong>
+        <span>Secure packaging and fulfillment</span>
+      </div>
+      <div class="footer-trust-item">
+        <strong>COA VALIDATION</strong>
+        <span>Verify testing documentation</span>
+      </div>
+    </section>
+
+    <div class="footer-main">
+      <div class="footer-main-inner">
+        <div class="footer-brand">
+          <strong>PEP SHOP TEXAS</strong>
+          <span>Premium Purity &nbsp;|&nbsp; Proven Quality &nbsp;|&nbsp; Responsibly Sourced</span>
+        </div>
+
+        <nav class="footer-column" aria-label="Footer shop links">
+          <strong>SHOP</strong>
+          <a href="catalog.html">Peptides A-Z</a>
+          <a href="catalog.html?category=Stack">Top Stacks</a>
+          <a href="testing.html">Testing / Verification</a>
+          <a href="bulk-request.html">Bulk Request</a>
+        </nav>
+
+        <nav class="footer-column" aria-label="Footer customer service links">
+          <strong>CUSTOMER SERVICE</strong>
+          <a href="faq.html">FAQ</a>
+          <a href="shipping.html">Shipping</a>
+          <a href="returns.html">Returns</a>
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+        </nav>
+
+        <nav class="footer-column" aria-label="Footer contact links">
+          <strong>CONTACT</strong>
+          <a href="contact.html">Contact Us</a>
+          <span>pepshoptexas.com</span>
+        </nav>
+      </div>
+    </div>
+
+    <div class="footer-legal">RESEARCH USE ONLY <span aria-hidden="true">•</span> NOT FOR HUMAN OR VETERINARY USE</div>`;
 
   function installCustomerFooter() {
     let footer = document.querySelector("footer.site-footer");
-
     if (!footer) {
       footer = document.createElement("footer");
       footer.className = "site-footer";
-      footer.innerHTML = trustBarMarkup + footerInnerMarkup;
       document.body.appendChild(footer);
-      return;
     }
-
-    if (!footer.querySelector(".trust-bar")) {
-      footer.insertAdjacentHTML("afterbegin", trustBarMarkup);
-    }
-
-    if (!footer.querySelector(".site-footer-inner")) {
-      footer.insertAdjacentHTML("beforeend", footerInnerMarkup);
-    }
+    footer.innerHTML = footerMarkup;
   }
 
   if (document.readyState === "loading") {
