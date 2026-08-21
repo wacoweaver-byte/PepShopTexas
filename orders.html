@@ -13,9 +13,17 @@
         const response = await fetch('admin.html', {cache:'no-store'});
         if(!response.ok) throw new Error('Could not load admin.html');
         let html = await response.text();
-        html = html.replace('</head>', '<link rel="stylesheet" href="css/admin.css?v=3"></head>');
+
+        const headClose = html.toLowerCase().lastIndexOf('</head>');
+        if(headClose === -1) throw new Error('admin.html is missing </head>');
+        html = html.slice(0, headClose) + '<link rel="stylesheet" href="css/admin.css?v=4">' + html.slice(headClose);
+
         html = html.replace(/<body([^>]*)>/i, '<body$1 data-admin-page="orders">');
-        html = html.replace('</body>', '<script src="admin-footer.js?v=3"><\/script></body>');
+
+        const bodyClose = html.toLowerCase().lastIndexOf('</body>');
+        if(bodyClose === -1) throw new Error('admin.html is missing </body>');
+        html = html.slice(0, bodyClose) + '<script src="admin-footer.js?v=4"><\/script>' + html.slice(bodyClose);
+
         document.open();
         document.write(html);
         document.close();
