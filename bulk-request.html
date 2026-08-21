@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bulk Request | PEP Shop Texas</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#102a43">
+  <link rel="stylesheet" href="css/customer.css?v=27">
+  <link rel="stylesheet" href="css/bulk-request.css?v=1">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js?v=55"></script>
+  <script defer src="customer-footer.js?v=2"></script>
+</head>
+<body data-page="bulk-request">
+  <header class="pst-customer-header">
+    <div class="pst-customer-header-inner">
+      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
+        <img src="pst-logo-master.webp" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
+      </a>
+      <div class="pst-customer-header-right">
+        <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
+          <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
+          <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+          <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button>
+        </form>
+        <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
+          <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
+          <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact.html">CONTACT</a>
+          <a href="account.html" data-account-link>LOGIN</a>
+          <a class="cart-link" href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="bulk-request-page">
+    <section class="bulk-request-heading">
+      <p>Special Orders</p>
+      <h1>Bulk Request</h1>
+      <span>Request a quote for a bulk or special-order research product. Requests are reviewed individually and are not considered accepted orders until availability, sourcing, pricing, testing preferences, and payment terms are confirmed.</span>
+    </section>
+
+    <div class="bulk-request-grid">
+      <section class="bulk-request-form-wrap">
+        <form id="bulkRequestForm" novalidate>
+          <section class="bulk-request-section">
+            <h2>Contact Information</h2>
+            <p>Tell us who is making the request and how we should respond.</p>
+            <div class="bulk-form-grid">
+              <div class="bulk-field"><label for="bulkName">Name</label><input id="bulkName" name="name" type="text" autocomplete="name" required></div>
+              <div class="bulk-field"><label for="bulkCompany">Company / Organization <span class="bulk-help">(optional)</span></label><input id="bulkCompany" name="company" type="text" autocomplete="organization"></div>
+              <div class="bulk-field"><label for="bulkEmail">Email</label><input id="bulkEmail" name="email" type="email" autocomplete="email" required></div>
+              <div class="bulk-field"><label for="bulkPhone">Phone <span class="bulk-help">(optional)</span></label><input id="bulkPhone" name="phone" type="tel" autocomplete="tel"></div>
+            </div>
+          </section>
+
+          <section class="bulk-request-section">
+            <h2>Requested Product</h2>
+            <p>Bulk requests are submitted in whole kits. Each kit contains 10 vials.</p>
+            <div class="bulk-form-grid">
+              <div class="bulk-field full"><label for="bulkProduct">Product / Peptide Requested</label><input id="bulkProduct" name="product" type="text" required></div>
+              <div class="bulk-field"><label for="bulkStrength">Requested Strength</label><input id="bulkStrength" name="strength" type="text" placeholder="Example: 10 mg" required></div>
+              <div class="bulk-field"><label for="bulkKits">Number of Kits</label><input id="bulkKits" name="kits" type="number" min="1" step="1" inputmode="numeric" required><span class="bulk-help">1 kit = 10 vials. Whole kits only.</span></div>
+              <div class="bulk-field full"><label for="bulkRequirements">Special Requirements <span class="bulk-help">(optional)</span></label><textarea id="bulkRequirements" name="requirements" placeholder="Add any product, packaging, documentation, or timing requirements."></textarea></div>
+            </div>
+          </section>
+
+          <section class="bulk-request-section">
+            <h2>Testing Preference</h2>
+            <p>Select how you want independent testing handled for the requested product.</p>
+            <fieldset class="bulk-choice-group">
+              <legend class="sr-only">Testing preference</legend>
+              <label class="bulk-choice">
+                <input type="radio" name="testing_path" value="pst_coordinated" required>
+                <span><strong>Pep Shop Texas coordinates independent testing</strong>PST will coordinate independent laboratory testing after the product is sourced/received. The customer is responsible for the testing cost.</span>
+              </label>
+              <label class="bulk-choice">
+                <input type="radio" name="testing_path" value="customer_coordinated" required>
+                <span><strong>I will independently arrange testing</strong>The product may be released to the customer after fulfillment, and the customer may independently arrange testing with a laboratory of their choice.</span>
+              </label>
+            </fieldset>
+          </section>
+
+          <section class="bulk-request-section">
+            <h2>Request Acknowledgment</h2>
+            <label class="bulk-choice">
+              <input id="bulkAcknowledge" name="acknowledgment" type="checkbox" required>
+              <span>I understand that this is a request for a quote and sourcing review, not an order. Availability, lead time, price, testing costs, and fulfillment terms must be confirmed by Pep Shop Texas before any request is accepted.</span>
+            </label>
+            <div class="bulk-request-submit">
+              <button id="bulkRequestSubmit" type="submit">Submit Bulk Request</button>
+              <span id="bulkRequestStatus" class="bulk-request-status" aria-live="polite"></span>
+            </div>
+          </section>
+        </form>
+      </section>
+
+      <aside class="bulk-request-info" aria-label="Bulk request information">
+        <section class="bulk-info-section">
+          <h2>How It Works</h2>
+          <ul>
+            <li>Submit the product, strength, and number of kits requested.</li>
+            <li>Pep Shop Texas reviews sourcing, availability, lead time, and pricing.</li>
+            <li>Testing arrangements are handled according to the option you select.</li>
+            <li>A quote or next-step response is provided before any request becomes an order.</li>
+          </ul>
+        </section>
+
+        <section class="bulk-info-section">
+          <h2>Fulfillment</h2>
+          <p>Bulk and special-order requests are fulfilled only after Pep Shop Texas sources and receives the requested product. Submission of this form does not reserve inventory or guarantee fulfillment.</p>
+        </section>
+
+        <section class="bulk-highlight">
+          <strong>Research Use Only</strong>
+          <p>Products and information are provided for research-use context only and are not for human or veterinary use.</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer"></footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('bulkRequestForm');
+      const status = document.getElementById('bulkRequestStatus');
+      if (!form || !status) return;
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+        status.textContent = 'Request form is ready. Submission workflow will be connected next.';
+      });
+    });
+  </script>
+</body>
+</html>
