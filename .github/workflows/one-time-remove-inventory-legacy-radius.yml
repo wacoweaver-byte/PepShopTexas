@@ -1,0 +1,57 @@
+name: One-time remove Inventory legacy radius rules
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-remove-inventory-legacy-radius.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove legacy Inventory radius declarations only
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('inventory.html')
+          text = path.read_text()
+
+          selectors = [
+              '.btn',
+              '.status-pill',
+              '.inventory-jump-link',
+              '.inventory-collapse-toggle',
+              '.collapse-toggle',
+              '.reorder-action-btn'
+          ]
+
+          removed = 0
+          for selector in selectors:
+              pattern = re.compile(r'(' + re.escape(selector) + r'\s*\{[^{}]*?)\s*border-radius\s*:\s*[^;{}]+;([^{}]*\})', re.S)
+              while True:
+                  text, count = pattern.subn(r'\1\2', text, count=1)
+                  if not count:
+                      break
+                  removed += count
+
+          if removed == 0:
+              raise SystemExit('No targeted legacy border-radius declarations found')
+
+          path.write_text(text)
+          print(f'Removed {removed} targeted legacy border-radius declaration(s).')
+          PY
+      - name: Remove temporary workflow and commit exact change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/one-time-remove-inventory-legacy-radius.yml
+          git add inventory.html
+          git commit -m "Remove Inventory legacy radius styling"
+          git push
