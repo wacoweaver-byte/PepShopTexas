@@ -1,0 +1,61 @@
+name: Wire Report Writer Admin Shell
+on:
+  push:
+    paths:
+      - '.github/workflows/wire-report-writer-admin-shell.yml'
+permissions:
+  contents: write
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire Report Writer to shared admin shell
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('report-writer.html')
+          s = p.read_text()
+          if 'css/admin.css' not in s:
+              s = s.replace('</head>', '<link rel="stylesheet" href="css/admin.css?v=9">\n</head>', 1)
+          old_header = '''<header class="pst-admin-header">'''
+          if old_header not in s:
+              raise SystemExit('Expected admin header not found')
+          # Replace only the first complete admin header block using the known nav close.
+          start = s.index(old_header)
+          end_marker = '</header>'
+          end = s.index(end_marker, start) + len(end_marker)
+          new_header = '''<header class="pst-admin-header">
+  <div class="pst-admin-nav-wrap">
+    <a class="pst-admin-logo-link" href="index.html" aria-label="Pep Shop Texas Home">
+      <img src="pst-header-logo.png" alt="PST Pep Shop Texas" class="pst-admin-header-logo">
+    </a>
+    <nav class="pst-admin-nav" aria-label="Admin navigation">
+      <a href="admin.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="products.html">Products</a>
+      <a href="discounts.html">Discounts</a>
+      <a href="promotions.html">Promotions</a>
+      <a href="reports.html">Reports</a>
+      <a href="customers.html">Customers</a>
+      <a href="index.html">View Site</a>
+    </nav>
+  </div>
+</header>'''
+          s = s[:start] + new_header + s[end:]
+          if 'admin-footer.js' not in s:
+              idx = s.rfind('</body>')
+              if idx == -1:
+                  raise SystemExit('Final body close not found')
+              s = s[:idx] + '<script defer src="admin-footer.js?v=9"></script>\n' + s[idx:]
+          p.write_text(s)
+          PY
+      - name: Commit Report Writer and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add report-writer.html
+          git commit -m 'Wire Report Writer into shared admin shell'
+          git rm .github/workflows/wire-report-writer-admin-shell.yml
+          git commit -m 'Remove one-time Report Writer wiring workflow'
+          git push
