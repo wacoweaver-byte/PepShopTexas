@@ -15,7 +15,7 @@
         let html = await response.text();
         html = html.replace('</head>', '<link rel="stylesheet" href="css/admin.css?v=3"></head>');
         html = html.replace(/<body([^>]*)>/i, '<body$1 data-admin-page="orders">');
-        html = html.replace('</body>', '<script src="admin-shell.js?v=1"><\/script><script src="admin-footer.js?v=2"><\/script></body>');
+        html = html.replace('</body>', '<script src="admin-footer.js?v=3"><\/script></body>');
         document.open();
         document.write(html);
         document.close();
