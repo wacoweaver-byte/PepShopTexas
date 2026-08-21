@@ -3,27 +3,75 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shipping | PEP Shop Texas</title>
+  <title>Shipping | Pep Shop Texas</title>
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="css/customer.css?v=12">
+  <meta name="theme-color" content="#102a43">
+  <link rel="stylesheet" href="css/customer.css?v=27">
+  <link rel="stylesheet" href="css/shipping.css?v=1">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=39"></script>
+  <script defer src="app.js?v=55"></script>
+  <script defer src="customer-footer.js?v=2"></script>
 </head>
-<body>
-  <header class="pst-customer-header"><div class="pst-customer-header-inner"><a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home"><img src="customer facing header logo.png" alt="PST Pep Shop Texas" class="pst-customer-header-logo"></a><div class="pst-customer-header-right"><form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form><label class="sr-only" for="pst-customer-search-input">Search peptides</label><input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off"><button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button></form><nav class="pst-customer-nav main-nav" aria-label="Main navigation"><a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a><a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a><a href="account.html" data-account-link>LOGIN</a><a href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a></nav></div></div></header>
-  <main class="faq-page policy-page">
-    <section class="page-heading policy-heading"><p>Policy</p></section>
-    <section class="faq-shell policy-shell" aria-label="Shipping">
-      <article class="faq-card policy-card"><h2>Shipping</h2><p>Orders ship from Central Texas after payment has been confirmed.</p><p>Typical processing time is 1–2 business days, excluding weekends and holidays.</p><p>Pep Shop Texas utilizes Priority Mail through USPS 3 day shipping with tracking available on all orders.</p><p>Carrier delays, weather delays, and address issues are outside the control of PEP Shop Texas.</p><p>You can track your package at https://tools.usps.com/tracking/.</p></article>
-      <article class="faq-card policy-card"><h2>Returns</h2><p>Due to product handling, storage, and research-product integrity concerns, returns are not accepted once an order has shipped.</p><p>If an order arrives damaged, missing an item, or incorrect, contact PEP Shop Texas within 48 hours of delivery so the issue can be reviewed.</p><p>Damaged, missing, or incorrect item concerns are reviewed case by case.</p></article>
-      <article class="faq-card policy-card"><h2>Contact</h2><p>For shipping or order questions, contact PEP Shop Texas support. Please include your order number when available.</p><div class="faq-actions"><a href="mailto:support@pepshoptexas.com">support@pepshoptexas.com</a></div></article>
+<body data-page="shipping">
+  <header class="pst-customer-header">
+    <div class="pst-customer-header-inner">
+      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
+        <img src="pst-logo-master.webp" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
+      </a>
+      <div class="pst-customer-header-right">
+        <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
+          <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
+          <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+          <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button>
+        </form>
+        <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
+          <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
+          <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact.html">CONTACT</a>
+          <a href="account.html" data-account-link>LOGIN</a>
+          <a class="cart-link" href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="shipping-page">
+    <section class="shipping-heading">
+      <p>Policies</p>
+      <h1>Shipping &amp; Returns</h1>
+      <span>Order processing, delivery, tracking, and return information for Pep Shop Texas orders.</span>
+    </section>
+
+    <section class="shipping-sections" aria-label="Shipping and returns policies">
+      <article class="shipping-section">
+        <h2>Shipping</h2>
+        <p>Orders ship from Central Texas after payment has been confirmed.</p>
+        <p>Typical processing time is 1–2 business days, excluding weekends and holidays.</p>
+        <p>Pep Shop Texas utilizes USPS Priority Mail 3-Day shipping with tracking available on all orders.</p>
+        <p>Carrier delays, weather delays, and address issues are outside the control of Pep Shop Texas.</p>
+        <div class="shipping-actions"><a href="https://tools.usps.com/tracking/" target="_blank" rel="noopener">Track with USPS</a></div>
+      </article>
+
+      <article class="shipping-section">
+        <h2>Returns</h2>
+        <p>Due to product handling, storage, and research-product integrity concerns, returns are not accepted once an order has shipped.</p>
+        <p>If an order arrives damaged, missing an item, or incorrect, contact Pep Shop Texas within 48 hours of delivery so the issue can be reviewed.</p>
+        <p>Damaged, missing, or incorrect item concerns are reviewed case by case.</p>
+      </article>
+
+      <article class="shipping-section">
+        <h2>Shipping Support</h2>
+        <p>For shipping or order questions, contact Pep Shop Texas support. Include your order number when available.</p>
+        <div class="shipping-actions"><a href="mailto:support@pepshoptexas.com">support@pepshoptexas.com</a></div>
+      </article>
     </section>
   </main>
-  <footer class="site-footer"><div class="trust-bar"><div><span><strong>RESEARCH USE ONLY</strong>Not for human consumption. Not for use in diagnostic procedures.</span></div><div><span><strong>QUALITY</strong>Third-party tested</span></div><div><span><strong>PRIVACY</strong>Secure &amp; discreet</span></div><div><span><strong>SHIPPING</strong>Fast &amp; reliable</span></div></div><div class="site-footer-inner"><div class="site-footer-brand"><strong>Pep Shop Texas</strong><span>Research-use catalog. Not for human or veterinary use.</span></div><nav class="site-footer-links" aria-label="Footer policies"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="shipping.html">Shipping</a><a href="returns.html">Returns</a><a href="contact.html">Contact</a></nav></div></footer>
+
+  <footer class="site-footer"></footer>
 </body>
 </html>
