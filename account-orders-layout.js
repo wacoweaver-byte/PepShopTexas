@@ -1,21 +1,21 @@
 /* Replaces Recent Orders markup with one controlled layout. */
 (() => {
   const css = `
-    .recent-orders-list{display:grid;gap:0}
-    .pst-order-row{padding:20px 0!important;border-bottom:1px solid #e8e3da!important;background:#fff!important}
-    .pst-order-summary-grid{display:grid;grid-template-columns:1.15fr 1.15fr 126px .8fr;gap:10px;align-items:end}
-    .pst-order-field{min-width:0;display:grid;gap:6px}
-    .pst-order-field>strong{color:#66707b;font:700 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase}
-    .pst-order-field>span:not(.pst-order-control){color:var(--pst-navy);font:400 14px/1.2 Arial,Helvetica,sans-serif;white-space:nowrap}
-    .pst-order-number{white-space:nowrap!important}
-    .pst-order-controls{display:grid;grid-template-columns:repeat(2,126px);gap:8px;margin-top:14px}
-    .pst-order-control{box-sizing:border-box!important;width:126px!important;height:38px!important;min-width:126px!important;max-width:126px!important;min-height:38px!important;max-height:38px!important;margin:0!important;padding:0 8px!important;border:1px solid var(--pst-navy)!important;border-radius:2px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font:700 9.5px/1 Arial,Helvetica,sans-serif!important;letter-spacing:0!important;white-space:nowrap!important;text-align:center!important;box-shadow:none!important}
-    .pst-order-action{background:var(--pst-navy)!important;color:#fff!important;text-transform:uppercase!important;cursor:pointer!important}
-    .pst-order-action:hover,.pst-order-action:focus-visible{background:var(--pst-gold)!important;border-color:var(--pst-gold)!important;color:var(--pst-navy)!important;outline:none!important}
-    .pst-order-info{background:#fff!important;color:var(--pst-navy)!important;text-transform:none!important}
-    .pst-order-summary-grid .pst-order-info{justify-self:start}
-    .order-items{margin-top:14px}
-    @media(max-width:620px){.pst-order-summary-grid{grid-template-columns:1fr 1fr}.pst-order-controls{grid-template-columns:repeat(2,minmax(0,126px))}}
+    .account-orders-panel .recent-orders-list{display:grid;gap:0}
+    .account-orders-panel .pst-order-row{padding:20px 0!important;border:0!important;border-bottom:1px solid #e8e3da!important;background:#fff!important;border-radius:0!important;box-shadow:none!important}
+    .account-orders-panel .pst-order-summary-grid{display:grid;grid-template-columns:1.15fr 1.15fr 126px .8fr;gap:10px;align-items:end;background:#fff!important}
+    .account-orders-panel .pst-order-field{min-width:0;display:grid;gap:6px;background:#fff!important}
+    .account-orders-panel .pst-order-field>strong{color:#66707b;font:700 10px/1 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+    .account-orders-panel .pst-order-field>span:not(.pst-order-control){color:var(--pst-navy);font:400 14px/1.2 Arial,Helvetica,sans-serif;white-space:nowrap}
+    .account-orders-panel .pst-order-number{white-space:nowrap!important}
+    .account-orders-panel .pst-order-controls{display:grid!important;grid-template-columns:repeat(2,126px)!important;gap:8px!important;margin-top:14px!important;background:#fff!important}
+    .account-orders-panel .pst-order-control{box-sizing:border-box!important;width:126px!important;height:38px!important;min-width:126px!important;max-width:126px!important;min-height:38px!important;max-height:38px!important;margin:0!important;padding:0 8px!important;border:1px solid var(--pst-navy)!important;border-radius:2px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font:700 9.5px/1 Arial,Helvetica,sans-serif!important;letter-spacing:0!important;white-space:nowrap!important;text-align:center!important;box-shadow:none!important;overflow:visible!important;text-overflow:clip!important}
+    .account-orders-panel .pst-order-action{background:var(--pst-navy)!important;color:#fff!important;text-transform:uppercase!important;cursor:pointer!important;appearance:none!important;-webkit-appearance:none!important}
+    .account-orders-panel .pst-order-action:hover,.account-orders-panel .pst-order-action:focus-visible{background:var(--pst-gold)!important;border-color:var(--pst-gold)!important;color:var(--pst-navy)!important;outline:none!important}
+    .account-orders-panel .pst-order-info{background:#fff!important;color:var(--pst-navy)!important;text-transform:none!important;cursor:default!important}
+    .account-orders-panel .pst-order-summary-grid .pst-order-info{justify-self:start}
+    .account-orders-panel .order-items{margin-top:14px}
+    @media(max-width:620px){.account-orders-panel .pst-order-summary-grid{grid-template-columns:1fr 1fr}.account-orders-panel .pst-order-controls{grid-template-columns:repeat(2,minmax(0,126px))!important}}
   `;
   const style = document.createElement('style');
   style.id = 'pst-recent-orders-style';
