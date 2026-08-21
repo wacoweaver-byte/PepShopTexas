@@ -31,7 +31,2298 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#000000"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="css/admin.css?v=8">
+  <style>
+    :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}
+    header{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:1px solid var(--border);box-shadow:0 3px 18px rgba(16,24,32,.04)}
+    .topbar{max-width:1540px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .brand{display:flex;align-items:center;gap:16px;font-family:Arial,Helvetica,sans-serif;font-weight:900;letter-spacing:0;text-transform:none}
+    .pst-master-admin-logo{height:54px;width:auto;max-width:230px;display:block;object-fit:contain}
+    .pst-master-page-label{color:#596579;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.15;font-weight:800;letter-spacing:0;text-transform:none;white-space:nowrap}
+    .actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+    .btn,a.btn,button.btn{min-height:40px;height:40px;padding:10px 13px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:14px;line-height:1;white-space:nowrap}
+    .btn.secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}
+    .btn.secondary.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .btn.danger{background:var(--danger);color:#fff;border:1px solid var(--danger)}
+    .btn.success{background:var(--success)}
+    main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}
+    .page-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+    h1{margin:0 0 6px;font-size:clamp(24px,3vw,36px);line-height:1.15;color:var(--dark);font-weight:900}
+    h2{margin:0;font-size:18px}
+    h3{margin:0 0 10px;font-size:16px}
+    .subtitle{margin:0;color:var(--muted);line-height:1.4}
+    .status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted);min-height:42px}
+    .status.good{color:var(--success);border-color:rgba(15,138,59,.25);background:rgba(15,138,59,.06)}
+    .status.bad{color:var(--danger);border-color:rgba(180,35,24,.25);background:rgba(180,35,24,.06)}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;align-items:start}
+    .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}
+    .card-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .card-body{padding:16px}
+    .muted{color:var(--muted);font-size:13px;line-height:1.4}
+    .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .stat{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:14px;min-height:98px}
+    .stat strong{display:block;font-size:30px;line-height:1;font-weight:900;color:var(--blue);margin-bottom:8px}
+    .stat span{display:block;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+    .resource-list{display:grid;gap:10px}
+    .resource{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:13px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+    .resource strong{display:block;margin-bottom:4px}
+    .resource p{margin:0;color:var(--muted);font-size:13px;line-height:1.35}
+    .pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid transparent;white-space:nowrap}
+    .pill[hidden], #inventoryWatchBadge[hidden]{display:none!important}
+    .pill.good{color:var(--success);background:rgba(15,138,59,.1);border-color:rgba(15,138,59,.18)}
+    .pill.warn{color:var(--warning);background:rgba(183,121,31,.1);border-color:rgba(183,121,31,.18)}
+    .pill.info{color:var(--blue);background:rgba(0,119,200,.1);border-color:rgba(0,119,200,.18)}
+    .pill.danger{color:var(--danger);background:rgba(180,35,24,.1);border-color:rgba(180,35,24,.18)}
+    .ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .ops-note{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:13px;line-height:1.45}
+    .ops-note strong{display:block;margin-bottom:6px;color:var(--blue)}
+    table{width:100%;border-collapse:collapse;min-width:760px}
+    th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:14px}
+    th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px}
+    .print-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    .report-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:12px;border:1px solid var(--border);background:#fbfcfe;border-radius:14px}
+    .report-controls .field{display:flex;flex-direction:column;gap:6px;min-width:220px}
+    .report-controls .field.small{min-width:160px}
+    .global-report-range-card{margin:0 0 18px;overflow:visible}
+    .global-report-range-card .card-body{padding:14px}
+    .global-report-range-card .report-controls{margin:0}
+    .global-report-range-card .report-note{flex:1 1 320px}
+    .report-note{color:var(--muted);font-size:13px;line-height:1.35;font-weight:700}
+    .report-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+    .financial-summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 14px}
+    .financial-summary-card{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;min-height:82px}
+    .financial-summary-card strong{display:block;font-size:20px;line-height:1.05;font-weight:900;color:var(--blue);margin-bottom:7px;word-break:break-word}
+    .financial-summary-card span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.045em;line-height:1.2}
+    .finance-panel{margin-top:18px}
+    .finance-controls{display:grid;grid-template-columns:.8fr 1fr 1fr 1.2fr .7fr .8fr auto;gap:10px;align-items:end;padding:14px;border-bottom:1px solid var(--border);background:#fbfcfe}
+    .finance-summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 14px}
+    .finance-summary-card{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;min-height:82px}
+    .finance-summary-card strong{display:block;font-size:20px;line-height:1.05;font-weight:900;color:var(--blue);margin-bottom:7px;word-break:break-word}
+    .finance-summary-card span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.045em;line-height:1.2}
+    .finance-note{padding:12px 14px;color:var(--muted);font-size:13px;line-height:1.4;border-top:1px solid var(--border);background:#fbfcfe}
+    .finance-table{width:100%;border-collapse:collapse;min-width:860px}
+    .finance-table th,.finance-table td{border-bottom:1px solid var(--border);padding:10px;text-align:left;vertical-align:middle;font-size:13px}
+    .finance-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fbfcfe}
+    .expense-table{width:1050px;min-width:0;table-layout:fixed}
+    .expense-table th{position:relative;overflow:visible}
+    .expense-table th,.expense-table td{overflow:hidden;text-overflow:ellipsis}
+    .expense-column-resizer{position:absolute;top:0;right:-4px;width:8px;height:100%;cursor:col-resize;touch-action:none;z-index:4}
+    .expense-column-resizer::after{content:"";position:absolute;top:18%;bottom:18%;left:3px;width:1px;background:#9aa6b2;opacity:.65}
+    .expense-column-resizer:hover::after,.expense-column-resizer.dragging::after{background:#000;opacity:1}
+    .expense-table.resizing,.expense-table.resizing *{cursor:col-resize!important;user-select:none!important}
+    .money-negative{color:var(--danger);font-weight:900}.money-positive{color:var(--success);font-weight:900}
+    @media(max-width:1200px){.finance-controls{grid-template-columns:1fr 1fr}.finance-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:700px){.finance-controls,.finance-summary-grid{grid-template-columns:1fr}}
+
+    .detail-report-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px;flex-wrap:wrap}
+    .detail-report-head h3{margin:0;font-size:17px}
+    .detail-report-table{min-width:1040px}
+    .detail-report-table th,.detail-report-table td{font-size:13px}
+    .detail-report-table td strong{white-space:nowrap}
+    .product-sales-table{min-width:760px}
+    .product-sales-table th,.product-sales-table td{font-size:13px}
+    .insights-panel{border:1px solid #d9e7ff;background:#f4f8ff;border-radius:16px;padding:14px;margin:0 0 14px}
+    .insights-panel h3{margin:0 0 10px;color:var(--blue);font-size:17px}
+    .insights-list{margin:0;padding-left:20px;color:#153f76;line-height:1.55;font-weight:800}
+    .insights-list li{margin:5px 0}
+    .insights-muted{color:#596579;font-size:13px;font-weight:700;line-height:1.45}
+    .reorder-guide{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;margin:10px 0 12px}
+    .reorder-guide-title{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted);margin-bottom:9px}
+    .reorder-guide-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .reorder-guide-item{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;color:#344054}
+    .risk-dot{width:10px;height:10px;border-radius:999px;display:inline-block;flex:0 0 auto}
+    .risk-badge{display:inline-flex;align-items:center;justify-content:center;min-width:104px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid transparent;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+    .risk-critical,.risk-dot-critical{background:#fff0f0;color:#b42318;border-color:#ffb8c0}
+    .risk-reorder,.risk-dot-reorder{background:#fff7e6;color:#a35b00;border-color:#ffd58a}
+    .risk-watch,.risk-dot-watch{background:#fffbeb;color:#854d0e;border-color:#fde68a}
+    .risk-healthy,.risk-dot-healthy{background:#edf8f0;color:#0f8a3b;border-color:#bfe8c8}
+    .risk-unknown,.risk-dot-unknown{background:#f2f4f7;color:#475467;border-color:#d0d5dd}
+
+
+    label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted);display:block;margin-bottom:6px}
+    input,select{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark)}
+    @media(max-width:1200px){.financial-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:700px){.financial-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:1100px){.span-8,.span-6,.span-4{grid-column:span 12}.stat-grid{grid-template-columns:1fr 1fr}.ops-grid{grid-template-columns:1fr}}
+    @media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.pst-master-admin-logo{height:46px;max-width:200px}.pst-master-page-label{font-size:15px;white-space:normal}.page-title{flex-direction:column}.stat-grid{grid-template-columns:1fr}.resource{grid-template-columns:1fr}.resource .btn{width:100%}}
+    @media print{
+      header,.actions,.print-actions,#refreshBtn,.no-print{display:none!important}
+      body{background:#fff!important;color:#000!important}
+      main{max-width:none!important;padding:0!important;margin:0!important}
+      .status{display:none!important}
+      .page-title{display:block!important;margin:0 0 14px!important;padding:0!important}
+      .page-title h1{font-size:22px!important;margin:0 0 4px!important}
+      .page-title .subtitle{font-size:12px!important;color:#444!important}
+      .grid{display:block!important}
+      .card{box-shadow:none!important;border:0!important;border-radius:0!important;overflow:visible!important;break-inside:auto!important;page-break-inside:auto!important;margin:0 0 14px!important}
+      .card:not(.print-report-only){display:none!important}
+      .card-header{padding:0 0 8px!important;border-bottom:1px solid #999!important}
+      .card-body{padding:10px 0 0!important;overflow:visible!important}
+      .report-controls{border:0!important;background:#fff!important;padding:0!important;margin:0 0 10px!important;display:block!important}
+      .report-controls .field{display:none!important}
+      .report-note{font-size:12px!important;color:#000!important;font-weight:700!important}
+      .report-actions{display:none!important}
+      .financial-summary-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:6px!important;margin:0 0 10px!important}
+      .financial-summary-card{border:1px solid #bbb!important;background:#fff!important;border-radius:0!important;padding:8px!important;min-height:0!important;break-inside:avoid!important}
+      .financial-summary-card strong{font-size:15px!important;color:#000!important;margin-bottom:4px!important}
+      .financial-summary-card span{font-size:9px!important;color:#333!important}
+      .detail-report-head{display:flex!important;margin:14px 0 6px!important;padding-top:8px!important;border-top:1px solid #999!important}
+      .detail-report-head h3{font-size:15px!important;margin:0!important}
+      .detail-report-table,.product-sales-table{min-width:0!important}
+      .table-wrap{overflow:visible!important;height:auto!important;max-height:none!important;border:0!important;border-radius:0!important}
+      table{width:100%!important;min-width:0!important;border-collapse:collapse!important;page-break-inside:auto!important}
+      thead{display:table-header-group!important}
+      tfoot{display:table-footer-group!important}
+      tr{page-break-inside:avoid!important;break-inside:avoid!important;page-break-after:auto!important}
+      th,td{font-size:12px!important;padding:7px 6px!important;border-bottom:1px solid #ccc!important;color:#000!important}
+      th{background:#eee!important;color:#000!important}
+      .pill{border:1px solid #999!important;color:#000!important;background:#fff!important}
+    }
+  
+/* PST SHARED ADMIN HEADER RULE - VERIFIED 2026-06-08 */
+header .pst-master-admin-logo {
+  height: 54px !important;
+  max-width: 230px !important;
+}
+
+header .pst-master-page-label {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #596579 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* PST SHARED ADMIN ACTIVE NAV RULE - VERIFIED 2026-06-08 */
+header .actions .btn.secondary.active,
+header .header-actions .btn.secondary.active {
+  background: #0077c8 !important;
+  color: #ffffff !important;
+  border-color: #0077c8 !important;
+}
+
+
+
+/* PST payment options toggle */
+.payment-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
+.payment-options-status{margin-top:10px;font-size:13px;font-weight:800;color:var(--muted)}
+.payment-options-status.good{color:var(--success)}
+.payment-options-status.bad{color:var(--danger)}
+@media(max-width:720px){.payment-options-grid{grid-template-columns:1fr}}
+
+.payment-methods-admin-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.payment-method-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+.payment-method-card h3{margin:0 0 10px;font-size:16px;color:var(--blue)}
+.payment-method-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.payment-method-fields .full{grid-column:1 / -1}
+.payment-method-card textarea{min-height:74px;resize:vertical}
+.qr-preview{display:block;width:96px;max-width:100%;height:auto;margin-top:7px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:5px}
+@media(max-width:900px){.payment-methods-admin-list{grid-template-columns:1fr}.payment-method-fields{grid-template-columns:1fr}.payment-method-fields .full{grid-column:auto}}
+
+
+
+/* PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX */
+/* PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD */
+.reports-jumpbar{
+  position:sticky;
+  top:83px;
+  z-index:45;
+  background:rgba(245,248,251,.96);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:0 8px 24px rgba(16,24,32,.08);
+  padding:10px;
+  margin:0 0 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  backdrop-filter:blur(8px);
+}
+.reports-jumpbar-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);white-space:nowrap}
+.reports-jumpbar-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.reports-jumpbar a{min-height:34px;height:34px;padding:8px 11px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--dark);font-size:12px;font-weight:900;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+ .reports-jumpbar a:hover{border-color:var(--blue);color:var(--blue)}
+.reports-jumpbar a.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 6px 14px rgba(0,119,200,.22)}
+.reports-jumpbar a.active:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.card.collapsible-card .card-header{align-items:center}
+.collapse-toggle{min-height:32px!important;height:32px!important;padding:7px 10px!important;font-size:12px!important;border-radius:999px!important}
+.card.collapsible-card.collapsed .card-body{display:none!important}
+.card.collapsible-card.collapsed .card-header{border-bottom:0!important}
+.card.collapsible-card.collapsed{box-shadow:0 6px 18px rgba(16,24,32,.05)}
+.card.collapsible-card h2::before{content:"▾";display:inline-block;margin-right:8px;color:var(--blue);font-size:14px;transform:translateY(-1px)}
+.card.collapsible-card.collapsed h2::before{content:"▸"}
+.section-backtop{display:flex;justify-content:flex-end;margin-top:12px}
+.section-backtop a{font-size:12px;font-weight:900;color:var(--blue);text-decoration:none}
+@media(max-width:850px){.reports-jumpbar{top:118px}.reports-jumpbar-title{width:100%}.reports-jumpbar-links{width:100%}.reports-jumpbar a{flex:1 1 auto}}
+@media print{.reports-jumpbar,.collapse-toggle,.section-backtop{display:none!important}.card.collapsible-card .card-body{display:block!important}}
+
+
+/* PST_REPORTS_PATCH_V42_DETAILED_ORDERS_NO_SCROLL_TOTAL_VISIBLE */
+#order-report-card .detail-report-table {
+  min-width: 0 !important;
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+#order-report-card .detail-report-table th,
+#order-report-card .detail-report-table td {
+  padding: 9px 7px !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+#order-report-card .detail-report-table th:nth-child(1),
+#order-report-card .detail-report-table td:nth-child(1) { width: 13%; }
+#order-report-card .detail-report-table th:nth-child(2),
+#order-report-card .detail-report-table td:nth-child(2) { width: 18%; }
+#order-report-card .detail-report-table th:nth-child(3),
+#order-report-card .detail-report-table td:nth-child(3) { width: 18%; }
+#order-report-card .detail-report-table th:nth-child(4),
+#order-report-card .detail-report-table td:nth-child(4) { width: 8%; }
+#order-report-card .detail-report-table th:nth-child(5),
+#order-report-card .detail-report-table td:nth-child(5) { width: 7%; }
+#order-report-card .detail-report-table th:nth-child(6),
+#order-report-card .detail-report-table td:nth-child(6) { width: 12%; }
+#order-report-card .detail-report-table th:nth-child(7),
+#order-report-card .detail-report-table td:nth-child(7) {
+  width: 9%;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+#order-report-card .detail-report-table th:nth-child(8),
+#order-report-card .detail-report-table td:nth-child(8) { width: 7%; white-space: nowrap !important; }
+#order-report-card .detail-report-table th:nth-child(9),
+#order-report-card .detail-report-table td:nth-child(9) { width: 8%; white-space: nowrap !important; }
+#order-report-card .detail-report-table .pill {
+  padding: 4px 7px !important;
+  font-size: 11px !important;
+  line-height: 1.1 !important;
+}
+@media(max-width:900px) {
+  #order-report-card .detail-report-table th,
+  #order-report-card .detail-report-table td {
+    font-size: 11px !important;
+    padding: 7px 5px !important;
+  }
+}
+
+
+
+/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
+   Purpose: standardize font hierarchy and logo display across public/admin pages.
+   Keep actions/prices readable without the heavy all-bold/Impact look.
+*/
+:root {
+  --pst-ui-font: Arial, Helvetica, sans-serif;
+}
+body, input, button, select, textarea {
+  font-family: var(--pst-ui-font) !important;
+}
+.brand, .logo, .logo-mark {
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+}
+.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
+  display: block !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+.brand-logo-img, .account-logo-img {
+  width: clamp(155px, 18vw, 220px) !important;
+  max-width: 100% !important;
+}
+.pst-master-admin-logo {
+  width: clamp(150px, 16vw, 210px) !important;
+  max-width: 100% !important;
+}
+.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
+.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
+.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
+.product-title, .discount-title, .customer-title, h1, h2, h3 {
+  font-family: var(--pst-ui-font) !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+.page-title {
+  font-weight: 600 !important;
+  text-transform: none !important;
+}
+.menu, .menu a, .account-status, .account-status a, .account-status button,
+.btn, button, label, th, .profile-row strong, .order-meta strong,
+.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
+  font-weight: 600 !important;
+}
+p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
+.email-pref-copy, .security-copy, .footer-disclaimer {
+  font-weight: 400 !important;
+}
+strong {
+  font-weight: 600 !important;
+}
+@media(max-width:560px) {
+  .brand-logo-img, .account-logo-img {
+    width: clamp(135px, 42vw, 170px) !important;
+  }
+}
+
+
+/* PST_REPORT_CENTER_CARDS_V1
+   Reports page only. Uses existing admin card/pill/button language. */
+.report-center-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}
+.report-center-card{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;border:1px solid var(--border);background:#fff;border-radius:14px;padding:13px;text-decoration:none;box-shadow:0 6px 18px rgba(16,24,32,.05);min-height:86px}
+.report-center-icon{font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px}
+.report-center-card strong{display:block;color:var(--dark);font-size:15px;font-weight:600;line-height:1.15;margin-bottom:4px}
+.report-center-card span{display:block;color:var(--muted);font-size:12px;font-weight:400;line-height:1.25}
+.report-center-card:hover{border-color:#000000;box-shadow:0 8px 22px rgba(16,24,32,.08)}
+@media(max-width:1050px){.report-center-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.report-center-grid{grid-template-columns:1fr}.report-center-card{min-height:74px}}
+@media print{.report-center-grid{display:none!important}}
+
+</style>
+
+<style>
+
+/* PST_ADMIN_HEADER_LOCK_V2
+   Purpose: force every admin page header to use the exact same layout, logo size, spacing, title placement, nav placement, and typography.
+   Do not move this block above older admin CSS. It intentionally loads last.
+*/
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  min-height: 92px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 92px !important;
+  margin: 0 !important;
+  padding: 14px 28px !important;
+  display: grid !important;
+  grid-template-columns: 420px minmax(0, 1fr) !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  gap: 18px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+header .brand,
+header .pst-admin-brand-lock {
+  width: 420px !important;
+  min-width: 420px !important;
+  max-width: 420px !important;
+  display: grid !important;
+  grid-template-columns: 132px 260px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  column-gap: 22px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  color: #596579 !important;
+}
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+}
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: #596579 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+header .actions,
+header .pst-admin-actions-lock {
+  min-width: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar {
+  display: none !important;
+}
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .actions button.btn {
+  flex: 0 0 auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  border: 1px solid #d9e2ec !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+}
+header .actions .btn.secondary.active,
+header .pst-admin-actions-lock .btn.secondary.active {
+  background: #000000 !important;
+  border-color: #000000 !important;
+  color: #ffffff !important;
+}
+header .actions .btn.danger,
+header .pst-admin-actions-lock .btn.danger {
+  background: #b42318 !important;
+  border-color: #b42318 !important;
+  color: #ffffff !important;
+}
+@media (max-width: 1180px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+    padding: 14px 18px !important;
+    gap: 12px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    grid-template-columns: 132px minmax(0, 1fr) !important;
+  }
+  header .pst-master-page-label {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    white-space: normal !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    justify-content: flex-start !important;
+  }
+}
+@media (max-width: 640px) {
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 112px !important;
+    height: 54px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    column-gap: 14px !important;
+  }
+  header .pst-master-page-label {
+    min-height: 54px !important;
+    font-size: 18px !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 14px !important;
+    font-size: 15px !important;
+  }
+}
+
+</style>
+
+<style>
+/* PST_ADMIN_HEADER_FINAL_LOCK_V3_NO_OVERLAP
+   Single admin header system for every admin page.
+   This block intentionally loads last and overrides older page-specific header CSS.
+*/
+html, body {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 92px !important;
+  margin: 0 !important;
+  padding: 14px 28px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  flex-wrap: nowrap !important;
+  background: #ffffff !important;
+}
+header .brand,
+header .pst-admin-brand-lock {
+  flex: 0 0 420px !important;
+  width: 420px !important;
+  min-width: 420px !important;
+  max-width: 420px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 132px 260px !important;
+  column-gap: 22px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+}
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: #596579 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+header .actions,
+header .pst-admin-actions-lock {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .actions button.btn {
+  flex: 0 0 auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  border: 1px solid #d9e2ec !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+}
+header .actions .btn.secondary.active,
+header .pst-admin-actions-lock .btn.secondary.active {
+  background: #000000 !important;
+  border-color: #000000 !important;
+  color: #ffffff !important;
+}
+header .actions .btn.danger,
+header .pst-admin-actions-lock .btn.danger {
+  background: #b42318 !important;
+  border-color: #b42318 !important;
+  color: #ffffff !important;
+}
+@media (max-width: 1240px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    min-height: 150px !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 10px 18px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    flex: 0 0 420px !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}
+@media (max-width: 640px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    padding: 12px 16px !important;
+    min-height: 138px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    flex-basis: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    column-gap: 14px !important;
+  }
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 112px !important;
+    height: 54px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+  }
+  header .pst-master-page-label {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    font-size: 18px !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 14px !important;
+    font-size: 15px !important;
+  }
+}
+
+
+/* PST ADMIN HEADER FINAL HARD LOCK V4 - NO OVERLAP / SAME PLACEMENT / LIGHTER TYPE */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  min-height: 92px !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 92px !important;
+  margin: 0 !important;
+  padding: 14px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 22px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+header .brand,
+header .pst-admin-brand-lock {
+  flex: 0 0 390px !important;
+  width: 390px !important;
+  min-width: 390px !important;
+  max-width: 390px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 132px 1fr !important;
+  column-gap: 22px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-decoration: none !important;
+}
+
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+}
+
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 21px !important;
+  font-weight: 500 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: #596579 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+
+header .actions,
+header .pst-admin-actions-lock {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 6px 0 0 !important;
+  box-sizing: border-box !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
+
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .pst-admin-actions-lock a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock button.btn {
+  flex: 0 0 auto !important;
+  min-width: auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  background: #0085d5 !important;
+  color: #ffffff !important;
+  border-color: #0085d5 !important;
+}
+
+@media (max-width: 1180px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    gap: 14px !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    flex-basis: 350px !important;
+    width: 350px !important;
+    min-width: 350px !important;
+    max-width: 350px !important;
+    grid-template-columns: 120px 1fr !important;
+    column-gap: 18px !important;
+  }
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 120px !important;
+    height: 58px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+  }
+  header .pst-master-page-label {
+    font-size: 19px !important;
+    font-weight: 500 !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 15px !important;
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  header { overflow: visible !important; }
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    min-height: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+    overflow: visible !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex-basis: auto !important;
+    grid-template-columns: 120px minmax(0, 1fr) !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    width: 100% !important;
+    height: 46px !important;
+  }
+}
+</style>
+
+
+<style>
+/* PST_ADMIN_HEADER_BUTTON_ALIGNMENT_FINAL
+   Fixes header button drift caused by extra Refresh/Sign Out utility buttons.
+   Header is now identical on all admin pages and cannot overlap the title.
+*/
+header .pst-admin-topbar-lock,
+header .topbar {
+  display: grid !important;
+  grid-template-columns: 420px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 20px !important;
+  row-gap: 10px !important;
+}
+header .pst-admin-brand-lock,
+header .brand {
+  grid-column: 1 !important;
+}
+header .pst-admin-actions-lock,
+header .actions {
+  grid-column: 2 !important;
+  justify-content: flex-start !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding-bottom: 2px !important;
+}
+header .pst-master-page-label {
+  font-weight: 400 !important;
+}
+header .pst-admin-actions-lock .btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn {
+  font-weight: 500 !important;
+}
+@media (max-width: 1500px) {
+  header .pst-admin-topbar-lock,
+  header .topbar {
+    grid-template-columns: 1fr !important;
+    min-height: 144px !important;
+    align-items: start !important;
+  }
+  header .pst-admin-brand-lock,
+  header .brand {
+    grid-column: 1 !important;
+  }
+  header .pst-admin-actions-lock,
+  header .actions {
+    grid-column: 1 !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}
+@media (max-width: 640px) {
+  header .pst-admin-topbar-lock,
+  header .topbar {
+    min-height: 136px !important;
+  }
+}
+</style>
+
+
+
+<style id="pst-admin-inventory-shell-final">
+/* PST_ADMIN_INVENTORY_MIRROR_FINAL
+   One admin shell copied across every admin page.
+   Scope: header, admin page container, page titles, card/section headings, basic typography only.
+   Does not modify page scripts or page-specific business logic.
+*/
+:root {
+  --pst-admin-font: Arial, Helvetica, sans-serif;
+  --pst-admin-blue: #003f9e;
+  --pst-admin-accent: #0085d5;
+  --pst-admin-text: #101820;
+  --pst-admin-muted: #596579;
+  --pst-admin-line: #d9e2ec;
+  --pst-admin-shell-width: 1500px;
+  --pst-admin-x: 18px;
+}
+html, body {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+body, input, select, textarea, button {
+  font-family: var(--pst-admin-font) !important;
+}
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--pst-admin-line) !important;
+  font-family: var(--pst-admin-font) !important;
+  overflow: visible !important;
+}
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: var(--pst-admin-shell-width) !important;
+  min-height: 92px !important;
+  margin: 0 auto !important;
+  padding: 14px var(--pst-admin-x) !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: 390px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 22px !important;
+  row-gap: 10px !important;
+  background: #ffffff !important;
+}
+header .brand,
+header .pst-admin-brand-lock {
+  grid-column: 1 !important;
+  width: 390px !important;
+  min-width: 390px !important;
+  max-width: 390px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 132px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 22px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--pst-admin-muted) !important;
+  text-decoration: none !important;
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  line-height: 1.15 !important;
+  overflow: visible !important;
+}
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-width: 0 !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  color: var(--pst-admin-muted) !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: 21px !important;
+  font-weight: 400 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+header .actions,
+header .pst-admin-actions-lock {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 6px 0 0 !important;
+  box-sizing: border-box !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .pst-admin-actions-lock a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock button.btn {
+  flex: 0 0 auto !important;
+  min-width: auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--pst-admin-line) !important;
+  background: #ffffff !important;
+  color: var(--pst-admin-text) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  background: var(--pst-admin-accent) !important;
+  border-color: var(--pst-admin-accent) !important;
+  color: #ffffff !important;
+}
+main,
+.admin-main,
+.page-wrap,
+.wrap,
+.container,
+.admin-container,
+.dashboard,
+.content {
+  max-width: var(--pst-admin-shell-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: var(--pst-admin-x) !important;
+  padding-right: var(--pst-admin-x) !important;
+  box-sizing: border-box !important;
+}
+main {
+  padding-top: 22px !important;
+  padding-bottom: 60px !important;
+}
+.page-title,
+.title-row,
+.page-head,
+.admin-page-head {
+  max-width: var(--pst-admin-shell-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: 16px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+h1,
+.page-title h1,
+.title-row h1,
+.page-head h1,
+.admin-page-head h1 {
+  margin: 0 0 6px !important;
+  color: var(--pst-admin-text) !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: clamp(26px, 3vw, 38px) !important;
+  font-weight: 400 !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+h2, h3,
+.card h2,
+.card h3,
+.panel h2,
+.panel h3,
+.section-title,
+.box-title,
+.settings-title {
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+.subtitle,
+.page-subtitle,
+.help-text,
+p, li, td, input, select, textarea {
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 400 !important;
+}
+label,
+th,
+.badge,
+.status,
+.empty-state,
+.small-label,
+.meta-label,
+.form-field label,
+.order-meta strong,
+.profile-row strong {
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+strong { font-weight: 500 !important; }
+@media (max-width: 1180px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+    padding: 12px var(--pst-admin-x) !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    grid-column: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    grid-column: 1 !important;
+    width: 100% !important;
+  }
+}
+@media (max-width: 640px) {
+  :root { --pst-admin-x: 14px; }
+  header .brand,
+  header .pst-admin-brand-lock {
+    height: 54px !important;
+    min-height: 54px !important;
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    column-gap: 14px !important;
+  }
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 112px !important;
+    height: 54px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+  }
+  header .pst-master-page-label {
+    height: 54px !important;
+    min-height: 54px !important;
+    font-size: 18px !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 14px !important;
+    font-size: 15px !important;
+  }
+  h1,
+  .page-title h1,
+  .title-row h1,
+  .page-head h1,
+  .admin-page-head h1 {
+    font-size: 30px !important;
+  }
+}
+</style>
+
+<style id="pst-admin-header-unified-v1">
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  min-height: 86px !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: 1540px !important;
+  min-height: 86px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px !important;
+  display: grid !important;
+  grid-template-columns: minmax(300px, 430px) minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 18px !important;
+  box-sizing: border-box !important;
+}
+header .pst-admin-brand-lock {
+  display: grid !important;
+  grid-template-columns: 54px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  color: #101820 !important;
+  text-decoration: none !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  line-height: 1.1 !important;
+}
+header .pst-admin-logo-mark {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #d10000, #a00000) !important;
+  color: #fff !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
+}
+header .pst-admin-title-lock {
+  display: grid !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+}
+header .pst-admin-title-lock strong {
+  display: block !important;
+  color: #101820 !important;
+  font-size: 21px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+header .pst-admin-title-lock small {
+  display: block !important;
+  color: #596579 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: .01em !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+header .pst-admin-actions-lock {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn {
+  min-height: 38px !important;
+  padding: 9px 12px !important;
+  border-radius: 10px !important;
+  border: 1px solid #d9e2ec !important;
+  background: #ffffff !important;
+  color: #101820 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+}
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  color: #ffffff !important;
+  background: #000000 !important;
+  border-color: #000000 !important;
+}
+@media (max-width: 980px) {
+  header .pst-admin-topbar-lock { grid-template-columns: 1fr !important; align-items: start !important; }
+  header .pst-admin-actions-lock { justify-content: flex-start !important; }
+}
+@media (max-width: 560px) {
+  header .pst-admin-brand-lock { grid-template-columns: 46px minmax(0, 1fr) !important; }
+  header .pst-admin-logo-mark {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #d10000, #a00000) !important;
+  color: #fff !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
+}
+</style>
+<style id="pst-admin-red-button-overrides">
+:root {
+  --blue: #000000 !important;
+  --pst-blue: #000000 !important;
+  --pst-admin-blue: #000000 !important;
+  --pst-admin-accent: #000000 !important;
+}
+header .actions .btn.active,
+header .actions .btn.primary,
+header .header-actions .btn.active,
+header .header-actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+.admin-dashboard-nav .btn.active,
+.admin-dashboard-nav .btn[aria-pressed="true"],
+.inventory-jump-link.active,
+.inventory-jump-link[aria-pressed="true"],
+.inventory-collapse-toggle.active,
+.inventory-collapse-toggle[aria-expanded="true"],
+.collapse-toggle.active,
+.collapse-toggle[aria-expanded="true"],
+.reports-jumpbar a.active,
+.reports-jumpbar a[aria-pressed="true"],
+.btn.primary,
+.btn.active,
+.btn[aria-pressed="true"],
+.btn.secondary.active,
+button.btn.primary,
+a.btn.primary {
+  background: #000000 !important;
+  border-color: #000000 !important;
+  color: #ffffff !important;
+}
+.btn:not(.secondary):not(.danger):not(.success):not(.warning) {
+  background-color: #000000;
+  border-color: #000000;
+  color: #ffffff;
+}
+button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
+  background-color: #000000;
+  border-color: #000000;
+  color: #ffffff;
+}
+</style>
+
+<style id="pst-reports-compact-catalog-pill-style-v1">
+/* PST reports compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: header links, report jump links, collapse buttons, print/export/refresh actions,
+   resource buttons, payment/finance/tax buttons, back-to-top links, status/risk pills,
+   read-only badges, and mobile sizing. */
+:root {
+  --pst-reports-pill-h: 26px;
+  --pst-reports-pill-font: 10px;
+  --pst-reports-pill-weight: 700;
+  --pst-reports-pill-radius: 999px;
+  --pst-reports-pill-pad-x: 10px;
+  --pst-reports-pill-line: #c9ced6;
+  --pst-reports-pill-ink: #101820;
+  --pst-reports-pill-blue: #000000;
+  --pst-reports-pill-red: #000000;
+  --pst-reports-pill-green: #0c6b3a;
+  --pst-reports-pill-warn: #8a5a00;
+  --pst-reports-pill-danger: #8a1f17;
+}
+
+/* Compact pill base for report actions, links, and status badges. */
+.btn,
+a.btn,
+button.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.reports-jumpbar a,
+.collapse-toggle,
+.print-actions .btn,
+.report-actions .btn,
+.resource .btn,
+.finance-controls .btn,
+.payment-options-grid .btn,
+.payment-method-card .btn,
+.section-backtop a,
+.pill,
+.risk-badge,
+.reorder-guide-item,
+#inventoryWatchBadge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-reports-pill-h) !important;
+  height: var(--pst-reports-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-reports-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-reports-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-reports-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-reports-pill-font) !important;
+  font-weight: var(--pst-reports-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Keep clickable things clickable; status things read-only. */
+.btn,
+a.btn,
+button.btn,
+.reports-jumpbar a,
+.collapse-toggle,
+.print-actions .btn,
+.report-actions .btn,
+.resource .btn,
+.finance-controls .btn,
+.payment-options-grid .btn,
+.payment-method-card .btn,
+.section-backtop a {
+  cursor: pointer !important;
+}
+
+.pill,
+.risk-badge,
+.reorder-guide-item,
+#inventoryWatchBadge {
+  cursor: default !important;
+}
+
+/* Header page links: compact grey-outline pills. */
+header .actions,
+header .pst-admin-actions-lock {
+  gap: 6px !important;
+  height: auto !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  color: var(--pst-reports-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-line) !important;
+}
+
+/* Current page / active states / open cards. */
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+.reports-jumpbar a.active,
+.reports-jumpbar a[aria-pressed="true"],
+.collapse-toggle.active,
+.collapse-toggle[aria-expanded="true"],
+.card.collapsible-card:not(.collapsed) .collapse-toggle {
+  color: #ffffff !important;
+  background: #000000 !important;
+  border-color: #000000) !important;
+}
+
+/* Quick links use the catalog On Order blue-outline language. */
+.reports-jumpbar a:not(.active):not([aria-pressed="true"]) {
+  color: #000000 !important;
+  background: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+.reports-jumpbar {
+  gap: 6px !important;
+  padding: 10px !important;
+  align-items: center !important;
+}
+
+.reports-jumpbar-links {
+  gap: 6px !important;
+}
+
+.reports-jumpbar-title {
+  margin-right: 4px !important;
+  color: var(--muted) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: .03em !important;
+  text-transform: uppercase !important;
+}
+
+/* Action variants stay meaningful but compact and outlined. */
+.btn.success,
+button.btn.success,
+a.btn.success {
+  color: var(--pst-reports-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-green) !important;
+}
+
+.btn.danger,
+button.btn.danger,
+a.btn.danger {
+  color: var(--pst-reports-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-danger) !important;
+}
+
+.btn.warning,
+button.btn.warning,
+a.btn.warning {
+  color: var(--pst-reports-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-warn) !important;
+}
+
+.btn.secondary,
+button.btn.secondary,
+a.btn.secondary,
+.resource .btn,
+.section-backtop a {
+  color: var(--pst-reports-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-line) !important;
+}
+
+/* Disabled/read-only buttons match the compact grey Out pill. */
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button.btn[aria-disabled="true"],
+.btn.disabled {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Report status pills. */
+.pill.good,
+.pill.paid,
+.pill.complete,
+.pill.delivered,
+.pill.shipped,
+.risk-healthy {
+  color: var(--pst-reports-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-green) !important;
+}
+
+.pill.warn,
+.pill.warning,
+.risk-reorder,
+.risk-watch {
+  color: var(--pst-reports-pill-warn) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-warn) !important;
+}
+
+.pill.info,
+.pill.processing,
+.pill.packed,
+#inventoryWatchBadge {
+  color: var(--pst-reports-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-blue) !important;
+}
+
+.pill.danger,
+.pill.bad,
+.pill.cancelled,
+.pill.failed,
+.risk-critical {
+  color: var(--pst-reports-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-danger) !important;
+}
+
+.risk-unknown,
+.reorder-guide-item {
+  color: #6f7680 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-reports-pill-line) !important;
+}
+
+/* Reorder guide row: small pill language, no chunky legend boxes. */
+.reorder-guide-row {
+  gap: 6px !important;
+}
+
+.reorder-guide-item {
+  gap: 6px !important;
+}
+
+.risk-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 999px !important;
+}
+
+/* Groups stay compact. */
+.print-actions,
+.report-actions,
+.reports-jumpbar-links,
+.section-backtop {
+  gap: 6px !important;
+}
+
+.collapse-toggle {
+  min-width: 0 !important;
+}
+
+/* Back-to-top links are now actual compact pills. */
+.section-backtop {
+  align-items: center !important;
+}
+
+.section-backtop a {
+  color: var(--pst-reports-pill-blue) !important;
+  border-color: var(--pst-reports-pill-blue) !important;
+}
+
+/* Status message boxes remain message boxes, not action pills. */
+.status,
+.payment-options-status {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+/* Keep print rules sane: do not force tiny web pills into printed reports. */
+@media print {
+  .btn,
+  a.btn,
+  button.btn,
+  .reports-jumpbar a,
+  .collapse-toggle,
+  .section-backtop a,
+  .pill,
+  .risk-badge,
+  .reorder-guide-item {
+    min-height: auto !important;
+    height: auto !important;
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+    border-radius: 999px !important;
+  }
+}
+
+/* Mobile: preserve compact pill sizing. */
+@media (max-width: 700px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .reports-jumpbar a,
+  .collapse-toggle,
+  .print-actions .btn,
+  .report-actions .btn,
+  .resource .btn,
+  .finance-controls .btn,
+  .payment-options-grid .btn,
+  .payment-method-card .btn,
+  .section-backtop a,
+  .pill,
+  .risk-badge,
+  .reorder-guide-item,
+  #inventoryWatchBadge {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .reports-jumpbar {
+    gap: 5px !important;
+    padding: 9px !important;
+  }
+
+  .reports-jumpbar a {
+    flex: 0 0 auto !important;
+    width: auto !important;
+  }
+
+  .resource .btn {
+    width: auto !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .reports-jumpbar a,
+  .collapse-toggle,
+  .print-actions .btn,
+  .report-actions .btn,
+  .resource .btn,
+  .finance-controls .btn,
+  .payment-options-grid .btn,
+  .payment-method-card .btn,
+  .section-backtop a,
+  .pill,
+  .risk-badge,
+  .reorder-guide-item,
+  #inventoryWatchBadge {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
+<style id="pst-admin-header-final">
+  .pst-admin-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    overflow: hidden !important;
+    background: #000 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #262626 !important;
+    box-shadow: none !important;
+  }
+
+  .pst-admin-nav-wrap {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-height: 40px !important;
+    margin: 0 auto !important;
+    padding: 0 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    position: relative !important;
+  }
+
+  .pst-admin-logo-link {
+    position: static !important;
+    transform: none !important;
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-header-logo {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    object-fit: contain !important;
+  }
+
+  .pst-admin-nav {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 24px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .pst-admin-nav a {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #fff !important;
+    font: 800 14px/1 Arial, Helvetica, sans-serif !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+  }
+
+  .pst-admin-nav a:hover,
+  .pst-admin-nav a:focus-visible {
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-nav a.active::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 3px !important;
+    height: 2px !important;
+    background: #fff !important;
+  }
+
+  @media (max-width: 980px) {
+    .pst-admin-nav-wrap {
+      height: 40px !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      padding: 0 14px !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 16px !important;
+    }
+
+    .pst-admin-nav {
+      flex: 1 1 auto !important;
+      flex-wrap: nowrap !important;
+      justify-content: flex-end !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scrollbar-width: none !important;
+    }
+
+    .pst-admin-nav::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pst-admin-nav-wrap {
+      padding: 0 10px !important;
+      gap: 12px !important;
+    }
+
+    .pst-admin-nav {
+      gap: 16px !important;
+    }
+  }
+</style>
+<style id="pst-admin-black-pill-final">
+  /*
+    Locked admin pill system:
+    - Existing font, font size, height, padding, and radius are preserved.
+    - Default state: white background, black text, black outline.
+    - Hover/focus: light gray background, black text, black outline.
+    - Active/selected/open state: black background, white text, black outline.
+    - Semantic success/warning/danger controls retain their status colors.
+  */
+
+  /* Standard admin action pills and jump links. */
+  .btn:not(.success):not(.warning):not(.danger),
+  a.btn:not(.success):not(.warning):not(.danger),
+  button.btn:not(.success):not(.warning):not(.danger),
+  .step,
+  .jump-link,
+  .inventory-jump-link,
+  .collapse-toggle,
+  .inventory-collapse-toggle,
+  .sort-btn,
+  .field-order-btn,
+  .row-audit-btn,
+  .edit-incoming-btn,
+  .close-incoming-edit-btn,
+  .incoming-line-remove,
+  .pill.info,
+  .status-pill:not(.good):not(.warn):not(.danger),
+  .center-card,
+  .report-center-card {
+    border-color: #000 !important;
+    color: #000 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  /* Hover and keyboard focus retain the same dimensions and typography. */
+  .btn:not(.success):not(.warning):not(.danger):hover,
+  a.btn:not(.success):not(.warning):not(.danger):hover,
+  button.btn:not(.success):not(.warning):not(.danger):hover,
+  .step:hover,
+  .jump-link:hover,
+  .inventory-jump-link:hover,
+  .collapse-toggle:hover,
+  .inventory-collapse-toggle:hover,
+  .sort-btn:hover,
+  .field-order-btn:hover,
+  .row-audit-btn:hover,
+  .edit-incoming-btn:hover,
+  .close-incoming-edit-btn:hover,
+  .incoming-line-remove:hover,
+  .pill.info:hover,
+  .status-pill:not(.good):not(.warn):not(.danger):hover,
+  .center-card:hover,
+  .report-center-card:hover {
+    border-color: #000 !important;
+    color: #000 !important;
+    background: #f2f2f2 !important;
+  }
+
+  /* Persistent selected/open/current state. */
+  .btn.active:not(.success):not(.warning):not(.danger),
+  a.btn.active:not(.success):not(.warning):not(.danger),
+  button.btn.active:not(.success):not(.warning):not(.danger),
+  .btn[aria-pressed="true"]:not(.success):not(.warning):not(.danger),
+  .btn[aria-expanded="true"]:not(.success):not(.warning):not(.danger),
+  .btn[aria-current="page"]:not(.success):not(.warning):not(.danger),
+  .step.active,
+  .jump-link.active,
+  .inventory-jump-link.active,
+  .collapse-toggle.active,
+  .collapse-toggle[aria-expanded="true"],
+  .inventory-collapse-toggle.active,
+  .inventory-collapse-toggle[aria-expanded="true"],
+  .sort-btn.active,
+  .pill.info.active,
+  .status-pill.active:not(.good):not(.warn):not(.danger),
+  .center-card.active,
+  .report-center-card.active {
+    border-color: #000 !important;
+    color: #fff !important;
+    background: #000 !important;
+    box-shadow: none !important;
+  }
+
+  /* Keep text/icons white inside selected controls. */
+  .btn.active:not(.success):not(.warning):not(.danger) *,
+  .btn[aria-pressed="true"]:not(.success):not(.warning):not(.danger) *,
+  .btn[aria-expanded="true"]:not(.success):not(.warning):not(.danger) *,
+  .btn[aria-current="page"]:not(.success):not(.warning):not(.danger) *,
+  .step.active *,
+  .jump-link.active *,
+  .inventory-jump-link.active *,
+  .collapse-toggle.active *,
+  .collapse-toggle[aria-expanded="true"] *,
+  .inventory-collapse-toggle.active *,
+  .inventory-collapse-toggle[aria-expanded="true"] *,
+  .sort-btn.active *,
+  .pill.info.active *,
+  .status-pill.active:not(.good):not(.warn):not(.danger) *,
+  .center-card.active *,
+  .report-center-card.active * {
+    color: #fff !important;
+  }
+
+  /* Accessible focus ring without changing pill dimensions. */
+  .btn:not(.success):not(.warning):not(.danger):focus-visible,
+  .step:focus-visible,
+  .jump-link:focus-visible,
+  .inventory-jump-link:focus-visible,
+  .collapse-toggle:focus-visible,
+  .inventory-collapse-toggle:focus-visible,
+  .sort-btn:focus-visible,
+  .pill.info:focus-visible,
+  .center-card:focus-visible,
+  .report-center-card:focus-visible {
+    outline: 2px solid #000 !important;
+    outline-offset: 2px !important;
+  }
+</style>
+<style id="pst-reports-jump-links-black-fix">
+/* Reports page only: preserve existing jump-link size, font, padding, radius, and toggle logic. */
+.reports-jumpbar a {
+  color: #000 !important;
+  background: #fff !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+.reports-jumpbar a:hover {
+  color: #000 !important;
+  background: #f2f2f2 !important;
+  background-color: #f2f2f2 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+.reports-jumpbar a.active,
+.reports-jumpbar a[aria-pressed="true"] {
+  color: #fff !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+.reports-jumpbar a.active:hover,
+.reports-jumpbar a[aria-pressed="true"]:hover {
+  color: #fff !important;
+  background: #000 !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+}
+</style>
+
+<style id="pst-admin-mobile-link-behavior-only">
+@media (max-width: 980px) {
+  .pst-admin-header {
+    height: auto !important;
+    min-height: 40px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .pst-admin-nav-wrap {
+    height: auto !important;
+    min-height: 40px !important;
+    max-height: none !important;
+    padding: 0 14px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .pst-admin-logo-link {
+    flex: 0 0 auto !important;
+    align-self: flex-start !important;
+  }
+
+  .pst-admin-nav {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px 18px !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+  }
+
+  .pst-admin-nav a {
+    width: auto !important;
+    min-height: 32px !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+}
+</style>
+
+<style id="pst-report-specific-print-v1">
+@media print {
+  body.pst-print-one-report .card {
+    display: none !important;
+  }
+  body.pst-print-one-report .card.pst-print-target {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  body.pst-print-one-report .card.pst-print-target .card-body {
+    display: block !important;
+    overflow: visible !important;
+  }
+  body.pst-print-one-report .card.pst-print-target .table-wrap {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+  body.pst-print-one-report .card.pst-print-target table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: auto !important;
+  }
+  body.pst-print-one-report .card.pst-print-target th,
+  body.pst-print-one-report .card.pst-print-target td {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    vertical-align: top !important;
+  }
+  body.pst-print-one-report .finance-controls,
+  body.pst-print-one-report .report-actions,
+  body.pst-print-one-report .section-backtop,
+  body.pst-print-one-report .collapse-toggle,
+  body.pst-print-one-report .expense-table [data-expense-column="action"] {
+    display: none !important;
+  }
+  body.pst-print-one-report .pst-print-range {
+    display: block !important;
+    margin: 0 0 12px !important;
+    padding: 0 0 8px !important;
+    border-bottom: 1px solid #999 !important;
+    color: #333 !important;
+    font: 600 11px/1.35 Arial, Helvetica, sans-serif !important;
+  }
+}
+.pst-print-range {
+  display: none;
+}
+</style>
+
 </head>
 <body>
 <header class="pst-admin-header">
@@ -155,9 +2446,257 @@
             <tbody id="orderReportBody"><tr><td colspan="3" class="muted">Loading order report...</td></tr></tbody>
           </table>
         </div>
+
+        <div class="detail-report-head">
+          <h3>Detailed Orders</h3>
+          <span class="muted" id="detailedOrderCount">Loading...</span>
+        </div>
+        <div class="table-wrap">
+          <table class="detail-report-table">
+            <thead><tr><th>Date</th><th>Order #</th><th>Customer</th><th>Status</th><th>Payment</th><th>Revenue Class</th><th>Total</th><th>Tax</th><th>Shipping</th></tr></thead>
+            <tbody id="detailedOrdersBody"><tr><td colspan="9" class="muted">Loading detailed orders...</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="detail-report-head">
+          <h3>Product Sales Report</h3>
+          <span class="muted" id="productSalesCount">Loading...</span>
+        </div>
+        <div class="reorder-guide">
+          <div class="reorder-guide-title">Reorder Status Guide — 21-Day Lead Time</div>
+          <div class="reorder-guide-row">
+            <span class="reorder-guide-item"><span class="risk-dot risk-dot-critical"></span>0–7 days remaining = Critical</span>
+            <span class="reorder-guide-item"><span class="risk-dot risk-dot-reorder"></span>8–21 days remaining = Reorder Now</span>
+            <span class="reorder-guide-item"><span class="risk-dot risk-dot-watch"></span>22–30 days remaining = Watch</span>
+            <span class="reorder-guide-item"><span class="risk-dot risk-dot-healthy"></span>31+ days remaining = Healthy</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="product-sales-table">
+            <thead><tr><th>Product</th><th>SKU</th><th>Qty Sold</th><th>Gross Sales</th><th>Avg Price</th><th>Current Stock</th><th>Avg/Day</th><th>21-Day Demand</th><th>Days Remaining</th><th>Reorder Status</th></tr></thead>
+            <tbody id="productSalesBody"><tr><td colspan="10" class="muted">Loading product sales...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-4 no-print collapsible-card collapsed" id="inventory-watch-card" style="scroll-margin-top:185px;">
+      <div class="card-header"><h2>Inventory Watch</h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill warn" id="inventoryWatchBadge" hidden>Needs Review</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="inventory-watch-card" aria-expanded="false">Open</button></div></div>
+      <div class="card-body">
+        <div class="stat-grid" style="grid-template-columns:1fr;">
+          <div class="stat"><strong id="statLowStock">—</strong><span>Low / Limited Stock</span></div>
+          <div class="stat"><strong id="statOutStock">—</strong><span>Out of Stock</span></div>
+        </div>
+        <div id="inventoryWatchDetails" class="muted" style="margin-top:14px;">Loading inventory review details...</div>
+        <p class="muted" style="margin:14px 0 0;">This uses best-effort inventory fields and is meant as a quick warning, not the final inventory authority.</p>
+      </div>
+    </div>
+
+<div class="card span-12 no-print collapsible-card collapsed" id="quick-snapshot-card" style="scroll-margin-top:185px;">
+      <div class="card-header"><h2>Quick Report Snapshot</h2><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="snapshotUpdated">Not loaded yet</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="quick-snapshot-card" aria-expanded="false">Open</button></div></div>
+      <div class="card-body">
+        <div class="stat-grid">
+          <div class="stat"><strong id="statOrders">—</strong><span>Total Orders</span></div>
+          <div class="stat"><strong id="statOpenOrders">—</strong><span>Open Orders</span></div>
+          <div class="stat"><strong id="statInventory">—</strong><span>Inventory Rows</span></div>
+          <div class="stat"><strong id="statPromos">—</strong><span>Active Homepage Promos</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-12 print-report-only collapsible-card collapsed" id="sales-report-card" style="scroll-margin-top:185px;">
+      <div class="card-header">
+        <h2>Sales Report <span style="font-size:12px;color:#0077c8;font-weight:900;">v36</span></h2>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill good">Live Sales</span><button class="btn secondary collapse-toggle" type="button" data-collapse-target="sales-report-card" aria-expanded="false">Open</button></div>
+      </div>
+      <div class="card-body">
+        <p class="muted" id="salesReportNote" style="margin-top:0;">Uses the Global Report Range. Realized sales count orders marked Shipped, Delivered, Complete, or Completed.</p>
+        <div class="financial-summary-grid" id="salesSummaryGrid">
+          <div class="financial-summary-card"><strong id="salesRealizedRevenue">—</strong><span>Realized Sales</span></div>
+          <div class="financial-summary-card"><strong id="salesPendingRevenue">—</strong><span>Pending / Open Sales</span></div>
+          <div class="financial-summary-card"><strong id="salesRealizedOrders">—</strong><span>Realized Orders</span></div>
+          <div class="financial-summary-card"><strong id="salesAverageOrder">—</strong><span>Average Order</span></div>
+          <div class="financial-summary-card"><strong id="salesUnitsSold">—</strong><span>Units Sold</span></div>
+          <div class="financial-summary-card"><strong id="salesTopProduct">—</strong><span>Top Product</span></div>
+        </div>
+        <div class="report-actions">
+          <button class="btn secondary" id="exportSalesCsvBtn" type="button">Export Sales CSV</button>
+          <button class="btn secondary" type="button" onclick="printReportCard('sales-report-card')">Print / Save PDF</button>
+        </div>
+
+        <div class="detail-report-head">
+          <h3>Daily Sales Breakdown</h3>
+          <span class="muted" id="dailySalesCount">Loading...</span>
+        </div>
+        <div class="table-wrap">
+          <table class="finance-table">
+            <thead><tr><th>Date</th><th>Realized Orders</th><th>Realized Sales</th><th>Units Sold</th><th>Tax Collected</th><th>Shipping Collected</th><th>Avg Order</th></tr></thead>
+            <tbody id="dailySalesBody"><tr><td colspan="7" class="muted">Loading daily sales...</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="detail-report-head">
+          <h3>Top Products by Sales</h3>
+          <span class="muted" id="topSalesProductsCount">Loading...</span>
+        </div>
+        <div class="table-wrap">
+          <table class="finance-table">
+            <thead><tr><th>Rank</th><th>Product</th><th>SKU</th><th>Qty Sold</th><th>Sales</th><th>Avg Price</th><th>% of Sales</th></tr></thead>
+            <tbody id="topSalesProductsBody"><tr><td colspan="7" class="muted">Loading product sales...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="section-backtop"><a href="#reportsTop">Back to Top ↑</a></div>
+      </div>
+    </div>
+
+    
+
+
+    <div class="card span-12 no-print collapsible-card collapsed" id="financials" style="scroll-margin-top:185px;">
+      <div class="card-header">
+        <h2>Financials / Expenses</h2>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="pill info">Operational Estimate</span><button class="btn secondary" type="button" onclick="printReportCard('financials')">Print / Save PDF</button><button class="btn secondary collapse-toggle" type="button" data-collapse-target="financials" aria-expanded="false">Open</button></div>
+      </div>
+      <div class="card-body finance-panel">
+        <div class="finance-summary-grid">
+          <div class="finance-summary-card"><strong id="finRevenue">—</strong><span>Realized Revenue</span></div>
+          <div class="finance-summary-card"><strong id="finPendingRevenue">—</strong><span>Pending / Open Revenue</span></div>
+          <div class="finance-summary-card"><strong id="finProductSpend">—</strong><span>Inventory / Product Spend</span></div>
+          <div class="finance-summary-card"><strong id="finOperatingExpenses">—</strong><span>Operating Expenses</span></div>
+          <div class="finance-summary-card"><strong id="finCashProfit">—</strong><span>Estimated Realized Profit</span></div>
+          <div class="finance-summary-card"><strong id="finInventoryValue">—</strong><span>Estimated Inventory Value</span></div>
+          <div class="finance-summary-card"><strong id="finInventoryRetailRevenue">—</strong><span>Potential Inventory Revenue</span></div>
+          <div class="finance-summary-card"><strong id="finInventoryRetailProfit">—</strong><span>Potential Inventory Gross Profit</span></div>
+          <div class="finance-summary-card"><strong id="finInventoryUnits">—</strong><span>Current Inventory Units</span></div>
+          <div class="finance-summary-card"><strong id="finTaxHeld">—</strong><span>Tax Collected / Held</span></div>
+        </div>
+
+        <div class="finance-controls">
+          <div class="field">
+            <label for="expenseDate">Date</label>
+            <input id="expenseDate" type="date" />
+          </div>
+          <div class="field">
+            <label for="expenseCompanyName">Company Name</label>
+            <input id="expenseCompanyName" type="text" placeholder="Company name" />
+          </div>
+          <div class="field">
+            <label for="expenseCategory">Category</label>
+            <select id="expenseCategory">
+              <option value="Supplies">Supplies</option>
+              <option value="Shipping Supplies">Shipping Supplies</option>
+              <option value="Peptide Bags">Peptide Bags</option>
+              <option value="Packaging">Packaging</option>
+              <option value="Merchandise">Merchandise</option>
+              <option value="Website / Software">Website / Software</option>
+              <option value="Payment Fees">Payment Fees</option>
+              <option value="Operating Cost">Operating Cost</option>
+              <option value="Misc Expense">Misc Expense</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="expenseDescription">Description</label>
+            <input id="expenseDescription" type="text" placeholder="Example: peptide bags, labels, web hosting..." />
+          </div>
+          <div class="field">
+            <label for="expenseAmount">Amount</label>
+            <input id="expenseAmount" type="number" step="0.01" min="0" placeholder="0.00" />
+          </div>
+          <div class="field">
+            <label for="expenseMethod">Method</label>
+            <input id="expenseMethod" type="text" placeholder="Cash, card, Venmo..." />
+          </div>
+          <button class="btn success" id="addExpenseBtn" type="button">Add Expense</button>
+        </div>
+
+        <div class="table-wrap" style="margin-top:14px;">
+          <table class="finance-table expense-table" id="expenseTable">
+            <colgroup>
+              <col data-expense-column="date">
+              <col data-expense-column="company">
+              <col data-expense-column="category">
+              <col data-expense-column="description">
+              <col data-expense-column="method">
+              <col data-expense-column="amount">
+              <col data-expense-column="action">
+            </colgroup>
+            <thead><tr><th data-expense-column="date">Date</th><th data-expense-column="company">Company</th><th data-expense-column="category">Category</th><th data-expense-column="description">Description</th><th data-expense-column="method">Method</th><th data-expense-column="amount">Amount</th><th data-expense-column="action">Action</th></tr></thead>
+            <tbody id="expenseBody"><tr><td colspan="7" class="muted">Loading expenses...</td></tr></tbody>
+          </table>
+        </div>
+        <div id="financeNote" class="finance-note">Financials use the selected report date range. These are operational estimates, not tax/accounting statements.</div>
+        <div class="section-backtop"><a href="#reportsTop">Back to Top ↑</a></div>
+      </div>
+    </div>
+
+
+    <div class="card span-12 no-print collapsible-card collapsed" id="inventory-audit" style="scroll-margin-top:185px;">
+      <div class="card-header">
+        <h2>Inventory Audit / Movement History</h2>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span class="muted" id="inventoryAuditCount">Loading inventory movements...</span><button class="btn secondary" type="button" onclick="printReportCard('inventory-audit')">Print / Save PDF</button><button class="btn secondary collapse-toggle" type="button" data-collapse-target="inventory-audit" aria-expanded="false">Open</button></div>
+      </div>
+      <div class="card-body">
+        <p class="muted" id="inventoryAuditRangeContext" style="margin-top:0;">Uses the Global Report Range. Shows received, removed, exact count, out-of-stock, and other inventory adjustments recorded from Inventory Management.</p>
+        <div class="table-wrap">
+          <table class="finance-table">
+            <thead><tr><th>Date / Time</th><th>Product</th><th>SKU / Key</th><th>Movement</th><th>Qty Change</th><th>Previous Qty</th><th>New Qty</th><th>Admin</th><th>Reason / Note</th></tr></thead>
+            <tbody id="inventoryAuditBody"><tr><td colspan="9" class="muted">Loading inventory audit...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="section-backtop"><a href="#reportsTop">Back to Top ↑</a></div>
+      </div>
+    </div>
+
+    <div class="card span-6 no-print collapsible-card collapsed" id="admin-resources-card" style="scroll-margin-top:185px;">
+      <div class="card-header"><h2>Admin Resources</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="admin-resources-card" aria-expanded="false">Open</button></div>
+      <div class="card-body">
+        <div class="resource-list">
+          <div class="resource"><div><strong>Live Website</strong><p>Customer-facing Pep Shop Texas homepage.</p></div><a class="btn secondary" href="https://www.pepshoptexas.com/" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>Supabase Project</strong><p>Database, auth, admin tables, orders, inventory, discounts, and Edge Functions.</p></div><a class="btn secondary" href="https://supabase.com/dashboard/project/ucejjztsbmrogiteivxl" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>GitHub</strong><p>Website source files and GitHub Pages deployment.</p></div><a class="btn secondary" href="https://github.com/" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>Namecheap Account</strong><p>Domain, DNS, and account management for pepshoptexas.com.</p></div><a class="btn secondary" href="https://ap.www.namecheap.com/" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>Namecheap Private Email / Webmail</strong><p>Quick access to email functions and webmail.</p></div><a class="btn secondary" href="https://privateemail.com/appsuite/" target="_blank" rel="noopener">Open</a></div>
+          <div class="resource"><div><strong>Resend</strong><p>Email notification service used for order/status email functions.</p></div><a class="btn secondary" href="https://resend.com/" target="_blank" rel="noopener">Open</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card span-6 no-print collapsible-card collapsed" id="site-notes-card" style="scroll-margin-top:185px;">
+      <div class="card-header"><h2>Site Operations Notes</h2><button class="btn secondary collapse-toggle" type="button" data-collapse-target="site-notes-card" aria-expanded="false">Open</button></div>
+      <div class="card-body">
+        <div class="ops-grid">
+          <div class="ops-note"><strong>Supabase</strong>Used for login/authentication, admin access, customer profiles, orders, order items, product management, inventory, discount codes, homepage promotions, and Edge Function email calls.</div>
+          <div class="ops-note"><strong>GitHub / GitHub Pages</strong>Used for the website files and live deployment. Root files include index.html, admin.html, inventory.html, products.html, discounts.html, and now reports.html.</div>
+          <div class="ops-note"><strong>Namecheap</strong>Used for the pepshoptexas.com domain, DNS/domain management, and email/webmail access.</div>
+          <div class="ops-note"><strong>Email Notifications</strong>Order emails are connected through Supabase Edge Functions and the current email provider setup. Namecheap email/webmail links are included here so email operations are easy to find.</div>
+        </div>
+      </div>
+    </div>
+
+    
+
+  </section>
+
+  <section class="grid no-print" id="payment-options">
+    <div class="card span-12 collapsible-card collapsed" id="payment-methods-card" style="scroll-margin-top:185px;">
+      <div class="card-header">
+        <h2>Payment Methods Manager</h2>
+        <button class="btn secondary collapse-toggle" type="button" data-collapse-target="payment-methods-card" aria-expanded="false">Open</button>
+      </div>
+      <div class="card-body">
+        <p class="muted" style="line-height:1.45;margin-top:0"><strong>QR upload:</strong> Use the QR Image Upload button on each method. It stores the QR image with that payment method setting. You can also paste an image URL if you prefer to upload QR images into GitHub assets.</p>
+        <div id="paymentMethodsAdminList" class="payment-methods-admin-list"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <button class="btn secondary" type="button" id="addPaymentMethodBtn">Add Payment Method</button>
+          <button class="btn" type="button" onclick="savePSTPaymentOptions()">Save Payment Methods</button>
+          <button class="btn secondary" type="button" onclick="loadPSTPaymentOptionsAdmin()">Reload</button>
+        </div>
+        <div id="paymentOptionsStatus" class="payment-options-status">Payment methods are optional. Enabled methods appear in the cart and order confirmation email payload.</div>
+        <p class="muted" style="margin-top:10px;line-height:1.45;"><strong>Note:</strong> Manual payment methods keep orders Payment Pending until you verify payment and mark the order paid in Admin Orders.</p>
       </div>
     </div>
   </section>
+
 </main>
 
 <script>
@@ -166,12 +2705,143 @@ const SUPABASE_ANON_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = (id) => document.getElementById(id);
 let currentUser = null;
+const PST_INCOMING_STORAGE_KEY = "pst_incoming_inventory_v1";
+const PST_EXPENSE_STORAGE_KEY = "pst_operating_expenses_v1";
+const PST_GLOBAL_REPORT_RANGE_SESSION_KEY = "pst_global_report_range_v1";
+const PST_EXPENSE_COLUMN_WIDTHS_KEY = "pst_reports_expense_column_widths_v1";
+let localExpenseRows = [];
+let allReportOrders = [];
+let allOrderItemsByOrder = {};
+let allInventoryRows = [];
+let allCatalogRows = [];
+let allIncomingRows = [];
+let allExpenseRows = [];
+let allInventoryMovementRows = [];
+let reportsMovementUsesSupabase = false;
+let reportsIncomingUsesSupabase = false;
+let reportsExpensesUsesSupabase = false;
+let editingExpenseId = null;
+
 function setStatus(message, type="") {
   const el = $("statusLine");
   if (!el) return;
   el.textContent = message;
   el.className = `status ${type}`.trim();
 }
+function safe(value){return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);}
+function money(value){return Number(value || 0).toLocaleString(undefined,{style:"currency",currency:"USD"});}
+function norm(value, fallback=""){return String(value ?? fallback).trim().toLowerCase().replace(/\s+/g,"_");}
+function orderStatus(order){
+  // Match Orders Management status logic so Reports does not count
+  // legacy duplicate status fields as pending when order_status was updated.
+  const cleanValue = (value) => String(value ?? "").trim();
+  const statusValue = cleanValue(order?.status);
+  const orderStatusValue = cleanValue(order?.order_status);
+  const statusNorm = norm(statusValue);
+  const orderStatusNorm = norm(orderStatusValue);
+
+  if (statusValue && statusNorm !== "pending") return statusValue;
+  if (orderStatusValue && orderStatusNorm !== "pending") return orderStatusValue;
+  if (statusValue) return statusValue;
+  if (orderStatusValue) return orderStatusValue;
+  return "no_status_legacy";
+}
+function displayOrderStatus(key){
+  if (key === "no_status_legacy") return "No Status / Legacy";
+  return String(key || "").replaceAll("_", " ");
+}
+function orderTotal(order){return Number(order.total || order.total_amount || order.order_total || order.grand_total || 0);}
+function orderTax(order){return Number(order.tax_amount || order.tax || order.sales_tax || 0);}
+function orderShipping(order){return Number(order.shipping_amount || order.shipping || order.shipping_total || 0);}
+function orderDiscount(order){return Number(order.discount_amount || order.discount || order.discount_total || 0);}
+const PST_REALIZED_REVENUE_STATUSES = new Set(["shipped","delivered","complete","completed"]);
+const PST_EXCLUDED_REVENUE_STATUSES = new Set(["rejected","reject","cancelled","canceled","cancelled_order","canceled_order","inventory_failed","failed","refunded","void","voided"]);
+function revenueClass(order){
+  const status = norm(orderStatus(order));
+  if (PST_EXCLUDED_REVENUE_STATUSES.has(status)) return "excluded";
+  if (PST_REALIZED_REVENUE_STATUSES.has(status)) return "realized";
+  return "pending";
+}
+function revenueClassLabel(order){
+  const cls = revenueClass(order);
+  if (cls === "realized") return "Realized";
+  if (cls === "excluded") return "Excluded";
+  return "Pending / Open";
+}
+function revenueClassBadge(order){
+  const cls = revenueClass(order);
+  if (cls === "realized") return `<span class="pill good">Realized</span>`;
+  if (cls === "excluded") return `<span class="pill danger">Excluded</span>`;
+  return `<span class="pill warn">Pending / Open</span>`;
+}
+function isRealizedRevenueOrder(order){ return revenueClass(order) === "realized"; }
+function isPendingRevenueOrder(order){ return revenueClass(order) === "pending"; }
+function isExcludedRevenueOrder(order){ return revenueClass(order) === "excluded"; }
+function orderSubtotal(order){return Number(order.subtotal || order.subtotal_amount || order.items_subtotal || order.product_subtotal || 0);}
+function orderNumber(order){return order.order_number || order.order_no || order.order_id || order.id || "—";}
+function cleanText(value){
+  const text = String(value ?? "").trim();
+  if (!text || ["null","undefined","none","n/a","[object object]"].includes(text.toLowerCase())) return "";
+  return text;
+}
+function profileOf(order){ return order?.profile && typeof order.profile === "object" ? order.profile : {}; }
+function customerEmail(order){
+  const p = profileOf(order);
+  return cleanText(order.customer_email) || cleanText(order.email) || cleanText(order.contact_email) || cleanText(order.shipping_email) || cleanText(order.billing_email) || cleanText(p.email) || "";
+}
+function emailNameFallback(email){
+  const text = cleanText(email);
+  if (!text || !text.includes("@")) return "Customer";
+  return text.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, ch => ch.toUpperCase());
+}
+function customerName(order){
+  const p = profileOf(order);
+  const direct = cleanText(order.customer_name) || cleanText(order.name) || cleanText(order.full_name) || cleanText(order.customer) || cleanText(order.shipping_name) || cleanText(order.billing_name) || cleanText(order.contact_name);
+  if (direct && direct.toLowerCase() !== "customer") return direct;
+  const profileFull = cleanText(p.full_name) || cleanText(p.name) || cleanText(p.customer_name);
+  if (profileFull && profileFull.toLowerCase() !== "customer") return profileFull;
+  const firstLast = [cleanText(order.first_name), cleanText(order.last_name)].filter(Boolean).join(" ") || [cleanText(p.first_name), cleanText(p.last_name)].filter(Boolean).join(" ");
+  if (firstLast) return firstLast;
+  return emailNameFallback(customerEmail(order));
+}
+function paymentStatus(order){return order.payment_status || order.payment || "pending";}
+function shortDateTime(value){
+  const d = orderDateValue({ created_at:value });
+  return d ? d.toLocaleString([], { month:"numeric", day:"numeric", year:"2-digit", hour:"numeric", minute:"2-digit" }) : "—";
+}
+function qtyValue(row){
+  // Keep Reports in sync with Inventory Management. The live inventory table uses
+  // current_inventory, so do not treat missing older fields as zero/out-of-stock.
+  const keys = [
+    "current_inventory",
+    "inventory",
+    "stock_quantity",
+    "quantity_on_hand",
+    "on_hand",
+    "inventory_count",
+    "stock",
+    "qty",
+    "quantity",
+    "available",
+    "available_quantity"
+  ];
+  for (const key of keys) {
+    if (!row || row[key] === undefined || row[key] === null || row[key] === "") continue;
+    const n = Number(row[key]);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+function isActiveHomepagePromo(row){
+  if (!row || row.active !== true || row.hero_banner_active !== true) return false;
+  const now = new Date();
+  const start = row.promotion_starts_at ? new Date(row.promotion_starts_at) : null;
+  const end = row.promotion_ends_at ? new Date(row.promotion_ends_at) : null;
+  if (start && !Number.isNaN(start.getTime()) && start > now) return false;
+  if (end && !Number.isNaN(end.getTime()) && end < now) return false;
+  return true;
+}
+
 async function checkAdminAccess(){
   setStatus("Checking admin access...");
   const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
@@ -181,10 +2851,1651 @@ async function checkAdminAccess(){
     setStatus("You are not logged in. Log in from the website first, then return to reports.html.", "bad");
     return false;
   }
-  setStatus(`Admin access confirmed for ${session.user.email}.`, "good");
+  currentUser = session.user;
+  const checks = [
+    supabaseClient.from("admin_users").select("*").eq("user_id", currentUser.id).maybeSingle(),
+    supabaseClient.from("admin_users").select("*").eq("email", currentUser.email).maybeSingle()
+  ];
+  const results = await Promise.allSettled(checks);
+  const rows = results.filter(r => r.status === "fulfilled" && r.value?.data).map(r => r.value.data);
+  const admin = rows.find(r => r && (r.is_active === true || r.active === true || r.is_admin === true || r.email === currentUser.email));
+  if (!admin) {
+    setStatus("Access denied. This login is not listed as an active Pep Shop Texas admin.", "bad");
+    return false;
+  }
+  setStatus(`Admin access confirmed for ${currentUser.email}.`, "good");
   return true;
 }
-checkAdminAccess();
+
+async function loadReports(){
+  setStatus("Loading reports...");
+  const [ordersRes, inventoryRes, catalogRes, discountsRes, incomingRes, expensesRes, movementsRes] = await Promise.allSettled([
+    supabaseClient.from("orders").select("*"),
+    supabaseClient.from("product_inventory").select("*"),
+    supabaseClient.from("product_catalog").select("*"),
+    supabaseClient.from("discount_codes").select("*"),
+    supabaseClient.from("incoming_inventory").select("*"),
+    supabaseClient.from("operating_expenses").select("*"),
+    supabaseClient.from("inventory_movements").select("*").order("created_at", { ascending:false }).limit(250)
+  ]);
+
+  let orders = ordersRes.status === "fulfilled" && !ordersRes.value.error ? (ordersRes.value.data || []) : [];
+  const inventory = inventoryRes.status === "fulfilled" && !inventoryRes.value.error ? (inventoryRes.value.data || []) : [];
+  const catalog = catalogRes.status === "fulfilled" && !catalogRes.value.error ? (catalogRes.value.data || []) : [];
+  const discounts = discountsRes.status === "fulfilled" && !discountsRes.value.error ? (discountsRes.value.data || []) : [];
+  allInventoryRows = inventory || [];
+  allCatalogRows = catalog || [];
+
+  reportsIncomingUsesSupabase = incomingRes.status === "fulfilled" && !incomingRes.value.error;
+  allIncomingRows = reportsIncomingUsesSupabase ? (incomingRes.value.data || []) : incomingRowsLocalRaw();
+
+  reportsExpensesUsesSupabase = expensesRes.status === "fulfilled" && !expensesRes.value.error;
+  allExpenseRows = reportsExpensesUsesSupabase ? (expensesRes.value.data || []) : expenseRowsLocalRaw();
+
+  reportsMovementUsesSupabase = movementsRes.status === "fulfilled" && !movementsRes.value.error;
+  allInventoryMovementRows = reportsMovementUsesSupabase ? (movementsRes.value.data || []) : [];
+
+  if (reportsIncomingUsesSupabase) await migrateLocalIncomingRowsToSupabase();
+  if (reportsExpensesUsesSupabase) await migrateLocalExpenseRowsToSupabase();
+
+  allOrderItemsByOrder = {};
+  const orderIdsForItems = orders.map(o => o.id).filter(Boolean);
+  if (orderIdsForItems.length) {
+    try {
+      const { data: items, error: itemsError } = await supabaseClient.from("order_items").select("*").in("order_id", orderIdsForItems);
+      if (itemsError) throw itemsError;
+      (items || []).forEach(item => {
+        const key = String(item.order_id || "");
+        if (!key) return;
+        if (!allOrderItemsByOrder[key]) allOrderItemsByOrder[key] = [];
+        allOrderItemsByOrder[key].push(item);
+      });
+    } catch (itemsError) {
+      console.warn("Reports order_items lookup skipped:", itemsError?.message || itemsError);
+    }
+  }
+
+  const profileUserIds = [...new Set(orders.flatMap(o => [o.user_id, o.customer_id, o.profile_id, o.customer_profile_id, o.auth_user_id]).map(cleanText).filter(Boolean))];
+  const profileEmails = [...new Set(orders.flatMap(o => [o.customer_email, o.email, o.contact_email, o.shipping_email, o.billing_email]).map(v => cleanText(v).toLowerCase()).filter(Boolean))];
+  const profilesByUser = {};
+  const profilesByEmail = {};
+
+  try {
+    if (profileUserIds.length) {
+      const { data: profiles } = await supabaseClient.from("customer_profiles").select("*").in("user_id", profileUserIds);
+      (profiles || []).forEach(p => {
+        if (p.user_id) profilesByUser[String(p.user_id)] = p;
+        if (p.email) profilesByEmail[String(p.email).toLowerCase()] = p;
+      });
+    }
+    if (profileEmails.length) {
+      const { data: profiles } = await supabaseClient.from("customer_profiles").select("*").in("email", profileEmails);
+      (profiles || []).forEach(p => {
+        if (p.user_id) profilesByUser[String(p.user_id)] = p;
+        if (p.email) profilesByEmail[String(p.email).toLowerCase()] = p;
+      });
+    }
+  } catch (profileError) {
+    console.warn("Reports customer profile lookup skipped:", profileError?.message || profileError);
+  }
+
+  orders = orders.map(order => {
+    const profile = profilesByUser[cleanText(order.user_id)] || profilesByUser[cleanText(order.customer_id)] || profilesByUser[cleanText(order.profile_id)] || profilesByUser[cleanText(order.customer_profile_id)] || profilesByUser[cleanText(order.auth_user_id)] || profilesByEmail[cleanText(order.customer_email || order.email || order.contact_email || order.shipping_email || order.billing_email).toLowerCase()] || {};
+    return { ...order, profile };
+  });
+
+  const activePromos = discounts.filter(isActiveHomepagePromo);
+  const lowStock = inventory.filter(row => { const q = qtyValue(row); return Number.isFinite(q) && q > 0 && q <= 3; });
+  const outStock = inventory.filter(row => { const q = qtyValue(row); return Number.isFinite(q) && q <= 0; });
+
+  $("statInventory").textContent = inventory.length;
+  $("statPromos").textContent = activePromos.length;
+  $("statLowStock").textContent = lowStock.length;
+  $("statOutStock").textContent = outStock.length;
+  $("snapshotUpdated").textContent = `Updated ${new Date().toLocaleString()}`;
+
+  allReportOrders = orders;
+  refreshOrderReport();
+  const warnings = [];
+  if (ordersRes.status === "fulfilled" && ordersRes.value.error) warnings.push("orders");
+  if (inventoryRes.status === "fulfilled" && inventoryRes.value.error) warnings.push("inventory");
+  if (catalogRes.status === "fulfilled" && catalogRes.value.error) warnings.push("product_catalog");
+  if (discountsRes.status === "fulfilled" && discountsRes.value.error) warnings.push("discounts");
+  if (!reportsIncomingUsesSupabase) warnings.push("incoming_inventory fallback");
+  if (!reportsExpensesUsesSupabase) warnings.push("operating_expenses fallback");
+  if (!reportsMovementUsesSupabase) warnings.push("inventory_movements fallback");
+  setStatus(warnings.length ? `Reports loaded with limited access to: ${warnings.join(", ")}.` : "Reports loaded successfully with shared Supabase financials.", warnings.length ? "bad" : "good");
+}
+
+
+function orderDateValue(order){
+  const raw = order?.created_at || order?.order_date || order?.date || order?.submitted_at || order?.created || null;
+  if (!raw) return null;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+function dateInputValue(id){
+  const raw = $(id)?.value || "";
+  if (!raw) return null;
+  const parts = raw.split("-").map(Number);
+  if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return null;
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+function endOfDay(date){
+  if (!date) return null;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+}
+function setDateInput(id, date){
+  const el = $(id);
+  if (!el || !date) return;
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  el.value = `${yyyy}-${mm}-${dd}`;
+}
+function setPresetDateInputs(range){
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (range === "today") {
+    setDateInput("orderReportStartDate", today);
+    setDateInput("orderReportEndDate", today);
+  }
+  if (range === "last7") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 6);
+    setDateInput("orderReportStartDate", start);
+    setDateInput("orderReportEndDate", today);
+  }
+  if (range === "last30") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 29);
+    setDateInput("orderReportStartDate", start);
+    setDateInput("orderReportEndDate", today);
+  }
+  if (range === "last90") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 89);
+    setDateInput("orderReportStartDate", start);
+    setDateInput("orderReportEndDate", today);
+  }
+  if (range === "all") {
+    if ($("orderReportStartDate")) $("orderReportStartDate").value = "";
+    if ($("orderReportEndDate")) $("orderReportEndDate").value = "";
+  }
+}
+function reportRangeLabel(range, startDate, endDate){
+  const fmt = (d) => d ? d.toLocaleDateString() : "not set";
+  if (range === "today") return "today";
+  if (range === "last7") return "the last 7 days";
+  if (range === "last30") return "the last 30 days";
+  if (range === "last90") return "the last 90 days";
+  if (range === "custom") return `${fmt(startDate)} through ${fmt(endDate)}`;
+  return "all stored orders";
+}
+function filteredReportOrders(){
+  const range = $("orderReportRange")?.value || "last7";
+  if (range === "all") return allReportOrders.slice();
+  let startDate = null;
+  let endDate = null;
+  if (range === "custom") {
+    startDate = dateInputValue("orderReportStartDate");
+    endDate = endOfDay(dateInputValue("orderReportEndDate"));
+  } else {
+    setPresetDateInputs(range);
+    startDate = dateInputValue("orderReportStartDate");
+    endDate = endOfDay(dateInputValue("orderReportEndDate"));
+  }
+  return allReportOrders.filter(order => {
+    const d = orderDateValue(order);
+    if (!d) return false;
+    if (startDate && d < startDate) return false;
+    if (endDate && d > endDate) return false;
+    return true;
+  });
+}
+function refreshOrderReport(){
+  const orders = filteredReportOrders();
+  const openStatuses = new Set(["pending","awaiting_payment","processing","packed","shipped"]);
+  const openOrders = orders.filter(order => openStatuses.has(norm(orderStatus(order))));
+  setText("statOrders", orders.length);
+  setText("statOpenOrders", openOrders.length);
+  renderOperationalInsights(orders);
+  renderSalesReport(orders);
+  renderFinancialSummary(orders);
+  renderOrderReport(orders);
+  renderDetailedOrders(orders);
+  renderProductSalesReport(orders);
+  renderFinancials(orders);
+  renderInventoryAudit();
+  const note = $("orderReportNote");
+  const range = $("orderReportRange")?.value || "last7";
+  const startDate = range === "all" ? null : dateInputValue("orderReportStartDate");
+  const endDate = range === "all" ? null : dateInputValue("orderReportEndDate");
+  const label = reportRangeLabel(range, startDate, endDate);
+  if (note) note.textContent = `Global range: ${label}. Showing ${orders.length} of ${allReportOrders.length} orders. Date-dependent reports refresh automatically; current inventory and settings remain current.`;
+  if ($("snapshotUpdated")) $("snapshotUpdated").textContent = `${label} · Updated ${new Date().toLocaleString()}`;
+  if ($("inventoryAuditRangeContext")) $("inventoryAuditRangeContext").textContent = `Using ${label}. Shows received, removed, exact count, out-of-stock, and other inventory adjustments recorded from Inventory Management.`;
+}
+function switchToCustomRange(){
+  if ($("orderReportRange")?.value !== "custom") {
+    $("orderReportRange").value = "custom";
+  }
+  saveGlobalReportRange();
+  refreshOrderReport();
+}
+
+function saveGlobalReportRange(){
+  try {
+    sessionStorage.setItem(PST_GLOBAL_REPORT_RANGE_SESSION_KEY, JSON.stringify({
+      range: $("orderReportRange")?.value || "last7",
+      start: $("orderReportStartDate")?.value || "",
+      end: $("orderReportEndDate")?.value || ""
+    }));
+  } catch (error) {}
+}
+
+function restoreGlobalReportRange(){
+  let saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem(PST_GLOBAL_REPORT_RANGE_SESSION_KEY) || "null"); } catch (error) {}
+  const allowed = new Set(["today","last7","last30","last90","custom","all"]);
+  const range = allowed.has(saved?.range) ? saved.range : "last7";
+  if ($("orderReportRange")) $("orderReportRange").value = range;
+  if (range === "custom") {
+    if ($("orderReportStartDate")) $("orderReportStartDate").value = saved?.start || "";
+    if ($("orderReportEndDate")) $("orderReportEndDate").value = saved?.end || "";
+  } else {
+    setPresetDateInputs(range);
+  }
+}
+
+function reportTotals(orders, mode="all"){
+  const source = (orders || []).filter(order => {
+    if (mode === "realized") return isRealizedRevenueOrder(order);
+    if (mode === "pending") return isPendingRevenueOrder(order);
+    if (mode === "excluded") return isExcludedRevenueOrder(order);
+    if (mode === "active") return !isExcludedRevenueOrder(order);
+    return true;
+  });
+  const totals = { orders: source.length, gross:0, tax:0, shipping:0, discounts:0, average:0 };
+  source.forEach(order => {
+    totals.gross += orderTotal(order);
+    totals.tax += orderTax(order);
+    totals.shipping += orderShipping(order);
+    totals.discounts += orderDiscount(order);
+  });
+  totals.average = totals.orders ? totals.gross / totals.orders : 0;
+  return totals;
+}
+function setText(id, value){ const el = $(id); if(el) el.textContent = value; }
+function renderFinancialSummary(orders){
+  const totals = reportTotals(orders);
+  setText("sumOrderCount", String(totals.orders));
+  setText("sumGrossSales", money(totals.gross));
+  setText("sumTaxCollected", money(totals.tax));
+  setText("sumShippingCollected", money(totals.shipping));
+  setText("sumDiscountsGiven", money(totals.discounts));
+  setText("sumAverageOrder", money(totals.average));
+}
+function csvEscape(value){
+  const text = String(value ?? "");
+  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"','""')}"` : text;
+}
+function csvDateStamp(){
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth()+1).padStart(2,"0");
+  const dd = String(now.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function exportOrderCsv(){
+  const orders = filteredReportOrders().slice().sort((a,b) => {
+    const da = orderDateValue(a)?.getTime() || 0;
+    const db = orderDateValue(b)?.getTime() || 0;
+    return db - da;
+  });
+  const headers = ["Date","Order #","Customer","Email","Status","Payment","Revenue Class","Subtotal","Discount","Tax","Shipping","Total"];
+  const rows = orders.map(order => [
+    shortDateTime(order.created_at || order.order_date || order.date || order.submitted_at || order.created),
+    orderNumber(order),
+    customerName(order),
+    customerEmail(order),
+    displayOrderStatus(norm(orderStatus(order))),
+    String(paymentStatus(order)).replaceAll("_"," "),
+    revenueClassLabel(order),
+    orderSubtotal(order).toFixed(2),
+    orderDiscount(order).toFixed(2),
+    orderTax(order).toFixed(2),
+    orderShipping(order).toFixed(2),
+    orderTotal(order).toFixed(2)
+  ]);
+  const csv = [headers, ...rows].map(row => row.map(csvEscape).join(",")).join("\r\n");
+  const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const range = $("orderReportRange")?.value || "report";
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `pep-shop-texas-orders-${range}-${csvDateStamp()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function renderOrderReport(orders){
+  const body = $("orderReportBody");
+  if (!orders.length) {
+    body.innerHTML = `<tr><td colspan="3" class="muted">No orders found.</td></tr>`;
+    return;
+  }
+  const groups = {};
+  orders.forEach(order => {
+    const status = norm(orderStatus(order));
+    if (!groups[status]) groups[status] = { count:0, total:0 };
+    groups[status].count += 1;
+    groups[status].total += orderTotal(order);
+  });
+  const preferred = ["pending","awaiting_payment","processing","packed","shipped","delivered","complete","cancelled","rejected","no_status_legacy"];
+  const keys = [...preferred.filter(k => groups[k]), ...Object.keys(groups).filter(k => !preferred.includes(k)).sort()];
+  body.innerHTML = keys.map(key => `<tr><td><strong>${safe(displayOrderStatus(key))}</strong></td><td>${groups[key].count}</td><td>${money(groups[key].total)}</td></tr>`).join("");
+}
+
+function renderDetailedOrders(orders){
+  const body = $("detailedOrdersBody");
+  const count = $("detailedOrderCount");
+  if (count) count.textContent = `${orders.length} order${orders.length === 1 ? "" : "s"}`;
+  if (!body) return;
+  if (!orders.length) {
+    body.innerHTML = `<tr><td colspan="9" class="muted">No individual orders found for this range.</td></tr>`;
+    return;
+  }
+  const sorted = orders.slice().sort((a,b) => {
+    const da = orderDateValue(a)?.getTime() || 0;
+    const db = orderDateValue(b)?.getTime() || 0;
+    return db - da;
+  });
+  body.innerHTML = sorted.map(order => {
+    const customer = customerEmail(order) ? `${safe(customerName(order))}<div class="muted">${safe(customerEmail(order))}</div>` : safe(customerName(order));
+    return `<tr>
+      <td>${safe(shortDateTime(order.created_at || order.order_date || order.date || order.submitted_at || order.created))}</td>
+      <td><strong>#${safe(orderNumber(order))}</strong></td>
+      <td>${customer}</td>
+      <td>${safe(displayOrderStatus(norm(orderStatus(order))))}</td>
+      <td>${safe(String(paymentStatus(order)).replaceAll("_"," "))}</td>
+      <td>${revenueClassBadge(order)}</td>
+      <td><strong>${money(orderTotal(order))}</strong></td>
+      <td>${money(orderTax(order))}</td>
+      <td>${money(orderShipping(order))}</td>
+    </tr>`;
+  }).join("");
+}
+
+
+function itemProductName(item){
+  return cleanText(item?.product_name || item?.name || item?.display_name || item?.product_key || item?.sku || item?.product_id) || "Unknown Product";
+}
+function doseTextFromObject(obj){
+  const keys = [
+    "strength", "dose", "dosage", "vial_strength", "product_strength",
+    "size", "subtitle", "description", "product_description", "label_description"
+  ];
+  for (const key of keys) {
+    const value = cleanText(obj?.[key]);
+    if (value) return value;
+  }
+  return "";
+}
+function joinProductDoseLabel(name, dose){
+  const n = cleanText(name);
+  const d = cleanText(dose);
+  if (!n) return d || "Unknown Product";
+  if (!d) return n;
+  const nLower = n.toLowerCase();
+  const dLower = d.toLowerCase();
+  if (nLower.includes(dLower)) return n;
+  return `${n} — ${d}`;
+}
+function strengthFromProductKey(value){
+  const text = cleanText(value).toUpperCase();
+  if (!text) return "";
+  const matches = [...text.matchAll(/(\d+(?:\.\d+)?)\s*(MG|MCG|UG|ΜG|IU|ML)\b/g)];
+  if (!matches.length) return "";
+  return matches.map(match => {
+    const amount = match[1];
+    const unitRaw = match[2];
+    const unit = unitRaw === "UG" || unitRaw === "ΜG" ? "mcg" : unitRaw.toLowerCase();
+    return `${amount} ${unit}`;
+  }).join(" / ");
+}
+function itemDisplayLabelWithDose(item){
+  return joinProductDoseLabel(itemProductName(item), doseTextFromObject(item));
+}
+function itemQuantity(item){
+  const n = Number(item?.quantity ?? item?.qty ?? item?.vials ?? 1);
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+function itemUnitPrice(item){
+  const n = Number(item?.unit_price ?? item?.price ?? item?.sale_price ?? 0);
+  return Number.isFinite(n) ? n : 0;
+}
+function itemLineTotal(item){
+  const explicit = Number(item?.line_total ?? item?.total ?? item?.subtotal ?? item?.amount);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  return itemQuantity(item) * itemUnitPrice(item);
+}
+
+function getProductSalesRows(orders){
+  const allowedOrderIds = new Set(orders.map(o => String(o.id)).filter(Boolean));
+  const groups = {};
+  Object.entries(allOrderItemsByOrder || {}).forEach(([orderId, items]) => {
+    if (!allowedOrderIds.has(String(orderId))) return;
+    (items || []).forEach(item => {
+      const rawName = itemProductName(item);
+      const inventoryRow = inventoryRowForProduct(rawName, item);
+      const label = inventoryRow ? inventoryDisplayLabel(inventoryRow) : itemDisplayLabelWithDose(item);
+      const key = inventoryRow ? `inventory:${inventoryRow.id || inventoryRow.product_id || label}` : `item:${label}`;
+      const sku = inventoryRow ? cleanText(inventoryRow.product_key || inventoryRow.sku || inventoryRow.product_id) : cleanText(item.product_id || item.product_key || item.sku);
+      if (!groups[key]) groups[key] = { product:label, sku, quantity:0, sales:0, aliases:new Set(), inventoryRow:null };
+      groups[key].quantity += itemQuantity(item);
+      groups[key].sales += itemLineTotal(item);
+      groups[key].aliases.add(rawName);
+      if (inventoryRow) groups[key].inventoryRow = inventoryRow;
+    });
+  });
+  return Object.values(groups).map(row => ({ ...row, aliases:[...row.aliases] })).sort((a,b) => b.quantity - a.quantity || b.sales - a.sales || a.product.localeCompare(b.product));
+}
+function selectedRangeDays(){
+  const range = $("orderReportRange")?.value || "last7";
+  if (range === "today") return 1;
+  if (range === "last7") return 7;
+  if (range === "last30") return 30;
+  if (range === "custom") {
+    const start = dateInputValue("orderReportStartDate");
+    const end = dateInputValue("orderReportEndDate");
+    if (start && end) return Math.max(1, Math.round((endOfDay(end) - start) / (1000 * 60 * 60 * 24)) + 1);
+  }
+  const dated = allReportOrders.map(orderDateValue).filter(Boolean).sort((a,b)=>a-b);
+  if (range === "all" && dated.length) return Math.max(1, Math.round((dated[dated.length-1] - dated[0]) / (1000 * 60 * 60 * 24)) + 1);
+  return 1;
+}
+function bestSalesDay(orders){
+  const days = {};
+  orders.forEach(order => {
+    const d = orderDateValue(order);
+    if (!d) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    if (!days[key]) days[key] = { date:d, total:0, count:0 };
+    days[key].total += orderTotal(order);
+    days[key].count += 1;
+  });
+  return Object.values(days).sort((a,b) => b.total - a.total || b.count - a.count)[0] || null;
+}
+function inventoryProductName(row){
+  return cleanText(row?.product_name || row?.name || row?.display_name || row?.product_key || row?.sku || row?.product_id || row?.peptide_name);
+}
+function inventoryDisplayLabel(row){
+  return joinProductDoseLabel(inventoryProductName(row), doseTextFromObject(row));
+}
+function inventoryRowForProduct(productName, item){
+  const itemValues = [
+    productName, item?.product_name, item?.name, item?.display_name, item?.product_key,
+    item?.sku, item?.product_id, item?.label, item?.title
+  ].map(cleanText).filter(Boolean);
+
+  // Order items store the product_catalog UUID. Resolve that UUID to its permanent
+  // PST item number first, then match product_inventory by that exact item number.
+  // This prevents similarly named products such as PST-TX2 and PST-TX3 from being merged.
+  const storedProductId = cleanText(item?.product_id).toLowerCase();
+  if (storedProductId) {
+    const catalogMatch = (allCatalogRows || []).find(row => cleanText(row?.id).toLowerCase() === storedProductId);
+    const catalogItemNumber = cleanText(catalogMatch?.product_key || catalogMatch?.sku).toLowerCase();
+    if (catalogItemNumber) {
+      const inventoryFromCatalog = (allInventoryRows || []).find(row =>
+        [row?.product_key, row?.sku].map(cleanText).some(value => value.toLowerCase() === catalogItemNumber)
+      );
+      if (inventoryFromCatalog) return inventoryFromCatalog;
+    }
+  }
+
+  const directItemIds = new Set([
+    item?.product_key, item?.sku
+  ].map(cleanText).filter(Boolean).map(value => value.toLowerCase()));
+  if (directItemIds.size) {
+    const directMatch = (allInventoryRows || []).find(row => [row?.product_key, row?.sku, row?.product_id]
+      .map(cleanText)
+      .filter(Boolean)
+      .some(value => directItemIds.has(value.toLowerCase())));
+    if (directMatch) return directMatch;
+  }
+
+  // Match the literal product name and strength before fuzzy matching. Keep the
+  // model number (TX2 versus TX3) significant instead of stripping all digits.
+  const itemDose = doseTextFromObject(item).toLowerCase().replace(/[^a-z0-9.]+/g, "");
+  const literalNameKey = value => cleanText(value).toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const literalItemNames = new Set([
+    productName, item?.product_name, item?.name, item?.display_name, item?.label, item?.title
+  ].map(literalNameKey).filter(Boolean));
+  if (itemDose && literalItemNames.size) {
+    const literalMatch = (allInventoryRows || []).find(row => {
+      const rowDose = doseTextFromObject(row).toLowerCase().replace(/[^a-z0-9.]+/g, "");
+      if (!rowDose || rowDose !== itemDose) return false;
+      return [row?.product_name, row?.name, row?.display_name, row?.peptide_name]
+        .map(literalNameKey)
+        .filter(Boolean)
+        .some(value => literalItemNames.has(value));
+    });
+    if (literalMatch) return literalMatch;
+  }
+
+  if (itemDose) {
+    const wantedNameKeys = new Set(itemValues.flatMap(productMatchKeys));
+    const exactDoseMatch = (allInventoryRows || []).find(row => {
+      const rowDose = doseTextFromObject(row).toLowerCase().replace(/[^a-z0-9.]+/g, "");
+      if (!rowDose || rowDose !== itemDose) return false;
+      return productIdentityValues(row).flatMap(productMatchKeys).some(key => wantedNameKeys.has(key));
+    });
+    if (exactDoseMatch) return exactDoseMatch;
+  }
+
+  const wantedKeys = new Set(itemValues.flatMap(productMatchKeys));
+  for (const row of (allInventoryRows || [])) {
+    const rowKeys = productIdentityValues(row).flatMap(productMatchKeys);
+    if (rowKeys.some(key => wantedKeys.has(key))) return row;
+  }
+  const wantedTokenSets = itemValues.map(v => productMatchKeys(v).find(k => k.includes("|"))).filter(Boolean);
+  for (const row of (allInventoryRows || [])) {
+    const rowTokenSets = productIdentityValues(row).map(v => productMatchKeys(v).find(k => k.includes("|"))).filter(Boolean);
+    for (const wanted of wantedTokenSets) {
+      const wantedTokens = new Set(wanted.split("|").filter(Boolean));
+      if (!wantedTokens.size) continue;
+      for (const rowTokenSet of rowTokenSets) {
+        const rowTokens = rowTokenSet.split("|").filter(Boolean);
+        const hits = rowTokens.filter(t => wantedTokens.has(t)).length;
+        const required = Math.min(wantedTokens.size, rowTokens.length);
+        if (required && hits >= required) return row;
+      }
+    }
+  }
+  return null;
+}
+function productMatchKeys(value){
+  const raw = cleanText(value);
+  if (!raw) return [];
+  const base = raw
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/\+/g, " ")
+    .replace(/\//g, " ")
+    .replace(/-/g, " ")
+    .replace(/\bno\s*dac\b/g, "no dac")
+    .replace(/\bmg\b|\bmcg\b|\bunits?\b|\bvials?\b|\bblend\b/g, " ")
+    .replace(/\d+(\.\d+)?/g, " ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  const compact = base.replace(/\s+/g, "");
+  const tokens = [...new Set(base.split(/\s+/).filter(Boolean).filter(t => !["and","with","w"].includes(t)))].sort();
+  const tokenKey = tokens.join("|");
+  const keys = [raw.toLowerCase(), base, compact, tokenKey].filter(Boolean);
+  return [...new Set(keys)];
+}
+function productIdentityValues(row){
+  return [
+    row?.product_name, row?.name, row?.display_name, row?.product_key, row?.sku,
+    row?.product_id, row?.peptide_name, row?.label, row?.title, row?.description
+  ].map(cleanText).filter(Boolean);
+}
+function inventoryStockMap(){
+  const map = {};
+  (allInventoryRows || []).forEach(row => {
+    const qty = qtyValue(row);
+    if (!Number.isFinite(qty)) return;
+    const values = productIdentityValues(row);
+    if (!values.length) return;
+    const keys = [...new Set(values.flatMap(productMatchKeys))];
+    keys.forEach(key => { map[key] = (map[key] || 0) + qty; });
+  });
+  return map;
+}
+function inventoryQuantityForProduct(productName, stockMap){
+  const keys = productMatchKeys(productName);
+  for (const key of keys) {
+    const value = stockMap[key];
+    if (Number.isFinite(Number(value))) return Number(value);
+  }
+  // Last resort: compare token sets so aliases such as
+  // "Ipamorelin + CJC no DAC" match "CJC-No DAC / Ipamorelin Blend".
+  const wantedTokens = new Set((productMatchKeys(productName).find(k => k.includes("|")) || "").split("|").filter(Boolean));
+  if (wantedTokens.size) {
+    for (const [key, value] of Object.entries(stockMap || {})) {
+      if (!key.includes("|")) continue;
+      const rowTokens = key.split("|").filter(Boolean);
+      const hits = rowTokens.filter(t => wantedTokens.has(t)).length;
+      const required = Math.min(wantedTokens.size, rowTokens.length);
+      if (required && hits >= required) return Number(value);
+    }
+  }
+  return null;
+}
+const PST_REORDER_LEAD_DAYS = 21;
+function productVelocityLabel(avgPerDay){
+  if (avgPerDay >= 2) return "fast mover";
+  if (avgPerDay >= 0.75) return "moderate mover";
+  if (avgPerDay > 0) return "slow mover";
+  return "no recent sales";
+}
+function productSalesWithInventory(orders){
+  const days = selectedRangeDays();
+  const stock = inventoryStockMap();
+  return getProductSalesRows(orders).map(row => {
+    const avgPerDay = days ? row.quantity / days : 0;
+    const matchedQty = row.inventoryRow ? qtyValue(row.inventoryRow) : null;
+    const current = matchedQty !== null && matchedQty !== undefined ? matchedQty : inventoryQuantityForProduct(row.product, stock);
+    const projectedDemand = avgPerDay * PST_REORDER_LEAD_DAYS;
+    const daysRemaining = current !== null && avgPerDay > 0 ? current / avgPerDay : null;
+    return { ...row, avgPerDay, current, projectedDemand, daysRemaining, reorderStatus: reorderStatus(current, avgPerDay, daysRemaining) };
+  });
+}
+function reorderStatus(current, avgPerDay, daysRemaining){
+  if (current === null || current === undefined) return { key:"unknown", label:"Inventory Unknown" };
+  if (current <= 0) return { key:"critical", label:"Critical" };
+  if (!avgPerDay || avgPerDay <= 0) return { key:"healthy", label:"Healthy" };
+  if (daysRemaining <= 7) return { key:"critical", label:"Critical" };
+  if (daysRemaining <= PST_REORDER_LEAD_DAYS) return { key:"reorder", label:"Reorder Now" };
+  if (daysRemaining <= 30) return { key:"watch", label:"Watch" };
+  return { key:"healthy", label:"Healthy" };
+}
+function riskBadge(status){
+  const key = status?.key || "unknown";
+  const label = status?.label || "Unknown";
+  return `<span class="risk-badge risk-${safe(key)}">${safe(label)}</span>`;
+}
+function formatNumber(value, digits=2){
+  const n = Number(value || 0);
+  return Number.isFinite(n) ? n.toFixed(digits) : "—";
+}
+
+// PST_REPORTS_PATCH_V36_BUILD_SALES_REPORT
+// PST_REPORTS_PATCH_V35_SALES_REPORT
+function salesRealizedOrders(orders){
+  return (orders || []).filter(isRealizedRevenueOrder);
+}
+function salesProductRows(orders){
+  return getProductSalesRows(salesRealizedOrders(orders));
+}
+function salesUnitsTotal(rows){
+  return (rows || []).reduce((sum,row)=>sum + Number(row.quantity || 0), 0);
+}
+function dailySalesRows(orders){
+  const realized = salesRealizedOrders(orders);
+  const productRowsByOrder = allOrderItemsByOrder || {};
+  const days = {};
+  realized.forEach(order => {
+    const d = orderDateValue(order);
+    if (!d) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    if (!days[key]) days[key] = { key, date:d, orders:0, sales:0, tax:0, shipping:0, units:0 };
+    days[key].orders += 1;
+    days[key].sales += orderTotal(order);
+    days[key].tax += orderTax(order);
+    days[key].shipping += orderShipping(order);
+    const orderId = String(order.id || "");
+    (productRowsByOrder[orderId] || []).forEach(item => { days[key].units += itemQuantity(item); });
+  });
+  return Object.values(days).sort((a,b)=>b.date-a.date);
+}
+function renderSalesReport(orders){
+  const realized = salesRealizedOrders(orders);
+  const pendingTotals = reportTotals(orders, "pending");
+  const realizedTotals = reportTotals(orders, "realized");
+  const products = salesProductRows(orders).sort((a,b)=>b.sales - a.sales || b.quantity - a.quantity || a.product.localeCompare(b.product));
+  const daily = dailySalesRows(orders);
+  const units = salesUnitsTotal(products);
+  const topProduct = products[0] || null;
+  setText("salesRealizedRevenue", money(realizedTotals.gross));
+  setText("salesPendingRevenue", money(pendingTotals.gross));
+  setText("salesRealizedOrders", String(realizedTotals.orders));
+  setText("salesAverageOrder", money(realizedTotals.average));
+  setText("salesUnitsSold", String(units));
+  setText("salesTopProduct", topProduct ? `${topProduct.product} (${topProduct.quantity})` : "—");
+  const note = $("salesReportNote");
+  if (note) {
+    const range = $("orderReportRange")?.value || "last7";
+    const startDate = range === "all" ? null : dateInputValue("orderReportStartDate");
+    const endDate = range === "all" ? null : dateInputValue("orderReportEndDate");
+    note.textContent = `Sales Report for ${reportRangeLabel(range, startDate, endDate)}. Realized sales include Shipped, Delivered, Complete, or Completed orders only. Pending/open sales are shown separately.`;
+  }
+  renderDailySalesTable(daily);
+  renderTopSalesProductsTable(products, realizedTotals.gross);
+}
+function renderDailySalesTable(rows){
+  const body = $("dailySalesBody");
+  const count = $("dailySalesCount");
+  if (count) count.textContent = `${rows.length} day${rows.length === 1 ? "" : "s"}`;
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="7" class="muted">No realized sales found for this range.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(row => `<tr>
+    <td><strong>${safe(row.date.toLocaleDateString())}</strong></td>
+    <td>${safe(row.orders)}</td>
+    <td><strong>${money(row.sales)}</strong></td>
+    <td>${safe(row.units)}</td>
+    <td>${money(row.tax)}</td>
+    <td>${money(row.shipping)}</td>
+    <td>${money(row.orders ? row.sales / row.orders : 0)}</td>
+  </tr>`).join("");
+}
+function renderTopSalesProductsTable(rows, totalSales){
+  const body = $("topSalesProductsBody");
+  const count = $("topSalesProductsCount");
+  if (count) count.textContent = `${rows.length} product${rows.length === 1 ? "" : "s"}`;
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="7" class="muted">No product sales found for realized orders in this range.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map((row, index) => {
+    const avg = row.quantity ? row.sales / row.quantity : 0;
+    const pct = totalSales > 0 ? (row.sales / totalSales) * 100 : 0;
+    return `<tr>
+      <td><strong>#${index + 1}</strong></td>
+      <td><strong>${safe(row.product)}</strong></td>
+      <td><code>${safe(row.sku || "—")}</code></td>
+      <td>${safe(row.quantity)}</td>
+      <td><strong>${money(row.sales)}</strong></td>
+      <td>${money(avg)}</td>
+      <td>${formatNumber(pct, 1)}%</td>
+    </tr>`;
+  }).join("");
+}
+function exportSalesCsv(){
+  const orders = filteredReportOrders();
+  const daily = dailySalesRows(orders);
+  const products = salesProductRows(orders).sort((a,b)=>b.sales - a.sales || b.quantity - a.quantity || a.product.localeCompare(b.product));
+  const rows = [];
+  rows.push(["Pep Shop Texas Sales Report"]);
+  rows.push(["Generated", new Date().toLocaleString()]);
+  rows.push([]);
+  rows.push(["Daily Sales Breakdown"]);
+  rows.push(["Date","Realized Orders","Realized Sales","Units Sold","Tax Collected","Shipping Collected","Average Order"]);
+  daily.forEach(row => rows.push([row.date.toLocaleDateString(), row.orders, row.sales.toFixed(2), row.units, row.tax.toFixed(2), row.shipping.toFixed(2), (row.orders ? row.sales / row.orders : 0).toFixed(2)]));
+  rows.push([]);
+  rows.push(["Top Products by Sales"]);
+  rows.push(["Rank","Product","SKU","Qty Sold","Sales","Avg Price"]);
+  products.forEach((row,index) => rows.push([index + 1, row.product, row.sku || "", row.quantity, row.sales.toFixed(2), (row.quantity ? row.sales / row.quantity : 0).toFixed(2)]));
+  const csv = rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
+  const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const range = $("orderReportRange")?.value || "report";
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `pep-shop-texas-sales-${range}-${csvDateStamp()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function renderOperationalInsights(orders){
+  const body = $("operationalInsightsBody");
+  if (!body) return;
+  if (!orders.length) {
+    body.innerHTML = `<div class="insights-muted">No orders found for this range yet.</div>`;
+    return;
+  }
+  const totals = reportTotals(orders);
+  const products = productSalesWithInventory(orders);
+  const rawProducts = getProductSalesRows(orders);
+  const days = selectedRangeDays();
+  const bestDay = bestSalesDay(orders);
+  const topQty = rawProducts[0] || null;
+  const topRevenue = rawProducts.slice().sort((a,b) => b.sales - a.sales || b.quantity - a.quantity)[0] || null;
+  const reorderNow = products.filter(row => ["critical","reorder"].includes(row.reorderStatus.key)).sort((a,b) => (a.daysRemaining ?? 999999) - (b.daysRemaining ?? 999999));
+  const watchItems = products.filter(row => row.reorderStatus.key === "watch").sort((a,b) => (a.daysRemaining ?? 999999) - (b.daysRemaining ?? 999999));
+  const fastMovers = rawProducts.filter(row => (row.quantity / days) >= 0.75).slice(0,3);
+  const insights = [];
+  insights.push(`${orders.length} order${orders.length === 1 ? "" : "s"} generated ${money(totals.gross)} in the selected range.`);
+  insights.push(`Average order value is ${money(totals.average)}; tax collected is ${money(totals.tax)} and shipping collected is ${money(totals.shipping)}.`);
+  if (topQty) insights.push(`Top seller by quantity: ${safe(topQty.product)} with ${topQty.quantity} unit${topQty.quantity === 1 ? "" : "s"} sold (${productVelocityLabel(topQty.quantity / days)}).`);
+  if (topRevenue) insights.push(`Top seller by revenue: ${safe(topRevenue.product)} at ${money(topRevenue.sales)}.`);
+  if (bestDay) insights.push(`Best sales day: ${bestDay.date.toLocaleDateString()} with ${money(bestDay.total)} across ${bestDay.count} order${bestDay.count === 1 ? "" : "s"}.`);
+  if (fastMovers.length) insights.push(`Fast/moderate movers to watch: ${fastMovers.map(p => `${safe(p.product)} (${(p.quantity/days).toFixed(2)}/day)`).join(", ")}.`);
+  if (reorderNow.length) {
+    insights.push(`21-day reorder alert: ${reorderNow.slice(0,5).map(p => {
+      const daysText = Number.isFinite(p.daysRemaining) ? `${Math.max(1, Math.ceil(p.daysRemaining))} day${Math.ceil(p.daysRemaining) === 1 ? "" : "s"} remaining` : "inventory unavailable";
+      return `${safe(p.product)} (${daysText})`;
+    }).join(", ")}.`);
+  } else if (watchItems.length) {
+    insights.push(`No item is projected to sell out inside the 21-day lead time, but watch: ${watchItems.slice(0,5).map(p => `${safe(p.product)} (${Math.ceil(p.daysRemaining)} days remaining)`).join(", ")}.`);
+  } else if ((allInventoryRows || []).length) {
+    insights.push(`No product in this report is projected to sell out within the 21-day lead time based on matched inventory names.`);
+  } else {
+    insights.push(`21-day reorder risk is not shown because inventory rows were not available to Reports.`);
+  }
+  body.innerHTML = `<ul class="insights-list">${insights.map(text => `<li>${text}</li>`).join("")}</ul>`;
+}
+
+function renderProductSalesReport(orders){
+  const body = $("productSalesBody");
+  const count = $("productSalesCount");
+  if (!body) return;
+  const rows = productSalesWithInventory(orders);
+  updateInventoryWatchBadge(rows);
+  if (count) count.textContent = `${rows.length} product${rows.length === 1 ? "" : "s"} · ${PST_REORDER_LEAD_DAYS}-day lead-time logic`;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="10" class="muted">No product item rows found for this range.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(row => {
+    const avg = row.quantity ? row.sales / row.quantity : 0;
+    const currentText = row.current === null ? "—" : formatNumber(row.current, row.current % 1 === 0 ? 0 : 2);
+    const daysRemainingText = Number.isFinite(row.daysRemaining) ? `${Math.ceil(row.daysRemaining)} day${Math.ceil(row.daysRemaining) === 1 ? "" : "s"} remain${Math.ceil(row.daysRemaining) === 1 ? "s" : ""}` : "—";
+    return `<tr>
+      <td><strong>${safe(row.product)}</strong></td>
+      <td><code>${safe(row.sku || "—")}</code></td>
+      <td>${safe(row.quantity)}</td>
+      <td>${money(row.sales)}</td>
+      <td>${money(avg)}</td>
+      <td>${safe(currentText)}</td>
+      <td>${safe(formatNumber(row.avgPerDay, 2))}</td>
+      <td>${safe(formatNumber(row.projectedDemand, 1))}</td>
+      <td>${safe(daysRemainingText)}</td>
+      <td>${riskBadge(row.reorderStatus)}</td>
+    </tr>`;
+  }).join("");
+}
+
+function updateInventoryWatchBadge(rows){
+  const badge = $("inventoryWatchBadge");
+  const details = $("inventoryWatchDetails");
+  if (!badge) return;
+  const leadTimeRisks = (rows || []).filter(row => ["critical","reorder"].includes(row.reorderStatus?.key));
+  const needsReview = leadTimeRisks.length > 0;
+  badge.hidden = !needsReview;
+  badge.style.display = needsReview ? "inline-flex" : "none";
+  badge.textContent = leadTimeRisks.length
+    ? `Needs Review (${leadTimeRisks.length})`
+    : "Needs Review";
+  badge.title = leadTimeRisks.length
+    ? `${leadTimeRisks.length} product${leadTimeRisks.length === 1 ? "" : "s"} projected to run out within the ${PST_REORDER_LEAD_DAYS}-day lead time.`
+    : "";
+  if (details) {
+    details.innerHTML = leadTimeRisks.length
+      ? `<strong>Products needing review</strong><ul class="insights-list">${leadTimeRisks.map(row => {
+          const daysText = Number.isFinite(row.daysRemaining) ? `${Math.max(0, Math.ceil(row.daysRemaining))} day${Math.ceil(row.daysRemaining) === 1 ? "" : "s"} remaining` : "inventory unavailable";
+          const stockText = row.current === null || row.current === undefined ? "stock unknown" : `${formatNumber(row.current, Number(row.current) % 1 === 0 ? 0 : 2)} in stock`;
+          const inventoryHref = row.sku ? `inventory.html?product_key=${encodeURIComponent(row.sku)}` : "inventory.html";
+          return `<li><a href="${safe(inventoryHref)}"><strong>${safe(row.product)}</strong></a> — ${safe(stockText)}; ${safe(daysText)}; ${riskBadge(row.reorderStatus)}</li>`;
+        }).join("")}</ul>`
+      : `No products sold in this report range are projected to run out within the ${PST_REORDER_LEAD_DAYS}-day lead time.`;
+  }
+}
+
+
+function readJsonStorage(key, fallback){
+  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch(e) { return fallback; }
+}
+function writeJsonStorage(key, value){
+  try { localStorage.setItem(key, JSON.stringify(value || [])); } catch(e) {}
+}
+function incomingRowsLocalRaw(){ return readJsonStorage(PST_INCOMING_STORAGE_KEY, []); }
+function expenseRowsLocalRaw(){ return readJsonStorage(PST_EXPENSE_STORAGE_KEY, []); }
+function incomingRowsLocal(){ return reportsIncomingUsesSupabase ? (allIncomingRows || []) : incomingRowsLocalRaw(); }
+function expenseRowsLocal(){ return reportsExpensesUsesSupabase ? (allExpenseRows || []) : expenseRowsLocalRaw(); }
+function reportFinanceRowId(row){
+  return String(row?.id || "").trim();
+}
+function localRowAlreadyInSupabase(localRow, supabaseRows, type){
+  const localId = reportFinanceRowId(localRow);
+  if (localId && (supabaseRows || []).some(row => reportFinanceRowId(row) === localId)) return true;
+  const localDate = cleanText(localRow.date || localRow.ordered_at || localRow.created_at || localRow.date_ordered);
+  const localAmount = Number(type === "expense" ? localRow.amount : incomingCost(localRow));
+  const localDesc = cleanText(type === "expense" ? localRow.description : localRow.product_name);
+  return (supabaseRows || []).some(row => {
+    const rowDate = cleanText(row.date || row.ordered_at || row.created_at || row.date_ordered);
+    const rowAmount = Number(type === "expense" ? row.amount : incomingCost(row));
+    const rowDesc = cleanText(type === "expense" ? row.description : row.product_name);
+    return localDate && rowDate && localDate.slice(0,10) === rowDate.slice(0,10) && Math.abs(localAmount - rowAmount) < 0.01 && localDesc === rowDesc;
+  });
+}
+async function migrateLocalIncomingRowsToSupabase(){
+  const localRows = incomingRowsLocalRaw();
+  if (!localRows.length || !reportsIncomingUsesSupabase) return;
+  const toInsert = localRows.filter(row => !localRowAlreadyInSupabase(row, allIncomingRows, "incoming"));
+  if (!toInsert.length) return;
+  const cleaned = toInsert.map(row => ({
+    ...row,
+    id: row.id || (crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}_${Math.random().toString(16).slice(2)}`),
+    created_by: row.created_by || currentUser?.id || null,
+    created_by_email: row.created_by_email || currentUser?.email || null
+  }));
+  const { data, error } = await supabaseClient.from("incoming_inventory").insert(cleaned).select("*");
+  if (!error && data) {
+    allIncomingRows = [...data, ...(allIncomingRows || [])];
+    try { localStorage.removeItem(PST_INCOMING_STORAGE_KEY); } catch(e) {}
+  } else if (error) {
+    console.warn("Incoming inventory migration skipped:", error.message || error);
+  }
+}
+async function migrateLocalExpenseRowsToSupabase(){
+  const localRows = expenseRowsLocalRaw();
+  if (!localRows.length || !reportsExpensesUsesSupabase) return;
+  const toInsert = localRows.filter(row => !localRowAlreadyInSupabase(row, allExpenseRows, "expense"));
+  if (!toInsert.length) return;
+  const cleaned = toInsert.map(row => ({
+    id: row.id || (crypto?.randomUUID ? crypto.randomUUID() : `expense_${Date.now()}_${Math.random().toString(16).slice(2)}`),
+    date: row.date || (row.created_at ? String(row.created_at).slice(0,10) : new Date().toISOString().slice(0,10)),
+    category: row.category || "Expense",
+    company_name: row.company_name || "",
+    description: row.description || "",
+    amount: Number(row.amount || 0),
+    method: row.method || "",
+    created_at: row.created_at || new Date().toISOString(),
+    created_by: row.created_by || currentUser?.id || null,
+    created_by_email: row.created_by_email || currentUser?.email || null
+  })).filter(row => row.amount > 0);
+  if (!cleaned.length) return;
+  const { data, error } = await supabaseClient.from("operating_expenses").insert(cleaned).select("*");
+  if (!error && data) {
+    allExpenseRows = [...data, ...(allExpenseRows || [])];
+    try { localStorage.removeItem(PST_EXPENSE_STORAGE_KEY); } catch(e) {}
+  } else if (error) {
+    console.warn("Expense migration skipped:", error.message || error);
+  }
+}
+function rowDateInSelectedRange(value){
+  const range = $("orderReportRange")?.value || "last7";
+  if (range === "all") return true;
+  const d = value ? new Date(value) : null;
+  if (!d || Number.isNaN(d.getTime())) return false;
+  const start = dateInputValue("orderReportStartDate");
+  const end = endOfDay(dateInputValue("orderReportEndDate"));
+  if (start && d < start) return false;
+  if (end && d > end) return false;
+  return true;
+}
+function incomingCost(row){
+  const explicit = Number(row?.total_cost ?? row?.total_paid ?? row?.amount_paid ?? 0);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  const qty = Number(row?.ordered_quantity || 0);
+  const unit = Number(row?.cost_per_unit ?? row?.unit_cost ?? 0);
+  const ship = Number(row?.shipping_cost ?? row?.freight_cost ?? row?.fees ?? 0);
+  return (qty * unit) + ship;
+}
+function inventoryValueFromIncoming(){
+  const incoming = incomingRowsLocal();
+  const latestUnitCost = {};
+  incoming.forEach(row => {
+    const key = cleanText(row.product_key || row.product_name || row.product_id).toLowerCase();
+    const unit = Number(row.cost_per_unit ?? row.unit_cost ?? 0);
+    if (key && unit > 0) latestUnitCost[key] = unit;
+  });
+  let total = 0;
+  (allInventoryRows || []).forEach(row => {
+    const names = [row.product_key, row.display_name, row.product_name, row.name].map(v => cleanText(v).toLowerCase()).filter(Boolean);
+    const cost = names.map(n => latestUnitCost[n]).find(v => Number(v) > 0) || Number(row.cost_per_unit ?? row.unit_cost ?? row.cost ?? 0) || 0;
+    total += qtyValue(row) * cost;
+  });
+  return total;
+}
+
+function inventoryRetailUnitPrice(row = {}){
+  const sale = Number(row.sale_enabled && row.sale_price ? row.sale_price : 0);
+  if (Number.isFinite(sale) && sale > 0) return sale;
+  const price = Number(row.price ?? row.retail_price ?? row.selling_price ?? row.unit_price ?? 0);
+  return Number.isFinite(price) && price > 0 ? price : 0;
+}
+
+function inventoryRetailRevenuePotential(){
+  return (allInventoryRows || []).reduce((sum, row) => {
+    return sum + (qtyValue(row) * inventoryRetailUnitPrice(row));
+  }, 0);
+}
+
+function inventoryCurrentUnitCount(){
+  return (allInventoryRows || []).reduce((sum, row) => sum + qtyValue(row), 0);
+}
+
+function inventoryAuditProductForMovement(row){
+  const productId = cleanText(row?.product_id || row?.inventory_id || row?.product_inventory_id);
+  const productKey = cleanText(row?.product_key || row?.sku);
+  const candidates = (allInventoryRows || []).filter(item => {
+    if (productId && String(item.id || item.product_id || item.inventory_id || "") === productId) return true;
+    if (productKey && cleanText(item.product_key || item.sku || item.product_id).toLowerCase() === productKey.toLowerCase()) return true;
+    return false;
+  });
+  return candidates[0] || null;
+}
+function inventoryAuditProductName(row){
+  const item = inventoryAuditProductForMovement(row);
+  const baseName = cleanText(row?.product_name || row?.display_name || item?.display_name || item?.product_name || item?.name || row?.product_key || row?.sku || "Product");
+  const dose = cleanText(row?.strength || row?.dose || row?.dosage || row?.vial_strength || row?.product_strength || item?.strength || item?.dose || item?.dosage || item?.vial_strength || item?.product_strength || strengthFromProductKey(row?.product_key || row?.sku || item?.product_key || item?.sku || item?.product_id));
+  return joinProductDoseLabel(baseName, dose);
+}
+function inventoryAuditProductKey(row){
+  const item = inventoryAuditProductForMovement(row);
+  return cleanText(row?.product_key || row?.sku || item?.product_key || item?.sku || item?.product_id || "—");
+}
+function movementQtyClass(value){
+  const n = Number(value || 0);
+  if (n > 0) return "money-positive";
+  if (n < 0) return "money-negative";
+  return "";
+}
+function movementTypeLabel(value){
+  return cleanText(value || "movement").replaceAll("_", " ");
+}
+function renderInventoryAudit(){
+  const body = $("inventoryAuditBody");
+  const count = $("inventoryAuditCount");
+  if (!body) return;
+  if (!reportsMovementUsesSupabase) {
+    body.innerHTML = `<tr><td colspan="9" class="muted">Inventory movement audit is not available yet. Confirm the inventory_movements table exists and admin policies allow Reports to read it.</td></tr>`;
+    if (count) count.textContent = "Audit unavailable";
+    return;
+  }
+  const rows = (allInventoryMovementRows || [])
+    .filter(row => rowDateInSelectedRange(row.created_at || row.date || row.updated_at))
+    .slice()
+    .sort((a,b)=>new Date(b.created_at || b.date || 0)-new Date(a.created_at || a.date || 0));
+  if (count) count.textContent = `${rows.length} movement${rows.length === 1 ? "" : "s"} shown`;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="9" class="muted">No inventory movements have been recorded yet.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(row => {
+    const qty = Number(row.quantity_change ?? row.qty_change ?? row.change ?? row.quantity ?? 0);
+    const previousQty = row.previous_quantity ?? row.previous_qty ?? row.old_quantity ?? "—";
+    const newQty = row.new_quantity ?? row.new_qty ?? row.current_quantity ?? "—";
+    const note = cleanText(row.admin_note || row.reason || row.note || row.notes || row.audit_note || "—");
+    const admin = cleanText(row.created_by_email || row.admin_email || row.user_email || row.created_by || "—");
+    return `<tr>
+      <td>${safe(shortDateTime(row.created_at || row.date || row.updated_at))}</td>
+      <td><strong>${safe(inventoryAuditProductName(row))}</strong></td>
+      <td>${safe(inventoryAuditProductKey(row))}</td>
+      <td>${safe(movementTypeLabel(row.movement_type || row.type || row.action))}</td>
+      <td><strong class="${movementQtyClass(qty)}">${qty > 0 ? "+" : ""}${safe(qty)}</strong></td>
+      <td>${safe(previousQty)}</td>
+      <td>${safe(newQty)}</td>
+      <td>${safe(admin)}</td>
+      <td>${safe(note)}</td>
+    </tr>`;
+  }).join("");
+}
+
+function renderFinancials(orders){
+  const allOrders = orders || [];
+  const realizedTotals = reportTotals(allOrders, "realized");
+  const pendingTotals = reportTotals(allOrders, "pending");
+  const excludedTotals = reportTotals(allOrders, "excluded");
+  const incoming = incomingRowsLocal();
+  const expenses = expenseRowsLocal();
+  localExpenseRows = expenses;
+  const incomingInRange = incoming.filter(row => rowDateInSelectedRange(row.ordered_at || row.created_at || row.date_ordered));
+  const expensesInRange = expenses.filter(row => rowDateInSelectedRange(row.date || row.created_at));
+  const productSpend = incomingInRange.reduce((sum,row)=>sum + incomingCost(row),0);
+  const operatingExpenses = expensesInRange.reduce((sum,row)=>sum + Number(row.amount || 0),0);
+  const cashProfit = realizedTotals.gross - productSpend - operatingExpenses;
+  setText("finRevenue", money(realizedTotals.gross));
+  setText("finPendingRevenue", money(pendingTotals.gross));
+  setText("finProductSpend", money(productSpend));
+  setText("finOperatingExpenses", money(operatingExpenses));
+  setText("finCashProfit", money(cashProfit));
+  const profitEl = $("finCashProfit");
+  if (profitEl) profitEl.className = cashProfit >= 0 ? "money-positive" : "money-negative";
+  const inventoryCostValue = inventoryValueFromIncoming();
+  const inventoryRetailRevenue = inventoryRetailRevenuePotential();
+  const inventoryRetailProfit = inventoryRetailRevenue - inventoryCostValue;
+  setText("finInventoryValue", money(inventoryCostValue));
+  setText("finInventoryRetailRevenue", money(inventoryRetailRevenue));
+  setText("finInventoryRetailProfit", money(inventoryRetailProfit));
+  setText("finInventoryUnits", String(inventoryCurrentUnitCount()));
+  const retailProfitEl = $("finInventoryRetailProfit");
+  if (retailProfitEl) retailProfitEl.className = inventoryRetailProfit >= 0 ? "money-positive" : "money-negative";
+  setText("finTaxHeld", money(realizedTotals.tax));
+  renderExpenseTable(expensesInRange);
+  const note = $("financeNote");
+  if (note) {
+    const sourceText = `${reportsExpensesUsesSupabase ? "expenses from Supabase" : "expenses from this browser only"}; ${reportsIncomingUsesSupabase ? "incoming inventory from Supabase" : "incoming inventory from this browser only"}`;
+    note.textContent = `Financials for the selected report range: ${realizedTotals.orders} realized order(s), ${pendingTotals.orders} pending/open order(s), ${excludedTotals.orders} excluded order(s), ${expensesInRange.length} expense row(s), and ${incomingInRange.length} incoming inventory cost row(s). Data source: ${sourceText}. Potential Inventory Revenue equals current inventory quantity times current selling price for every inventory row. Revenue and estimated profit are realized only when order status is Shipped, Delivered, Complete, or Completed. Pending, Processing, Packed, Inventory Failed, Rejected, Cancelled, Refunded, and Void orders are not counted as realized revenue/profit.`;
+  }
+}
+function setupExpenseColumnResizing(){
+  const table = $("expenseTable");
+  if (!table) return;
+  const defaults = { date:110, company:150, category:140, description:250, method:120, amount:120, action:160 };
+  const saved = readJsonStorage(PST_EXPENSE_COLUMN_WIDTHS_KEY, {});
+  const widths = { ...defaults, ...(saved && typeof saved === "object" ? saved : {}) };
+  const columns = Array.from(table.querySelectorAll("col[data-expense-column]"));
+
+  const applyWidths = () => {
+    let total = 0;
+    columns.forEach(col => {
+      const key = col.dataset.expenseColumn;
+      const width = Math.max(70, Number(widths[key] || defaults[key] || 100));
+      widths[key] = width;
+      col.style.width = `${width}px`;
+      total += width;
+    });
+    table.style.width = `${total}px`;
+  };
+
+  table.querySelectorAll("th[data-expense-column]").forEach(header => {
+    if (header.querySelector(".expense-column-resizer")) return;
+    const key = header.dataset.expenseColumn;
+    const resizer = document.createElement("span");
+    resizer.className = "expense-column-resizer";
+    resizer.setAttribute("role", "separator");
+    resizer.setAttribute("aria-label", `Resize ${header.textContent.trim()} column`);
+    header.appendChild(resizer);
+
+    resizer.addEventListener("pointerdown", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const startX = event.clientX;
+      const startWidth = Number(widths[key] || header.getBoundingClientRect().width);
+      resizer.setPointerCapture(event.pointerId);
+      resizer.classList.add("dragging");
+      table.classList.add("resizing");
+
+      const move = moveEvent => {
+        widths[key] = Math.max(70, Math.round(startWidth + moveEvent.clientX - startX));
+        applyWidths();
+      };
+      const finish = () => {
+        resizer.classList.remove("dragging");
+        table.classList.remove("resizing");
+        writeJsonStorage(PST_EXPENSE_COLUMN_WIDTHS_KEY, widths);
+        resizer.removeEventListener("pointermove", move);
+        resizer.removeEventListener("pointerup", finish);
+        resizer.removeEventListener("pointercancel", finish);
+      };
+
+      resizer.addEventListener("pointermove", move);
+      resizer.addEventListener("pointerup", finish);
+      resizer.addEventListener("pointercancel", finish);
+    });
+  });
+
+  applyWidths();
+}
+function renderExpenseTable(rows){
+  const body = $("expenseBody");
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="7" class="muted">No expenses recorded in the selected report range.</td></tr>`;
+    return;
+  }
+  const sorted = rows.slice().sort((a,b)=>new Date(b.date || b.created_at || 0)-new Date(a.date || a.created_at || 0));
+  body.innerHTML = sorted.map(row => `<tr>
+    <td>${safe(row.date || shortDateTime(row.created_at))}</td>
+    <td>${safe(row.company_name || "—")}</td>
+    <td>${safe(row.category || "Expense")}</td>
+    <td>${safe(row.description || "—")}</td>
+    <td>${safe(row.method || "—")}</td>
+    <td><strong>${money(row.amount || 0)}</strong></td>
+    <td><button class="btn secondary edit-expense-btn" data-expense-id="${safe(row.id)}" type="button">Edit</button> <button class="btn danger delete-expense-btn" data-expense-id="${safe(row.id)}" type="button">Delete</button></td>
+  </tr>`).join("");
+  document.querySelectorAll(".edit-expense-btn").forEach(btn => btn.addEventListener("click", () => editExpense(btn.dataset.expenseId)));
+  document.querySelectorAll(".delete-expense-btn").forEach(btn => btn.addEventListener("click", () => deleteExpense(btn.dataset.expenseId)));
+}
+function editExpense(id){
+  const row = (allExpenseRows || []).find(item => String(item.id) === String(id));
+  if (!row) return;
+  editingExpenseId = id;
+  if ($("expenseDate")) $("expenseDate").value = row.date || (row.created_at ? String(row.created_at).slice(0,10) : new Date().toISOString().slice(0,10));
+  if ($("expenseCompanyName")) $("expenseCompanyName").value = row.company_name || "";
+  if ($("expenseCategory")) $("expenseCategory").value = row.category || "Expense";
+  if ($("expenseDescription")) $("expenseDescription").value = row.description || "";
+  if ($("expenseAmount")) $("expenseAmount").value = Number(row.amount || 0);
+  if ($("expenseMethod")) $("expenseMethod").value = row.method || "";
+  if ($("addExpenseBtn")) $("addExpenseBtn").textContent = "Save Expense";
+}
+async function addExpense(){
+  const amount = Number($("expenseAmount")?.value || 0);
+  if (!amount || amount <= 0) { alert("Enter an expense amount greater than zero."); return; }
+  const values = {
+    date: $("expenseDate")?.value || new Date().toISOString().slice(0,10),
+    company_name: $("expenseCompanyName")?.value.trim() || "",
+    category: $("expenseCategory")?.value || "Expense",
+    description: $("expenseDescription")?.value.trim() || "",
+    amount,
+    method: $("expenseMethod")?.value.trim() || "",
+    updated_at: new Date().toISOString()
+  };
+
+  if (editingExpenseId) {
+    if (reportsExpensesUsesSupabase) {
+      const { data, error } = await supabaseClient.from("operating_expenses").update(values).eq("id", editingExpenseId).select("*").maybeSingle();
+      if (error) {
+        alert("Expense update failed: " + (error.message || error));
+        return;
+      }
+      allExpenseRows = (allExpenseRows || []).map(item => String(item.id) === String(editingExpenseId) ? (data || { ...item, ...values }) : item);
+    } else {
+      const rows = expenseRowsLocalRaw().map(item => String(item.id) === String(editingExpenseId) ? { ...item, ...values } : item);
+      writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+      allExpenseRows = rows;
+    }
+  } else {
+    const row = {
+      id: crypto?.randomUUID ? crypto.randomUUID() : `expense_${Date.now()}`,
+      ...values,
+      created_at: new Date().toISOString(),
+      created_by: currentUser?.id || null,
+      created_by_email: currentUser?.email || null
+    };
+
+    if (reportsExpensesUsesSupabase) {
+      const { data, error } = await supabaseClient.from("operating_expenses").insert(row).select("*").maybeSingle();
+      if (error) {
+        console.warn("Supabase expense insert failed; saving locally:", error.message || error);
+        const rows = expenseRowsLocalRaw();
+        rows.unshift(row);
+        writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+        allExpenseRows = rows;
+        reportsExpensesUsesSupabase = false;
+      } else {
+        allExpenseRows = [data || row, ...(allExpenseRows || [])];
+      }
+    } else {
+      const rows = expenseRowsLocalRaw();
+      rows.unshift(row);
+      writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+      allExpenseRows = rows;
+    }
+  }
+
+  editingExpenseId = null;
+  if ($("expenseCompanyName")) $("expenseCompanyName").value = "";
+  if ($("expenseAmount")) $("expenseAmount").value = "";
+  if ($("expenseDescription")) $("expenseDescription").value = "";
+  if ($("expenseMethod")) $("expenseMethod").value = "";
+  if ($("addExpenseBtn")) $("addExpenseBtn").textContent = "Add Expense";
+  refreshOrderReport();
+}
+async function deleteExpense(id){
+  if (!confirm("Delete this expense entry?")) return;
+  if (reportsExpensesUsesSupabase) {
+    const { error } = await supabaseClient.from("operating_expenses").delete().eq("id", id);
+    if (error) {
+      alert("Delete failed: " + (error.message || error));
+      return;
+    }
+    allExpenseRows = (allExpenseRows || []).filter(row => String(row.id) !== String(id));
+  } else {
+    const rows = expenseRowsLocalRaw().filter(row => String(row.id) !== String(id));
+    writeJsonStorage(PST_EXPENSE_STORAGE_KEY, rows);
+    allExpenseRows = rows;
+  }
+  refreshOrderReport();
+}
+
+async function init(){
+  try{
+    $("refreshBtn")?.addEventListener("click", loadReports);
+    $("orderReportRange")?.addEventListener("change", () => {
+      setPresetDateInputs($("orderReportRange")?.value || "last7");
+      saveGlobalReportRange();
+      refreshOrderReport();
+    });
+    $("orderReportStartDate")?.addEventListener("change", switchToCustomRange);
+    $("orderReportEndDate")?.addEventListener("change", switchToCustomRange);
+    $("exportOrderCsvBtn")?.addEventListener("click", exportOrderCsv);
+    $("exportSalesCsvBtn")?.addEventListener("click", exportSalesCsv);
+    $("financialsJumpBtn")?.addEventListener("click", (event) => {
+      event.preventDefault();
+      scrollReportsToTarget("financials");
+    });
+    if ($("expenseDate") && !$("expenseDate").value) $("expenseDate").value = new Date().toISOString().slice(0,10);
+    $("addExpenseBtn")?.addEventListener("click", addExpense);
+    setupExpenseColumnResizing();
+    restoreGlobalReportRange();
+    const isAdmin = await checkAdminAccess();
+    if (isAdmin) await loadReports();
+  }catch(error){
+    console.error(error);
+    setStatus(error.message || "Something went wrong loading Reports.", "bad");
+  }
+}
+init();
+</script>
+
+<script>
+/* PST payment methods manager - admin settings */
+const PST_PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
+const PST_PAYMENT_LEGACY_STORAGE_KEY = "pst_payment_options_v1";
+const PST_DEFAULT_PAYMENT_METHODS_ADMIN = [
+  { id:"venmo", label:"Venmo", accountLabel:"Send payment to", enabled:false, discountPercent:0, account:"", qrUrl:"", instructions:"Please include your order number in the Venmo note. Your order will remain pending until payment is verified." },
+  { id:"zelle", label:"Zelle", accountLabel:"Send payment to", enabled:false, discountPercent:5, account:"", qrUrl:"", instructions:"Please send payment by Zelle and include your order number if possible. Your order will remain pending until payment is verified." },
+  { id:"bitcoin", label:"Bitcoin", accountLabel:"Wallet address", enabled:false, discountPercent:10, account:"", qrUrl:"", instructions:"Send the exact order total. Your order will remain pending until the transaction is confirmed." },
+  { id:"credit_card", label:"Credit Card", accountLabel:"Payment instructions", enabled:false, discountPercent:0, account:"", qrUrl:"", instructions:"Credit card payment instructions will be provided after order review. Your order will remain pending until payment is verified." },
+  { id:"apple_pay", label:"Apple Pay", accountLabel:"Send payment to", enabled:false, discountPercent:5, account:"", qrUrl:"", instructions:"Send payment using Apple Cash / Apple Pay and include your order number. Your order will remain pending until payment is verified." },
+  { id:"google_pay", label:"Google Pay", accountLabel:"Send payment to", enabled:false, discountPercent:0, account:"", qrUrl:"", instructions:"Send payment using Google Pay and include your order number. Your order will remain pending until payment is verified." }
+];
+let pstAdminPaymentMethods = PST_DEFAULT_PAYMENT_METHODS_ADMIN.map(m => ({...m}));
+function paymentOptionsStatus(message, type){
+  const el = document.getElementById("paymentOptionsStatus");
+  if (!el) return;
+  el.textContent = message;
+  el.className = "payment-options-status" + (type ? " " + type : "");
+}
+function escPay(value){ return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch])); }
+function normalizePSTDiscountPercent(value, fallback=0){
+  const number = Number(value);
+  const resolved = Number.isFinite(number) ? number : Number(fallback || 0);
+  return Math.min(100, Math.max(0, resolved));
+}
+function normalizePSTPaymentMethodsAdmin(row){
+  let methods = null;
+  if (Array.isArray(row)) methods = row;
+  else if (row && Array.isArray(row.payment_methods)) methods = row.payment_methods;
+  else if (row && row.payment_methods && typeof row.payment_methods === "string") { try { methods = JSON.parse(row.payment_methods); } catch(_){} }
+  const defaults = PST_DEFAULT_PAYMENT_METHODS_ADMIN.map(m => ({...m}));
+  const orderedIds = defaults.map(m => m.id);
+  const byId = Object.fromEntries(defaults.map(m => [m.id, m]));
+  (methods || []).forEach(m => {
+    const id = String(m.id || m.key || "").trim();
+    if (!id) return;
+    const existing = byId[id] || {
+      id,
+      label:String(m.label || id).trim(),
+      accountLabel:"Send payment to",
+      enabled:false,
+      discountPercent:0,
+      account:"",
+      qrUrl:"",
+      instructions:"Order will remain pending until payment is confirmed."
+    };
+    if (!byId[id]) orderedIds.push(id);
+    byId[id] = {
+      ...existing,
+      ...m,
+      enabled: m.enabled === true || String(m.enabled || "").toLowerCase() === "true",
+      discountPercent: normalizePSTDiscountPercent(m.discountPercent ?? m.discount_percent, existing.discountPercent),
+      account:String(m.account || m.handle || m.wallet || m.value || "").trim(),
+      qrUrl:String(m.qrUrl || m.qr_url || m.qr || "").trim(),
+      instructions:String(m.instructions || m.note || m.notes || existing.instructions || "").trim()
+    };
+  });
+  if (row && (row.venmo_enabled || row.venmo_handle || row.venmo_note)) {
+    byId.venmo.enabled = row.venmo_enabled === true || String(row.venmo_enabled || "").toLowerCase() === "true";
+    byId.venmo.account = String(row.venmo_handle || byId.venmo.account || "").trim();
+    byId.venmo.instructions = String(row.venmo_note || byId.venmo.instructions || "").trim();
+  }
+  return orderedIds.map(id => byId[id]);
+}
+function renderPSTPaymentMethodsAdmin(){
+  const wrap = document.getElementById("paymentMethodsAdminList");
+  if (!wrap) return;
+  wrap.innerHTML = pstAdminPaymentMethods.map(m => `
+    <div class="payment-method-card" data-method-id="${escPay(m.id)}">
+      <h3>${escPay(m.label)}</h3>
+      <div class="payment-method-fields">
+        <div><label>Enabled</label><select data-pay-field="enabled"><option value="false" ${m.enabled ? "" : "selected"}>Off / Hidden</option><option value="true" ${m.enabled ? "selected" : ""}>On / Show in Cart</option></select></div>
+        <div><label>Discount (%)</label><input data-pay-field="discountPercent" type="number" min="0" max="100" step="0.01" value="${escPay(normalizePSTDiscountPercent(m.discountPercent))}"></div>
+        <div><label>Display Name</label><input data-pay-field="label" value="${escPay(m.label)}"></div>
+        <div><label>Account Label</label><input data-pay-field="accountLabel" value="${escPay(m.accountLabel || "Send payment to")}" placeholder="Send payment to / Wallet address"></div>
+        <div><label>Account / Handle / Wallet</label><input data-pay-field="account" value="${escPay(m.account || "")}" placeholder="@handle, phone/email, wallet address"></div>
+        <div class="full"><label>QR Code Image URL</label><input data-pay-field="qrUrl" value="${escPay(m.qrUrl || "")}" placeholder="Paste image URL or upload QR below"></div>
+        <div class="full"><label>QR Image Upload</label><input type="file" accept="image/*" data-pay-field="qrUpload"><div class="muted" style="font-size:12px;margin-top:4px">Upload a PNG/JPG QR image. It will be saved with this payment setting.</div>${m.qrUrl ? `<img class="qr-preview" src="${escPay(m.qrUrl)}" alt="QR preview">` : ""}</div>
+        <div class="full"><label>Customer Instructions</label><textarea data-pay-field="instructions" placeholder="Instructions shown in cart and sent in order email payload">${escPay(m.instructions || "")}</textarea></div>
+      </div>
+    </div>`).join("");
+  wrap.querySelectorAll('input[type="file"][data-pay-field="qrUpload"]').forEach(input => {
+    input.addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const card = event.target.closest(".payment-method-card");
+      const id = card?.dataset?.methodId;
+      if (!id) return;
+      if (file.size > 450000) { alert("That QR image is large. Use a smaller PNG/JPG under about 450 KB."); event.target.value = ""; return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const method = pstAdminPaymentMethods.find(m => m.id === id);
+        if (method) method.qrUrl = String(reader.result || "");
+        renderPSTPaymentMethodsAdmin();
+        paymentOptionsStatus(`${method?.label || "QR"} QR image loaded. Click Save Payment Methods to publish it.`, "good");
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+}
+
+
+// PST_REPORTS_PATCH_V32_ALL_CARDS_COLLAPSIBLE
+// PST_REPORTS_PATCH_V30_JUMP_OFFSET_FIX
+function reportsStickyOffset(){
+  const header = document.querySelector("header");
+  const jumpbar = document.getElementById("reportsTop");
+  const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+  const jumpbarHeight = jumpbar ? Math.ceil(jumpbar.getBoundingClientRect().height) : 0;
+  return headerHeight + jumpbarHeight + 18;
+}
+function scrollReportsToTarget(id){
+  const target = document.getElementById(id);
+  if (!target) return;
+  openReportsCardById(id);
+  window.requestAnimationFrame(() => {
+    const top = target.getBoundingClientRect().top + window.pageYOffset - reportsStickyOffset();
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  });
+}
+
+// PST_REPORTS_PATCH_V29_COLLAPSIBLE_DASHBOARD
+// PST_REPORTS_PATCH_V34_QUICK_LINK_TOGGLE_ACTIVE
+function reportsJumpLinkForCard(id){
+  if (!id) return null;
+  return document.querySelector(`.reports-jumpbar a[data-jump-target="${id}"]`);
+}
+function setReportsJumpLinkActive(id, active){
+  const link = reportsJumpLinkForCard(id);
+  if (!link) return;
+  link.classList.toggle("active", !!active);
+  link.setAttribute("aria-pressed", active ? "true" : "false");
+}
+function syncReportsJumpLinkState(id){
+  const card = document.getElementById(id);
+  if (!card || !card.classList.contains("collapsible-card")) return;
+  setReportsJumpLinkActive(id, !card.classList.contains("collapsed"));
+}
+function setReportsCardCollapsed(card, collapsed){
+  if (!card) return;
+  card.classList.toggle("collapsed", !!collapsed);
+  const button = document.querySelector(`[data-collapse-target="${card.id}"]`);
+  if (button) {
+    button.textContent = collapsed ? "Open" : "Collapse";
+    button.setAttribute("aria-expanded", collapsed ? "false" : "true");
+  }
+  syncReportsJumpLinkState(card.id);
+}
+function openReportsCardById(id){
+  const card = document.getElementById(id);
+  if (card && card.classList.contains("collapsible-card")) setReportsCardCollapsed(card, false);
+}
+function toggleReportsCardFromJump(id){
+  const card = document.getElementById(id);
+  if (!card || !card.classList.contains("collapsible-card")) {
+    scrollReportsToTarget(id);
+    return;
+  }
+  const shouldOpen = card.classList.contains("collapsed");
+  setReportsCardCollapsed(card, !shouldOpen);
+  if (shouldOpen) {
+    window.requestAnimationFrame(() => {
+      const top = card.getBoundingClientRect().top + window.pageYOffset - reportsStickyOffset();
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    });
+  }
+}
+function setupReportsDashboardNavigation(){
+  document.querySelectorAll(".section-backtop a").forEach(link => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      scrollReportsToTarget("reportsTop");
+    });
+  });
+  document.querySelectorAll("[data-collapse-target]").forEach(button => {
+    const card = document.getElementById(button.dataset.collapseTarget || "");
+    if (!card) return;
+    setReportsCardCollapsed(card, card.classList.contains("collapsed"));
+    button.addEventListener("click", () => setReportsCardCollapsed(card, !card.classList.contains("collapsed")));
+  });
+  document.querySelectorAll(".reports-jumpbar a[data-jump-target]").forEach(link => {
+    const href = link.getAttribute("href") || "";
+    if (!href.startsWith("#")) return;
+    link.setAttribute("role", "button");
+    syncReportsJumpLinkState(link.dataset.jumpTarget);
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      toggleReportsCardFromJump(link.dataset.jumpTarget);
+    });
+  });
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", setupReportsDashboardNavigation);
+} else {
+  setupReportsDashboardNavigation();
+}
+
+function readPSTPaymentOptionsForm(){
+  const cards = Array.from(document.querySelectorAll(".payment-method-card[data-method-id]"));
+  return cards.map(card => {
+    const id = card.dataset.methodId;
+    const existing = pstAdminPaymentMethods.find(m => m.id === id) || {};
+    const get = field => card.querySelector(`[data-pay-field="${field}"]`);
+    return {
+      id,
+      label: String(get("label")?.value || existing.label || id).trim(),
+      accountLabel: String(get("accountLabel")?.value || existing.accountLabel || "Send payment to").trim(),
+      enabled: get("enabled")?.value === "true",
+      discountPercent: normalizePSTDiscountPercent(get("discountPercent")?.value, existing.discountPercent),
+      account: String(get("account")?.value || "").trim(),
+      qrUrl: String(get("qrUrl")?.value || existing.qrUrl || "").trim(),
+      instructions: String(get("instructions")?.value || existing.instructions || "Order will remain pending until payment is confirmed.").trim()
+    };
+  });
+}
+function addPSTPaymentMethod(){
+  const current = readPSTPaymentOptionsForm();
+  const existingIds = new Set(current.map(method => method.id));
+  let sequence = current.filter(method => String(method.id || "").startsWith("custom_")).length + 1;
+  let id = `custom_${sequence}`;
+  while (existingIds.has(id)) {
+    sequence += 1;
+    id = `custom_${sequence}`;
+  }
+  pstAdminPaymentMethods = [
+    ...current,
+    {
+      id,
+      label:"New Payment Method",
+      accountLabel:"Send payment to",
+      enabled:false,
+      discountPercent:0,
+      account:"",
+      qrUrl:"",
+      instructions:"Order will remain pending until payment is confirmed."
+    }
+  ];
+  renderPSTPaymentMethodsAdmin();
+  const card = document.querySelector(`.payment-method-card[data-method-id="${id}"]`);
+  card?.scrollIntoView({ behavior:"smooth", block:"center" });
+  const nameField = card?.querySelector('[data-pay-field="label"]');
+  if (nameField) {
+    nameField.focus();
+    nameField.select();
+  }
+  paymentOptionsStatus("New payment method added. Complete its settings, turn it on when ready, then click Save Payment Methods.", "good");
+}
+function fillPSTPaymentOptionsForm(settings){
+  pstAdminPaymentMethods = normalizePSTPaymentMethodsAdmin(settings);
+  renderPSTPaymentMethodsAdmin();
+}
+async function loadPSTPaymentOptionsAdmin(){
+  let settings = PST_DEFAULT_PAYMENT_METHODS_ADMIN.map(m => ({...m}));
+  try {
+    const local = localStorage.getItem(PST_PAYMENT_OPTIONS_STORAGE_KEY) || localStorage.getItem(PST_PAYMENT_LEGACY_STORAGE_KEY);
+    if (local) settings = normalizePSTPaymentMethodsAdmin(JSON.parse(local));
+  } catch (_) {}
+  try {
+    const { data, error } = await supabaseClient
+      .from("site_payment_options")
+      .select("payment_methods, venmo_enabled, venmo_handle, venmo_note, updated_at")
+      .eq("id", 1)
+      .maybeSingle();
+    if (!error && data) {
+      settings = normalizePSTPaymentMethodsAdmin(data);
+      paymentOptionsStatus("Loaded payment methods from Supabase.", "good");
+    } else if (error) {
+      paymentOptionsStatus("Optional site_payment_options table/columns not ready. Saving will use local browser fallback until SQL is run.", "bad");
+    }
+  } catch (err) {
+    paymentOptionsStatus("Optional site_payment_options table unavailable. Saving will use local browser fallback until SQL is run.", "bad");
+  }
+  fillPSTPaymentOptionsForm(settings);
+}
+async function savePSTPaymentOptions(){
+  const methods = readPSTPaymentOptionsForm();
+  pstAdminPaymentMethods = normalizePSTPaymentMethodsAdmin(methods);
+  const legacyVenmo = pstAdminPaymentMethods.find(m => m.id === "venmo") || {};
+  const payload = { id:1, payment_methods:pstAdminPaymentMethods, venmo_enabled:!!legacyVenmo.enabled, venmo_handle:legacyVenmo.account || "", venmo_note:legacyVenmo.instructions || "", updated_at:new Date().toISOString() };
+  try { localStorage.setItem(PST_PAYMENT_OPTIONS_STORAGE_KEY, JSON.stringify({ payment_methods:pstAdminPaymentMethods })); } catch (_) {}
+  try {
+    const { error } = await supabaseClient
+      .from("site_payment_options")
+      .upsert(payload, { onConflict:"id" });
+    if (error) throw error;
+    paymentOptionsStatus("Payment methods saved to Supabase. Public cart will use these settings.", "good");
+  } catch (err) {
+    paymentOptionsStatus("Saved locally only. Run the updated payment options SQL so every customer/device can see these methods.", "bad");
+  }
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("addPaymentMethodBtn")?.addEventListener("click", addPSTPaymentMethod);
+    loadPSTPaymentOptionsAdmin();
+  });
+} else {
+  document.getElementById("addPaymentMethodBtn")?.addEventListener("click", addPSTPaymentMethod);
+  loadPSTPaymentOptionsAdmin();
+}
+
+function reportRangePrintLabel(){
+  const select=document.getElementById("orderReportRange");
+  const preset=select?.selectedOptions?.[0]?.textContent?.trim()||"Selected range";
+  const start=document.getElementById("orderReportStart")?.value||"";
+  const end=document.getElementById("orderReportEnd")?.value||"";
+  return start||end ? `Global Report Range: ${preset} (${start||"Beginning"} through ${end||"Today"})` : `Global Report Range: ${preset}`;
+}
+function printReportCard(cardId){
+  const card=document.getElementById(cardId);
+  if(!card){alert("That report could not be found.");return}
+  document.querySelectorAll(".pst-print-target").forEach(element=>element.classList.remove("pst-print-target"));
+  document.querySelectorAll(".pst-print-range").forEach(element=>element.remove());
+
+  const range=document.createElement("div");
+  range.className="pst-print-range";
+  range.textContent=`${reportRangePrintLabel()} • Printed ${new Date().toLocaleString()}`;
+  const cardBody=card.querySelector(".card-body");
+  if(cardBody)cardBody.insertBefore(range,cardBody.firstChild);
+
+  card.classList.add("pst-print-target");
+  document.body.classList.add("pst-print-one-report");
+
+  let cleaned=false;
+  const cleanup=()=>{
+    if(cleaned)return;
+    cleaned=true;
+    card.classList.remove("pst-print-target");
+    document.body.classList.remove("pst-print-one-report");
+    range.remove();
+  };
+  window.addEventListener("afterprint",cleanup,{once:true});
+  setTimeout(()=>window.print(),50);
+  setTimeout(cleanup,30000);
+}
+
 </script>
 
 </body>
