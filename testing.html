@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Testing / Verification | Pep Shop Texas</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#102a43">
+  <link rel="stylesheet" href="css/customer.css?v=27">
+  <link rel="stylesheet" href="css/testing.css?v=1">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js?v=55"></script>
+  <script defer src="customer-footer.js?v=2"></script>
+</head>
+<body data-page="testing">
+  <header class="pst-customer-header">
+    <div class="pst-customer-header-inner">
+      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
+        <img src="pst-logo-master.webp" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
+      </a>
+      <div class="pst-customer-header-right">
+        <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
+          <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
+          <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
+          <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button>
+        </form>
+        <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
+          <a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a>
+          <a href="catalog.html?category=Stack">TOP STACKS <span aria-hidden="true">⌄</span></a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact.html">CONTACT</a>
+          <a href="account.html" data-account-link>LOGIN</a>
+          <a class="cart-link" href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="testing-page">
+    <section class="testing-heading">
+      <p>Quality &amp; verification</p>
+      <h1>Peptide Testing</h1>
+      <span>Pep Shop Texas uses independent analytical laboratories to verify the identity, purity, and content of research peptides.</span>
+    </section>
+
+    <section class="testing-sections" aria-label="Peptide testing laboratories">
+      <article class="testing-section">
+        <h2>Our Testing Standard</h2>
+        <p>Independent testing is an important part of the Pep Shop Texas quality process. Samples are submitted to third-party laboratories for analytical testing before results are presented with the corresponding product.</p>
+        <p>Certificates of Analysis (COAs) are made available directly on the <strong>Product Details</strong> page for the applicable peptide so customers can review the testing documentation associated with that product.</p>
+      </article>
+
+      <article class="testing-section">
+        <h2>Analytical Formulations Inc. (AFI)</h2>
+        <p><span class="testing-lab-name">Analytical Formulations Inc.</span> is one of the independent laboratories Pep Shop Texas uses for peptide testing. AFI lists peptide analytical services including purity analysis and mass-spectrometry-based identity testing.</p>
+        <p class="testing-note">Laboratory testing reflects the submitted sample and should be reviewed together with the lot- or batch-specific COA shown on the product page.</p>
+        <div class="testing-actions"><a href="https://analyticalformulations.com/" target="_blank" rel="noopener noreferrer">Visit AFI Website</a></div>
+      </article>
+
+      <article class="testing-section">
+        <h2>Freedom Diagnostics</h2>
+        <p><span class="testing-lab-name">Freedom Diagnostics Testing</span> is another independent laboratory Pep Shop Texas uses for peptide testing. Freedom Diagnostics provides peptide purity and identity testing using HPLC and mass spectrometry, with Certificates of Analysis issued for submitted samples.</p>
+        <p class="testing-note">As with all analytical reports, the COA applies to the specific sample tested and should be matched to the product and lot information shown on Pep Shop Texas.</p>
+        <div class="testing-actions"><a href="https://freedomdiagnosticstesting.com/" target="_blank" rel="noopener noreferrer">Visit Freedom Diagnostics</a></div>
+      </article>
+
+      <article class="testing-section">
+        <h2>Where to Find the COA</h2>
+        <p>When a COA is available for a peptide, it is loaded directly into that peptide's <strong>Product Details</strong> page. This keeps the testing documentation with the product information where it can be reviewed before purchase.</p>
+        <div class="testing-actions"><a href="catalog.html">Browse Peptides</a></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer"></footer>
+</body>
+</html>
