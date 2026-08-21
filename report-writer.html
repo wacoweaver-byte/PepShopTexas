@@ -47,136 +47,12 @@ main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:f
   body.printing-report .report-table tr{break-inside:avoid!important}
   body.printing-report .po-select-cell{display:none!important}
 }
-</style><style id="pst-admin-header-final">
-  .pst-admin-header {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-    width: 100% !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-    overflow: hidden !important;
-    background: #000 !important;
-    border: 0 !important;
-    border-bottom: 1px solid #262626 !important;
-    box-shadow: none !important;
-  }
-
-  .pst-admin-nav-wrap {
-    width: 100% !important;
-    max-width: 1540px !important;
-    min-height: 40px !important;
-    margin: 0 auto !important;
-    padding: 0 22px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 24px !important;
-    position: relative !important;
-  }
-
-  .pst-admin-logo-link {
-    position: static !important;
-    transform: none !important;
-    flex: 0 0 auto !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    color: #fff !important;
-    text-decoration: none !important;
-  }
-
-  .pst-admin-header-logo {
-    display: block !important;
-    width: auto !important;
-    height: auto !important;
-    max-width: none !important;
-    object-fit: contain !important;
-  }
-
-  .pst-admin-nav {
-    min-width: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 24px !important;
-    flex-wrap: wrap !important;
-  }
-
-  .pst-admin-nav a {
-    position: relative !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    min-height: 40px !important;
-    padding: 0 !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    color: #fff !important;
-    font: 800 14px/1 Arial, Helvetica, sans-serif !important;
-    text-decoration: none !important;
-    white-space: nowrap !important;
-    box-shadow: none !important;
-  }
-
-  .pst-admin-nav a:hover,
-  .pst-admin-nav a:focus-visible {
-    color: #fff !important;
-    text-decoration: none !important;
-  }
-
-  .pst-admin-nav a.active::after {
-    content: "" !important;
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 3px !important;
-    height: 2px !important;
-    background: #fff !important;
-  }
-
-  @media (max-width: 980px) {
-    .pst-admin-nav-wrap {
-      height: 40px !important;
-      min-height: 40px !important;
-      max-height: 40px !important;
-      padding: 0 14px !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      gap: 16px !important;
-    }
-
-    .pst-admin-nav {
-      flex: 1 1 auto !important;
-      flex-wrap: nowrap !important;
-      justify-content: flex-end !important;
-      overflow-x: auto !important;
-      overflow-y: hidden !important;
-      scrollbar-width: none !important;
-    }
-
-    .pst-admin-nav::-webkit-scrollbar {
-      display: none !important;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .pst-admin-nav-wrap {
-      padding: 0 10px !important;
-      gap: 12px !important;
-    }
-
-    .pst-admin-nav {
-      gap: 16px !important;
-    }
-  }
-</style>
+</style><link rel="stylesheet" href="css/admin.css?v=9">
 </head>
 <body><header class="pst-admin-header">
   <div class="pst-admin-nav-wrap">
     <a class="pst-admin-logo-link" href="admin.html" aria-label="Pep Shop Texas Admin Home">
-      <img src="admin header logo.png" alt="PST" class="pst-admin-header-logo">
+      <img src="pst-header-logo.png" alt="PST Pep Shop Texas" class="pst-admin-header-logo">
     </a>
     <nav class="pst-admin-nav" aria-label="Admin navigation">
       <a href="admin.html">Orders</a>
@@ -184,7 +60,7 @@ main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:f
       <a href="products.html">Products</a>
       <a href="discounts.html">Discounts</a>
       <a href="promotions.html">Promotions</a>
-      <a href="reports.html" class="active">Reports</a>
+      <a href="reports.html" class="active" aria-current="page">Reports</a>
       <a href="customers.html">Customers</a>
       <a href="index.html">View Site</a>
     </nav>
@@ -211,7 +87,7 @@ async function requireAdmin(){try{const{data:userData,error}=await client.auth.g
 function setupUi(){$("dataSource").innerHTML=Object.entries(SOURCES).map(([k,c])=>`<option value="${k}">${esc(c.label)}</option>`).join("");$("dataSource").onchange=()=>loadSourceFields();$("datePreset").onchange=applyDatePreset;document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>showStep(b.dataset.step));document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>showStep(b.dataset.next));document.querySelectorAll("[data-prev]").forEach(b=>b.onclick=()=>showStep(b.dataset.prev));$("selectAllFields").onclick=()=>document.querySelectorAll("#fieldList input").forEach(i=>i.checked=true);$("clearFields").onclick=()=>document.querySelectorAll("#fieldList input").forEach(i=>i.checked=false);$("addFilter").onclick=()=>addFilterRow();$("clearFilters").onclick=()=>$("filtersList").innerHTML="";$("addSort").onclick=()=>addSortRow({field:"",direction:"asc"});$("runPreview").onclick=runPreview;$("saveReport").onclick=saveReport;$("createInventoryPO").onclick=createInventoryPurchaseOrder;$("exportExcel").onclick=exportExcel;$("exportCsv").onclick=exportCsv;$("copyCsv").onclick=copyCsv;applyDatePreset();renderFields();renderSortFields();renderFilters();updateSourcePill()}
 function showStep(s){document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.dataset.panel===String(s)));document.querySelectorAll(".step").forEach(p=>p.classList.toggle("active",p.dataset.step===String(s)));if(s==="4")runPreview()}
 async function loadSourceFields(){const c=cfg();if(!c)return;try{$("sourcePill").textContent=`${c.label} • loading fields`;const{data,error}=await client.from(c.table).select("*").limit(1);if(error){console.warn("Dynamic field load failed; using fallback field list.",error);$("statusLine").className="status bad";$("statusLine").textContent=`Could not auto-load ${c.label} fields. Using saved fallback list: ${error.message}`;}else if(data&&data[0]){const dynamic=Object.keys(data[0]);c.fields=[...new Set([...dynamic,...(c.fields||[])])];$("statusLine").className="status good";$("statusLine").textContent=`${c.label}: ${c.fields.length} fields loaded from Supabase.`;}else{$("statusLine").className="status good";$("statusLine").textContent=`${c.label}: no rows found, using saved fallback field list.`;}}catch(e){console.warn("Dynamic field load failed; using fallback field list.",e);$("statusLine").className="status bad";$("statusLine").textContent=`Could not auto-load fields. Using saved fallback list: ${e.message||e}`;}renderFields();renderSortFields();renderFilters();updateSourcePill()}
-function updateSourcePill(){$("sourcePill").textContent=cfg().label}function moveFieldButton(button,direction){const item=button.closest(".check-item"),list=$("fieldList");if(!item||!list)return;if(direction<0&&item.previousElementSibling)list.insertBefore(item,item.previousElementSibling);if(direction>0&&item.nextElementSibling)list.insertBefore(item,item.nextElementSibling,item)}function applyFieldOrder(fields=[]){const list=$("fieldList");if(!list||!fields.length)return;[...fields].reverse().forEach(field=>{const input=list.querySelector(`input[value="${CSS.escape(field)}"]`);const item=input?.closest(".check-item");if(item)list.prepend(item)})}function renderFields(){const fields=cfg().fields;$("fieldList").innerHTML=fields.map((f,i)=>`<label class="check-item"><input type="checkbox" value="${esc(f)}" ${i<12?"checked":""}><span>${esc(labelize(f))}</span><button class="btn secondary field-order-btn" type="button" title="Move up" onclick="moveFieldButton(this,-1)">↑</button><button class="btn secondary field-order-btn" type="button" title="Move down" onclick="moveFieldButton(this,1)">↓</button></label>`).join("")}function sortFieldOptions(selected=""){return `<option value="">Default / none</option>`+cfg().fields.map(f=>`<option value="${esc(f)}" ${selected===f?"selected":""}>${esc(labelize(f))}</option>`).join("")}function renumberSortRows(){document.querySelectorAll("#sortRows .sort-row").forEach((row,index)=>{row.dataset.sortPriority=String(index+1);const label=row.querySelector(".sort-priority");if(label)label.textContent=index===0?"Primary sort":`Then sort by (${index+1})`})}function addSortRow(sort={}){const list=$("sortRows"),index=list.children.length,row=document.createElement("div"),primary=index===0;row.className="sort-row";row.dataset.sortPriority=String(index+1);row.innerHTML=`<div class="field"><div class="sort-priority">${primary?"Primary sort":`Then sort by (${index+1})`}</div><label>${primary?"Sort By":"Additional Sort"}</label><select class="sort-field" ${primary?'id="sortField"':""}>${sortFieldOptions(sort.field||"")}</select></div><div class="field"><label>Sort Direction</label><select class="sort-direction" ${primary?'id="sortDirection"':""}><option value="desc">Descending</option><option value="asc">Ascending</option></select></div>${primary?'<span aria-hidden="true"></span>':'<button class="btn danger remove-sort" type="button">Remove</button>'}`;row.querySelector(".sort-direction").value=sort.direction||"desc";row.querySelector(".remove-sort")?.addEventListener("click",()=>{row.remove();renumberSortRows()});list.appendChild(row);renumberSortRows()}function renderSortRows(sorts=[]){const list=$("sortRows");list.innerHTML="";(sorts.length?sorts:[{field:"",direction:"desc"}]).forEach(addSortRow)}function renderSortFields(){const current=sortLevels();renderSortRows(current.length?current:[{field:"",direction:"desc"}])}function renderFilters(){$("filtersList").innerHTML="";addFilterRow()}
+function updateSourcePill(){$("sourcePill").textContent=cfg().label}function moveFieldButton(button,direction){const item=button.closest(".check-item"),list=$("fieldList");if(!item||!list)return;if(direction<0&&item.previousElementSibling)list.insertBefore(item,item.previousElementSibling);if(direction>0&&item.nextElementSibling)list.insertBefore(item.nextElementSibling,item)}function applyFieldOrder(fields=[]){const list=$("fieldList");if(!list||!fields.length)return;[...fields].reverse().forEach(field=>{const input=list.querySelector(`input[value="${CSS.escape(field)}"]`);const item=input?.closest(".check-item");if(item)list.prepend(item)})}function renderFields(){const fields=cfg().fields;$("fieldList").innerHTML=fields.map((f,i)=>`<label class="check-item"><input type="checkbox" value="${esc(f)}" ${i<12?"checked":""}><span>${esc(labelize(f))}</span><button class="btn secondary field-order-btn" type="button" title="Move up" onclick="moveFieldButton(this,-1)">↑</button><button class="btn secondary field-order-btn" type="button" title="Move down" onclick="moveFieldButton(this,1)">↓</button></label>`).join("")}function sortFieldOptions(selected=""){return `<option value="">Default / none</option>`+cfg().fields.map(f=>`<option value="${esc(f)}" ${selected===f?"selected":""}>${esc(labelize(f))}</option>`).join("")}function renumberSortRows(){document.querySelectorAll("#sortRows .sort-row").forEach((row,index)=>{row.dataset.sortPriority=String(index+1);const label=row.querySelector(".sort-priority");if(label)label.textContent=index===0?"Primary sort":`Then sort by (${index+1})`})}function addSortRow(sort={}){const list=$("sortRows"),index=list.children.length,row=document.createElement("div"),primary=index===0;row.className="sort-row";row.dataset.sortPriority=String(index+1);row.innerHTML=`<div class="field"><div class="sort-priority">${primary?"Primary sort":`Then sort by (${index+1})`}</div><label>${primary?"Sort By":"Additional Sort"}</label><select class="sort-field" ${primary?'id="sortField"':""}>${sortFieldOptions(sort.field||"")}</select></div><div class="field"><label>Sort Direction</label><select class="sort-direction" ${primary?'id="sortDirection"':""}><option value="desc">Descending</option><option value="asc">Ascending</option></select></div>${primary?'<span aria-hidden="true"></span>':'<button class="btn danger remove-sort" type="button">Remove</button>'}`;row.querySelector(".sort-direction").value=sort.direction||"desc";row.querySelector(".remove-sort")?.addEventListener("click",()=>{row.remove();renumberSortRows()});list.appendChild(row);renumberSortRows()}function renderSortRows(sorts=[]){const list=$("sortRows");list.innerHTML="";(sorts.length?sorts:[{field:"",direction:"desc"}]).forEach(addSortRow)}function renderSortFields(){const current=sortLevels();renderSortRows(current.length?current:[{field:"",direction:"desc"}])}function renderFilters(){$("filtersList").innerHTML="";addFilterRow()}
 /* Keep field-order controls intact after the multi-sort enhancement. */
 function moveFieldButton(button,direction){const item=button.closest(".check-item"),list=$("fieldList");if(!item||!list)return;if(direction<0&&item.previousElementSibling)list.insertBefore(item,item.previousElementSibling);if(direction>0&&item.nextElementSibling)list.insertBefore(item.nextElementSibling,item)}
 function addFilterRow(filter={}){const row=document.createElement("div");row.className="filter-row";row.innerHTML=`<div class="field"><label>Field</label><select class="filter-field">${cfg().fields.map(f=>`<option value="${esc(f)}" ${filter.field===f?"selected":""}>${esc(labelize(f))}</option>`).join("")}</select></div><div class="field"><label>Operator</label><select class="filter-op"><option value="contains">Contains</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="gte">Greater/equal</option><option value="lte">Less/equal</option></select></div><div class="field"><label>Value</label><input class="filter-value" value="${esc(filter.value||"")}"></div><button class="btn danger" type="button">Remove</button>`;row.querySelector(".filter-op").value=filter.op||"contains";row.querySelector("button").onclick=()=>row.remove();$("filtersList").appendChild(row)}
@@ -358,79 +234,62 @@ async function exportExcel(){
   titleCell.alignment={vertical:"middle",horizontal:"left"};
   sheet.getRow(1).height=28;
 
-  const sourceLabel=cfg()?.label||$("dataSource").value||"Report";
-  const start=$("startDate").value,end=$("endDate").value;
-  const rangeLabel=start||end?`Date range: ${start||"Beginning"} through ${end||"Today"}`:"Date range: All dates";
+  const config=cfg(),metaParts=[config?.label||"Report",`Generated ${new Date().toLocaleString()}`,`${rows.length} row${rows.length===1?"":"s"}`];
+  if($("startDate").value||$("endDate").value)metaParts.push(`${$("startDate").value||"Start"} to ${$("endDate").value||"End"}`);
+  if(filters().length)metaParts.push(`${filters().length} filter${filters().length===1?"":"s"}`);
+  if(sortLevels().length)metaParts.push(`Sort: ${sortLevels().map(sort=>`${labelize(sort.field)} ${sort.direction.toUpperCase()}`).join(" → ")}`);
   sheet.mergeCells(`A2:${lastColumn}2`);
-  sheet.getCell("A2").value=`${sourceLabel} • ${rangeLabel}`;
-  sheet.getCell("A2").font={name:"Arial",size:10,bold:true,color:{argb:"FF3D4A5D"}};
-  sheet.getCell("A2").alignment={vertical:"middle",wrapText:true};
+  const metaCell=sheet.getCell("A2");
+  metaCell.value=metaParts.join("  •  ");
+  metaCell.font={name:"Arial",size:9,color:{argb:"FF596579"}};
+  metaCell.alignment={vertical:"middle",horizontal:"left",wrapText:true};
+  sheet.getRow(2).height=22;
 
-  sheet.mergeCells(`A3:${lastColumn}3`);
-  sheet.getCell("A3").value=`${rows.length} record${rows.length===1?"":"s"} • Generated ${new Date().toLocaleString()}`;
-  sheet.getCell("A3").font={name:"Arial",size:9,italic:true,color:{argb:"FF596579"}};
-
-  const headerRow=sheet.addRow(headers.map(labelize));
-  headerRow.height=30;
-  headerRow.eachCell(cell=>{
-    cell.font={name:"Arial",size:10,bold:true,color:{argb:"FFFFFFFF"}};
+  const headerRow=sheet.getRow(4);
+  headers.forEach((header,index)=>{
+    const cell=headerRow.getCell(index+1);
+    cell.value=labelize(header);
+    cell.font={name:"Arial",size:9,bold:true,color:{argb:"FFFFFFFF"}};
     cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF003F9E"}};
-    cell.alignment={vertical:"middle",horizontal:"center",wrapText:true};
-    cell.border={top:{style:"thin",color:{argb:"FFB8C2CC"}},left:{style:"thin",color:{argb:"FFB8C2CC"}},bottom:{style:"thin",color:{argb:"FFB8C2CC"}},right:{style:"thin",color:{argb:"FFB8C2CC"}}};
+    cell.alignment={vertical:"middle",horizontal:"left",wrapText:true};
+    cell.border={top:{style:"thin",color:{argb:"FFD9E2EC"}},left:{style:"thin",color:{argb:"FFD9E2EC"}},bottom:{style:"thin",color:{argb:"FFD9E2EC"}},right:{style:"thin",color:{argb:"FFD9E2EC"}}};
   });
+  headerRow.height=24;
 
-  rows.forEach((values,rowIndex)=>{
-    const row=sheet.addRow(values.map(excelDisplayValue));
-    row.alignment={vertical:"top",wrapText:true};
-    row.eachCell({includeEmpty:true},cell=>{
-      cell.font={name:"Arial",size:10,color:{argb:"FF101820"}};
-      cell.alignment={vertical:"top",horizontal:typeof cell.value==="number"?"right":"left",wrapText:true};
-      cell.border={top:{style:"hair",color:{argb:"FFD9E2EC"}},left:{style:"hair",color:{argb:"FFD9E2EC"}},bottom:{style:"hair",color:{argb:"FFD9E2EC"}},right:{style:"hair",color:{argb:"FFD9E2EC"}}};
-      if(rowIndex%2===1)cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF4F7FA"}};
+  rows.forEach((row,rowIndex)=>{
+    const excelRow=sheet.getRow(rowIndex+5);
+    row.forEach((value,columnIndex)=>{
+      const cell=excelRow.getCell(columnIndex+1),displayValue=excelDisplayValue(value);
+      cell.value=displayValue;
+      cell.font={name:"Arial",size:8.5,color:{argb:"FF101820"}};
+      cell.alignment={vertical:"top",horizontal:typeof displayValue==="number"?"right":"left",wrapText:true};
+      cell.border={top:{style:"hair",color:{argb:"FFE7ECF2"}},left:{style:"hair",color:{argb:"FFE7ECF2"}},bottom:{style:"hair",color:{argb:"FFE7ECF2"}},right:{style:"hair",color:{argb:"FFE7ECF2"}}};
+      if(rowIndex%2===1)cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF8FAFC"}};
     });
+    excelRow.height=18;
   });
 
   headers.forEach((header,index)=>{
-    const values=[labelize(header),...rows.map(row=>row[index])];
-    const longest=values.reduce((max,value)=>{
-      const text=typeof value==="object"?JSON.stringify(value??""):String(value??"");
-      return Math.max(max,...text.split(/\r?\n/).map(line=>line.length));
-    },0);
-    sheet.getColumn(index+1).width=Math.min(45,Math.max(12,longest+2));
+    const samples=[labelize(header),...rows.slice(0,250).map(row=>excelDisplayValue(row[index]))].map(value=>String(value??""));
+    const longest=Math.max(...samples.map(value=>Math.min(60,value.length)));
+    let width=Math.max(10,Math.min(32,longest+2));
+    if(/id$|_id$|email|address|description|note|reason|tracking|name|status/i.test(header))width=Math.max(width,16);
+    sheet.getColumn(index+1).width=width;
   });
 
-  sheet.autoFilter={from:{row:4,column:1},to:{row:4,column:headers.length}};
-  sheet.pageSetup.printTitlesRow="1:4";
-  sheet.pageSetup.printArea=`A1:${lastColumn}${Math.max(4,sheet.rowCount)}`;
-  sheet.headerFooter.oddFooter="Page &P of &N";
-  sheet.headerFooter.oddHeader="&L Pep Shop Texas&C "+rawTitle+"&R&D";
+  sheet.autoFilter={from:{row:4,column:1},to:{row:4,column:Math.max(1,headers.length)}};
+  sheet.headerFooter.oddHeader=`&C&\"Arial,Bold\"${rawTitle}`;
+  sheet.headerFooter.oddFooter="&LPep Shop Texas&CPage &P of &N&R&D";
+  sheet.printTitlesRow="1:4";
 
   const buffer=await workbook.xlsx.writeBuffer();
   downloadBlob(new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),safeReportFileName("xlsx"));
 }
-function exportCsv(){
-  if(!currentExportRows.length){alert("Run Preview first.");return}
-  downloadBlob(new Blob([csv()],{type:"text/csv;charset=utf-8"}),safeReportFileName("csv"));
-}
-async function copyCsv(){
-  if(!currentExportRows.length){alert("Run Preview first.");return}
-  await navigator.clipboard.writeText(csv());
-  alert(`CSV copied with ${currentExportRows.length} rows.`);
-}
-function printReport(){
-  if(!currentRows.length){alert("Run Preview before printing or saving this report as a PDF.");showStep(4);return}
-  const reportTitle=String($("reportName")?.value||"").trim()||"Custom Report";
-  const start=$("startDate")?.value||"",end=$("endDate")?.value||"";
-  const dateLabel=start||end?`${start||"Beginning"} through ${end||"Today"}`:"All dates";
-  const sortLabel=sortLevels().map((sort,index)=>`${index===0?"Sort":"then"}: ${labelize(sort.field)} ${sort.direction}`).join(" • ")||"Default order";
-  $("printReportTitle").textContent=reportTitle;
-  $("printReportMeta").textContent=`${cfg().label} • ${currentRows.length} row${currentRows.length===1?"":"s"} • ${dateLabel} • ${sortLabel} • Generated ${new Date().toLocaleString()}`;
-  const previousTitle=document.title;
-  document.title=reportTitle;
-  document.body.classList.add("printing-report");
-  const cleanup=()=>{document.body.classList.remove("printing-report");document.title=previousTitle};
-  window.addEventListener("afterprint",cleanup,{once:true});
-  requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
-}
-document.readyState==="loading"?document.addEventListener("DOMContentLoaded",boot,{once:true}):boot();
-</script></body></html>
+function exportCsv(){if(!currentExportRows.length){alert("Run Preview first.");return}downloadBlob(new Blob([csv()],{type:"text/csv;charset=utf-8"}),safeReportFileName("csv"))}
+async function copyCsv(){if(!currentExportRows.length){alert("Run Preview first.");return}try{await navigator.clipboard.writeText(csv());alert("CSV copied to clipboard.")}catch(e){alert(`Copy failed: ${e.message||e}`)}}
+function printReport(){if(!currentRows.length){alert("Run Preview first.");return}const title=$("reportName").value||"Custom Report",c=cfg(),sortText=sortLevels().map(s=>`${labelize(s.field)} ${s.direction}`).join(" → ")||"Default";$("printReportTitle").textContent=title;$("printReportMeta").textContent=`${c?.label||"Report"} • ${currentRows.length} preview row${currentRows.length===1?"":"s"} • Sort: ${sortText}`;document.body.classList.add("printing-report");requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));setTimeout(()=>document.body.classList.remove("printing-report"),1500)}
+window.addEventListener("afterprint",()=>document.body.classList.remove("printing-report"));
+boot();
+</script>
+<script defer src="admin-footer.js?v=9"></script>
+</body></html>
