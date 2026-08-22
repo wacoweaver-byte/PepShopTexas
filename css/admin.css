@@ -136,3 +136,46 @@ body[data-admin-page="inventory"] button.danger:not(.btn):hover{color:#fff!impor
 
 @media(max-width:900px){.pst-admin-nav-wrap{width:calc(100% - 28px)!important;flex-direction:column!important;align-items:center!important;gap:10px!important}.pst-admin-logo-link{width:160px!important;height:54px!important;flex:0 0 54px!important}.pst-admin-nav{justify-content:center!important;gap:8px 16px!important}.pst-admin-footer-inner{grid-template-columns:1fr!important;gap:22px!important}}
 @media(max-width:560px){.pst-admin-nav a{font-size:10.5px!important}.btn,a.btn,button.btn,.inventory-jump-link,.inventory-collapse-toggle,.row-save,.row-audit-btn,.edit-incoming-btn,.close-incoming-edit-btn,.cancel-incoming-btn,.receive-incoming-btn,.transit-incoming-btn,.save-incoming-edit-btn,.incoming-line-remove,.reorder-action-btn{min-height:34px!important;padding:7px 10px!important;font-size:10px!important}}
+
+
+/* REPORT WRITER ACTION GEOMETRY — shared admin standard */
+body .steps .step,
+body .actions .btn,
+body .actions a.btn,
+body .actions button.btn,
+body .card .btn,
+body .card a.btn,
+body .card button.btn,
+body .field-order-btn {
+  border-radius: 2px !important;
+  min-height: 36px !important;
+  height: auto !important;
+  padding: 8px 12px !important;
+  color: #fff !important;
+  background: var(--pst-admin-navy) !important;
+  border-color: var(--pst-admin-navy) !important;
+}
+body .steps .step:hover,
+body .actions .btn:hover,
+body .actions a.btn:hover,
+body .actions button.btn:hover,
+body .card .btn:hover,
+body .card a.btn:hover,
+body .card button.btn:hover,
+body .field-order-btn:hover {
+  color: var(--pst-admin-navy) !important;
+  background: var(--pst-admin-gold) !important;
+  border-color: var(--pst-admin-gold) !important;
+}
+body .actions .btn.danger,
+body .card .btn.danger {
+  color: #fff !important;
+  background: var(--pst-admin-danger) !important;
+  border-color: var(--pst-admin-danger) !important;
+}
+body .actions .btn:disabled,
+body .card .btn:disabled {
+  color: #7a8188 !important;
+  background: #f4f4f4 !important;
+  border-color: #d8dce1 !important;
+}
