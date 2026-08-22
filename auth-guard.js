@@ -21,6 +21,130 @@
     client.from("bulk_requests").select("request_number", { count: "exact", head: true }).eq("status", "new").then(({ count, error }) => { if (error) return; let badge = link.querySelector(".pst-auth-bulk-badge, .pst-bulk-admin-badge, .nav-badge"); if (!badge) { badge = document.createElement("span"); link.appendChild(badge); } badge.classList.add("pst-auth-bulk-badge"); const total = count || 0; badge.hidden = total === 0; badge.textContent = total > 99 ? "99+" : String(total); badge.setAttribute("aria-label", total + " new bulk requests"); });
   }
 
+  function installAdminDashboardStyling() {
+    const currentFile = window.location.pathname.split("/").pop() || "";
+    if (currentFile !== "admin.html") return;
+
+    if (!document.getElementById("pst-admin-orders-style-v1")) {
+      const css = document.createElement("style");
+      css.id = "pst-admin-orders-style-v1";
+      css.textContent = `
+        .pst-orders-loaded-plain{
+          margin:8px 0 18px!important;
+          padding:0!important;
+          min-height:0!important;
+          border:0!important;
+          border-radius:0!important;
+          background:transparent!important;
+          color:#0b2d4f!important;
+          font:600 18px/1.3 Arial,Helvetica,sans-serif!important;
+          box-shadow:none!important;
+        }
+        .pst-global-lookup-card{
+          background:#0b2d4f!important;
+          border:1px solid #0b2d4f!important;
+          border-radius:14px!important;
+          box-shadow:none!important;
+          color:#fff!important;
+        }
+        .pst-global-lookup-card h1,.pst-global-lookup-card h2,.pst-global-lookup-card h3,
+        .pst-global-lookup-card .pst-global-lookup-title{
+          color:#c9a45c!important;
+          font-family:Arial,Helvetica,sans-serif!important;
+          font-weight:600!important;
+        }
+        .pst-global-lookup-card p,.pst-global-lookup-card .subtitle,.pst-global-lookup-card .muted,
+        .pst-global-lookup-card label,.pst-global-lookup-card div:not(.field):not(.btn){color:#fff}
+        .pst-global-lookup-card input{
+          background:#fff!important;
+          color:#102a43!important;
+          border:1px solid #d9e2ec!important;
+          border-radius:6px!important;
+        }
+        .pst-global-lookup-card .btn,
+        .pst-global-lookup-card button{
+          background:#0b2d4f!important;
+          color:#fff!important;
+          border:1px solid #c9a45c!important;
+          border-radius:4px!important;
+          box-shadow:none!important;
+        }
+        .pst-global-lookup-card .btn:hover,
+        .pst-global-lookup-card button:hover{
+          background:#c9a45c!important;
+          color:#0b2d4f!important;
+          border-color:#c9a45c!important;
+        }
+        .pst-order-jump-wrap{
+          background:transparent!important;
+          border:0!important;
+          border-radius:0!important;
+          box-shadow:none!important;
+        }
+        .pst-order-jump-wrap .pst-jump-label{color:#596579!important;font-weight:600!important}
+        .pst-order-jump-wrap a,.pst-order-jump-wrap button{
+          background:#0b2d4f!important;
+          color:#fff!important;
+          border:1px solid #0b2d4f!important;
+          border-radius:4px!important;
+          min-height:42px!important;
+          padding:10px 14px!important;
+          font-family:Arial,Helvetica,sans-serif!important;
+          font-size:13px!important;
+          font-weight:600!important;
+          text-decoration:none!important;
+          box-shadow:none!important;
+        }
+        .pst-order-jump-wrap a:hover,.pst-order-jump-wrap button:hover,
+        .pst-order-jump-wrap a:focus-visible,.pst-order-jump-wrap button:focus-visible{
+          background:#c9a45c!important;
+          color:#0b2d4f!important;
+          border-color:#c9a45c!important;
+        }
+      `;
+      document.head.appendChild(css);
+    }
+
+    function apply() {
+      const all = Array.from(document.querySelectorAll("body *"));
+
+      const loaded = all.find(el => /^Loaded\s+\d+\s+orders\.?$/i.test((el.textContent || "").trim()) && el.children.length === 0);
+      if (loaded) {
+        const bar = loaded.closest(".status") || loaded.parentElement;
+        if (bar && bar.textContent.trim() === loaded.textContent.trim()) bar.classList.add("pst-orders-loaded-plain");
+        else loaded.classList.add("pst-orders-loaded-plain");
+      }
+
+      const lookupTitle = all.find(el => (el.textContent || "").trim() === "Global Lookup");
+      if (lookupTitle) {
+        lookupTitle.classList.add("pst-global-lookup-title");
+        let card = lookupTitle.closest(".card,section,div");
+        while (card && card !== document.body) {
+          const text = card.textContent || "";
+          if (/Search any reference a customer gives you/i.test(text) && card.querySelector("input")) break;
+          card = card.parentElement;
+        }
+        if (card && card !== document.body) card.classList.add("pst-global-lookup-card");
+      }
+
+      const jumpLabel = all.find(el => (el.textContent || "").trim().toUpperCase() === "JUMP TO" && el.children.length === 0);
+      if (jumpLabel) {
+        jumpLabel.classList.add("pst-jump-label");
+        let wrap = jumpLabel.parentElement;
+        while (wrap && wrap !== document.body) {
+          const text = wrap.textContent || "";
+          if (/Open\s*\/\s*Pending Orders/i.test(text) && /Shipped\s*\/\s*Completed Orders/i.test(text)) break;
+          wrap = wrap.parentElement;
+        }
+        if (wrap && wrap !== document.body) wrap.classList.add("pst-order-jump-wrap");
+      }
+    }
+
+    apply();
+    setTimeout(apply, 250);
+    setTimeout(apply, 800);
+  }
+
   function installInventoryTrackingDisplay(client) {
     const currentFile = window.location.pathname.split("/").pop() || ""; if (currentFile !== "inventory.html") return;
     let trackingByPo = new Map(); let refreshTimer = null; let observerAttached = false;
@@ -84,7 +208,7 @@
       if (mode === "admin") {
         const { data: admin, error: adminError } = await client.from("admin_users").select("user_id,is_active").eq("user_id", user.id).eq("is_active", true).maybeSingle();
         if (adminError || !admin) { redirect("account.html?access=denied"); return; }
-        installBulkRequestAdminLink(client); installInventoryTrackingDisplay(client);
+        installBulkRequestAdminLink(client); installAdminDashboardStyling(); installInventoryTrackingDisplay(client);
       }
       window.pstAuthenticatedUser = user; reveal(); window.dispatchEvent(new CustomEvent("pst-auth-ready", { detail: { mode, user } })); client.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") redirect(loginUrl()); });
     } catch (error) { console.error("Authentication guard failed", error); showGuardError("Pep Shop Texas could not verify your login. Refresh the page and try again."); }
