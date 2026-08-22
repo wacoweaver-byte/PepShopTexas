@@ -168,3 +168,37 @@ body[data-admin-page="bulk-requests"] .audit-item small {
   body[data-admin-page="bulk-requests"] .detail-card { border:0;box-shadow:none; }
   body[data-admin-page="bulk-requests"] .sheet { padding:0; }
 }
+
+
+/* Bulk Requests page alignment with established admin shell. */
+body[data-admin-page="bulk-requests"] > main {
+  width:min(1180px,calc(100% - 40px))!important;
+  margin:0 auto!important;
+  padding:34px 0 56px!important;
+}
+body[data-admin-page="bulk-requests"] .site-footer.pst-admin-footer {
+  background:var(--pst-admin-navy)!important;
+  border-top:1px solid var(--pst-admin-gold)!important;
+  color:#fff!important;
+}
+body[data-admin-page="bulk-requests"] .pst-admin-footer-brand strong,
+body[data-admin-page="bulk-requests"] .pst-admin-footer-column strong {
+  color:#fff!important;
+}
+body[data-admin-page="bulk-requests"] .pst-admin-footer-brand span,
+body[data-admin-page="bulk-requests"] .pst-admin-footer-column a {
+  color:rgba(255,255,255,.78)!important;
+}
+body[data-admin-page="bulk-requests"] .pst-admin-footer-column a:hover {
+  color:var(--pst-admin-gold)!important;
+}
+body[data-admin-page="bulk-requests"] .pst-admin-footer-legal {
+  border-top-color:rgba(255,255,255,.18)!important;
+  color:rgba(255,255,255,.65)!important;
+}
+@media(max-width:560px) {
+  body[data-admin-page="bulk-requests"] > main {
+    width:calc(100% - 28px)!important;
+    padding-top:24px!important;
+  }
+}
