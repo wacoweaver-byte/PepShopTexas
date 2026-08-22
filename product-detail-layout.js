@@ -9,7 +9,7 @@
     PSTP100034: "assets/images/products/mots-c-10mg.png",
     PSTP100013: "assets/images/products/wolverine-10mg.png",
     PSTP100042: "assets/images/products/pt-141-10mg.png",
-    PSTP100010: "assets/images/products/tide-3p-60mg.png",
+    PSTP100010: "assets/images/products/tide-3P-60mg.png",
     PSTP100054: "assets/images/products/glow-70mg.png"
   });
 
