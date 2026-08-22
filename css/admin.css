@@ -124,13 +124,13 @@ body[data-admin-page="inventory"] button.danger:not(.btn):hover{color:#fff!impor
 .status-pill.low,.status-pill.out_of_stock,.status-pill.out,.status-pill.inactive,.inactive-pill,.incoming-cancelled,.incoming-issue_shorted,.reorder-critical,.pill.cancelled,.pill.rejected,.pill.failed{color:var(--pst-admin-danger)!important;border-color:rgba(180,35,24,.35)!important;background:#fff!important}
 
 /* ADMIN FOOTER */
-.site-footer.pst-admin-footer{margin-top:56px!important;background:#fff!important;border-top:1px solid var(--pst-admin-gold-soft)!important;color:var(--pst-admin-navy)!important}
+.site-footer.pst-admin-footer{margin-top:56px!important;background:var(--pst-admin-navy)!important;border-top:1px solid var(--pst-admin-gold)!important;color:#fff!important}
 .pst-admin-footer-inner{width:min(1180px,calc(100% - 40px))!important;margin:0 auto!important;padding:28px 0!important;display:grid!important;grid-template-columns:1.4fr repeat(2,minmax(150px,1fr))!important;gap:36px!important}
-.pst-admin-footer-brand strong{display:block!important;color:var(--pst-admin-navy)!important;font-family:var(--pst-admin-heading)!important;font-size:22px!important;font-weight:500!important}
-.pst-admin-footer-brand span,.pst-admin-footer-column span,.pst-admin-footer-column a{display:block!important;margin-top:7px!important;color:var(--pst-admin-muted)!important;font-size:12px!important;line-height:1.45!important}
-.pst-admin-footer-column strong{font-size:11px!important;letter-spacing:.08em!important;text-transform:uppercase!important}
+.pst-admin-footer-brand strong{display:block!important;color:#fff!important;font-family:var(--pst-admin-heading)!important;font-size:22px!important;font-weight:500!important}
+.pst-admin-footer-brand span,.pst-admin-footer-column span,.pst-admin-footer-column a{display:block!important;margin-top:7px!important;color:rgba(255,255,255,.78)!important;font-size:12px!important;line-height:1.45!important}
+.pst-admin-footer-column strong{color:var(--pst-admin-gold)!important;font-size:11px!important;letter-spacing:.08em!important;text-transform:uppercase!important}
 .pst-admin-footer-column a:hover{color:var(--pst-admin-gold)!important}
-.pst-admin-footer-legal{padding:12px 20px!important;border-top:1px solid var(--pst-admin-line)!important;text-align:center!important;color:var(--pst-admin-muted)!important;font-size:10px!important;letter-spacing:.06em!important;text-transform:uppercase!important}
+.pst-admin-footer-legal{padding:12px 20px!important;border-top:1px solid rgba(255,255,255,.18)!important;text-align:center!important;color:rgba(255,255,255,.65)!important;font-size:10px!important;letter-spacing:.06em!important;text-transform:uppercase!important}
 
 .bulk-tools,.bulk,.actions,.pst-admin-actions-lock,.inventory-card-actions,.reorder-controls,.reorder-selected-actions,.incoming-actions,.incoming-edit-actions,.back-to-inventory-top,.inventory-jumpbar{gap:8px!important}
 
