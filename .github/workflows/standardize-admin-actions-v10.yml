@@ -1,0 +1,141 @@
+name: Standardize admin action controls v10
+on:
+  push:
+    paths:
+      - '.github/workflows/standardize-admin-actions-v10.yml'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Append shared admin action overrides and bump cache
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          css = Path('css/admin.css')
+          s = css.read_text()
+          marker = '/* PST ADMIN ACTION STANDARD V10 */'
+          block = r'''
+
+/* PST ADMIN ACTION STANDARD V10 */
+/* All interactive admin action/navigation controls: navy, gold hover, rectangular.
+   Status-only pills remain untouched unless they are actual buttons/links. */
+html body .btn,
+html body a.btn,
+html body button.btn,
+html body .btn.secondary,
+html body a.btn.secondary,
+html body button.btn.secondary,
+html body .step,
+html body button.step,
+html body a.step,
+html body [class*="jumpbar"] button,
+html body [class*="jumpbar"] a,
+html body button[class*="jump"],
+html body a[class*="jump"],
+html body button[class*="collapse"],
+html body a[class*="collapse"],
+html body button[aria-expanded],
+html body a[aria-expanded],
+html body button.pill,
+html body a.pill,
+html body .pill[role="button"] {
+  color:#fff!important;
+  background:var(--pst-admin-navy)!important;
+  border:1px solid var(--pst-admin-navy)!important;
+  border-radius:2px!important;
+  box-shadow:none!important;
+  min-height:36px!important;
+  height:auto!important;
+  padding:8px 12px!important;
+  font-family:var(--pst-admin-font)!important;
+  font-size:11px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  letter-spacing:.055em!important;
+  text-transform:uppercase!important;
+  text-decoration:none!important;
+}
+html body .btn:hover,
+html body a.btn:hover,
+html body button.btn:hover,
+html body .btn.secondary:hover,
+html body a.btn.secondary:hover,
+html body button.btn.secondary:hover,
+html body .step:hover,
+html body button.step:hover,
+html body a.step:hover,
+html body [class*="jumpbar"] button:hover,
+html body [class*="jumpbar"] a:hover,
+html body button[class*="jump"]:hover,
+html body a[class*="jump"]:hover,
+html body button[class*="collapse"]:hover,
+html body a[class*="collapse"]:hover,
+html body button[aria-expanded]:hover,
+html body a[aria-expanded]:hover,
+html body button.pill:hover,
+html body a.pill:hover,
+html body .pill[role="button"]:hover {
+  color:var(--pst-admin-navy)!important;
+  background:var(--pst-admin-gold)!important;
+  border-color:var(--pst-admin-gold)!important;
+}
+html body .btn.danger,
+html body a.btn.danger,
+html body button.btn.danger,
+html body button.danger,
+html body a.danger {
+  color:#fff!important;
+  background:var(--pst-admin-danger)!important;
+  border-color:var(--pst-admin-danger)!important;
+}
+html body .btn.danger:hover,
+html body a.btn.danger:hover,
+html body button.btn.danger:hover,
+html body button.danger:hover,
+html body a.danger:hover {
+  color:#fff!important;
+  background:#8f1d15!important;
+  border-color:#8f1d15!important;
+}
+html body .btn:disabled,
+html body button.btn:disabled,
+html body button:disabled[class*="jump"],
+html body button:disabled[class*="collapse"] {
+  color:#7a8188!important;
+  background:#f4f4f4!important;
+  border-color:#d8dce1!important;
+  cursor:not-allowed!important;
+}
+'''
+          if marker not in s:
+              css.write_text(s.rstrip() + block + '\n')
+
+          pages = [
+              'admin.html','inventory.html','products.html','discounts.html',
+              'promotions.html','reports.html','customers.html','report-writer.html'
+          ]
+          for name in pages:
+              p = Path(name)
+              if not p.exists():
+                  continue
+              t = p.read_text()
+              t2 = t.replace('css/admin.css?v=9', 'css/admin.css?v=10')
+              if t2 == t:
+                  t2 = t.replace('css/admin.css?v=8', 'css/admin.css?v=10')
+              if t2 == t and 'css/admin.css?v=10' not in t:
+                  print(f'WARNING: no admin css cache reference changed in {name}')
+              p.write_text(t2)
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add css/admin.css admin.html inventory.html products.html discounts.html promotions.html reports.html customers.html report-writer.html
+          git commit -m 'Standardize admin action and collapse controls'
+          git rm .github/workflows/standardize-admin-actions-v10.yml
+          git commit -m 'Remove one-time admin action workflow'
+          git push
