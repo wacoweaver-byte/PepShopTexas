@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V35_REMOVE_NEW_PO_TRACKING_WIDEN_STATUS -->
 <!-- PST_INVENTORY_PATCH_V34_ALL_STOCK_STATUS_FILTERS -->
 <!-- PST_INVENTORY_PATCH_V33_APPLY_STOCK_LIMITS_TO_ALL -->
 <!-- PST_INVENTORY_PATCH_V32_PO_CUSTOMER_STATUS_ONLY -->
@@ -876,7 +877,7 @@ strong {
 
 /* PST_INCOMING_MULTI_LINE_PO_V1 */
 .incoming-form-grid {
-  grid-template-columns: 1.2fr .55fr .7fr .7fr .7fr .75fr .9fr .9fr .8fr .9fr auto auto !important;
+  grid-template-columns: 1.2fr .55fr .7fr .7fr .7fr .75fr .9fr .9fr 1.55fr .9fr auto auto !important;
 }
 .incoming-line-preview {
   padding: 12px 14px;
@@ -2692,11 +2693,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <select id="incomingVendorSelect"><option value="">Select vendor...</option></select>
         <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div>
       </div>
-      <div class="field">
-        <label>Tracking #</label>
-        <input id="incomingTracking" type="text" placeholder="Optional" />
-      </div>
-      <div class="field">
+      <div class="field incoming-status-field">
         <label>Status</label>
         <select id="incomingStatus">
           <option value="ordered">Ordered</option>
@@ -4824,7 +4821,7 @@ async function addIncomingInventory() {
   const leadTimeDays = vendorLeadDays(vendor);
   const expectedArrival = addDays(orderedAt, leadTimeDays).toISOString();
   const supplierName = vendor?.company_name || null;
-  const trackingNumber = $("incomingTracking")?.value.trim() || null;
+  const trackingNumber = null;
   const status = $("incomingStatus")?.value || "ordered";
   const userNote = $("incomingNotes")?.value.trim() || shortLoggedInUserName() || null;
   const orderGroupId = crypto?.randomUUID ? crypto.randomUUID() : `po_${Date.now()}_${Math.random().toString(16).slice(2)}`;
@@ -4897,7 +4894,6 @@ async function addIncomingInventory() {
   if ($("incomingTotalCost")) $("incomingTotalCost").value = "";
   if ($("incomingVendorSelect")) $("incomingVendorSelect").value = "";
   updateIncomingVendorInfo();
-  if ($("incomingTracking")) $("incomingTracking").value = "";
   if ($("incomingNotes")) $("incomingNotes").value = "";
   setIncomingOrderDateToday(true);
   setIncomingUserField(true);
