@@ -119,3 +119,50 @@
     margin-left:5px!important;
   }
 }
+
+/* Signed-in customer identity sits immediately to the right of the shared logo. */
+.pst-customer-header-inner{
+  display:grid!important;
+  grid-template-columns:190px auto minmax(0,1fr)!important;
+  align-items:center!important;
+  column-gap:18px!important;
+}
+.pst-customer-identity{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:18px!important;
+  min-width:max-content!important;
+}
+.pst-customer-identity a{
+  color:#102a43!important;
+  font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  letter-spacing:.03em!important;
+  line-height:1!important;
+  text-decoration:none!important;
+  white-space:nowrap!important;
+}
+.pst-customer-identity a:hover,
+.pst-customer-identity a:focus-visible{color:#b79a63!important}
+.pst-customer-header-right{min-width:0!important}
+
+@media(max-width:700px){
+  .pst-customer-header-inner{
+    display:grid!important;
+    grid-template-columns:160px minmax(0,1fr)!important;
+    align-items:center!important;
+    column-gap:12px!important;
+  }
+  .pst-customer-identity{
+    justify-self:start!important;
+    gap:12px!important;
+    min-width:0!important;
+  }
+  .pst-customer-identity a{font-size:11px!important}
+  .pst-customer-header-right{
+    grid-column:1 / -1!important;
+    width:100%!important;
+  }
+}
