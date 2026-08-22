@@ -70,8 +70,45 @@
     logo.style.objectFit = "contain";
   }
 
+  function installCustomerHeaderNavigation() {
+    document.querySelectorAll(".pst-customer-nav.main-nav").forEach((nav) => {
+      if (nav.querySelector('[data-bulk-request-link]')) return;
+      const link = document.createElement("a");
+      link.href = "bulk-request.html";
+      link.textContent = "BULK REQUEST";
+      link.dataset.bulkRequestLink = "true";
+      const accountLink = nav.querySelector("[data-account-link], a[href='account.html']");
+      nav.insertBefore(link, accountLink || nav.querySelector(".cart-link") || null);
+    });
+
+    if (!document.getElementById("pst-bulk-request-nav-layout")) {
+      const style = document.createElement("style");
+      style.id = "pst-bulk-request-nav-layout";
+      style.textContent = `
+        @media (max-width:700px) {
+          .pst-customer-nav a[data-bulk-request-link] {
+            grid-column:1 / -1!important;
+            grid-row:2!important;
+            justify-self:center!important;
+          }
+          .pst-customer-nav a[data-account-link] {
+            grid-row:3!important;
+          }
+          .pst-customer-nav a[data-admin-link] {
+            grid-row:3!important;
+          }
+          .pst-customer-nav .cart-link {
+            grid-row:3!important;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
   function installCustomerFooter() {
     installCustomerHeaderLogo();
+    installCustomerHeaderNavigation();
 
     let footer = document.querySelector("footer.site-footer");
     if (!footer) {
