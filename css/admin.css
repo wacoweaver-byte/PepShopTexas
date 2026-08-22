@@ -128,7 +128,7 @@ body[data-admin-page="inventory"] button.danger:not(.btn):hover{color:#fff!impor
 .pst-admin-footer-inner{width:min(1180px,calc(100% - 40px))!important;margin:0 auto!important;padding:28px 0!important;display:grid!important;grid-template-columns:1.4fr repeat(2,minmax(150px,1fr))!important;gap:36px!important}
 .pst-admin-footer-brand strong{display:block!important;color:#fff!important;font-family:var(--pst-admin-heading)!important;font-size:22px!important;font-weight:500!important}
 .pst-admin-footer-brand span,.pst-admin-footer-column span,.pst-admin-footer-column a{display:block!important;margin-top:7px!important;color:rgba(255,255,255,.78)!important;font-size:12px!important;line-height:1.45!important}
-.pst-admin-footer-column strong{color:#fff!important;font-size:11px!important;letter-spacing:.08em!important;text-transform:uppercase!important}
+.pst-admin-footer-column strong{color:var(--pst-admin-gold)!important;font-size:11px!important;letter-spacing:.08em!important;text-transform:uppercase!important}
 .pst-admin-footer-column a:hover{color:var(--pst-admin-gold)!important}
 .pst-admin-footer-legal{padding:12px 20px!important;border-top:1px solid rgba(255,255,255,.18)!important;text-align:center!important;color:rgba(255,255,255,.65)!important;font-size:10px!important;letter-spacing:.06em!important;text-transform:uppercase!important}
 
