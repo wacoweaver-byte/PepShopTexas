@@ -34,7 +34,6 @@
       </main>`;
   }
 
-
   function installBulkRequestAdminLink(client) {
     const nav = document.querySelector(".pst-admin-nav");
     if (!nav) return;
@@ -86,11 +85,28 @@
     let refreshTimer = null;
     let observerAttached = false;
 
+    if (!document.getElementById("pst-po-tracking-mobile-style")) {
+      const trackingStyle = document.createElement("style");
+      trackingStyle.id = "pst-po-tracking-mobile-style";
+      trackingStyle.textContent = `
+        [data-po-apply-tracking] .pst-tracking-number{display:block;margin-top:4px;font-size:11px;font-weight:800;letter-spacing:.02em;text-transform:none;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+        @media (max-width:700px){
+          [data-po-apply-tracking]{white-space:normal!important;min-width:0!important;width:100%!important;max-width:100%!important;padding:10px 8px!important;line-height:1.15!important;text-align:center!important}
+          [data-po-apply-tracking] .pst-tracking-action{display:block;font-size:11px;line-height:1.1}
+          [data-po-apply-tracking] .pst-tracking-number{font-size:10px;line-height:1.2;word-break:break-all}
+        }`;
+      document.head.appendChild(trackingStyle);
+    }
+
     function applyTrackingLabels() {
       document.querySelectorAll("[data-po-apply-tracking]").forEach(button => {
         const poNumber = String(button.dataset.poApplyTracking || "").trim().toLowerCase();
         const trackingNumber = trackingByPo.get(poNumber) || "";
-        button.textContent = trackingNumber ? `Edit Tracking — ${trackingNumber}` : "Add Tracking";
+        button.innerHTML = trackingNumber
+          ? `<span class="pst-tracking-action">Edit Tracking</span><span class="pst-tracking-number"></span>`
+          : `<span class="pst-tracking-action">Add Tracking</span>`;
+        const numberEl = button.querySelector(".pst-tracking-number");
+        if (numberEl) numberEl.textContent = trackingNumber;
         button.title = trackingNumber ? `Tracking number: ${trackingNumber}` : "Add tracking number";
         button.setAttribute("aria-label", trackingNumber
           ? `Edit tracking number ${trackingNumber}`
