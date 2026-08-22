@@ -103,9 +103,10 @@
         let baseText = summaryNote.dataset.baseSummaryText || summaryNote.textContent || "";
         baseText = baseText.replace(/\s*·\s*Tracking:\s*[^·]+$/i, "").trim();
         summaryNote.dataset.baseSummaryText = baseText;
-        summaryNote.textContent = trackingNumber
+        const desiredText = trackingNumber
           ? `${baseText} · Tracking: ${trackingNumber}`
           : baseText;
+        if (summaryNote.textContent !== desiredText) summaryNote.textContent = desiredText;
       });
     }
 
@@ -130,24 +131,26 @@
       applyTrackingLabels();
     }
 
-    function scheduleRefresh() {
+    function scheduleRefresh(delay = 120) {
       clearTimeout(refreshTimer);
       refreshTimer = setTimeout(() => {
         refreshTrackingLabels().catch(error => console.warn("PO tracking refresh failed", error));
-      }, 120);
+      }, delay);
     }
 
     function attachObserver() {
       if (observerAttached) return;
-      const inventoryBody = document.getElementById("incomingInventoryBody");
-      if (!inventoryBody) {
-        setTimeout(attachObserver, 250);
+      const poCenter = document.getElementById("incomingPoCenterList");
+      if (!poCenter) {
+        setTimeout(attachObserver, 200);
         return;
       }
       observerAttached = true;
-      const observer = new MutationObserver(scheduleRefresh);
-      observer.observe(inventoryBody, { childList: true, subtree: true });
-      scheduleRefresh();
+      const observer = new MutationObserver(() => scheduleRefresh(80));
+      observer.observe(poCenter, { childList: true });
+      scheduleRefresh(0);
+      setTimeout(() => scheduleRefresh(0), 400);
+      setTimeout(() => scheduleRefresh(0), 1000);
     }
 
     attachObserver();
