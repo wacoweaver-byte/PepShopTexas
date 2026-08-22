@@ -78,6 +78,70 @@
       });
   }
 
+  function installInventoryTrackingDisplay(client) {
+    const currentFile = window.location.pathname.split("/").pop() || "";
+    if (currentFile !== "inventory.html") return;
+
+    let trackingByPo = new Map();
+    let refreshTimer = null;
+    let observerAttached = false;
+
+    function applyTrackingLabels() {
+      document.querySelectorAll("[data-po-apply-tracking]").forEach(button => {
+        const poNumber = String(button.dataset.poApplyTracking || "").trim().toLowerCase();
+        const trackingNumber = trackingByPo.get(poNumber) || "";
+        button.textContent = trackingNumber ? `Edit Tracking — ${trackingNumber}` : "Add Tracking";
+        button.title = trackingNumber ? `Tracking number: ${trackingNumber}` : "Add tracking number";
+        button.setAttribute("aria-label", trackingNumber
+          ? `Edit tracking number ${trackingNumber}`
+          : "Add tracking number");
+      });
+    }
+
+    async function refreshTrackingLabels() {
+      const { data, error } = await client
+        .from("incoming_inventory")
+        .select("po_number,tracking_number")
+        .not("po_number", "is", null);
+
+      if (error) {
+        console.warn("Could not load PO tracking labels", error);
+        return;
+      }
+
+      const next = new Map();
+      (data || []).forEach(row => {
+        const poNumber = String(row.po_number || "").trim().toLowerCase();
+        const trackingNumber = String(row.tracking_number || "").trim();
+        if (poNumber && trackingNumber && !next.has(poNumber)) next.set(poNumber, trackingNumber);
+      });
+      trackingByPo = next;
+      applyTrackingLabels();
+    }
+
+    function scheduleRefresh() {
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => {
+        refreshTrackingLabels().catch(error => console.warn("PO tracking refresh failed", error));
+      }, 120);
+    }
+
+    function attachObserver() {
+      if (observerAttached) return;
+      const inventoryBody = document.getElementById("incomingInventoryBody");
+      if (!inventoryBody) {
+        setTimeout(attachObserver, 250);
+        return;
+      }
+      observerAttached = true;
+      const observer = new MutationObserver(scheduleRefresh);
+      observer.observe(inventoryBody, { childList: true });
+      scheduleRefresh();
+    }
+
+    attachObserver();
+  }
+
   async function run() {
     if (!mode) {
       reveal();
@@ -114,6 +178,7 @@
         }
 
         installBulkRequestAdminLink(client);
+        installInventoryTrackingDisplay(client);
       }
 
       window.pstAuthenticatedUser = user;
