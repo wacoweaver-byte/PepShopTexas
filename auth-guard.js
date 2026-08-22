@@ -85,34 +85,27 @@
     let refreshTimer = null;
     let observerAttached = false;
 
-    if (!document.getElementById("pst-po-tracking-mobile-style")) {
-      const trackingStyle = document.createElement("style");
-      trackingStyle.id = "pst-po-tracking-mobile-style";
-      trackingStyle.textContent = `
-        [data-po-apply-tracking]{white-space:nowrap!important;min-width:0!important;max-width:100%!important;overflow:hidden!important}
-        [data-po-apply-tracking] .pst-tracking-action{display:block;white-space:nowrap}
-        [data-po-apply-tracking] .pst-tracking-number{display:block;margin-top:4px;max-width:180px;font-size:10px;font-weight:700;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
-        @media (max-width:700px){
-          [data-po-apply-tracking]{width:100%!important;padding:9px 7px!important;line-height:1.1!important;text-align:center!important}
-          [data-po-apply-tracking] .pst-tracking-action{font-size:10px}
-          [data-po-apply-tracking] .pst-tracking-number{max-width:100%;margin-top:3px;font-size:9px}
-        }`;
-      document.head.appendChild(trackingStyle);
-    }
-
     function applyTrackingLabels() {
       document.querySelectorAll("[data-po-apply-tracking]").forEach(button => {
         const poNumber = String(button.dataset.poApplyTracking || "").trim().toLowerCase();
         const trackingNumber = trackingByPo.get(poNumber) || "";
-        button.innerHTML = trackingNumber
-          ? `<span class="pst-tracking-action">Edit Tracking</span><span class="pst-tracking-number"></span>`
-          : `<span class="pst-tracking-action">Add Tracking</span>`;
-        const numberEl = button.querySelector(".pst-tracking-number");
-        if (numberEl) numberEl.textContent = trackingNumber;
+
+        button.textContent = trackingNumber ? "Edit Tracking Number" : "Add Tracking Number";
         button.title = trackingNumber ? `Tracking number: ${trackingNumber}` : "Add tracking number";
         button.setAttribute("aria-label", trackingNumber
           ? `Edit tracking number ${trackingNumber}`
           : "Add tracking number");
+
+        const poGroup = button.closest(".incoming-po-group");
+        const summaryNote = poGroup?.querySelector(".incoming-po-selection-tools .note");
+        if (!summaryNote) return;
+
+        let baseText = summaryNote.dataset.baseSummaryText || summaryNote.textContent || "";
+        baseText = baseText.replace(/\s*·\s*Tracking:\s*[^·]+$/i, "").trim();
+        summaryNote.dataset.baseSummaryText = baseText;
+        summaryNote.textContent = trackingNumber
+          ? `${baseText} · Tracking: ${trackingNumber}`
+          : baseText;
       });
     }
 
@@ -153,7 +146,7 @@
       }
       observerAttached = true;
       const observer = new MutationObserver(scheduleRefresh);
-      observer.observe(inventoryBody, { childList: true });
+      observer.observe(inventoryBody, { childList: true, subtree: true });
       scheduleRefresh();
     }
 
