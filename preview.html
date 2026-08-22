@@ -84,6 +84,14 @@
     .margin-note { margin: 0; color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1.35; }
     input[readonly] { color: var(--dark); background: #f6f8fb; }
     .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .research-focus-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+    .research-focus-fieldset legend { margin-bottom: 7px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; font-weight: 900; color: var(--muted); }
+    .research-focus-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+    .research-focus-choice { position: relative; cursor: pointer; }
+    .research-focus-choice input { position: absolute; opacity: 0; pointer-events: none; }
+    .research-focus-choice span { display: inline-flex; align-items: center; min-height: 38px; padding: 8px 13px; border: 1px solid var(--border); border-radius: 10px; background: var(--white); color: var(--dark); font-size: 13px; font-weight: 800; text-transform: none; letter-spacing: 0; }
+    .research-focus-choice input:checked + span { border-color: var(--blue); background: var(--blue); color: var(--white); box-shadow: 0 0 0 2px rgba(0,119,200,.12); }
+    .research-focus-choice input:focus-visible + span { outline: 3px solid rgba(0,119,200,.25); outline-offset: 2px; }
     .check { display: flex; align-items: center; gap: 8px; color: var(--dark); text-transform: none; letter-spacing: 0; }
     .check input { width: 18px; min-height: 18px; }
     .empty { padding: 28px; color: var(--muted); text-align: center; }
@@ -962,14 +970,14 @@ td .pill {
               <label class="full">Admin ONLY<textarea name="admin_only" placeholder="Internal reporting notes only. Hidden from customers."></textarea></label>
               <label class="full">COA URL<input name="coa_url" placeholder="/assets/coas/coa-retatrutide-10mg-afi-2025-12-28.jpeg"></label>
               <label class="full">COA Button Label<input name="coa_label" value="View COA" placeholder="View COA"></label>
-              <label class="full">Shop by Category
-                <select name="research_focus">
-                  <option value="">Not assigned</option>
-                  <option value="performance">Performance</option>
-                  <option value="recovery">Recovery</option>
-                  <option value="longevity">Longevity</option>
-                </select>
-              </label>
+              <fieldset class="full research-focus-fieldset">
+                <legend>Shop by Category</legend>
+                <div class="research-focus-choices">
+                  <label class="research-focus-choice"><input name="research_focus" type="checkbox" value="performance"><span>Performance</span></label>
+                  <label class="research-focus-choice"><input name="research_focus" type="checkbox" value="recovery"><span>Recovery</span></label>
+                  <label class="research-focus-choice"><input name="research_focus" type="checkbox" value="longevity"><span>Longevity</span></label>
+                </div>
+              </fieldset>
               <div class="full checks">
                 <label class="check"><input name="is_active" type="checkbox" checked> Visible to customers</label>
               </div>
@@ -1233,14 +1241,29 @@ td .pill {
       return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category)}</option>`).join("");
     }
 
-    function researchFocusOptions(current) {
-      const selected = String(current || "").trim().toLowerCase();
-      return [
-        ["", "Not assigned"],
-        ["performance", "Performance"],
-        ["recovery", "Recovery"],
-        ["longevity", "Longevity"]
-      ].map(([value, label]) => `<option value="${value}" ${value === selected ? "selected" : ""}>${label}</option>`).join("");
+    const RESEARCH_FOCUS_OPTIONS = [
+      ["performance", "Performance"],
+      ["recovery", "Recovery"],
+      ["longevity", "Longevity"]
+    ];
+
+    function normalizedResearchFocuses(value) {
+      const raw = Array.isArray(value) ? value : String(value || "").split(",");
+      return [...new Set(raw.map(item => String(item || "").trim().toLowerCase()).filter(item => RESEARCH_FOCUS_OPTIONS.some(([option]) => option === item)))];
+    }
+
+    function selectedResearchFocuses(form) {
+      return [...form.querySelectorAll('input[name="research_focus"]:checked')].map(input => input.value);
+    }
+
+    function researchFocusChoices(current) {
+      const selected = new Set(normalizedResearchFocuses(current));
+      return `<fieldset class="full research-focus-fieldset">
+        <legend>Shop by Category</legend>
+        <div class="research-focus-choices">
+          ${RESEARCH_FOCUS_OPTIONS.map(([value, label]) => `<label class="research-focus-choice"><input name="research_focus" type="checkbox" value="${value}" ${selected.has(value) ? "checked" : ""}><span>${label}</span></label>`).join("")}
+        </div>
+      </fieldset>`;
     }
 
     function retailPriceFromCost(cost, margin = 0.80) {
@@ -1351,7 +1374,7 @@ td .pill {
         sort_name: displayName,
         strength,
         category,
-        research_focus: form.elements.research_focus.value || null,
+        research_focus: selectedResearchFocuses(form),
         description: form.elements.description.value.trim() || null,
         admin_only: form.elements.admin_only.value.trim() || null,
         research_notes: null,
@@ -1449,9 +1472,7 @@ td .pill {
             <label class="full">Testing Statement<textarea name="testing_statement">${esc(activeProduct.testing_statement || "")}</textarea></label>
             <label class="full">COA URL<input name="coa_url" value="${esc(activeProduct.coa_url || "")}" placeholder="/assets/coas/coa-product-dose-lab-date.jpeg"></label>
             <label class="full">COA Button Label<input name="coa_label" value="${esc(activeProduct.coa_label || "View COA")}" placeholder="View COA"></label>
-            <label class="full">Shop by Category
-              <select name="research_focus">${researchFocusOptions(activeProduct.research_focus)}</select>
-            </label>
+            ${researchFocusChoices(activeProduct.research_focus)}
             <div class="full checks">
               <label class="check"><input name="is_active" type="checkbox" ${activeProduct.is_active ? "checked" : ""}> Visible to customers</label>
               <label class="check"><input name="sale_enabled" type="checkbox" ${activeProduct.sale_enabled ? "checked" : ""}> Sale enabled</label>
@@ -1481,7 +1502,7 @@ td .pill {
         display_name: value("display_name", form).trim(),
         strength: value("strength", form).trim() || null,
         category,
-        research_focus: value("research_focus", form).trim() || null,
+        research_focus: selectedResearchFocuses(form),
         price: Number(value("price", form) || 0),
         sale_price: value("sale_price", form) === "" ? null : Number(value("sale_price", form)),
         sale_label: value("sale_label", form).trim() || null,
