@@ -251,6 +251,7 @@ body[data-page="home"] {
   height: auto;
   margin: 0 auto;
   object-fit: contain;
+  transform: translateX(-7px);
 }
 
 .pst-masthead-links {
@@ -366,7 +367,7 @@ body[data-page="home"] {
 
 @media (max-width: 600px) {
   .pst-masthead { padding: 12px 12px 0; }
-  .pst-masthead-logo { width: min(440px, 88vw); }
+  .pst-masthead-logo { width: min(440px, 88vw); transform: translateX(-4px); }
   .pst-masthead-links { gap: 8px 24px; width: 100%; margin-top: 22px; padding: 0 4px 18px; }
   .pst-masthead-links a { font-size: 10.5px; letter-spacing: .07em; }
   #pst-header-v3 { padding: 8px 12px 10px !important; }
