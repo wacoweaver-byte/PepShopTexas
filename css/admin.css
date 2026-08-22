@@ -251,3 +251,48 @@ html body main [aria-disabled="true"] {
   border-color:#d8dce1!important;
   cursor:not-allowed!important;
 }
+
+/* Page-local legacy pill rules must never beat the shared admin action system. */
+html body main .btn.secondary,
+html body main a.btn.secondary,
+html body main button.btn.secondary,
+html body .reports-jumpbar a,
+html body .reports-jumpbar a:not(.active):not([aria-pressed="true"]),
+html body .reports-jumpbar a.active,
+html body .reports-jumpbar a[aria-pressed="true"],
+html body .collapse-toggle,
+html body .collapse-toggle.active,
+html body .collapse-toggle[aria-expanded="true"],
+html body .card.collapsible-card:not(.collapsed) .collapse-toggle,
+html body .inventory-jumpbar a,
+html body .inventory-jumpbar button,
+html body .jumpbar a,
+html body .jumpbar button {
+  color:#fff!important;
+  background:var(--pst-admin-navy)!important;
+  border-color:var(--pst-admin-navy)!important;
+  border-radius:2px!important;
+  box-shadow:none!important;
+  min-height:36px!important;
+  height:auto!important;
+  padding:8px 12px!important;
+}
+html body main .btn.secondary:hover,
+html body main a.btn.secondary:hover,
+html body main button.btn.secondary:hover,
+html body .reports-jumpbar a:hover,
+html body .reports-jumpbar a:not(.active):not([aria-pressed="true"]):hover,
+html body .reports-jumpbar a.active:hover,
+html body .reports-jumpbar a[aria-pressed="true"]:hover,
+html body .collapse-toggle:hover,
+html body .collapse-toggle.active:hover,
+html body .collapse-toggle[aria-expanded="true"]:hover,
+html body .card.collapsible-card:not(.collapsed) .collapse-toggle:hover,
+html body .inventory-jumpbar a:hover,
+html body .inventory-jumpbar button:hover,
+html body .jumpbar a:hover,
+html body .jumpbar button:hover {
+  color:var(--pst-admin-navy)!important;
+  background:var(--pst-admin-gold)!important;
+  border-color:var(--pst-admin-gold)!important;
+}
