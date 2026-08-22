@@ -4,7 +4,7 @@ const CART_KEY = "pst_cart_v1";
 const REORDER_NOTICE_KEY = "pst_reorder_notice_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const ADMIN_ORDER_NOTIFICATION_EMAILS = ["wacoweaver@gmail.com"];
-const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,series,description,research_notes,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
+const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,research_focus,series,description,research_notes,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,is_active,starts_at,ends_at,sort_order,accent_color";
 const EMAIL_FUNCTION_NAME = "send-order-email";
 const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
@@ -449,17 +449,22 @@ async function renderCatalog() {
     searchInput.value = params.get("search") || "";
     categoryFilter.innerHTML = `<option value="">All categories</option>${categories.map((c) => `<option value="${escapeAttribute(c)}">${escapeHtml(c)}</option>`).join("")}`;
     const requestedCategory = params.get("category") || "";
+    const requestedFocus = String(params.get("focus") || "").trim().toLowerCase();
+    const validFocus = ["performance", "recovery", "longevity"].includes(requestedFocus) ? requestedFocus : "";
     categoryFilter.value = categories.includes(requestedCategory) ? requestedCategory : "";
 
     const draw = () => {
       const query = searchInput.value.trim().toLowerCase();
       const category = categoryFilter.value;
       const filtered = sortProductsForCatalog(products.filter((product) => {
-        const haystack = [product.display_name, product.strength, product.category, product.series, product.product_key].filter(Boolean).join(" ").toLowerCase();
-        return (!query || haystack.includes(query)) && (!category || product.category === category);
+        const productFocus = String(product.research_focus || "").trim().toLowerCase();
+        const haystack = [product.display_name, product.strength, product.category, product.research_focus, product.series, product.product_key].filter(Boolean).join(" ").toLowerCase();
+        return (!query || haystack.includes(query))
+          && (!category || product.category === category)
+          && (!validFocus || productFocus === validFocus);
       }));
       const groups = groupCatalogProducts(filtered);
-      updateCatalogHeading({ heading, eyebrow, category, query: searchInput.value.trim(), count: groups.length });
+      updateCatalogHeading({ heading, eyebrow, category, focus: validFocus, query: searchInput.value.trim(), count: groups.length });
       grid.innerHTML = groups.length ? groups.map(productCard).join("") : `<p class="loading-row">No active products match that filter.</p>`;
       bindCartButtons();
     };
@@ -472,11 +477,12 @@ async function renderCatalog() {
   }
 }
 
-function updateCatalogHeading({ heading, eyebrow, category, query, count }) {
+function updateCatalogHeading({ heading, eyebrow, category, focus, query, count }) {
   if (!heading || !eyebrow) return;
-  const label = category ? `${category}s` : "Peptides A-Z";
+  const focusLabel = focus ? focus.charAt(0).toUpperCase() + focus.slice(1) : "";
+  const label = focusLabel || (category ? `${category}s` : "Peptides A-Z");
   heading.textContent = query ? `Search: ${query}` : label;
-  eyebrow.textContent = category || query ? `${count} research product${count === 1 ? "" : "s"}` : "Research products";
+  eyebrow.textContent = category || focus || query ? `${count} research product${count === 1 ? "" : "s"}` : "Research products";
 }
 
 
