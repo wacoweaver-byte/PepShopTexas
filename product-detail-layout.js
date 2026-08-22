@@ -22,10 +22,32 @@
     return PRODUCT_IMAGE_PATHS[productKey()] || "";
   }
 
+  function formatProductHeading(info) {
+    const heading = info.querySelector("h1");
+    if (!heading || heading.dataset.pstFormulaFormatted === "true") return;
+
+    const name = String(heading.textContent || "").trim();
+    const match = name.match(/^(.*?)(\s*\([^()]+\))\s*$/);
+    if (!match) return;
+
+    const primary = match[1].trimEnd();
+    const formula = match[2].trim();
+    heading.textContent = "";
+
+    const primaryText = document.createTextNode(primary + " ");
+    const formulaSpan = document.createElement("span");
+    formulaSpan.className = "pst-product-formula";
+    formulaSpan.textContent = formula;
+
+    heading.append(primaryText, formulaSpan);
+    heading.dataset.pstFormulaFormatted = "true";
+  }
+
   function enhanceProductDetail() {
     const info = shell.querySelector(".product-info");
     if (!info || info.dataset.pstDetailEnhanced === "true") return false;
     info.dataset.pstDetailEnhanced = "true";
+    formatProductHeading(info);
 
     const children = Array.from(info.children);
     const firstSectionIndex = children.findIndex((node) => node.tagName === "SECTION");
