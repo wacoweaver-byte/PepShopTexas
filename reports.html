@@ -20,8 +20,9 @@
 <!-- PST_REPORTS_PATCH_V20_PRODUCT_ALIAS_INVENTORY_MATCH -->
 <!-- PST_REPORTS_PATCH_V18_FINANCIALS_BUTTON_FIX -->
 <!-- PST_REPORTS_PATCH_V16_REORDER_STATUS_LEGEND -->
-<html lang="en">
+<html lang="en" data-auth-guard="admin">
 <head>
+  <style id="pst-auth-guard-style">html{visibility:hidden}</style>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pep Shop Texas | Reports v16</title>
@@ -31,6 +32,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#000000"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="auth-guard.js?v=1"></script>
   <style>
     :root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
     *{box-sizing:border-box}

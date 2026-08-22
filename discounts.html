@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-auth-guard="admin">
 <head>
+  <style id="pst-auth-guard-style">html{visibility:hidden}</style>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Pep Shop Texas | Discount Admin</title>
@@ -10,6 +11,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#bd0000"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="auth-guard.js?v=1"></script>
 <style>
 :root {
   --pst-blue: #0077c8;

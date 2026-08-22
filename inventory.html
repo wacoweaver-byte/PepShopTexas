@@ -33,8 +33,9 @@
 <!-- PST_INVENTORY_PATCH_V3_INCOMING_INVENTORY -->
 <!-- PST_INVENTORY_PATCH_V2_STOCK_DEPLETION_LOGIC -->
 <!-- PST_INVENTORY_PATCH_V1_REORDER_REVIEW -->
-<html lang="en">
+<html lang="en" data-auth-guard="admin">
 <head>
+  <style id="pst-auth-guard-style">html{visibility:hidden}</style>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Pep Shop Texas | Inventory Management</title>
@@ -44,6 +45,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#bd0000"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="auth-guard.js?v=1"></script>
 <style>
 :root {
   --blue:#003f9e; --dark:#101820; --line:#e6e6e6; --soft:#f7f9fc; --muted:#596579;
