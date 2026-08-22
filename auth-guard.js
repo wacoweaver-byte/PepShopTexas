@@ -85,6 +85,55 @@
     let refreshTimer = null;
     let observerAttached = false;
 
+    if (!document.getElementById("pst-po-track-package-style")) {
+      const linkStyle = document.createElement("style");
+      linkStyle.id = "pst-po-track-package-style";
+      linkStyle.textContent = `
+        .pst-track-package-link{
+          display:inline-flex;
+          align-items:center;
+          margin-left:8px;
+          padding:2px 7px;
+          border:1px solid #cfd8e3;
+          border-radius:999px;
+          background:#fff;
+          color:#003f9e;
+          font-size:11px;
+          font-weight:800;
+          line-height:1.35;
+          text-decoration:none;
+          white-space:nowrap;
+        }
+        .pst-track-package-link:hover,.pst-track-package-link:focus-visible{
+          background:#f2f7ff;
+          text-decoration:none;
+        }
+        @media(max-width:700px){
+          .pst-track-package-link{margin-left:6px;font-size:10px;padding:2px 6px;}
+        }`;
+      document.head.appendChild(linkStyle);
+    }
+
+    function packageTrackingUrl(trackingNumber) {
+      const raw = String(trackingNumber || "").trim();
+      const compact = raw.replace(/\s+/g, "");
+      const encoded = encodeURIComponent(compact);
+
+      if (/^1Z[0-9A-Z]{16}$/i.test(compact)) {
+        return `https://www.ups.com/track?loc=en_US&tracknum=${encoded}`;
+      }
+      if (/^(9[2345]\d{18,20}|\d{20,22})$/.test(compact)) {
+        return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encoded}`;
+      }
+      if (/^\d{12,15}$/.test(compact)) {
+        return `https://www.fedex.com/fedextrack/?trknbr=${encoded}`;
+      }
+      if (/^\d{10}$/.test(compact) || /^JJD\d+/i.test(compact)) {
+        return `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${encoded}`;
+      }
+      return `https://www.17track.net/en?nums=${encoded}`;
+    }
+
     function applyTrackingLabels() {
       document.querySelectorAll("[data-po-apply-tracking]").forEach(button => {
         const poNumber = String(button.dataset.poApplyTracking || "").trim().toLowerCase();
@@ -101,12 +150,26 @@
         if (!summaryNote) return;
 
         let baseText = summaryNote.dataset.baseSummaryText || summaryNote.textContent || "";
-        baseText = baseText.replace(/\s*·\s*Tracking:\s*[^·]+$/i, "").trim();
+        baseText = baseText
+          .replace(/\s*·\s*Tracking:\s*[^·]+$/i, "")
+          .replace(/\s*Track Package\s*$/i, "")
+          .trim();
         summaryNote.dataset.baseSummaryText = baseText;
-        const desiredText = trackingNumber
+
+        summaryNote.textContent = trackingNumber
           ? `${baseText} · Tracking: ${trackingNumber}`
           : baseText;
-        if (summaryNote.textContent !== desiredText) summaryNote.textContent = desiredText;
+
+        if (trackingNumber) {
+          const trackLink = document.createElement("a");
+          trackLink.className = "pst-track-package-link";
+          trackLink.href = packageTrackingUrl(trackingNumber);
+          trackLink.target = "_blank";
+          trackLink.rel = "noopener noreferrer";
+          trackLink.textContent = "Track Package";
+          trackLink.setAttribute("aria-label", `Track package ${trackingNumber} in a new tab`);
+          summaryNote.appendChild(trackLink);
+        }
       });
     }
 
