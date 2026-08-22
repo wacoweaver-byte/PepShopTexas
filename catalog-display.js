@@ -56,6 +56,7 @@
           <p>${escapeHtml(selected.category || "Research product")}</p>
           <span data-catalog-sale>${saleBadge(selected)}</span>
           <h2><a href="${productUrl(selected)}" data-catalog-link>${formattedCatalogDisplayName(selected.display_name)}</a></h2>
+          <a class="catalog-details-link" href="${productUrl(selected)}" data-catalog-detail-link>View product details <span aria-hidden="true">→</span></a>
           ${catalogQuickBuy(variants)}
         </div>
       </article>
@@ -69,12 +70,14 @@
     const option = select.selectedOptions[0];
     const card = select.closest("[data-catalog-card]");
     const productLink = card?.querySelector("[data-catalog-link]");
+    const detailLink = card?.querySelector("[data-catalog-detail-link]");
     const button = card?.querySelector(".catalog-add-button");
     const url = option?.dataset?.url || "";
     const key = option?.dataset?.cartKey || option?.value || "";
     const out = option?.dataset?.out === "true";
 
     if (productLink && url) productLink.href = url;
+    if (detailLink && url) detailLink.href = url;
     if (button) {
       button.dataset.addToCart = key;
       button.disabled = out;
