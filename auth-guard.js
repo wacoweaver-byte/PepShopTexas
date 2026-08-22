@@ -34,6 +34,50 @@
       </main>`;
   }
 
+
+  function installBulkRequestAdminLink(client) {
+    const nav = document.querySelector(".pst-admin-nav");
+    if (!nav) return;
+
+    let link = nav.querySelector('a[href="bulk-requests.html"]');
+    if (!link) {
+      link = document.createElement("a");
+      link.href = "bulk-requests.html";
+      link.textContent = "Bulk Requests";
+      const reports = nav.querySelector('a[href="reports.html"]');
+      reports ? nav.insertBefore(link, reports) : nav.appendChild(link);
+    }
+
+    const currentFile = window.location.pathname.split("/").pop();
+    link.classList.toggle("active", currentFile === "bulk-requests.html");
+    link.style.position = "relative";
+
+    if (!document.getElementById("pst-bulk-admin-link-style")) {
+      const badgeStyle = document.createElement("style");
+      badgeStyle.id = "pst-bulk-admin-link-style";
+      badgeStyle.textContent = ".pst-auth-bulk-badge{position:absolute;top:-13px;right:-13px;min-width:19px;height:19px;padding:0 5px;border-radius:20px;background:#b42318;color:#fff;display:inline-grid;place-items:center;font:700 11px/1 Arial,sans-serif}.pst-auth-bulk-badge[hidden]{display:none}";
+      document.head.appendChild(badgeStyle);
+    }
+
+    client
+      .from("bulk_requests")
+      .select("request_number", { count: "exact", head: true })
+      .eq("status", "new")
+      .then(({ count, error }) => {
+        if (error) return;
+        let badge = link.querySelector(".pst-auth-bulk-badge, .pst-bulk-admin-badge, .nav-badge");
+        if (!badge) {
+          badge = document.createElement("span");
+          link.appendChild(badge);
+        }
+        badge.classList.add("pst-auth-bulk-badge");
+        const total = count || 0;
+        badge.hidden = total === 0;
+        badge.textContent = total > 99 ? "99+" : String(total);
+        badge.setAttribute("aria-label", total + " new bulk requests");
+      });
+  }
+
   async function run() {
     if (!mode) {
       reveal();
@@ -68,6 +112,8 @@
           redirect("account.html?access=denied");
           return;
         }
+
+        installBulkRequestAdminLink(client);
       }
 
       window.pstAuthenticatedUser = user;
