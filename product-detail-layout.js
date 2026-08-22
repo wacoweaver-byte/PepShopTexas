@@ -1,14 +1,25 @@
 /* PST product detail presentation layer.
    Keeps the existing product/cart renderer intact, then organizes its output into
-   a restrained two-column layout with a predictable per-variant vial image path. */
+   a restrained two-column layout with product-specific vial images. */
 (function () {
   const shell = document.querySelector("[data-product-detail]");
   if (!shell) return;
 
-  function productImagePath() {
+  const PRODUCT_IMAGE_PATHS = Object.freeze({
+    PSTP100034: "assets/images/products/mots-c-10mg.png",
+    PSTP100013: "assets/images/products/wolverine-10mg.png",
+    PSTP100042: "assets/images/products/pt-141-10mg.png",
+    PSTP100010: "assets/images/products/tide-3p-60mg.png",
+    PSTP100054: "assets/images/products/glow-70mg.png"
+  });
+
+  function productKey() {
     const params = new URLSearchParams(window.location.search);
-    const key = String(params.get("key") || params.get("id") || "product").trim();
-    return `images/products/${encodeURIComponent(key)}.webp`;
+    return String(params.get("key") || params.get("id") || "").trim();
+  }
+
+  function productImagePath() {
+    return PRODUCT_IMAGE_PATHS[productKey()] || "";
   }
 
   function enhanceProductDetail() {
@@ -25,7 +36,7 @@
     media.className = "pst-product-media";
     media.innerHTML = `
       <div class="pst-product-image-stage">
-        <img class="pst-product-vial-image" src="${productImagePath()}" alt="Product vial" loading="eager">
+        <img class="pst-product-vial-image" alt="Product vial" loading="eager" hidden>
         <div class="pst-product-image-placeholder" aria-hidden="true">
           <span>Product image coming soon</span>
         </div>
@@ -34,6 +45,8 @@
 
     const image = media.querySelector(".pst-product-vial-image");
     const placeholder = media.querySelector(".pst-product-image-placeholder");
+    const imagePath = productImagePath();
+
     image.addEventListener("load", () => {
       image.hidden = false;
       placeholder.hidden = true;
@@ -42,6 +55,8 @@
       image.hidden = true;
       placeholder.hidden = false;
     });
+
+    if (imagePath) image.src = imagePath;
 
     const purchase = document.createElement("div");
     purchase.className = "pst-product-purchase";
