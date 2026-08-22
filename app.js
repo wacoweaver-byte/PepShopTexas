@@ -449,6 +449,12 @@ function fillHomeList(name, products) {
   `).join("");
 }
 
+function normalizedResearchFocuses(value) {
+  const allowed = new Set(["performance", "recovery", "longevity"]);
+  const raw = Array.isArray(value) ? value : String(value || "").split(",");
+  return [...new Set(raw.map((item) => String(item || "").trim().toLowerCase()).filter((item) => allowed.has(item)))];
+}
+
 async function renderCatalog() {
   const grid = document.querySelector("[data-catalog-grid]");
   const searchInput = document.querySelector("[data-catalog-search]");
@@ -470,11 +476,11 @@ async function renderCatalog() {
       const query = searchInput.value.trim().toLowerCase();
       const category = categoryFilter.value;
       const filtered = sortProductsForCatalog(products.filter((product) => {
-        const productFocus = String(product.research_focus || "").trim().toLowerCase();
-        const haystack = [product.display_name, product.strength, product.category, product.research_focus, product.series, product.product_key].filter(Boolean).join(" ").toLowerCase();
+        const productFocuses = normalizedResearchFocuses(product.research_focus);
+        const haystack = [product.display_name, product.strength, product.category, ...productFocuses, product.series, product.product_key].filter(Boolean).join(" ").toLowerCase();
         return (!query || haystack.includes(query))
           && (!category || product.category === category)
-          && (!validFocus || productFocus === validFocus);
+          && (!validFocus || productFocuses.includes(validFocus));
       }));
       const groups = groupCatalogProducts(filtered);
       updateCatalogHeading({ heading, eyebrow, category, focus: validFocus, query: searchInput.value.trim(), count: groups.length });
