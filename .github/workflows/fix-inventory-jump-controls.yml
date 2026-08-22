@@ -1,0 +1,34 @@
+name: Fix Inventory jump controls
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-inventory-jump-controls.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make Inventory jump and collapse controls navy/gold
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('css/admin.css')
+          s = p.read_text()
+          marker = '.btn.secondary:hover,a.btn.secondary:hover,button.btn.secondary:hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}\n'
+          addition = '''\n/* Inventory navigation controls override generic secondary-button white treatment */\n.btn.secondary.inventory-jump-link,\nbutton.btn.secondary.inventory-jump-link,\n.btn.secondary.inventory-collapse-toggle,\nbutton.btn.secondary.inventory-collapse-toggle{color:#fff!important;background:var(--pst-admin-navy)!important;border-color:var(--pst-admin-navy)!important}\n.btn.secondary.inventory-jump-link:hover,\nbutton.btn.secondary.inventory-jump-link:hover,\n.btn.secondary.inventory-collapse-toggle:hover,\nbutton.btn.secondary.inventory-collapse-toggle:hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}\n'''
+          if 'Inventory navigation controls override generic secondary-button white treatment' in s:
+              raise SystemExit('Fix already present')
+          if marker not in s:
+              raise SystemExit('Expected secondary-button marker not found')
+          s = s.replace(marker, marker + addition, 1)
+          p.write_text(s)
+          PY
+      - name: Commit CSS fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add css/admin.css
+          git commit -m 'Style Inventory jump controls navy and gold'
+          git push
