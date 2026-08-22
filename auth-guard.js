@@ -89,11 +89,13 @@
       const trackingStyle = document.createElement("style");
       trackingStyle.id = "pst-po-tracking-mobile-style";
       trackingStyle.textContent = `
-        [data-po-apply-tracking] .pst-tracking-number{display:block;margin-top:4px;font-size:11px;font-weight:800;letter-spacing:.02em;text-transform:none;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+        [data-po-apply-tracking]{white-space:nowrap!important;min-width:0!important;max-width:100%!important;overflow:hidden!important}
+        [data-po-apply-tracking] .pst-tracking-action{display:block;white-space:nowrap}
+        [data-po-apply-tracking] .pst-tracking-number{display:block;margin-top:4px;max-width:180px;font-size:10px;font-weight:700;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
         @media (max-width:700px){
-          [data-po-apply-tracking]{white-space:normal!important;min-width:0!important;width:100%!important;max-width:100%!important;padding:10px 8px!important;line-height:1.15!important;text-align:center!important}
-          [data-po-apply-tracking] .pst-tracking-action{display:block;font-size:11px;line-height:1.1}
-          [data-po-apply-tracking] .pst-tracking-number{font-size:10px;line-height:1.2;word-break:break-all}
+          [data-po-apply-tracking]{width:100%!important;padding:9px 7px!important;line-height:1.1!important;text-align:center!important}
+          [data-po-apply-tracking] .pst-tracking-action{font-size:10px}
+          [data-po-apply-tracking] .pst-tracking-number{max-width:100%;margin-top:3px;font-size:9px}
         }`;
       document.head.appendChild(trackingStyle);
     }
