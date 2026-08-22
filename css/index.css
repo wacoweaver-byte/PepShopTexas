@@ -436,9 +436,37 @@ body[data-page="home"] {
 .focus-mark svg { width:38px; height:38px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
 .focus-item h3 { margin:0 0 10px; color:var(--pst-navy-deep); font-family:Georgia,"Times New Roman",serif; font-size:20px; font-weight:500; letter-spacing:.12em; }
 .focus-item p { max-width:300px; min-height:42px; margin:0 auto 14px; color:#3f4752; font-size:13px; line-height:1.55; }
-.focus-item a { color:var(--pst-navy); font-size:11px; font-weight:750; letter-spacing:.12em; text-decoration:none; transition:color .18s ease; }
-.focus-item a:hover,.focus-item a:focus-visible { color:var(--pst-gold); }
-.focus-item a span { margin-left:5px; }
+.focus-item a {
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:46px;
+  padding:12px 16px;
+  color:var(--pst-gold);
+  background:var(--pst-navy);
+  border:1px solid var(--pst-gold);
+  border-radius:0;
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:.12em;
+  line-height:1.25;
+  text-align:center;
+  text-decoration:none;
+  transition:background-color .18s ease,color .18s ease,border-color .18s ease;
+}
+.focus-item a:hover,
+.focus-item a:focus-visible {
+  color:var(--pst-navy-deep);
+  background:var(--pst-gold-soft);
+  border-color:var(--pst-gold);
+}
+.focus-item a:focus-visible {
+  outline:2px solid var(--pst-navy);
+  outline-offset:3px;
+}
+.focus-item a span { margin-left:8px; }
 
 .featured-section { border-top:1px solid #eee9e1; padding:34px 0 48px; background:#fff; }
 .featured-section > h2 { margin:0; color:var(--pst-navy-deep); font-family:Georgia,"Times New Roman",serif; font-size:27px; font-weight:500; letter-spacing:.06em; text-align:center; }
