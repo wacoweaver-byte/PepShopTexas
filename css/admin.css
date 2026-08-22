@@ -68,6 +68,45 @@ label{color:var(--pst-admin-navy)!important}
 .btn:disabled,button.btn:disabled,.btn[aria-disabled="true"],.reorder-action-btn:disabled{color:#7a8188!important;background:#f4f4f4!important;border-color:#d8dce1!important;opacity:1!important;cursor:not-allowed!important;pointer-events:none!important}
 .btn:focus-visible,a.btn:focus-visible,button.btn:focus-visible,.inventory-jump-link:focus-visible,.inventory-collapse-toggle:focus-visible,.reorder-action-btn:focus-visible{outline:2px solid var(--pst-admin-gold)!important;outline-offset:2px!important}
 
+/* Inventory action controls should visually match Report Writer actions */
+body[data-admin-page="inventory"] .inventory-jump-link,
+body[data-admin-page="inventory"] .inventory-collapse-toggle,
+body[data-admin-page="inventory"] .row-save,
+body[data-admin-page="inventory"] .row-audit-btn,
+body[data-admin-page="inventory"] .edit-incoming-btn,
+body[data-admin-page="inventory"] .close-incoming-edit-btn,
+body[data-admin-page="inventory"] .cancel-incoming-btn,
+body[data-admin-page="inventory"] .receive-incoming-btn,
+body[data-admin-page="inventory"] .transit-incoming-btn,
+body[data-admin-page="inventory"] .save-incoming-edit-btn,
+body[data-admin-page="inventory"] .incoming-line-remove,
+body[data-admin-page="inventory"] .reorder-action-btn,
+body[data-admin-page="inventory"] .jump-link,
+body[data-admin-page="inventory"] .collapse-toggle,
+body[data-admin-page="inventory"] button:not([class]),
+body[data-admin-page="inventory"] button[type="button"]:not(.btn):not(.field-order-btn),
+body[data-admin-page="inventory"] button[type="submit"]:not(.btn){color:#fff!important;background:var(--pst-admin-navy)!important;border:1px solid var(--pst-admin-navy)!important;border-radius:2px!important;font-family:var(--pst-admin-font)!important;font-size:11px!important;font-weight:650!important;letter-spacing:.055em!important;text-transform:uppercase!important;min-height:36px!important;padding:8px 12px!important;box-shadow:none!important}
+body[data-admin-page="inventory"] .inventory-jump-link:hover,
+body[data-admin-page="inventory"] .inventory-collapse-toggle:hover,
+body[data-admin-page="inventory"] .row-save:hover,
+body[data-admin-page="inventory"] .row-audit-btn:hover,
+body[data-admin-page="inventory"] .edit-incoming-btn:hover,
+body[data-admin-page="inventory"] .close-incoming-edit-btn:hover,
+body[data-admin-page="inventory"] .receive-incoming-btn:hover,
+body[data-admin-page="inventory"] .transit-incoming-btn:hover,
+body[data-admin-page="inventory"] .save-incoming-edit-btn:hover,
+body[data-admin-page="inventory"] .incoming-line-remove:hover,
+body[data-admin-page="inventory"] .reorder-action-btn:hover,
+body[data-admin-page="inventory"] .jump-link:hover,
+body[data-admin-page="inventory"] .collapse-toggle:hover,
+body[data-admin-page="inventory"] button:not([class]):hover,
+body[data-admin-page="inventory"] button[type="button"]:not(.btn):not(.field-order-btn):hover,
+body[data-admin-page="inventory"] button[type="submit"]:not(.btn):hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}
+body[data-admin-page="inventory"] .cancel-incoming-btn,
+body[data-admin-page="inventory"] button.danger:not(.btn){color:#fff!important;background:var(--pst-admin-danger)!important;border-color:var(--pst-admin-danger)!important}
+body[data-admin-page="inventory"] .cancel-incoming-btn:hover,
+body[data-admin-page="inventory"] button.danger:not(.btn):hover{color:#fff!important;background:#8f1d15!important;border-color:#8f1d15!important}
+
 /* STATUS LABELS — compact rectangles */
 .pill,.status-pill,.reorder-badge,.incoming-pill,.vendor-id-pill,.active-pill,.inactive-pill,.locked-pill,.payment-method-pill,.inventory-restored-pill,.inventory-restore-needed-pill,.inventory-deduct-pill,.inventory-deduct-needed-pill,.inventory-readonly-value,.inventory-current-readonly,.inventory-price-readonly,.inventory-category,.inventory-strength{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;min-height:24px!important;height:auto!important;padding:4px 8px!important;border-radius:2px!important;border:1px solid var(--pst-admin-line)!important;background:#fff!important;color:var(--pst-admin-navy)!important;box-shadow:none!important;font-size:10px!important;font-weight:650!important;line-height:1.1!important;white-space:nowrap!important}
 .status-pill.in_stock,.status-pill.available,.active-pill,.incoming-received,.reorder-healthy,.pill.paid,.pill.complete,.pill.shipped,.pill.delivered{color:var(--pst-admin-green)!important;border-color:rgba(15,138,59,.35)!important;background:#fff!important}
