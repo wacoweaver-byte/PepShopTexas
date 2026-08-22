@@ -32,6 +32,7 @@
       footer.className="site-footer pst-admin-footer";
       document.body.appendChild(footer);
     }
+    footer.classList.add("site-footer","pst-admin-footer");
     footer.innerHTML=markup;
     installBulkRequestLink();
   }
