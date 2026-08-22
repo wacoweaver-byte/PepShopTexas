@@ -1,0 +1,30 @@
+name: Fix Report Writer action geometry
+on:
+  push:
+    paths:
+      - '.github/workflows/report-writer-action-geometry.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add Report Writer action override
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('css/admin.css')
+          s = p.read_text()
+          marker = '/* REPORT WRITER ACTION GEOMETRY — shared admin standard */'
+          if marker not in s:
+              s += '''\n\n/* REPORT WRITER ACTION GEOMETRY — shared admin standard */\nbody .steps .step,\nbody .actions .btn,\nbody .actions a.btn,\nbody .actions button.btn,\nbody .card .btn,\nbody .card a.btn,\nbody .card button.btn,\nbody .field-order-btn {\n  border-radius: 2px !important;\n  min-height: 36px !important;\n  height: auto !important;\n  padding: 8px 12px !important;\n  color: #fff !important;\n  background: var(--pst-admin-navy) !important;\n  border-color: var(--pst-admin-navy) !important;\n}\nbody .steps .step:hover,\nbody .actions .btn:hover,\nbody .actions a.btn:hover,\nbody .actions button.btn:hover,\nbody .card .btn:hover,\nbody .card a.btn:hover,\nbody .card button.btn:hover,\nbody .field-order-btn:hover {\n  color: var(--pst-admin-navy) !important;\n  background: var(--pst-admin-gold) !important;\n  border-color: var(--pst-admin-gold) !important;\n}\nbody .actions .btn.danger,\nbody .card .btn.danger {\n  color: #fff !important;\n  background: var(--pst-admin-danger) !important;\n  border-color: var(--pst-admin-danger) !important;\n}\nbody .actions .btn:disabled,\nbody .card .btn:disabled {\n  color: #7a8188 !important;\n  background: #f4f4f4 !important;\n  border-color: #d8dce1 !important;\n}\n'''
+              p.write_text(s)
+          PY
+      - name: Commit CSS update
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add css/admin.css
+          git commit -m 'Standardize Report Writer action geometry' || true
+          git push
