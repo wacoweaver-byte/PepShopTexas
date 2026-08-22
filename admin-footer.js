@@ -64,8 +64,9 @@
     if(!client||!window.pstAuthenticatedUser)return;
     const result=await client.from("bulk_requests").select("request_number",{count:"exact",head:true}).eq("status","new");
     if(result.error)return;
-    let badge=link.querySelector(".pst-bulk-admin-badge");
-    if(!badge){badge=document.createElement("span");badge.className="pst-bulk-admin-badge";link.appendChild(badge)}
+    let badge=link.querySelector(".pst-bulk-admin-badge, .nav-badge");
+    if(!badge){badge=document.createElement("span");link.appendChild(badge)}
+    badge.classList.add("pst-bulk-admin-badge");
     const count=result.count||0;
     badge.hidden=!count;
     badge.textContent=count>99?"99+":String(count);
