@@ -61,6 +61,16 @@ label{color:var(--pst-admin-navy)!important}
 .btn:hover,a.btn:hover,button.btn:hover,.inventory-jump-link:hover,.inventory-collapse-toggle:hover,.row-save:hover,.row-audit-btn:hover,.edit-incoming-btn:hover,.close-incoming-edit-btn:hover,.cancel-incoming-btn:hover,.receive-incoming-btn:hover,.transit-incoming-btn:hover,.save-incoming-edit-btn:hover,.incoming-line-remove:hover,.reorder-action-btn:hover,.step:hover,.jump-link:hover,.collapse-toggle:hover,.field-order-btn:hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}
 .btn.secondary,a.btn.secondary,button.btn.secondary{color:var(--pst-admin-navy)!important;background:#fff!important;border-color:var(--pst-admin-navy)!important}
 .btn.secondary:hover,a.btn.secondary:hover,button.btn.secondary:hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}
+
+/* Inventory navigation controls override generic secondary-button white treatment */
+.btn.secondary.inventory-jump-link,
+button.btn.secondary.inventory-jump-link,
+.btn.secondary.inventory-collapse-toggle,
+button.btn.secondary.inventory-collapse-toggle{color:#fff!important;background:var(--pst-admin-navy)!important;border-color:var(--pst-admin-navy)!important}
+.btn.secondary.inventory-jump-link:hover,
+button.btn.secondary.inventory-jump-link:hover,
+.btn.secondary.inventory-collapse-toggle:hover,
+button.btn.secondary.inventory-collapse-toggle:hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}
 .btn.active,.btn.primary,.btn[aria-pressed="true"],.btn[aria-expanded="true"]{color:#fff!important;background:var(--pst-admin-navy-deep)!important;border-color:var(--pst-admin-navy-deep)!important}
 .btn.success,a.btn.success,button.btn.success,.receive-incoming-btn,.row-save,.btn.warning,a.btn.warning,button.btn.warning,.transit-incoming-btn{color:#fff!important;background:var(--pst-admin-navy)!important;border-color:var(--pst-admin-navy)!important}
 .btn.danger,a.btn.danger,button.btn.danger,.cancel-incoming-btn{color:#fff!important;background:var(--pst-admin-danger)!important;border-color:var(--pst-admin-danger)!important}
