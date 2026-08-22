@@ -255,6 +255,7 @@ body[data-page="home"] {
 }
 
 .pst-masthead-links {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: center;
