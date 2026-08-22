@@ -82,6 +82,42 @@
           color:#0b2d4f!important;
           border-color:#c9a45c!important;
         }
+        .pst-global-lookup-card .pst-global-lookup-results .pst-global-match,
+        .pst-global-lookup-card .pst-global-match{
+          background:#102a43!important;
+          color:#fff!important;
+          border:1px solid #b79a63!important;
+          box-shadow:none!important;
+        }
+        .pst-global-lookup-card .pst-global-match:hover,
+        .pst-global-lookup-card .pst-global-match:focus-visible{
+          background:#0b2037!important;
+          color:#fff!important;
+          border-color:#d8c8a4!important;
+        }
+        .pst-global-lookup-card .pst-global-match strong,
+        .pst-global-lookup-card .pst-global-match span,
+        .pst-global-lookup-card .pst-global-match .pst-global-match-evidence{
+          color:#fff!important;
+        }
+        .pst-global-lookup-card .pst-global-match .pst-global-match-evidence{
+          border-top-color:rgba(255,255,255,.35)!important;
+        }
+        .pst-global-lookup-card .pst-global-match-type{
+          color:#fff!important;
+          background:#102a43!important;
+          border-color:#b79a63!important;
+        }
+        .pst-global-lookup-card .pst-global-match mark.pst-global-search-highlight{
+          background:#b79a63!important;
+          color:#102a43!important;
+          font-weight:800!important;
+        }
+        .pst-global-lookup-card .pst-global-lookup-empty{
+          background:#102a43!important;
+          color:#fff!important;
+          border-color:#b79a63!important;
+        }
         .admin-dashboard-nav,
         .admin-dashboard-nav.pst-order-jump-wrap{
           background:transparent!important;
