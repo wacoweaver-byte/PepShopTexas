@@ -56,5 +56,18 @@
       </nav>
     </div>
   </footer>
+  <script>
+    (() => {
+      const desired = "Research use only. Not for human consumption. Images are for illustration purposes only.";
+      const applyDisclaimer = () => {
+        document.querySelectorAll(".research-use").forEach((node) => {
+          if (node.textContent !== desired) node.textContent = desired;
+        });
+      };
+      applyDisclaimer();
+      const host = document.querySelector("[data-product-detail]");
+      if (host) new MutationObserver(applyDisclaimer).observe(host, { childList: true, subtree: true });
+    })();
+  </script>
 </body>
 </html>
