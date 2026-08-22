@@ -1,5 +1,6 @@
 /* Pep Shop Texas — shared admin design system
-   Customer-facing visual language adapted for admin operations. */
+   Shared admin colors, typography, forms, actions, statuses, header, and footer.
+   Page-specific card geometry remains owned by each page. */
 
 :root {
   --pst-admin-navy: #102a43;
@@ -38,14 +39,13 @@ a{color:inherit;text-decoration:none}
 .pst-admin-nav a.active,.pst-admin-nav a[aria-current="page"]{color:var(--pst-admin-navy)!important}
 .pst-admin-nav a.active::after,.pst-admin-nav a[aria-current="page"]::after{content:""!important;position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:1px!important;background:var(--pst-admin-gold)!important}
 
-/* PAGE TYPOGRAPHY + SURFACES */
+/* PAGE TYPOGRAPHY + SHARED SURFACE COLORING */
 main{background:#fff!important}
 h1,h2,h3,.page-title,.section-title,.reports-title,.admin-title,.inventory-title,.product-title,.discount-title,.customer-title{color:var(--pst-admin-navy)!important}
 h1,.page-title h1{font-family:var(--pst-admin-heading)!important;font-weight:500!important;letter-spacing:-.02em!important}
 h2,h3{font-family:var(--pst-admin-font)!important;font-weight:600!important}
 .subtitle,.muted{color:var(--pst-admin-muted)!important}
-.card,.panel,.modal,.summary-card,.attention-card,.kv,.item,.audit-item,.generated-id{background:#fff!important;border-color:var(--pst-admin-line)!important;box-shadow:none!important}
-.card,.panel,.summary-card,.attention-card{border-radius:0!important}
+.card,.panel,.modal,.summary-card,.attention-card,.kv,.item,.audit-item,.generated-id{background:#fff!important;border-color:var(--pst-admin-line)!important}
 .card-header,.card-head,.card-footer{border-color:var(--pst-admin-line)!important}
 tr:hover,tr.active,tr.order-row:hover{background:#fcfbf8!important}
 th{color:var(--pst-admin-navy)!important;background:var(--pst-admin-soft)!important}
@@ -56,7 +56,7 @@ input,select,textarea{color:var(--pst-admin-ink)!important;background:#fff!impor
 input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(--pst-admin-gold)!important;box-shadow:0 0 0 2px rgba(183,154,99,.10)!important}
 label{color:var(--pst-admin-navy)!important}
 
-/* ACTIONS — square navy, customer gold hover */
+/* ACTIONS — shared navy/gold treatment */
 .btn,a.btn,button.btn,.inventory-jump-link,.inventory-collapse-toggle,.row-save,.row-audit-btn,.edit-incoming-btn,.close-incoming-edit-btn,.cancel-incoming-btn,.receive-incoming-btn,.transit-incoming-btn,.save-incoming-edit-btn,.incoming-line-remove,.reorder-action-btn,.step,.jump-link,.collapse-toggle,.field-order-btn{box-sizing:border-box!important;width:auto!important;min-width:0!important;min-height:36px!important;height:auto!important;margin:0!important;padding:8px 12px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;color:#fff!important;background:var(--pst-admin-navy)!important;border:1px solid var(--pst-admin-navy)!important;border-radius:2px!important;box-shadow:none!important;font-family:var(--pst-admin-font)!important;font-size:11px!important;font-weight:650!important;line-height:1!important;letter-spacing:.055em!important;text-align:center!important;text-transform:uppercase!important;text-decoration:none!important;white-space:nowrap!important;cursor:pointer!important;transition:background-color .18s ease,border-color .18s ease,color .18s ease!important}
 .btn:hover,a.btn:hover,button.btn:hover,.inventory-jump-link:hover,.inventory-collapse-toggle:hover,.row-save:hover,.row-audit-btn:hover,.edit-incoming-btn:hover,.close-incoming-edit-btn:hover,.cancel-incoming-btn:hover,.receive-incoming-btn:hover,.transit-incoming-btn:hover,.save-incoming-edit-btn:hover,.incoming-line-remove:hover,.reorder-action-btn:hover,.step:hover,.jump-link:hover,.collapse-toggle:hover,.field-order-btn:hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}
 .btn.secondary,a.btn.secondary,button.btn.secondary{color:var(--pst-admin-navy)!important;background:#fff!important;border-color:var(--pst-admin-navy)!important}
@@ -68,7 +68,7 @@ label{color:var(--pst-admin-navy)!important}
 .btn:disabled,button.btn:disabled,.btn[aria-disabled="true"],.reorder-action-btn:disabled{color:#7a8188!important;background:#f4f4f4!important;border-color:#d8dce1!important;opacity:1!important;cursor:not-allowed!important;pointer-events:none!important}
 .btn:focus-visible,a.btn:focus-visible,button.btn:focus-visible,.inventory-jump-link:focus-visible,.inventory-collapse-toggle:focus-visible,.reorder-action-btn:focus-visible{outline:2px solid var(--pst-admin-gold)!important;outline-offset:2px!important}
 
-/* STATUS LABELS — compact rectangles, not pills */
+/* STATUS LABELS — compact rectangles */
 .pill,.status-pill,.reorder-badge,.incoming-pill,.vendor-id-pill,.active-pill,.inactive-pill,.locked-pill,.payment-method-pill,.inventory-restored-pill,.inventory-restore-needed-pill,.inventory-deduct-pill,.inventory-deduct-needed-pill,.inventory-readonly-value,.inventory-current-readonly,.inventory-price-readonly,.inventory-category,.inventory-strength{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;min-height:24px!important;height:auto!important;padding:4px 8px!important;border-radius:2px!important;border:1px solid var(--pst-admin-line)!important;background:#fff!important;color:var(--pst-admin-navy)!important;box-shadow:none!important;font-size:10px!important;font-weight:650!important;line-height:1.1!important;white-space:nowrap!important}
 .status-pill.in_stock,.status-pill.available,.active-pill,.incoming-received,.reorder-healthy,.pill.paid,.pill.complete,.pill.shipped,.pill.delivered{color:var(--pst-admin-green)!important;border-color:rgba(15,138,59,.35)!important;background:#fff!important}
 .status-pill.limited,.incoming-in_transit,.reorder-now,.reorder-watch,.pill.pending,.pill.awaiting_payment{color:var(--pst-admin-warn)!important;border-color:rgba(183,121,31,.35)!important;background:#fff!important}
