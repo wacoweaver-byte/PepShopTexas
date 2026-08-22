@@ -296,3 +296,16 @@ html body .jumpbar button:hover {
   background:var(--pst-admin-gold)!important;
   border-color:var(--pst-admin-gold)!important;
 }
+
+/* Products: Add Product is a standard admin primary action. */
+html body button#newProductBtn {
+  color:#fff!important;
+  background:var(--pst-admin-navy)!important;
+  border-color:var(--pst-admin-navy)!important;
+}
+html body button#newProductBtn:hover,
+html body button#newProductBtn:focus-visible {
+  color:var(--pst-admin-navy)!important;
+  background:var(--pst-admin-gold)!important;
+  border-color:var(--pst-admin-gold)!important;
+}
