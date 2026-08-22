@@ -182,7 +182,7 @@ function showProductLoadError(error) {
 function setupLoginPage() {
   const form = document.querySelector("[data-login-form]");
   const message = document.querySelector("[data-auth-message]");
-  const redirectTo = params.get("redirect") || "account.html";
+  const redirectTo = safeLocalRedirect(params.get("redirect"), "account.html");
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -199,6 +199,19 @@ function setupLoginPage() {
     }
     window.location.href = redirectTo;
   });
+}
+
+function safeLocalRedirect(value, fallback = "account.html") {
+  const target = String(value || "").trim();
+  if (!target || target.startsWith("//") || /^[a-z][a-z0-9+.-]*:/i.test(target)) return fallback;
+  try {
+    const resolved = new URL(target, window.location.href);
+    if (resolved.origin !== window.location.origin) return fallback;
+    const page = resolved.pathname.split("/").pop() || fallback;
+    return `${page}${resolved.search}${resolved.hash}`;
+  } catch {
+    return fallback;
+  }
 }
 
 async function requireUser(redirectTarget) {
