@@ -962,10 +962,16 @@ td .pill {
               <label class="full">Admin ONLY<textarea name="admin_only" placeholder="Internal reporting notes only. Hidden from customers."></textarea></label>
               <label class="full">COA URL<input name="coa_url" placeholder="/assets/coas/coa-retatrutide-10mg-afi-2025-12-28.jpeg"></label>
               <label class="full">COA Button Label<input name="coa_label" value="View COA" placeholder="View COA"></label>
+              <label class="full">Shop by Category
+                <select name="research_focus">
+                  <option value="">Not assigned</option>
+                  <option value="performance">Performance</option>
+                  <option value="recovery">Recovery</option>
+                  <option value="longevity">Longevity</option>
+                </select>
+              </label>
               <div class="full checks">
                 <label class="check"><input name="is_active" type="checkbox" checked> Visible to customers</label>
-                <label class="check"><input name="featured" type="checkbox"> Show in New Arrivals</label>
-                <label class="check"><input name="hot_peptide" type="checkbox"> Hot peptide</label>
               </div>
             </div>
             <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
@@ -1018,7 +1024,7 @@ td .pill {
     const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
     const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,description,research_notes,admin_only,price,current_inventory,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,hot_peptide,sale_enabled,sale_price,sale_label";
+    const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,research_focus,description,research_notes,admin_only,price,current_inventory,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,hot_peptide,sale_enabled,sale_price,sale_label";
     let products = [];
     let activeProduct = null;
     let inventoryCostsByProductKey = {};
@@ -1227,6 +1233,16 @@ td .pill {
       return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category)}</option>`).join("");
     }
 
+    function researchFocusOptions(current) {
+      const selected = String(current || "").trim().toLowerCase();
+      return [
+        ["", "Not assigned"],
+        ["performance", "Performance"],
+        ["recovery", "Recovery"],
+        ["longevity", "Longevity"]
+      ].map(([value, label]) => `<option value="${value}" ${value === selected ? "selected" : ""}>${label}</option>`).join("");
+    }
+
     function retailPriceFromCost(cost, margin = 0.80) {
       const numericCost = Number(cost);
       if (!Number.isFinite(numericCost) || numericCost <= 0) return null;
@@ -1335,6 +1351,7 @@ td .pill {
         sort_name: displayName,
         strength,
         category,
+        research_focus: form.elements.research_focus.value || null,
         description: form.elements.description.value.trim() || null,
         admin_only: form.elements.admin_only.value.trim() || null,
         research_notes: null,
@@ -1344,9 +1361,9 @@ td .pill {
         price,
         current_inventory: currentInventory,
         is_active: form.elements.is_active.checked,
-        featured: form.elements.featured.checked,
+        featured: false,
         blend_stack: category === "Stack",
-        hot_peptide: form.elements.hot_peptide.checked,
+        hot_peptide: false,
         sale_enabled: false,
         sale_price: null,
         sale_label: null,
@@ -1371,7 +1388,7 @@ td .pill {
         low_stock_threshold: 5,
         limited_stock_threshold: 10,
         is_active: form.elements.is_active.checked,
-        featured: form.elements.featured.checked,
+        featured: false,
         blend_stack: category === "Stack",
         coa_url: catalogPayload.coa_url,
         coa_label: catalogPayload.coa_label,
@@ -1432,10 +1449,11 @@ td .pill {
             <label class="full">Testing Statement<textarea name="testing_statement">${esc(activeProduct.testing_statement || "")}</textarea></label>
             <label class="full">COA URL<input name="coa_url" value="${esc(activeProduct.coa_url || "")}" placeholder="/assets/coas/coa-product-dose-lab-date.jpeg"></label>
             <label class="full">COA Button Label<input name="coa_label" value="${esc(activeProduct.coa_label || "View COA")}" placeholder="View COA"></label>
+            <label class="full">Shop by Category
+              <select name="research_focus">${researchFocusOptions(activeProduct.research_focus)}</select>
+            </label>
             <div class="full checks">
               <label class="check"><input name="is_active" type="checkbox" ${activeProduct.is_active ? "checked" : ""}> Visible to customers</label>
-              <label class="check"><input name="featured" type="checkbox" ${activeProduct.featured ? "checked" : ""}> Show in New Arrivals</label>
-              <label class="check"><input name="hot_peptide" type="checkbox" ${activeProduct.hot_peptide ? "checked" : ""}> Hot peptide</label>
               <label class="check"><input name="sale_enabled" type="checkbox" ${activeProduct.sale_enabled ? "checked" : ""}> Sale enabled</label>
             </div>
           </div>
@@ -1463,6 +1481,7 @@ td .pill {
         display_name: value("display_name", form).trim(),
         strength: value("strength", form).trim() || null,
         category,
+        research_focus: value("research_focus", form).trim() || null,
         price: Number(value("price", form) || 0),
         sale_price: value("sale_price", form) === "" ? null : Number(value("sale_price", form)),
         sale_label: value("sale_label", form).trim() || null,
@@ -1473,9 +1492,7 @@ td .pill {
         coa_url: value("coa_url", form).trim() || null,
         coa_label: value("coa_label", form).trim() || "View COA",
         is_active: checked("is_active", form),
-        featured: checked("featured", form),
         blend_stack: category === "Stack",
-        hot_peptide: checked("hot_peptide", form),
         sale_enabled: checked("sale_enabled", form),
         updated_at: new Date().toISOString()
       };
