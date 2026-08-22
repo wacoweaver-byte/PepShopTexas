@@ -255,11 +255,10 @@ body[data-page="home"] {
 }
 
 .pst-masthead-links {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: center;
-  justify-content: center;
-  gap: 12px clamp(28px, 4.2vw, 68px);
+  gap: 12px clamp(12px, 2vw, 28px);
   width: min(1120px, calc(100% - 24px));
   margin: clamp(24px, 3vw, 42px) auto 0;
   padding: 0 12px clamp(18px, 2.2vw, 28px);
@@ -275,6 +274,8 @@ body[data-page="home"] {
   letter-spacing: .09em;
   text-decoration: none;
   white-space: nowrap;
+  text-align: center;
+  min-width: 0;
 }
 
 .pst-masthead-links a::after {
