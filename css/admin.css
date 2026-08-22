@@ -137,7 +137,6 @@ body[data-admin-page="inventory"] button.danger:not(.btn):hover{color:#fff!impor
 @media(max-width:900px){.pst-admin-nav-wrap{width:calc(100% - 28px)!important;flex-direction:column!important;align-items:center!important;gap:10px!important}.pst-admin-logo-link{width:160px!important;height:54px!important;flex:0 0 54px!important}.pst-admin-nav{justify-content:center!important;gap:8px 16px!important}.pst-admin-footer-inner{grid-template-columns:1fr!important;gap:22px!important}}
 @media(max-width:560px){.pst-admin-nav a{font-size:10.5px!important}.btn,a.btn,button.btn,.inventory-jump-link,.inventory-collapse-toggle,.row-save,.row-audit-btn,.edit-incoming-btn,.close-incoming-edit-btn,.cancel-incoming-btn,.receive-incoming-btn,.transit-incoming-btn,.save-incoming-edit-btn,.incoming-line-remove,.reorder-action-btn{min-height:34px!important;padding:7px 10px!important;font-size:10px!important}}
 
-
 /* REPORT WRITER ACTION GEOMETRY — shared admin standard */
 body .steps .step,
 body .actions .btn,
@@ -178,4 +177,77 @@ body .card .btn:disabled {
   color: #7a8188 !important;
   background: #f4f4f4 !important;
   border-color: #d8dce1 !important;
+}
+
+/* PST ADMIN ACTION STANDARD V10 */
+/* Interactive admin controls use one visual standard. Status-only labels/pills are untouched. */
+html body main button,
+html body main a.btn,
+html body main [role="button"],
+html body [class*="jumpbar"] a,
+html body [class*="jumpbar"] button,
+html body button[class*="jump"],
+html body a[class*="jump"],
+html body button[class*="collapse"],
+html body a[class*="collapse"],
+html body button[aria-expanded],
+html body a[aria-expanded],
+html body button.pill,
+html body a.pill {
+  box-sizing:border-box!important;
+  color:#fff!important;
+  background:var(--pst-admin-navy)!important;
+  border:1px solid var(--pst-admin-navy)!important;
+  border-radius:2px!important;
+  box-shadow:none!important;
+  min-height:36px!important;
+  height:auto!important;
+  padding:8px 12px!important;
+  font-family:var(--pst-admin-font)!important;
+  font-size:11px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  letter-spacing:.055em!important;
+  text-transform:uppercase!important;
+  text-decoration:none!important;
+  cursor:pointer!important;
+}
+html body main button:hover,
+html body main a.btn:hover,
+html body main [role="button"]:hover,
+html body [class*="jumpbar"] a:hover,
+html body [class*="jumpbar"] button:hover,
+html body button[class*="jump"]:hover,
+html body a[class*="jump"]:hover,
+html body button[class*="collapse"]:hover,
+html body a[class*="collapse"]:hover,
+html body button[aria-expanded]:hover,
+html body a[aria-expanded]:hover,
+html body button.pill:hover,
+html body a.pill:hover {
+  color:var(--pst-admin-navy)!important;
+  background:var(--pst-admin-gold)!important;
+  border-color:var(--pst-admin-gold)!important;
+}
+html body main button.danger,
+html body main .btn.danger,
+html body main a.btn.danger {
+  color:#fff!important;
+  background:var(--pst-admin-danger)!important;
+  border-color:var(--pst-admin-danger)!important;
+}
+html body main button.danger:hover,
+html body main .btn.danger:hover,
+html body main a.btn.danger:hover {
+  color:#fff!important;
+  background:#8f1d15!important;
+  border-color:#8f1d15!important;
+}
+html body main button:disabled,
+html body main .btn:disabled,
+html body main [aria-disabled="true"] {
+  color:#7a8188!important;
+  background:#f4f4f4!important;
+  border-color:#d8dce1!important;
+  cursor:not-allowed!important;
 }
