@@ -103,7 +103,7 @@ function requireSupabaseClient() {
 }
 
 async function setupHeaderAuthState() {
-  const accountLinks = document.querySelectorAll(".main-nav a[href='account.html']");
+  const accountLinks = document.querySelectorAll("[data-account-link], .main-nav a[href='account.html']");
   if (!pstSupabaseClient) return;
 
   try {
@@ -128,9 +128,29 @@ async function setupHeaderAuthState() {
     const admin = await getAdminRecordForUser(user);
     const isAdmin = !!admin && (admin.is_active === true || admin.active === true || admin.is_admin === true);
     setHeaderAdminLink(isAdmin);
+    placeCustomerHeaderIdentity();
   } catch (error) {
     console.warn("Header account check failed", error);
   }
+}
+
+function placeCustomerHeaderIdentity() {
+  document.querySelectorAll(".pst-customer-header-inner").forEach((header) => {
+    const logo = header.querySelector(".pst-customer-logo-link");
+    const account = header.querySelector("[data-account-link]");
+    const admin = header.querySelector("[data-admin-link]");
+    if (!logo || !account || !admin) return;
+
+    let identity = header.querySelector(".pst-customer-identity");
+    if (!identity) {
+      identity = document.createElement("div");
+      identity.className = "pst-customer-identity";
+      identity.setAttribute("aria-label", "Account and administration");
+      logo.insertAdjacentElement("afterend", identity);
+    }
+
+    identity.append(account, admin);
+  });
 }
 
 function setHeaderAdminLink(isAdmin) {
