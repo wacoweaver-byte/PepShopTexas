@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" data-auth-guard="admin">
+<head>
+  <style id="pst-auth-guard-style">html{visibility:hidden}</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pep Shop Texas | Bulk Requests</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="auth-guard.js?v=1"></script>
+  <style>
+    :root{--ink:#101820;--muted:#667085;--line:#d6d9de;--paper:#fff;--bg:#f5f8fb;--red:#b42318;--green:#0f8a3b;--amber:#9a6700}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px Arial,sans-serif}
+    header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #000}.pst-admin-nav-wrap{max-width:1540px;margin:auto;padding:10px 18px;display:flex;align-items:center;gap:24px}.pst-admin-header-logo{height:54px;width:auto}.pst-admin-nav{display:flex;flex-wrap:wrap;gap:18px;align-items:center}.pst-admin-nav a{color:#101820;text-decoration:none;font-weight:800;position:relative}.pst-admin-nav a.active{color:#b00000}
+    .nav-badge{position:absolute;top:-13px;right:-13px;min-width:19px;height:19px;padding:0 5px;border-radius:20px;background:#b42318;color:#fff;display:inline-grid;place-items:center;font-size:11px}
+    main{max-width:1540px;margin:auto;padding:24px 18px 60px}h1{margin:0 0 6px;font-size:34px}.subtitle{margin:0 0 18px;color:var(--muted)}.notice{padding:11px 13px;background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:16px}.notice.good{color:var(--green)}.notice.bad{color:var(--red)}
+    .layout{display:grid;grid-template-columns:minmax(480px,1fr) minmax(420px,.9fr);gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 22px rgba(16,24,32,.06);overflow:hidden}.card-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;justify-content:space-between;align-items:center}.filters{display:flex;gap:8px}.filters input,.filters select,input,select,textarea{border:1px solid #aeb4bd;border-radius:8px;padding:9px;font:inherit;background:#fff}textarea{resize:vertical;min-height:86px;width:100%}.table-wrap{overflow:auto;max-height:70vh}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:11px 10px;border-bottom:1px solid #e5e7eb;text-align:left}th{position:sticky;top:0;background:#f8f9fb;font-size:11px;text-transform:uppercase;color:var(--muted)}tbody tr{cursor:pointer}tbody tr:hover,tbody tr.active{background:#fff5f5}.pill{display:inline-block;padding:4px 8px;border:1px solid #8b919a;border-radius:999px;font-size:11px;font-weight:800;text-transform:capitalize}.pill.new{border-color:var(--red);color:var(--red)}.pill.quoted{border-color:var(--amber);color:var(--amber)}.pill.ordered{border-color:var(--green);color:var(--green)}
+    .empty{padding:34px;text-align:center;color:var(--muted)}.sheet{padding:18px}.sheet-title{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #101820;padding-bottom:12px;margin-bottom:16px}.sheet-title h2{margin:0}.request-id{font-size:18px;font-weight:900}.section{border-bottom:1px solid var(--line);padding:0 0 16px;margin:0 0 16px}.section h3{margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.04em}.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kv div{background:#f8f9fb;border:1px solid #e2e5e9;border-radius:8px;padding:9px;word-break:break-word}.kv strong,label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.edit-grid input,.edit-grid select{width:100%}.actions{display:flex;gap:8px;align-items:center}.btn{border:1px solid #101820;border-radius:999px;padding:8px 13px;background:#fff;color:#101820;font-weight:800;cursor:pointer}.btn.primary{background:#101820;color:#fff}.btn:disabled{opacity:.55}.audit{display:grid;gap:8px}.audit-item{border-left:3px solid #101820;padding:6px 9px;background:#f8f9fb}.audit-item small{display:block;color:var(--muted);margin-top:3px}
+    @media(max-width:1000px){.layout{grid-template-columns:1fr}.table-wrap{max-height:420px}}@media(max-width:760px){.pst-admin-nav-wrap{align-items:flex-start;flex-direction:column}.pst-admin-nav{gap:12px}.kv,.edit-grid{grid-template-columns:1fr}.full{grid-column:auto}.filters{flex-direction:column}}
+    @media print{header,.list-card,.notice,.actions{display:none!important}.layout{display:block}.detail-card{border:0;box-shadow:none}.sheet{padding:0}body{background:#fff}}
+  </style>
+</head>
+<body>
+<header class="pst-admin-header"><div class="pst-admin-nav-wrap">
+  <a href="index.html" aria-label="Pep Shop Texas Home"><img src="pst-header-logo.png" alt="PST Pep Shop Texas" class="pst-admin-header-logo"></a>
+  <nav class="pst-admin-nav" aria-label="Admin navigation">
+    <a href="admin.html">Orders</a><a href="inventory.html">Inventory</a><a href="products.html">Products</a><a href="discounts.html">Discounts</a><a href="promotions.html">Promotions</a><a href="bulk-requests.html" class="active">Bulk Requests <span id="bulkBadge" class="nav-badge" hidden></span></a><a href="reports.html">Reports</a><a href="customers.html">Customers</a><a href="index.html">View Site</a>
+  </nav>
+</div></header>
+<main>
+  <h1>Bulk Requests</h1>
+  <p class="subtitle">Review submissions, prepare quotes, record a PO number, and retain a simple audit trail.</p>
+  <div id="notice" class="notice">Checking admin access…</div>
+  <div class="layout">
+    <section class="card list-card">
+      <div class="card-head"><strong>Requests</strong><div class="filters"><input id="search" type="search" placeholder="Search request, customer, product…"><select id="filter"><option value="">All statuses</option><option value="new">New</option><option value="reviewed">Reviewed</option><option value="quoted">Quoted</option><option value="ordered">Ordered</option><option value="closed">Closed</option></select></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Request</th><th>Submitted</th><th>Customer</th><th>Product</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table><div id="listEmpty" class="empty" hidden>No requests match this view.</div></div>
+    </section>
+    <section class="card detail-card"><div id="detailEmpty" class="empty">Select a request to review it.</div><div id="sheet" class="sheet" hidden></div></section>
+  </div>
+</main>
+<footer class="pst-admin-footer"></footer>
+<script defer src="admin-footer.js?v=4"></script>
+<script>
+(() => {
+  let client, requests=[], selected=null;
+  const $=id=>document.getElementById(id);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const ref=n=>'PST-B'+String(n).padStart(6,'0');
+  const date=v=>v?new Date(v).toLocaleString():'—';
+  const testing=v=>v==='pst_coordinated'?'PST coordinates independent testing':'Customer coordinates independent testing';
+
+  async function start(){
+    client=window.pstAuthGuardClient;
+    if(!client)return;
+    $('notice').textContent='Loading bulk requests…';
+    await loadRequests();
+  }
+  window.addEventListener('pst-auth-ready',start,{once:true});
+  if(window.pstAuthenticatedUser)start();
+
+  async function loadRequests(){
+    const {data,error}=await client.from('bulk_requests').select('*').order('created_at',{ascending:false});
+    if(error){showNotice(error.message,false);return}
+    requests=data||[];
+    showNotice(requests.length?'Bulk requests loaded.':'No bulk requests have been submitted yet.',true);
+    renderRows(); updateBadge();
+    if(selected){selected=requests.find(r=>r.request_number===selected.request_number)||null; if(selected)await renderDetail();}
+  }
+  function showNotice(message,good){$('notice').textContent=message;$('notice').className='notice '+(good?'good':'bad')}
+  function filtered(){
+    const q=$('search').value.trim().toLowerCase(), f=$('filter').value;
+    return requests.filter(r=>(!f||r.status===f)&&(!q||[ref(r.request_number),r.name,r.company,r.email,r.product,r.po_number].some(v=>String(v||'').toLowerCase().includes(q))));
+  }
+  function renderRows(){
+    const list=filtered(); $('listEmpty').hidden=!!list.length;
+    $('rows').innerHTML=list.map(r=>`<tr data-id="${r.request_number}" class="${selected?.request_number===r.request_number?'active':''}"><td><strong>${ref(r.request_number)}</strong></td><td>${date(r.created_at)}</td><td>${esc(r.name)}<br><small>${esc(r.email)}</small></td><td>${esc(r.product)} · ${esc(r.strength)}<br><small>${r.kits} kit(s)</small></td><td><span class="pill ${r.status}">${esc(r.status)}</span></td></tr>`).join('');
+    $('rows').querySelectorAll('tr').forEach(tr=>tr.onclick=async()=>{selected=requests.find(r=>r.request_number===Number(tr.dataset.id));renderRows();await renderDetail()});
+  }
+  function updateBadge(){const n=requests.filter(r=>r.status==='new').length;$('bulkBadge').hidden=!n;$('bulkBadge').textContent=n>99?'99+':n}
+  async function renderDetail(){
+    $('detailEmpty').hidden=true;$('sheet').hidden=false;
+    const r=selected;
+    $('sheet').innerHTML=`
+      <div class="sheet-title"><div><h2>Bulk Request Report</h2><div class="request-id">${ref(r.request_number)}</div></div><div>Submitted<br><strong>${date(r.created_at)}</strong></div></div>
+      <div class="section"><h3>Customer</h3><div class="kv"><div><strong>Name</strong>${esc(r.name)}</div><div><strong>Company</strong>${esc(r.company||'—')}</div><div><strong>Email</strong><a href="mailto:${esc(r.email)}">${esc(r.email)}</a></div><div><strong>Phone</strong>${esc(r.phone||'—')}</div></div></div>
+      <div class="section"><h3>Request</h3><div class="kv"><div><strong>Product</strong>${esc(r.product)}</div><div><strong>Strength</strong>${esc(r.strength)}</div><div><strong>Kits</strong>${r.kits} (${r.kits*10} vials)</div><div><strong>Testing</strong>${esc(testing(r.testing_path))}</div><div style="grid-column:1/-1"><strong>Special Requirements</strong>${esc(r.requirements||'None')}</div></div></div>
+      <div class="section"><h3>Review & Order</h3><div class="edit-grid">
+        <label>Status<select id="editStatus"><option value="new">New</option><option value="reviewed">Reviewed</option><option value="quoted">Quoted</option><option value="ordered">Ordered</option><option value="closed">Closed</option></select></label>
+        <label>Quote Amount<input id="editQuote" type="number" min="0" step=".01" value="${esc(r.quote_amount??'')}"></label>
+        <label class="full">Quote Notes<textarea id="editQuoteNotes">${esc(r.quote_notes||'')}</textarea></label>
+        <label>PO Number<input id="editPo" type="text" value="${esc(r.po_number||'')}" placeholder="Enter when order is placed"></label>
+        <label>Last Touched<input disabled value="${esc(r.last_touched_email||'Not reviewed yet')}"></label>
+        <label class="full">Internal Notes<textarea id="editAdminNotes">${esc(r.admin_notes||'')}</textarea></label>
+      </div><div class="actions"><button id="save" class="btn primary">Save Changes</button><button class="btn" onclick="window.print()">Print Report</button><span id="saveState"></span></div></div>
+      <div class="section"><h3>Audit Trail</h3><div id="audit" class="audit">Loading history…</div></div>`;
+    $('editStatus').value=r.status;$('save').onclick=save;
+    const {data,error}=await client.from('bulk_request_audit').select('*').eq('request_number',r.request_number).order('created_at',{ascending:false});
+    $('audit').innerHTML=error?esc(error.message):(data||[]).map(a=>`<div class="audit-item"><strong>${esc(a.action.replaceAll('_',' '))}</strong>${esc(a.actor_email||'Public submission')}<small>${date(a.created_at)}${a.old_status!==a.new_status&&a.old_status?' · '+esc(a.old_status)+' → '+esc(a.new_status):''}</small></div>`).join('')||'No history yet.';
+  }
+  async function save(){
+    const button=$('save'),state=$('saveState');button.disabled=true;state.textContent='Saving…';
+    const amount=$('editQuote').value.trim();
+    const payload={status:$('editStatus').value,quote_amount:amount===''?null:Number(amount),quote_notes:$('editQuoteNotes').value.trim()||null,po_number:$('editPo').value.trim()||null,admin_notes:$('editAdminNotes').value.trim()||null};
+    const {error}=await client.from('bulk_requests').update(payload).eq('request_number',selected.request_number);
+    button.disabled=false;
+    if(error){state.textContent='Save failed';showNotice(error.message,false);return}
+    state.textContent='Saved';showNotice(ref(selected.request_number)+' updated.',true);await loadRequests();
+  }
+  $('search').addEventListener('input',renderRows);$('filter').addEventListener('change',renderRows);
+})();
+</script>
+</body>
+</html>
