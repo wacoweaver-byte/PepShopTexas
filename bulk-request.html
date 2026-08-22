@@ -134,11 +134,45 @@
     document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('bulkRequestForm');
       const status = document.getElementById('bulkRequestStatus');
-      if (!form || !status) return;
-      form.addEventListener('submit', event => {
+      const submit = document.getElementById('bulkRequestSubmit');
+      if (!form || !status || !submit) return;
+
+      const client = window.supabase.createClient(
+        'https://ucejjztsbmrogiteivxl.supabase.co',
+        'sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX'
+      );
+
+      form.addEventListener('submit', async event => {
         event.preventDefault();
         if (!form.reportValidity()) return;
-        status.textContent = 'Request form is ready. Submission workflow will be connected next.';
+
+        const data = new FormData(form);
+        const payload = {
+          name: String(data.get('name') || '').trim(),
+          company: String(data.get('company') || '').trim() || null,
+          email: String(data.get('email') || '').trim(),
+          phone: String(data.get('phone') || '').trim() || null,
+          product: String(data.get('product') || '').trim(),
+          strength: String(data.get('strength') || '').trim(),
+          kits: Number(data.get('kits')),
+          requirements: String(data.get('requirements') || '').trim() || null,
+          testing_path: String(data.get('testing_path') || ''),
+          acknowledgment: data.get('acknowledgment') === 'on'
+        };
+
+        submit.disabled = true;
+        status.textContent = 'Submitting your request…';
+        const { error } = await client.from('bulk_requests').insert(payload);
+        submit.disabled = false;
+
+        if (error) {
+          console.error('Bulk request submission failed:', error);
+          status.textContent = 'We could not submit your request. Please try again or contact support.';
+          return;
+        }
+
+        form.reset();
+        status.textContent = 'Your bulk request was submitted successfully. Pep Shop Texas will review it and follow up by email.';
       });
     });
   </script>
