@@ -139,7 +139,7 @@
         const poNumber = String(button.dataset.poApplyTracking || "").trim().toLowerCase();
         const trackingNumber = trackingByPo.get(poNumber) || "";
 
-        button.textContent = trackingNumber ? "Edit Tracking Number" : "Add Tracking Number";
+        button.textContent = trackingNumber ? "Edit Tracking" : "Add Tracking Number";
         button.title = trackingNumber ? `Tracking number: ${trackingNumber}` : "Add tracking number";
         button.setAttribute("aria-label", trackingNumber
           ? `Edit tracking number ${trackingNumber}`
