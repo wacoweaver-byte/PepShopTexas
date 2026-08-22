@@ -25,19 +25,26 @@
     const currentFile = window.location.pathname.split("/").pop() || "";
     if (currentFile !== "admin.html") return;
 
-    if (!document.getElementById("pst-admin-orders-style-v1")) {
+    if (!document.getElementById("pst-admin-orders-style-v2")) {
+      document.getElementById("pst-admin-orders-style-v1")?.remove();
       const css = document.createElement("style");
-      css.id = "pst-admin-orders-style-v1";
+      css.id = "pst-admin-orders-style-v2";
       css.textContent = `
+        .status.good.pst-orders-loaded-plain,
+        .status.pst-orders-loaded-plain,
         .pst-orders-loaded-plain{
           margin:8px 0 18px!important;
           padding:0!important;
           min-height:0!important;
+          height:auto!important;
           border:0!important;
           border-radius:0!important;
           background:transparent!important;
-          color:#0b2d4f!important;
-          font:600 18px/1.3 Arial,Helvetica,sans-serif!important;
+          color:#102a43!important;
+          font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;
+          font-size:18px!important;
+          font-weight:600!important;
+          line-height:1.3!important;
           box-shadow:none!important;
         }
         .pst-global-lookup-card{
@@ -50,7 +57,7 @@
         .pst-global-lookup-card h1,.pst-global-lookup-card h2,.pst-global-lookup-card h3,
         .pst-global-lookup-card .pst-global-lookup-title{
           color:#c9a45c!important;
-          font-family:Arial,Helvetica,sans-serif!important;
+          font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;
           font-weight:600!important;
         }
         .pst-global-lookup-card p,.pst-global-lookup-card .subtitle,.pst-global-lookup-card .muted,
@@ -75,44 +82,68 @@
           color:#0b2d4f!important;
           border-color:#c9a45c!important;
         }
-        .pst-order-jump-wrap{
+        .admin-dashboard-nav,
+        .admin-dashboard-nav.pst-order-jump-wrap{
           background:transparent!important;
           border:0!important;
           border-radius:0!important;
           box-shadow:none!important;
+          padding-left:0!important;
+          padding-right:0!important;
         }
-        .pst-order-jump-wrap .pst-jump-label{color:#596579!important;font-weight:600!important}
-        .pst-order-jump-wrap a,.pst-order-jump-wrap button{
-          background:#0b2d4f!important;
-          color:#fff!important;
-          border:1px solid #0b2d4f!important;
-          border-radius:4px!important;
-          min-height:42px!important;
-          padding:10px 14px!important;
-          font-family:Arial,Helvetica,sans-serif!important;
-          font-size:13px!important;
+        .admin-dashboard-nav strong,
+        .admin-dashboard-nav .pst-jump-label{
+          color:#596579!important;
+          font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;
           font-weight:600!important;
+        }
+        .admin-dashboard-nav .btn,
+        .admin-dashboard-nav a.btn,
+        .admin-dashboard-nav button.btn,
+        .admin-dashboard-nav.pst-order-jump-wrap .btn,
+        .admin-dashboard-nav.pst-order-jump-wrap a,
+        .admin-dashboard-nav.pst-order-jump-wrap button{
+          background:#102a43!important;
+          color:#fff!important;
+          border:1px solid #102a43!important;
+          border-radius:2px!important;
+          min-height:40px!important;
+          padding:9px 13px!important;
+          font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;
+          font-size:11px!important;
+          font-weight:650!important;
+          line-height:1!important;
+          letter-spacing:.055em!important;
+          text-transform:uppercase!important;
           text-decoration:none!important;
           box-shadow:none!important;
         }
-        .pst-order-jump-wrap a:hover,.pst-order-jump-wrap button:hover,
-        .pst-order-jump-wrap a:focus-visible,.pst-order-jump-wrap button:focus-visible{
-          background:#c9a45c!important;
-          color:#0b2d4f!important;
-          border-color:#c9a45c!important;
+        .admin-dashboard-nav .btn:hover,
+        .admin-dashboard-nav a.btn:hover,
+        .admin-dashboard-nav button.btn:hover,
+        .admin-dashboard-nav .btn:focus-visible,
+        .admin-dashboard-nav a.btn:focus-visible,
+        .admin-dashboard-nav button.btn:focus-visible{
+          background:#b79a63!important;
+          color:#102a43!important;
+          border-color:#b79a63!important;
         }
       `;
       document.head.appendChild(css);
     }
 
     function apply() {
-      const all = Array.from(document.querySelectorAll("body *"));
+      document.querySelectorAll(".status").forEach(el => {
+        if (/^Loaded\s+\d+\s+orders\.?$/i.test((el.textContent || "").trim())) {
+          el.classList.add("pst-orders-loaded-plain");
+        }
+      });
 
+      const all = Array.from(document.querySelectorAll("body *"));
       const loaded = all.find(el => /^Loaded\s+\d+\s+orders\.?$/i.test((el.textContent || "").trim()) && el.children.length === 0);
       if (loaded) {
-        const bar = loaded.closest(".status") || loaded.parentElement;
-        if (bar && bar.textContent.trim() === loaded.textContent.trim()) bar.classList.add("pst-orders-loaded-plain");
-        else loaded.classList.add("pst-orders-loaded-plain");
+        const bar = loaded.closest(".status") || loaded;
+        bar.classList.add("pst-orders-loaded-plain");
       }
 
       const lookupTitle = all.find(el => (el.textContent || "").trim() === "Global Lookup");
@@ -127,22 +158,18 @@
         if (card && card !== document.body) card.classList.add("pst-global-lookup-card");
       }
 
-      const jumpLabel = all.find(el => (el.textContent || "").trim().toUpperCase() === "JUMP TO" && el.children.length === 0);
-      if (jumpLabel) {
-        jumpLabel.classList.add("pst-jump-label");
-        let wrap = jumpLabel.parentElement;
-        while (wrap && wrap !== document.body) {
-          const text = wrap.textContent || "";
-          if (/Open\s*\/\s*Pending Orders/i.test(text) && /Shipped\s*\/\s*Completed Orders/i.test(text)) break;
-          wrap = wrap.parentElement;
-        }
-        if (wrap && wrap !== document.body) wrap.classList.add("pst-order-jump-wrap");
-      }
+      const jumpNav = document.querySelector(".admin-dashboard-nav");
+      if (jumpNav) jumpNav.classList.add("pst-order-jump-wrap");
+      const jumpLabel = Array.from(document.querySelectorAll(".admin-dashboard-nav strong, .admin-dashboard-nav *")).find(el => (el.textContent || "").trim().toUpperCase() === "JUMP TO" && el.children.length === 0);
+      if (jumpLabel) jumpLabel.classList.add("pst-jump-label");
     }
 
     apply();
+    const observer = new MutationObserver(() => apply());
+    observer.observe(document.body, { childList:true, subtree:true, characterData:true });
     setTimeout(apply, 250);
     setTimeout(apply, 800);
+    setTimeout(apply, 1600);
   }
 
   function installInventoryTrackingDisplay(client) {
