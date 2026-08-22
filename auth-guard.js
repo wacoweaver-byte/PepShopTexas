@@ -29,9 +29,13 @@
       const vendorStyle = document.createElement("style");
       vendorStyle.id = "pst-incoming-vendor-layout-fix";
       vendorStyle.textContent = `
-        @media(min-width:1151px){.incoming-form-grid{grid-template-columns:1.2fr .55fr .7fr .7fr .7fr .75fr .9fr 1.25fr .8fr .9fr auto auto!important}}
+        @media(min-width:1151px){.incoming-form-grid{grid-template-columns:1.2fr .55fr .7fr .7fr .7fr .75fr .9fr 1.25fr .8fr .9fr auto minmax(170px,auto)!important}}
         #incomingVendorSelect{min-width:170px!important}
-        #incomingVendorInfo{display:none!important}`;
+        #incomingVendorInfo{display:none!important}
+        #addIncomingBtn{min-width:168px!important;width:max-content!important;max-width:none!important;white-space:nowrap!important;padding-left:14px!important;padding-right:14px!important;justify-self:end!important;overflow:visible!important}
+        #addIncomingLineBtn{white-space:nowrap!important}
+        @media(max-width:1150px){#addIncomingBtn{width:100%!important;justify-self:stretch!important}}
+      `;
       document.head.appendChild(vendorStyle);
     }
 
