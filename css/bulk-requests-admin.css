@@ -202,3 +202,19 @@ body[data-admin-page="bulk-requests"] .pst-admin-footer-legal {
     padding-top:24px!important;
   }
 }
+
+
+/* Keep the admin footer at the viewport bottom when the request list is short. */
+body[data-admin-page="bulk-requests"] {
+  min-height:100vh!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+body[data-admin-page="bulk-requests"] > main {
+  flex:1 0 auto!important;
+}
+body[data-admin-page="bulk-requests"] > .site-footer.pst-admin-footer {
+  flex:0 0 auto!important;
+  width:100%!important;
+  margin-top:0!important;
+}
