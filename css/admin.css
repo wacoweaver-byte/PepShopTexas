@@ -302,6 +302,7 @@ html body button#newProductBtn {
   color:#fff!important;
   background:var(--pst-admin-navy)!important;
   border-color:var(--pst-admin-navy)!important;
+  border-radius:2px!important;
 }
 html body button#newProductBtn:hover,
 html body button#newProductBtn:focus-visible {
