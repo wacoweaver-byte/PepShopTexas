@@ -181,9 +181,11 @@ body[data-admin-page="bulk-requests"] .site-footer.pst-admin-footer {
   border-top:1px solid var(--pst-admin-gold)!important;
   color:#fff!important;
 }
-body[data-admin-page="bulk-requests"] .pst-admin-footer-brand strong,
-body[data-admin-page="bulk-requests"] .pst-admin-footer-column strong {
+body[data-admin-page="bulk-requests"] .pst-admin-footer-brand strong {
   color:#fff!important;
+}
+body[data-admin-page="bulk-requests"] .pst-admin-footer-column strong {
+  color:var(--pst-admin-gold)!important;
 }
 body[data-admin-page="bulk-requests"] .pst-admin-footer-brand span,
 body[data-admin-page="bulk-requests"] .pst-admin-footer-column a {
