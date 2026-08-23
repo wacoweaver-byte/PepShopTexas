@@ -6,8 +6,18 @@
   if (!shell) return;
 
   const PRODUCT_IMAGE_PATHS = Object.freeze({
+    PSTP100017: "assets/images/products/aod-9604-5mg.png",
+    PSTP100059: "assets/images/products/aod-9604-10mg.png",
+    PSTP100063: "assets/images/products/bpc-157-5mg.png",
+    PSTP100019: "assets/images/products/bpc-157-10mg.png",
     PSTP100034: "assets/images/products/mots-c-10mg.png",
+    PSTP100008: "assets/images/products/mots-c-40mg.png",
+    PSTP100036: "assets/images/products/nad-500mg.png",
+    PSTP100009: "assets/images/products/nad-1000mg.png",
+    PSTP100050: "assets/images/products/tesamorelin-10mg.png",
+    PSTP100075: "assets/images/products/tesamorelin-20mg.png",
     PSTP100013: "assets/images/products/wolverine-10mg.png",
+    PSTP100053: "assets/images/products/wolverine-20mg.png",
     PSTP100042: "assets/images/products/pt-141-10mg.png",
     PSTP100010: "assets/images/products/tide-3P-60mg.png",
     PSTP100054: "assets/images/products/glow-70mg.png"
