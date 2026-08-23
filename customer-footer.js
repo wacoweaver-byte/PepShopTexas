@@ -123,6 +123,29 @@
     window.addEventListener("pageshow", restorePosition);
   }
 
+  function installProductBackLink() {
+    const page = (window.location.pathname.split("/").pop() || "").toLowerCase();
+    if (page !== "product.html") return;
+
+    const backLink = document.querySelector(".back-link[href='catalog.html'], .back-link");
+    if (!backLink || backLink.dataset.historyBackBound === "true") return;
+    backLink.dataset.historyBackBound = "true";
+
+    backLink.addEventListener("click", (event) => {
+      let referrer = null;
+      try { referrer = document.referrer ? new URL(document.referrer) : null; } catch (_) {}
+
+      const cameFromCatalog = !!referrer &&
+        referrer.origin === window.location.origin &&
+        /\/catalog\.html$/i.test(referrer.pathname);
+
+      if (!cameFromCatalog) return;
+
+      event.preventDefault();
+      history.back();
+    });
+  }
+
   function installCustomerHeaderLogo() {
     const page = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
     if (page === "index.html" || page === "") return;
@@ -177,6 +200,7 @@
   function installCustomerFooter() {
     installCustomerHeaderLogo();
     installCustomerHeaderNavigation();
+    installProductBackLink();
 
     let footer = document.querySelector("footer.site-footer");
     if (!footer) {
