@@ -9,7 +9,6 @@
       </div>
       <nav class="pst-admin-footer-column" aria-label="Admin footer navigation">
         <strong>Admin</strong>
-        <a href="orders.html">Orders</a>
         <a href="inventory.html">Inventory</a>
         <a href="products.html">Products</a>
         <a href="customers.html">Customers</a>
