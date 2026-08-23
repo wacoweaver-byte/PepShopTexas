@@ -11,8 +11,14 @@ body[data-page="testing"],body[data-page="testing"] main{background:#fff!importa
 .testing-section p{max-width:860px;margin:0 0 10px;color:#36414c;font-size:14px;line-height:1.7}
 .testing-section p:last-child{margin-bottom:0}
 .testing-lab-name{font-weight:700;color:var(--pst-navy)}
+.testing-lab-header{display:flex;align-items:center;gap:18px;margin:0 0 16px}
+.testing-lab-logo{display:block;flex:0 0 auto;width:auto;height:auto;object-fit:contain}
+.testing-lab-logo-afi{width:108px;max-width:108px}
+.testing-lab-heading-copy{min-width:0}
+.testing-lab-heading-copy h2{margin:0 0 5px}
+.testing-lab-kicker{margin:0!important;color:#737b84!important;font-size:12px!important;line-height:1.45!important}
 .testing-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
 .testing-actions a,.testing-actions a:link,.testing-actions a:visited{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:38px;padding:0 16px;border:1px solid var(--pst-navy);border-radius:2px;background:var(--pst-navy);color:#fff;font-size:12px;font-weight:700;line-height:1;letter-spacing:.045em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
 .testing-actions a:hover,.testing-actions a:focus-visible{border-color:var(--pst-gold);background:var(--pst-gold);color:var(--pst-navy);outline:none}
 .testing-note{max-width:860px;color:#737b84!important;font-size:12px!important}
-@media(max-width:620px){.testing-page{width:min(100% - 28px,1180px);padding-top:30px}.testing-actions a{max-width:100%;white-space:normal;text-align:center}}
+@media(max-width:620px){.testing-page{width:min(100% - 28px,1180px);padding-top:30px}.testing-actions a{max-width:100%;white-space:normal;text-align:center}.testing-lab-header{gap:14px;align-items:flex-start}.testing-lab-logo-afi{width:90px;max-width:90px}}
