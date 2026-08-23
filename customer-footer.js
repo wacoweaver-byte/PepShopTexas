@@ -55,6 +55,74 @@
 
     <div class="footer-legal">RESEARCH USE ONLY <span aria-hidden="true">•</span> NOT FOR HUMAN OR VETERINARY USE</div>`;
 
+  function installScrollRestoration() {
+    if (!window.sessionStorage) return;
+
+    const pageKey = `pst-scroll:${window.location.pathname}${window.location.search}`;
+    let saveTimer = null;
+    let restoring = false;
+
+    try {
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    } catch (_) {}
+
+    function savePosition() {
+      if (restoring) return;
+      try {
+        sessionStorage.setItem(pageKey, String(Math.max(0, Math.round(window.scrollY || 0))));
+      } catch (_) {}
+    }
+
+    function isBackForwardNavigation(event) {
+      if (event?.persisted) return true;
+      try {
+        const nav = performance.getEntriesByType?.("navigation")?.[0];
+        return nav?.type === "back_forward";
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function restorePosition(event) {
+      if (!isBackForwardNavigation(event)) return;
+
+      let target = 0;
+      try { target = Number(sessionStorage.getItem(pageKey) || 0); } catch (_) {}
+      if (!Number.isFinite(target) || target <= 0) return;
+
+      restoring = true;
+      const started = Date.now();
+      let observer = null;
+      let timer = null;
+
+      const attempt = () => {
+        const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        if (maxScroll >= target || Date.now() - started > 2500) {
+          window.scrollTo(0, Math.min(target, maxScroll));
+          requestAnimationFrame(() => window.scrollTo(0, Math.min(target, Math.max(0, document.documentElement.scrollHeight - window.innerHeight))));
+          restoring = false;
+          observer?.disconnect();
+          if (timer) clearInterval(timer);
+        }
+      };
+
+      observer = new MutationObserver(attempt);
+      observer.observe(document.body, { childList: true, subtree: true });
+      timer = setInterval(attempt, 100);
+      requestAnimationFrame(attempt);
+      setTimeout(attempt, 50);
+    }
+
+    window.addEventListener("scroll", () => {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(savePosition, 80);
+    }, { passive: true });
+
+    window.addEventListener("pagehide", savePosition);
+    window.addEventListener("beforeunload", savePosition);
+    window.addEventListener("pageshow", restorePosition);
+  }
+
   function installCustomerHeaderLogo() {
     const page = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
     if (page === "index.html" || page === "") return;
@@ -118,6 +186,8 @@
     }
     footer.innerHTML = footerMarkup;
   }
+
+  installScrollRestoration();
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", installCustomerFooter, { once: true });
