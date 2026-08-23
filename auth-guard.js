@@ -25,172 +25,59 @@
     const currentFile = window.location.pathname.split("/").pop() || "";
     if (currentFile !== "admin.html") return;
 
-    if (!document.getElementById("pst-admin-orders-style-v2")) {
+    if (!document.getElementById("pst-admin-orders-style-v3")) {
       document.getElementById("pst-admin-orders-style-v1")?.remove();
+      document.getElementById("pst-admin-orders-style-v2")?.remove();
       const css = document.createElement("style");
-      css.id = "pst-admin-orders-style-v2";
+      css.id = "pst-admin-orders-style-v3";
       css.textContent = `
-        .status.good.pst-orders-loaded-plain,
-        .status.pst-orders-loaded-plain,
-        .pst-orders-loaded-plain{
-          margin:8px 0 18px!important;
-          padding:0!important;
-          min-height:0!important;
-          height:auto!important;
-          border:0!important;
-          border-radius:0!important;
-          background:transparent!important;
-          color:#102a43!important;
-          font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;
-          font-size:18px!important;
-          font-weight:600!important;
-          line-height:1.3!important;
-          box-shadow:none!important;
-        }
-        .pst-global-lookup-card{
-          background:#0b2d4f!important;
-          border:1px solid #0b2d4f!important;
-          border-radius:14px!important;
-          box-shadow:none!important;
-          color:#fff!important;
-        }
-        .pst-global-lookup-card h1,.pst-global-lookup-card h2,.pst-global-lookup-card h3,
-        .pst-global-lookup-card .pst-global-lookup-title{
-          color:#c9a45c!important;
-          font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;
-          font-weight:600!important;
-        }
-        .pst-global-lookup-card p,.pst-global-lookup-card .subtitle,.pst-global-lookup-card .muted,
-        .pst-global-lookup-card label,.pst-global-lookup-card div:not(.field):not(.btn){color:#fff}
-        .pst-global-lookup-card input{
-          background:#fff!important;
-          color:#102a43!important;
-          border:1px solid #d9e2ec!important;
-          border-radius:6px!important;
-        }
-        .pst-global-lookup-card .btn,
-        .pst-global-lookup-card button{
-          background:#0b2d4f!important;
-          color:#fff!important;
-          border:1px solid #c9a45c!important;
-          border-radius:4px!important;
-          box-shadow:none!important;
-        }
-        .pst-global-lookup-card .btn:hover,
-        .pst-global-lookup-card button:hover{
-          background:#c9a45c!important;
-          color:#0b2d4f!important;
-          border-color:#c9a45c!important;
-        }
-        .pst-global-lookup-card .pst-global-lookup-results .pst-global-match,
-        .pst-global-lookup-card .pst-global-match{
-          background:#102a43!important;
-          color:#fff!important;
-          border:1px solid #b79a63!important;
-          box-shadow:none!important;
-        }
-        .pst-global-lookup-card .pst-global-match:hover,
-        .pst-global-lookup-card .pst-global-match:focus-visible{
-          background:#0b2037!important;
-          color:#fff!important;
-          border-color:#d8c8a4!important;
-        }
-        .pst-global-lookup-card .pst-global-match strong,
-        .pst-global-lookup-card .pst-global-match span,
-        .pst-global-lookup-card .pst-global-match .pst-global-match-evidence{
-          color:#fff!important;
-        }
-        .pst-global-lookup-card .pst-global-match .pst-global-match-evidence{
-          border-top-color:rgba(255,255,255,.35)!important;
-        }
-        .pst-global-lookup-card .pst-global-match-type{
-          color:#fff!important;
-          background:#102a43!important;
-          border-color:#b79a63!important;
-        }
-        .pst-global-lookup-card .pst-global-match mark.pst-global-search-highlight{
-          background:#b79a63!important;
-          color:#102a43!important;
-          font-weight:800!important;
-        }
-        .pst-global-lookup-card .pst-global-lookup-empty{
-          background:#102a43!important;
-          color:#fff!important;
-          border-color:#b79a63!important;
-        }
-        .admin-dashboard-nav,
-        .admin-dashboard-nav.pst-order-jump-wrap{
-          background:transparent!important;
-          border:0!important;
-          border-radius:0!important;
-          box-shadow:none!important;
-          padding-left:0!important;
-          padding-right:0!important;
-        }
-        .admin-dashboard-nav strong,
-        .admin-dashboard-nav .pst-jump-label{
-          color:#596579!important;
-          font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;
-          font-weight:600!important;
-        }
-        .admin-dashboard-nav .btn,
-        .admin-dashboard-nav a.btn,
-        .admin-dashboard-nav button.btn,
-        .admin-dashboard-nav.pst-order-jump-wrap .btn,
-        .admin-dashboard-nav.pst-order-jump-wrap a,
-        .admin-dashboard-nav.pst-order-jump-wrap button{
-          background:#102a43!important;
-          color:#fff!important;
-          border:1px solid #102a43!important;
-          border-radius:2px!important;
-          min-height:40px!important;
-          padding:9px 13px!important;
-          font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;
-          font-size:11px!important;
-          font-weight:650!important;
-          line-height:1!important;
-          letter-spacing:.055em!important;
-          text-transform:uppercase!important;
-          text-decoration:none!important;
-          box-shadow:none!important;
-        }
-        .admin-dashboard-nav .btn:hover,
-        .admin-dashboard-nav a.btn:hover,
-        .admin-dashboard-nav button.btn:hover,
-        .admin-dashboard-nav .btn:focus-visible,
-        .admin-dashboard-nav a.btn:focus-visible,
-        .admin-dashboard-nav button.btn:focus-visible{
-          background:#b79a63!important;
-          color:#102a43!important;
-          border-color:#b79a63!important;
-        }
+        .status.good.pst-orders-loaded-plain,.status.pst-orders-loaded-plain,.pst-orders-loaded-plain{margin:8px 0 18px!important;padding:0!important;min-height:0!important;height:auto!important;border:0!important;border-radius:0!important;background:transparent!important;color:#102a43!important;font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;font-size:18px!important;font-weight:600!important;line-height:1.3!important;box-shadow:none!important}
+        .pst-global-lookup-card{background:#0b2d4f!important;border:1px solid #0b2d4f!important;border-radius:14px!important;box-shadow:none!important;color:#fff!important}
+        .pst-global-lookup-card h1,.pst-global-lookup-card h2,.pst-global-lookup-card h3,.pst-global-lookup-card .pst-global-lookup-title{color:#c9a45c!important;font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;font-weight:600!important}
+        .pst-global-lookup-card p,.pst-global-lookup-card .subtitle,.pst-global-lookup-card .muted,.pst-global-lookup-card label,.pst-global-lookup-card div:not(.field):not(.btn){color:#fff}
+        .pst-global-lookup-card input{background:#fff!important;color:#102a43!important;border:1px solid #d9e2ec!important;border-radius:6px!important}
+        .pst-global-lookup-card .btn,.pst-global-lookup-card button{background:#0b2d4f!important;color:#fff!important;border:1px solid #c9a45c!important;border-radius:4px!important;box-shadow:none!important}
+        .pst-global-lookup-card .btn:hover,.pst-global-lookup-card button:hover{background:#c9a45c!important;color:#0b2d4f!important;border-color:#c9a45c!important}
+        .pst-global-lookup-card .pst-global-lookup-results .pst-global-match,.pst-global-lookup-card .pst-global-match{background:#102a43!important;color:#fff!important;border:1px solid #b79a63!important;box-shadow:none!important}
+        .pst-global-lookup-card .pst-global-match:hover,.pst-global-lookup-card .pst-global-match:focus-visible{background:#0b2037!important;color:#fff!important;border-color:#d8c8a4!important}
+        .pst-global-lookup-card .pst-global-match strong,.pst-global-lookup-card .pst-global-match span,.pst-global-lookup-card .pst-global-match .pst-global-match-evidence{color:#fff!important}
+        .pst-global-lookup-card .pst-global-match .pst-global-match-evidence{border-top-color:rgba(255,255,255,.35)!important}
+        .pst-global-lookup-card .pst-global-match-type{color:#fff!important;background:#102a43!important;border-color:#b79a63!important}
+        .pst-global-lookup-card .pst-global-match mark.pst-global-search-highlight{background:#b79a63!important;color:#102a43!important;font-weight:800!important}
+        .pst-global-lookup-card .pst-global-lookup-empty{background:#102a43!important;color:#fff!important;border-color:#b79a63!important}
+        .admin-dashboard-nav,.admin-dashboard-nav.pst-order-jump-wrap{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding-left:0!important;padding-right:0!important}
+        .admin-dashboard-nav strong,.admin-dashboard-nav .pst-jump-label{color:#596579!important;font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;font-weight:600!important}
+        .admin-dashboard-nav .btn,.admin-dashboard-nav a.btn,.admin-dashboard-nav button.btn,.admin-dashboard-nav.pst-order-jump-wrap .btn,.admin-dashboard-nav.pst-order-jump-wrap a,.admin-dashboard-nav.pst-order-jump-wrap button{background:#102a43!important;color:#fff!important;border:1px solid #102a43!important;border-radius:2px!important;min-height:40px!important;padding:9px 13px!important;font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif!important;font-size:11px!important;font-weight:650!important;line-height:1!important;letter-spacing:.055em!important;text-transform:uppercase!important;text-decoration:none!important;box-shadow:none!important}
+        .admin-dashboard-nav .btn:hover,.admin-dashboard-nav a.btn:hover,.admin-dashboard-nav button.btn:hover,.admin-dashboard-nav .btn:focus-visible,.admin-dashboard-nav a.btn:focus-visible,.admin-dashboard-nav button.btn:focus-visible{background:#b79a63!important;color:#102a43!important;border-color:#b79a63!important}
+
+        #orderAttentionSummary.attention-summary{background:#f8fafc!important;border-color:#e8e3da!important}
+        #orderAttentionSummary .attention-card{background:#fff!important;border:1px solid #e1e5ea!important;color:#102a43!important;box-shadow:none!important}
+        #orderAttentionSummary .attention-card strong{color:#102a43!important}
+        #orderAttentionSummary .attention-card span{color:#657080!important}
+        #orderAttentionSummary .attention-card.pst-attention-zero{background:#fff!important;border-color:#e1e5ea!important}
+        #orderAttentionSummary .attention-card.pst-attention-zero strong{color:#7b8490!important}
+        #orderAttentionSummary .attention-card.pst-attention-zero span{color:#657080!important}
+        #orderAttentionSummary .attention-card.pst-attention-alert.danger{background:#b42318!important;border-color:#b42318!important}
+        #orderAttentionSummary .attention-card.pst-attention-alert.warning{background:#fff8e8!important;border-color:#d5a84d!important}
+        #orderAttentionSummary .attention-card.pst-attention-alert.danger strong,#orderAttentionSummary .attention-card.pst-attention-alert.danger span{color:#fff!important}
+        #orderAttentionSummary .attention-card.pst-attention-alert.warning strong{color:#9a6515!important}
+        #orderAttentionSummary .attention-card.pst-attention-alert.warning span{color:#6b541f!important}
+        #orderAttentionSummary .attention-card.active{box-shadow:0 0 0 2px #b79a63!important;border-color:#b79a63!important}
       `;
       document.head.appendChild(css);
     }
 
     function apply() {
-      document.querySelectorAll(".status").forEach(el => {
-        if (/^Loaded\s+\d+\s+orders\.?$/i.test((el.textContent || "").trim())) {
-          el.classList.add("pst-orders-loaded-plain");
-        }
-      });
-
+      document.querySelectorAll(".status").forEach(el => { if (/^Loaded\s+\d+\s+orders\.?$/i.test((el.textContent || "").trim())) el.classList.add("pst-orders-loaded-plain"); });
       const all = Array.from(document.querySelectorAll("body *"));
       const loaded = all.find(el => /^Loaded\s+\d+\s+orders\.?$/i.test((el.textContent || "").trim()) && el.children.length === 0);
-      if (loaded) {
-        const bar = loaded.closest(".status") || loaded;
-        bar.classList.add("pst-orders-loaded-plain");
-      }
+      if (loaded) (loaded.closest(".status") || loaded).classList.add("pst-orders-loaded-plain");
 
       const lookupTitle = all.find(el => (el.textContent || "").trim() === "Global Lookup");
       if (lookupTitle) {
         lookupTitle.classList.add("pst-global-lookup-title");
         let card = lookupTitle.closest(".card,section,div");
-        while (card && card !== document.body) {
-          const text = card.textContent || "";
-          if (/Search any reference a customer gives you/i.test(text) && card.querySelector("input")) break;
-          card = card.parentElement;
-        }
+        while (card && card !== document.body) { const text = card.textContent || ""; if (/Search any reference a customer gives you/i.test(text) && card.querySelector("input")) break; card = card.parentElement; }
         if (card && card !== document.body) card.classList.add("pst-global-lookup-card");
       }
 
@@ -198,14 +85,19 @@
       if (jumpNav) jumpNav.classList.add("pst-order-jump-wrap");
       const jumpLabel = Array.from(document.querySelectorAll(".admin-dashboard-nav strong, .admin-dashboard-nav *")).find(el => (el.textContent || "").trim().toUpperCase() === "JUMP TO" && el.children.length === 0);
       if (jumpLabel) jumpLabel.classList.add("pst-jump-label");
+
+      document.querySelectorAll("#orderAttentionSummary .attention-card").forEach(card => {
+        const count = Number((card.querySelector("strong")?.textContent || "0").trim());
+        const hasProblem = Number.isFinite(count) && count > 0;
+        card.classList.toggle("pst-attention-zero", !hasProblem);
+        card.classList.toggle("pst-attention-alert", hasProblem);
+      });
     }
 
     apply();
     const observer = new MutationObserver(() => apply());
     observer.observe(document.body, { childList:true, subtree:true, characterData:true });
-    setTimeout(apply, 250);
-    setTimeout(apply, 800);
-    setTimeout(apply, 1600);
+    setTimeout(apply, 250); setTimeout(apply, 800); setTimeout(apply, 1600);
   }
 
   function installInventoryTrackingDisplay(client) {
