@@ -923,6 +923,71 @@ td .pill {
 }
 </style>
 <link rel="stylesheet" href="css/admin.css?v=12">
+<style id="pst-product-workspace-v1">
+  /* Keep every catalog row available in the page instead of capping the list. */
+  #catalogProductsCard .table-wrap {
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+  }
+
+  /* Keep the selected product editor beside the row area while the page moves. */
+  #productEditorCard {
+    position: sticky;
+    top: 112px;
+    max-height: calc(100vh - 132px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-color: #b18a4a;
+    box-shadow: 0 14px 34px rgba(7, 26, 51, .14);
+  }
+
+  /* Make the active product impossible to confuse with hover styling. */
+  #productRows tr.active,
+  #productRows tr.active:hover {
+    color: #ffffff !important;
+    background: #071a33 !important;
+    box-shadow: inset 6px 0 0 #c7a25a, inset 0 0 0 2px #c7a25a;
+  }
+  #productRows tr.active td {
+    border-bottom-color: #c7a25a !important;
+  }
+  #productRows tr.active strong,
+  #productRows tr.active .coa-list-indicator {
+    color: #ffffff !important;
+  }
+  #productRows tr.active .pill {
+    color: #071a33 !important;
+    background: #ffffff !important;
+  }
+  #productRows tr.active .pill.off {
+    color: #7f1d1d !important;
+    background: #fee2e2 !important;
+  }
+  .selected-product-marker {
+    display: inline-flex;
+    margin-left: 9px;
+    padding: 3px 7px;
+    border: 1px solid #c7a25a;
+    border-radius: 4px;
+    color: #071a33;
+    background: #f3d99d;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+
+  @media (max-width: 1050px) {
+    #productEditorCard {
+      position: static;
+      max-height: none;
+      overflow-y: visible;
+    }
+  }
+</style>
 </head>
 <body>
   <header class="pst-admin-header">
@@ -1042,6 +1107,7 @@ td .pill {
     let activeProduct = null;
     let inventoryCostsByProductKey = {};
     let productSort = { field: "display_name", direction: "asc" };
+    const PRODUCT_WORKSPACE_KEY = "pst-products-workspace-v1";
 
     const $ = (id) => document.getElementById(id);
     const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
@@ -1052,6 +1118,63 @@ td .pill {
     function setStatus(message, type = "") {
       $("status").className = "status " + type;
       $("status").textContent = message;
+    }
+
+    function readProductWorkspace() {
+      try {
+        return JSON.parse(sessionStorage.getItem(PRODUCT_WORKSPACE_KEY) || "{}") || {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function rememberProductWorkspace(overrides = {}) {
+      const tableWrap = document.querySelector("#catalogProductsCard .table-wrap");
+      const state = {
+        activeProductId: activeProduct?.id || null,
+        pageScrollX: window.scrollX,
+        pageScrollY: window.scrollY,
+        tableScrollLeft: tableWrap?.scrollLeft || 0,
+        editorScrollTop: $("productEditorCard")?.scrollTop || 0,
+        search: $("searchInput")?.value || "",
+        category: $("categoryFilter")?.value || "",
+        sort: productSort,
+        ...overrides
+      };
+      try {
+        sessionStorage.setItem(PRODUCT_WORKSPACE_KEY, JSON.stringify(state));
+      } catch (error) {
+        // The page still works normally if browser storage is unavailable.
+      }
+      return state;
+    }
+
+    function restoreProductWorkspace({ restorePosition = true } = {}) {
+      const state = readProductWorkspace();
+      if (state.sort?.field && ["asc", "desc"].includes(state.sort.direction)) {
+        productSort = state.sort;
+      }
+      if ($("searchInput") && typeof state.search === "string") {
+        $("searchInput").value = state.search;
+      }
+      if ($("categoryFilter") && typeof state.category === "string") {
+        $("categoryFilter").value = [...$("categoryFilter").options].some(option => option.value === state.category) ? state.category : "";
+      }
+      if (state.activeProductId) {
+        activeProduct = products.find(product => String(product.id) === String(state.activeProductId)) || null;
+      }
+      if (activeProduct) {
+        showProductEditor();
+        renderEditor();
+      }
+      if (restorePosition) {
+        requestAnimationFrame(() => {
+          const tableWrap = document.querySelector("#catalogProductsCard .table-wrap");
+          if (tableWrap) tableWrap.scrollLeft = Number(state.tableScrollLeft || 0);
+          if ($("productEditorCard")) $("productEditorCard").scrollTop = Number(state.editorScrollTop || 0);
+          window.scrollTo(Number(state.pageScrollX || 0), Number(state.pageScrollY || 0));
+        });
+      }
     }
 
     async function requireAdmin() {
@@ -1080,7 +1203,9 @@ td .pill {
       products = data || [];
       await loadInventoryCosts();
       populateCategories();
+      restoreProductWorkspace({ restorePosition: false });
       renderRows();
+      restoreProductWorkspace({ restorePosition: true });
       setStatus(`Loaded ${products.length} products.`, "good");
     }
 
@@ -1130,6 +1255,7 @@ td .pill {
       $("editorTitle").textContent = "Select a Product";
       $("editorBody").innerHTML = `<p class="subtitle">Choose a product from the table to edit its customer-facing catalog details.</p>`;
       renderRows();
+      rememberProductWorkspace({ activeProductId: null, editorScrollTop: 0 });
     }
 
     function populateCategories() {
@@ -1203,11 +1329,13 @@ td .pill {
     }
 
     function renderRows() {
+      const tableWrap = document.querySelector("#catalogProductsCard .table-wrap");
+      const previousScrollLeft = tableWrap?.scrollLeft || 0;
       updateSortButtons();
       const rows = filteredProducts();
       $("productRows").innerHTML = rows.length ? rows.map(product => `
-        <tr data-product-id="${product.id}" class="${activeProduct?.id === product.id ? "active" : ""}">
-          <td><strong>${esc(product.display_name)}</strong></td>
+        <tr data-product-id="${product.id}" class="${activeProduct?.id === product.id ? "active" : ""}" aria-selected="${activeProduct?.id === product.id ? "true" : "false"}">
+          <td><strong>${esc(product.display_name)}</strong>${activeProduct?.id === product.id ? `<span class="selected-product-marker">Selected</span>` : ""}</td>
           <td>${esc(product.strength || "")}</td>
           <td><strong>${esc(product.product_key || "")}</strong></td>
           <td>${esc(product.category || "")}</td>
@@ -1217,12 +1345,15 @@ td .pill {
           <td><span class="coa-list-indicator ${String(product.coa_url || "").trim() ? "has-coa" : ""}" title="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"><input type="checkbox" tabindex="-1" disabled ${String(product.coa_url || "").trim() ? "checked" : ""} aria-label="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"></span></td>
         </tr>
       `).join("") : `<tr><td colspan="8" class="empty">No products match that filter.</td></tr>`;
+      if (tableWrap) tableWrap.scrollLeft = previousScrollLeft;
       document.querySelectorAll("[data-product-id]").forEach(row => {
         row.addEventListener("click", () => {
-          activeProduct = products.find(product => product.id === row.dataset.productId);
+          activeProduct = products.find(product => String(product.id) === String(row.dataset.productId));
           renderRows();
           showProductEditor();
           renderEditor();
+          if ($("productEditorCard")) $("productEditorCard").scrollTop = 0;
+          rememberProductWorkspace({ activeProductId: activeProduct?.id || null, editorScrollTop: 0 });
         });
       });
     }
@@ -1552,11 +1683,21 @@ td .pill {
       } else {
         setStatus("Product saved.", "good");
       }
-      hideProductEditor();
+      const savedPosition = rememberProductWorkspace({ activeProductId: data.id });
+      activeProduct = data;
+      renderRows();
+      showProductEditor();
+      renderEditor();
+      requestAnimationFrame(() => {
+        const tableWrap = document.querySelector("#catalogProductsCard .table-wrap");
+        if (tableWrap) tableWrap.scrollLeft = Number(savedPosition.tableScrollLeft || 0);
+        if ($("productEditorCard")) $("productEditorCard").scrollTop = Number(savedPosition.editorScrollTop || 0);
+        window.scrollTo(Number(savedPosition.pageScrollX || 0), Number(savedPosition.pageScrollY || 0));
+      });
     }
 
-    $("searchInput").addEventListener("input", renderRows);
-    $("categoryFilter").addEventListener("change", renderRows);
+    $("searchInput").addEventListener("input", () => { renderRows(); rememberProductWorkspace(); });
+    $("categoryFilter").addEventListener("change", () => { renderRows(); rememberProductWorkspace(); });
     document.querySelectorAll("[data-sort-field]").forEach(button => {
       button.addEventListener("click", () => {
         const field = button.dataset.sortField;
@@ -1565,6 +1706,7 @@ td .pill {
           direction: productSort.field === field && productSort.direction === "asc" ? "desc" : "asc"
         };
         renderRows();
+        rememberProductWorkspace();
       });
     });
     $("newProductBtn").addEventListener("click", openNewProductModal);
