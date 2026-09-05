@@ -487,7 +487,8 @@ async function renderCatalog() {
     const categories = [...new Set(products.map((p) => p.category).filter(Boolean))].sort();
     searchInput.value = params.get("search") || "";
     categoryFilter.innerHTML = `<option value="">All categories</option>${categories.map((c) => `<option value="${escapeAttribute(c)}">${escapeHtml(catalogCategoryLabel(c))}</option>`).join("")}`;
-    const requestedCategory = params.get("category") || "";
+    const requestedCategoryParam = params.get("category") || "";
+    const requestedCategory = ["Blend", "Stack"].includes(requestedCategoryParam) ? "Multi-Peptide Product" : requestedCategoryParam;
     const requestedFocus = String(params.get("focus") || "").trim().toLowerCase();
     const validFocus = ["performance", "recovery", "longevity"].includes(requestedFocus) ? requestedFocus : "";
     categoryFilter.value = categories.includes(requestedCategory) ? requestedCategory : "";
@@ -518,7 +519,7 @@ async function renderCatalog() {
 
 function catalogCategoryLabel(category, plural = false) {
   const value = String(category || "");
-  if (value === "Stack") return "Research Blends";
+  if (value === "Stack" || value === "Blend" || value === "Multi-Peptide Product") return "Research Blends";
   if (!plural) return value;
   return { Peptide: "Peptides", Blend: "Blends", Supply: "Supplies" }[value] || `${value}s`;
 }
