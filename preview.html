@@ -1041,7 +1041,7 @@ td .pill {
     const $ = (id) => document.getElementById(id);
     const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
     const money = (value) => "$" + Number(value || 0).toFixed(2);
-    const CATEGORY_OPTIONS = ["Peptide", "Blend", "Stack", "Supply"];
+    const CATEGORY_OPTIONS = ["Peptide", "Multi-Peptide Product", "Supply"];
 
     function setStatus(message, type = "") {
       $("status").className = "status " + type;
@@ -1236,7 +1236,7 @@ td .pill {
 
     function categoryOptions(current) {
       const cleanCurrent = String(current || "").trim();
-      const selected = cleanCurrent || "Peptide";
+      const selected = ["Blend", "Stack"].includes(cleanCurrent) ? "Multi-Peptide Product" : (cleanCurrent || "Peptide");
       const options = selected && !CATEGORY_OPTIONS.includes(selected) ? [selected, ...CATEGORY_OPTIONS] : CATEGORY_OPTIONS;
       return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category)}</option>`).join("");
     }
