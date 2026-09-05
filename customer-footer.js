@@ -31,7 +31,7 @@
         <nav class="footer-column" aria-label="Footer shop links">
           <strong>SHOP</strong>
           <a href="catalog.html">Peptides A-Z</a>
-          <a href="catalog.html?category=Stack">Research Blends</a>
+          <a href="catalog.html?category=Multi-Peptide%20Product">Research Blends</a>
           <a href="testing.html">Testing / Verification</a>
           <a href="bulk-request.html">Bulk Request</a>
         </nav>
