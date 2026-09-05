@@ -2920,7 +2920,7 @@ let salesByInventoryId = {};
 let movementByInventoryId = {};
 let reorderSalesLoadError = "";
 let productCatalogLabelLookup = null;
-const CATEGORY_OPTIONS = ["Peptide", "Blend", "Stack", "Supply"];
+const CATEGORY_OPTIONS = ["Peptide", "Multi-Peptide Product", "Supply"];
 
 
 const $ = id => document.getElementById(id);
@@ -2940,7 +2940,7 @@ function money(v) { return Number(v || 0).toFixed(2); }
 
 function categoryOptions(current) {
   const cleanCurrent = cleanText(current);
-  const selected = cleanCurrent || "Peptide";
+  const selected = ["Blend", "Stack"].includes(cleanCurrent) ? "Multi-Peptide Product" : (cleanCurrent || "Peptide");
   const options = selected && !CATEGORY_OPTIONS.includes(selected) ? [selected, ...CATEGORY_OPTIONS] : CATEGORY_OPTIONS;
   return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category)}</option>`).join("");
 }
