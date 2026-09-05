@@ -1385,7 +1385,7 @@ td .pill {
         current_inventory: currentInventory,
         is_active: form.elements.is_active.checked,
         featured: false,
-        blend_stack: category === "Stack",
+        blend_stack: category === "Multi-Peptide Product",
         hot_peptide: false,
         sale_enabled: false,
         sale_price: null,
@@ -1412,7 +1412,7 @@ td .pill {
         limited_stock_threshold: 10,
         is_active: form.elements.is_active.checked,
         featured: false,
-        blend_stack: category === "Stack",
+        blend_stack: category === "Multi-Peptide Product",
         coa_url: catalogPayload.coa_url,
         coa_label: catalogPayload.coa_label,
         cost_per_unit: Number.isFinite(costPerUnit) && costPerUnit > 0 ? costPerUnit : null,
@@ -1513,7 +1513,7 @@ td .pill {
         coa_url: value("coa_url", form).trim() || null,
         coa_label: value("coa_label", form).trim() || "View COA",
         is_active: checked("is_active", form),
-        blend_stack: category === "Stack",
+        blend_stack: category === "Multi-Peptide Product",
         sale_enabled: checked("sale_enabled", form),
         updated_at: new Date().toISOString()
       };
