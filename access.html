@@ -11,37 +11,197 @@
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#102a43">
   <style>
-    :root{--navy:#102a43;--navy2:#0b2037;--gold:#b79a63;--ink:#1e2936;--muted:#66717e;--line:#dfd7c9}
+    :root{
+      --navy:#102a43;
+      --navy-deep:#0b2037;
+      --gold:#b79a63;
+      --gold-soft:#d8c8a4;
+      --ink:#233242;
+      --muted:#687483;
+      --line:#e5ded1;
+      --cream:#faf8f3;
+      --white:#ffffff;
+    }
     *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif;color:var(--ink);background:#f8f8f6}
-    body{min-height:100vh;background:
-      radial-gradient(circle at 12% 35%,rgba(183,154,99,.10),transparent 26%),
-      radial-gradient(circle at 88% 45%,rgba(16,42,67,.08),transparent 30%),
-      linear-gradient(180deg,#fff 0%,#f7f8f8 62%,#fff 100%)}
-    .shell{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
-    .top{display:flex;justify-content:flex-end;padding:28px 34px 0}
-    .signin-wrap{text-align:center}
-    .signin-wrap small{display:block;color:var(--navy);font-weight:700;letter-spacing:.17em;font-size:11px;margin-bottom:9px}
-    .signin-wrap a{display:inline-block;text-decoration:none;color:var(--navy);border:1px solid var(--gold);padding:11px 28px;border-radius:7px;font-weight:750;letter-spacing:.13em;font-size:13px;background:#fff}
-    .content{width:min(760px,92vw);margin:0 auto;padding:18px 0 34px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
-    .logo{width:min(350px,74vw);height:auto;display:block;margin:0 auto 18px}
-    .eyebrow{font-size:12px;letter-spacing:.28em;color:var(--navy);font-weight:700;margin-bottom:24px}
-    h1{font-family:Georgia,"Times New Roman",serif;color:var(--navy);font-size:clamp(48px,8vw,80px);font-weight:500;line-height:.95;margin:0}
-    .tagline{margin:14px 0 26px;color:var(--gold);font-size:clamp(13px,2vw,18px);font-weight:750;letter-spacing:.24em}
-    .rule{width:70px;height:2px;background:var(--gold);margin:0 auto 24px}
-    .card{width:100%;background:rgba(255,255,255,.88);border:1px solid var(--line);border-radius:14px;padding:28px 30px;box-shadow:0 10px 35px rgba(16,42,67,.06)}
-    .lead{font-family:Georgia,"Times New Roman",serif;color:var(--navy);font-size:clamp(20px,3.3vw,28px);line-height:1.3;margin:0 0 18px}
-    .card p{font-size:16px;line-height:1.55;margin:8px auto;max-width:620px}
-    .actions{width:100%;display:grid;gap:12px;margin-top:24px}
-    .primary,.secondary{display:block;text-decoration:none;border-radius:8px;padding:17px 20px;font-weight:800;letter-spacing:.14em;font-size:14px}
-    .primary{background:var(--navy);color:#fff;border:1px solid var(--gold)}
-    .primary:hover,.primary:focus-visible{background:var(--navy2)}
-    .secondary{background:#fff;color:var(--navy);border:1px solid #cfd6dc}
-    .policy{display:grid;grid-template-columns:repeat(3,1fr);gap:0;width:100%;margin-top:26px}
-    .policy a{padding:10px 8px;color:var(--navy);text-decoration:none;font-size:11px;line-height:1.35;font-weight:800;letter-spacing:.12em;border-right:1px solid #ddd7cc}
-    .policy a:last-child{border-right:0}
-    footer{text-align:center;padding:20px 16px 28px;color:var(--navy);font-size:11px;font-weight:700;letter-spacing:.22em}
-    @media(max-width:600px){.top{padding:18px 18px 0}.content{padding-top:10px}.card{padding:24px 18px}.policy{grid-template-columns:1fr}.policy a{border-right:0;border-bottom:1px solid #e6e1d8;padding:12px}.policy a:last-child{border-bottom:0}.signin-wrap small{font-size:10px}.signin-wrap a{padding:10px 20px}}
+    html,body{margin:0;min-height:100%;font-family:"Avenir Next","Segoe UI",Arial,Helvetica,sans-serif;color:var(--ink);background:var(--cream)}
+    body{min-height:100vh;overflow-x:hidden}
+    .page{
+      position:relative;
+      min-height:100vh;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      overflow:hidden;
+      isolation:isolate;
+      background:
+        radial-gradient(circle at 18% 18%,rgba(255,255,255,.98) 0 18%,rgba(255,255,255,.64) 34%,transparent 57%),
+        radial-gradient(circle at 85% 28%,rgba(255,255,255,.92) 0 14%,rgba(255,255,255,.50) 34%,transparent 58%),
+        linear-gradient(115deg,#fbfaf6 0%,#f7f6f1 46%,#fff 100%);
+    }
+    .page::before{
+      content:"";
+      position:absolute;
+      inset:-6%;
+      z-index:-3;
+      opacity:.48;
+      background:
+        linear-gradient(135deg,transparent 0 47%,rgba(184,170,143,.13) 48%,transparent 50%),
+        linear-gradient(18deg,transparent 0 64%,rgba(16,42,67,.035) 65%,transparent 67%);
+      filter:blur(.2px);
+    }
+    .page::after{
+      content:"";
+      position:absolute;
+      left:-10vw;
+      bottom:-18vw;
+      width:44vw;
+      height:44vw;
+      border-radius:50%;
+      border:1px solid rgba(183,154,99,.18);
+      box-shadow:0 0 0 28px rgba(255,255,255,.38),0 0 0 29px rgba(16,42,67,.045);
+      z-index:-2;
+      background:radial-gradient(circle,rgba(255,255,255,.58),rgba(240,236,226,.22) 62%,transparent 63%);
+    }
+    .lab-orb{
+      position:absolute;
+      right:-11vw;
+      top:13vh;
+      width:35vw;
+      height:35vw;
+      min-width:300px;
+      min-height:300px;
+      border-radius:50%;
+      border:1px solid rgba(183,154,99,.14);
+      box-shadow:inset 0 0 45px rgba(16,42,67,.035),0 0 0 20px rgba(255,255,255,.42);
+      z-index:-2;
+      background:radial-gradient(circle at 38% 38%,rgba(255,255,255,.75),rgba(246,244,239,.35) 60%,transparent 61%);
+    }
+    .vial{
+      position:absolute;
+      z-index:-1;
+      filter:grayscale(.08) saturate(.72) blur(.1px);
+      opacity:.16;
+      pointer-events:none;
+      user-select:none;
+    }
+    .vial-left{left:2.5vw;bottom:-4vh;width:clamp(92px,10vw,150px);transform:rotate(-10deg)}
+    .vial-right{right:4vw;bottom:1vh;width:clamp(82px,9vw,138px);transform:rotate(11deg)}
+    .pipette{
+      position:absolute;
+      left:6vw;
+      top:20vh;
+      width:5px;
+      height:34vh;
+      border-radius:999px;
+      background:linear-gradient(#d8c8a4,#f5f0e8 55%,#9aa9b5);
+      opacity:.22;
+      transform:rotate(35deg);
+      z-index:-1;
+      box-shadow:0 0 18px rgba(16,42,67,.08);
+    }
+    .pipette::after{
+      content:"";
+      position:absolute;
+      left:-5px;
+      bottom:-8px;
+      width:15px;
+      height:15px;
+      border-radius:50% 50% 52% 48%;
+      background:rgba(183,154,99,.24);
+    }
+    .topbar{display:flex;justify-content:flex-end;align-items:flex-start;padding:28px 40px 0}
+    .existing{text-align:center}
+    .existing small{display:block;color:var(--navy);font-size:10px;font-weight:800;letter-spacing:.18em;margin-bottom:8px}
+    .existing a{
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+      min-width:142px;
+      min-height:42px;
+      padding:10px 24px;
+      border:1px solid var(--gold-soft);
+      border-radius:5px;
+      background:rgba(255,255,255,.88);
+      color:var(--navy);
+      text-decoration:none;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.13em;
+      transition:.18s ease;
+      box-shadow:0 5px 18px rgba(16,42,67,.035);
+    }
+    .existing a:hover,.existing a:focus-visible{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .content{
+      width:min(780px,91vw);
+      margin:0 auto;
+      padding:10px 0 42px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+    }
+    .logo-wrap{position:relative;margin-bottom:10px}
+    .logo{display:block;width:min(360px,72vw);height:auto;margin:0 auto;filter:drop-shadow(0 10px 20px rgba(16,42,67,.05))}
+    .eyebrow{margin:1px 0 22px;color:var(--navy);font-size:10px;font-weight:800;letter-spacing:.30em}
+    h1{margin:0;color:var(--navy);font-family:Georgia,"Times New Roman",serif;font-size:clamp(52px,7.8vw,82px);font-weight:400;line-height:.98;letter-spacing:-.025em}
+    .tagline{margin:14px 0 19px;color:var(--gold);font-family:Georgia,"Times New Roman",serif;font-size:clamp(14px,2vw,18px);font-weight:700;letter-spacing:.16em}
+    .rule{width:78px;height:2px;background:var(--gold);margin:0 auto 22px}
+    .card{
+      width:100%;
+      padding:28px 34px 26px;
+      border:1px solid rgba(183,154,99,.36);
+      border-radius:12px;
+      background:rgba(255,255,255,.86);
+      box-shadow:0 18px 52px rgba(16,42,67,.055);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .lead{margin:0 auto 16px;max-width:650px;color:var(--navy);font-family:Georgia,"Times New Roman",serif;font-size:clamp(20px,2.7vw,27px);line-height:1.34}
+    .card p{max-width:650px;margin:8px auto;color:#405061;font-size:15px;line-height:1.62}
+    .card p strong{color:var(--navy)}
+    .actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+    .actions a{
+      min-height:54px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:14px 16px;
+      border-radius:6px;
+      text-decoration:none;
+      font-size:12px;
+      font-weight:850;
+      letter-spacing:.13em;
+      transition:.18s ease;
+    }
+    .primary{background:var(--navy);border:1px solid var(--navy);color:#fff;box-shadow:0 9px 22px rgba(16,42,67,.12)}
+    .primary:hover,.primary:focus-visible{background:var(--navy-deep);transform:translateY(-1px)}
+    .secondary{background:rgba(255,255,255,.92);border:1px solid var(--gold-soft);color:var(--navy)}
+    .secondary:hover,.secondary:focus-visible{background:#fff;border-color:var(--gold);transform:translateY(-1px)}
+    .policy{width:100%;margin-top:24px;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(183,154,99,.26);border-bottom:1px solid rgba(183,154,99,.26)}
+    .policy a{position:relative;padding:15px 10px;color:var(--navy);text-decoration:none;font-size:10px;font-weight:850;letter-spacing:.13em}
+    .policy a:not(:last-child)::after{content:"";position:absolute;right:0;top:28%;height:44%;width:1px;background:rgba(183,154,99,.28)}
+    .policy a:hover,.policy a:focus-visible{color:var(--gold)}
+    footer{text-align:center;padding:12px 16px 28px;color:var(--navy);font-size:10px;font-weight:800;letter-spacing:.22em}
+    @media(max-width:700px){
+      .topbar{padding:18px 18px 0}
+      .existing a{min-width:122px;padding:9px 18px}
+      .content{padding-top:2px;width:min(92vw,620px)}
+      .logo{width:min(315px,76vw)}
+      .eyebrow{font-size:9px;letter-spacing:.22em;margin-bottom:18px}
+      h1{font-size:clamp(46px,13vw,64px)}
+      .tagline{font-size:12px;letter-spacing:.11em;margin-top:12px}
+      .card{padding:23px 18px 22px}
+      .lead{font-size:20px}
+      .card p{font-size:14px}
+      .actions{grid-template-columns:1fr}
+      .policy{grid-template-columns:1fr;margin-top:20px}
+      .policy a{padding:12px}
+      .policy a:not(:last-child)::after{left:16%;right:16%;top:auto;bottom:0;width:auto;height:1px}
+      .vial-left{left:-5vw;opacity:.11}
+      .vial-right{right:-4vw;opacity:.10}
+      .pipette{opacity:.12}
+      .lab-orb{right:-42vw;top:20vh;opacity:.72}
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -57,16 +217,23 @@
   </script>
 </head>
 <body>
-  <div class="shell">
-    <div class="top">
-      <div class="signin-wrap">
+  <div class="page">
+    <span class="lab-orb" aria-hidden="true"></span>
+    <span class="pipette" aria-hidden="true"></span>
+    <img class="vial vial-left" src="assets/featured/featured-wolverine-10mg.webp" alt="" aria-hidden="true">
+    <img class="vial vial-right" src="assets/featured/featured-nad-plus-500mg.webp" alt="" aria-hidden="true">
+
+    <div class="topbar">
+      <div class="existing">
         <small>ALREADY A CUSTOMER?</small>
         <a href="login.html?redirect=index.html">SIGN IN</a>
       </div>
     </div>
 
     <main class="content">
-      <img class="logo" src="pst-logo-master.webp" alt="Pep Shop Texas">
+      <div class="logo-wrap">
+        <img class="logo" src="pst-logo-master.webp" alt="Pep Shop Texas">
+      </div>
       <div class="eyebrow">RESEARCH • PERFORMANCE • LONGEVITY</div>
       <h1>Research Access</h1>
       <div class="tagline">SCIENCE TODAY. A HEALTHIER TOMORROW.</div>
@@ -90,7 +257,7 @@
       </nav>
     </main>
 
-    <footer>QUALITY • INTEGRITY • RESEARCH</footer>
+    <footer>QUALITY • INTEGRITY • RESEARCH WITHOUT LIMITS</footer>
   </div>
 </body>
 </html>
