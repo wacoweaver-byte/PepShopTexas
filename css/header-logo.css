@@ -151,18 +151,29 @@
 @media(max-width:700px){
   .pst-customer-header-inner{
     display:grid!important;
-    grid-template-columns:160px minmax(0,1fr)!important;
+    grid-template-columns:1fr!important;
     align-items:center!important;
-    column-gap:12px!important;
+    justify-items:center!important;
+    row-gap:10px!important;
+    column-gap:0!important;
+  }
+  .pst-customer-logo-link{
+    grid-column:1!important;
+    justify-self:center!important;
+    width:220px!important;
+    height:78px!important;
+    flex:0 0 78px!important;
+    margin:0 auto 2px!important;
   }
   .pst-customer-identity{
-    justify-self:start!important;
+    grid-column:1!important;
+    justify-self:center!important;
     gap:12px!important;
     min-width:0!important;
   }
   .pst-customer-identity a{font-size:11px!important}
   .pst-customer-header-right{
-    grid-column:1 / -1!important;
+    grid-column:1!important;
     width:100%!important;
   }
 }
