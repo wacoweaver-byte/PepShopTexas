@@ -1,3 +1,4 @@
+<!-- PST_INVENTORY_PATCH_V36_EDIT_EXISTING_PO_LINES -->
 <!-- PST_INVENTORY_PATCH_V35_REMOVE_NEW_PO_TRACKING_WIDEN_STATUS -->
 <!-- PST_INVENTORY_PATCH_V34_ALL_STOCK_STATUS_FILTERS -->
 <!-- PST_INVENTORY_PATCH_V33_APPLY_STOCK_LIMITS_TO_ALL -->
@@ -644,7 +645,7 @@ header .header-actions .btn.secondary.active {
 .incoming-po-group { border-bottom:1px solid var(--line); }
 .incoming-po-group:last-child { border-bottom:0; }
 .incoming-po-list-head,
-.incoming-po-group-summary { display:grid; grid-template-columns:minmax(155px,1fr) 120px minmax(160px,1fr) 115px 105px 115px 125px 105px; gap:10px; align-items:center; min-width:1160px; padding:10px 14px; }
+.incoming-po-group-summary { display:grid; grid-template-columns:minmax(155px,1fr) 120px minmax(160px,1fr) 115px 105px 105px 115px 125px 105px; gap:10px; align-items:center; min-width:1275px; padding:10px 14px; }
 .incoming-po-list-head { background:#fff; border-bottom:1px solid var(--line); color:var(--muted); font-size:10px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; }
 .incoming-po-list-head > *,
 .incoming-po-group-summary > * { justify-self:center; text-align:center; }
@@ -661,6 +662,7 @@ header .header-actions .btn.secondary.active {
 .incoming-po-line-select-cell { width:42px; text-align:center; }
 .incoming-po-empty { padding:14px; color:var(--muted); }
 .incoming-line-register { display:none !important; }
+.incoming-form-grid .btn[hidden] { display:none !important; }
 @media(max-width:1150px){ .incoming-form-grid { grid-template-columns:1fr 1fr; } .incoming-summary-grid { grid-template-columns:1fr 1fr; } }
 @media(max-width:1100px){ .incoming-edit-grid { grid-template-columns:1fr 1fr; } }
 @media(max-width:640px){ .incoming-form-grid,.incoming-summary-grid,.incoming-edit-grid { grid-template-columns:1fr; } }
@@ -2707,10 +2709,11 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       </div>
       <button class="btn secondary" id="addIncomingLineBtn" type="button">Add Line</button>
       <button class="btn success" id="addIncomingBtn" type="button">Save Incoming Order</button>
+      <button class="btn secondary" id="cancelIncomingPoEditBtn" type="button" hidden>Cancel PO Edit</button>
     </div>
     <div class="incoming-line-preview" id="incomingDraftPreview">
       <div class="incoming-line-preview-head">
-        <strong>Current Incoming Order Lines</strong>
+        <strong id="incomingDraftTitle">Current Incoming Order Lines</strong>
         <span class="incoming-po-summary" id="incomingDraftSummary">No lines added yet. Add one or more product lines, then save the incoming order.</span>
       </div>
       <div class="incoming-table-wrap">
@@ -2904,6 +2907,8 @@ let incomingAuditVisible = false;
 let incomingReceivedHistoryVisible = false;
 let editingIncomingId = null;
 let incomingDraftLines = [];
+let editingIncomingPoNumber = null;
+let editingIncomingPoOriginalRows = [];
 let incomingSort = { key:"ordered_at", direction:"desc" };
 let expandedIncomingPoNumbers = new Set();
 let selectedIncomingPoLineIds = new Set();
@@ -4252,6 +4257,84 @@ function clearIncomingDraftLines() {
   renderIncomingDraftLines();
 }
 
+function resetIncomingOrderForm(options = {}) {
+  const preserveMessage = options.preserveMessage === true;
+  editingIncomingPoNumber = null;
+  editingIncomingPoOriginalRows = [];
+  incomingDraftLines = [];
+  if ($("incomingProductSelect")) $("incomingProductSelect").value = "";
+  if ($("incomingQty")) $("incomingQty").value = "";
+  if ($("incomingKitCost")) $("incomingKitCost").value = "";
+  if ($("incomingShippingCost")) $("incomingShippingCost").value = "";
+  if ($("incomingDiscountAmount")) $("incomingDiscountAmount").value = "";
+  if ($("incomingTotalCost")) $("incomingTotalCost").value = "";
+  if ($("incomingVendorSelect")) $("incomingVendorSelect").value = "";
+  if ($("incomingTracking")) $("incomingTracking").value = "";
+  if ($("incomingStatus")) $("incomingStatus").value = "ordered";
+  if ($("incomingNotes")) $("incomingNotes").value = "";
+  if ($("addIncomingBtn")) $("addIncomingBtn").textContent = "Save Incoming Order";
+  if ($("cancelIncomingPoEditBtn")) $("cancelIncomingPoEditBtn").hidden = true;
+  if ($("incomingDraftTitle")) $("incomingDraftTitle").textContent = "Current Incoming Order Lines";
+  setIncomingOrderDateToday(true);
+  setIncomingUserField(true);
+  updateIncomingVendorInfo();
+  syncIncomingTotalCostField();
+  if (!preserveMessage) setStatus("PO editing cancelled.");
+}
+
+function beginIncomingPurchaseOrderEdit(poNumber) {
+  const normalizedPo = cleanText(poNumber);
+  if (incomingDraftLines.length && editingIncomingPoNumber !== normalizedPo) {
+    const currentLabel = editingIncomingPoNumber ? `edits to ${editingIncomingPoNumber}` : "the unsaved incoming order";
+    if (!confirm(`Discard ${currentLabel} and edit ${normalizedPo}?`)) return;
+  }
+  const groupRows = (incomingInventoryRows || []).filter(row =>
+    cleanText(row.po_number).toLowerCase() === normalizedPo.toLowerCase()
+  );
+  const editableRows = groupRows.filter(row =>
+    !["received", "cancelled"].includes(String(row.status || "").toLowerCase())
+  );
+  if (!editableRows.length) {
+    alert(`${normalizedPo} has no open lines that can be edited.`);
+    return;
+  }
+
+  editingIncomingPoNumber = normalizedPo;
+  editingIncomingPoOriginalRows = editableRows.map(row => ({ ...row }));
+  incomingDraftLines = editableRows.map(row => ({
+    id: row.id,
+    originalRowId: row.id,
+    productId: row.product_id,
+    productKey: row.product_key || null,
+    productName: row.product_name || row.product_key || "Product",
+    qty: Number(row.ordered_quantity || 0),
+    kitCost: incomingKitCost(row)
+  }));
+
+  const first = editableRows[0];
+  const shipping = editableRows.reduce((sum, row) => sum + incomingShippingCost(row), 0);
+  const reconstructedDiscount = editableRows.reduce((sum, row) => {
+    const beforeDiscount = incomingProductCost(row) + incomingShippingCost(row);
+    return sum + Math.max(0, beforeDiscount - incomingTotalCost(row));
+  }, 0);
+  if ($("incomingOrderDate")) $("incomingOrderDate").value = incomingDateInputValue(first.ordered_at || first.created_at);
+  if ($("incomingShippingCost")) $("incomingShippingCost").value = shipping > 0 ? shipping.toFixed(2) : "";
+  if ($("incomingDiscountAmount")) $("incomingDiscountAmount").value = reconstructedDiscount > 0 ? reconstructedDiscount.toFixed(2) : "";
+  if ($("incomingVendorSelect")) $("incomingVendorSelect").value = first.vendor_id || "";
+  if ($("incomingTracking")) $("incomingTracking").value = first.tracking_number || "";
+  if ($("incomingStatus")) $("incomingStatus").value = ["ordered", "in_transit", "issue_shorted"].includes(String(first.status || "")) ? first.status : "ordered";
+  if ($("incomingNotes")) $("incomingNotes").value = first.notes || "";
+  if ($("addIncomingBtn")) $("addIncomingBtn").textContent = `Save ${normalizedPo} Changes`;
+  if ($("cancelIncomingPoEditBtn")) $("cancelIncomingPoEditBtn").hidden = false;
+  if ($("incomingDraftTitle")) $("incomingDraftTitle").textContent = `Editing ${normalizedPo}`;
+  updateIncomingVendorInfo();
+  syncIncomingTotalCostField();
+
+  const protectedCount = groupRows.length - editableRows.length;
+  setStatus(`Editing ${normalizedPo}. Add or remove open line items, then save.${protectedCount ? ` ${protectedCount} received/cancelled line(s) are protected.` : ""}`, "good");
+  $("incomingDraftPreview")?.scrollIntoView({ behavior:"smooth", block:"center" });
+}
+
 function setIncomingDraftLineKitCost(id, value) {
   const cost = Number(value || 0);
   incomingDraftLines = incomingDraftLines.map(line =>
@@ -4418,7 +4501,7 @@ function renderIncomingPurchaseOrderCenter() {
 
   container.innerHTML = `<div class="incoming-po-list-head">
     <span>PO Number</span><span>Date of PO</span><span>Vendor</span><span>Status</span><span>Days on Order</span>
-    <span>Add Tracking</span><span>Change Status</span><span>Receive All</span>
+    <span>Edit PO</span><span>Add Tracking</span><span>Change Status</span><span>Receive All</span>
   </div>` + groups.map(group => {
     const isOpen = expandedIncomingPoNumbers.has(group.poNumber);
     const eligibleRows = group.openRows;
@@ -4436,6 +4519,7 @@ function renderIncomingPurchaseOrderCenter() {
         <span>${esc(vendorName)}</span>
         <span class="incoming-pill ${esc(group.status.cls)}">${esc(group.status.label)}</span>
         <span>${daysOnOrder} day${daysOnOrder === 1 ? "" : "s"}</span>
+        <button class="btn secondary" type="button" data-po-edit="${esc(group.poNumber)}" ${disabled}>Edit PO</button>
         <button class="btn secondary" type="button" data-po-apply-tracking="${esc(group.poNumber)}" ${disabled}>Add Tracking</button>
         <button class="btn secondary" type="button" data-po-apply-status="${esc(group.poNumber)}" ${disabled}>Change Status</button>
         <button class="btn success" type="button" data-po-receive-all="${esc(group.poNumber)}" ${disabled}>Receive All</button>
@@ -4498,6 +4582,9 @@ function bindIncomingPurchaseOrderCenterEvents() {
       : selectedIncomingPoLineIds.delete(String(row.id)));
     renderIncomingPurchaseOrderCenter();
   }));
+  document.querySelectorAll("[data-po-edit]").forEach(button => button.addEventListener("click", () =>
+    beginIncomingPurchaseOrderEdit(button.dataset.poEdit)
+  ));
   document.querySelectorAll("[data-po-apply-tracking]").forEach(button => button.addEventListener("click", () =>
     applyTrackingFromPurchaseOrderCenter(button.dataset.poApplyTracking).catch(error => {
       console.error(error);
@@ -4793,6 +4880,10 @@ function setIncomingOrderDateToday(force=false) {
 }
 
 async function addIncomingInventory() {
+  if (editingIncomingPoNumber) {
+    await saveIncomingPurchaseOrderEdit();
+    return;
+  }
   const enteredProduct = selectedIncomingProduct();
   const rawEnteredQty = Number($("incomingQty")?.value || 0);
   const enteredQty = incomingRoundQtyToFullKits(rawEnteredQty);
@@ -4885,19 +4976,108 @@ async function addIncomingInventory() {
     saveIncomingLocalRows(incomingInventoryRows);
   }
 
-  clearIncomingDraftLines();
-  if ($("incomingProductSelect")) $("incomingProductSelect").value = "";
-  if ($("incomingQty")) $("incomingQty").value = "";
-  if ($("incomingKitCost")) $("incomingKitCost").value = "";
-  if ($("incomingShippingCost")) $("incomingShippingCost").value = "";
-  if ($("incomingDiscountAmount")) $("incomingDiscountAmount").value = "";
-  if ($("incomingTotalCost")) $("incomingTotalCost").value = "";
-  if ($("incomingVendorSelect")) $("incomingVendorSelect").value = "";
-  updateIncomingVendorInfo();
-  if ($("incomingNotes")) $("incomingNotes").value = "";
-  setIncomingOrderDateToday(true);
-  setIncomingUserField(true);
+  resetIncomingOrderForm({ preserveMessage:true });
   setStatus(`${poNumber} saved with ${rows.length} line(s). Shipping/fees allocated across ${totalKits.toFixed(2)} kit(s).`, "good");
+  await loadIncomingInventory();
+}
+
+async function saveIncomingPurchaseOrderEdit() {
+  const poNumber = cleanText(editingIncomingPoNumber);
+  if (!poNumber) return;
+
+  const lines = incomingDraftLines.slice();
+  if (lines.some(line => !line.productId || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
+    alert("Every retained or added PO line needs a product and ordered quantity greater than zero.");
+    return;
+  }
+
+  const originalIds = new Set(editingIncomingPoOriginalRows.map(row => String(row.id)));
+  const retainedIds = new Set(lines.map(line => String(line.originalRowId || "")).filter(Boolean));
+  const removedIds = [...originalIds].filter(id => !retainedIds.has(id));
+  const addedCount = lines.filter(line => !line.originalRowId).length;
+  const retainedCount = lines.length - addedCount;
+  const summary = `${retainedCount} retained, ${addedCount} added, ${removedIds.length} removed`;
+  if (!confirm(`Save changes to ${poNumber}?\n\n${summary}.${lines.length ? "" : "\n\nThis removes every remaining open line from the PO."}\n\nReceived and already-cancelled lines will not be changed.`)) return;
+
+  const totalShipping = Number($("incomingShippingCost")?.value || 0);
+  const totalDiscount = incomingDiscountAmount();
+  const totalKits = incomingDraftTotalKits(lines);
+  const orderedAt = incomingOrderDateISO();
+  const vendor = selectedIncomingVendor();
+  const firstOriginal = editingIncomingPoOriginalRows[0] || {};
+  const leadTimeDays = vendor ? vendorLeadDays(vendor) : incomingLeadTimeForRow(firstOriginal);
+  const expectedArrival = addDays(orderedAt, leadTimeDays).toISOString();
+  const supplierName = vendor?.company_name || firstOriginal.vendor_name || firstOriginal.supplier_name || null;
+  const vendorId = vendor?.id || firstOriginal.vendor_id || null;
+  const trackingNumber = $("incomingTracking")?.value.trim() || null;
+  const status = $("incomingStatus")?.value || "ordered";
+  const userNote = $("incomingNotes")?.value.trim() || shortLoggedInUserName() || null;
+  const now = new Date().toISOString();
+
+  const rows = lines.map((line, index) => {
+    const qty = Number(line.qty || 0);
+    const kitCost = incomingLineKitCost(line);
+    const kits = incomingKitsForQty(qty);
+    const allocatedShipping = totalKits > 0 ? incomingDraftShippingAllocation(line, totalShipping, totalKits) : 0;
+    const allocatedDiscount = totalKits > 0 ? incomingDraftDiscountAllocation(line, totalDiscount, totalKits) : 0;
+    const productCost = kits * kitCost;
+    const totalCost = Math.max(0, productCost + allocatedShipping - allocatedDiscount);
+    const unitCost = incomingLandedUnitCost(qty, kitCost, allocatedShipping);
+    const original = editingIncomingPoOriginalRows.find(row => String(row.id) === String(line.originalRowId)) || {};
+    const auditEntry = `PO ${poNumber} edited ${new Date().toLocaleString()} by ${currentUser?.email || "Admin"}: line ${line.originalRowId ? "retained/updated" : "added"}; ${summary}.`;
+    return normalizeIncomingRowForSupabase({
+      ...original,
+      id: line.originalRowId || (crypto?.randomUUID ? crypto.randomUUID() : `incoming_${Date.now()}_${index}`),
+      po_number: poNumber,
+      product_id: line.productId,
+      product_key: line.productKey || null,
+      product_name: line.productName,
+      ordered_quantity: qty,
+      kit_cost: kitCost,
+      kit_vial_count: PST_KIT_VIAL_COUNT,
+      cost_per_unit: unitCost,
+      shipping_cost: allocatedShipping,
+      total_cost: totalCost,
+      supplier_name: supplierName,
+      vendor_id: vendorId,
+      vendor_name: supplierName,
+      lead_time_days: leadTimeDays,
+      tracking_number: trackingNumber,
+      status,
+      notes: userNote,
+      ordered_at: orderedAt,
+      expected_arrival_date: expectedArrival,
+      created_at: original.created_at || now,
+      updated_at: now,
+      created_by: original.created_by || currentUser?.id || null,
+      created_by_email: original.created_by_email || currentUser?.email || null,
+      audit_note: `${original.audit_note || ""}\n${auditEntry}`.trim()
+    });
+  });
+
+  if (incomingUsesSupabase) {
+    if (rows.length) {
+      const { data, error } = await db.from("incoming_inventory").upsert(rows, { onConflict:"id" }).select("id");
+      if (error) throw error;
+      if ((data || []).length !== rows.length) throw new Error(`Saved ${data?.length || 0} of ${rows.length} retained/added PO line(s). No lines were removed.`);
+    }
+    if (removedIds.length) {
+      const { data, error } = await db.from("incoming_inventory").delete().in("id", removedIds).select("id");
+      if (error) throw error;
+      if ((data || []).length !== removedIds.length) throw new Error(`Removed ${data?.length || 0} of ${removedIds.length} PO line(s). Reload and review ${poNumber}.`);
+    }
+  } else {
+    const removedSet = new Set(removedIds);
+    const editedSet = new Set(rows.map(row => String(row.id)));
+    incomingInventoryRows = incomingInventoryRows
+      .filter(row => !removedSet.has(String(row.id)) && !editedSet.has(String(row.id)));
+    incomingInventoryRows = [...rows, ...incomingInventoryRows];
+    saveIncomingLocalRows(incomingInventoryRows);
+  }
+
+  resetIncomingOrderForm({ preserveMessage:true });
+  expandedIncomingPoNumbers.add(poNumber);
+  setStatus(`${poNumber} updated: ${summary}.`, "good");
   await loadIncomingInventory();
 }
 
@@ -5897,6 +6077,7 @@ function wireEvents() {
   if ($("addIncomingLineBtn")) $("addIncomingLineBtn")?.addEventListener("click", addIncomingDraftLine);
   $("incomingShippingCost")?.addEventListener("input", syncIncomingTotalCostField);
   if ($("addIncomingBtn")) $("addIncomingBtn")?.addEventListener("click", addIncomingInventory);
+  if ($("cancelIncomingPoEditBtn")) $("cancelIncomingPoEditBtn")?.addEventListener("click", () => resetIncomingOrderForm());
   if ($("toggleIncomingAuditBtn")) $("toggleIncomingAuditBtn")?.addEventListener("click", () => {
     incomingAuditVisible = !incomingAuditVisible;
     $("toggleIncomingAuditBtn").textContent = incomingAuditVisible ? "Hide Audit Trail" : "Show Audit Trail";
