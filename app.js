@@ -547,6 +547,29 @@ function productCoaMarkup(product = {}) {
   return `<section class="coa-section"><h2>Testing Documentation</h2><p>Third-party analytical report available for research documentation.</p><a class="coa-button" href="${escapeAttribute(url)}" target="_blank" rel="noopener">${escapeHtml(productCoaLabel(product))}</a></section>`;
 }
 
+function productDetailVariantLabel(product = {}) {
+  const strength = product.strength || product.product_key;
+  const availability = stockText(product) || "In Stock";
+  return `${strength} — ${formatMoney(unitPrice(product))} — ${availability}`;
+}
+
+function productDetailVariantSelector(variants = [], selected = {}) {
+  if (variants.length <= 1) {
+    return `<p class="strength">${escapeHtml(selected.strength || "")}</p>`;
+  }
+
+  return `
+    <label class="detail-variant-picker">
+      <span>Strength</span>
+      <select class="detail-variant-select" data-detail-variant-select aria-label="Select strength, price, and availability">
+        ${variants.map((variant) => `
+          <option value="${escapeAttribute(productUrl(variant))}" ${variant.product_key === selected.product_key ? "selected" : ""}>${escapeHtml(productDetailVariantLabel(variant))}</option>
+        `).join("")}
+      </select>
+    </label>
+  `;
+}
+
 async function renderProductDetail() {
   const shell = document.querySelector("[data-product-detail]");
   const productKey = params.get("key");
@@ -559,13 +582,16 @@ async function renderProductDetail() {
 
   try {
     const product = productKey ? await getProduct(productKey) : await getLegacyProduct(legacyId);
+    const variants = (await getProducts()).filter((item) =>
+      String(item.display_name || "").trim().toLowerCase() === String(product.display_name || "").trim().toLowerCase()
+    );
     document.title = `${productTitle(product)} | PEP Shop Texas`;
     shell.innerHTML = `
       <div class="product-info">
         <p class="eyebrow">${escapeHtml(product.category || "Research product")}</p>
         ${saleBadge(product)}
         <h1>${escapeHtml(product.display_name)}</h1>
-        <p class="strength">${escapeHtml(product.strength || "")}</p>
+        ${productDetailVariantSelector(variants, product)}
         <div class="price-line">${priceHtml(product)}</div>
         <p class="stock ${stockClass(product)}"><span class="stock-text">${stockText(product)}</span>${productIncomingPill(product)}</p>
         ${productIncomingNotice(product)}
@@ -581,6 +607,10 @@ async function renderProductDetail() {
         ${productCoaMarkup(product)}
       </div>
     `;
+    shell.querySelector("[data-detail-variant-select]")?.addEventListener("change", (event) => {
+      const target = String(event.target.value || "");
+      if (target) window.location.href = target;
+    });
     bindCartButtons();
   } catch (error) {
     shell.innerHTML = `<p class="loading-row">Unable to load product: ${escapeHtml(error.message)}</p>`;
