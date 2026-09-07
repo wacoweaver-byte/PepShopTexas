@@ -9,10 +9,20 @@
     return `${escapeHtml(primary)} <span class="catalog-formula">${escapeHtml(formula)}</span>`;
   }
 
+  function variantStockLabel(product = {}) {
+    const count = Number(product.current_inventory || 0);
+    const low = Math.max(0, Number(product.low_stock_threshold ?? 5) || 0);
+    const limited = Math.max(low, Number(product.limited_stock_threshold ?? 10) || 0);
+    if (count <= 0) return "Out of Stock";
+    if (count <= low) return "Low Stock";
+    if (count <= limited) return "Limited";
+    return "In Stock";
+  }
+
   function variantLabel(product) {
     const strength = product.strength || product.product_key;
     const price = Number(product.sale_enabled && product.sale_price != null ? product.sale_price : product.price || 0);
-    return `${strength} — $${price.toFixed(2)}`;
+    return `${strength} — ${price.toFixed(2)} — ${variantStockLabel(product)}`;
   }
 
   function variantOption(product) {
