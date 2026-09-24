@@ -1,36 +1,7 @@
-/* PST product detail presentation layer.
-   Keeps the existing product/cart renderer intact, then organizes its output into
-   a restrained two-column layout with product-specific vial images. */
+/* Product detail presentation without vial photos or image placeholders. */
 (function () {
   const shell = document.querySelector("[data-product-detail]");
   if (!shell) return;
-
-  const PRODUCT_IMAGE_PATHS = Object.freeze({
-    PSTP100017: "assets/images/products/aod-9604-5mg.png",
-    PSTP100059: "assets/images/products/aod-9604-10mg.png",
-    PSTP100063: "assets/images/products/bpc-157-5mg.png",
-    PSTP100019: "assets/images/products/bpc-157-10mg.png",
-    PSTP100034: "assets/images/products/mots-c-10mg.png",
-    PSTP100008: "assets/images/products/mots-c-40mg.png",
-    PSTP100036: "assets/images/products/nad-500mg.png",
-    PSTP100009: "assets/images/products/nad-1000mg.png",
-    PSTP100050: "assets/images/products/tesamorelin-10mg.png",
-    PSTP100075: "assets/images/products/tesamorelin-20mg.png",
-    PSTP100013: "assets/images/products/wolverine-10mg.png",
-    PSTP100053: "assets/images/products/wolverine-20mg.png",
-    PSTP100042: "assets/images/products/pt-141-10mg.png",
-    PSTP100010: "assets/images/products/tide-3P-60mg.png",
-    PSTP100054: "assets/images/products/glow-70mg.png"
-  });
-
-  function productKey() {
-    const params = new URLSearchParams(window.location.search);
-    return String(params.get("key") || params.get("id") || "").trim();
-  }
-
-  function productImagePath() {
-    return PRODUCT_IMAGE_PATHS[productKey()] || "";
-  }
 
   function formatProductHeading(info) {
     const heading = info.querySelector("h1");
@@ -64,39 +35,13 @@
     const topChildren = firstSectionIndex >= 0 ? children.slice(0, firstSectionIndex) : children;
     const detailChildren = firstSectionIndex >= 0 ? children.slice(firstSectionIndex) : [];
 
-    const media = document.createElement("div");
-    media.className = "pst-product-media";
-    media.innerHTML = `
-      <div class="pst-product-image-stage">
-        <img class="pst-product-vial-image" alt="Product vial" loading="eager" hidden>
-        <div class="pst-product-image-placeholder" aria-hidden="true">
-          <span>Product image coming soon</span>
-        </div>
-      </div>
-    `;
-
-    const image = media.querySelector(".pst-product-vial-image");
-    const placeholder = media.querySelector(".pst-product-image-placeholder");
-    const imagePath = productImagePath();
-
-    image.addEventListener("load", () => {
-      image.hidden = false;
-      placeholder.hidden = true;
-    });
-    image.addEventListener("error", () => {
-      image.hidden = true;
-      placeholder.hidden = false;
-    });
-
-    if (imagePath) image.src = imagePath;
-
     const purchase = document.createElement("div");
     purchase.className = "pst-product-purchase";
     topChildren.forEach((node) => purchase.appendChild(node));
 
     const top = document.createElement("div");
-    top.className = "pst-product-top";
-    top.append(media, purchase);
+    top.className = "pst-product-top pst-product-text-only";
+    top.append(purchase);
 
     const body = document.createElement("div");
     body.className = "pst-product-detail-body";
