@@ -46,3 +46,6 @@ body[data-page="cart"],body[data-page="cart"] main{background:#fff!important}
 .pst-product-purchase .detail-variant-picker>span{display:block!important;margin:0 0 6px!important;font-size:11px!important;font-weight:700!important;letter-spacing:.04em!important;text-transform:uppercase!important}
 .pst-product-purchase .detail-variant-select{box-sizing:border-box!important;width:100%!important;height:42px!important;margin:0!important;padding:0 38px 0 12px!important;border:1px solid #d8dce1!important;border-radius:2px!important;background:#fff!important;color:var(--pst-navy)!important;font-family:Arial,Helvetica,sans-serif!important;font-size:14px!important;font-weight:700!important;font-variant-numeric:tabular-nums!important}
 .pst-product-purchase .detail-variant-select:focus{border-color:var(--pst-gold)!important;outline:none!important;box-shadow:0 0 0 2px rgba(199,154,73,.10)!important}
+
+/* Two remaining documentation links after removing sourcing and shipping claims. */
+@media(min-width:561px){.footer-trust{grid-template-columns:repeat(2,minmax(0,1fr))!important}}

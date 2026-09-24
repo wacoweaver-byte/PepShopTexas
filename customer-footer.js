@@ -8,14 +8,6 @@
         <span>Identity, purity &amp; content verification</span>
       </div>
       <div class="footer-trust-item">
-        <strong>QUALITY STANDARD</strong>
-        <span>Responsibly sourced research compounds</span>
-      </div>
-      <div class="footer-trust-item">
-        <strong>SECURED SHIPPING</strong>
-        <span>Secure packaging and fulfillment</span>
-      </div>
-      <div class="footer-trust-item">
         <strong>COA VALIDATION</strong>
         <span>Verify testing documentation</span>
       </div>
@@ -25,22 +17,22 @@
       <div class="footer-main-inner">
         <div class="footer-brand">
           <strong>PEP SHOP TEXAS</strong>
-          <span>Premium Purity &nbsp;|&nbsp; Proven Quality &nbsp;|&nbsp; Responsibly Sourced</span>
+          <span>Peptide information and resources</span>
         </div>
 
-        <nav class="footer-column" aria-label="Footer shop links">
-          <strong>SHOP</strong>
+        <nav class="footer-column" aria-label="Footer resource links">
+          <strong>RESOURCES</strong>
           <a href="catalog.html">Peptides A-Z</a>
           <a href="catalog.html?category=Multi-Peptide%20Product">Research Blends</a>
           <a href="testing.html">Testing / Verification</a>
-          <a href="bulk-request.html">Bulk Request</a>
+
         </nav>
 
         <nav class="footer-column" aria-label="Footer customer service links">
           <strong>CUSTOMER SERVICE</strong>
           <a href="faq.html">FAQ</a>
-          <a href="shipping.html">Shipping</a>
-          <a href="returns.html">Returns</a>
+
+
           <a href="terms.html">Terms</a>
           <a href="privacy.html">Privacy</a>
         </nav>
@@ -162,15 +154,6 @@
   }
 
   function installCustomerHeaderNavigation() {
-    document.querySelectorAll(".pst-customer-nav.main-nav").forEach((nav) => {
-      if (nav.querySelector('[data-bulk-request-link]')) return;
-      const link = document.createElement("a");
-      link.href = "bulk-request.html";
-      link.textContent = "BULK REQUEST";
-      link.dataset.bulkRequestLink = "true";
-      const accountLink = nav.querySelector("[data-account-link], a[href='account.html']");
-      nav.insertBefore(link, accountLink || nav.querySelector(".cart-link") || null);
-    });
 
     if (!document.getElementById("pst-bulk-request-nav-layout")) {
       const style = document.createElement("style");
