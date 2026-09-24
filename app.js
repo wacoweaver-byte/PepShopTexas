@@ -730,10 +730,8 @@ function catalogDoseOptions(variants) {
         <div class="catalog-dose-option">
           <a class="catalog-dose-name" href="${productUrl(product)}">${escapeHtml(product.strength || product.product_key)}</a>
           <strong>${priceHtml(product)}</strong>
-          <span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span>
           <span class="catalog-row-actions">
-            ${productIncomingPill(product)}
-            <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out" : "Add to Inquiry"}</button>
+            <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Inquiry</button>
           </span>
         </div>
       `).join("")}

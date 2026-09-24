@@ -9,24 +9,13 @@
     return `${escapeHtml(primary)} <span class="catalog-formula">${escapeHtml(formula)}</span>`;
   }
 
-  function variantStockLabel(product = {}) {
-    const count = Number(product.current_inventory || 0);
-    const low = Math.max(0, Number(product.low_stock_threshold ?? 5) || 0);
-    const limited = Math.max(low, Number(product.limited_stock_threshold ?? 10) || 0);
-    if (count <= 0) return "Out of Stock";
-    if (count <= low) return "Low Stock";
-    if (count <= limited) return "Limited";
-    return "In Stock";
-  }
-
   function variantLabel(product) {
     const strength = product.strength || product.product_key;
-    return `${strength} — ${variantStockLabel(product)}`;
+    return strength;
   }
 
   function variantOption(product) {
-    const out = Number(product.current_inventory || 0) <= 0;
-    return `<option value="${escapeAttribute(product.product_key)}" data-url="${escapeAttribute(productUrl(product))}" data-cart-key="${escapeAttribute(product.product_key)}" data-out="${out ? "true" : "false"}">${escapeHtml(variantLabel(product))}</option>`;
+    return `<option value="${escapeAttribute(product.product_key)}" data-url="${escapeAttribute(productUrl(product))}" data-cart-key="${escapeAttribute(product.product_key)}">${escapeHtml(variantLabel(product))}</option>`;
   }
 
   function firstAvailableVariant(variants) {
@@ -35,23 +24,22 @@
 
   function catalogQuickBuy(variants) {
     const selected = firstAvailableVariant(variants);
-    const out = Number(selected.current_inventory || 0) <= 0;
 
     if (variants.length === 1) {
       return `
         <div class="catalog-quick-buy catalog-quick-buy-single" data-catalog-variant-picker>
           <div class="catalog-variant-box catalog-single-variant">${escapeHtml(variantLabel(selected))}</div>
-          <button class="catalog-add-button card-cart-button" data-add-to-cart="${escapeAttribute(selected.product_key)}" ${out ? "disabled aria-disabled=\"true\"" : ""}>${out ? "Out of Stock" : "Add to Inquiry"}</button>
+          <button class="catalog-add-button card-cart-button" data-add-to-cart="${escapeAttribute(selected.product_key)}">Add to Inquiry</button>
         </div>
       `;
     }
 
     return `
       <div class="catalog-quick-buy" data-catalog-variant-picker>
-        <select class="catalog-strength-select catalog-variant-box" aria-label="Select strength and availability">
+        <select class="catalog-strength-select catalog-variant-box" aria-label="Select strength">
           ${variants.map(variantOption).join("")}
         </select>
-        <button class="catalog-add-button card-cart-button" data-add-to-cart="${escapeAttribute(selected.product_key)}" ${out ? "disabled aria-disabled=\"true\"" : ""}>${out ? "Out of Stock" : "Add to Inquiry"}</button>
+        <button class="catalog-add-button card-cart-button" data-add-to-cart="${escapeAttribute(selected.product_key)}">Add to Inquiry</button>
       </div>
     `;
   }
@@ -83,15 +71,14 @@
     const button = card?.querySelector(".catalog-add-button");
     const url = option?.dataset?.url || "";
     const key = option?.dataset?.cartKey || option?.value || "";
-    const out = option?.dataset?.out === "true";
 
     if (productLink && url) productLink.href = url;
     if (detailLink && url) detailLink.href = url;
     if (button) {
       button.dataset.addToCart = key;
-      button.disabled = out;
-      button.setAttribute("aria-disabled", out ? "true" : "false");
-      button.textContent = out ? "Out of Stock" : "Add to Inquiry";
+      button.disabled = false;
+      button.removeAttribute("aria-disabled");
+      button.textContent = "Add to Inquiry";
       button.classList.remove("is-added");
       bindCartButtons();
     }
