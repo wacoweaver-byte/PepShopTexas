@@ -2,16 +2,6 @@
   "use strict";
 
   const footerMarkup = `
-    <section class="footer-trust" aria-label="Pep Shop Texas standards">
-      <div class="footer-trust-item">
-        <strong>INDEPENDENTLY TESTED</strong>
-        <span>Identity, purity &amp; content verification</span>
-      </div>
-      <div class="footer-trust-item">
-        <strong>COA VALIDATION</strong>
-        <span>Verify testing documentation</span>
-      </div>
-    </section>
 
     <div class="footer-main">
       <div class="footer-main-inner">
