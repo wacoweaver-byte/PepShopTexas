@@ -548,8 +548,7 @@ function productCoaMarkup(product = {}) {
 
 function productDetailVariantLabel(product = {}) {
   const strength = product.strength || product.product_key;
-  const availability = stockText(product) || "In Stock";
-  return `${strength} — ${availability}`;
+  return strength;
 }
 
 function productDetailVariantSelector(variants = [], selected = {}) {
@@ -560,7 +559,7 @@ function productDetailVariantSelector(variants = [], selected = {}) {
   return `
     <label class="detail-variant-picker">
       <span>Strength</span>
-      <select class="detail-variant-select" data-detail-variant-select aria-label="Select strength and availability">
+      <select class="detail-variant-select" data-detail-variant-select aria-label="Select strength">
         ${variants.map((variant) => `
           <option value="${escapeAttribute(productUrl(variant))}" ${variant.product_key === selected.product_key ? "selected" : ""}>${escapeHtml(productDetailVariantLabel(variant))}</option>
         `).join("")}
@@ -591,11 +590,9 @@ async function renderProductDetail() {
         ${saleBadge(product)}
         <h1>${escapeHtml(product.display_name)}</h1>
         ${productDetailVariantSelector(variants, product)}
-        <p class="stock ${stockClass(product)}"><span class="stock-text">${stockText(product)}</span>${productIncomingPill(product)}</p>
-        ${productIncomingNotice(product)}
         <div class="purchase-panel">
-          <label>Quantity <input type="number" min="1" max="${Math.max(Number(product.current_inventory || 1), 1)}" value="1" data-detail-qty ${Number(product.current_inventory || 0) <= 0 ? "disabled" : ""}></label>
-          <button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out of Stock" : "Add to Inquiry"}</button>
+          <label>Quantity <input type="number" min="1" max="9999" step="1" value="1" data-detail-qty></label>
+          <button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Inquiry</button>
           <a class="secondary-action" href="cart.html">View Inquiry</a>
         </div>
         <p class="research-use">Research use only. Not for human consumption.</p>
