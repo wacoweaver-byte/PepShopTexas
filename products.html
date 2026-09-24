@@ -1617,13 +1617,27 @@ td .pill {
           </div>
         </form>
       `;
-      bindRichTextEditor($("productForm"));\n      $("productForm").addEventListener("submit", saveProduct);
+      bindRichTextEditor($("productForm"));
+      $("productForm").addEventListener("submit", saveProduct);
       bindProfitMargin($("productForm"));
       $("editMarginPriceBtn").addEventListener("click", () => applyMarginPrice($("productForm")));
       $("cancelEditBtn").addEventListener("click", hideProductEditor);
     }
 
-    function bindRichTextEditor(form) {\n      const editor = form?.querySelector("[data-rich-editor]");\n      const source = form?.querySelector("[data-rich-source]");\n      if (!editor || !source) return;\n      const sync = () => { source.value = editor.innerHTML.trim(); };\n      editor.addEventListener("input", sync);\n      form.querySelectorAll("[data-rich-command]").forEach((button) => {\n        button.addEventListener("mousedown", (event) => event.preventDefault());\n        button.addEventListener("click", () => { editor.focus(); document.execCommand(button.dataset.richCommand, false, null); sync(); });\n      });\n      sync();\n    }\n\n    async function saveProduct(event) {
+    function bindRichTextEditor(form) {
+      const editor = form?.querySelector("[data-rich-editor]");
+      const source = form?.querySelector("[data-rich-source]");
+      if (!editor || !source) return;
+      const sync = () => { source.value = editor.innerHTML.trim(); };
+      editor.addEventListener("input", sync);
+      form.querySelectorAll("[data-rich-command]").forEach((button) => {
+        button.addEventListener("mousedown", (event) => event.preventDefault());
+        button.addEventListener("click", () => { editor.focus(); document.execCommand(button.dataset.richCommand, false, null); sync(); });
+      });
+      sync();
+    }
+
+    async function saveProduct(event) {
       event.preventDefault();
       if (!activeProduct) return;
       const form = event.currentTarget;
