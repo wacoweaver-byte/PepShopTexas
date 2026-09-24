@@ -535,6 +535,23 @@ function updateCatalogHeading({ heading, eyebrow, category, focus, query, count 
 function researchNotesMarkup(notes = "") {
   const text = String(notes || "").trim();
   if (!text) return "";
+
+  // Rich-text notes saved by the Products editor.
+  if (/<\/?(?:p|div|ul|ol|li|strong|b|em|i)\b/i.test(text)) {
+    const template = document.createElement("template");
+    template.innerHTML = text;
+    const allowed = new Set(["P", "DIV", "UL", "OL", "LI", "STRONG", "B", "EM", "I", "BR"]);
+    [...template.content.querySelectorAll("*")].forEach((el) => {
+      if (!allowed.has(el.tagName)) {
+        el.replaceWith(...el.childNodes);
+        return;
+      }
+      [...el.attributes].forEach((attr) => el.removeAttribute(attr.name));
+    });
+    return template.innerHTML;
+  }
+
+  // Legacy plain-text notes.
   const leadPattern = /^(?:the commonly reported benefits are:?\s*)/i;
   const cleaned = text.replace(leadPattern, "");
   const benefitStarts = /(?=Fat loss\b|Increased metabolic activity\b|Improved body composition\b|Improved insulin sensitivity\b|Support for NAD\+ availability\b|Improved cellular energy metabolism\b|Potential reduction in metabolic dysfunction\b)/g;
