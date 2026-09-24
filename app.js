@@ -691,7 +691,7 @@ function inquiryRow({ product, quantity, cartKey }) {
 function inquiryEmailBody(rows, data) {
   return ["Product Inquiry Request", "", `Name: ${data.get("name") || ""}`, `Email: ${data.get("email") || ""}`, "", "Requested items:",
     ...rows.map(({product, quantity, cartKey}) => `- ${product ? productTitle(product) : cartKey} | Item: ${product?.product_key || cartKey} | Quantity: ${quantity}`),
-    "", "Notes:", data.get("notes") || "None", "", "Please confirm pricing and availability. This is an inquiry, not an order."
+    "", "Notes:", data.get("notes") || "None", "", "This is an inquiry, not an order."
   ].join("\n");
 }
 
