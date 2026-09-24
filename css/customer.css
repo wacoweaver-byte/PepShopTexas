@@ -61,3 +61,18 @@ body[data-page="cart"],body[data-page="cart"] main{background:#fff!important}
 /* Text-only peptide details: no reserved image column. */
 .pst-product-top.pst-product-text-only{grid-template-columns:minmax(0,1fr)!important;gap:0!important}
 .pst-product-text-only .pst-product-purchase{padding-top:0!important}
+
+
+/* Product research-note benefits */
+.detail-page .research-notes-list{
+  display:block!important;
+  margin:10px 0 0 1.35em!important;
+  padding:0!important;
+  list-style:disc outside!important;
+}
+.detail-page .research-notes-list li{
+  display:list-item!important;
+  margin:0 0 10px!important;
+  padding-left:4px!important;
+  line-height:1.55!important;
+}
