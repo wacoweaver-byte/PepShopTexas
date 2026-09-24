@@ -640,7 +640,6 @@ async function renderProductDetail() {
         <p class="research-use">Research use only. Not for human consumption.</p>
         ${product.description ? `<section><h2>Description</h2><p>${escapeHtml(product.description)}</p></section>` : ""}
         ${product.research_notes ? `<section><h2>Research Notes</h2>${researchNotesMarkup(product.research_notes)}</section>` : ""}
-        ${product.testing_statement ? `<section><h2>Testing</h2><p>${escapeHtml(product.testing_statement)}</p></section>` : ""}
       </div>
     `;
     shell.querySelector("[data-detail-variant-select]")?.addEventListener("change", (event) => {
