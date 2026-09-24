@@ -532,6 +532,17 @@ function updateCatalogHeading({ heading, eyebrow, category, focus, query, count 
 }
 
 
+function researchNotesMarkup(notes = "") {
+  const text = String(notes || "").trim();
+  if (!text) return "";
+  const leadPattern = /^(?:the commonly reported benefits are:?\s*)/i;
+  const cleaned = text.replace(leadPattern, "");
+  const benefitStarts = /(?=Fat loss\b|Increased metabolic activity\b|Improved body composition\b|Improved insulin sensitivity\b|Support for NAD\+ availability\b|Improved cellular energy metabolism\b|Potential reduction in metabolic dysfunction\b)/g;
+  const items = cleaned.split(benefitStarts).map((item) => item.trim().replace(/[.;]+$/, "")).filter(Boolean);
+  if (items.length < 2) return `<p>${escapeHtml(text)}</p>`;
+  return `<p>The commonly reported benefits are:</p><ul class="research-notes-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
 function productDetailVariantLabel(product = {}) {
   const strength = product.strength || product.product_key;
   return strength;
@@ -583,7 +594,7 @@ async function renderProductDetail() {
         </div>
         <p class="research-use">Research use only. Not for human consumption.</p>
         ${product.description ? `<section><h2>Description</h2><p>${escapeHtml(product.description)}</p></section>` : ""}
-        ${product.research_notes ? `<section><h2>Research Notes</h2><p>${escapeHtml(product.research_notes)}</p></section>` : ""}
+        ${product.research_notes ? `<section><h2>Research Notes</h2>${researchNotesMarkup(product.research_notes)}</section>` : ""}
         ${product.testing_statement ? `<section><h2>Testing</h2><p>${escapeHtml(product.testing_statement)}</p></section>` : ""}
       </div>
     `;
