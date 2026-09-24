@@ -49,3 +49,11 @@ body[data-page="cart"],body[data-page="cart"] main{background:#fff!important}
 
 /* Two remaining documentation links after removing sourcing and shipping claims. */
 @media(min-width:561px){.footer-trust{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+/* Catalog strengths are informational text directly beneath each peptide name. */
+.catalog-card .catalog-card-main h2{order:1!important}
+.catalog-card .catalog-common-strengths{order:2!important;margin:7px 0 0!important;padding:0!important;border:0!important;color:var(--pst-navy)!important;font-family:Arial,Helvetica,sans-serif!important;font-size:14px!important;font-weight:400!important;line-height:1.5!important;text-transform:none!important;letter-spacing:0!important;overflow-wrap:anywhere}
+.catalog-card .catalog-card-main>p{order:3!important}
+.catalog-card .catalog-details-link{order:4!important}
+.catalog-inquiry-action{order:5!important;display:flex;align-items:center;margin-top:18px}
+.catalog-inquiry-action a{text-decoration:none!important}
