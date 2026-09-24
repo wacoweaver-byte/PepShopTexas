@@ -536,10 +536,9 @@ function researchNotesMarkup(notes = "") {
   const text = String(notes || "").trim();
   if (!text) return "";
 
-  // Rich-text notes saved by the Products editor.
-  if (/<\/?(?:p|div|ul|ol|li|strong|b|em|i)\b/i.test(text)) {
+  const sanitizeRichText = (html) => {
     const template = document.createElement("template");
-    template.innerHTML = text;
+    template.innerHTML = html;
     const allowed = new Set(["P", "DIV", "UL", "OL", "LI", "STRONG", "B", "EM", "I", "BR"]);
     [...template.content.querySelectorAll("*")].forEach((el) => {
       if (!allowed.has(el.tagName)) {
@@ -549,15 +548,44 @@ function researchNotesMarkup(notes = "") {
       [...el.attributes].forEach((attr) => el.removeAttribute(attr.name));
     });
     return template.innerHTML;
+  };
+
+  if (/<\/?(?:p|div|ul|ol|li|strong|b|em|i)\b/i.test(text)) {
+    return sanitizeRichText(text);
   }
 
-  // Legacy plain-text notes.
-  const leadPattern = /^(?:the commonly reported benefits are:?\s*)/i;
-  const cleaned = text.replace(leadPattern, "");
-  const benefitStarts = /(?=Fat loss\b|Increased metabolic activity\b|Improved body composition\b|Improved insulin sensitivity\b|Support for NAD\+ availability\b|Improved cellular energy metabolism\b|Potential reduction in metabolic dysfunction\b)/g;
-  const items = cleaned.split(benefitStarts).map((item) => item.trim().replace(/[.;]+$/, "")).filter(Boolean);
-  if (items.length < 2) return `<p>${escapeHtml(text)}</p>`;
-  return `<p>The commonly reported benefits are:</p><ul class="research-notes-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+  // Legacy plain text: preserve headings/paragraphs and turn benefit lines into
+  // the same rich-text hierarchy used by the Products editor.
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (lines.length > 1) {
+    let html = "";
+    let inList = false;
+    const closeList = () => { if (inList) { html += "</ul>"; inList = false; } };
+    lines.forEach((line) => {
+      const bullet = line.match(/^(?:[-•*]\s*)(.+)$/);
+      if (bullet) {
+        if (!inList) { html += '<ul class="research-notes-list">'; inList = true; }
+        const item = bullet[1];
+        const parts = item.split(/\s+[—–-]\s+/, 2);
+        html += parts.length === 2
+          ? `<li><strong>${escapeHtml(parts[0])}</strong> — ${escapeHtml(parts[1])}</li>`
+          : `<li>${escapeHtml(item)}</li>`;
+        return;
+      }
+      closeList();
+      if (/^(?:mechanism of action|benefits)$/i.test(line)) {
+        html += `<h3 class="research-notes-heading">${escapeHtml(line)}</h3>`;
+      } else if (/^[A-Z0-9][A-Za-z0-9+\- ]{1,40}$/.test(line) && !/[.!?]$/.test(line)) {
+        html += `<p class="research-notes-title"><strong>${escapeHtml(line)}</strong></p>`;
+      } else {
+        html += `<p>${escapeHtml(line)}</p>`;
+      }
+    });
+    closeList();
+    return html;
+  }
+
+  return `<p>${escapeHtml(text)}</p>`;
 }
 
 function productDetailVariantLabel(product = {}) {
