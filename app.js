@@ -539,7 +539,7 @@ function researchNotesMarkup(notes = "") {
   const sanitizeRichText = (html) => {
     const template = document.createElement("template");
     template.innerHTML = html;
-    const allowed = new Set(["P", "DIV", "UL", "OL", "LI", "STRONG", "B", "EM", "I", "BR"]);
+    const allowed = new Set(["P", "DIV", "H3", "UL", "OL", "LI", "STRONG", "B", "EM", "I", "BR"]);
     [...template.content.querySelectorAll("*")].forEach((el) => {
       if (!allowed.has(el.tagName)) {
         el.replaceWith(...el.childNodes);
@@ -550,13 +550,17 @@ function researchNotesMarkup(notes = "") {
     return template.innerHTML;
   };
 
-  if (/<\/?(?:p|div|ul|ol|li|strong|b|em|i)\b/i.test(text)) {
+  const formatBenefit = (item) => {
+    if (item.querySelector("strong, b")) return;
+    const value = String(item.textContent || "").trim();
+    const match = value.match(/^(.+?)\s+[—–-]\s+(.+)$/);
+    if (match) item.innerHTML = `<strong>${escapeHtml(match[1].trim())}</strong> — ${escapeHtml(match[2].trim())}`;
+  };
+
+  if (/<\/?(?:p|div|h3|ul|ol|li|strong|b|em|i)\b/i.test(text)) {
     const template = document.createElement("template");
     template.innerHTML = sanitizeRichText(text);
-
-    // Normalize editor-generated rich text so the storefront always matches
-    // the intended Research Notes hierarchy.
-    [...template.content.querySelectorAll("p, div")].forEach((el) => {
+    [...template.content.querySelectorAll("p, div, h3")].forEach((el) => {
       const label = String(el.textContent || "").trim();
       if (/^(?:mechanism of action|benefits)$/i.test(label)) {
         const heading = document.createElement("h3");
@@ -565,61 +569,35 @@ function researchNotesMarkup(notes = "") {
         el.replaceWith(heading);
       }
     });
-
-    const firstTextBlock = template.content.querySelector("p, div");
-    if (firstTextBlock && !firstTextBlock.querySelector("strong, b")) {
-      const label = String(firstTextBlock.textContent || "").trim();
-      if (/^[A-Z0-9][A-Za-z0-9+\- ]{1,40}$/.test(label) && !/[.!?]$/.test(label)) {
-        firstTextBlock.classList.add("research-notes-title");
-        firstTextBlock.innerHTML = `<strong>${escapeHtml(label)}</strong>`;
-      }
-    }
-
     template.content.querySelectorAll("ul").forEach((list) => list.classList.add("research-notes-list"));
-    template.content.querySelectorAll("li").forEach((item) => {
-      if (item.querySelector("strong, b")) return;
-      const value = String(item.textContent || "").trim();
-      const match = value.match(/^(.+?)\s+[—–-]\s+(.+)$/);
-      if (match) {
-        item.innerHTML = `<strong>${escapeHtml(match[1].trim())}</strong> — ${escapeHtml(match[2].trim())}`;
-      }
-    });
-
-    return sanitizeRichText(template.innerHTML);
+    template.content.querySelectorAll("li").forEach(formatBenefit);
+    return template.innerHTML;
   }
 
-  // Legacy plain text: preserve headings/paragraphs and turn benefit lines into
-  // the same rich-text hierarchy used by the Products editor.
   const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  if (lines.length > 1) {
-    let html = "";
-    let inList = false;
-    const closeList = () => { if (inList) { html += "</ul>"; inList = false; } };
-    lines.forEach((line) => {
-      const bullet = line.match(/^(?:[-•*]\s*)(.+)$/);
-      if (bullet) {
-        if (!inList) { html += '<ul class="research-notes-list">'; inList = true; }
-        const item = bullet[1];
-        const parts = item.split(/\s+[—–-]\s+/, 2);
-        html += parts.length === 2
-          ? `<li><strong>${escapeHtml(parts[0])}</strong> — ${escapeHtml(parts[1])}</li>`
-          : `<li>${escapeHtml(item)}</li>`;
-        return;
-      }
-      closeList();
-      if (/^(?:mechanism of action|benefits)$/i.test(line)) {
-        html += `<h3 class="research-notes-heading">${escapeHtml(line)}</h3>`;
-      } else if (/^[A-Z0-9][A-Za-z0-9+\- ]{1,40}$/.test(line) && !/[.!?]$/.test(line)) {
-        html += `<p class="research-notes-title"><strong>${escapeHtml(line)}</strong></p>`;
-      } else {
-        html += `<p>${escapeHtml(line)}</p>`;
-      }
-    });
+  let html = "";
+  let inList = false;
+  const closeList = () => { if (inList) { html += "</ul>"; inList = false; } };
+  lines.forEach((line) => {
+    const bullet = line.match(/^(?:[-•*]\s*)(.+)$/);
+    if (bullet) {
+      if (!inList) { html += '<ul class="research-notes-list">'; inList = true; }
+      const item = bullet[1];
+      const parts = item.split(/\s+[—–-]\s+/, 2);
+      html += parts.length === 2
+        ? `<li><strong>${escapeHtml(parts[0])}</strong> — ${escapeHtml(parts[1])}</li>`
+        : `<li>${escapeHtml(item)}</li>`;
+      return;
+    }
     closeList();
-    return html;
-  }
-
-  return `<p>${escapeHtml(text)}</p>`;
+    if (/^(?:mechanism of action|benefits)$/i.test(line)) {
+      html += `<h3 class="research-notes-heading">${escapeHtml(line)}</h3>`;
+    } else {
+      html += `<p>${escapeHtml(line)}</p>`;
+    }
+  });
+  closeList();
+  return html;
 }
 
 function productDetailVariantLabel(product = {}) {
