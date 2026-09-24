@@ -76,3 +76,9 @@ body[data-page="cart"],body[data-page="cart"] main{background:#fff!important}
   padding-left:4px!important;
   line-height:1.55!important;
 }
+
+.detail-page .research-notes-heading{margin:22px 0 10px!important;color:var(--pst-navy)!important;font-size:20px!important;font-weight:700!important;line-height:1.25!important}
+.detail-page .research-notes-title{margin:0 0 18px!important}
+.detail-page .research-notes-list strong{font-weight:700!important}
+.detail-page section>ul,.detail-page section>ol{margin:12px 0 0 1.45em!important;padding:0!important}
+.detail-page section>ul>li,.detail-page section>ol>li{margin:0 0 10px!important;padding-left:4px!important;line-height:1.55!important}
