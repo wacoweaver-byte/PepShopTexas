@@ -196,7 +196,7 @@ function showProductLoadError(error) {
   const detail = document.querySelector("[data-product-detail]");
   if (detail) detail.innerHTML = `<p class="loading-row">Unable to load product: ${message}</p>`;
   const cart = document.querySelector("[data-cart-items]");
-  if (cart) cart.innerHTML = `<p class="loading-row">Unable to load cart: ${message}</p>`;
+  if (cart) cart.innerHTML = `<p class="loading-row">Unable to load inquiry: ${message}</p>`;
 }
 
 function setupLoginPage() {
@@ -362,12 +362,11 @@ async function resolveProductKey(productKey) {
 
 async function renderHome() {
   try {
-    const [products, promotions, currentUser] = await Promise.all([getProducts(), getActivePromotions(), getSignedInUser()]);
-    const isAdmin = currentUser ? await isAdminUser(currentUser) : false;
+    const products = await getProducts();
     const hot = products.filter((p) => p.hot_peptide || p.featured);
     const stacks = products.filter((p) => p.category === "Stack" || p.blend_stack);
     const newest = [...products].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-    renderHomePromotion(firstVisiblePromotion(promotions, currentUser, { isAdmin }), { isAdmin });
+    renderHomePromotion(null);
     fillHomeList("hot", hot.length ? hot : products);
     fillHomeList("stacks", stacks.length ? stacks : products);
     fillHomeList("new", newest.length ? newest : products);
@@ -550,7 +549,7 @@ function productCoaMarkup(product = {}) {
 function productDetailVariantLabel(product = {}) {
   const strength = product.strength || product.product_key;
   const availability = stockText(product) || "In Stock";
-  return `${strength} — ${formatMoney(unitPrice(product))} — ${availability}`;
+  return `${strength} — ${availability}`;
 }
 
 function productDetailVariantSelector(variants = [], selected = {}) {
@@ -561,7 +560,7 @@ function productDetailVariantSelector(variants = [], selected = {}) {
   return `
     <label class="detail-variant-picker">
       <span>Strength</span>
-      <select class="detail-variant-select" data-detail-variant-select aria-label="Select strength, price, and availability">
+      <select class="detail-variant-select" data-detail-variant-select aria-label="Select strength and availability">
         ${variants.map((variant) => `
           <option value="${escapeAttribute(productUrl(variant))}" ${variant.product_key === selected.product_key ? "selected" : ""}>${escapeHtml(productDetailVariantLabel(variant))}</option>
         `).join("")}
@@ -592,13 +591,12 @@ async function renderProductDetail() {
         ${saleBadge(product)}
         <h1>${escapeHtml(product.display_name)}</h1>
         ${productDetailVariantSelector(variants, product)}
-        <div class="price-line">${priceHtml(product)}</div>
         <p class="stock ${stockClass(product)}"><span class="stock-text">${stockText(product)}</span>${productIncomingPill(product)}</p>
         ${productIncomingNotice(product)}
         <div class="purchase-panel">
           <label>Quantity <input type="number" min="1" max="${Math.max(Number(product.current_inventory || 1), 1)}" value="1" data-detail-qty ${Number(product.current_inventory || 0) <= 0 ? "disabled" : ""}></label>
-          <button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out of Stock" : "Add to Cart"}</button>
-          <a class="secondary-action" href="cart.html">View Cart</a>
+          <button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out of Stock" : "Add to Inquiry"}</button>
+          <a class="secondary-action" href="cart.html">View Inquiry</a>
         </div>
         <p class="research-use">Research use only. Not for human consumption.</p>
         ${product.description ? `<section><h2>Description</h2><p>${escapeHtml(product.description)}</p></section>` : ""}
@@ -636,36 +634,68 @@ async function renderCartPage() {
   const itemsNode = document.querySelector("[data-cart-items]");
   const summaryNode = document.querySelector("[data-cart-summary]");
   const cart = readCart();
-
+  const draft = {};
+  summaryNode.querySelectorAll("input, textarea").forEach(input => draft[input.name] = input.value);
   try {
-    const [products, user, paymentMethods] = await Promise.all([cart.length ? getProducts() : Promise.resolve([]), getSignedInUser(), getPaymentMethods()]);
-    const profile = user ? await getCustomerProfile(user) : null;
-    const storeCredit = user ? await getAvailableStoreCredit(user, profile) : { balance:0, credits:[] };
-    const keyAliases = await productKeyAliasesForCart(cart);
-    const rows = cart.map((item) => {
-      const resolvedKey = keyAliases[item.key] || item.key;
-      const product = products.find((p) => p.product_key === resolvedKey);
-      return product ? { product, quantity: item.quantity, cartKey: item.key } : null;
-    }).filter(Boolean);
-
-    let reorderNotice = "";
-    try {
-      reorderNotice = sessionStorage.getItem(REORDER_NOTICE_KEY) || "";
-      if (reorderNotice) sessionStorage.removeItem(REORDER_NOTICE_KEY);
-    } catch {}
-    const reorderNoticeHtml = reorderNotice ? `<p class="checkout-status good">${escapeHtml(reorderNotice)}</p>` : "";
-
-    if (!cart.length) {
-      itemsNode.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Add products from the catalog to begin an order.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>`;
-    } else {
-      itemsNode.innerHTML = reorderNoticeHtml + rows.map(cartRow).join("");
-    }
-    summaryNode.innerHTML = summaryHtml(rows, { user, profile, paymentMethods, storeCredit });
+    const products = cart.length ? await getProducts() : [];
+    const aliases = await productKeyAliasesForCart(cart);
+    const rows = cart.map(item => ({
+      product: products.find(p => p.product_key === (aliases[item.key] || item.key)),
+      quantity: item.quantity, cartKey: item.key
+    }));
+    itemsNode.innerHTML = rows.length ? rows.map(inquiryRow).join("") :
+      '<div class="empty-cart"><h2>Your inquiry is empty</h2><p>Add products to request information.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>';
+    summaryNode.innerHTML = `<h2>Email Your Inquiry</h2>
+      <p>Request pricing and availability for your selected items.</p>
+      <form class="inquiry-form" data-inquiry-form>
+        <label>Name<input name="name" autocomplete="name" required maxlength="120"></label>
+        <label>Email<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
+        <label>Notes (optional)<textarea name="notes" rows="4" maxlength="2000"></textarea></label>
+        <button type="submit" class="primary-action" ${rows.length ? "" : "disabled"}>Email Inquiry Request</button>
+        <p>Opens your email app with your item list. Review the message and press Send to email ${escapeHtml(SUPPORT_EMAIL)}.</p>
+        <p>This is an inquiry, not an order. No payment is collected.</p>
+        <label>Inquiry details<textarea data-inquiry-copy rows="7" readonly aria-label="Inquiry details to copy"></textarea></label>
+        <p>If your email app does not open, copy these details into an email to <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p>
+        <p role="status" data-inquiry-status></p>
+      </form>`;
+    const form = summaryNode.querySelector("form");
+    Object.entries(draft).forEach(([name, value]) => { if (form.elements.namedItem(name)) form.elements.namedItem(name).value = value; });
+    const update = () => {
+      const body = inquiryEmailBody(rows, new FormData(form));
+      form.querySelector("[data-inquiry-copy]").value = body;
+      return body;
+    };
+    form.addEventListener("input", update);
+    update();
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      if (!rows.length || !form.reportValidity()) return;
+      const body = update();
+      window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Product Inquiry Request — PEP Shop Texas")}&body=${encodeURIComponent(body)}`;
+      form.querySelector("[data-inquiry-status]").textContent = "Your inquiry is ready in your email app. Press Send there to complete it. Your selected items have been kept.";
+    });
     bindCartPageButtons();
   } catch (error) {
-    itemsNode.innerHTML = `<p class="loading-row">Unable to load cart: ${escapeHtml(error.message)}</p>`;
+    itemsNode.innerHTML = `<p class="loading-row">Unable to load inquiry: ${escapeHtml(error.message)}</p>`;
     summaryNode.innerHTML = "";
   }
+}
+
+function inquiryRow({ product, quantity, cartKey }) {
+  const title = product ? productTitle(product) : cartKey;
+  return `<article class="inquiry-row">
+    <div><h2>${product ? `<a href="${productUrl(product)}">${escapeHtml(title)}</a>` : escapeHtml(title)}</h2>
+    <p>${product ? escapeHtml(stockText(product) || "Availability on request") : "Product unavailable in the current catalog; we can review your request."}</p></div>
+    <label>Quantity<input type="number" min="1" max="9999" step="1" value="${quantity}" data-cart-qty="${escapeAttribute(cartKey)}" aria-label="Quantity for ${escapeAttribute(title)}"></label>
+    <button type="button" class="cart-remove-button" data-remove-cart="${escapeAttribute(cartKey)}">Remove</button>
+  </article>`;
+}
+
+function inquiryEmailBody(rows, data) {
+  return ["Product Inquiry Request", "", `Name: ${data.get("name") || ""}`, `Email: ${data.get("email") || ""}`, "", "Requested items:",
+    ...rows.map(({product, quantity, cartKey}) => `- ${product ? productTitle(product) : cartKey} | Item: ${product?.product_key || cartKey} | Quantity: ${quantity}`),
+    "", "Notes:", data.get("notes") || "None", "", "Please confirm pricing and availability. This is an inquiry, not an order."
+  ].join("\n");
 }
 
 function groupCatalogProducts(products) {
@@ -706,7 +736,7 @@ function catalogDoseOptions(variants) {
           <span class="catalog-stock ${stockClass(product)}">${stockText(product)}</span>
           <span class="catalog-row-actions">
             ${productIncomingPill(product)}
-            <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out" : "Add to Cart"}</button>
+            <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}" ${Number(product.current_inventory || 0) <= 0 ? "disabled aria-disabled=\"true\"" : ""}>${Number(product.current_inventory || 0) <= 0 ? "Out" : "Add to Inquiry"}</button>
           </span>
         </div>
       `).join("")}
@@ -722,11 +752,11 @@ function bindCartButtons() {
     button.addEventListener("click", () => {
       if (button.disabled || button.getAttribute("aria-disabled") === "true") return;
       const qtyInput = document.querySelector("[data-detail-qty]");
-      const quantity = Math.max(Number(qtyInput?.value || 1), 1);
+      const quantity = Math.min(9999, Math.max(1, Math.floor(Number(qtyInput?.value) || 1)));
       addToCart(button.dataset.addToCart, quantity);
       button.classList.add("is-added");
       button.innerHTML = "✓ Added";
-      button.setAttribute("aria-label", "Added to cart");
+      button.setAttribute("aria-label", "Added to inquiry");
     });
   });
 }
@@ -817,6 +847,7 @@ function addToCart(key, quantity) {
 }
 
 function setCartQuantity(key, quantity) {
+  quantity = Math.min(9999, Math.max(0, Math.floor(Number(quantity) || 0)));
   const next = readCart().map((item) => item.key === key ? { ...item, quantity } : item).filter((item) => item.quantity > 0);
   writeCart(next);
   renderCartPage();
@@ -825,7 +856,7 @@ function setCartQuantity(key, quantity) {
 function readCart() {
   try {
     const parsed = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed.filter((item) => item.key && item.quantity > 0) : [];
+    return Array.isArray(parsed) ? parsed.filter((item) => item && typeof item.key === "string" && Number.isFinite(Number(item.quantity)) && Number(item.quantity) > 0).map(item => ({key:item.key, quantity:Math.min(9999, Math.max(1, Math.floor(Number(item.quantity))))})) : [];
   } catch {
     return [];
   }
@@ -1271,186 +1302,7 @@ function unavailableCartMessage(rows) {
 
 async function handleCheckoutSubmit(event) {
   event.preventDefault();
-  const form = event.currentTarget;
-  const status = form.querySelector("[data-checkout-status]");
-  const button = form.querySelector("button[type='submit']");
-  const setStatus = (message, tone = "") => {
-    if (!status) return;
-    status.textContent = message;
-    status.className = `checkout-status ${tone}`.trim();
-  };
-
-  try {
-    if (button) { button.disabled = true; button.textContent = "Submitting..."; }
-    setStatus("Submitting order...");
-
-    const user = await requireUser("cart.html");
-    if (!user) return;
-    const profile = await getCustomerProfile(user);
-
-    const cart = readCart();
-    if (!cart.length) throw new Error("Your cart is empty.");
-
-    const products = await getProducts();
-    const keyAliases = await productKeyAliasesForCart(cart);
-    const rows = cart.map((item) => {
-      const resolvedKey = keyAliases[item.key] || item.key;
-      const product = products.find((p) => p.product_key === resolvedKey);
-      return product ? { product, quantity: Number(item.quantity || 1) } : null;
-    }).filter(Boolean);
-    if (!rows.length) throw new Error("The products in your cart are no longer available.");
-
-    const unavailable = unavailableCartRows(rows);
-    if (unavailable.length) {
-      throw new Error(`The following item is currently out of stock and cannot be ordered: ${unavailableCartMessage(unavailable)}. Please remove it from your cart before checkout.`);
-    }
-
-    const insufficient = insufficientCartRows(rows);
-    if (insufficient.length) {
-      throw new Error(`The requested quantity is higher than available inventory for: ${unavailableCartMessage(insufficient)}. Please update your cart quantity before checkout.`);
-    }
-
-    const formData = new FormData(form);
-    const enteredDiscountCode = String(formData.get("discount_code") || "").trim();
-    if (enteredDiscountCode && (!appliedCartDiscount || enteredDiscountCode.toLowerCase() !== String(appliedCartDiscount.code || "").toLowerCase())) {
-      throw new Error("Click Apply beside the discount code before placing the order.");
-    }
-    if (appliedCartDiscount) {
-      appliedCartDiscount = await validateCartDiscountCode(appliedCartDiscount.code);
-    }
-    const selectedShippingAddress = checkoutShippingAddress(formData, profile, user);
-    if (selectedShippingAddress.save) await saveAdditionalShippingAddress(user, selectedShippingAddress);
-    const selectedOption = form.querySelector("[name='payment_method']")?.selectedOptions?.[0];
-    const paymentMethod = selectedOption?.dataset?.label || String(formData.get("payment_method") || "Payment pending");
-    const paymentInstructions = selectedOption?.dataset?.instructions || "";
-    const paymentQr = selectedOption?.dataset?.qr || "";
-    const totals = calculateCartTotals(rows, { shipping_state:selectedShippingAddress.state });
-    const baseTotal = totals.total;
-    const wantsStoreCredit = formData.get("apply_store_credit") === "yes";
-    const storeCredit = wantsStoreCredit ? await getAvailableStoreCredit(user, profile) : { balance:0, credits:[] };
-    const storeCreditApplied = wantsStoreCredit ? roundMoney(Math.min(storeCredit.balance, baseTotal)) : 0;
-    const { subtotal, shipping, tax, discount, taxRate, taxRegion } = totals;
-    const total = roundMoney(baseTotal - storeCreditApplied);
-    const orderNumberValue = null;
-    const now = new Date().toISOString();
-    const customerName = accountCustomerName(profile, user);
-    const customerEmail = accountCustomerEmail(profile, user);
-    const customerPhone = accountCustomerPhone(profile);
-    const shippingAddressValue = formattedShippingAddress(selectedShippingAddress);
-    const customerNotes = String(formData.get("customer_notes") || "").trim();
-    const paymentNote = [
-      paymentInstructions ? `Payment method selected: ${paymentMethod} | ${paymentInstructions}` : `Payment method selected: ${paymentMethod}`,
-      storeCreditApplied > 0 ? `Store credit applied: ${formatMoney(storeCreditApplied)}` : ""
-    ].filter(Boolean).join("\n");
-    const orderId = crypto.randomUUID();
-
-    const orderPayload = {
-      id: orderId,
-      order_number: orderNumberValue,
-      user_id: user.id,
-      customer_id: user.id,
-      customer_uuid: user.id,
-      profile_id: profile?.id || user.id,
-      customer_name: customerName,
-      customer_email: customerEmail,
-      customer_phone: customerPhone,
-      shipping_address: shippingAddressValue,
-      shipping_name: selectedShippingAddress.recipientName,
-      shipping_email: customerEmail,
-      shipping_phone: customerPhone,
-      shipping_address_line1: selectedShippingAddress.line1,
-      shipping_address_line2: selectedShippingAddress.line2 || null,
-      shipping_city: selectedShippingAddress.city,
-      shipping_state: selectedShippingAddress.state,
-      shipping_zip: selectedShippingAddress.zip,
-      status: "pending",
-      order_status: "pending",
-      payment_status: "pending",
-      payment_method: paymentMethod,
-      payment_instructions_snapshot: paymentInstructions,
-      payment_qr_image: paymentQr || null,
-      customer_notes: [customerNotes, paymentNote].filter(Boolean).join("\n\n"),
-      subtotal,
-      discount,
-      subtotal_before_discount: subtotal,
-      discount_code: appliedCartDiscount?.code || null,
-      discount_id: appliedCartDiscount?.id || null,
-      discount_type: appliedCartDiscount?.discount_type || null,
-      discount_percent: appliedCartDiscount ? Number(appliedCartDiscount.percent_off || 0) : 0,
-      discount_amount: discount,
-      discount_code_amount: discount,
-      store_credit_applied: storeCreditApplied,
-      shipping,
-      tax,
-      tax_rate: taxRate,
-      tax_region: taxRegion,
-      tax_jurisdiction: taxRegion,
-      total,
-      source: "website_cart",
-      created_at: now,
-      updated_at: now
-    };
-
-    const order = await insertWithColumnFallback("orders", orderPayload);
-    const itemPayloads = rows.map(({ product, quantity }) => ({
-      order_id: order.id,
-      user_id: user.id,
-      customer_id: user.id,
-      product_id: product.id,
-      product_key: product.product_key,
-      product_name: product.display_name,
-      product_strength: product.strength || "",
-      product_category: product.category || "",
-      quantity,
-      unit_price: unitPrice(product),
-      line_total: unitPrice(product) * quantity,
-      created_at: now,
-      updated_at: now
-    }));
-
-    await insertRowsWithColumnFallback("order_items", itemPayloads);
-
-    if (storeCreditApplied > 0) {
-      await consumeStoreCreditForOrder({
-        user,
-        profile,
-        order,
-        amount: storeCreditApplied,
-        note: `Store credit applied to order ${order.order_number || orderNumberValue}`
-      });
-    }
-
-await sendOrderReceivedEmail(
-  { ...order, items: itemPayloads },
-  {
-    customerName,
-    customerEmail,
-    customerNumber: profile?.customer_number
-      ? `PST-C${profile.customer_number}`
-      : "",
-    paymentMethod,
-    paymentInstructions,
-    paymentQr
-  }
-);
-
-    writeCart([]);
-    appliedCartDiscount = null;
-    setStatus(`Order ${order.order_number || orderNumberValue} submitted. It is now in Order Management.`, "good");
-    form.innerHTML = `
-      <h3>Order Submitted</h3>
-      <p class="checkout-status good">Order ${escapeHtml(order.order_number || orderNumberValue)} is now in Order Management.</p>
-      <a class="primary-action" href="account.html">View My Account</a>
-    `;
-    const newAddressHost = document.querySelector("[data-new-shipping-address-host]");
-    if (newAddressHost) newAddressHost.hidden = true;
-    const itemsNode = document.querySelector("[data-cart-items]");
-    if (itemsNode) itemsNode.innerHTML = `<div class="empty-cart"><h2>Order submitted</h2><p>Your cart has been cleared.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>`;
-  } catch (error) {
-    console.error(error);
-    setStatus(error.message || "Could not submit order.", "bad");
-    if (button) { button.disabled = false; button.textContent = "Place Order"; }
-  }
+  window.location.href = "cart.html";
 }
 
 async function nextOrderNumber() {
@@ -1731,19 +1583,15 @@ function unitPrice(product) {
 }
 
 function priceHtml(product) {
-  const regular = formatMoney(product.price);
-  if (product.sale_enabled && product.sale_price) return `<span class="sale-price">${formatMoney(product.sale_price)}</span> <s>${regular}</s>`;
-  return regular;
+  return "";
 }
 
 function saleBadge(product) {
-  if (!product.sale_enabled) return "";
-  return `<span class="sale-badge">${escapeHtml(product.sale_label || "Sale")}</span>`;
+  return "";
 }
 
 function saleText(product) {
-  if (!product.sale_enabled) return "";
-  return `${escapeHtml(product.sale_label || "Sale")}: `;
+  return "";
 }
 
 function formatMoney(value) {
@@ -1761,7 +1609,7 @@ function productIncomingLabel(product = {}) {
 function productIncomingPlainText(product = {}) {
   const label = productIncomingLabel(product);
   if (!label) return "";
-  return `${label} / pending arrival. Not available for checkout until received into inventory.`;
+  return `${label} / pending arrival. Availability will be confirmed in response to your inquiry.`;
 }
 
 function productIncomingNotice(product = {}) {
