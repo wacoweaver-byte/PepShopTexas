@@ -551,7 +551,41 @@ function researchNotesMarkup(notes = "") {
   };
 
   if (/<\/?(?:p|div|ul|ol|li|strong|b|em|i)\b/i.test(text)) {
-    return sanitizeRichText(text);
+    const template = document.createElement("template");
+    template.innerHTML = sanitizeRichText(text);
+
+    // Normalize editor-generated rich text so the storefront always matches
+    // the intended Research Notes hierarchy.
+    [...template.content.querySelectorAll("p, div")].forEach((el) => {
+      const label = String(el.textContent || "").trim();
+      if (/^(?:mechanism of action|benefits)$/i.test(label)) {
+        const heading = document.createElement("h3");
+        heading.className = "research-notes-heading";
+        heading.textContent = label;
+        el.replaceWith(heading);
+      }
+    });
+
+    const firstTextBlock = template.content.querySelector("p, div");
+    if (firstTextBlock && !firstTextBlock.querySelector("strong, b")) {
+      const label = String(firstTextBlock.textContent || "").trim();
+      if (/^[A-Z0-9][A-Za-z0-9+\- ]{1,40}$/.test(label) && !/[.!?]$/.test(label)) {
+        firstTextBlock.classList.add("research-notes-title");
+        firstTextBlock.innerHTML = `<strong>${escapeHtml(label)}</strong>`;
+      }
+    }
+
+    template.content.querySelectorAll("ul").forEach((list) => list.classList.add("research-notes-list"));
+    template.content.querySelectorAll("li").forEach((item) => {
+      if (item.querySelector("strong, b")) return;
+      const value = String(item.textContent || "").trim();
+      const match = value.match(/^(.+?)\s+[—–-]\s+(.+)$/);
+      if (match) {
+        item.innerHTML = `<strong>${escapeHtml(match[1].trim())}</strong> — ${escapeHtml(match[2].trim())}`;
+      }
+    });
+
+    return sanitizeRichText(template.innerHTML);
   }
 
   // Legacy plain text: preserve headings/paragraphs and turn benefit lines into
