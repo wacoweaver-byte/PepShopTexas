@@ -851,12 +851,26 @@ async function handleInquirySubmit(event) {
     }));
     await insertRowsWithColumnFallback("order_items", itemPayloads);
 
+    const emailItems = rows.map(({ product, quantity }) => {
+      const price = unitPrice(product);
+      return {
+        product_name: product.display_name,
+        product_key: product.product_key,
+        quantity,
+        unit_price: price,
+        line_total: price * quantity
+      };
+    });
+    const emailSubtotal = emailItems.reduce((sum, item) => sum + item.line_total, 0);
+
     const confirmationEmailSent = await sendInquiryReceivedEmail(
       { ...inquiry, items: itemPayloads },
       {
         customerName,
         customerEmail,
-        customerNumber: profile?.customer_number ? `PST-C${profile.customer_number}` : ""
+        customerNumber: profile?.customer_number ? `PST-C${profile.customer_number}` : "",
+        emailItems,
+        emailSubtotal
       }
     );
 
@@ -891,7 +905,10 @@ async function sendInquiryReceivedEmail(inquiry, context = {}) {
     originalType: "inquiry_received",
     to: context.customerEmail || inquiry.customer_email || inquiry.email,
     subject: `Pep Shop Texas Inquiry Received${inquiry.order_number ? ` #${inquiry.order_number}` : ""}`,
-    statusNote: "Your inquiry has been received and is being reviewed."
+    statusNote: "Your inquiry has been received and is being reviewed.",
+    items: context.emailItems || [],
+    subtotal: context.emailSubtotal || 0,
+    total: context.emailSubtotal || 0
   });
   try {
     await postOrderEmailPayload(payload);
