@@ -684,45 +684,46 @@ async function renderCartPage() {
   const summaryNode = document.querySelector("[data-cart-summary]");
   const cart = readCart();
   const draft = {};
-  summaryNode.querySelectorAll("input, textarea").forEach(input => draft[input.name] = input.value);
+  summaryNode.querySelectorAll("input, textarea").forEach((input) => { draft[input.name] = input.value; });
+
   try {
-    const products = cart.length ? await getProducts() : [];
+    const [products, user] = await Promise.all([
+      cart.length ? getProducts() : Promise.resolve([]),
+      getSignedInUser()
+    ]);
+    const profile = user ? await getCustomerProfile(user) : null;
     const aliases = await productKeyAliasesForCart(cart);
-    const rows = cart.map(item => ({
-      product: products.find(p => p.product_key === (aliases[item.key] || item.key)),
-      quantity: item.quantity, cartKey: item.key
+    const rows = cart.map((item) => ({
+      product: products.find((product) => product.product_key === (aliases[item.key] || item.key)),
+      quantity: item.quantity,
+      cartKey: item.key
     }));
-    itemsNode.innerHTML = rows.length ? rows.map(inquiryRow).join("") :
-      '<div class="empty-cart"><h2>Your inquiry is empty</h2><p>Add products to request information.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>';
-    summaryNode.innerHTML = `<h2>Email Your Inquiry</h2>
-      <p>Request pricing and availability for your selected items.</p>
+
+    itemsNode.innerHTML = rows.length
+      ? rows.map(inquiryRow).join("")
+      : '<div class="empty-cart"><h2>Your inquiry is empty</h2><p>Add products to request information.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>';
+
+    const defaultName = profile ? accountCustomerName(profile, user) : "";
+    const defaultEmail = profile?.email || user?.email || "";
+
+    summaryNode.innerHTML = `<h2>Submit Your Inquiry</h2>
+      <p>Send your selected items directly to Pep Shop Texas for review.</p>
       <form class="inquiry-form" data-inquiry-form>
         <label>Name<input name="name" autocomplete="name" required maxlength="120"></label>
         <label>Email<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
         <label>Notes (optional)<textarea name="notes" rows="4" maxlength="2000"></textarea></label>
-        <button type="submit" class="primary-action" ${rows.length ? "" : "disabled"}>Email Inquiry Request</button>
-        <p>Opens your email app with your item list. Review the message and press Send to email ${escapeHtml(SUPPORT_EMAIL)}.</p>
+        <button type="submit" class="primary-action" ${rows.length ? "" : "disabled"}>Submit Inquiry Request</button>
         <p>This is an inquiry, not an order. No payment is collected.</p>
-        <label>Inquiry details<textarea data-inquiry-copy rows="7" readonly aria-label="Inquiry details to copy"></textarea></label>
-        <p>If your email app does not open, copy these details into an email to <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>.</p>
-        <p role="status" data-inquiry-status></p>
+        <p role="status" class="checkout-status" data-inquiry-status></p>
       </form>`;
-    const form = summaryNode.querySelector("form");
-    Object.entries(draft).forEach(([name, value]) => { if (form.elements.namedItem(name)) form.elements.namedItem(name).value = value; });
-    const update = () => {
-      const body = inquiryEmailBody(rows, new FormData(form));
-      form.querySelector("[data-inquiry-copy]").value = body;
-      return body;
-    };
-    form.addEventListener("input", update);
-    update();
-    form.addEventListener("submit", event => {
-      event.preventDefault();
-      if (!rows.length || !form.reportValidity()) return;
-      const body = update();
-      window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Product Inquiry Request — PEP Shop Texas")}&body=${encodeURIComponent(body)}`;
-      form.querySelector("[data-inquiry-status]").textContent = "Your inquiry is ready in your email app. Press Send there to complete it. Your selected items have been kept.";
-    });
+
+    const form = summaryNode.querySelector("[data-inquiry-form]");
+    if (form) {
+      form.elements.namedItem("name").value = draft.name || defaultName;
+      form.elements.namedItem("email").value = draft.email || defaultEmail;
+      form.elements.namedItem("notes").value = draft.notes || "";
+      form.addEventListener("submit", handleInquirySubmit);
+    }
     bindCartPageButtons();
   } catch (error) {
     itemsNode.innerHTML = `<p class="loading-row">Unable to load inquiry: ${escapeHtml(error.message)}</p>`;
@@ -734,17 +735,163 @@ function inquiryRow({ product, quantity, cartKey }) {
   const title = product ? productTitle(product) : cartKey;
   return `<article class="inquiry-row">
     <div><h2>${product ? `<a href="${productUrl(product)}">${escapeHtml(title)}</a>` : escapeHtml(title)}</h2>
-    <p>${product ? escapeHtml(stockText(product) || "Availability on request") : "Product unavailable in the current catalog; we can review your request."}</p></div>
+    <p>${product ? "Selected for inquiry" : "Product unavailable in the current catalog; we can still review your request."}</p></div>
     <label>Quantity<input type="number" min="1" max="9999" step="1" value="${quantity}" data-cart-qty="${escapeAttribute(cartKey)}" aria-label="Quantity for ${escapeAttribute(title)}"></label>
     <button type="button" class="cart-remove-button" data-remove-cart="${escapeAttribute(cartKey)}">Remove</button>
   </article>`;
 }
 
-function inquiryEmailBody(rows, data) {
-  return ["Product Inquiry Request", "", `Name: ${data.get("name") || ""}`, `Email: ${data.get("email") || ""}`, "", "Requested items:",
-    ...rows.map(({product, quantity, cartKey}) => `- ${product ? productTitle(product) : cartKey} | Item: ${product?.product_key || cartKey} | Quantity: ${quantity}`),
-    "", "Notes:", data.get("notes") || "None", "", "This is an inquiry, not an order."
-  ].join("\n");
+async function handleInquirySubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = form.querySelector("[data-inquiry-status]");
+  const button = form.querySelector("button[type='submit']");
+  const setStatus = (message, tone = "") => {
+    if (!status) return;
+    status.textContent = message;
+    status.className = `checkout-status ${tone}`.trim();
+  };
+
+  try {
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Submitting...";
+    }
+    setStatus("Submitting inquiry...");
+
+    const user = await requireUser("cart.html");
+    if (!user) return;
+    const profile = await getCustomerProfile(user);
+    const formData = new FormData(form);
+    const customerName = String(formData.get("name") || "").trim();
+    const customerEmail = String(formData.get("email") || "").trim();
+    const customerNotes = String(formData.get("notes") || "").trim();
+    if (!customerName || !customerEmail) throw new Error("Enter your name and email.");
+
+    const cart = readCart();
+    if (!cart.length) throw new Error("Your inquiry is empty.");
+
+    const products = await getProducts();
+    const aliases = await productKeyAliasesForCart(cart);
+    const rows = cart.map((item) => {
+      const product = products.find((entry) => entry.product_key === (aliases[item.key] || item.key));
+      return product ? { product, quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)) } : null;
+    }).filter(Boolean);
+    if (!rows.length) throw new Error("The selected products are no longer available in the catalog.");
+
+    const now = new Date().toISOString();
+    const orderId = crypto.randomUUID();
+    const customerPhone = accountCustomerPhone(profile);
+    const shippingLine1 = profile?.shipping_address_line1 || profile?.address1 || null;
+    const shippingLine2 = profile?.shipping_address_line2 || profile?.address2 || null;
+    const shippingCity = profile?.shipping_city || profile?.city || null;
+    const shippingState = profile?.shipping_state || profile?.state || null;
+    const shippingZip = profile?.shipping_zip || profile?.zip || null;
+    const shippingAddress = profile?.shipping_address || profile?.address ||
+      [shippingLine1, shippingLine2, shippingCity, shippingState, shippingZip].filter(Boolean).join(", ") || null;
+
+    const orderPayload = {
+      id: orderId,
+      order_number: null,
+      user_id: user.id,
+      customer_id: user.id,
+      customer_uuid: user.id,
+      profile_id: profile?.id || user.id,
+      customer_name: customerName,
+      customer_email: customerEmail,
+      customer_phone: customerPhone,
+      shipping_address: shippingAddress,
+      shipping_name: customerName,
+      shipping_email: customerEmail,
+      shipping_phone: customerPhone,
+      shipping_address_line1: shippingLine1,
+      shipping_address_line2: shippingLine2,
+      shipping_city: shippingCity,
+      shipping_state: shippingState,
+      shipping_zip: shippingZip,
+      status: "pending",
+      order_status: "pending",
+      payment_status: "pending",
+      payment_method: "Inquiry",
+      payment_instructions_snapshot: null,
+      payment_qr_image: null,
+      customer_notes: customerNotes,
+      subtotal: 0,
+      discount: 0,
+      subtotal_before_discount: 0,
+      discount_amount: 0,
+      discount_code_amount: 0,
+      store_credit_applied: 0,
+      shipping: 0,
+      tax: 0,
+      tax_rate: 0,
+      tax_region: "",
+      tax_jurisdiction: "",
+      total: 0,
+      source: "website_inquiry",
+      created_at: now,
+      updated_at: now
+    };
+
+    const inquiry = await insertWithColumnFallback("orders", orderPayload);
+    const itemPayloads = rows.map(({ product, quantity }) => ({
+      order_id: inquiry.id,
+      user_id: user.id,
+      customer_id: user.id,
+      product_id: product.id,
+      product_key: product.product_key,
+      product_name: product.display_name,
+      product_strength: product.strength || "",
+      product_category: product.category || "",
+      quantity,
+      unit_price: 0,
+      line_total: 0,
+      created_at: now,
+      updated_at: now
+    }));
+    await insertRowsWithColumnFallback("order_items", itemPayloads);
+
+    await sendInquiryReceivedEmail(
+      { ...inquiry, items: itemPayloads },
+      {
+        customerName,
+        customerEmail,
+        customerNumber: profile?.customer_number ? `PST-C${profile.customer_number}` : ""
+      }
+    );
+
+    const inquiryNumber = inquiry.order_number || inquiry.id;
+    writeCart([]);
+    setStatus(`Inquiry ${inquiryNumber} submitted successfully.`, "good");
+    form.innerHTML = `
+      <h3>Inquiry Submitted</h3>
+      <p class="checkout-status good">Inquiry ${escapeHtml(inquiryNumber)} has been received by Pep Shop Texas.</p>
+      <p>A confirmation has been sent to ${escapeHtml(customerEmail)}.</p>
+      <a class="primary-action" href="account.html">View My Account</a>
+    `;
+    const itemsNode = document.querySelector("[data-cart-items]");
+    if (itemsNode) {
+      itemsNode.innerHTML = '<div class="empty-cart"><h2>Inquiry submitted</h2><p>Your inquiry request has been sent for review.</p></div>';
+    }
+  } catch (error) {
+    console.error("Inquiry submission failed", error);
+    setStatus(error.message || "The inquiry could not be submitted. Please try again.", "bad");
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Submit Inquiry Request";
+    }
+  }
+}
+
+async function sendInquiryReceivedEmail(inquiry, context = {}) {
+  const payload = buildOrderEmailPayload(inquiry, context, {
+    type: "inquiry_received",
+    originalType: "inquiry_received",
+    to: context.customerEmail || inquiry.customer_email || inquiry.email,
+    subject: `Pep Shop Texas Inquiry Received${inquiry.order_number ? ` #${inquiry.order_number}` : ""}`,
+    statusNote: "Your inquiry has been received and is being reviewed."
+  });
+  await postOrderEmailPayload(payload);
 }
 
 function groupCatalogProducts(products) {
@@ -1706,3 +1853,4 @@ function validHexColor(value) {
   const color = String(value || "").trim();
   return /^#[0-9a-f]{6}$/i.test(color) ? color : "";
 }
+
