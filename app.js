@@ -790,6 +790,19 @@ async function handleInquirySubmit(event) {
     const shippingAddress = profile?.shipping_address || profile?.address ||
       [shippingLine1, shippingLine2, shippingCity, shippingState, shippingZip].filter(Boolean).join(", ") || null;
 
+    const pricedItems = rows.map(({ product, quantity }) => {
+      const price = unitPrice(product);
+      return {
+        product,
+        quantity,
+        unit_price: price,
+        line_total: price * quantity
+      };
+    });
+    const inquirySubtotal = pricedItems.reduce((sum, item) => sum + item.line_total, 0);
+    const inquiryShipping = inquirySubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE;
+    const inquiryTotal = inquirySubtotal + inquiryShipping;
+
     const orderPayload = {
       id: orderId,
       order_number: null,
@@ -816,25 +829,25 @@ async function handleInquirySubmit(event) {
       payment_instructions_snapshot: null,
       payment_qr_image: null,
       customer_notes: customerNotes,
-      subtotal: 0,
+      subtotal: inquirySubtotal,
       discount: 0,
-      subtotal_before_discount: 0,
+      subtotal_before_discount: inquirySubtotal,
       discount_amount: 0,
       discount_code_amount: 0,
       store_credit_applied: 0,
-      shipping: 0,
+      shipping: inquiryShipping,
       tax: 0,
       tax_rate: 0,
       tax_region: "",
       tax_jurisdiction: "",
-      total: 0,
+      total: inquiryTotal,
       source: "website_inquiry",
       created_at: now,
       updated_at: now
     };
 
     const inquiry = await insertWithColumnFallback("orders", orderPayload);
-    const itemPayloads = rows.map(({ product, quantity }) => ({
+    const itemPayloads = pricedItems.map(({ product, quantity, unit_price, line_total }) => ({
       order_id: inquiry.id,
       user_id: user.id,
       customer_id: user.id,
@@ -844,26 +857,23 @@ async function handleInquirySubmit(event) {
       product_strength: product.strength || "",
       product_category: product.category || "",
       quantity,
-      unit_price: 0,
-      line_total: 0,
+      unit_price,
+      line_total,
       created_at: now,
       updated_at: now
     }));
     await insertRowsWithColumnFallback("order_items", itemPayloads);
 
-    const emailItems = rows.map(({ product, quantity }) => {
-      const price = unitPrice(product);
-      return {
-        product_name: product.display_name,
-        product_key: product.product_key,
-        quantity,
-        unit_price: price,
-        line_total: price * quantity
-      };
-    });
-    const emailSubtotal = emailItems.reduce((sum, item) => sum + item.line_total, 0);
-    const emailShipping = emailSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE;
-    const emailTotal = emailSubtotal + emailShipping;
+    const emailItems = itemPayloads.map((item) => ({
+      product_name: item.product_name,
+      product_key: item.product_key,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      line_total: item.line_total
+    }));
+    const emailSubtotal = inquirySubtotal;
+    const emailShipping = inquiryShipping;
+    const emailTotal = inquiryTotal;
 
     const confirmationEmailSent = await sendInquiryReceivedEmail(
       { ...inquiry, items: itemPayloads },
