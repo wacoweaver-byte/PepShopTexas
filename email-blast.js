@@ -9,6 +9,7 @@
   function selectedEmails(){return [...document.querySelectorAll("[data-blast-recipient]:checked")].map(input=>input.value)}
   function setBlastStatus(message,tone=""){const el=byId("blastComposerStatus");if(!el)return;el.textContent=message;el.className=`blast-status ${tone}`.trim()}
   function fieldValue(id){return String(byId(id)?.value||"").trim()}
+  function normalizeWebUrl(value){const raw=String(value||"").trim();if(!raw)return"";const candidate=/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)?raw:`https://${raw}`;try{const parsed=new URL(candidate);return ["http:","https:"].includes(parsed.protocol)?parsed.toString():""}catch{return""}}
   function payload(previewOnly=false){return{
     preview_only:previewOnly,
     recipients:selectedEmails(),
@@ -20,7 +21,7 @@
     feature_title:fieldValue("blastFeatureTitle"),
     feature_body:fieldValue("blastFeatureBody"),
     button_text:fieldValue("blastButtonText"),
-    button_url:fieldValue("blastButtonUrl"),
+    button_url:normalizeWebUrl(fieldValue("blastButtonUrl")),
     final_note:fieldValue("blastFinalNote")
   }}
 
@@ -59,6 +60,7 @@
     byId("previewBlastBtn").addEventListener("click",previewBlast);
     byId("sendBlastBtn").addEventListener("click",sendBlast);
     byId("blastRecipientSearch").addEventListener("input",renderRecipients);
+    byId("blastButtonUrl").addEventListener("blur",event=>{const normalized=normalizeWebUrl(event.target.value);if(normalized)event.target.value=normalized});
     byId("blastSelectVisibleBtn").addEventListener("click",()=>setVisibleSelection(true));
     byId("blastClearVisibleBtn").addEventListener("click",()=>setVisibleSelection(false));
     modal.addEventListener("click",event=>{if(event.target===modal)closeComposer()});
