@@ -862,6 +862,8 @@ async function handleInquirySubmit(event) {
       };
     });
     const emailSubtotal = emailItems.reduce((sum, item) => sum + item.line_total, 0);
+    const emailShipping = emailSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE;
+    const emailTotal = emailSubtotal + emailShipping;
 
     const confirmationEmailSent = await sendInquiryReceivedEmail(
       { ...inquiry, items: itemPayloads },
@@ -870,7 +872,9 @@ async function handleInquirySubmit(event) {
         customerEmail,
         customerNumber: profile?.customer_number ? `PST-C${profile.customer_number}` : "",
         emailItems,
-        emailSubtotal
+        emailSubtotal,
+        emailShipping,
+        emailTotal
       }
     );
 
@@ -908,7 +912,9 @@ async function sendInquiryReceivedEmail(inquiry, context = {}) {
     statusNote: "Your inquiry has been received and is being reviewed.",
     items: context.emailItems || [],
     subtotal: context.emailSubtotal || 0,
-    total: context.emailSubtotal || 0
+    shipping: context.emailShipping || 0,
+    tax: 0,
+    total: context.emailTotal || context.emailSubtotal || 0
   });
   try {
     await postOrderEmailPayload(payload);
