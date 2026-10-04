@@ -851,7 +851,7 @@ async function handleInquirySubmit(event) {
     }));
     await insertRowsWithColumnFallback("order_items", itemPayloads);
 
-    await sendInquiryReceivedEmail(
+    const confirmationEmailSent = await sendInquiryReceivedEmail(
       { ...inquiry, items: itemPayloads },
       {
         customerName,
@@ -866,7 +866,9 @@ async function handleInquirySubmit(event) {
     form.innerHTML = `
       <h3>Inquiry Submitted</h3>
       <p class="checkout-status good">Inquiry ${escapeHtml(inquiryNumber)} has been received by Pep Shop Texas.</p>
-      <p>A confirmation has been sent to ${escapeHtml(customerEmail)}.</p>
+      <p>${confirmationEmailSent
+        ? `A confirmation has been sent to ${escapeHtml(customerEmail)}.`
+        : "Your inquiry is safely recorded. The confirmation email could not be sent, but our team can still see your request."}</p>
       <a class="primary-action" href="account.html">View My Account</a>
     `;
     const itemsNode = document.querySelector("[data-cart-items]");
@@ -891,7 +893,13 @@ async function sendInquiryReceivedEmail(inquiry, context = {}) {
     subject: `Pep Shop Texas Inquiry Received${inquiry.order_number ? ` #${inquiry.order_number}` : ""}`,
     statusNote: "Your inquiry has been received and is being reviewed."
   });
-  await postOrderEmailPayload(payload);
+  try {
+    await postOrderEmailPayload(payload);
+    return true;
+  } catch (error) {
+    console.warn("Inquiry confirmation email did not send", error);
+    return false;
+  }
 }
 
 function groupCatalogProducts(products) {
@@ -1853,4 +1861,3 @@ function validHexColor(value) {
   const color = String(value || "").trim();
   return /^#[0-9a-f]{6}$/i.test(color) ? color : "";
 }
-
