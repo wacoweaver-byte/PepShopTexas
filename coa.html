@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>COA Verification | Pep Shop Texas</title>
+<link rel="icon" href="favicon.ico"><link rel="stylesheet" href="css/customer.css?v=27"><link rel="stylesheet" href="css/header-logo.css?v=5">
+<style>
+:root{--navy:#102a43;--gold:#b79a63}*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--navy);font-family:"Avenir Next","Segoe UI",Arial,sans-serif}
+.coa-main{max-width:1040px;margin:0 auto;padding:55px 24px 90px}.eyebrow{font-size:12px;font-weight:750;letter-spacing:.17em;color:#a37e40;text-transform:uppercase}.coa-main h1{font-size:clamp(32px,5vw,49px);font-weight:500;margin:10px 0}.intro{max-width:690px;color:#536170;line-height:1.7}.coa-panel{margin-top:32px;border:1px solid #e5e5e3;padding:26px;background:#fff}.coa-panel h2{font-size:19px;font-weight:600;margin:0 0 20px}.coa-fields{display:grid;grid-template-columns:2fr 1fr 1.5fr;gap:14px}.coa-fields label{font-size:12px;font-weight:700;display:block;margin-bottom:7px}.coa-fields input{width:100%;padding:12px;border:1px solid #cdd4da;border-radius:2px;font-size:15px}.coa-actions{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}button,.back-button{border:1px solid var(--navy);background:var(--navy);color:white;padding:12px 22px;font:700 12px Arial;letter-spacing:.06em;cursor:pointer;text-decoration:none;display:inline-block}button.secondary,.back-button{background:white;color:var(--navy)}.coa-results{margin-top:32px}.coa-result{border-top:1px solid #e6e8eb;padding:20px 0;display:flex;justify-content:space-between;gap:18px;align-items:center}.coa-result strong{display:block;font-size:19px}.coa-result p{margin:7px 0 0;color:#596574;font-size:13px}.coa-result a{white-space:nowrap;color:var(--navy);font-weight:700}.message{padding:18px;background:#f7f8f9;color:#526071;line-height:1.5}.bottom-nav{margin-top:40px}.coa-footer{text-align:center;padding:25px;border-top:1px solid #e6e8eb;color:#68727d;font-size:12px}.pst-customer-header-logo{max-width:150px;height:auto}
+@media(max-width:750px){.coa-fields{grid-template-columns:1fr}.coa-result{align-items:flex-start;flex-direction:column}.coa-main{padding-top:30px}.pst-customer-header-inner{flex-wrap:wrap}.pst-customer-header-right{width:100%}.pst-customer-nav{flex-wrap:wrap;gap:14px}}
+</style></head><body data-page="coa">
+<header class="pst-customer-header"><div class="pst-customer-header-inner">
+<a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home"><img src="pst-header-logo.webp?v=4" alt="PST Pep Shop Texas" class="pst-customer-header-logo"></a>
+<div class="pst-customer-header-right"><nav class="pst-customer-nav main-nav" aria-label="Main navigation">
+<a href="catalog.html">PEPTIDES A-Z</a><a href="catalog.html?category=Multi-Peptide%20Product">RESEARCH BLENDS</a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a><a href="account.html">LOGIN</a><a href="index.html">HOME</a>
+</nav></div></div></header>
+<main class="coa-main"><p class="eyebrow">Quality &amp; documentation</p><h1>Certificate of Analysis Verification</h1>
+<p class="intro">Search for a research peptide's Certificate of Analysis by product name, vial strength, or lot number. Scan a vial QR code to locate its associated record directly.</p>
+<section class="coa-panel" aria-label="COA search"><h2>Find a Certificate</h2>
+<form id="coa-form"><div class="coa-fields"><div><label for="peptide">Peptide name</label><input id="peptide" placeholder="e.g. Retatrutide" autocomplete="off"></div>
+<div><label for="strength">Strength</label><input id="strength" placeholder="e.g. 60 mg"></div>
+<div><label for="lot">Lot number</label><input id="lot" placeholder="Enter lot number"></div></div>
+<div class="coa-actions"><button type="submit">SEARCH COAs</button><button type="button" class="secondary" id="clear">CLEAR</button></div></form></section>
+<section class="coa-results" aria-live="polite"><h2>Search Results</h2><div id="results" class="message">Enter a product name, strength, or lot number to search.</div></section>
+<div class="bottom-nav"><a class="back-button" href="index.html">← RETURN TO PEP SHOP TEXAS</a></div></main>
+<footer class="coa-footer">PEP SHOP TEXAS · RESEARCH USE ONLY · NOT FOR HUMAN OR VETERINARY USE</footer>
+<script>
+/* Add verified records here only after matching the certificate to a specific lot.
+   Fields: {peptide:"...",strength:"...",lot:"...",pdf:"https://..."}
+   Never assign an unverified lot to a PDF. */
+const certificates=[];
+const el=id=>document.getElementById(id);
+function render(){const q=el("peptide").value.trim().toLowerCase(),s=el("strength").value.trim().toLowerCase(),l=el("lot").value.trim().toLowerCase();
+const target=el("results");target.replaceChildren();
+if(!q&&!s&&!l){target.className="message";target.textContent="Enter a product name, strength, or lot number to search.";return}
+const matches=certificates.filter(r=>(!q||r.peptide.toLowerCase().includes(q))&&(!s||r.strength.toLowerCase().includes(s))&&(!l||r.lot.toLowerCase()===l));
+if(!matches.length){target.className="message";target.textContent="No matching COA record is currently published for these search terms.";return}
+target.className="";for(const r of matches){const row=document.createElement("article");row.className="coa-result";const info=document.createElement("div"),name=document.createElement("strong"),meta=document.createElement("p"),a=document.createElement("a");name.textContent=r.peptide+" — "+r.strength;meta.textContent="LOT: "+r.lot;info.append(name,meta);a.href=r.pdf;a.target="_blank";a.rel="noopener noreferrer";a.textContent="VIEW COA PDF ↗";row.append(info,a);target.append(row)}}
+el("coa-form").addEventListener("submit",e=>{e.preventDefault();render()});
+el("clear").addEventListener("click",()=>{el("coa-form").reset();history.replaceState(null,"",location.pathname);render()});
+const params=new URLSearchParams(location.search);for(const k of ["lot","peptide","strength"])if(params.has(k))el(k).value=params.get(k);render();
+</script></body></html>
