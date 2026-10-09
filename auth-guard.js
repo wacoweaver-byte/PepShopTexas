@@ -163,7 +163,7 @@
       if (mode === "admin") {
         const { data: admin, error: adminError } = await client.from("admin_users").select("user_id,is_active").eq("user_id", user.id).eq("is_active", true).maybeSingle();
         if (adminError || !admin) { redirect("account.html?access=denied"); return; }
-        installBulkRequestAdminLink(client); installAdminDashboardStyling(); installInventoryTrackingDisplay(client);
+        if (window.location.pathname.endsWith("/admin.html")) { installBulkRequestAdminLink(client); installAdminDashboardStyling(); installInventoryTrackingDisplay(client); }
       }
       window.pstAuthenticatedUser = user; reveal(); window.dispatchEvent(new CustomEvent("pst-auth-ready", { detail: { mode, user } })); client.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") redirect(loginUrl()); });
     } catch (error) { console.error("Authentication guard failed", error); showGuardError("Pep Shop Texas could not verify your login. Refresh the page and try again."); }
