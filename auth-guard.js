@@ -168,5 +168,5 @@
       window.pstAuthenticatedUser = user; reveal(); window.dispatchEvent(new CustomEvent("pst-auth-ready", { detail: { mode, user } })); client.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") redirect(loginUrl()); });
     } catch (error) { console.error("Authentication guard failed", error); showGuardError("Pep Shop Texas could not verify your login. Refresh the page and try again."); }
   }
-  run();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true }); else run();
 })();
