@@ -26,7 +26,7 @@
 /* Add verified records here only after matching the certificate to a specific lot.
    Fields: {peptide:"...",strength:"...",lot:"...",pdf:"https://..."}
    Never assign an unverified lot to a PDF. */
-const certificates=[];
+const certificates=[{peptide:"Retatrutide",strength:"60 mg",lot:"JPS20260905",pdf:"https://github.com/wacoweaver-byte/PepShopTexas/blob/main/assets/coa/reta60.pdf?raw=1"}];
 const el=id=>document.getElementById(id);
 function render(){const q=el("peptide").value.trim().toLowerCase(),s=el("strength").value.trim().toLowerCase(),l=el("lot").value.trim().toLowerCase();
 const target=el("results");target.replaceChildren();
