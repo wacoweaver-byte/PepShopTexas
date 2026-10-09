@@ -22,19 +22,16 @@
 <section class="coa-results" aria-live="polite"><h2>Search Results</h2><div id="results" class="message">Enter a product name, strength, or lot number to search.</div></section>
 <div class="bottom-nav"><a class="back-button" href="index.html">← RETURN TO PEP SHOP TEXAS</a></div></main>
 <footer class="coa-footer">PEP SHOP TEXAS · RESEARCH USE ONLY · NOT FOR HUMAN OR VETERINARY USE</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* Add verified records here only after matching the certificate to a specific lot.
-   Fields: {peptide:"...",strength:"...",lot:"...",pdf:"https://..."}
-   Never assign an unverified lot to a PDF. */
-const certificates=[{peptide:"Retatrutide",strength:"60 mg",lot:"JPS20260905",pdf:"https://github.com/wacoweaver-byte/PepShopTexas/blob/main/assets/coa/reta60.pdf?raw=1"}];
+const db=supabase.createClient("https://ucejjztsbmrogiteivxl.supabase.co","sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX");
 const el=id=>document.getElementById(id);
-function render(){const q=el("peptide").value.trim().toLowerCase(),s=el("strength").value.trim().toLowerCase(),l=el("lot").value.trim().toLowerCase();
-const target=el("results");target.replaceChildren();
-if(!q&&!s&&!l){target.className="message";target.textContent="Enter a product name, strength, or lot number to search.";return}
-const matches=certificates.filter(r=>(!q||r.peptide.toLowerCase().includes(q))&&(!s||r.strength.toLowerCase().includes(s))&&(!l||r.lot.toLowerCase()===l));
-if(!matches.length){target.className="message";target.textContent="No matching COA record is currently published for these search terms.";return}
-target.className="";for(const r of matches){const row=document.createElement("article");row.className="coa-result";const info=document.createElement("div"),name=document.createElement("strong"),meta=document.createElement("p"),a=document.createElement("a");name.textContent=r.peptide+" — "+r.strength;meta.textContent="LOT: "+r.lot;info.append(name,meta);a.href=r.pdf;a.target="_blank";a.rel="noopener noreferrer";a.textContent="VIEW COA PDF ↗";row.append(info,a);target.append(row)}}
-el("coa-form").addEventListener("submit",e=>{e.preventDefault();render()});
-el("clear").addEventListener("click",()=>{el("coa-form").reset();history.replaceState(null,"",location.pathname);render()});
-const params=new URLSearchParams(location.search);for(const k of ["lot","peptide","strength"])if(params.has(k))el(k).value=params.get(k);render();
+async function render(){const q=el("peptide").value.trim().toLowerCase(),s=el("strength").value.trim().toLowerCase(),l=el("lot").value.trim().toLowerCase();const target=el("results");target.replaceChildren();if(!q&&!s&&!l){target.className="message";target.textContent="Enter a product name, strength, or lot number to search.";return}
+target.className="message";target.textContent="Searching certificates...";
+const {data,error}=await db.from("coa_records").select("peptide_name,strength,lot_number,storage_path").eq("is_published",true).limit(500);
+if(error){target.textContent="Certificate search is temporarily unavailable.";return}
+const matches=(data||[]).filter(r=>(!q||r.peptide_name.toLowerCase().includes(q))&&(!s||r.strength.toLowerCase().includes(s))&&(!l||r.lot_number.toLowerCase()===l));
+target.replaceChildren();if(!matches.length){target.textContent="No matching published COA record was found.";return}
+target.className="";for(const r of matches){const row=document.createElement("article");row.className="coa-result";const info=document.createElement("div"),name=document.createElement("strong"),meta=document.createElement("p"),a=document.createElement("a");name.textContent=r.peptide_name+" — "+r.strength;meta.textContent="LOT: "+r.lot_number;info.append(name,meta);a.href=db.storage.from("coa-pdfs").getPublicUrl(r.storage_path).data.publicUrl;a.target="_blank";a.rel="noopener noreferrer";a.textContent="VIEW COA PDF ↗";row.append(info,a);target.append(row)}}
+el("coa-form").addEventListener("submit",e=>{e.preventDefault();render()});el("clear").addEventListener("click",()=>{el("coa-form").reset();history.replaceState(null,"",location.pathname);render()});const params=new URLSearchParams(location.search);for(const k of ["lot","peptide","strength"])if(params.has(k))el(k).value=params.get(k);render();
 </script></body></html>
