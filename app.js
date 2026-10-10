@@ -867,6 +867,8 @@ async function handleInquirySubmit(event) {
     const emailItems = itemPayloads.map((item) => ({
       product_name: item.product_name,
       product_key: item.product_key,
+      product_strength: item.product_strength || "",
+      name: [item.product_name, item.product_strength].filter(Boolean).join(" · "),
       quantity: item.quantity,
       unit_price: item.unit_price,
       line_total: item.line_total
@@ -1661,7 +1663,8 @@ orderNumber: order.order_number || order.id,
     paymentQr: context.paymentQr || order.payment_qr_image || "",
     paymentQrImage: context.paymentQr || order.payment_qr_image || "",
     items: (order.items || []).map((item) => ({
-      name: item.product_name || item.name || item.product_key || "Item",
+      name: [item.product_name || item.name || item.product_key || "Item", item.product_strength || item.strength || ""].filter(Boolean).join(" · "),
+      strength: item.product_strength || item.strength || "",
       quantity: item.quantity || item.qty || 1,
       price: item.unit_price || item.price || 0,
       total: item.line_total || item.total || null
