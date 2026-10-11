@@ -2,10 +2,10 @@
 (function () {
   const css=document.createElement("style");
   css.textContent=`
-  .catalog-page:has(.pst-split-catalog){max-width:none!important;width:calc(100% - 48px)!important;margin-left:auto!important;margin-right:auto!important;padding-left:0!important;padding-right:0!important;box-sizing:border-box!important}
+  html:has(.pst-split-catalog),body:has(.pst-split-catalog){overflow-x:clip!important}\n  .catalog-page:has(.pst-split-catalog){max-width:none!important;width:calc(100% - 48px)!important;margin-left:auto!important;margin-right:auto!important;padding-left:0!important;padding-right:0!important;box-sizing:border-box!important}
   .catalog-page:has(.pst-split-catalog) .page-heading{margin-bottom:18px}
   .catalog-page:has(.pst-split-catalog) .catalog-toolbar{display:none}
-  .catalog-page .catalog-grid.pst-split-catalog{width:100%!important;max-width:none!important;display:grid!important;grid-template-columns:300px minmax(0,1fr)!important;gap:0!important;align-items:stretch;border:1px solid #dbe2e8;border-radius:12px;overflow:clip;background:#fff;min-height:620px}
+  .catalog-page .catalog-grid.pst-split-catalog{width:100%!important;max-width:none!important;display:grid!important;grid-template-columns:minmax(260px,300px) minmax(0,1fr)!important;gap:0!important;align-items:stretch;border:1px solid #dbe2e8;border-radius:12px;overflow:clip;background:#fff;min-height:620px}
   .pst-catalog-sidebar{border-right:1px solid #dbe2e8;position:sticky;top:0;background:#fff;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
   .pst-sidebar-controls{padding:18px;border-bottom:1px solid #e4e9ed;display:grid;gap:12px}
   .pst-sidebar-controls input,.pst-sidebar-controls select{width:100%;border:1px solid #cbd5df;border-radius:7px;padding:12px;font:inherit;background:#fff;color:#102a43}
@@ -124,13 +124,14 @@
             drawDetail(g);grid.classList.add("pst-mobile-open");
             const header=document.querySelector(".pst-customer-header");
             const offset=(header ? header.getBoundingClientRect().height : 0)+16;
-            const target=Math.max(0,window.scrollY+detail.getBoundingClientRect().top-offset);
-            window.scrollTo({top:target,behavior:"instant"});
+            const target=Math.max(0,window.scrollY+grid.getBoundingClientRect().top-offset);
+            window.scrollTo({left:0,top:target,behavior:"instant"});
           });
           list.appendChild(b);
         });
         drawDetail(chosen);
       }
+      window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
       search.addEventListener("input",()=>{grid.classList.remove("pst-mobile-open");drawList()});
       category.addEventListener("change",()=>{grid.classList.remove("pst-mobile-open");drawList()});
       if(originalSearch)originalSearch.value=query;
