@@ -21,8 +21,8 @@
     const selected = variants[0];
     const strengths = commonStrengths(variants);
     const inquiryAction = variants.length > 1
-      ? `<a class="catalog-add-button" href="${productUrl(selected)}" aria-label="Choose a strength for ${escapeAttribute(selected.display_name)} to add to inquiry">Add to Inquiry</a>`
-      : `<button class="catalog-add-button card-cart-button" data-add-to-cart="${escapeAttribute(selected.product_key)}">Add to Inquiry</button>`;
+      ? `<a class="catalog-add-button" href="${productUrl(selected)}" aria-label="Choose a strength for ${escapeAttribute(selected.display_name)} to add to cart">Add to Cart</a>`
+      : `<button class="catalog-add-button card-cart-button" data-add-to-cart="${escapeAttribute(selected.product_key)}">Add to Cart</button>`;
     return `
       <article class="catalog-card" data-catalog-card>
         <div class="catalog-card-main">
