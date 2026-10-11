@@ -116,7 +116,7 @@
           return (!query||hay.includes(query))&&(!cat||p.category===cat)&&(!focusFilter||focuses.includes(focusFilter));
         }));
         currentGroups=groupCatalogProducts(filtered);
-        if(heading)heading.textContent=cat?cat:"CATALOG";
+        if(heading)heading.textContent="Peptide Catalog";
         list.replaceChildren();
         if(!currentGroups.length){list.innerHTML='<p style="padding:20px">No matching products.</p>';detail.innerHTML='<p>No matching products.</p>';return;}
         let chosen=currentGroups.find(g=>g.some(p=>p.product_key===selectedKey));
