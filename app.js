@@ -682,6 +682,16 @@ function normalizeProductLookup(value) {
   return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+
+let pstCheckoutPaymentMethods = [];
+async function loadCheckoutPaymentMethods(){
+  const response=await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({action:"payment_options"})});
+  if(!response.ok)throw new Error("Payment methods could not be loaded.");
+  const result=await response.json();
+  if(!result.ok||!Array.isArray(result.methods))throw new Error("Payment methods are unavailable.");
+  return result.methods.filter(method=>method.id&&method.label);
+}
+
 async function renderCartPage() {
   const itemsNode = document.querySelector("[data-cart-items]");
   const summaryNode = document.querySelector("[data-cart-summary]");
@@ -697,6 +707,8 @@ async function renderCartPage() {
       getSignedInUser()
     ]);
     const profile = user ? await getCustomerProfile(user) : null;
+    pstCheckoutPaymentMethods = await loadCheckoutPaymentMethods();
+
     let creditBalance = 0;
     if (user) { const result = await requireSupabaseClient().rpc("pst_my_store_credit_balance"); if (result.error) throw result.error; creditBalance = Math.max(0,Number(result.data || 0)); }
     const aliases = await productKeyAliasesForCart(cart);
@@ -729,6 +741,9 @@ async function renderCartPage() {
       <h3>Submit Your Order</h3>
       <p>Submit your selected products for order review.</p>
       <form class="inquiry-form" data-inquiry-form>
+        <label for="pstCheckoutPaymentMethod" style="display:block;margin:14px 0 8px;font-weight:700">Preferred Payment Method</label>
+        <select id="pstCheckoutPaymentMethod" name="payment_method" required style="width:100%;padding:12px;margin-bottom:12px;border:1px solid #bbc3cd;border-radius:7px"><option value="">Select how you want to pay</option>${pstCheckoutPaymentMethods.map(method=>`<option value="${escapeAttribute(method.label)}">${escapeHtml(method.label)}</option>`).join("")}</select>
+        <p style="margin:0 0 14px;font-size:.9em">Payment instructions for your selection will be included in the order confirmation email.</p>
         <button type="submit" class="primary-action" ${rows.length ? "" : "disabled"}>Submit Order</button>
         <p>Payment instructions are provided after review.</p>
         <p role="status" class="checkout-status" data-inquiry-status></p>
@@ -798,6 +813,9 @@ async function handleInquirySubmit(event) {
     const customerName = accountCustomerName(profile, user);
     const customerEmail = String(profile?.email || user.email || "").trim();
     const customerNotes = "";
+    const selectedPaymentMethod = String(form.querySelector('[name="payment_method"]')?.value||"").trim();
+    if(!selectedPaymentMethod||!pstCheckoutPaymentMethods.some(m=>m.label===selectedPaymentMethod))throw new Error("Select an available payment method.");
+
     if (!customerEmail) throw new Error("Your account needs an email address.");
 
     const cart = readCart();
@@ -858,7 +876,7 @@ async function handleInquirySubmit(event) {
       status: "pending",
       order_status: "pending",
       payment_status: "pending",
-      payment_method: "Inquiry",
+      payment_method: selectedPaymentMethod,
       payment_instructions_snapshot: null,
       payment_qr_image: null,
       customer_notes: `Delivery method: ${pstDeliveryMethod === "pickup" ? "Local Pickup" : "Shipping"}${customerNotes ? "\n" + customerNotes : ""}`,
@@ -923,6 +941,7 @@ async function handleInquirySubmit(event) {
         emailShipping,
         emailTotal,
         appliedStoreCredit,
+        paymentMethod: selectedPaymentMethod,
         deliveryMethod: pstDeliveryMethod === "pickup" ? "Local Pickup" : "Shipping"
       }
     );
@@ -956,6 +975,7 @@ async function sendInquiryReceivedEmail(inquiry, context = {}) {
   const payload = buildOrderEmailPayload(inquiry, context, {
     type: "order_received",
     originalType: "order_received",
+    paymentMethod: context.paymentMethod || inquiry.payment_method,
     to: context.customerEmail || inquiry.customer_email || inquiry.email,
     subject: `Pep Shop Texas Order Received${inquiry.order_number ? ` #${inquiry.order_number}` : ""}`,
     statusNote: "Your order has been received and is being reviewed.",
