@@ -15,7 +15,7 @@
   .pst-list-button[aria-current="true"]{background:#eef4f9;border-left:4px solid #102a43;padding-left:15px}
   .pst-split-detail{min-width:0;width:100%;max-width:none;box-sizing:border-box;padding:30px 34px;color:#102a43}
   .pst-split-detail h2{font-size:2rem;margin:0 0 6px;color:#102a43}
-  .pst-split-category{color:#627487;margin:0 0 16px}
+  .pst-blend-subtitle{font-size:1.3rem;font-weight:600;line-height:1.35;color:#102a43;margin:0 0 10px}\n  .pst-split-category{color:#627487;margin:0 0 16px}
   .pst-split-detail p{line-height:1.55}
   .pst-split-detail h3{font-size:1.08rem;margin:20px 0 12px}
   .pst-split-strengths{display:grid;grid-template-columns:repeat(auto-fill,145px);gap:10px;justify-content:start}
@@ -75,8 +75,11 @@
         if(!group||!group.length){detail.innerHTML='<p>Select a product to view details.</p>';return;}
         let active=group.find(p=>p.product_key===selectedKey)||group[0];
         const title=active.display_name||"";
+        const blend=String(title).trim().match(/^(.+?)\\s*\\(([^()]+)\\)\\s*$/);
+        const mainTitle=blend ? blend[1].trim() : title;
+        const subtitle=blend ? blend[2].replace(/\\s*\\/\\s*/g," ").trim() : "";
         detail.innerHTML='<button type="button" class="pst-mobile-back">← All Products</button>'+
-          '<h2>'+escapeHtml(title)+'</h2><p class="pst-split-category">'+escapeHtml(active.category||"Research product")+'</p>'+
+          '<h2>'+escapeHtml(mainTitle)+'</h2>'+(subtitle ? '<div class="pst-blend-subtitle">'+escapeHtml(subtitle)+'</div>' : '')+'<p class="pst-split-category">'+escapeHtml(active.category||"Research product")+'</p>'+
           '<p>'+escapeHtml(active.description||"")+'</p><h3>Available vial strengths</h3>'+
           '<div class="pst-split-strengths" role="group" aria-label="Choose a vial strength"></div>'+
           '<div class="pst-split-price" aria-live="polite"><span class="pst-selected-strength"></span><strong class="pst-selected-price"></strong></div>'+
