@@ -721,9 +721,6 @@ async function renderCartPage() {
       <h3>Submit Your Order</h3>
       <p>Submit your selected products for order review.</p>
       <form class="inquiry-form" data-inquiry-form>
-        <label>Name<input name="name" autocomplete="name" required maxlength="120"></label>
-        <label>Email<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
-        <label>Notes (optional)<textarea name="notes" rows="4" maxlength="2000"></textarea></label>
         <button type="submit" class="primary-action" ${rows.length ? "" : "disabled"}>Submit Order</button>
         <p>Payment instructions are provided after review.</p>
         <p role="status" class="checkout-status" data-inquiry-status></p>
