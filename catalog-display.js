@@ -42,7 +42,7 @@
    .pst-split-purchase button{flex:1 1 100%}
   }`;
   document.head.appendChild(css);
-  renderCatalog = async function () {
+  window.pstRenderSplitCatalog = async function () {
     const grid=document.querySelector("[data-catalog-grid]");
     if(!grid)return;
     const originalSearch=document.querySelector("[data-catalog-search]");
