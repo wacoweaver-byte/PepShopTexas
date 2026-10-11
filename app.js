@@ -932,15 +932,15 @@ async function handleInquirySubmit(event) {
     setStatus(`Order ${inquiryNumber} submitted successfully.`, "good");
     form.innerHTML = `
       <h3>Order Submitted</h3>
-      <p class="checkout-status good">Inquiry ${escapeHtml(inquiryNumber)} has been received by Pep Shop Texas.</p>
+      <p class="checkout-status good">Order ${escapeHtml(inquiryNumber)} has been received by Pep Shop Texas.</p>
       <p>${confirmationEmailSent
         ? `A confirmation has been sent to ${escapeHtml(customerEmail)}.`
-        : "Your inquiry is safely recorded. The confirmation email could not be sent, but our team can still see your request."}</p>
+        : "Your order has been recorded. The confirmation email could not be sent, but our team can still see your order."}</p>
       <a class="primary-action" href="account.html">View My Account</a>
     `;
     const itemsNode = document.querySelector("[data-cart-items]");
     if (itemsNode) {
-      itemsNode.innerHTML = '<div class="empty-cart"><h2>Inquiry submitted</h2><p>Your inquiry request has been sent for review.</p></div>';
+      itemsNode.innerHTML = '<div class="empty-cart"><h2>Order submitted</h2><p>Your order has been sent for review.</p></div>';
     }
   } catch (error) {
     console.error("Inquiry submission failed", error);
@@ -954,11 +954,11 @@ async function handleInquirySubmit(event) {
 
 async function sendInquiryReceivedEmail(inquiry, context = {}) {
   const payload = buildOrderEmailPayload(inquiry, context, {
-    type: "inquiry_received",
-    originalType: "inquiry_received",
+    type: "order_received",
+    originalType: "order_received",
     to: context.customerEmail || inquiry.customer_email || inquiry.email,
-    subject: `Pep Shop Texas Inquiry Received${inquiry.order_number ? ` #${inquiry.order_number}` : ""}`,
-    statusNote: "Your inquiry has been received and is being reviewed.",
+    subject: `Pep Shop Texas Order Received${inquiry.order_number ? ` #${inquiry.order_number}` : ""}`,
+    statusNote: "Your order has been received and is being reviewed.",
     items: context.emailItems || [],
     subtotal: context.emailSubtotal || 0,
     shipping: context.emailShipping || 0,
@@ -969,7 +969,7 @@ async function sendInquiryReceivedEmail(inquiry, context = {}) {
     await postOrderEmailPayload(payload);
     return true;
   } catch (error) {
-    console.warn("Inquiry confirmation email did not send", error);
+    console.warn("Order confirmation email did not send", error);
     return false;
   }
 }
