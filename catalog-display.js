@@ -67,7 +67,10 @@
       const detail=grid.querySelector(".pst-split-detail");
       search.value=query;
       category.innerHTML='<option value="">All categories</option>'+categories.map(c=>'<option value="'+escapeAttribute(c)+'">'+escapeHtml(typeof catalogCategoryLabel==="function"?catalogCategoryLabel(c):c)+'</option>').join("");
-      category.value=cat;\n      const focusButtons=[...grid.querySelectorAll("[data-focus]")];\n      function syncFocus(){focusButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.focus===focusFilter)));}\n      syncFocus();\n      focusButtons.forEach(b=>b.addEventListener("click",()=>{focusFilter=b.dataset.focus;syncFocus();grid.classList.remove("pst-mobile-open");drawList();}));
+      category.value=cat;
+      const focusButtons=[...grid.querySelectorAll("[data-focus]")];
+      function syncFocus(){focusButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.focus===focusFilter)));}\n      syncFocus();
+      focusButtons.forEach(b=>b.addEventListener("click",()=>{focusFilter=b.dataset.focus;syncFocus();grid.classList.remove("pst-mobile-open");drawList();}));
       function drawDetail(group){
         if(!group||!group.length){detail.innerHTML='<p>Select a product to view details.</p>';return;}
         let active=group.find(p=>p.product_key===selectedKey)||group[0];
