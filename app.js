@@ -705,13 +705,19 @@ async function renderCartPage() {
       : '<div class="empty-cart"><h2>Your inquiry is empty</h2><p>Add products to request information.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>';
 
     const subtotal = rows.reduce((sum, row) => sum + (row.product ? unitPrice(row.product) * Number(row.quantity || 0) : 0), 0);
+    const discount = cartDiscountAmount(subtotal);
     const shipping = rows.length ? (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE) : 0;
-    const orderTotal = subtotal + shipping;
+    const orderTotal = Math.max(0, roundMoney(subtotal + shipping - discount));
     const defaultName = profile ? accountCustomerName(profile, user) : "";
     const defaultEmail = profile?.email || user?.email || "";
 
     summaryNode.innerHTML = `<h2>Cart Summary</h2>
-      <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${formatMoney(shipping)}</strong></div><div><span>Total</span><strong>${formatMoney(orderTotal)}</strong></div></div>
+      <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${formatMoney(shipping)}</strong></div>${discount ? `<div><span>Discount (${escapeHtml(appliedCartDiscount.code)})</span><strong>-${formatMoney(discount)}</strong></div>` : ""}<div><span>Total</span><strong>${formatMoney(orderTotal)}</strong></div></div>
+      <div class="cart-discount-box">
+        <label>Discount Code <input name="discount_code" type="text" value="${escapeAttribute(appliedCartDiscount?.code || "")}" placeholder="Enter discount code" ${appliedCartDiscount ? "readonly" : ""}></label>
+        <button type="button" class="secondary-action" data-${appliedCartDiscount ? "remove" : "apply"}-discount>${appliedCartDiscount ? "Remove" : "Apply"}</button>
+        <p class="checkout-status" data-discount-status>${appliedCartDiscount ? "Discount applied." : ""}</p>
+      </div>
       <h3>Submit Your Order</h3>
       <p>Submit your selected products for order review.</p>
       <form class="inquiry-form" data-inquiry-form>
@@ -729,6 +735,23 @@ async function renderCartPage() {
       form.elements.namedItem("email").value = draft.email || defaultEmail;
       form.elements.namedItem("notes").value = draft.notes || "";
       form.addEventListener("submit", handleInquirySubmit);
+      form.querySelector("[data-apply-discount]")?.addEventListener("click", async () => {
+        const code = form.querySelector("[name=discount_code]").value.trim();
+        const status = form.querySelector("[data-discount-status]");
+        try {
+          appliedCartDiscount = await validateCartDiscountCode(code);
+          renderCartPage();
+        } catch (err) {
+          appliedCartDiscount = null;
+          status.textContent = err.message || "Invalid discount code.";
+          status.className = "checkout-status bad";
+        }
+      });
+      form.querySelector("[data-remove-discount]")?.addEventListener("click", () => {
+        appliedCartDiscount = null;
+        renderCartPage();
+      });
+
     }
     bindCartPageButtons();
   } catch (error) {
@@ -807,7 +830,8 @@ async function handleInquirySubmit(event) {
     });
     const inquirySubtotal = pricedItems.reduce((sum, item) => sum + item.line_total, 0);
     const inquiryShipping = inquirySubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE;
-    const inquiryTotal = inquirySubtotal + inquiryShipping;
+    const inquiryDiscount = cartDiscountAmount(inquirySubtotal);
+    const inquiryTotal = roundMoney(inquirySubtotal + inquiryShipping - inquiryDiscount);
 
     const orderPayload = {
       id: orderId,
@@ -836,10 +860,10 @@ async function handleInquirySubmit(event) {
       payment_qr_image: null,
       customer_notes: customerNotes,
       subtotal: inquirySubtotal,
-      discount: 0,
+      discount: inquiryDiscount,
       subtotal_before_discount: inquirySubtotal,
-      discount_amount: 0,
-      discount_code_amount: 0,
+      discount_amount: inquiryDiscount,
+      discount_code_amount: inquiryDiscount,
       store_credit_applied: 0,
       shipping: inquiryShipping,
       tax: 0,
