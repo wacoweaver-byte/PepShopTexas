@@ -562,7 +562,7 @@ function researchNotesMarkup(notes = "") {
     template.innerHTML = sanitizeRichText(text);
     [...template.content.querySelectorAll("p, div, h3")].forEach((el) => {
       const label = String(el.textContent || "").trim();
-      if (/^(?:mechanism of action|benefits)$/i.test(label)) {
+      if (/^(?:mechanism of action|how long it stays in the body|potential benefits|benefits)$/i.test(label)) {
         const heading = document.createElement("h3");
         heading.className = "research-notes-heading";
         heading.textContent = label;
@@ -582,7 +582,7 @@ function researchNotesMarkup(notes = "") {
     const bullet = line.match(/^(?:[-•*]\s*)(.+)$/);
     if (bullet) {
       if (!inList) { html += '<ul class="research-notes-list">'; inList = true; }
-      const item = bullet[1];
+      const item = bullet[1].charAt(0).toUpperCase() + bullet[1].slice(1).replace(/[.]+$/, "");
       const parts = item.split(/\s+[—–-]\s+/, 2);
       html += parts.length === 2
         ? `<li><strong>${escapeHtml(parts[0])}</strong> — ${escapeHtml(parts[1])}</li>`
@@ -590,7 +590,7 @@ function researchNotesMarkup(notes = "") {
       return;
     }
     closeList();
-    if (/^(?:mechanism of action|benefits)$/i.test(line)) {
+    if (/^(?:mechanism of action|how long it stays in the body|potential benefits|benefits)$/i.test(line)) {
       html += `<h3 class="research-notes-heading">${escapeHtml(line)}</h3>`;
     } else {
       html += `<p>${escapeHtml(line)}</p>`;
