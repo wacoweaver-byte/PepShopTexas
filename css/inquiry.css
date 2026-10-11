@@ -5,3 +5,5 @@
 .pst-delivery-method{border:1px solid #dbe2e8;border-radius:9px;padding:14px;margin:8px 0 22px;display:grid;gap:14px}.pst-delivery-method label{display:flex;align-items:center;gap:10px;font-size:15px;color:#102a43;cursor:pointer}.pst-delivery-method input{accent-color:#102a43;width:18px;height:18px;flex:none}
 
 .pst-cart-checkout-column{min-width:0;width:100%}.pst-delivery-box{margin:0 0 22px;color:#102a43}.pst-delivery-box h2{font-size:22px;font-weight:500;margin:0 0 12px}.pst-delivery-box .pst-delivery-method{min-width:0;margin:0;padding:14px}.pst-delivery-box .pst-delivery-method label{font-size:14px;font-weight:500;letter-spacing:normal}.pst-delivery-box .pst-delivery-method input{margin:0;width:18px;height:18px;min-height:0}
+
+.pst-store-credit-choice{display:flex;gap:10px;align-items:center;padding:13px 12px;margin:0 0 20px;border:1px solid #d4dfe8;border-radius:7px;color:#102a43;font-weight:600;font-size:14px}.pst-store-credit-choice input{width:18px;height:18px;flex:0 0 auto;accent-color:#102a43}
