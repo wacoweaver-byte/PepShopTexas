@@ -13,10 +13,10 @@
   <link rel="stylesheet" href="css/customer.css?v=27">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="store-gate.js?v=1"></script>
-  <script defer src="app.js?v=72"></script>
+  <script defer src="app.js?v=73"></script>
   <script defer src="customer-footer.js?v=7"></script>
   <link rel="stylesheet" href="css/header-logo.css?v=5">
-  <link rel="stylesheet" href="css/inquiry.css?v=3">
+  <link rel="stylesheet" href="css/inquiry.css?v=4">
 </head>
 <body data-page="cart">
   <header class="pst-customer-header">
@@ -52,7 +52,16 @@
       <div class="cart-main-column">
         <div class="cart-items" data-cart-items></div>
       </div>
-      <aside class="cart-summary" data-cart-summary></aside>
+      <div class="pst-cart-checkout-column">
+        <section class="pst-delivery-box" aria-labelledby="pst-delivery-heading">
+          <h2 id="pst-delivery-heading">Delivery Method</h2>
+          <fieldset class="pst-delivery-method">
+            <label><input type="radio" name="delivery_method" value="shipping" checked> Ship My Order</label>
+            <label><input type="radio" name="delivery_method" value="pickup"> Local Pickup — No Shipping Charge</label>
+          </fieldset>
+        </section>
+        <aside class="cart-summary" data-cart-summary></aside>
+      </div>
     </section>
   </main>
 
