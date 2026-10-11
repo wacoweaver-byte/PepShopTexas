@@ -7,7 +7,7 @@
   .catalog-page:has(.pst-split-catalog) .catalog-toolbar{display:none}
   .catalog-page .catalog-grid.pst-split-catalog{width:100%!important;max-width:none!important;display:grid!important;grid-template-columns:minmax(260px,300px) minmax(0,1fr)!important;gap:0!important;align-items:stretch;border:1px solid #dbe2e8;border-radius:12px;overflow:clip;background:#fff;min-height:620px}
   .pst-catalog-sidebar{border-right:1px solid #dbe2e8;position:sticky;top:0;background:#fff;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
-  .pst-sidebar-controls{padding:18px;border-bottom:1px solid #e4e9ed;display:grid;gap:12px}
+  .pst-sidebar-controls{padding:18px;border-bottom:1px solid #e4e9ed;display:grid;gap:12px}\n  .pst-focus-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}\n  .pst-focus-filters button{border:1px solid #cbd5df;border-radius:6px;background:#fff;color:#102a43;padding:9px 2px;font-size:11px;cursor:pointer}\n  .pst-focus-filters button[aria-pressed="true"]{background:#102a43;color:#fff;border-color:#102a43}
   .pst-sidebar-controls input,.pst-sidebar-controls select{width:100%;border:1px solid #cbd5df;border-radius:7px;padding:12px;font:inherit;background:#fff;color:#102a43}
   .pst-list{overflow-y:auto;max-height:75vh}
   .pst-list-button{width:100%;padding:13px 19px;background:transparent;border:0;border-bottom:1px solid #e9edf0;display:block;text-align:left;cursor:pointer;color:#102a43;font:inherit}
@@ -54,20 +54,20 @@
       const requestedCategory=new URLSearchParams(location.search).get("category")||"";
       const categoryParam=["Blend","Stack"].includes(requestedCategory)?"Multi-Peptide Product":requestedCategory;
       const focus=(new URLSearchParams(location.search).get("focus")||"").toLowerCase();
-      const focusFilter=["performance","recovery","longevity"].includes(focus)?focus:"";
+      let focusFilter=["performance","recovery","longevity"].includes(focus)?focus:"";
       let query=new URLSearchParams(location.search).get("search")||"";
       let cat=categories.includes(categoryParam)?categoryParam:"";
       let selectedKey="";
       let currentGroups=[];
       grid.classList.add("pst-split-catalog");
-      grid.innerHTML='<aside class="pst-catalog-sidebar"><div class="pst-sidebar-controls"><input type="search" aria-label="Search products" placeholder="Search peptides..."><select aria-label="Product category"></select></div><div class="pst-list" role="navigation" aria-label="Product list"></div></aside><article class="pst-split-detail" aria-live="polite"></article>';
+      grid.innerHTML='<aside class="pst-catalog-sidebar"><div class="pst-sidebar-controls"><input type="search" aria-label="Search products" placeholder="Search peptides..."><div class="pst-focus-filters" role="group" aria-label="Research focus"><button type="button" data-focus="" aria-pressed="false">All</button><button type="button" data-focus="performance" aria-pressed="false">Performance</button><button type="button" data-focus="recovery" aria-pressed="false">Recovery</button><button type="button" data-focus="longevity" aria-pressed="false">Longevity</button></div><select aria-label="Product category"></select></div><div class="pst-list" role="navigation" aria-label="Product list"></div></aside><article class="pst-split-detail" aria-live="polite"></article>';
       const search=grid.querySelector(".pst-sidebar-controls input");
       const category=grid.querySelector(".pst-sidebar-controls select");
       const list=grid.querySelector(".pst-list");
       const detail=grid.querySelector(".pst-split-detail");
       search.value=query;
       category.innerHTML='<option value="">All categories</option>'+categories.map(c=>'<option value="'+escapeAttribute(c)+'">'+escapeHtml(typeof catalogCategoryLabel==="function"?catalogCategoryLabel(c):c)+'</option>').join("");
-      category.value=cat;
+      category.value=cat;\n      const focusButtons=[...grid.querySelectorAll("[data-focus]")];\n      function syncFocus(){focusButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.focus===focusFilter)));}\n      syncFocus();\n      focusButtons.forEach(b=>b.addEventListener("click",()=>{focusFilter=b.dataset.focus;syncFocus();grid.classList.remove("pst-mobile-open");drawList();}));
       function drawDetail(group){
         if(!group||!group.length){detail.innerHTML='<p>Select a product to view details.</p>';return;}
         let active=group.find(p=>p.product_key===selectedKey)||group[0];
