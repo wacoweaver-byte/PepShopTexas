@@ -18,7 +18,7 @@
   .pst-split-category{color:#627487;margin:0 0 16px}
   .pst-split-detail p{line-height:1.55}
   .pst-split-detail h3{font-size:1.08rem;margin:20px 0 12px}
-  .pst-split-strengths{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+  .pst-split-strengths{display:grid;grid-template-columns:repeat(auto-fill,145px);gap:10px;justify-content:start}
   .pst-split-strength{padding:12px;border:1px solid #cdd7e0;border-radius:8px;background:white;color:#102a43;font:inherit;cursor:pointer;min-height:55px}
   .pst-split-strength strong,.pst-split-strength span{display:block}.pst-split-strength span{font-size:.84rem;margin-top:4px}
   .pst-split-strength[aria-pressed="true"]{border:2px solid #102a43;background:#eff5fa}
@@ -38,7 +38,7 @@
    .pst-split-catalog.pst-mobile-open .pst-catalog-sidebar{display:none}
    .pst-split-catalog.pst-mobile-open .pst-split-detail{display:block}
    .pst-mobile-back{display:inline-flex;gap:6px;margin-bottom:18px;border:0;background:none;color:#102a43;font:inherit;font-weight:bold;padding:10px 0;cursor:pointer}
-   .pst-split-strengths{grid-template-columns:repeat(2,minmax(0,1fr))}
+   .pst-split-strengths{grid-template-columns:repeat(auto-fill,minmax(125px,145px))}
    .pst-split-purchase button{flex:1 1 100%}
   }`;
   document.head.appendChild(css);
