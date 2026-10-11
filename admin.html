@@ -1832,6 +1832,13 @@ td .btn,td button.btn,td a.btn,td .status-pill,td .reorder-badge,td .incoming-pi
     if(lineError)throw lineError;
     return shipments.map(shipment=>({...shipment,lines:(lines||[]).filter(line=>line.shipment_id===shipment.id)}));
   }
+  async function pstShipmentStock(items){
+    const keys=[...new Set(items.map(item=>cleanValue(item.product_key)).filter(Boolean))];
+    if(!keys.length)return new Map();
+    const {data,error}=await supabaseClient.from("product_inventory").select("product_key,current_inventory").in("product_key",keys);
+    if(error)throw new Error("Inventory cannot be checked: "+(error.message||error));
+    return new Map((data||[]).map(item=>[String(item.product_key),Number(item.current_inventory)]));
+  }
   async function pstRenderShipments(order){
     const panel=$("pstShipmentManager");if(!panel)return;
     try{
@@ -1839,14 +1846,15 @@ td .btn,td button.btn,td a.btn,td .status-pill,td .reorder-badge,td .incoming-pi
       const shipped=new Map();
       shipments.forEach(shipment=>shipment.lines.forEach(line=>shipped.set(String(line.order_item_id),(shipped.get(String(line.order_item_id))||0)+Number(line.quantity))));
       const rows=(order.items||[]).filter(item=>item.id);
-      const remaining=rows.map(item=>({...item,remaining:Math.max(0,Number(item.quantity||1)-(shipped.get(String(item.id))||0))}));
+      const stock=await pstShipmentStock(rows);
+      const remaining=rows.map(item=>({...item,remaining:Math.max(0,Number(item.quantity||1)-(shipped.get(String(item.id))||0)),stock:stock.has(String(item.product_key))?stock.get(String(item.product_key)):null}));
       const done=remaining.every(item=>item.remaining===0);
       panel.innerHTML=`<h3>Shipments / Backorders</h3><p class="muted">One order, one payment. Record each package separately; unshipped quantities remain pending.</p>
         ${shipments.map((ship,i)=>`<div style="padding:10px;border:1px solid #d8dee6;border-radius:8px;margin:8px 0"><strong>Shipment ${i+1}</strong> — ${esc(ship.carrier)}: ${esc(ship.tracking_number)}<div class="muted">${esc(fmtDate(ship.shipped_at))}</div>${ship.lines.map(line=>{const item=rows.find(x=>String(x.id)===String(line.order_item_id));return `<div>${esc(item?.product_name||item?.name||"Item")} · ${esc(item?.product_strength||item?.strength||"")} × ${esc(line.quantity)}</div>`}).join("")}<button type="button" class="btn secondary" style="margin-top:8px" data-preview-shipment="${esc(ship.id)}">Preview / Send Shipment Email</button></div>`).join("")}
         <div style="margin-top:12px"><strong>${done?"All items recorded as shipped":"Still to ship / Backordered"}</strong>
         ${remaining.filter(item=>item.remaining>0).map(item=>`<div style="padding:7px 0">${esc(item.product_name||item.name||"Item")} · ${esc(item.product_strength||item.strength||"")} — ${item.remaining} remaining</div>`).join("")||'<div class="muted">Nothing remaining.</div>'}</div>
         ${done?'':`<div style="padding:12px;border:1px solid #d8dee6;border-radius:10px;margin-top:12px"><strong>Record a shipment</strong><p class="muted">Enter the quantity going in this package. Leave backordered items at 0.</p>
-        ${remaining.filter(item=>item.remaining>0).map(item=>`<label style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin:9px 0"><span>${esc(item.product_name||item.name||"Item")} (${esc(item.product_strength||item.strength||"")}) · ${item.remaining} remaining to ship</span><input style="width:80px" type="number" min="0" max="${item.remaining}" step="1" value="0" data-ship-item="${esc(item.id)}"></label>`).join("")}
+        ${remaining.filter(item=>item.remaining>0).map(item=>`<label style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin:9px 0"><span>${esc(item.product_name||item.name||"Item")} (${esc(item.product_strength||item.strength||"")}) · ${item.remaining} remaining to ship · ${item.stock===null?"Inventory unavailable":item.stock+" in stock"}</span><input style="width:80px" type="number" min="0" max="${item.stock===null?0:Math.min(item.remaining,item.stock)}" ${item.stock===null||item.stock<=0?"disabled":""} step="1" value="0" data-ship-item="${esc(item.id)}"></label>`).join("")}
         <div class="edit-grid"><div class="field"><label>Carrier<input id="pstShipCarrier" placeholder="USPS, UPS, FedEx" /></label></div><div class="field"><label>Tracking number<input id="pstShipTracking" placeholder="Tracking number" /></label></div></div>
         <button type="button" class="btn success" id="pstRecordShipment">Record Shipment</button></div>`}
       `;
@@ -1860,13 +1868,15 @@ td .btn,td button.btn,td a.btn,td .status-pill,td .reorder-badge,td .incoming-pi
   async function pstSaveShipment(order,remaining){
     const btn=$("pstRecordShipment");
     const carrier=$("pstShipCarrier")?.value.trim(),tracking=$("pstShipTracking")?.value.trim();
-    const selected=remaining.map(item=>({id:item.id,qty:Number(document.querySelector('[data-ship-item="'+item.id+'"]')?.value||0),max:item.remaining})).filter(item=>item.qty!==0);
+    const selected=remaining.map(item=>({id:item.id,qty:Number(document.querySelector('[data-ship-item="'+item.id+'"]')?.value||0),max:item.stock===null?0:Math.min(item.remaining,item.stock)})).filter(item=>item.qty!==0);
     if(!carrier||!tracking){alert("Enter carrier and tracking.");return}
     if(!selected.length||selected.some(x=>!Number.isInteger(x.qty)||x.qty<1||x.qty>x.max)){alert("Choose a valid quantity for at least one item.");return}
     if(!confirm(`Record shipment of ${selected.reduce((n,x)=>n+x.qty,0)} item(s) for order #${orderNumber(order)}? This will not charge the customer again.`))return;
     btn.disabled=true;
     let shipmentId=null;
     try{
+      const liveStock=await pstShipmentStock(order.items||[]);
+      for(const line of selected){const original=order.items.find(item=>String(item.id)===String(line.id));if(!original||!liveStock.has(String(original.product_key))||line.qty>liveStock.get(String(original.product_key)))throw new Error("Inventory has changed or is unavailable. Reload the order and check available stock.");}
       const fresh=await pstLoadShipmentHistory(order);
       const totals=new Map();
       fresh.forEach(ship=>ship.lines.forEach(line=>totals.set(String(line.order_item_id),(totals.get(String(line.order_item_id))||0)+Number(line.quantity))));
