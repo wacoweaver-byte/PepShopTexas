@@ -698,6 +698,7 @@ async function renderCartPage() {
   const cart = readCart();
   const deliveryChoice = document.querySelector('input[name="delivery_method"]:checked');
   pstDeliveryMethod = deliveryChoice?.value === "pickup" ? "pickup" : "shipping";
+  const previousPaymentSelection = summaryNode.querySelector('[name="payment_method"]')?.value || "";
   const draft = {};
   summaryNode.querySelectorAll("input, textarea").forEach((input) => { draft[input.name] = input.value; });
 
@@ -753,6 +754,8 @@ async function renderCartPage() {
     summaryNode.querySelector("[data-use-store-credit]")?.addEventListener("change", event => { pstApplyStoreCredit = event.target.checked; renderCartPage(); });
     const form = summaryNode.querySelector("[data-inquiry-form]");
     if (form) {
+      const selection = form.querySelector('[name="payment_method"]');
+      if(selection && pstCheckoutPaymentMethods.some(method=>method.label===previousPaymentSelection))selection.value=previousPaymentSelection;
       form.addEventListener("submit", handleInquirySubmit);
       form.querySelector("[data-apply-discount]")?.addEventListener("click", async () => {
         const code = form.querySelector("[name=discount_code]").value.trim();
