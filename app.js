@@ -746,7 +746,7 @@ async function renderCartPage() {
         <select id="pstCheckoutPaymentMethod" name="payment_method" required style="width:100%;padding:12px;margin-bottom:12px;border:1px solid #bbc3cd;border-radius:7px"><option value="">Select how you want to pay</option>${pstCheckoutPaymentMethods.map(method=>`<option value="${escapeAttribute(method.label)}">${escapeHtml(method.label)}</option>`).join("")}</select>
         <p style="margin:0 0 14px;font-size:.9em">Payment instructions for your selection will be included in the order confirmation email.</p>
         <button type="submit" class="primary-action" ${rows.length ? "" : "disabled"}>Submit Order</button>
-        <p>Payment instructions are provided after review.</p>
+        <p>Your payment instructions will be sent to your email after submission. Payment remains pending until confirmed.</p>
         <p role="status" class="checkout-status" data-inquiry-status></p>
       </form>`;
 
