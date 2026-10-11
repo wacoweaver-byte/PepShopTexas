@@ -731,9 +731,6 @@ async function renderCartPage() {
 
     const form = summaryNode.querySelector("[data-inquiry-form]");
     if (form) {
-      form.elements.namedItem("name").value = draft.name || defaultName;
-      form.elements.namedItem("email").value = draft.email || defaultEmail;
-      form.elements.namedItem("notes").value = draft.notes || "";
       form.addEventListener("submit", handleInquirySubmit);
       form.querySelector("[data-apply-discount]")?.addEventListener("click", async () => {
         const code = form.querySelector("[name=discount_code]").value.trim();
@@ -791,11 +788,10 @@ async function handleInquirySubmit(event) {
     const user = await requireUser("cart.html");
     if (!user) return;
     const profile = await getCustomerProfile(user);
-    const formData = new FormData(form);
-    const customerName = String(formData.get("name") || "").trim();
-    const customerEmail = String(formData.get("email") || "").trim();
-    const customerNotes = String(formData.get("notes") || "").trim();
-    if (!customerName || !customerEmail) throw new Error("Enter your name and email.");
+    const customerName = accountCustomerName(profile, user);
+    const customerEmail = String(profile?.email || user.email || "").trim();
+    const customerNotes = "";
+    if (!customerEmail) throw new Error("Your account needs an email address.");
 
     const cart = readCart();
     if (!cart.length) throw new Error("Your inquiry is empty.");
