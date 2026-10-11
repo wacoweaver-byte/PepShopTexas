@@ -713,13 +713,13 @@ async function renderCartPage() {
     summaryNode.innerHTML = `<h2>Cart Summary</h2>
       <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${formatMoney(shipping)}</strong></div><div><span>Total</span><strong>${formatMoney(orderTotal)}</strong></div></div>
       <h3>Submit Your Order</h3>
-      <p>Send your selected items directly to Pep Shop Texas for review.</p>
+      <p>Submit your selected products for order review.</p>
       <form class="inquiry-form" data-inquiry-form>
         <label>Name<input name="name" autocomplete="name" required maxlength="120"></label>
         <label>Email<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
         <label>Notes (optional)<textarea name="notes" rows="4" maxlength="2000"></textarea></label>
         <button type="submit" class="primary-action" ${rows.length ? "" : "disabled"}>Submit Order</button>
-        <p>This is an inquiry, not an order. No payment is collected.</p>
+        <p>Payment instructions are provided after review.</p>
         <p role="status" class="checkout-status" data-inquiry-status></p>
       </form>`;
 
@@ -763,7 +763,7 @@ async function handleInquirySubmit(event) {
       button.disabled = true;
       button.textContent = "Submitting...";
     }
-    setStatus("Submitting inquiry...");
+    setStatus("Submitting order...");
 
     const user = await requireUser("cart.html");
     if (!user) return;
@@ -898,9 +898,9 @@ async function handleInquirySubmit(event) {
 
     const inquiryNumber = inquiry.order_number || inquiry.id;
     writeCart([]);
-    setStatus(`Inquiry ${inquiryNumber} submitted successfully.`, "good");
+    setStatus(`Order ${inquiryNumber} submitted successfully.`, "good");
     form.innerHTML = `
-      <h3>Inquiry Submitted</h3>
+      <h3>Order Submitted</h3>
       <p class="checkout-status good">Inquiry ${escapeHtml(inquiryNumber)} has been received by Pep Shop Texas.</p>
       <p>${confirmationEmailSent
         ? `A confirmation has been sent to ${escapeHtml(customerEmail)}.`
@@ -916,7 +916,7 @@ async function handleInquirySubmit(event) {
     setStatus(error.message || "The inquiry could not be submitted. Please try again.", "bad");
     if (button) {
       button.disabled = false;
-      button.textContent = "Submit Inquiry Request";
+      button.textContent = "Submit Order";
     }
   }
 }
