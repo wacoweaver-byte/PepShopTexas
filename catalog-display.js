@@ -22,7 +22,7 @@
   .pst-split-strength{padding:12px;border:1px solid #cdd7e0;border-radius:8px;background:white;color:#102a43;font:inherit;cursor:pointer;min-height:55px}
   .pst-split-strength strong,.pst-split-strength span{display:block}.pst-split-strength span{font-size:.84rem;margin-top:4px}
   .pst-split-strength[aria-pressed="true"]{border:2px solid #102a43;background:#eff5fa}
-  .pst-split-price{background:#f3f6f9;padding:16px;border-radius:9px;margin:18px 0;display:flex;justify-content:space-between;align-items:center;gap:20px}
+  .pst-split-price{background:#f3f6f9;padding:14px 18px;border-radius:9px;margin:18px 0;display:flex;justify-content:space-between;align-items:center;gap:24px;width:min(100%,420px);max-width:100%;box-sizing:border-box}
   .pst-split-price strong{font-size:1.7rem}
   .pst-split-purchase{display:flex;align-items:end;gap:14px;flex-wrap:wrap}
   .pst-split-purchase label{display:grid;gap:6px}.pst-split-purchase input{max-width:90px;padding:10px;border:1px solid #ccd6df;border-radius:6px}
