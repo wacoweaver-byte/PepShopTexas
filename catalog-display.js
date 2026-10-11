@@ -60,14 +60,13 @@
       let selectedKey="";
       let currentGroups=[];
       grid.classList.add("pst-split-catalog");
-      grid.innerHTML='<aside class="pst-catalog-sidebar"><div class="pst-sidebar-controls"><input type="search" aria-label="Search products" placeholder="Search peptides..."><div class="pst-focus-filters" role="group" aria-label="Research focus"><button type="button" data-focus="" aria-pressed="false">All</button><button type="button" data-focus="performance" aria-pressed="false">Performance</button><button type="button" data-focus="recovery" aria-pressed="false">Recovery</button><button type="button" data-focus="longevity" aria-pressed="false">Longevity</button></div><select aria-label="Product category"></select></div><div class="pst-list" role="navigation" aria-label="Product list"></div></aside><article class="pst-split-detail" aria-live="polite"></article>';
+      grid.innerHTML='<aside class="pst-catalog-sidebar"><div class="pst-sidebar-controls"><input type="search" aria-label="Search products" placeholder="Search peptides..."><div class="pst-focus-filters" role="group" aria-label="Research focus"><button type="button" data-focus="" aria-pressed="false">All</button><button type="button" data-focus="performance" aria-pressed="false">Performance</button><button type="button" data-focus="recovery" aria-pressed="false">Recovery</button><button type="button" data-focus="longevity" aria-pressed="false">Longevity</button></div></div><div class="pst-list" role="navigation" aria-label="Product list"></div></aside><article class="pst-split-detail" aria-live="polite"></article>';
       const search=grid.querySelector(".pst-sidebar-controls input");
-      const category=grid.querySelector(".pst-sidebar-controls select");
+
       const list=grid.querySelector(".pst-list");
       const detail=grid.querySelector(".pst-split-detail");
       search.value=query;
-      category.innerHTML='<option value="">All categories</option>'+categories.map(c=>'<option value="'+escapeAttribute(c)+'">'+escapeHtml(typeof catalogCategoryLabel==="function"?catalogCategoryLabel(c):c)+'</option>').join("");
-      category.value=cat;
+
       const focusButtons=[...grid.querySelectorAll("[data-focus]")];
       function syncFocus(){focusButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.focus===focusFilter)));}
       syncFocus();
@@ -106,7 +105,7 @@
         bindCartButtons();
       }
       function drawList(){
-        query=search.value.trim().toLowerCase();cat=category.value;
+        query=search.value.trim().toLowerCase();
         const filtered=sortProductsForCatalog(all.filter(p=>{
           const focuses=typeof normalizedResearchFocuses==="function"?normalizedResearchFocuses(p.research_focus):[];
           const hay=[p.display_name,p.strength,p.category,p.series,p.product_key,...focuses].filter(Boolean).join(" ").toLowerCase();
@@ -137,9 +136,9 @@
       }
       window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
       search.addEventListener("input",()=>{grid.classList.remove("pst-mobile-open");drawList()});
-      category.addEventListener("change",()=>{grid.classList.remove("pst-mobile-open");drawList()});
+
       if(originalSearch)originalSearch.value=query;
-      if(originalCategory)originalCategory.value=cat;
+
       drawList();
     }catch(error){grid.innerHTML='<p class="loading-row">Unable to load products: '+escapeHtml(error.message)+'</p>';}
   };
