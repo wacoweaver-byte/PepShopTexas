@@ -49,6 +49,7 @@ const DEFAULT_PAYMENT_METHODS = [
 let pstSupabaseClient = null;
 let appliedCartDiscount = null;
 let pstDeliveryMethod = "shipping";
+let pstApplyStoreCredit = false;
 const params = new URLSearchParams(window.location.search);
 
 boot();
@@ -696,6 +697,8 @@ async function renderCartPage() {
       getSignedInUser()
     ]);
     const profile = user ? await getCustomerProfile(user) : null;
+    let creditBalance = 0;
+    if (user) { const result = await requireSupabaseClient().rpc("pst_my_store_credit_balance"); if (result.error) throw result.error; creditBalance = Math.max(0,Number(result.data || 0)); }
     const aliases = await productKeyAliasesForCart(cart);
     const rows = cart.map((item) => ({
       product: products.find((product) => product.product_key === (aliases[item.key] || item.key)),
@@ -711,11 +714,14 @@ async function renderCartPage() {
     const discount = cartDiscountAmount(subtotal);
     const shipping = rows.length && pstDeliveryMethod !== "pickup" ? (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE) : 0;
     const orderTotal = Math.max(0, roundMoney(subtotal + shipping - discount));
+    const appliedCredit = pstApplyStoreCredit ? Math.min(creditBalance, orderTotal) : 0;
+    const remainingDue = Math.max(0,roundMoney(orderTotal-appliedCredit));
     const defaultName = profile ? accountCustomerName(profile, user) : "";
     const defaultEmail = profile?.email || user?.email || "";
 
     summaryNode.innerHTML = `<h2>Cart Summary</h2>
-      <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${formatMoney(shipping)}</strong></div>${discount ? `<div><span>Discount (${escapeHtml(appliedCartDiscount.code)})</span><strong>-${formatMoney(discount)}</strong></div>` : ""}<div><span>Total</span><strong>${formatMoney(orderTotal)}</strong></div></div>
+      <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${formatMoney(shipping)}</strong></div>${discount ? `<div><span>Discount (${escapeHtml(appliedCartDiscount.code)})</span><strong>-${formatMoney(discount)}</strong></div>` : ""}${appliedCredit > 0 ? `<div><span>Store Credit</span><strong>-${formatMoney(appliedCredit)}</strong></div>` : ""}<div><span>Total</span><strong>${formatMoney(remainingDue)}</strong></div></div>
+      ${creditBalance > 0 ? `<label class="pst-store-credit-choice"><input type="checkbox" data-use-store-credit ${pstApplyStoreCredit ? "checked" : ""}> Apply Store Credit — ${formatMoney(creditBalance)} available</label>` : ""}
       <div class="cart-discount-box">
         <label>Discount Code <input name="discount_code" type="text" value="${escapeAttribute(appliedCartDiscount?.code || "")}" placeholder="Enter discount code" ${appliedCartDiscount ? "readonly" : ""}></label>
         <button type="button" class="secondary-action" data-${appliedCartDiscount ? "remove" : "apply"}-discount>${appliedCartDiscount ? "Remove" : "Apply"}</button>
@@ -730,6 +736,7 @@ async function renderCartPage() {
       </form>`;
 
 
+    summaryNode.querySelector("[data-use-store-credit]")?.addEventListener("change", event => { pstApplyStoreCredit = event.target.checked; renderCartPage(); });
     const form = summaryNode.querySelector("[data-inquiry-form]");
     if (form) {
       form.addEventListener("submit", handleInquirySubmit);
@@ -890,6 +897,8 @@ async function handleInquirySubmit(event) {
       updated_at: now
     }));
     await insertRowsWithColumnFallback("order_items", itemPayloads);
+    let appliedStoreCredit = 0;
+    if (pstApplyStoreCredit) { const result = await requireSupabaseClient().rpc("pst_redeem_store_credit",{p_order_id:inquiry.id}); if (result.error) throw result.error; appliedStoreCredit = Number(result.data || 0); }
 
     const emailItems = itemPayloads.map((item) => ({
       product_name: item.product_name,
@@ -902,10 +911,10 @@ async function handleInquirySubmit(event) {
     }));
     const emailSubtotal = inquirySubtotal;
     const emailShipping = inquiryShipping;
-    const emailTotal = inquiryTotal;
+    const emailTotal = Math.max(0,roundMoney(inquiryTotal-appliedStoreCredit));
 
     const confirmationEmailSent = await sendInquiryReceivedEmail(
-      { ...inquiry, items: itemPayloads },
+      { ...inquiry, total: emailTotal, store_credit_applied: appliedStoreCredit, items: itemPayloads },
       {
         customerName,
         customerEmail,
@@ -914,6 +923,7 @@ async function handleInquirySubmit(event) {
         emailSubtotal,
         emailShipping,
         emailTotal,
+        appliedStoreCredit,
         deliveryMethod: pstDeliveryMethod === "pickup" ? "Local Pickup" : "Shipping"
       }
     );
