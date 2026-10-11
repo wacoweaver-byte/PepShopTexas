@@ -705,18 +705,20 @@ async function renderCartPage() {
       : '<div class="empty-cart"><h2>Your inquiry is empty</h2><p>Add products to request information.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>';
 
     const subtotal = rows.reduce((sum, row) => sum + (row.product ? unitPrice(row.product) * Number(row.quantity || 0) : 0), 0);
+    const shipping = rows.length ? (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE) : 0;
+    const orderTotal = subtotal + shipping;
     const defaultName = profile ? accountCustomerName(profile, user) : "";
     const defaultEmail = profile?.email || user?.email || "";
 
     summaryNode.innerHTML = `<h2>Cart Summary</h2>
-      <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><p>Shipping and any applicable discounts are confirmed when your request is reviewed.</p></div>
-      <h3>Submit Your Inquiry</h3>
+      <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${formatMoney(shipping)}</strong></div><div><span>Total</span><strong>${formatMoney(orderTotal)}</strong></div></div>
+      <h3>Submit Your Order</h3>
       <p>Send your selected items directly to Pep Shop Texas for review.</p>
       <form class="inquiry-form" data-inquiry-form>
         <label>Name<input name="name" autocomplete="name" required maxlength="120"></label>
         <label>Email<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
         <label>Notes (optional)<textarea name="notes" rows="4" maxlength="2000"></textarea></label>
-        <button type="submit" class="primary-action" ${rows.length ? "" : "disabled"}>Submit Inquiry Request</button>
+        <button type="submit" class="primary-action" ${rows.length ? "" : "disabled"}>Submit Order</button>
         <p>This is an inquiry, not an order. No payment is collected.</p>
         <p role="status" class="checkout-status" data-inquiry-status></p>
       </form>`;
