@@ -71,7 +71,7 @@ async function boot() {
   if (page === "home") renderHome();
   if (page === "products") renderCatalog();
   if (page === "product-detail") renderProductDetail();
-  if (page === "cart") renderCartPage();
+  if (page === "cart") { document.querySelectorAll('input[name="delivery_method"]').forEach(input => input.addEventListener("change", () => { pstDeliveryMethod = input.value === "pickup" ? "pickup" : "shipping"; renderCartPage(); })); renderCartPage(); }
   if (page === "login") setupLoginPage();
 }
 
@@ -685,6 +685,8 @@ async function renderCartPage() {
   const itemsNode = document.querySelector("[data-cart-items]");
   const summaryNode = document.querySelector("[data-cart-summary]");
   const cart = readCart();
+  const deliveryChoice = document.querySelector('input[name="delivery_method"]:checked');
+  pstDeliveryMethod = deliveryChoice?.value === "pickup" ? "pickup" : "shipping";
   const draft = {};
   summaryNode.querySelectorAll("input, textarea").forEach((input) => { draft[input.name] = input.value; });
 
@@ -712,9 +714,7 @@ async function renderCartPage() {
     const defaultName = profile ? accountCustomerName(profile, user) : "";
     const defaultEmail = profile?.email || user?.email || "";
 
-    summaryNode.innerHTML = `<h2>Delivery Method</h2>
-      <fieldset class="pst-delivery-method"><label><input type="radio" name="delivery_method" value="shipping" ${pstDeliveryMethod === "shipping" ? "checked" : ""}> Ship My Order</label><label><input type="radio" name="delivery_method" value="pickup" ${pstDeliveryMethod === "pickup" ? "checked" : ""}> Local Pickup — No Shipping Charge</label></fieldset>
-      <h2>Cart Summary</h2>
+    summaryNode.innerHTML = `<h2>Cart Summary</h2>
       <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${formatMoney(shipping)}</strong></div>${discount ? `<div><span>Discount (${escapeHtml(appliedCartDiscount.code)})</span><strong>-${formatMoney(discount)}</strong></div>` : ""}<div><span>Total</span><strong>${formatMoney(orderTotal)}</strong></div></div>
       <div class="cart-discount-box">
         <label>Discount Code <input name="discount_code" type="text" value="${escapeAttribute(appliedCartDiscount?.code || "")}" placeholder="Enter discount code" ${appliedCartDiscount ? "readonly" : ""}></label>
@@ -729,7 +729,7 @@ async function renderCartPage() {
         <p role="status" class="checkout-status" data-inquiry-status></p>
       </form>`;
 
-    summaryNode.querySelectorAll("[name=delivery_method]").forEach((radio) => radio.addEventListener("change", () => { pstDeliveryMethod = radio.value === "pickup" ? "pickup" : "shipping"; renderCartPage(); }));
+
     const form = summaryNode.querySelector("[data-inquiry-form]");
     if (form) {
       form.addEventListener("submit", handleInquirySubmit);
