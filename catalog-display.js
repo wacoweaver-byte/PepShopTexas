@@ -122,7 +122,7 @@
             selectedKey=p.product_key;
             list.querySelectorAll("button").forEach(el=>el.setAttribute("aria-current",String(el===b)));
             drawDetail(g);grid.classList.add("pst-mobile-open");
-            window.scrollTo({top:Math.max(0,grid.getBoundingClientRect().top+window.scrollY-15),behavior:"smooth"});
+            if (window.matchMedia("(max-width:760px)").matches) { window.scrollTo({top:Math.max(0,grid.getBoundingClientRect().top+window.scrollY-110),behavior:"smooth"}); }
           });
           list.appendChild(b);
         });
