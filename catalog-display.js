@@ -76,8 +76,9 @@
         let active=group.find(p=>p.product_key===selectedKey)||group[0];
         const title=active.display_name||"";
         const blend=String(title).trim().match(/^(.+?)\s*\(([^()]+)\)\s*$/);
+        const wolverine=/^wolverine$/i.test(String(title).trim());
         const mainTitle=blend ? blend[1].trim() : title;
-        const subtitle=blend ? blend[2].replace(/\s*\/\s*/g," ").trim() : "";
+        const subtitle=blend ? blend[2].replace(/\s*\/\s*/g," ").trim() : (wolverine ? "BPC-157 TB-500" : "");
         detail.innerHTML='<button type="button" class="pst-mobile-back">← All Products</button>'+
           '<h2>'+escapeHtml(mainTitle)+'</h2>'+(subtitle ? '<div class="pst-blend-subtitle">'+escapeHtml(subtitle)+'</div>' : '')+'<p class="pst-split-category">'+escapeHtml(active.category||"Research product")+'</p>'+
           '<p>'+escapeHtml(active.description||"")+'</p><h3>Available vial strengths</h3>'+
