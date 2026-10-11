@@ -12,7 +12,7 @@
 
         <nav class="footer-column" aria-label="Footer resource links">
           <strong>RESOURCES</strong>
-          <a href="catalog.html">Peptides A-Z</a>
+          <a href="catalog.html">Catalog</a>
           <a href="catalog.html?category=Multi-Peptide%20Product">Research Blends</a>
           <a href="testing.html">Testing / Verification</a>
 
