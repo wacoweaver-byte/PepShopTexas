@@ -48,6 +48,7 @@ const DEFAULT_PAYMENT_METHODS = [
 
 let pstSupabaseClient = null;
 let appliedCartDiscount = null;
+let pstDeliveryMethod = "shipping";
 const params = new URLSearchParams(window.location.search);
 
 boot();
@@ -706,12 +707,14 @@ async function renderCartPage() {
 
     const subtotal = rows.reduce((sum, row) => sum + (row.product ? unitPrice(row.product) * Number(row.quantity || 0) : 0), 0);
     const discount = cartDiscountAmount(subtotal);
-    const shipping = rows.length ? (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE) : 0;
+    const shipping = rows.length && pstDeliveryMethod !== "pickup" ? (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE) : 0;
     const orderTotal = Math.max(0, roundMoney(subtotal + shipping - discount));
     const defaultName = profile ? accountCustomerName(profile, user) : "";
     const defaultEmail = profile?.email || user?.email || "";
 
-    summaryNode.innerHTML = `<h2>Cart Summary</h2>
+    summaryNode.innerHTML = `<h2>Delivery Method</h2>
+      <fieldset class="pst-delivery-method"><label><input type="radio" name="delivery_method" value="shipping" ${pstDeliveryMethod === "shipping" ? "checked" : ""}> Ship My Order</label><label><input type="radio" name="delivery_method" value="pickup" ${pstDeliveryMethod === "pickup" ? "checked" : ""}> Local Pickup — No Shipping Charge</label></fieldset>
+      <h2>Cart Summary</h2>
       <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${formatMoney(shipping)}</strong></div>${discount ? `<div><span>Discount (${escapeHtml(appliedCartDiscount.code)})</span><strong>-${formatMoney(discount)}</strong></div>` : ""}<div><span>Total</span><strong>${formatMoney(orderTotal)}</strong></div></div>
       <div class="cart-discount-box">
         <label>Discount Code <input name="discount_code" type="text" value="${escapeAttribute(appliedCartDiscount?.code || "")}" placeholder="Enter discount code" ${appliedCartDiscount ? "readonly" : ""}></label>
@@ -726,6 +729,7 @@ async function renderCartPage() {
         <p role="status" class="checkout-status" data-inquiry-status></p>
       </form>`;
 
+    summaryNode.querySelectorAll("[name=delivery_method]").forEach((radio) => radio.addEventListener("change", () => { pstDeliveryMethod = radio.value === "pickup" ? "pickup" : "shipping"; renderCartPage(); }));
     const form = summaryNode.querySelector("[data-inquiry-form]");
     if (form) {
       form.addEventListener("submit", handleInquirySubmit);
@@ -822,7 +826,7 @@ async function handleInquirySubmit(event) {
       };
     });
     const inquirySubtotal = pricedItems.reduce((sum, item) => sum + item.line_total, 0);
-    const inquiryShipping = inquirySubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE;
+    const inquiryShipping = pstDeliveryMethod === "pickup" || inquirySubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_RATE;
     const inquiryDiscount = cartDiscountAmount(inquirySubtotal);
     const inquiryTotal = roundMoney(inquirySubtotal + inquiryShipping - inquiryDiscount);
 
@@ -851,7 +855,7 @@ async function handleInquirySubmit(event) {
       payment_method: "Inquiry",
       payment_instructions_snapshot: null,
       payment_qr_image: null,
-      customer_notes: customerNotes,
+      customer_notes: `Delivery method: ${pstDeliveryMethod === "pickup" ? "Local Pickup" : "Shipping"}${customerNotes ? "\n" + customerNotes : ""}`,
       subtotal: inquirySubtotal,
       discount: inquiryDiscount,
       subtotal_before_discount: inquirySubtotal,
@@ -909,7 +913,8 @@ async function handleInquirySubmit(event) {
         emailItems,
         emailSubtotal,
         emailShipping,
-        emailTotal
+        emailTotal,
+        deliveryMethod: pstDeliveryMethod === "pickup" ? "Local Pickup" : "Shipping"
       }
     );
 
