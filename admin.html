@@ -1720,9 +1720,9 @@ td .btn,td button.btn,td a.btn,td .status-pill,td .reorder-badge,td .incoming-pi
     if(isOrderLocked(order))return '<p class="muted">Line-item discounts are locked after payment or fulfillment.</p>';
     const items=(order.items||[]).filter(item=>item.id);
     if(!items.length)return "";
-    return '<div style="margin-top:14px;padding:14px;border:1px solid #d8dee6;border-radius:10px"><strong>Individual Item Discounts</strong><p class="muted">Enter a dollar discount per vial/unit. Changes are applied when Save Order Updates is clicked.</p>'+items.map(item=>{
+    return '<div style="margin-top:14px;padding:14px;border:1px solid #d8dee6;border-radius:10px"><strong>Edit Individual Unit Prices</strong><p class="muted">Enter the FINAL price for each unit. You can increase a previously discounted price to correct it. Changes save with the order.</p>'+items.map(item=>{
       const qty=Number(item.quantity||1),price=Number(item.unit_price||0);
-      return '<div style="display:grid;grid-template-columns:minmax(140px,1fr) 110px 130px;gap:10px;align-items:center;margin:9px 0"><span>'+esc(item.product_name||item.name||"Item")+' ('+esc(item.product_strength||item.strength||"")+') × '+qty+' — '+money(price)+' each</span><span class="muted">Discount/unit</span><input class="pst-line-discount" aria-label="Discount per unit for '+esc(item.product_name||"item")+'" data-item-id="'+esc(item.id)+'" data-price="'+price+'" data-qty="'+qty+'" type="number" min="0" max="'+price+'" step="0.01" value="0.00" /></div>';
+      return '<div style="display:grid;grid-template-columns:minmax(140px,1fr) 110px 130px;gap:10px;align-items:center;margin:9px 0"><span>'+esc(item.product_name||item.name||"Item")+' ('+esc(item.product_strength||item.strength||"")+') × '+qty+' — '+money(price)+' each</span><span class="muted">Final unit price</span><input class="pst-line-discount" aria-label="Final unit price for '+esc(item.product_name||"item")+'" data-item-id="'+esc(item.id)+'" data-price="'+price+'" data-qty="'+qty+'" type="number" min="0" step="0.01" value="'+price.toFixed(2)+'" /></div>';
     }).join("")+'</div>';
   }
   function pendingLineDiscounts(order){
@@ -1730,11 +1730,10 @@ td .btn,td button.btn,td a.btn,td .status-pill,td .reorder-badge,td .incoming-pi
     return [...document.querySelectorAll(".pst-line-discount")].map(input=>{
       const item=byId.get(input.dataset.itemId);if(!item)throw Error("Order item could not be found.");
       const price=Number(item.unit_price),qty=Number(item.quantity);
-      const amount=Number(input.value);
-      if(!Number.isFinite(amount)||amount<0||amount>price||!Number.isFinite(qty)||qty<1)throw Error("Invalid line-item discount.");
-      const newPrice=Math.round((price-amount)*100)/100;
+      const newPrice=Math.round(Number(input.value)*100)/100;const amount=Math.round((price-newPrice)*100)/100;
+      if(!Number.isFinite(amount)||newPrice<0||!Number.isFinite(qty)||qty<1)throw Error("Invalid line-item discount.");
       return {item,amount,newPrice,qty};
-    }).filter(x=>x.amount>0);
+    }).filter(x=>x.amount!==0);
   }
   async function applyLineDiscounts(order,lines,updates){
     if(!lines.length)return;
