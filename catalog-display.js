@@ -124,7 +124,7 @@
             drawDetail(g);grid.classList.add("pst-mobile-open");
             const header=document.querySelector(".pst-customer-header");
             const offset=(header ? header.getBoundingClientRect().height : 0)+16;
-            const target=Math.max(0,window.scrollY+grid.getBoundingClientRect().top-offset);
+            const target=Math.max(0,window.scrollY+detail.getBoundingClientRect().top-offset);
             window.scrollTo({top:target,behavior:"instant"});
           });
           list.appendChild(b);
