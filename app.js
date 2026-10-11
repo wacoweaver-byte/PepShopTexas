@@ -704,10 +704,13 @@ async function renderCartPage() {
       ? rows.map(inquiryRow).join("")
       : '<div class="empty-cart"><h2>Your inquiry is empty</h2><p>Add products to request information.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>';
 
+    const subtotal = rows.reduce((sum, row) => sum + (row.product ? unitPrice(row.product) * Number(row.quantity || 0) : 0), 0);
     const defaultName = profile ? accountCustomerName(profile, user) : "";
     const defaultEmail = profile?.email || user?.email || "";
 
-    summaryNode.innerHTML = `<h2>Submit Your Inquiry</h2>
+    summaryNode.innerHTML = `<h2>Cart Summary</h2>
+      <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><p>Shipping and any applicable discounts are confirmed when your request is reviewed.</p></div>
+      <h3>Submit Your Inquiry</h3>
       <p>Send your selected items directly to Pep Shop Texas for review.</p>
       <form class="inquiry-form" data-inquiry-form>
         <label>Name<input name="name" autocomplete="name" required maxlength="120"></label>
@@ -736,7 +739,7 @@ function inquiryRow({ product, quantity, cartKey }) {
   const title = product ? productTitle(product) : cartKey;
   return `<article class="inquiry-row">
     <div><h2>${product ? `<a href="${productUrl(product)}">${escapeHtml(title)}</a>` : escapeHtml(title)}</h2>
-    <p>${product ? "Selected for inquiry" : "Product unavailable in the current catalog; we can still review your request."}</p></div>
+    <p>${product ? `Unit price: ${formatMoney(unitPrice(product))} · Line total: ${formatMoney(unitPrice(product) * Number(quantity || 0))}` : "Product unavailable in the current catalog; we can still review your request."}</p></div>
     <label>Quantity<input type="number" min="1" max="9999" step="1" value="${quantity}" data-cart-qty="${escapeAttribute(cartKey)}" aria-label="Quantity for ${escapeAttribute(title)}"></label>
     <button type="button" class="cart-remove-button" data-remove-cart="${escapeAttribute(cartKey)}">Remove</button>
   </article>`;
