@@ -122,7 +122,10 @@
             selectedKey=p.product_key;
             list.querySelectorAll("button").forEach(el=>el.setAttribute("aria-current",String(el===b)));
             drawDetail(g);grid.classList.add("pst-mobile-open");
-            if (window.matchMedia("(max-width:760px)").matches) { window.scrollTo({top:Math.max(0,grid.getBoundingClientRect().top+window.scrollY-110),behavior:"smooth"}); }
+            const header=document.querySelector(".pst-customer-header");
+            const offset=(header ? header.getBoundingClientRect().height : 0)+16;
+            const target=Math.max(0,window.scrollY+grid.getBoundingClientRect().top-offset);
+            window.scrollTo({top:target,behavior:"instant"});
           });
           list.appendChild(b);
         });
