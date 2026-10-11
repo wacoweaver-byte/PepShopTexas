@@ -475,6 +475,7 @@ function normalizedResearchFocuses(value) {
 }
 
 async function renderCatalog() {
+  if (typeof window.pstRenderSplitCatalog === "function") return window.pstRenderSplitCatalog();
   const grid = document.querySelector("[data-catalog-grid]");
   const searchInput = document.querySelector("[data-catalog-search]");
   const categoryFilter = document.querySelector("[data-category-filter]");
