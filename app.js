@@ -10,7 +10,7 @@ const EMAIL_FUNCTION_NAME = "send-order-email";
 const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
 const PAYMENT_LEGACY_STORAGE_KEY = "pst_payment_options_v1";
 const STANDARD_SHIPPING_RATE = 12.00;
-const FREE_SHIPPING_THRESHOLD = 250.00;
+const FREE_SHIPPING_THRESHOLD = 200.00;
 const TAX_RATES = {
   AL:0.04, AK:0, AZ:0.056, AR:0.065, CA:0.0725,
   CO:0.029, CT:0.0635, DE:0, FL:0.06, GA:0.04,
@@ -720,7 +720,7 @@ async function renderCartPage() {
     const defaultEmail = profile?.email || user?.email || "";
 
     summaryNode.innerHTML = `<h2>Cart Summary</h2>
-      <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${formatMoney(shipping)}</strong></div>${discount ? `<div><span>Discount (${escapeHtml(appliedCartDiscount.code)})</span><strong>-${formatMoney(discount)}</strong></div>` : ""}${creditBalance > 0 ? `<div class="pst-credit-row"><label class="pst-credit-control"><input type="checkbox" data-use-store-credit ${pstApplyStoreCredit ? "checked" : ""}><span>Apply Store Credit</span></label><span class="pst-credit-available">${formatMoney(creditBalance)} available</span></div>` : ""}${appliedCredit > 0 ? `<div><span>Store Credit Applied</span><strong>-${formatMoney(appliedCredit)}</strong></div>` : ""}<div class="pst-cart-final-total"><span>Total Due</span><strong>${formatMoney(remainingDue)}</strong></div></div>
+      <div class="pst-cart-totals"><div><span>Subtotal</span><strong>${formatMoney(subtotal)}</strong></div><div><span>Shipping</span><strong>${shipping === 0 && rows.length && pstDeliveryMethod !== "pickup" ? "FREE" : formatMoney(shipping)}</strong></div>${rows.length && pstDeliveryMethod !== "pickup" ? (subtotal >= FREE_SHIPPING_THRESHOLD ? `<p role="status" style="margin:8px 0;color:#126b3d;font-weight:800">✓ This order qualifies for FREE SHIPPING!</p>` : `<p style="margin:8px 0;font-size:.9em">Add ${formatMoney(FREE_SHIPPING_THRESHOLD-subtotal)} more to qualify for FREE SHIPPING.</p>`) : ""}${discount ? `<div><span>Discount (${escapeHtml(appliedCartDiscount.code)})</span><strong>-${formatMoney(discount)}</strong></div>` : ""}${creditBalance > 0 ? `<div class="pst-credit-row"><label class="pst-credit-control"><input type="checkbox" data-use-store-credit ${pstApplyStoreCredit ? "checked" : ""}><span>Apply Store Credit</span></label><span class="pst-credit-available">${formatMoney(creditBalance)} available</span></div>` : ""}${appliedCredit > 0 ? `<div><span>Store Credit Applied</span><strong>-${formatMoney(appliedCredit)}</strong></div>` : ""}<div class="pst-cart-final-total"><span>Total Due</span><strong>${formatMoney(remainingDue)}</strong></div></div>
       <div class="cart-discount-box">
         <label>Discount Code <input name="discount_code" type="text" value="${escapeAttribute(appliedCartDiscount?.code || "")}" placeholder="Enter discount code" ${appliedCartDiscount ? "readonly" : ""}></label>
         <button type="button" class="secondary-action" data-${appliedCartDiscount ? "remove" : "apply"}-discount>${appliedCartDiscount ? "Remove" : "Apply"}</button>
