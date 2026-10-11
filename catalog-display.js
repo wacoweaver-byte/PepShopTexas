@@ -69,7 +69,8 @@
       category.innerHTML='<option value="">All categories</option>'+categories.map(c=>'<option value="'+escapeAttribute(c)+'">'+escapeHtml(typeof catalogCategoryLabel==="function"?catalogCategoryLabel(c):c)+'</option>').join("");
       category.value=cat;
       const focusButtons=[...grid.querySelectorAll("[data-focus]")];
-      function syncFocus(){focusButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.focus===focusFilter)));}\n      syncFocus();
+      function syncFocus(){focusButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.focus===focusFilter)));}
+      syncFocus();
       focusButtons.forEach(b=>b.addEventListener("click",()=>{focusFilter=b.dataset.focus;syncFocus();grid.classList.remove("pst-mobile-open");drawList();}));
       function drawDetail(group){
         if(!group||!group.length){detail.innerHTML='<p>Select a product to view details.</p>';return;}
