@@ -10,7 +10,7 @@ const EMAIL_FUNCTION_NAME = "send-order-email";
 const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
 const PAYMENT_LEGACY_STORAGE_KEY = "pst_payment_options_v1";
 const STANDARD_SHIPPING_RATE = 12.00;
-const FREE_SHIPPING_THRESHOLD = 200.00;
+const FREE_SHIPPING_THRESHOLD = 250.00;
 const TAX_RATES = {
   AL:0.04, AK:0, AZ:0.056, AR:0.065, CA:0.0725,
   CO:0.029, CT:0.0635, DE:0, FL:0.06, GA:0.04,
