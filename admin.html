@@ -2090,7 +2090,15 @@ body[data-admin-page="orders"] .pst-order-section > .pst-section-toggle .pst-sec
       toggle.addEventListener('click',()=>{const closed=section.classList.toggle('pst-section-collapsed');toggle.setAttribute('aria-expanded',String(!closed));indicator.textContent=closed?'＋':'−';});
     }
   }
-  function start(){streamlineMain();streamlineDetail();const detail=document.getElementById('detailCard');if(detail){const observer=new MutationObserver(()=>streamlineDetail());observer.observe(detail,{childList:true});}}
+  function applyNavyButtonStyles(){
+    document.querySelectorAll('#adminDashboardNav .btn.active,#adminDashboardNav .btn[aria-pressed="true"],#ordersGrid .collapsible-card:not(.collapsed) .card-toggle-btn,#ordersGrid .card-toggle-btn.active,#ordersGrid .card-toggle-btn[aria-expanded="true"]').forEach(button=>{
+      button.style.setProperty('background','#102b43','important');
+      button.style.setProperty('background-color','#102b43','important');
+      button.style.setProperty('border-color','#102b43','important');
+      button.style.setProperty('color','#fff','important');
+    });
+  }
+  function start(){streamlineMain();streamlineDetail();applyNavyButtonStyles();const detail=document.getElementById('detailCard');if(detail){const observer=new MutationObserver(()=>{streamlineDetail();applyNavyButtonStyles()});observer.observe(detail,{childList:true});}const nav=document.getElementById('adminDashboardNav');if(nav){const observer=new MutationObserver(applyNavyButtonStyles);observer.observe(nav,{attributes:true,attributeFilter:['class','aria-pressed'],subtree:true});}document.getElementById('ordersGrid')?.addEventListener('click',()=>requestAnimationFrame(applyNavyButtonStyles));}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
