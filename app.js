@@ -917,19 +917,8 @@ async function handleInquirySubmit(event) {
       updated_at: now
     }));
     await insertRowsWithColumnFallback("order_items", itemPayloads);
-    // Claim an eligible free reward atomically; failure must never silently produce a missing promised vial.
-    const rewardResult = await requireSupabaseClient().rpc("pst_claim_free_product", { p_order_id: inquiry.id });
-    if (rewardResult.error) {
-      console.error("Free-product promotion allocation failed", rewardResult.error);
-      // Keep the order for admin reconciliation instead of presenting a successful free reward.
-      throw new Error("Your order was recorded, but promotion verification failed. Contact Pep Shop Texas before submitting another order.");
-    }
-    if (rewardResult.data?.awarded) {
-      const { data: rewardItem, error: rewardItemError } = await requireSupabaseClient()
-        .from("order_items").select("*").eq("id", rewardResult.data.order_item_id).single();
-      if (rewardItemError) throw rewardItemError;
-      itemPayloads.push(rewardItem);
-    }
+    // Free-vial allocation happens when staff confirm payment, not at order submission.
+    // Order creation time is the priority timestamp. See the promotion queue migration.
     let appliedStoreCredit = 0;
     if (pstApplyStoreCredit) { const result = await requireSupabaseClient().rpc("pst_redeem_store_credit",{p_order_id:inquiry.id}); if (result.error) throw result.error; appliedStoreCredit = Number(result.data || 0); }
 
