@@ -1531,6 +1531,21 @@ td .btn,td button.btn,td a.btn,td .status-pill,td .reorder-badge,td .incoming-pi
 #adminDashboardNav .pst-more-views summary{cursor:pointer;padding:10px 12px;border:1px solid var(--border,#d8dee6);border-radius:8px}
 #adminDashboardNav .pst-more-views .pst-secondary-menu{left:0;right:auto}
 </style>
+
+<style>
+/* PST_ORDERS_NAVY_BUTTONS_V1 */
+/* Use one navy tone for all dark action buttons on Orders. Preserve intentional white outline variants. */
+body[data-admin-page="orders"] .btn:not(.secondary):not(.success):not(.warning):not(.danger),
+body[data-admin-page="orders"] .inventory-jump-link.active,
+body[data-admin-page="orders"] .inventory-jump-link[aria-pressed="true"],
+body[data-admin-page="orders"] .pst-order-section > .pst-section-toggle {
+  background:#102b43 !important;
+  color:#fff !important;
+  border-color:#102b43 !important;
+}
+body[data-admin-page="orders"] .pst-order-section > .pst-section-toggle h3,
+body[data-admin-page="orders"] .pst-order-section > .pst-section-toggle .pst-section-indicator {color:#fff !important}
+</style>
 </head>
 <body class="admin-auth-pending" data-admin-page="orders">
 <header class="pst-admin-header">
