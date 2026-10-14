@@ -19,7 +19,7 @@ begin
  for p in select * from public.site_promotions where promotion_type='free_product' and is_active
  and (starts_at is null or o.created_at>=starts_at) and (ends_at is null or o.created_at<=ends_at)
  order by sort_order,created_at loop
-   if purchased<p.minimum_paid_quantity then continue; end if;
+   if purchased<p.minimum_paid_quantity or coalesce(o.customer_id,o.user_id) is null then continue; end if;
    perform pg_advisory_xact_lock(hashtextextended(p.id::text,0));
    if exists(select 1 from public.promotion_redemptions r where r.promotion_id=p.id and r.order_id=o.id and r.status in ('reserved','fulfilled')) then continue; end if;
    if p.redemption_limit='once_per_customer' and exists(
@@ -37,6 +37,9 @@ begin
      and lower(coalesce(e.payment_status,'')) not in ('paid','completed','confirmed')
      and lower(coalesce(e.order_status,e.status,'')) not in ('rejected','cancelled','canceled')
      and coalesce(e.customer_id,e.user_id) is not null
+     and (p.starts_at is null or e.created_at>=p.starts_at)
+     and (p.ends_at is null or e.created_at<=p.ends_at)
+     and (select coalesce(sum(ei2.quantity),0) from public.order_items ei2 where ei2.order_id=e.id and ei2.unit_price>0 and coalesce(ei2.product_category,'') ilike '%peptide%')>=p.minimum_paid_quantity
      and exists(select 1 from public.order_items ei where ei.order_id=e.id and ei.unit_price>0
        and (coalesce(ei.product_category,'') ilike '%peptide%' or coalesce(ei.product_category,'') ilike '%glp%'))
      and not exists(select 1 from public.promotion_redemptions er where er.promotion_id=p.id and er.order_id=e.id and er.status in ('reserved','fulfilled'));
