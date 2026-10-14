@@ -126,6 +126,6 @@ $("refreshBtn")?.addEventListener("click",loadCustomers);$("applyFiltersBtn")?.a
 document.addEventListener("DOMContentLoaded",()=>{renderColumnToggles();wireEvents();loadCustomers()});
 </script>
 <script>window.addEventListener("error",function(event){var el=document.getElementById("loadStatus");if(el)el.innerHTML='<span class="error">Customer page script error: '+String(event.message||'Unknown error')+'</span>'});window.addEventListener("unhandledrejection",function(event){var el=document.getElementById("loadStatus"),reason=event&&event.reason?(event.reason.message||event.reason):'Unknown promise error';if(el)el.innerHTML='<span class="error">Customer page load error: '+String(reason)+'</span>'});</script>
-<script defer src="email-blast.js?v=1"></script>\n<script defer src="admin-footer.js?v=4"></script>
+<script defer src="email-blast.js?v=2"></script>\n<script defer src="admin-footer.js?v=4"></script>
 </body>
 </html>
