@@ -1787,7 +1787,35 @@ button.btn[aria-disabled="true"],
 }
 </style>
 <link rel="stylesheet" href="css/admin.css?v=10">
-</head><body><header class="pst-admin-header">
+<style>
+/* PST_PROMOTIONS_STUDIO_V1 */
+.pst-studio-hero{background:linear-gradient(115deg,#102b43,#1d4965);color:#fff;border-radius:18px;padding:25px 30px;margin:0 0 18px;display:flex;align-items:center;justify-content:space-between;gap:20px;box-shadow:0 12px 28px #102b4320}
+.pst-studio-hero h1{font:700 31px/1.2 Georgia,serif;margin:3px 0 8px;color:#fff}.pst-studio-hero p{margin:0;color:#cfdae3}.pst-studio-hero .pst-eyebrow{color:#ddb765;font-size:11px;text-transform:uppercase;letter-spacing:.16em;font-weight:800}
+.pst-studio-hero button{background:#d4ab58!important;color:#102b43!important;border:0!important;border-radius:9px;padding:13px 19px;font-weight:800;cursor:pointer;white-space:nowrap}
+.pst-studio-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:20px}
+.pst-studio-metric{background:#fff;border:1px solid #dbe2ea;border-radius:14px;padding:18px 20px;box-shadow:0 4px 16px #102b430a;display:flex;gap:12px;align-items:center}
+.pst-studio-metric .pst-metric-icon{font-size:23px;background:#eef3f7;border-radius:11px;width:46px;height:46px;display:grid;place-items:center}
+.pst-studio-metric b{display:block;font-size:26px;line-height:1.2;color:#102b43}.pst-studio-metric small{color:#697989;font-weight:700}
+.pst-studio-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr);gap:18px;align-items:start}
+.pst-studio-layout>.card{min-width:0}.pst-studio-layout>.card h2,.pst-saved-campaigns h2{color:#102b43}
+.pst-studio-section{border:1px solid #dbe3ec;border-radius:12px;background:#fff;margin:12px 0;overflow:hidden}
+.pst-studio-section summary{list-style:none;cursor:pointer;padding:17px 19px;background:#f3f6f9;font-weight:800;color:#102b43;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pst-studio-section summary::-webkit-details-marker{display:none}.pst-studio-section summary::after{content:'＋';font-size:18px}.pst-studio-section[open] summary::after{content:'−'}
+.pst-studio-section .pst-section-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;padding:18px}
+.pst-studio-section .field{min-width:0}.pst-studio-section .field.full{grid-column:1/-1}
+.pst-studio-section .pst-section-copy{font-weight:400;color:#718094;font-size:12px}
+.pst-studio-editor>.card-body>.fields{display:block}.pst-studio-editor .pst-editor-actions{display:flex;gap:10px;flex-wrap:wrap;padding:15px 0 4px}
+.pst-studio-preview{position:sticky;top:115px}.pst-studio-preview .card-body{background:#f2f5f8;padding:24px!important}
+.pst-studio-preview #preview{min-height:290px;box-shadow:0 15px 30px #102b431c;border-radius:13px;overflow:hidden}
+.pst-studio-preview-note{font-size:12px;color:#6e7b88;margin-top:12px}
+.pst-saved-campaigns{margin:0 0 19px}.pst-saved-campaigns .list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pst-saved-campaigns .promo-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#fff,#f7f9fb);border:1px solid #dde5ed;border-radius:13px;padding:18px!important;min-height:116px;box-shadow:0 4px 14px #102b4308}
+.pst-saved-campaigns .promo-row>div{min-width:0}.pst-saved-campaigns .promo-row strong{font-size:16px;color:#102b43;line-height:1.4}.pst-saved-campaigns .promo-row .btn{flex:none}
+.pst-promo-type-note{font-size:12px;color:#687787;padding-top:7px}
+.pst-studio-hidden{display:none!important}
+@media(max-width:1080px){.pst-studio-layout{grid-template-columns:1fr}.pst-studio-preview{position:static}.pst-studio-metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.pst-studio-metrics{grid-template-columns:1fr 1fr}.pst-saved-campaigns .list{grid-template-columns:1fr}.pst-studio-hero{flex-direction:column;align-items:flex-start}.pst-studio-section .pst-section-fields{grid-template-columns:1fr}.pst-studio-section .field{grid-column:1/-1}}
+</style></head><body><header class="pst-admin-header">
   <div class="pst-admin-nav-wrap">
     <a class="pst-admin-logo-link" href="index.html" aria-label="Pep Shop Texas Home">
       <img src="pst-header-logo.png" alt="PST Pep Shop Texas" class="pst-admin-header-logo">
@@ -1860,4 +1888,44 @@ async function loadPromos(){const {data,error}=await db.from('site_promotions').
     }
   }
 });
+</script><script>
+(function(){
+const groups=[
+["Campaign Details","What customers will see",["promoSelect","title","badge","body","button_text","button_link"],true],
+["Qualification & Rewards","Purchase requirements and free products",["promotion_type","reward_product_key","reward_quantity","minimum_paid_quantity","redemption_limit","max_redemptions"],true],
+["Schedule & Visibility","When this promotion runs",["is_active","starts_at","ends_at"],false],
+["Visual Design","Images, typography and color",["image_url","text_align","title_size","body_size","text_color","background_color","accent_color","title_bold","title_italic","title_underline","body_bold","body_italic","body_underline"],false],
+["Advanced Options","Discount linking and display priority",["discount_id","auto_apply_discount","sort_order"],false]];
+function build(){
+ const main=document.querySelector("main");if(!main||document.querySelector(".pst-studio-hero"))return;
+ const grid=main.querySelector(":scope > .grid");if(!grid)return;
+ const cards=[...grid.children];if(cards.length<3)return;const [editor,previewCard,saved]=cards;
+ editor.classList.add("pst-studio-editor");previewCard.classList.add("pst-studio-preview");saved.classList.add("pst-saved-campaigns");
+ const hero=document.createElement("div");hero.className="pst-studio-hero";hero.innerHTML='<div><div class="pst-eyebrow">Pep Shop Texas / Marketing Studio</div><h1>Promotions Manager</h1><p>Create refined campaigns, set reward rules, and preview the customer experience.</p></div><button type="button" id="pstStudioNew">＋ New Promotion</button>';
+ const metrics=document.createElement("div");metrics.className="pst-studio-metrics";metrics.innerHTML=[["Active","●"],["Scheduled","◷"],["Inactive / Ended","◯"],["Free Product","◆"]].map((m,i)=>'<div class="pst-studio-metric"><span class="pst-metric-icon">'+m[1]+'</span><div><b id="pstMetric'+i+'">—</b><small>'+m[0]+'</small></div></div>').join("");
+ main.insertBefore(hero,grid);main.insertBefore(metrics,grid);
+ grid.classList.add("pst-studio-layout");grid.classList.remove("grid");saved.remove();main.insertBefore(saved,grid);
+ const form=editor.querySelector(".fields");if(!form)return;
+ groups.forEach(([title,sub,ids,open])=>{
+  const section=document.createElement("details");section.className="pst-studio-section";section.open=open;
+  const summary=document.createElement("summary");summary.innerHTML='<span>'+title+'<div class="pst-section-copy">'+sub+'</div></span>';
+  const fields=document.createElement("div");fields.className="pst-section-fields";section.append(summary,fields);
+  for(const id of ids){const input=document.getElementById(id);if(!input)continue;const field=input.closest(".field");if(field){fields.appendChild(field);continue;}if(input.type==="checkbox"){const label=input.closest("label");if(label){const box=document.createElement("div");box.className="field";box.appendChild(label);fields.appendChild(box);}}}
+  form.appendChild(section);
+ });
+ const buttons=document.getElementById("saveBtn")?.closest(".field");if(button){buttons.classList.add("pst-editor-actions");form.appendChild(button);}
+ const note=document.createElement("p");note.className="pst-studio-preview-note";note.textContent="Live preview reflects the visual design. Reward eligibility is enforced at checkout/payment.";previewCard.querySelector(".card-body")?.appendChild(note);
+ document.getElementById("pstStudioNew").onclick=()=>{document.getElementById("newBtn")?.click();editor.scrollIntoView({behavior:"smooth",block:"start"})};
+ function reflectType(){
+ const free=document.getElementById("promotion_type")?.value==="free_product";
+ ["reward_product_key","reward_quantity","minimum_paid_quantity","redemption_limit","max_redemptions"].forEach(id=>document.getElementById(id)?.closest(".field")?.classList.toggle("pst-studio-hidden",!free));
+ ["discount_id","auto_apply_discount"].forEach(id=>document.getElementById(id)?.closest(".field")?.classList.toggle("pst-studio-hidden",free));
+ }
+ const type=document.getElementById("promotion_type");type?.addEventListener("change",reflectType);
+ const mo=new MutationObserver(()=>{reflectType();const p=typeof promos!=="undefined"?promos:[];const now=Date.now();const active=p.filter(x=>x.is_active&&(!x.starts_at||Date.parse(x.starts_at)<=now)&&(!x.ends_at||Date.parse(x.ends_at)>=now)).length;const scheduled=p.filter(x=>x.is_active&&x.starts_at&&Date.parse(x.starts_at)>now).length;const inactive=p.length-active-scheduled;[active,scheduled,inactive,p.filter(x=>x.promotion_type==="free_product").length].forEach((n,i)=>{const el=document.getElementById("pstMetric"+i);if(el)el.textContent=n;});});
+ const list=document.getElementById("promoList");if(list)mo.observe(list,{childList:true});
+ document.getElementById("promoSelect")?.addEventListener("change",()=>setTimeout(reflectType,0));list?.addEventListener("click",()=>setTimeout(()=>{reflectType();editor.scrollIntoView({behavior:"smooth",block:"start"})},0));document.getElementById("newBtn")?.addEventListener("click",()=>setTimeout(reflectType,0));reflectType();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",build);else build();
+})();
 </script><script defer src="admin-footer.js?v=4"></script></body></html>
