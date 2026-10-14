@@ -692,6 +692,35 @@ async function loadCheckoutPaymentMethods(){
   return result.methods.filter(method=>method.id&&method.label);
 }
 
+
+async function getCartFreeVialPreview(rows) {
+  const purchased = rows.reduce((sum, row) => {
+    const category = String(row.product?.category || row.product?.product_category || "").toLowerCase();
+    return sum + (category.includes("peptide") || category.includes("glp") ? Number(row.quantity || 0) : 0);
+  }, 0);
+  if (!purchased) return "";
+  const client = requireSupabaseClient();
+  const { data: promotions, error } = await client.from("site_promotions")
+    .select("id,title,reward_product_key,reward_quantity,minimum_paid_quantity,starts_at,ends_at")
+    .eq("is_active", true).eq("promotion_type", "free_product");
+  if (error) { console.warn("Free vial promotions unavailable", error); return ""; }
+  const now = Date.now();
+  const qualifying = (promotions || []).filter(p =>
+    p.reward_product_key && purchased >= Number(p.minimum_paid_quantity || 1) &&
+    (!p.starts_at || Date.parse(p.starts_at) <= now) &&
+    (!p.ends_at || Date.parse(p.ends_at) >= now));
+  if (!qualifying.length) return "";
+  const { data: inventory, error: inventoryError } = await client.from("product_inventory")
+    .select("product_key,display_name,strength,current_inventory").in("product_key", qualifying.map(p => p.reward_product_key));
+  if (inventoryError) { console.warn("Free vial inventory unavailable", inventoryError); return ""; }
+  return qualifying.map(p => {
+    const reward = (inventory || []).find(item => item.product_key === p.reward_product_key);
+    if (!reward || Number(reward.current_inventory || 0) < Number(p.reward_quantity || 1)) return "";
+    const name = [reward.display_name, reward.strength].filter(Boolean).join(" · ");
+    return `<article class="inquiry-row pst-free-vial-preview" style="border:1px solid #2c8c64;padding:14px;border-radius:8px;margin-top:12px"><div><h2>${escapeHtml(name)} — FREE</h2><p>Promotional reward · Qty ${Number(p.reward_quantity || 1)} · <strong>$0.00</strong></p><p style="font-size:.9em">Pending payment confirmation and available inventory. Free vial is not guaranteed until awarded.</p></div></article>`;
+  }).join("");
+}
+
 async function renderCartPage() {
   const itemsNode = document.querySelector("[data-cart-items]");
   const summaryNode = document.querySelector("[data-cart-summary]");
@@ -722,6 +751,8 @@ async function renderCartPage() {
     itemsNode.innerHTML = rows.length
       ? rows.map(inquiryRow).join("")
       : '<div class="empty-cart"><h2>Your inquiry is empty</h2><p>Add products to request information.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>';
+
+    if (rows.length) itemsNode.insertAdjacentHTML("beforeend", await getCartFreeVialPreview(rows));
 
     const subtotal = rows.reduce((sum, row) => sum + (row.product ? unitPrice(row.product) * Number(row.quantity || 0) : 0), 0);
     const discount = cartDiscountAmount(subtotal);
