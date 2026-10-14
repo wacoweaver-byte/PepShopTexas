@@ -1534,6 +1534,20 @@ td .btn,td button.btn,td a.btn,td .status-pill,td .reorder-badge,td .incoming-pi
 
 <style>
 /* PST_ORDERS_NAVY_BUTTONS_V1 */
+/* PST_ORDERS_NAVY_BUTTONS_V2: override older black active/collapse rules */
+body[data-admin-page="orders"] #adminDashboardNav .btn.active,
+body[data-admin-page="orders"] #adminDashboardNav .btn[aria-pressed="true"],
+body[data-admin-page="orders"] .admin-dashboard-nav .btn.active,
+body[data-admin-page="orders"] .admin-dashboard-nav .btn[aria-pressed="true"],
+body[data-admin-page="orders"] .collapsible-card:not(.collapsed) .card-toggle-btn,
+body[data-admin-page="orders"] .card-toggle-btn.active,
+body[data-admin-page="orders"] .card-toggle-btn[aria-expanded="true"] {
+  background: #102b43 !important;
+  background-color: #102b43 !important;
+  border-color: #102b43 !important;
+  color: #ffffff !important;
+}
+
 /* Use one navy tone for all dark action buttons on Orders. Preserve intentional white outline variants. */
 body[data-admin-page="orders"] .btn:not(.secondary):not(.success):not(.warning):not(.danger),
 body[data-admin-page="orders"] .inventory-jump-link.active,
