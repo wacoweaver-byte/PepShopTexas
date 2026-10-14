@@ -917,6 +917,8 @@ async function handleInquirySubmit(event) {
       updated_at: now
     }));
     await insertRowsWithColumnFallback("order_items", itemPayloads);
+    // Free-vial allocation happens when staff confirm payment, not at order submission.
+    // Order creation time is the priority timestamp. See the promotion queue migration.
     let appliedStoreCredit = 0;
     if (pstApplyStoreCredit) { const result = await requireSupabaseClient().rpc("pst_redeem_store_credit",{p_order_id:inquiry.id}); if (result.error) throw result.error; appliedStoreCredit = Number(result.data || 0); }
 
