@@ -3,6 +3,7 @@
   const FUNCTION_NAME="send-email-blast";
   let blastEligible=[];
   let blastVisible=[];
+  let blastImageUrl="";
 
   function byId(id){return document.getElementById(id)}
   function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -21,7 +22,8 @@
     feature_body:fieldValue("blastFeatureBody"),
     button_text:fieldValue("blastButtonText"),
     button_url:fieldValue("blastButtonUrl"),
-    final_note:fieldValue("blastFinalNote")
+    final_note:fieldValue("blastFinalNote"),
+    image_url:blastImageUrl
   }}
 
   function installComposer(){
@@ -48,6 +50,7 @@
           <div class="blast-field full"><label for="blastFeatureBody">Feature Details</label><textarea id="blastFeatureBody" maxlength="3000" placeholder="Optional supporting information..."></textarea></div>
           <div class="blast-field"><label for="blastButtonText">Button Text</label><input id="blastButtonText" maxlength="60" placeholder="Learn More"></div>
           <div class="blast-field"><label for="blastButtonUrl">Button Link</label><input id="blastButtonUrl" type="url" maxlength="500" placeholder="https://www.pepshoptexas.com/"></div>
+          <div class="blast-field full"><label for="blastImageFile">Email Image (optional)</label><input id="blastImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><div id="blastImageInfo" style="font-size:12px;margin-top:6px;color:#48576a">Choose an image from your computer (up to 5 MB).</div><button class="blast-mini-button" type="button" id="blastRemoveImageBtn" hidden>Remove Image</button></div>
           <div class="blast-field full"><label for="blastFinalNote">Final Note</label><textarea id="blastFinalNote" maxlength="1200" placeholder="Optional closing note or contact information."></textarea></div>
         </div><p class="blast-template-note">Customer names, Pep Shop Texas branding, the research disclaimer, and each recipient’s unsubscribe link are inserted automatically.</p></section>
         <aside class="blast-recipient-pane"><div class="blast-recipient-title">Recipients</div><input class="blast-recipient-search" id="blastRecipientSearch" type="search" placeholder="Search name or email"><div class="blast-recipient-tools"><button class="blast-mini-button" type="button" id="blastSelectVisibleBtn">Select Visible</button><button class="blast-mini-button" type="button" id="blastClearVisibleBtn">Clear Visible</button></div><div class="blast-count" id="blastRecipientCount">0 selected</div><div class="blast-recipient-list" id="blastRecipientList"></div><iframe class="blast-preview-frame" id="blastPreviewFrame" title="Email preview"></iframe></aside>
@@ -59,9 +62,30 @@
     byId("previewBlastBtn").addEventListener("click",previewBlast);
     byId("sendBlastBtn").addEventListener("click",sendBlast);
     byId("blastRecipientSearch").addEventListener("input",renderRecipients);
+    byId("blastImageFile").addEventListener("change",uploadImage);
+    byId("blastRemoveImageBtn").addEventListener("click",()=>{blastImageUrl="";byId("blastImageFile").value="";byId("blastImageInfo").textContent="No image selected.";byId("blastRemoveImageBtn").hidden=true;byId("blastPreviewFrame").srcdoc="";});
     byId("blastSelectVisibleBtn").addEventListener("click",()=>setVisibleSelection(true));
     byId("blastClearVisibleBtn").addEventListener("click",()=>setVisibleSelection(false));
     modal.addEventListener("click",event=>{if(event.target===modal)closeComposer()});
+  }
+
+  async function uploadImage(){
+    const input=byId("blastImageFile"),file=input.files?.[0];
+    if(!file)return;
+    if(!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type)||file.size>5242880){
+      input.value="";setBlastStatus("Choose a PNG, JPEG, WebP or GIF under 5 MB.","bad");return;
+    }
+    byId("blastImageInfo").textContent="Uploading "+file.name+"...";
+    try{
+      const base64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(",")[1]);reader.onerror=reject;reader.readAsDataURL(file)});
+      const result=await callBlastFunction({action:"upload_image",image_type:file.type,image_base64:base64});
+      if(!result.image_url)throw new Error("Upload did not return an image URL.");
+      blastImageUrl=result.image_url;
+      byId("blastImageInfo").textContent="Uploaded: "+file.name;
+      byId("blastRemoveImageBtn").hidden=false;
+      setBlastStatus("Image uploaded. Click Preview Email to see it in the message.","good");
+      await previewBlast();
+    }catch(error){input.value="";byId("blastImageInfo").textContent="Image upload failed.";setBlastStatus(error.message||String(error),"bad");}
   }
 
   function openComposer(){
