@@ -46,6 +46,10 @@ begin
    values(o.id,v.id::text,v.product_key,v.display_name,v.strength,v.category,p.reward_quantity,0,0);
    insert into public.promotion_redemptions(promotion_id,order_id,customer_id,reward_product_key,quantity,status)
    values(p.id,o.id,coalesce(o.customer_id,o.user_id),v.product_key,p.reward_quantity,'fulfilled');
+   -- Inventory is locked in this transaction; the last awarded vial ends the campaign.
+   if (select current_inventory from public.product_inventory where id=v.id)<p.reward_quantity then
+     update public.site_promotions set is_active=false where id=p.id;
+   end if;
    return jsonb_build_object('awarded',true,'product_key',v.product_key,'quantity',p.reward_quantity);
  end loop;
  return jsonb_build_object('awarded',false,'reason','not_eligible_or_no_unreserved_inventory');
