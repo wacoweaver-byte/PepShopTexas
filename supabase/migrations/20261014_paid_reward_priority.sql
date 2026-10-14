@@ -46,7 +46,7 @@ begin
    -- If earlier unpaid orders still have a live two-hour claim, leave enough stock for them.
    -- Expired orders no longer block the queue; later submitted paid orders are eligible.
    if v.current_inventory < (earlier_unpaid+1)*p.reward_quantity then continue; end if;
-   -- Inventory for this reward is deducted here, independent of the ordinary order inventory RPC.
+   -- Inventory is deducted here, and the standard order RPC excludes zero-price promotional lines.
    update public.product_inventory set current_inventory=current_inventory-p.reward_quantity where id=v.id;
    insert into public.order_items(order_id,product_id,product_key,product_name,product_strength,product_category,quantity,unit_price,line_total)
    values(o.id,v.id::text,v.product_key,v.display_name,v.strength,v.category,p.reward_quantity,0,0);
