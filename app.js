@@ -649,7 +649,7 @@ async function renderProductDetail() {
         ${productDetailVariantSelector(variants, product)}
         <div class="purchase-panel">
           <label>Quantity <input type="number" min="1" max="9999" step="1" value="1" data-detail-qty></label>
-          <button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Inquiry</button>
+          ${Number(product.current_inventory||0)>0?`<button class="primary-action" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>`:`<button class="primary-action" data-request-availability="${escapeAttribute(product.product_key)}">Request Availability</button>`}
           <a class="secondary-action" href="cart.html">View Inquiry</a>
         </div>
         <p class="research-use">Research use only. Not for human consumption.</p>
@@ -1066,7 +1066,7 @@ function catalogDoseOptions(variants) {
           <a class="catalog-dose-name" href="${productUrl(product)}">${escapeHtml(product.strength || product.product_key)}</a>
           <strong>${priceHtml(product)}</strong>
           <span class="catalog-row-actions">
-            <button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Inquiry</button>
+            ${Number(product.current_inventory||0)>0?`<button class="card-cart-button" data-add-to-cart="${escapeAttribute(product.product_key)}">Add to Cart</button>`:`<button class="card-cart-button" data-request-availability="${escapeAttribute(product.product_key)}">Request Availability</button>`}
           </span>
         </div>
       `).join("")}
@@ -1075,6 +1075,7 @@ function catalogDoseOptions(variants) {
 }
 
 function bindCartButtons() {
+  document.querySelectorAll("[data-request-availability]").forEach(button=>{if(button.dataset.requestBound)return;button.dataset.requestBound="1";button.addEventListener("click",async()=>{const products=await getProducts();const product=products.find(p=>p.product_key===button.dataset.requestAvailability);if(product&&typeof window.pstOpenAvailabilityRequest==="function")window.pstOpenAvailabilityRequest(product);});});
   document.querySelectorAll("[data-add-to-cart]").forEach((button) => {
     if (button.disabled || button.getAttribute("aria-disabled") === "true") return;
     if (button.dataset.bound) return;
