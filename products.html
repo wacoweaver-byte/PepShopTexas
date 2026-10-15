@@ -1075,6 +1075,7 @@ td .pill {
             <thead>
               <tr>
                 <th><button class="sort-btn" type="button" data-sort-field="display_name">Product</button></th>
+                <th><button class="sort-btn" type="button" data-sort-field="sort_name">Sort Name</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="strength">Strength</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="product_key">Item #</button></th>
                 <th><button class="sort-btn" type="button" data-sort-field="category">Category</button></th>
@@ -1084,7 +1085,7 @@ td .pill {
                 <th>COA</th>
               </tr>
             </thead>
-            <tbody id="productRows"><tr><td colspan="8" class="empty">Loading products...</td></tr></tbody>
+            <tbody id="productRows"><tr><td colspan="9" class="empty">Loading products...</td></tr></tbody>
           </table>
         </div>
       </article>
@@ -1336,6 +1337,7 @@ td .pill {
       $("productRows").innerHTML = rows.length ? rows.map(product => `
         <tr data-product-id="${product.id}" class="${activeProduct?.id === product.id ? "active" : ""}" aria-selected="${activeProduct?.id === product.id ? "true" : "false"}">
           <td><strong>${esc(product.display_name)}</strong>${activeProduct?.id === product.id ? `<span class="selected-product-marker">Selected</span>` : ""}</td>
+          <td>${esc(product.sort_name || "—")}</td>
           <td>${esc(product.strength || "")}</td>
           <td><strong>${esc(product.product_key || "")}</strong></td>
           <td>${esc(product.category || "")}</td>
@@ -1344,7 +1346,7 @@ td .pill {
           <td><span class="pill ${product.is_active ? "" : "off"}">${product.is_active ? "Active" : "Inactive"}</span></td>
           <td><span class="coa-list-indicator ${String(product.coa_url || "").trim() ? "has-coa" : ""}" title="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"><input type="checkbox" tabindex="-1" disabled ${String(product.coa_url || "").trim() ? "checked" : ""} aria-label="${String(product.coa_url || "").trim() ? "COA uploaded" : "No COA uploaded"}"></span></td>
         </tr>
-      `).join("") : `<tr><td colspan="8" class="empty">No products match that filter.</td></tr>`;
+      `).join("") : `<tr><td colspan="9" class="empty">No products match that filter.</td></tr>`;
       if (tableWrap) tableWrap.scrollLeft = previousScrollLeft;
       document.querySelectorAll("[data-product-id]").forEach(row => {
         row.addEventListener("click", () => {
