@@ -1268,7 +1268,7 @@ td .pill {
       const query = $("searchInput").value.trim().toLowerCase();
       const category = $("categoryFilter").value;
       return products.filter(product => {
-        const haystack = [product.product_key, product.display_name, product.strength, product.category].filter(Boolean).join(" ").toLowerCase();
+        const haystack = Object.values(product).filter(value => value !== null && value !== undefined && (typeof value === "string" || typeof value === "number" || typeof value === "boolean")).join(" ").toLowerCase();
         return (!query || haystack.includes(query)) && (!category || product.category === category);
       }).sort(compareProductsForSort);
     }
