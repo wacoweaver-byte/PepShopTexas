@@ -2537,102 +2537,6 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
   </nav>
 
 
-  <section class="card reorder-card inventory-dashboard-card collapsed" id="reorderReviewCard">
-    <div class="card-head inventory-collapse-head" data-collapse-card="reorderReviewCard">
-      <div>
-        <h2 style="margin:0 0 5px;">Inventory Reorder Review</h2>
-        <p class="subtitle" style="font-size:13px;">Uses recent product sales velocity, vendor/default lead time, and stock depletion logic to flag items that may need reorder review.</p>
-      </div>
-      <div class="reorder-controls">
-        <div class="field">
-          <label>Sales Velocity Range</label>
-          <select id="reorderRange">
-            <option value="7">Last 7 Days</option>
-            <option value="30" selected>Last 30 Days</option>
-            <option value="60">Last 60 Days</option>
-            <option value="90">Last 90 Days</option>
-          </select>
-        </div>
-        <button class="btn secondary" id="refreshReorderBtn" type="button">Refresh Review</button>
-        <span class="reorder-selected-actions">
-          <button class="btn success" id="createReorderPOBtn" type="button" disabled>Create PO from Selected</button>
-          <button class="btn secondary" id="clearReorderSelectionBtn" type="button" disabled>Clear Selected</button>
-          <span class="reorder-selected-count" id="selectedReorderCount">0 selected</span>
-        </span>
-        <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="reorderReviewCard" aria-expanded="false">Open</button>
-      </div>
-    </div>
-    <div class="reorder-summary-grid">
-      <div class="reorder-stat"><strong id="reorderCriticalCount">—</strong><span>Critical</span></div>
-      <div class="reorder-stat"><strong id="reorderNowCount">—</strong><span>Reorder Now</span></div>
-      <div class="reorder-stat"><strong id="reorderWatchCount">—</strong><span>Watch</span></div>
-      <div class="reorder-stat"><strong id="reorderHealthyCount">—</strong><span>Healthy / No Recent Sales</span></div>
-    </div>
-    <div class="reorder-guide">
-      <strong>Guide:</strong>
-      <span class="reorder-badge reorder-critical">0–7 days = Critical</span>
-      <span class="reorder-badge reorder-now">8–21 days = Reorder Now</span>
-      <span class="reorder-badge reorder-watch">22–30 days = Watch</span>
-      <span class="reorder-badge reorder-healthy">31+ days = Healthy</span>
-      <span class="reorder-badge reorder-none">No recent sales</span>
-      <span class="reorder-badge reorder-critical">≤2 vials or 90% depleted = Critical Low Stock</span>
-    </div>
-    <div class="reorder-note" id="reorderReviewNote">Loading reorder review...</div>
-    <div class="reorder-table-wrap">
-      <table class="reorder-table">
-        <thead>
-          <tr>
-            <th class="reorder-select-cell"><input id="selectAllReorder" type="checkbox" title="Select all actionable reorder rows"></th>
-            <th>Product</th>
-            <th>Strength</th>
-            <th>Current Stock</th>
-            <th>Qty Sold</th>
-            <th>Avg / Day</th>
-            <th>Lead-Time Demand</th>
-            <th>Days Remaining</th>
-            <th>Stock Depletion</th>
-            <th>Reorder Status</th>
-            <th>Suggested Reorder Qty</th>
-          </tr>
-        </thead>
-        <tbody id="reorderReviewBody">
-          <tr><td colspan="11" class="note">Loading reorder review...</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
-  </section>
-
-  <section class="card vendor-card inventory-dashboard-card collapsed" id="vendorManagementCard">
-    <div class="card-head inventory-collapse-head" data-collapse-card="vendorManagementCard">
-      <div>
-        <h2 style="margin:0 0 5px;">Vendor Management</h2>
-        <p class="subtitle" style="font-size:13px;">Add vendors, assign PST vendor IDs, store WhatsApp details, and set each vendor's standard shipping lead time.</p>
-      </div>
-      <div class="actions">
-        <button class="btn secondary" id="refreshVendorsBtn" type="button">Refresh Vendors</button>
-        <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="vendorManagementCard" aria-expanded="false">Open</button>
-      </div>
-    </div>
-    <div class="vendor-form-grid">
-      <div class="field"><label>PST Vendor ID</label><input id="vendorPstId" type="text" placeholder="Auto" readonly></div>
-      <div class="field"><label>Company Name</label><input id="vendorCompanyName" type="text" placeholder="Vendor company" /></div>
-      <div class="field"><label>Contact Name</label><input id="vendorContactName" type="text" placeholder="Contact" /></div>
-      <div class="field"><label>WhatsApp</label><input id="vendorWhatsapp" type="text" placeholder="+86..." /></div>
-      <div class="field"><label>Standard Lead Time</label><input id="vendorLeadTime" type="number" min="0" step="1" value="10" /></div>
-      <div class="field full"><label>Address</label><input id="vendorAddress" type="text" placeholder="Company address" /></div>
-      <button class="btn success" id="addVendorBtn" type="button">Add Vendor</button>
-    </div>
-    <div class="vendor-note" id="vendorNote">Vendor records load from the Supabase vendors table. Run the vendor SQL setup once before using this section.</div>
-    <div class="incoming-table-wrap">
-      <table class="vendor-table">
-        <thead><tr><th>PST Vendor ID</th><th>Company</th><th>Contact</th><th>WhatsApp</th><th>Lead Time</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="vendorBody"><tr><td colspan="7" class="note">Loading vendors...</td></tr></tbody>
-      </table>
-    </div>
-    <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
-  </section>
-
   <section class="card incoming-card inventory-dashboard-card collapsed" id="incomingInventoryCard">
     <div class="card-head inventory-collapse-head" data-collapse-card="incomingInventoryCard">
       <div>
@@ -2759,6 +2663,102 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <tbody id="incomingInventoryBody">
           <tr><td colspan="12" class="note">Loading incoming inventory...</td></tr>
         </tbody>
+      </table>
+    </div>
+    <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
+  </section>
+
+  <section class="card reorder-card inventory-dashboard-card collapsed" id="reorderReviewCard">
+    <div class="card-head inventory-collapse-head" data-collapse-card="reorderReviewCard">
+      <div>
+        <h2 style="margin:0 0 5px;">Inventory Reorder Review</h2>
+        <p class="subtitle" style="font-size:13px;">Uses recent product sales velocity, vendor/default lead time, and stock depletion logic to flag items that may need reorder review.</p>
+      </div>
+      <div class="reorder-controls">
+        <div class="field">
+          <label>Sales Velocity Range</label>
+          <select id="reorderRange">
+            <option value="7">Last 7 Days</option>
+            <option value="30" selected>Last 30 Days</option>
+            <option value="60">Last 60 Days</option>
+            <option value="90">Last 90 Days</option>
+          </select>
+        </div>
+        <button class="btn secondary" id="refreshReorderBtn" type="button">Refresh Review</button>
+        <span class="reorder-selected-actions">
+          <button class="btn success" id="createReorderPOBtn" type="button" disabled>Create PO from Selected</button>
+          <button class="btn secondary" id="clearReorderSelectionBtn" type="button" disabled>Clear Selected</button>
+          <span class="reorder-selected-count" id="selectedReorderCount">0 selected</span>
+        </span>
+        <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="reorderReviewCard" aria-expanded="false">Open</button>
+      </div>
+    </div>
+    <div class="reorder-summary-grid">
+      <div class="reorder-stat"><strong id="reorderCriticalCount">—</strong><span>Critical</span></div>
+      <div class="reorder-stat"><strong id="reorderNowCount">—</strong><span>Reorder Now</span></div>
+      <div class="reorder-stat"><strong id="reorderWatchCount">—</strong><span>Watch</span></div>
+      <div class="reorder-stat"><strong id="reorderHealthyCount">—</strong><span>Healthy / No Recent Sales</span></div>
+    </div>
+    <div class="reorder-guide">
+      <strong>Guide:</strong>
+      <span class="reorder-badge reorder-critical">0–7 days = Critical</span>
+      <span class="reorder-badge reorder-now">8–21 days = Reorder Now</span>
+      <span class="reorder-badge reorder-watch">22–30 days = Watch</span>
+      <span class="reorder-badge reorder-healthy">31+ days = Healthy</span>
+      <span class="reorder-badge reorder-none">No recent sales</span>
+      <span class="reorder-badge reorder-critical">≤2 vials or 90% depleted = Critical Low Stock</span>
+    </div>
+    <div class="reorder-note" id="reorderReviewNote">Loading reorder review...</div>
+    <div class="reorder-table-wrap">
+      <table class="reorder-table">
+        <thead>
+          <tr>
+            <th class="reorder-select-cell"><input id="selectAllReorder" type="checkbox" title="Select all actionable reorder rows"></th>
+            <th>Product</th>
+            <th>Strength</th>
+            <th>Current Stock</th>
+            <th>Qty Sold</th>
+            <th>Avg / Day</th>
+            <th>Lead-Time Demand</th>
+            <th>Days Remaining</th>
+            <th>Stock Depletion</th>
+            <th>Reorder Status</th>
+            <th>Suggested Reorder Qty</th>
+          </tr>
+        </thead>
+        <tbody id="reorderReviewBody">
+          <tr><td colspan="11" class="note">Loading reorder review...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
+  </section>
+
+  <section class="card vendor-card inventory-dashboard-card collapsed" id="vendorManagementCard">
+    <div class="card-head inventory-collapse-head" data-collapse-card="vendorManagementCard">
+      <div>
+        <h2 style="margin:0 0 5px;">Vendor Management</h2>
+        <p class="subtitle" style="font-size:13px;">Add vendors, assign PST vendor IDs, store WhatsApp details, and set each vendor's standard shipping lead time.</p>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="refreshVendorsBtn" type="button">Refresh Vendors</button>
+        <button class="btn secondary inventory-collapse-toggle" type="button" data-collapse-target="vendorManagementCard" aria-expanded="false">Open</button>
+      </div>
+    </div>
+    <div class="vendor-form-grid">
+      <div class="field"><label>PST Vendor ID</label><input id="vendorPstId" type="text" placeholder="Auto" readonly></div>
+      <div class="field"><label>Company Name</label><input id="vendorCompanyName" type="text" placeholder="Vendor company" /></div>
+      <div class="field"><label>Contact Name</label><input id="vendorContactName" type="text" placeholder="Contact" /></div>
+      <div class="field"><label>WhatsApp</label><input id="vendorWhatsapp" type="text" placeholder="+86..." /></div>
+      <div class="field"><label>Standard Lead Time</label><input id="vendorLeadTime" type="number" min="0" step="1" value="10" /></div>
+      <div class="field full"><label>Address</label><input id="vendorAddress" type="text" placeholder="Company address" /></div>
+      <button class="btn success" id="addVendorBtn" type="button">Add Vendor</button>
+    </div>
+    <div class="vendor-note" id="vendorNote">Vendor records load from the Supabase vendors table. Run the vendor SQL setup once before using this section.</div>
+    <div class="incoming-table-wrap">
+      <table class="vendor-table">
+        <thead><tr><th>PST Vendor ID</th><th>Company</th><th>Contact</th><th>WhatsApp</th><th>Lead Time</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="vendorBody"><tr><td colspan="7" class="note">Loading vendors...</td></tr></tbody>
       </table>
     </div>
     <div class="back-to-inventory-top"><a href="#inventoryDashboardNav" data-inventory-top="true">Back to Top ↑</a></div>
