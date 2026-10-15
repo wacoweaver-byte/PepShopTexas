@@ -112,6 +112,7 @@
           const unavailable=Number(p.current_inventory||0)<=0;
           if(unavailable){delete add.dataset.addToCart;add.dataset.requestAvailability=p.product_key;}else{delete add.dataset.requestAvailability;add.dataset.addToCart=p.product_key;}
           add.textContent=unavailable?"Request Availability":"Add to Cart";add.classList.remove("is-added");
+          if(!unavailable)bindCartButtons();
           strengths.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.key===p.product_key)));
         }
         variants.forEach(p=>{
