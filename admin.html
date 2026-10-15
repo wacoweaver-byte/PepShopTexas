@@ -1915,7 +1915,7 @@ body[data-admin-page="orders"] #order-list-card .table-wrap {height:auto!importa
         ${remaining.filter(item=>item.remaining>0).map(item=>`<div style="padding:7px 0">${esc(item.product_name||item.name||"Item")} · ${esc(item.product_strength||item.strength||"")} — ${item.remaining} remaining</div>`).join("")||'<div class="muted">Nothing remaining.</div>'}</div>
         ${done?'':`<div style="padding:12px;border:1px solid #d8dee6;border-radius:10px;margin-top:12px"><strong>Record a shipment</strong><p class="muted">Enter the quantity going in this package. Leave backordered items at 0.</p>
         ${remaining.filter(item=>item.remaining>0).map(item=>`<label style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin:9px 0"><span>${esc(item.product_name||item.name||"Item")} (${esc(item.product_strength||item.strength||"")}) · ${item.remaining} remaining to ship · ${item.stock===null?"Inventory unavailable":item.stock+" in stock"}</span><input style="width:80px" type="number" min="0" max="${item.stock===null?0:Math.min(item.remaining,item.stock)}" ${item.stock===null||item.stock<=0?"disabled":""} step="1" value="${item.stock===null?0:Math.max(0,Math.min(item.remaining,item.stock))}" data-ship-item="${esc(item.id)}"></label>`).join("")}
-        <div class="edit-grid"><div class="field"><label>Carrier<input id="pstShipCarrier" placeholder="USPS, UPS, FedEx" /></label></div><div class="field"><label>Tracking number<input id="pstShipTracking" placeholder="Tracking number" /></label></div></div>
+        <label style="display:flex;align-items:center;gap:9px;margin:12px 0;font-weight:700"><input id="pstShipHandDelivered" type="checkbox" style="width:auto" /> Hand Delivered — no carrier or tracking number required</label><div class="edit-grid"><div class="field"><label>Carrier<input id="pstShipCarrier" placeholder="USPS, UPS, FedEx" /></label></div><div class="field"><label>Tracking number<input id="pstShipTracking" placeholder="Tracking number" /></label></div></div>
         <button type="button" class="btn success" id="pstRecordShipment">Record Shipment</button></div>`}
       `;
       panel.querySelectorAll("[data-preview-shipment]").forEach(button=>button.addEventListener("click",()=>{
@@ -1926,14 +1926,16 @@ body[data-admin-page="orders"] #order-list-card .table-wrap {height:auto!importa
         const ship=shipments.find(x=>String(x.id)===button.dataset.partialDelivered);
         if(ship)openEmailPreview(order,"partial_shipment_delivered",false,{shipment:ship,remainingItems:remaining.filter(i=>i.remaining>0)});
       }));
+      $("pstShipHandDelivered")?.addEventListener("change",event=>{const hand=event.target.checked;["pstShipCarrier","pstShipTracking"].forEach(id=>{const input=$(id);if(input){input.disabled=hand;input.placeholder=hand?"Not required for hand delivery":(id==="pstShipCarrier"?"USPS, UPS, FedEx":"Tracking number");}})});
       $("pstRecordShipment")?.addEventListener("click",()=>pstSaveShipment(order,remaining));
     }catch(error){panel.innerHTML=`<h3>Shipments / Backorders</h3><p class="problem-banner">${esc(error.message||error)}</p>`;}
   }
   async function pstSaveShipment(order,remaining){
     const btn=$("pstRecordShipment");
-    const carrier=$("pstShipCarrier")?.value.trim(),tracking=$("pstShipTracking")?.value.trim();
+    const handDelivered=!!$("pstShipHandDelivered")?.checked;
+    const carrier=handDelivered?"Hand Delivered":$("pstShipCarrier")?.value.trim(),tracking=handDelivered?"Hand Delivered":$("pstShipTracking")?.value.trim();
     const selected=remaining.map(item=>({id:item.id,qty:Number(document.querySelector('[data-ship-item="'+item.id+'"]')?.value||0),max:item.stock===null?0:Math.min(item.remaining,item.stock)})).filter(item=>item.qty!==0);
-    if(!carrier||!tracking){alert("Enter carrier and tracking.");return}
+    if(!carrier||!tracking){alert("Enter carrier and tracking, or select Hand Delivered.");return}
     if(!selected.length||selected.some(x=>!Number.isInteger(x.qty)||x.qty<1||x.qty>x.max)){alert("Choose a valid quantity for at least one item.");return}
     if(!confirm(`Record shipment of ${selected.reduce((n,x)=>n+x.qty,0)} item(s) for order #${orderNumber(order)}? This will not charge the customer again.`))return;
     btn.disabled=true;
