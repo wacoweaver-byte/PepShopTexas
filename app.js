@@ -1081,7 +1081,7 @@ function bindCartButtons() {
     if (button.dataset.bound) return;
     button.dataset.bound = "true";
     button.addEventListener("click", () => {
-      if (button.disabled || button.getAttribute("aria-disabled") === "true") return;
+      if (button.disabled || button.getAttribute("aria-disabled") === "true" || !button.dataset.addToCart) return;
       const qtyInput = document.querySelector("[data-detail-qty]");
       const quantity = Math.min(9999, Math.max(1, Math.floor(Number(qtyInput?.value) || 1)));
       addToCart(button.dataset.addToCart, quantity);
