@@ -42,6 +42,20 @@
    .pst-split-purchase button{flex:1 1 100%}
   }`;
   document.head.appendChild(css);
+  window.pstOpenAvailabilityRequest=window.pstOpenAvailabilityRequest||function(product){
+    if(document.getElementById("pstAvailabilityOverlay"))document.getElementById("pstAvailabilityOverlay").remove();
+    const wrap=document.createElement("div");wrap.id="pstAvailabilityOverlay";
+    wrap.style.cssText="position:fixed;z-index:99999;inset:0;background:#101820b8;display:grid;place-items:center;padding:16px";
+    wrap.innerHTML='<form style="background:white;border-radius:14px;padding:26px;max-width:460px;width:100%;box-sizing:border-box;display:grid;gap:14px;color:#102a43;max-height:90vh;overflow:auto"><h2 style="margin:0">Request Availability</h2><p style="margin:0">'+escapeHtml(product.display_name||"Product")+' — '+escapeHtml(product.strength||"")+'</p><p style="margin:0;font-size:14px">This is an inquiry only. No order will be placed or payment collected.</p><label>Name<input name="name" required maxlength="120" style="display:block;width:100%;padding:10px;box-sizing:border-box"></label><label>Email<input name="email" type="email" required maxlength="250" style="display:block;width:100%;padding:10px;box-sizing:border-box"></label><label>Quantity<input name="quantity" type="number" min="1" max="500" value="1" required style="display:block;width:100%;padding:10px;box-sizing:border-box"></label><label><input type="checkbox" name="notify"> Email me when this product is available</label><p data-availability-status style="margin:0"></p><div style="display:flex;gap:12px"><button type="button" data-close style="padding:12px">Cancel</button><button type="submit" style="background:#102a43;color:white;padding:12px;border:0;border-radius:5px">Submit Request</button></div></form>';
+    document.body.appendChild(wrap);
+    const form=wrap.querySelector("form");wrap.querySelector("[data-close]").onclick=()=>wrap.remove();
+    wrap.addEventListener("click",e=>{if(e.target===wrap)wrap.remove();});
+    form.addEventListener("submit",async e=>{
+      e.preventDefault();const btn=form.querySelector('[type="submit"]'),status=form.querySelector("[data-availability-status]");btn.disabled=true;status.textContent="Submitting…";
+      try{const {error}=await requireSupabaseClient().rpc("pst_submit_availability_request",{p_product_key:product.product_key,p_quantity:Number(form.elements.quantity.value),p_name:form.elements.name.value,p_email:form.elements.email.value,p_notify:form.elements.notify.checked});if(error)throw error;form.innerHTML='<h2>Request Received</h2><p>We recorded your availability inquiry. No order or payment has been created.</p><button type="button" data-done style="padding:12px">Close</button>';form.querySelector("[data-done]").onclick=()=>wrap.remove();}
+      catch(err){status.textContent=err.message||"Request could not be sent.";btn.disabled=false;}
+    });
+  };
   window.pstRenderSplitCatalog = async function () {
     const grid=document.querySelector("[data-catalog-grid]");
     if(!grid)return;
@@ -95,8 +109,9 @@
           active=p;selectedKey=p.product_key;
           price.textContent=formatMoney(unitPrice(p));
           strengthLabel.textContent="Selected strength: "+(p.strength||"Standard");
-          add.dataset.addToCart=p.product_key;
-          add.textContent="Add to Cart";add.classList.remove("is-added");
+          const unavailable=Number(p.current_inventory||0)<=0;
+          if(unavailable){delete add.dataset.addToCart;add.dataset.requestAvailability=p.product_key;}else{delete add.dataset.requestAvailability;add.dataset.addToCart=p.product_key;}
+          add.textContent=unavailable?"Request Availability":"Add to Cart";add.classList.remove("is-added");
           strengths.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.key===p.product_key)));
         }
         variants.forEach(p=>{
@@ -107,6 +122,7 @@
         choose(active);
         detail.querySelector(".pst-mobile-back").addEventListener("click",()=>grid.classList.remove("pst-mobile-open"));
         bindCartButtons();
+        add.addEventListener("click",()=>{if(add.dataset.requestAvailability&&typeof window.pstOpenAvailabilityRequest==="function")window.pstOpenAvailabilityRequest(active);});
       }
       function drawList(){
         query=search.value.trim().toLowerCase();
