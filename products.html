@@ -1372,7 +1372,7 @@ td .pill {
       const cleanCurrent = String(current || "").trim();
       const selected = ["Blend", "Stack"].includes(cleanCurrent) ? "Multi-Peptide Product" : (cleanCurrent || "Peptide");
       const options = selected && !CATEGORY_OPTIONS.includes(selected) ? [selected, ...CATEGORY_OPTIONS] : CATEGORY_OPTIONS;
-      return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category)}</option>`).join("");
+      return options.map(category => `<option value="${esc(category)}" ${category === selected ? "selected" : ""}>${esc(category === "Multi-Peptide Product" ? "Blend" : category)}</option>`).join("");
     }
 
     const RESEARCH_FOCUS_OPTIONS = [
