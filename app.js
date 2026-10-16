@@ -732,7 +732,7 @@ async function getCartFreeVialPreview(rows) {
   const client = requireSupabaseClient();
   const { data: promotions, error } = await client.from("site_promotions")
     .select("id,title,reward_product_key,reward_quantity,minimum_paid_quantity,starts_at,ends_at")
-    .eq("is_active", true).eq("promotion_type", "free_product");
+    .eq("is_active", true).eq("promotion_type", "free_product").eq("reward_mode", "fixed");
   if (error) { console.warn("Free vial promotions unavailable", error); return ""; }
   const now = Date.now();
   const qualifying = (promotions || []).filter(p =>
