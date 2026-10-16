@@ -5,7 +5,7 @@ const REORDER_NOTICE_KEY = "pst_reorder_notice_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const ADMIN_ORDER_NOTIFICATION_EMAILS = ["wacoweaver@gmail.com"];
 const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,research_focus,series,description,research_notes,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
-const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,is_active,starts_at,ends_at,sort_order,accent_color";
+const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,is_active,starts_at,ends_at,sort_order,accent_color,audience";
 const EMAIL_FUNCTION_NAME = "send-order-email";
 const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
 const PAYMENT_LEGACY_STORAGE_KEY = "pst_payment_options_v1";
@@ -389,11 +389,17 @@ async function getActivePromotions() {
     return [];
   }
   const now = Date.now();
-  return (data || []).filter((promo) => {
+  const active = (data || []).filter((promo) => {
     const starts = promo.starts_at ? new Date(promo.starts_at).getTime() : 0;
     const ends = promo.ends_at ? new Date(promo.ends_at).getTime() : Infinity;
     return starts <= now && now <= ends;
   });
+  const filtered = await Promise.all(active.map(async promo => {
+    if (promo.audience !== "selected_customers") return promo;
+    const { data: eligible, error: eligibleError } = await client.rpc("pst_promotion_visible_to_current_customer", { p_id: promo.id });
+    return !eligibleError && eligible ? promo : null;
+  }));
+  return filtered.filter(Boolean);
 }
 
 function firstVisiblePromotion(promotions, user, context = {}) {
