@@ -5594,7 +5594,7 @@ function renderTable() {
         <td><span class="inventory-readonly-value inventory-category" title="Category is controlled in products.html">${esc(item._catalog_category || item.category || "")}</span></td>
         <td><span class="inventory-readonly-value inventory-price inventory-price-readonly" title="Price is controlled in products.html">${money(item._catalog_price ?? item.price)}</span></td>
         <td><span class="inventory-readonly-value inventory-current-readonly" title="Current count. Use Physical Count to record an audit correction.">${Number(item.current_inventory || 0)}</span></td>
-        <td><input class="qty inventory-action inventory-physical-count" data-action="exact" type="number" step="1" min="0" placeholder="Count"></td>
+        <td><input class="qty inventory-action inventory-physical-count" data-action="exact" type="number" step="1" min="0" autocomplete="off" placeholder="Count"></td>
         <td><input class="num inventory-alert" data-field="low_stock_threshold" type="number" step="1" min="0" value="${Number(item.low_stock_threshold || 5)}"></td>
         <td><input class="num inventory-alert" data-field="limited_stock_threshold" type="number" step="1" min="0" value="${Number(item.limited_stock_threshold || 10)}"></td>
         <td>
@@ -5777,6 +5777,8 @@ async function saveRow(id) {
   }
 
   dirtyIds.delete(id);
+  const countInput = row.querySelector('[data-action="exact"]');
+  if (countInput) countInput.value = "";
   row.classList.remove("dirty");
   setStatus(`${data.display_name || data.product_key} saved.`, "good");
   await loadInventory();
