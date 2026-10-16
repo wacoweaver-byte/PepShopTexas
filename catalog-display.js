@@ -20,7 +20,12 @@
   .pst-split-detail h3{font-size:1.08rem;margin:20px 0 12px}
   .pst-split-strengths{display:grid;grid-template-columns:repeat(auto-fill,145px);gap:10px;justify-content:start}
   .pst-split-strength{padding:12px;border:1px solid #cdd7e0;border-radius:8px;background:white;color:#102a43;font:inherit;cursor:pointer;min-height:55px}
-  .pst-split-strength strong,.pst-split-strength span{display:block}.pst-split-strength span{font-size:.84rem;margin-top:4px}
+  .pst-split-strength strong,.pst-split-strength span{display:block}
+  .pst-split-strength .pst-strength-stock{font-size:.73rem;font-weight:700;margin-top:6px;color:#a73525}
+  .pst-split-strength.pst-strength-available .pst-strength-stock{color:#176639}
+  .pst-split-strength.pst-strength-unavailable{background:#f5f6f8;border-color:#d7dce2}
+  .pst-strength-summary{margin:-3px 0 12px;font-weight:700;color:#176639}
+  .pst-strength-summary.pst-none-available{color:#a73525}.pst-split-strength span{font-size:.84rem;margin-top:4px}
   .pst-split-strength[aria-pressed="true"]{border:2px solid #102a43;background:#eff5fa}
   .pst-split-price{background:#f3f6f9;padding:14px 18px;border-radius:9px;margin:18px 0;display:flex;justify-content:space-between;align-items:center;gap:24px;width:min(100%,420px);max-width:100%;box-sizing:border-box}
   .pst-split-price strong{font-size:1.7rem}
@@ -95,7 +100,7 @@
         const subtitle=blend ? blend[2].replace(/\s*\/\s*/g," ").trim() : (wolverine ? "BPC-157 TB-500" : "");
         detail.innerHTML='<button type="button" class="pst-mobile-back">← All Products</button>'+
           '<h2>'+escapeHtml(mainTitle)+'</h2>'+(subtitle ? '<div class="pst-blend-subtitle">'+escapeHtml(subtitle)+'</div>' : '')+'<p class="pst-split-category">'+escapeHtml(active.category||"Research product")+'</p>'+
-          '<p>'+escapeHtml(active.description||"")+'</p><h3>Available vial strengths</h3>'+
+          '<p>'+escapeHtml(active.description||"")+'</p><h3>Choose vial strength</h3><p class="pst-strength-summary" aria-live="polite"></p>'+
           '<div class="pst-split-strengths" role="group" aria-label="Choose a vial strength"></div>'+
           '<div class="pst-split-price" aria-live="polite"><span class="pst-selected-strength"></span><strong class="pst-selected-price"></strong></div>'+
           '<div class="pst-split-purchase"><label>Quantity<input type="number" data-detail-qty min="1" max="9999" value="1"></label><button type="button" data-add-to-cart="">Add to Cart</button></div>'+
@@ -105,6 +110,10 @@
         const strengthLabel=detail.querySelector(".pst-selected-strength");
         const add=detail.querySelector("[data-add-to-cart]");
         const variants=[...group].sort((a,b)=>String(a.strength||"").localeCompare(String(b.strength||""),undefined,{numeric:true}));
+        const availableVariants=variants.filter(p=>Number(p.current_inventory||0)>0);
+        const summary=detail.querySelector(".pst-strength-summary");
+        summary.textContent=availableVariants.length+" of "+variants.length+" strengths in stock"+(availableVariants.length===1?" — "+(availableVariants[0].strength||"Standard")+" available":"");
+        summary.classList.toggle("pst-none-available",availableVariants.length===0);
         function choose(p){
           active=p;selectedKey=p.product_key;
           price.textContent=formatMoney(unitPrice(p));
@@ -117,10 +126,12 @@
         }
         variants.forEach(p=>{
           const b=document.createElement("button");b.type="button";b.className="pst-split-strength";b.dataset.key=p.product_key;
-          b.innerHTML='<strong>'+escapeHtml(p.strength||"Standard")+'</strong><span>'+formatMoney(unitPrice(p))+'</span>';
+          const available=Number(p.current_inventory||0)>0;
+          b.classList.toggle('pst-strength-available',available);b.classList.toggle('pst-strength-unavailable',!available);
+          b.innerHTML='<strong>'+escapeHtml(p.strength||"Standard")+'</strong><span>'+formatMoney(unitPrice(p))+'</span><span class="pst-strength-stock">'+(available?'In Stock':'Out of Stock')+'</span>';
           b.addEventListener("click",()=>choose(p));strengths.appendChild(b);
         });
-        choose(active);
+        choose(availableVariants.find(p=>p.product_key===selectedKey)||availableVariants[0]||active);
         detail.querySelector(".pst-mobile-back").addEventListener("click",()=>grid.classList.remove("pst-mobile-open"));
         bindCartButtons();
         add.addEventListener("click",()=>{if(add.dataset.requestAvailability&&typeof window.pstOpenAvailabilityRequest==="function")window.pstOpenAvailabilityRequest(active);});
