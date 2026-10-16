@@ -699,6 +699,30 @@ async function loadCheckoutPaymentMethods(){
 }
 
 
+async function getChoiceRewardPreview(rows) {
+  const bought=rows.reduce((n,r)=>{const c=String(r.product?.category||"").toLowerCase();return n+((c.includes("peptide")||c.includes("glp"))?Number(r.quantity||0):0);},0);
+  if(!bought)return "";
+  const client=requireSupabaseClient();
+  const {data:promos,error}=await client.from("site_promotions").select("id,title,minimum_paid_quantity,reward_quantity,starts_at,ends_at,audience").eq("is_active",true).eq("promotion_type","free_product").eq("reward_mode","customer_choice");
+  if(error)return "";
+  const now=Date.now();
+  const eligible=[];
+  for(const p of promos||[]){
+    if(bought<Number(p.minimum_paid_quantity||1)||(p.starts_at&&Date.parse(p.starts_at)>now)||(p.ends_at&&Date.parse(p.ends_at)<now))continue;
+    const {data:allowed,error:permissionError}=await client.rpc("pst_promotion_visible_to_current_customer",{p_id:p.id});
+    if(permissionError||!allowed)continue;
+    eligible.push(p);
+  }
+  if(!eligible.length)return "";
+  const {data:options,error:optionsError}=await client.rpc("pst_public_reward_options");
+  if(optionsError)return "";
+  return eligible.map(p=>{
+    const viable=(options||[]).filter(v=>v.promotion_id===p.id&&Number(v.current_inventory)>=Number(p.reward_quantity||1));
+    if(!viable.length)return '<div class="inquiry-row"><strong>'+escapeHtml(p.title||"Choose your free vial")+'</strong><p>All eligible rewards are currently unavailable.</p></div>';
+    return '<article class="inquiry-row pst-choice-reward"><label><strong>'+escapeHtml(p.title||"Choose your free vial")+'</strong><p>Select one complimentary vial (quantity '+Number(p.reward_quantity||1)+').</p><select data-choice-promo="'+escapeAttribute(p.id)+'" required><option value="">Choose your free product</option>'+viable.map(v=>'<option value="'+escapeAttribute(v.product_key)+'">'+escapeHtml([v.display_name,v.strength].filter(Boolean).join(" · "))+' — FREE</option>').join("")+'</select></label><p>Subject to availability when payment is confirmed. No substitute will be selected automatically.</p></article>';
+  }).join("");
+}
+
 async function getCartFreeVialPreview(rows) {
   const purchased = rows.reduce((sum, row) => {
     const category = String(row.product?.category || row.product?.product_category || "").toLowerCase();
@@ -758,7 +782,7 @@ async function renderCartPage() {
       ? rows.map(inquiryRow).join("")
       : '<div class="empty-cart"><h2>Your inquiry is empty</h2><p>Add products to request information.</p><a class="primary-action" href="catalog.html">Browse Products</a></div>';
 
-    if (rows.length) itemsNode.insertAdjacentHTML("beforeend", await getCartFreeVialPreview(rows));
+    if (rows.length) { itemsNode.insertAdjacentHTML("beforeend", await getCartFreeVialPreview(rows)); itemsNode.insertAdjacentHTML("beforeend", await getChoiceRewardPreview(rows)); }
 
     const subtotal = rows.reduce((sum, row) => sum + (row.product ? unitPrice(row.product) * Number(row.quantity || 0) : 0), 0);
     const discount = cartDiscountAmount(subtotal);
@@ -869,6 +893,8 @@ async function handleInquirySubmit(event) {
     }).filter(Boolean);
     if (!rows.length) throw new Error("The selected products are no longer available in the catalog.");
 
+    const rewardChoices=[...document.querySelectorAll("[data-choice-promo]")].map(el=>({promotionId:el.dataset.choicePromo,productKey:el.value}));
+    if(rewardChoices.some(ch=>!ch.productKey))throw new Error("Select a complimentary product for each available choose-your-reward promotion.");
     const now = new Date().toISOString();
     const orderId = crypto.randomUUID();
     const customerPhone = accountCustomerPhone(profile);
@@ -954,6 +980,10 @@ async function handleInquirySubmit(event) {
       updated_at: now
     }));
     await insertRowsWithColumnFallback("order_items", itemPayloads);
+    for(const choice of rewardChoices){
+      const {error:choiceError}=await requireSupabaseClient().rpc("pst_choose_order_reward",{p_order_id:inquiry.id,p_promotion_id:choice.promotionId,p_product_key:choice.productKey});
+      if(choiceError)throw new Error("Your order was created, but the complimentary reward could not be saved. Do not resubmit the order; contact Pep Shop Texas with order "+(inquiry.order_number||inquiry.id)+". "+choiceError.message);
+    }
     // Free-vial allocation happens when staff confirm payment, not at order submission.
     // Order creation time is the priority timestamp. See the promotion queue migration.
     let appliedStoreCredit = 0;
