@@ -4053,8 +4053,11 @@ function populateIncomingProductSelect() {
   if (!select) return;
   const current = select.value;
   const seenSkus = new Set();
+  const hiddenIncomingSkus = new Set(["PSTP100087", "PSTP100048", "PSTP100049", "PSTP100085"]);
   const uniqueItems = allItems.filter(item => {
-    const key = normTextKey(item.product_key || item._catalog_product_key || item.id);
+    const sku = String(item.product_key || item._catalog_product_key || "").trim().toUpperCase();
+    if (hiddenIncomingSkus.has(sku)) return false;
+    const key = normTextKey(sku || item.id);
     if (seenSkus.has(key)) return false;
     seenSkus.add(key);
     return true;
