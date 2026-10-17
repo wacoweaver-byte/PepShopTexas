@@ -4481,17 +4481,22 @@ function exportIncomingPurchaseOrderPDF(poNumber) {
     const currency = value => "$" + (Number(value) || 0).toFixed(2);
     let subtotal = 0, shipping = 0, discount = 0;
     const lines = rows.map(row => {
-      const qty = Number(row.ordered_quantity || 0);
+      const qty = Number(row.ordered_quantity || 0); // stored as individual vials
       const kitVials = Number(row.kit_vial_count || 10);
+      if (!Number.isFinite(kitVials) || kitVials <= 0 || qty % kitVials !== 0) {
+        throw Error("PO " + poNumber + " contains a quantity that is not a full kit for " + (row.product_name || row.product_key || "a product") + ".");
+      }
+      const kits = qty / kitVials;
       const unit = Number(row.cost_per_unit ?? row.unit_cost ?? (Number(row.kit_cost || 0) / kitVials)) || 0;
-      const total = qty * unit;
+      const kitPrice = Number(row.kit_cost ?? unit * kitVials) || 0;
+      const total = kits * kitPrice;
       subtotal += total;
       shipping += Number(row.shipping_cost || 0);
       discount += Number(row.discount_amount || row.po_discount || 0);
       return '<tr><td><strong>' + esc(row.product_name || row.product_key || "Product") +
         '</strong><small>' + esc(row.product_key || "") + '</small></td><td>' +
-        esc(incomingVendorItemNumber(row) || "—") + '</td><td class="num">' + qty +
-        '</td><td class="num">' + currency(unit) + '</td><td class="num">' + currency(total) + '</td></tr>';
+        esc(incomingVendorItemNumber(row) || "—") + '</td><td class="num">' + kits +
+        '</td><td class="num">' + currency(kitPrice) + '</td><td class="num">' + currency(total) + '</td></tr>';
     }).join("");
     const html = '<!doctype html><html><head><meta charset="utf-8"><title>Purchase Order ' + esc(poNumber) +
       '</title><style>@page{size:A4;margin:15mm}body{font:12px Arial,sans-serif;color:#162437;margin:0}' +
@@ -4507,8 +4512,8 @@ function exportIncomingPurchaseOrderPDF(poNumber) {
       '<div class="head"><div><h1>PEP SHOP TEXAS</h1><small>pepshoptexas.com</small></div><h2>PURCHASE ORDER</h2></div>' +
       '<div class="meta"><div><b>Supplier</b><div>' + esc(vendorName) + '</div></div><div><b>PO Number:</b> ' +
       esc(poNumber) + '<br><b>Order Date:</b> ' + esc(date) + '</div></div>' +
-      '<table><thead><tr><th>PRODUCT / SKU</th><th>VENDOR ITEM #</th><th class="num">QTY</th>' +
-      '<th class="num">UNIT COST</th><th class="num">LINE TOTAL</th></tr></thead><tbody>' + lines + '</tbody></table>' +
+      '<table><thead><tr><th>PRODUCT / SKU</th><th>VENDOR ITEM #</th><th class="num">QTY (KITS)</th>' +
+      '<th class="num">PRICE / KIT (10 VIALS)</th><th class="num">LINE TOTAL</th></tr></thead><tbody>' + lines + '</tbody></table>' +
       '<div class="totals"><div><span>Subtotal</span><span>' + currency(subtotal) +
       '</span></div><div><span>Shipping / Fees</span><span>' + currency(shipping) +
       '</span></div><div><span>Discount</span><span>-' + currency(discount) +
