@@ -3272,13 +3272,17 @@ function doseMatchKey(value) {
 }
 
 function incomingCatalogAliasKeys(item) {
+  // Resolve by SKU first, then the complete product + strength.
+  // A strength alone (e.g. "10mg") or a name shared across strengths
+  // must never alias unrelated inventory items to the same catalog row.
+  const strength = String(item?.strength || "").trim();
   const values = [
     item?.product_key,
     item?.sku,
-    item?.display_name,
-    item?.name,
-    item?.strength,
-    [item?.display_name, item?.strength].filter(Boolean).join(" ")
+    [item?.display_name, strength].filter(Boolean).join(" "),
+    [item?.name, strength].filter(Boolean).join(" "),
+    !strength ? item?.display_name : null,
+    !strength ? item?.name : null
   ];
   const keys = values.map(normTextKey).filter(Boolean);
   const combined = values.join(" ").toLowerCase();
