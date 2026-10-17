@@ -3,6 +3,9 @@
 <label class="notify-consent"><input id="notificationConsent" type="checkbox"> I confirm this person requested a restock notification for the selected item.</label><p id="notificationStatus" role="status" aria-live="polite"></p></div><p id="message">Loading…</p><section><table><thead><tr><th>Requested</th><th>Product</th><th>Quantity</th><th>Customer</th><th>Email</th><th>Restock Notification Opt-in</th><th>Request Status</th></tr></thead><tbody id="rows"></tbody></table></section></main><script>
 const db=supabase.createClient("https://ucejjztsbmrogiteivxl.supabase.co","sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX");
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+document.getElementById("notificationEmail").addEventListener("keydown",event=>{
+ if(event.key==="Enter"){event.preventDefault();document.getElementById("newNotificationForm").requestSubmit();}
+});
 async function loadNotificationProducts(){
  const {data,error}=await db.from("product_inventory").select("product_key,display_name,strength,current_inventory,status_override").order("display_name");
  const el=document.getElementById("notificationProduct");
@@ -17,8 +20,20 @@ document.getElementById("newNotificationForm").addEventListener("submit",async e
  const email=document.getElementById("notificationEmail").value.trim(),key=document.getElementById("notificationProduct").value;
  if(!key)return;
  button.disabled=true;status.textContent="Saving notification...";
- try{const {error}=await db.rpc("pst_admin_add_availability_notification",{p_email:email,p_product_key:key,p_name:null});if(error)throw error;status.textContent="Notification saved. An automatic email will be sent when this item is available.";document.getElementById("notificationEmail").value="";document.getElementById("notificationProduct").value="";document.getElementById("notificationConsent").checked=false;await load();}
- catch(err){status.textContent="Unable to save: "+(err.message||err);}
+ try{
+ const {data:requestId,error}=await db.rpc("pst_admin_add_availability_notification",{p_email:email,p_product_key:key,p_name:null});
+ if(error)throw error;
+ status.textContent="Notification saved. Sending confirmation email...";
+ const {data:sessionData}=await db.auth.getSession();
+ const token=sessionData?.session?.access_token;
+ if(!token)throw new Error("Request saved, but sign-in expired before the confirmation email could be sent.");
+ const response=await fetch("https://ucejjztsbmrogiteivxl.supabase.co/functions/v1/pst-availability-confirmation",{
+  method:"POST",headers:{"Authorization":"Bearer "+token,"apikey":"sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX","Content-Type":"application/json"},body:JSON.stringify({request_id:requestId})
+ });
+ const responseBody=await response.json().catch(()=>({}));
+ status.textContent=response.ok&&responseBody.sent?"Notification saved and confirmation email sent to "+email+".":"Notification saved, but confirmation email failed: "+(responseBody.error||"Email service unavailable")+".";
+document.getElementById("notificationEmail").value="";document.getElementById("notificationProduct").value="";document.getElementById("notificationConsent").checked=false;await load();}
+ catch(err){status.textContent=err.message?.includes("Request saved")?err.message:"Unable to save: "+(err.message||err);}
  finally{button.disabled=false;}
 });
 async function load(){
