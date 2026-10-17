@@ -15,7 +15,20 @@
     .account-orders-panel .pst-order-info{background:#fff!important;color:var(--pst-navy)!important;text-transform:none!important;cursor:default!important}
     .account-orders-panel .pst-order-summary-grid .pst-order-info{justify-self:start}
     .account-orders-panel .order-items{margin-top:14px}
-    @media(max-width:620px){.account-orders-panel .pst-order-summary-grid{grid-template-columns:1fr 1fr}.account-orders-panel .pst-order-controls{grid-template-columns:repeat(2,minmax(0,126px))!important}}
+    /* Payment and tracking are information, not fixed-size buttons. Give them a full row and allow long delivery text to wrap. */
+    .account-orders-panel .pst-order-controls .pst-order-info{
+      grid-column:1 / -1!important;display:block!important;box-sizing:border-box!important;
+      width:100%!important;min-width:0!important;max-width:none!important;
+      height:auto!important;min-height:38px!important;max-height:none!important;
+      padding:10px 12px!important;text-align:left!important;line-height:1.4!important;
+      white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;
+      overflow:visible!important;
+    }
+    @media(max-width:620px){
+      .account-orders-panel .pst-order-summary-grid{grid-template-columns:1fr 1fr}
+      .account-orders-panel .pst-order-controls{grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important}
+      .account-orders-panel .pst-order-controls .pst-order-action{width:100%!important;min-width:0!important;max-width:none!important}
+    }
   `;
   const style = document.createElement('style');
   style.id = 'pst-recent-orders-style';
