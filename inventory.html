@@ -3326,10 +3326,16 @@ async function loadProductCatalogLabelLookup() {
 
 function productCatalogForInventoryItem(item) {
   const lookup = productCatalogLabelLookup || {};
-  for (const key of incomingCatalogAliasKeys(item)) {
-    if (lookup[key]) return lookup[key];
+  // Inventory SKUs are authoritative. Never replace a known SKU with a
+  // different catalog item's name/strength due to a shared alias.
+  const sku = normTextKey(item?.product_key || item?.sku);
+  if (sku) {
+    const exact = lookup[sku];
+    return exact && normTextKey(exact.product_key) === sku ? exact : null;
   }
-  return null;
+  // Legacy rows without SKUs may use complete name + strength only.
+  const complete = normTextKey([item?.display_name || item?.name, item?.strength].filter(Boolean).join(" "));
+  return complete && lookup[complete] ? lookup[complete] : null;
 }
 
 function mergeInventoryCatalogLabel(item) {
@@ -4046,7 +4052,14 @@ function populateIncomingProductSelect() {
   const select = $("incomingProductSelect");
   if (!select) return;
   const current = select.value;
-  select.innerHTML = `<option value="">Select product...</option>` + allItems.map(item => `<option value="${esc(item.id)}">${esc(incomingProductLabel(item))}</option>`).join("");
+  const seenSkus = new Set();
+  const uniqueItems = allItems.filter(item => {
+    const key = normTextKey(item.product_key || item._catalog_product_key || item.id);
+    if (seenSkus.has(key)) return false;
+    seenSkus.add(key);
+    return true;
+  });
+  select.innerHTML = `<option value="">Select product...</option>` + uniqueItems.map(item => `<option value="${esc(item.id)}">${esc(incomingProductLabel(item))}</option>`).join("");
   if (current && allItems.some(item => String(item.id) === String(current))) select.value = current;
 }
 
