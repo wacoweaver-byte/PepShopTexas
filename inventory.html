@@ -4467,75 +4467,62 @@ function incomingPoCenterGroupElement(poNumber) {
     .find(element => cleanText(element.dataset.poNumber).toLowerCase() === cleanText(poNumber).toLowerCase()) || null;
 }
 
-async function exportIncomingPurchaseOrderPDF(poNumber) {
+function exportIncomingPurchaseOrderPDF(poNumber) {
   const rows = (incomingInventoryRows || []).filter(row => cleanText(row.po_number) === cleanText(poNumber));
   if (!rows.length) throw Error("Purchase order not found.");
-  if (!window.jspdf?.jsPDF) {
-    await new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js";
-      script.onload = resolve;
-      script.onerror = () => reject(Error("PDF library could not load."));
-      document.head.appendChild(script);
-    });
+  // Open the print document immediately from the click event so popup blockers
+  // do not intercept it while an external PDF library is being downloaded.
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) throw Error("Your browser blocked the PO print window. Allow pop-ups for Pep Shop Texas.");
+  try {
+    const vendor = vendorForIncomingRow(rows[0]);
+    const vendorName = vendor?.company_name || rows[0].vendor_name || rows[0].supplier_name || "Not specified";
+    const date = fmtShortDate(rows[0].ordered_at || rows[0].created_at);
+    const currency = value => "$" + (Number(value) || 0).toFixed(2);
+    let subtotal = 0, shipping = 0, discount = 0;
+    const lines = rows.map(row => {
+      const qty = Number(row.ordered_quantity || 0);
+      const kitVials = Number(row.kit_vial_count || 10);
+      const unit = Number(row.cost_per_unit ?? row.unit_cost ?? (Number(row.kit_cost || 0) / kitVials)) || 0;
+      const total = qty * unit;
+      subtotal += total;
+      shipping += Number(row.shipping_cost || 0);
+      discount += Number(row.discount_amount || row.po_discount || 0);
+      return '<tr><td><strong>' + esc(row.product_name || row.product_key || "Product") +
+        '</strong><small>' + esc(row.product_key || "") + '</small></td><td>' +
+        esc(incomingVendorItemNumber(row) || "—") + '</td><td class="num">' + qty +
+        '</td><td class="num">' + currency(unit) + '</td><td class="num">' + currency(total) + '</td></tr>';
+    }).join("");
+    const html = '<!doctype html><html><head><meta charset="utf-8"><title>Purchase Order ' + esc(poNumber) +
+      '</title><style>@page{size:A4;margin:15mm}body{font:12px Arial,sans-serif;color:#162437;margin:0}' +
+      '.head{display:flex;justify-content:space-between;align-items:start;border-bottom:2px solid #19324d;padding-bottom:15px}' +
+      'h1{font-size:22px;margin:0}h2{font-size:20px;margin:0}small{display:block;color:#64748b;margin-top:4px}' +
+      '.meta{display:flex;justify-content:space-between;margin:20px 0;line-height:1.8}' +
+      'table{width:100%;border-collapse:collapse}th{background:#edf2f7;text-align:left}th,td{padding:9px;border-bottom:1px solid #d8e0e8}' +
+      '.num{text-align:right;white-space:nowrap}tr{break-inside:avoid}.totals{margin:20px 0 0 auto;max-width:310px}' +
+      '.totals div{display:flex;justify-content:space-between;padding:6px 0}.grand{font-weight:bold;font-size:16px;border-top:2px solid #19324d}' +
+      '.tools{padding:12px 0 25px}.tools button{padding:10px 16px;font-weight:bold;cursor:pointer}' +
+      '@media print{.tools{display:none}}</style></head><body>' +
+      '<div class="tools"><button onclick="window.print()">Print / Save as PDF</button></div>' +
+      '<div class="head"><div><h1>PEP SHOP TEXAS</h1><small>pepshoptexas.com</small></div><h2>PURCHASE ORDER</h2></div>' +
+      '<div class="meta"><div><b>Supplier</b><div>' + esc(vendorName) + '</div></div><div><b>PO Number:</b> ' +
+      esc(poNumber) + '<br><b>Order Date:</b> ' + esc(date) + '</div></div>' +
+      '<table><thead><tr><th>PRODUCT / SKU</th><th>VENDOR ITEM #</th><th class="num">QTY</th>' +
+      '<th class="num">UNIT COST</th><th class="num">LINE TOTAL</th></tr></thead><tbody>' + lines + '</tbody></table>' +
+      '<div class="totals"><div><span>Subtotal</span><span>' + currency(subtotal) +
+      '</span></div><div><span>Shipping / Fees</span><span>' + currency(shipping) +
+      '</span></div><div><span>Discount</span><span>-' + currency(discount) +
+      '</span></div><div class="grand"><span>TOTAL</span><span>' +
+      currency(subtotal + shipping - discount) + '</span></div></div></body></html>';
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setStatus("PO " + poNumber + " opened for printing or saving as PDF.", "good");
+  } catch (error) {
+    printWindow.close();
+    throw error;
   }
-  const doc = new window.jspdf.jsPDF({ unit:"mm", format:"a4" });
-  const vendor = vendorForIncomingRow(rows[0]);
-  const vendorName = vendor?.company_name || rows[0].vendor_name || rows[0].supplier_name || "Not specified";
-  const date = fmtShortDate(rows[0].ordered_at || rows[0].created_at);
-  const price = n => "$" + (Number(n) || 0).toFixed(2);
-  const wrap = (text, width) => doc.splitTextToSize(String(text || ""), width);
-  let y = 20;
-  function newPageIfNeeded(required = 12) {
-    if (y + required > 275) { doc.addPage(); y = 20; }
-  }
-  doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.text("PEP SHOP TEXAS", 16, y);
-  doc.setFontSize(15); doc.text("PURCHASE ORDER", 194, y, {align:"right"}); y += 8;
-  doc.setFontSize(9); doc.setFont("helvetica","normal");
-  doc.text("pepshoptexas.com",16,y); y += 10;
-  doc.setDrawColor(160); doc.line(16,y,194,y); y += 9;
-  doc.setFont("helvetica","bold"); doc.text("PO Number:",16,y);
-  doc.setFont("helvetica","normal"); doc.text(String(poNumber),43,y);
-  doc.setFont("helvetica","bold"); doc.text("Date:",135,y);
-  doc.setFont("helvetica","normal"); doc.text(date,150,y); y += 7;
-  doc.setFont("helvetica","bold"); doc.text("Supplier:",16,y);
-  doc.setFont("helvetica","normal"); doc.text(wrap(vendorName,125),43,y); y += 13;
-  doc.setFont("helvetica","bold"); doc.setFontSize(9);
-  doc.text("PRODUCT / SKU",16,y); doc.text("VENDOR ITEM #",96,y);
-  doc.text("QTY",147,y,{align:"right"}); doc.text("UNIT",170,y,{align:"right"}); doc.text("TOTAL",194,y,{align:"right"});
-  y += 3; doc.line(16,y,194,y); y += 7; doc.setFont("helvetica","normal");
-  let subtotal = 0, shipping = 0, discount = 0;
-  rows.forEach(row => {
-    const qty = Number(row.ordered_quantity || 0);
-    const unit = Number(row.cost_per_unit ?? row.unit_cost ?? (Number(row.kit_cost || 0)/Number(row.kit_vial_count || 10))) || 0;
-    const lineTotal = qty * unit;
-    subtotal += lineTotal;
-    shipping += Number(row.shipping_cost || 0);
-    discount += Number(row.discount_amount || row.po_discount || 0);
-    const name = wrap(row.product_name || row.product_key || "Product",74);
-    const sku = String(row.product_key || "");
-    const height = Math.max(12, name.length*4+5);
-    newPageIfNeeded(height);
-    doc.text(name,16,y);
-    doc.setFontSize(8); doc.setTextColor(95);
-    doc.text(sku,16,y+name.length*4);
-    doc.setTextColor(0); doc.setFontSize(9);
-    doc.text(wrap(incomingVendorItemNumber(row) || "-",43),96,y);
-    doc.text(String(qty),147,y,{align:"right"});
-    doc.text(price(unit),170,y,{align:"right"});
-    doc.text(price(lineTotal),194,y,{align:"right"});
-    y += height;
-    doc.setDrawColor(225); doc.line(16,y-2,194,y-2);
-  });
-  newPageIfNeeded(35); y += 4;
-  doc.text("Subtotal",147,y,{align:"right"}); doc.text(price(subtotal),194,y,{align:"right"}); y+=7;
-  doc.text("Shipping / fees",147,y,{align:"right"}); doc.text(price(shipping),194,y,{align:"right"}); y+=7;
-  doc.text("Discount",147,y,{align:"right"}); doc.text("-"+price(discount),194,y,{align:"right"}); y+=8;
-  doc.setFont("helvetica","bold"); doc.setFontSize(11);
-  doc.text("TOTAL",147,y,{align:"right"}); doc.text(price(subtotal+shipping-discount),194,y,{align:"right"});
-  const filename = "Pep-Shop-Texas-PO-" + String(poNumber).replace(/[^a-z0-9_-]/gi,"_") + ".pdf";
-  doc.save(filename);
-  setStatus("Exported " + poNumber + " as PDF.", "good");
 }
 
 function renderIncomingPurchaseOrderCenter() {
@@ -4615,7 +4602,7 @@ function renderIncomingPurchaseOrderCenter() {
         <span>${daysOnOrder} day${daysOnOrder === 1 ? "" : "s"}</span>
         <div class="incoming-po-row-actions">
           <button class="btn secondary" type="button" data-po-edit="${esc(group.poNumber)}" ${disabled}>Edit PO</button>
-          <button class="btn secondary" type="button" data-po-export="${esc(group.poNumber)}">Export PO (PDF)</button>
+          <button class="btn secondary" type="button" data-po-export="${esc(group.poNumber)}">Print / Save PO</button>
           <button class="btn secondary" type="button" data-po-apply-tracking="${esc(group.poNumber)}" ${disabled}>Add Tracking</button>
           <button class="btn secondary" type="button" data-po-apply-status="${esc(group.poNumber)}" ${disabled}>Change Status</button>
           <button class="btn success" type="button" data-po-receive-all="${esc(group.poNumber)}" ${disabled}>Receive All</button>
