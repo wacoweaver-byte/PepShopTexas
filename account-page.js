@@ -151,6 +151,21 @@ async function saveEmailPreferences() {
   } catch(err){setEmailPrefsStatus("Email preferences could not be saved. "+pstEsc(err.message||err),"error");}
   finally{if(btn){btn.disabled=false;btn.textContent="Save Email Preferences";}}
 }
+async function pstRenderLoyaltyStatus(){
+ const panel=document.getElementById("pstRewardsStatus");if(!panel)return;
+ const {data,error}=await pstAccountSupabase.rpc("pst_my_loyalty_status");
+ if(error){console.warn("Rewards status unavailable",error);return;}
+ const tier=String(data?.tier||"bronze").toLowerCase();
+ const labels={bronze:"Bronze",silver:"Silver",gold:"Gold",diamond:"Diamond"};
+ const icons={bronze:"🏅",silver:"🥈",gold:"🥇",diamond:"💎"};
+ document.getElementById("pstTierIcon").textContent=icons[tier]||"🏅";
+ document.getElementById("pstTierName").textContent=labels[tier]||"Bronze";
+ const dollars=n=>Number(n||0).toLocaleString("en-US",{style:"currency",currency:"USD"});
+ document.getElementById("pstTierSummary").textContent="Qualifying merchandise purchases: "+dollars(data.qualifying_total);
+ document.getElementById("pstTierProgress").textContent=data.next_threshold?"Next level: "+dollars(data.next_threshold)+" · "+dollars(data.amount_to_next)+" remaining":"Highest membership level reached";
+ document.getElementById("pstTierRenewal").textContent=tier==="bronze"?"Bronze has no annual retention requirement.":"Proposed annual retention: "+dollars(data.annual_retention_threshold)+". Qualifying spending over the past 12 months: "+dollars(data.annual_spend_preview)+".";
+ panel.style.display="block";
+}
 async function loadAccount() {
   setStatus("Loading your account...","info");
   const grid=document.getElementById("accountGrid");
@@ -159,6 +174,7 @@ async function loadAccount() {
   const session=sessionData&&sessionData.session;
   if(sessionError||!session||!session.user){setStatus('Please <a href="login.html">login</a> to view your account and previous orders.',"error");setTimeout(()=>{window.location.href="login.html?redirect=account.html";},900);return;}
   const user=session.user; pstCurrentUser=user;
+  pstRenderLoyaltyStatus().catch(error=>console.warn('Rewards card unavailable',error));
   const adminRecord=await accountAdminRecordForUser(user);
   document.getElementById("accountAdminLink")?.remove();
   const isAdmin=!!adminRecord&&(adminRecord.is_active===true||adminRecord.active===true||adminRecord.is_admin===true||adminRecord.email===user.email);
