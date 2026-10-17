@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="css/account-storefront.css?v=2">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="auth-guard.js?v=1"></script>
-  <script defer src="account-page.js?v=2"></script>
+  <script defer src="account-page.js?v=3"></script>
   <script defer src="account-orders-layout.js?v=2"></script>
   <script defer src="customer-footer.js?v=7"></script>
   <link rel="stylesheet" href="css/header-logo.css?v=4">
@@ -54,6 +54,10 @@
 
     <div id="pageStatus" class="status info active">Loading your account...</div>
 
+    <section id="pstRewardsStatus" aria-label="Researcher Rewards Status" style="max-width:1100px;margin:18px auto 24px;border:1px solid #d7e0e7;border-radius:14px;background:white;padding:22px;display:none">
+      <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div id="pstTierIcon" aria-hidden="true" style="width:55px;height:55px;display:grid;place-items:center;font-size:35px">🏅</div><div><h2 style="margin:0 0 4px">Researcher Rewards Status</h2><strong id="pstTierName">Bronze</strong><p id="pstTierSummary" style="margin:5px 0 0;color:#42576b"></p></div></div>
+      <div style="margin-top:18px"><div id="pstTierProgress"></div><div id="pstTierRenewal" style="margin-top:10px;color:#486176;font-size:14px"></div><p style="font-size:13px;color:#5f7181">Rewards enrollment and benefit activation are being finalized. Displayed spending is a preliminary account calculation; annual requalification is not yet active.</p><a href="rewards.html">View membership tiers and benefits</a></div>
+    </section>
     <div class="account-grid" id="accountGrid" style="display:none;">
       <section class="account-profile-panel">
         <h2>Profile</h2>
