@@ -2507,40 +2507,21 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
 </style>
 <link rel="stylesheet" href="css/admin.css?v=10">
 <style id="pst-incoming-form-layout-v2">
-/* Purchase-order entry: deliberate aligned rows, without changing field IDs or events. */
-.incoming-form-grid{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:18px 14px!important;align-items:start!important;padding:22px!important;background:#f8fafc!important}
-.incoming-form-grid>.field{min-width:0!important;display:flex!important;flex-direction:column!important;gap:7px!important}
-.incoming-form-grid>.field label{display:block!important;min-height:30px!important;font-size:11px!important;line-height:1.3!important;letter-spacing:.025em!important;white-space:normal!important;overflow-wrap:normal!important}
-.incoming-form-grid>.field input,.incoming-form-grid>.field select{width:100%!important;min-width:0!important;max-width:none!important;height:42px!important;min-height:42px!important;font-size:14px!important;box-sizing:border-box!important}
-.incoming-form-grid>.field:nth-child(1){grid-column:span 3}
-.incoming-form-grid>.field:nth-child(2){grid-column:span 5}
-.incoming-form-grid>.field:nth-child(3){grid-column:span 2}
-.incoming-form-grid>.field:nth-child(4){grid-column:span 2}
-.incoming-form-grid>.field:nth-child(5){grid-column:span 3}
-.incoming-form-grid>.field:nth-child(6){grid-column:span 2}
-.incoming-form-grid>.field:nth-child(7){grid-column:span 2}
-.incoming-form-grid>.field:nth-child(8){grid-column:span 2}
-.incoming-form-grid>.field:nth-child(9){grid-column:span 3}
-.incoming-form-grid>.field:nth-child(10){grid-column:span 3}
-.incoming-form-grid>#addIncomingLineBtn{grid-column:span 2}
-.incoming-form-grid>#addIncomingBtn{grid-column:span 3}
-.incoming-form-grid>#cancelIncomingPoEditBtn{grid-column:span 2}
-.incoming-form-grid>.btn{justify-self:stretch!important;width:100%!important;min-width:0!important;min-height:42px!important;align-self:end!important;margin-top:30px!important;white-space:normal!important;line-height:1.2!important}
-.incoming-form-grid .vendor-inline-note,.incoming-form-grid #incomingVendorPriceNote{font-size:12px!important;line-height:1.35!important;overflow-wrap:break-word!important}
-.incoming-form-grid a[href="vendor-prices.html"]{font-size:12px!important;line-height:1.4!important}
-@media(max-width:1100px){
-.incoming-form-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}
-.incoming-form-grid>.field:nth-child(1),.incoming-form-grid>.field:nth-child(2){grid-column:span 3}
-.incoming-form-grid>.field:nth-child(n+3){grid-column:span 2}
-.incoming-form-grid>#addIncomingLineBtn,.incoming-form-grid>#addIncomingBtn,.incoming-form-grid>#cancelIncomingPoEditBtn{grid-column:span 2}
-}
-@media(max-width:640px){
-.incoming-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;padding:14px!important;gap:14px!important}
-.incoming-form-grid>.field:nth-child(n){grid-column:span 1}
-.incoming-form-grid>.field:nth-child(1),.incoming-form-grid>.field:nth-child(2){grid-column:span 2}
-.incoming-form-grid>#addIncomingLineBtn,.incoming-form-grid>#addIncomingBtn,.incoming-form-grid>#cancelIncomingPoEditBtn{grid-column:span 2;margin-top:0!important}
-.incoming-form-grid>.field label{min-height:28px!important}
-}
+.incoming-form-grid{display:flex!important;flex-direction:column!important;gap:20px!important;align-items:stretch!important;padding:22px!important;background:#f8fafc!important}
+.incoming-form-grid .field{display:flex!important;flex-direction:column!important;gap:7px!important;min-width:0!important}
+.incoming-form-grid .field label{font-size:11px!important;line-height:1.4!important;min-height:16px!important;letter-spacing:.035em!important;white-space:normal!important}
+.incoming-form-grid .field input,.incoming-form-grid .field select{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;height:44px!important;min-height:44px!important;box-sizing:border-box!important;font-size:14px!important}
+.incoming-form-grid>.po-vendor{width:100%;max-width:560px}
+.incoming-form-grid .vendor-inline-note,.incoming-form-grid #incomingVendorPriceNote{font-size:12px!important;line-height:1.35!important}
+.incoming-form-grid a[href="vendor-prices.html"]{font-size:12px!important;margin-top:2px!important}
+.incoming-form-grid>.po-entry-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,190px) 160px;gap:14px;align-items:start;width:100%}
+.incoming-form-grid>.po-entry-divider{height:1px;background:#cbd5e1;width:100%}
+.incoming-form-grid>.po-summary-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(140px,175px);gap:14px;align-items:start;width:100%}
+.incoming-form-grid .po-entry-row>.btn,.incoming-form-grid .po-summary-row>.btn{min-height:44px!important;height:44px!important;width:100%!important;min-width:0!important;max-width:none!important;align-self:start!important;margin-top:23px!important;white-space:nowrap!important}
+.incoming-form-grid .po-summary-row>#cancelIncomingPoEditBtn{grid-column:1/-1;justify-self:end;width:auto!important}
+.incoming-form-grid .po-internal-fields{display:none!important}
+@media(max-width:900px){.incoming-form-grid>.po-summary-row{grid-template-columns:repeat(2,minmax(0,1fr))}.incoming-form-grid .po-summary-row>#addIncomingBtn{grid-column:span 2;margin-top:0!important}}
+@media(max-width:640px){.incoming-form-grid{padding:14px!important;gap:16px!important}.incoming-form-grid>.po-vendor{max-width:none}.incoming-form-grid>.po-entry-row{grid-template-columns:minmax(0,1fr) minmax(90px,110px)}.incoming-form-grid .po-entry-row>#addIncomingLineBtn{grid-column:1/-1;margin-top:0!important}.incoming-form-grid>.po-summary-row{gap:12px}.incoming-form-grid .po-summary-row>#cancelIncomingPoEditBtn{grid-column:1/-1}}
 </style></head>
 <body>
 <header class="pst-admin-header">
@@ -2605,55 +2586,54 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       </div>
     </section>
     <div class="incoming-form-grid">
-      <div class="field">
-        <label>Vendor</label>
+      <div class="field po-vendor">
+        <label for="incomingVendorSelect">Vendor</label>
         <select id="incomingVendorSelect"><option value="">Select vendor...</option></select>
-        <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div><a href="vendor-prices.html" target="_blank" rel="noopener" style="display:inline-block;margin-top:7px">Manage / Import Vendor Price Lists ↗</a>
+        <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div>
+        <a href="vendor-prices.html" target="_blank" rel="noopener">Manage / Import Vendor Price Lists ↗</a>
       </div>
-      <div class="field">
-        <label>Product (Sort Name / Strength / PST SKU)</label>
-        <select id="incomingProductSelect"><option value="">Loading products...</option></select>
+      <div class="po-entry-row">
+        <div class="field po-product">
+          <label for="incomingProductSelect">Product (Sort Name / Strength / PST SKU)</label>
+          <select id="incomingProductSelect"><option value="">Loading products...</option></select>
+          <div id="incomingVendorPriceNote" class="note">Select a vendor and product to load the kit cost.</div>
+        </div>
+        <div class="field po-qty">
+          <label for="incomingQty">Kit Quantity (10 vials/kit)</label>
+          <input id="incomingQty" type="number" min="1" step="1" placeholder="1" />
+        </div>
+        <button class="btn secondary" id="addIncomingLineBtn" type="button">Add to PO</button>
       </div>
-      <div class="field">
-        <label>Date Ordered</label>
+      <div class="po-entry-divider" aria-hidden="true"></div>
+      <div class="po-summary-row">
+        <div class="field">
+          <label for="incomingShippingCost">Shipping / Fees</label>
+          <input id="incomingShippingCost" type="number" min="0" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="field">
+          <label for="incomingDiscountAmount">PO Discount</label>
+          <input id="incomingDiscountAmount" type="number" min="0" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="field">
+          <label for="incomingTotalCost">Total Paid</label>
+          <input id="incomingTotalCost" type="number" min="0" step="0.01" placeholder="Auto" readonly />
+        </div>
+        <div class="field incoming-status-field">
+          <label for="incomingStatus">Status</label>
+          <select id="incomingStatus">
+            <option value="ordered">Ordered</option>
+            <option value="in_transit">In Transit</option>
+            <option value="issue_shorted">Issue / Shorted</option>
+          </select>
+        </div>
+        <button class="btn success" id="addIncomingBtn" type="button">Save PO</button>
+        <button class="btn secondary" id="cancelIncomingPoEditBtn" type="button" hidden>Cancel PO Edit</button>
+      </div>
+      <div class="po-internal-fields" hidden>
         <input id="incomingOrderDate" type="date" />
+        <input id="incomingKitCost" type="number" min="0" step="0.01" />
+        <input id="incomingNotes" type="hidden" />
       </div>
-      <div class="field">
-        <label>Ordered Quantity (Kits of 10 vials)</label>
-        <input id="incomingQty" type="number" min="1" step="1" placeholder="1" />
-      </div>
-      <div class="field">
-        <label>Vendor Kit Cost (10 vials)</label>
-        <input id="incomingKitCost" type="number" min="0" step="0.01" placeholder="Auto from vendor price list" /><div id="incomingVendorPriceNote" class="note">Select a vendor and product to load the kit cost.</div>
-      </div>
-      <div class="field">
-        <label>Ship / Fees</label>
-        <input id="incomingShippingCost" type="number" min="0" step="0.01" placeholder="0.00" />
-      </div>
-      <div class="field">
-        <label>PO Discount</label>
-        <input id="incomingDiscountAmount" type="number" min="0" step="0.01" placeholder="0.00" />
-      </div>
-      <div class="field">
-        <label>Total Paid</label>
-        <input id="incomingTotalCost" type="number" min="0" step="0.01" placeholder="Auto" readonly />
-      </div>
-
-      <div class="field incoming-status-field">
-        <label>Status</label>
-        <select id="incomingStatus">
-          <option value="ordered">Ordered</option>
-          <option value="in_transit">In Transit</option>
-          <option value="issue_shorted">Issue / Shorted</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>User</label>
-        <input id="incomingNotes" type="text" placeholder="J.Weaver" />
-      </div>
-      <button class="btn secondary" id="addIncomingLineBtn" type="button">Add Line</button>
-      <button class="btn success" id="addIncomingBtn" type="button">Save Incoming Order</button>
-      <button class="btn secondary" id="cancelIncomingPoEditBtn" type="button" hidden>Cancel PO Edit</button>
     </div>
     <div class="incoming-line-preview" id="incomingDraftPreview">
       <div class="incoming-line-preview-head">
@@ -4403,7 +4383,7 @@ function resetIncomingOrderForm(options = {}) {
   if ($("incomingTracking")) $("incomingTracking").value = "";
   if ($("incomingStatus")) $("incomingStatus").value = "ordered";
   if ($("incomingNotes")) $("incomingNotes").value = "";
-  if ($("addIncomingBtn")) $("addIncomingBtn").textContent = "Save Incoming Order";
+  if ($("addIncomingBtn")) $("addIncomingBtn").textContent = "Save PO";
   if ($("cancelIncomingPoEditBtn")) $("cancelIncomingPoEditBtn").hidden = true;
   if ($("incomingDraftTitle")) $("incomingDraftTitle").textContent = "Current Incoming Order Lines";
   setIncomingOrderDateToday(true);
@@ -5170,7 +5150,7 @@ async function addIncomingInventory() {
   const supplierName = vendor?.company_name || null;
   const trackingNumber = null;
   const status = $("incomingStatus")?.value || "ordered";
-  const userNote = $("incomingNotes")?.value.trim() || shortLoggedInUserName() || null;
+  const userNote = shortLoggedInUserName() || null;
   const orderGroupId = crypto?.randomUUID ? crypto.randomUUID() : `po_${Date.now()}_${Math.random().toString(16).slice(2)}`;
   let poNumber = `PST-POLOCAL-${Date.now()}`;
   if (incomingUsesSupabase) {
@@ -5268,7 +5248,7 @@ async function saveIncomingPurchaseOrderEdit() {
   const vendorId = vendor?.id || firstOriginal.vendor_id || null;
   const trackingNumber = $("incomingTracking")?.value.trim() || null;
   const status = $("incomingStatus")?.value || "ordered";
-  const userNote = $("incomingNotes")?.value.trim() || shortLoggedInUserName() || null;
+  const userNote = shortLoggedInUserName() || null;
   const now = new Date().toISOString();
 
   const rows = lines.map((line, index) => {
