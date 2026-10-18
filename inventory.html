@@ -3882,7 +3882,7 @@ function startIncomingOrderFromReorder(productId, suggestedQty) {
   if (select) select.value = product.id;
   if (qtyEl) {
     const qty = incomingRoundQtyToFullKits(Number(suggestedQty || 0) > 0 ? Number(suggestedQty) : DEFAULT_KIT_VIAL_COUNT);
-    qtyEl.value = String(qty);
+    qtyEl.value = String(qty / PST_KIT_VIAL_COUNT);
   }
   if (statusEl) statusEl.value = "ordered";
   setIncomingOrderDateToday(false);
@@ -4082,12 +4082,12 @@ function pstSelectedUnmatchedVendorItem(){
  return pstVendorCatalogItems.find(item=>!item.product_key&&value==="vendor:"+item.id)||null;
 }
 async function pstCreateUnmatchedVendorPO(item){
- const qty=Number($("incomingQty")?.value||0);
- if(!Number.isInteger(qty)||qty<10||qty%10!==0){alert("Enter vial quantity in full groups of 10.");return;}
+ const kits=Number($("incomingQty")?.value||0);
+ if(!Number.isInteger(kits)||kits<1){alert("Enter a whole number of kits.");return;}
  if(incomingDraftLines.length){alert("Save the existing PST product lines first. Vendor-only items currently create a separate purchase order.");return;}
  if(editingIncomingPoNumber){alert("Finish editing this purchase order before creating a vendor-only order.");return;}
- if(!confirm("Create a separate purchase order for "+qty/10+" kit(s) of "+item.product_name+" "+(item.strength||"")+"? This item will not enter sellable inventory."))return;
- const {data,error}=await db.rpc("pst_admin_order_vendor_only_item",{p_item_id:item.id,p_kits:qty/10});
+ if(!confirm("Create a separate purchase order for "+kits+" kit(s) of "+item.product_name+" "+(item.strength||"")+"? This item will not enter sellable inventory."))return;
+ const {data,error}=await db.rpc("pst_admin_order_vendor_only_item",{p_item_id:item.id,p_kits:kits});
  if(error){alert("Unable to create vendor-only PO: "+error.message);return;}
  resetIncomingOrderForm({preserveMessage:true});
  await loadIncomingInventory();
