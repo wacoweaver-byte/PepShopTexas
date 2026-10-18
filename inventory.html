@@ -4298,7 +4298,7 @@ function syncIncomingTotalCostField() {
   const discount = incomingDiscountAmount();
   const lines = incomingDraftLines.length ? incomingDraftLines : (() => {
     const product = selectedIncomingProduct();
-    const qty = Number($("incomingQty")?.value || 0);
+    const qty = Number($("incomingQty")?.value || 0) * PST_KIT_VIAL_COUNT;
     const kitCost = Number($("incomingKitCost")?.value || 0);
     return product && qty > 0 ? [{ qty, kitCost }] : [];
   })();
@@ -4316,12 +4316,12 @@ function addIncomingDraftLine() {
   const unmatched=pstSelectedUnmatchedVendorItem();
   if(unmatched){pstCreateUnmatchedVendorPO(unmatched).catch(e=>alert(e.message));return;}
   const product = selectedIncomingProduct();
-  const enteredQty = Number($("incomingQty")?.value || 0);
-  const qty = incomingRoundQtyToFullKits(enteredQty);
+  const enteredKits = Number($("incomingQty")?.value || 0);
+  const qty = enteredKits * PST_KIT_VIAL_COUNT;
   const typedKitCost = Number($("incomingKitCost")?.value || 0);
   const kitCost = typedKitCost > 0 ? typedKitCost : incomingAutoKitCostForProduct(product);
   if (!product) { alert("Select a product before adding a line."); return; }
-  if (!Number.isFinite(enteredQty) || enteredQty <= 0) { alert("Enter an ordered quantity greater than zero."); return; }
+  if (!Number.isInteger(enteredKits) || enteredKits <= 0) { alert("Enter a whole number of kits."); return; }
   if (!Number.isFinite(kitCost) || kitCost <= 0) { alert("Enter the vendor cost per kit before adding this line."); return; }
   incomingDraftLines.push({
     id: crypto?.randomUUID ? crypto.randomUUID() : `draft_${Date.now()}_${Math.random().toString(16).slice(2)}`,
