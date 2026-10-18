@@ -29,9 +29,9 @@
   .pst-split-strength[aria-pressed="true"]{border:2px solid #102a43;background:#eff5fa}
   .pst-split-price{background:#f3f6f9;padding:14px 18px;border-radius:9px;margin:18px 0;display:flex;justify-content:space-between;align-items:center;gap:24px;width:min(100%,420px);max-width:100%;box-sizing:border-box}
   .pst-split-price strong{font-size:1.7rem}
-  .pst-split-purchase{display:flex;align-items:end;gap:14px;flex-wrap:wrap}
+  .pst-split-purchase{display:flex;align-items:end;gap:8px;flex-wrap:wrap}
   .pst-split-purchase label{display:grid;gap:6px}.pst-split-purchase input{max-width:90px;padding:10px;border:1px solid #ccd6df;border-radius:6px}
-  .pst-split-purchase button{padding:13px 22px;min-height:46px;background:#102a43;color:white;border:0;border-radius:4px;font:inherit;font-weight:bold;cursor:pointer}
+  .pst-split-purchase button{padding:9px 14px;min-height:38px;background:#102a43;color:white;border:0;border-radius:4px;font:inherit;font-weight:bold;cursor:pointer}
   .pst-mobile-back{display:none}
   .pst-split-notes{margin-top:22px}
   @media(max-width:760px){
