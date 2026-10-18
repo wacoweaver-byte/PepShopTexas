@@ -2570,7 +2570,12 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
     </section>
     <div class="incoming-form-grid">
       <div class="field">
-        <label>Product / SKU</label>
+        <label>Vendor</label>
+        <select id="incomingVendorSelect"><option value="">Select vendor...</option></select>
+        <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div><a href="vendor-prices.html" target="_blank" rel="noopener" style="display:inline-block;margin-top:7px">Manage / Import Vendor Price Lists ↗</a>
+      </div>
+      <div class="field">
+        <label>Product (Sort Name / Strength / PST SKU)</label>
         <select id="incomingProductSelect"><option value="">Loading products...</option></select>
       </div>
       <div class="field">
@@ -2597,11 +2602,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <label>Total Paid</label>
         <input id="incomingTotalCost" type="number" min="0" step="0.01" placeholder="Auto" readonly />
       </div>
-      <div class="field">
-        <label>Vendor</label>
-        <select id="incomingVendorSelect"><option value="">Select vendor...</option></select>
-        <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div><a href="vendor-prices.html" target="_blank" rel="noopener" style="display:inline-block;margin-top:7px">Manage / Import Vendor Price Lists ↗</a>
-      </div>
+
       <div class="field incoming-status-field">
         <label>Status</label>
         <select id="incomingStatus">
@@ -4008,7 +4009,9 @@ function incomingProductLabel(item) {
   const sku = String(catalog.product_key || item._catalog_product_key || item.product_key || item.sku || "").trim();
   const display = String(catalog.display_name || item._catalog_display_name || item.display_name || sku || item.id || "Product").trim();
   const strength = String(catalog.strength || item._catalog_strength || item.strength || "").trim();
-  const fullLabel = strength && !display.toLowerCase().includes(strength.toLowerCase()) ? `${display} ${strength}` : display;
+  const sortName = String(catalog.sort_name || item._catalog_sort_name || item.sort_name || "").trim();
+  const name = sortName || display;
+  const fullLabel = strength && !name.toLowerCase().includes(strength.toLowerCase()) ? `${name} — ${strength}` : name;
   return sku ? `${fullLabel} — ${sku}` : fullLabel;
 }
 
@@ -4070,6 +4073,13 @@ function selectedIncomingProduct() {
   return allItems.find(item => String(item.id) === String(id)) || null;
 }
 
+async function pstLoadIncomingSortNames(){
+ const {data,error}=await db.from("product_catalog").select("product_key,sort_name,strength");
+ if(error){console.warn("Could not load product sort names",error);return;}
+ const byKey=new Map((data||[]).map(p=>[String(p.product_key),p]));
+ for(const item of allItems){const c=byKey.get(String(item.product_key||item._catalog_product_key||""));if(c){item._catalog_sort_name=c.sort_name;}}
+ populateIncomingProductSelect();
+}
 function populateIncomingProductSelect() {
   const select = $("incomingProductSelect");
   if (!select) return;
@@ -4084,6 +4094,7 @@ function populateIncomingProductSelect() {
     seenSkus.add(key);
     return true;
   });
+  uniqueItems.sort((a,b)=>incomingProductLabel(a).localeCompare(incomingProductLabel(b),undefined,{numeric:true}));
   select.innerHTML = `<option value="">Select product...</option>` + uniqueItems.map(item => `<option value="${esc(item.id)}">${esc(incomingProductLabel(item))}</option>`).join("");
   if (current && allItems.some(item => String(item.id) === String(current))) select.value = current;
 }
