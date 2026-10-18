@@ -5052,8 +5052,9 @@ async function addIncomingInventory() {
     return;
   }
   const enteredProduct = selectedIncomingProduct();
-  const rawEnteredQty = Number($("incomingQty")?.value || 0);
-  const enteredQty = incomingRoundQtyToFullKits(rawEnteredQty);
+  const enteredKits = Number($("incomingQty")?.value || 0);
+  if (!incomingDraftLines.length && (!Number.isInteger(enteredKits) || enteredKits < 1)) { alert("Enter a whole number of kits."); return; }
+  const enteredQty = enteredKits * PST_KIT_VIAL_COUNT;
   const typedEnteredKitCost = Number($("incomingKitCost")?.value || 0);
   const enteredKitCost = typedEnteredKitCost > 0 ? typedEnteredKitCost : incomingAutoKitCostForProduct(enteredProduct);
   const lines = incomingDraftLines.length ? incomingDraftLines.slice() : (enteredProduct && enteredQty > 0 ? [{
