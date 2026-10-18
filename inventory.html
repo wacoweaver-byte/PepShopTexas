@@ -4195,6 +4195,7 @@ function incomingAutoKitCostForProduct(product = {}) {
   const item = product || {};
   const vendorRecord=pstVendorKitPrices.get(String(item.product_key||item._catalog_product_key||""));
   if(vendorRecord)return Number(vendorRecord.kit_cost);
+  if(selectedIncomingVendor()) return 0;
   const unitCost = Number(
     item.cost_per_unit ??
     item._catalog_cost_per_unit ??
@@ -4278,7 +4279,7 @@ function addIncomingDraftLine() {
   const kitCost = typedKitCost > 0 ? typedKitCost : incomingAutoKitCostForProduct(product);
   if (!product) { alert("Select a product before adding a line."); return; }
   if (!Number.isFinite(enteredQty) || enteredQty <= 0) { alert("Enter an ordered quantity greater than zero."); return; }
-  if (!Number.isFinite(kitCost) || kitCost < 0) { alert("Enter a valid kit cost."); return; }
+  if (!Number.isFinite(kitCost) || kitCost <= 0) { alert("Enter the vendor cost per kit before adding this line."); return; }
   incomingDraftLines.push({
     id: crypto?.randomUUID ? crypto.randomUUID() : `draft_${Date.now()}_${Math.random().toString(16).slice(2)}`,
     productId: product.id,
@@ -4316,6 +4317,7 @@ function resetIncomingOrderForm(options = {}) {
   if ($("incomingDiscountAmount")) $("incomingDiscountAmount").value = "";
   if ($("incomingTotalCost")) $("incomingTotalCost").value = "";
   if ($("incomingVendorSelect")) $("incomingVendorSelect").value = "";
+  pstVendorKitPrices=new Map();
   if ($("incomingTracking")) $("incomingTracking").value = "";
   if ($("incomingStatus")) $("incomingStatus").value = "ordered";
   if ($("incomingNotes")) $("incomingNotes").value = "";
@@ -5018,6 +5020,7 @@ async function addIncomingInventory() {
   }] : []);
 
   if (!lines.length) { alert("Add at least one product line to the incoming order."); return; }
+  if(lines.some(line => incomingLineKitCost(line)<=0)){alert("Every PO line requires a vendor kit cost. Add a vendor price or enter a kit cost manually.");return;}
   if (lines.some(line => !line.productId || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
     alert("Every incoming line needs a product and ordered quantity greater than zero.");
     return;
@@ -5110,6 +5113,7 @@ async function saveIncomingPurchaseOrderEdit() {
     return;
   }
 
+  if(lines.some(line => incomingLineKitCost(line)<=0)){alert("Every PO line requires a kit cost.");return;}
   const originalIds = new Set(editingIncomingPoOriginalRows.map(row => String(row.id)));
   const retainedIds = new Set(lines.map(line => String(line.originalRowId || "")).filter(Boolean));
   const removedIds = [...originalIds].filter(id => !retainedIds.has(id));
