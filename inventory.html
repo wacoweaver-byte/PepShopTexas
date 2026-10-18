@@ -2607,7 +2607,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         </div>
         <div class="field po-qty">
           <label for="incomingQty">Kit Quantity (10 vials/kit)</label>
-          <input id="incomingQty" type="number" min="1" step="1" placeholder="1" />
+          <input id="incomingQty" type="number" min="1" step="1" value="1" placeholder="1" />
         </div>
         <button class="btn secondary" id="addIncomingLineBtn" type="button">Add to PO</button>
       </div>
@@ -4356,7 +4356,7 @@ function addIncomingDraftLine() {
     kitCost
   });
   if ($("incomingProductSelect")) $("incomingProductSelect").value = "";
-  if ($("incomingQty")) $("incomingQty").value = "";
+  if ($("incomingQty")) $("incomingQty").value = "1";
   if ($("incomingKitCost")) $("incomingKitCost").value = "";
   syncIncomingTotalCostField();
   setStatus(`Added line to incoming order. ${incomingDraftLines.length} line(s) ready to save.`, "good");
@@ -4378,7 +4378,7 @@ function resetIncomingOrderForm(options = {}) {
   editingIncomingPoOriginalRows = [];
   incomingDraftLines = [];
   if ($("incomingProductSelect")) $("incomingProductSelect").value = "";
-  if ($("incomingQty")) $("incomingQty").value = "";
+  if ($("incomingQty")) $("incomingQty").value = "1";
   if ($("incomingKitCost")) $("incomingKitCost").value = "";
   if ($("incomingShippingCost")) $("incomingShippingCost").value = "";
   if ($("incomingDiscountAmount")) $("incomingDiscountAmount").value = "";
@@ -6355,6 +6355,15 @@ function wireEvents() {
     incomingKitCostEl.addEventListener("change", syncIncomingTotalCostField);
   }
   setIncomingOrderDateToday(false);
+  // Enter adds the selected item to the draft PO; never submits/saves the PO.
+  ["incomingProductSelect", "incomingQty"].forEach(id => {
+    $(id)?.addEventListener("keydown", event => {
+      if (event.key !== "Enter" || event.repeat || event.isComposing) return;
+      if (!$("incomingProductSelect")?.value) return;
+      event.preventDefault();
+      addIncomingDraftLine();
+    });
+  });
   if ($("addIncomingLineBtn")) $("addIncomingLineBtn")?.addEventListener("click", addIncomingDraftLine);
   $("incomingShippingCost")?.addEventListener("input", syncIncomingTotalCostField);
   if ($("addIncomingBtn")) $("addIncomingBtn")?.addEventListener("click", addIncomingInventory);
