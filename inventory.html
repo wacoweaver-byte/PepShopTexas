@@ -2511,7 +2511,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
 .incoming-form-grid .field{display:flex!important;flex-direction:column!important;gap:7px!important;min-width:0!important}
 .incoming-form-grid .field label{font-size:11px!important;line-height:1.4!important;min-height:16px!important;letter-spacing:.035em!important;white-space:normal!important}
 .incoming-form-grid .field input,.incoming-form-grid .field select{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;height:44px!important;min-height:44px!important;box-sizing:border-box!important;font-size:14px!important}
-.incoming-form-grid>.po-vendor{width:100%;max-width:560px}
+.incoming-form-grid>.po-vendor-date-row{display:grid;grid-template-columns:minmax(0,560px) minmax(180px,245px);gap:16px;align-items:start;width:100%}.incoming-form-grid>.po-vendor-date-row>.field{min-width:0}.incoming-form-grid>.po-vendor-date-row>.po-order-date input{width:100%!important}
+
 .incoming-form-grid .vendor-inline-note,.incoming-form-grid #incomingVendorPriceNote{font-size:12px!important;line-height:1.35!important}
 .incoming-form-grid a[href="vendor-prices.html"]{font-size:12px!important;margin-top:2px!important}
 .incoming-form-grid>.po-entry-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,190px) 160px;gap:14px;align-items:start;width:100%}
@@ -2521,7 +2522,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
 .incoming-form-grid .po-summary-row>#cancelIncomingPoEditBtn{grid-column:1/-1;justify-self:end;width:auto!important}
 .incoming-form-grid .po-internal-fields{display:none!important}
 @media(max-width:900px){.incoming-form-grid>.po-summary-row{grid-template-columns:repeat(2,minmax(0,1fr))}.incoming-form-grid .po-summary-row>#addIncomingBtn{grid-column:span 2;margin-top:0!important}}
-@media(max-width:640px){.incoming-form-grid{padding:14px!important;gap:16px!important}.incoming-form-grid>.po-vendor{max-width:none}.incoming-form-grid>.po-entry-row{grid-template-columns:minmax(0,1fr) minmax(90px,110px)}.incoming-form-grid .po-entry-row>#addIncomingLineBtn{grid-column:1/-1;margin-top:0!important}.incoming-form-grid>.po-summary-row{gap:12px}.incoming-form-grid .po-summary-row>#cancelIncomingPoEditBtn{grid-column:1/-1}}
+@media(max-width:640px){.incoming-form-grid>.po-vendor-date-row{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}.incoming-form-grid{padding:14px!important;gap:16px!important}.incoming-form-grid>.po-vendor{max-width:none}.incoming-form-grid>.po-entry-row{grid-template-columns:minmax(0,1fr) minmax(90px,110px)}.incoming-form-grid .po-entry-row>#addIncomingLineBtn{grid-column:1/-1;margin-top:0!important}.incoming-form-grid>.po-summary-row{gap:12px}.incoming-form-grid .po-summary-row>#cancelIncomingPoEditBtn{grid-column:1/-1}}
 </style></head>
 <body>
 <header class="pst-admin-header">
@@ -2586,11 +2587,17 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       </div>
     </section>
     <div class="incoming-form-grid">
+      <div class="po-vendor-date-row">
       <div class="field po-vendor">
         <label for="incomingVendorSelect">Vendor</label>
         <select id="incomingVendorSelect"><option value="">Select vendor...</option></select>
         <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div>
         <a href="vendor-prices.html" target="_blank" rel="noopener">Manage / Import Vendor Price Lists ↗</a>
+      </div>
+      <div class="field po-order-date">
+        <label for="incomingOrderDate">PO Order Date</label>
+        <input id="incomingOrderDate" type="date" />
+      </div>
       </div>
       <div class="po-entry-row">
         <div class="field po-product">
@@ -2630,7 +2637,6 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <button class="btn secondary" id="cancelIncomingPoEditBtn" type="button" hidden>Cancel PO Edit</button>
       </div>
       <div class="po-internal-fields" hidden>
-        <input id="incomingOrderDate" type="date" />
         <input id="incomingKitCost" type="number" min="0" step="0.01" />
         <input id="incomingNotes" type="hidden" />
       </div>
