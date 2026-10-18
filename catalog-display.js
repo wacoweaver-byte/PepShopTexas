@@ -100,11 +100,10 @@
         const subtitle=blend ? blend[2].replace(/\s*\/\s*/g," ").trim() : (wolverine ? "BPC-157 TB-500" : "");
         detail.innerHTML='<button type="button" class="pst-mobile-back">← All Products</button>'+
           '<h2>'+escapeHtml(mainTitle)+'</h2>'+(subtitle ? '<div class="pst-blend-subtitle">'+escapeHtml(subtitle)+'</div>' : '')+'<p class="pst-split-category">'+escapeHtml(active.category||"Research product")+'</p>'+
-          '<p>'+escapeHtml(active.description||"")+'</p><h3>Choose vial strength</h3><p class="pst-strength-summary" aria-live="polite"></p>'+
+          '<h3>Choose vial strength</h3><p class="pst-strength-summary" aria-live="polite"></p>'+
           '<div class="pst-split-strengths" role="group" aria-label="Choose a vial strength"></div>'+
           '<div class="pst-split-price" aria-live="polite"><span class="pst-selected-strength"></span><strong class="pst-selected-price"></strong></div>'+
           '<div class="pst-split-purchase"><label>Quantity<input type="number" data-detail-qty min="1" max="9999" value="1"></label><button type="button" data-add-to-cart="">Add to Cart</button></div>'+
-          (active.research_notes?'<section class="pst-split-notes"><h3>Research Notes</h3>'+researchNotesMarkup(active.research_notes)+'</section>':'');
         const strengths=detail.querySelector(".pst-split-strengths");
         const price=detail.querySelector(".pst-selected-price");
         const strengthLabel=detail.querySelector(".pst-selected-strength");
