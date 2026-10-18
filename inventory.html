@@ -5588,7 +5588,14 @@ async function receiveIncomingInventory(id) {
   const now = new Date().toISOString();
   const incomingUnitCost = Number(row.cost_per_unit ?? row.unit_cost ?? 0);
   const inventoryUpdate = { current_inventory:newQty, updated_at:now };
-  if (Number.isFinite(incomingUnitCost) && incomingUnitCost > 0) inventoryUpdate.cost_per_unit = incomingUnitCost;
+  const existingUnitCost = Number(item.cost_per_unit || 0);
+  const kitUnitCost = Number(row.kit_cost || 0) / Number(row.kit_vial_count || 10);
+  const receiptCost = kitUnitCost > 0 ? kitUnitCost : incomingUnitCost;
+  if (Number.isFinite(receiptCost) && receiptCost > 0) {
+    inventoryUpdate.cost_per_unit = previousQty > 0 && existingUnitCost > 0
+      ? Number(((previousQty * existingUnitCost + qty * receiptCost) / newQty).toFixed(4))
+      : receiptCost;
+  }
   const { error: invError } = await db.from("product_inventory").update(inventoryUpdate).eq("id", item.id);
   if (invError) throw invError;
   await logMovement(item, "incoming_received", qty, previousQty, newQty, `Received incoming order: ${row.product_name || item.display_name || item.product_key} · ${qty} vial(s). Total cost: ${incomingMoney(incomingTotalCost(row))}. Incoming ID: ${row.id}`);
