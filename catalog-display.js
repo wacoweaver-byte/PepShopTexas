@@ -103,7 +103,7 @@
           '<h3>Choose vial strength</h3><p class="pst-strength-summary" aria-live="polite"></p>'+
           '<div class="pst-split-strengths" role="group" aria-label="Choose a vial strength"></div>'+
           '<div class="pst-split-price" aria-live="polite"><span class="pst-selected-strength"></span><strong class="pst-selected-price"></strong></div>'+
-          '<div class="pst-split-purchase"><label>Quantity<input type="number" data-detail-qty min="1" max="9999" value="1"></label><button type="button" data-add-to-cart="">Add to Cart</button></div>'+
+          '<div class="pst-split-purchase"><label>Quantity<input type="number" data-detail-qty min="1" max="9999" value="1"></label><button type="button" data-add-to-cart="">Add to Cart</button></div>';
         const strengths=detail.querySelector(".pst-split-strengths");
         const price=detail.querySelector(".pst-selected-price");
         const strengthLabel=detail.querySelector(".pst-selected-strength");
