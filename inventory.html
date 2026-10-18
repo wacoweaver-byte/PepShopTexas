@@ -2587,8 +2587,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <input id="incomingQty" type="number" min="1" step="1" placeholder="1" />
       </div>
       <div class="field">
-        <label>Kit Cost Override (10 vials)</label>
-        <input id="incomingKitCost" type="number" min="0" step="0.01" placeholder="Auto from inventory cost" /><div id="incomingVendorPriceNote" class="note">Select a vendor and product to load the kit cost.</div>
+        <label>Vendor Kit Cost (10 vials)</label>
+        <input id="incomingKitCost" type="number" min="0" step="0.01" placeholder="Auto from vendor price list" /><div id="incomingVendorPriceNote" class="note">Select a vendor and product to load the kit cost.</div>
       </div>
       <div class="field">
         <label>Ship / Fees</label>
@@ -2630,8 +2630,8 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
             <tr>
               <th>Product</th>
               <th>Vendor Item #</th>
-              <th>Qty</th>
-              <th>Kits</th>
+              <th>Kits Ordered</th>
+              <th>Vials (Inventory)</th>
               <th>Kit Cost<br>(10 vials)</th>
               <th>Shipping Share</th>
               <th>Landed / Vial</th>
@@ -4298,9 +4298,11 @@ function syncIncomingTotalCostField() {
   const discount = incomingDiscountAmount();
   const lines = incomingDraftLines.length ? incomingDraftLines : (() => {
     const product = selectedIncomingProduct();
-    const qty = Number($("incomingQty")?.value || 0) * PST_KIT_VIAL_COUNT;
+    const vendorItem = pstSelectedUnmatchedVendorItem();
+    const kits = Number($("incomingQty")?.value || 0);
+    const qty = Number.isInteger(kits) && kits > 0 ? kits * PST_KIT_VIAL_COUNT : 0;
     const kitCost = Number($("incomingKitCost")?.value || 0);
-    return product && qty > 0 ? [{ qty, kitCost }] : [];
+    return (product || vendorItem) && qty > 0 ? [{ qty, kitCost }] : [];
   })();
   const productCost = incomingDraftProductCost(lines);
   const totalKits = incomingDraftTotalKits(lines);
@@ -4466,9 +4468,9 @@ function renderIncomingDraftLines() {
     return `<tr>
       <td><strong>${esc(line.productName)}</strong><div class="note">${esc(line.productKey || "")}</div></td>
       <td><span class="vendor-item-number">${esc(incomingVendorItemNumber(line) || "—")}</span></td>
+      <td><strong>${kits.toFixed(0)}</strong></td>
       <td>${esc(line.qty)}</td>
-      <td>${kits.toFixed(2)}</td>
-      <td><strong>${incomingMoney(effectiveKitCost)}</strong><div class="note">Auto from cost/vial × 10</div></td>
+      <td><strong>${incomingMoney(effectiveKitCost)}</strong><div class="note">Cost per kit of 10</div></td>
       <td>${incomingMoney(allocatedShipping)}</td>
       <td><strong>${landedUnit > 0 ? incomingMoney(landedUnit) : "—"}</strong></td>
       <td><button class="btn secondary incoming-line-remove" type="button" data-remove-incoming-line="${esc(line.id)}">Remove</button></td>
