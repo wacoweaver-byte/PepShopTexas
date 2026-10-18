@@ -1036,7 +1036,6 @@ td .pill {
                 <label class="full">Current Profit %<input name="profit_margin" value="Enter cost and price" readonly></label>
                 <p class="margin-note full">Formula: (cost / 0.20) + $5 incidentals per vial. This fills the regular price; sale pricing still works separately.</p>
               </div>
-              <label class="full">Description<textarea name="description" placeholder="Optional customer-facing description"></textarea></label>
               <label class="full">Admin ONLY<textarea name="admin_only" placeholder="Internal reporting notes only. Hidden from customers."></textarea></label>
               <label class="full">COA URL<input name="coa_url" placeholder="/assets/coas/coa-retatrutide-10mg-afi-2025-12-28.jpeg"></label>
               <label class="full">COA Button Label<input name="coa_label" value="View COA" placeholder="View COA"></label>
@@ -1103,7 +1102,7 @@ td .pill {
     const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
     const SUPABASE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,research_focus,description,research_notes,admin_only,price,current_inventory,is_active,featured,blend_stack,testing_statement,coa_url,coa_label,sort_name,created_at,hot_peptide,sale_enabled,sale_price,sale_label";
+    const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,research_focus,admin_only,price,current_inventory,is_active,featured,blend_stack,coa_url,coa_label,sort_name,created_at,hot_peptide,sale_enabled,sale_price,sale_label";
     let products = [];
     let activeProduct = null;
     let inventoryCostsByProductKey = {};
@@ -1509,10 +1508,7 @@ td .pill {
         strength,
         category,
         research_focus: selectedResearchFocuses(form),
-        description: form.elements.description.value.trim() || null,
         admin_only: form.elements.admin_only.value.trim() || null,
-        research_notes: null,
-        testing_statement: null,
         coa_url: form.elements.coa_url.value.trim() || null,
         coa_label: form.elements.coa_label.value.trim() || "View COA",
         price,
@@ -1600,10 +1596,7 @@ td .pill {
             </div>
             <label>Sale Price<input name="sale_price" type="number" step="0.01" value="${activeProduct.sale_price ?? ""}"></label>
             <label>Sale Label<input name="sale_label" value="${esc(activeProduct.sale_label || "")}" placeholder="Sale"></label>
-            <label class="full">Description<textarea name="description">${esc(activeProduct.description || "")}</textarea></label>
-            <div class="full rich-text-field"><label>Research Notes</label><div class="rich-text-toolbar" data-rich-toolbar><button type="button" data-rich-command="formatBlock" data-rich-value="h3" title="Heading">Heading</button><button type="button" data-rich-command="formatBlock" data-rich-value="p" title="Paragraph">Paragraph</button><button type="button" data-rich-command="bold" title="Bold"><strong>B</strong></button><button type="button" data-rich-command="italic" title="Italic"><em>I</em></button><button type="button" data-rich-command="insertUnorderedList" title="Bulleted list">• List</button><button type="button" data-rich-command="insertOrderedList" title="Numbered list">1. List</button></div><div class="rich-text-editor" data-rich-editor contenteditable="true">${activeProduct.research_notes || ""}</div><textarea name="research_notes" data-rich-source hidden>${esc(activeProduct.research_notes || "")}</textarea></div>
             <label class="full">Admin ONLY<textarea name="admin_only" placeholder="Internal reporting notes only. Hidden from customers.">${esc(activeProduct.admin_only || "")}</textarea></label>
-            <label class="full">Testing Statement<textarea name="testing_statement">${esc(activeProduct.testing_statement || "")}</textarea></label>
             <label class="full">COA URL<input name="coa_url" value="${esc(activeProduct.coa_url || "")}" placeholder="/assets/coas/coa-product-dose-lab-date.jpeg"></label>
             <label class="full">COA Button Label<input name="coa_label" value="${esc(activeProduct.coa_label || "View COA")}" placeholder="View COA"></label>
             ${researchFocusChoices(activeProduct.research_focus)}
@@ -1654,10 +1647,7 @@ td .pill {
         price: Number(value("price", form) || 0),
         sale_price: value("sale_price", form) === "" ? null : Number(value("sale_price", form)),
         sale_label: value("sale_label", form).trim() || null,
-        description: value("description", form).trim() || null,
-        research_notes: value("research_notes", form).trim() || null,
         admin_only: value("admin_only", form).trim() || null,
-        testing_statement: value("testing_statement", form).trim() || null,
         coa_url: value("coa_url", form).trim() || null,
         coa_label: value("coa_label", form).trim() || "View COA",
         is_active: checked("is_active", form),
