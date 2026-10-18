@@ -5589,8 +5589,8 @@ async function receiveIncomingInventory(id) {
   const incomingUnitCost = Number(row.cost_per_unit ?? row.unit_cost ?? 0);
   const inventoryUpdate = { current_inventory:newQty, updated_at:now };
   const existingUnitCost = Number(item.cost_per_unit || 0);
-  const kitUnitCost = Number(row.kit_cost || 0) / Number(row.kit_vial_count || 10);
-  const receiptCost = kitUnitCost > 0 ? kitUnitCost : incomingUnitCost;
+  const receiptCost = incomingUnitCost > 0 ? incomingUnitCost : Number(row.kit_cost || 0) / Number(row.kit_vial_count || 10);
+  if (!Number.isFinite(receiptCost) || receiptCost <= 0) { alert("A valid received cost per vial is required before updating inventory."); return; }
   if (Number.isFinite(receiptCost) && receiptCost > 0) {
     inventoryUpdate.cost_per_unit = previousQty > 0 && existingUnitCost > 0
       ? Number(((previousQty * existingUnitCost + qty * receiptCost) / newQty).toFixed(4))
