@@ -2514,7 +2514,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
 .incoming-form-grid>.po-vendor-date-row{display:grid;grid-template-columns:minmax(0,560px) minmax(180px,245px);gap:16px;align-items:start;width:100%}.incoming-form-grid>.po-vendor-date-row>.field{min-width:0}.incoming-form-grid>.po-vendor-date-row>.po-order-date input{width:100%!important}
 
 .incoming-form-grid .vendor-inline-note,.incoming-form-grid #incomingVendorPriceNote{font-size:12px!important;line-height:1.35!important}
-.incoming-form-grid a[href="vendor-prices.html"]{font-size:12px!important;margin-top:2px!important}
+.incoming-form-grid a.po-vendor-import-link{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;width:fit-content!important;max-width:100%!important;padding:11px 15px!important;margin-top:8px!important;border:1px solid #19324d!important;border-radius:6px!important;background:#19324d!important;color:#fff!important;font-size:12px!important;font-weight:800!important;line-height:1.3!important;letter-spacing:.02em!important;text-decoration:none!important;box-sizing:border-box!important;white-space:normal!important}.incoming-form-grid a.po-vendor-import-link:hover,.incoming-form-grid a.po-vendor-import-link:focus-visible{background:#294c71!important;color:#fff!important;outline:2px solid #8ea9c4;outline-offset:2px}
 .incoming-form-grid>.po-entry-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,190px) 160px;gap:14px;align-items:start;width:100%}
 .incoming-form-grid>.po-entry-divider{height:1px;background:#cbd5e1;width:100%}
 .incoming-form-grid>.po-summary-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(140px,175px);gap:14px;align-items:start;width:100%}
@@ -2592,7 +2592,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
         <label for="incomingVendorSelect">Vendor</label>
         <select id="incomingVendorSelect"><option value="">Select vendor...</option></select>
         <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div>
-        <a href="vendor-prices.html" target="_blank" rel="noopener">Manage / Import Vendor Price Lists ↗</a>
+        <a class="po-vendor-import-link" href="vendor-prices.html" target="_blank" rel="noopener">Manage / Import Vendor Price Lists <span aria-hidden="true">↗</span></a>
       </div>
       <div class="field po-order-date">
         <label for="incomingOrderDate">PO Order Date</label>
