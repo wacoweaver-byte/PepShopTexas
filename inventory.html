@@ -4540,118 +4540,114 @@ function incomingPoCenterGroupElement(poNumber) {
     .find(element => cleanText(element.dataset.poNumber).toLowerCase() === cleanText(poNumber).toLowerCase()) || null;
 }
 
-async function exportIncomingPurchaseOrderPDF(poNumber) {
+async async function exportIncomingPurchaseOrderPDF(poNumber) {
   const rows = (incomingInventoryRows || []).filter(row => cleanText(row.po_number) === cleanText(poNumber));
   if (!rows.length) throw Error("Purchase order not found.");
-  // Reserve the destination while still handling the user's tap (required on iPhone).
+  // The PDF is laid out directly in points on US Letter paper. No device's print CSS is involved.
   const viewer = window.open("", "_blank");
-  if (!viewer) throw Error("Allow pop-ups for Pep Shop Texas to open the PDF.");
-  viewer.document.write('<!doctype html><title>Preparing purchase order</title><p style="font:16px Arial;padding:20px">Preparing PDF…</p>');
-  viewer.document.close();
+  if (viewer) viewer.document.write('<!doctype html><title>Preparing Purchase Order</title><body style="font:16px Arial;padding:24px">Generating your purchase order PDF…</body>');
   try {
     if (!window.jspdf?.jsPDF) {
       await new Promise((resolve, reject) => {
         const script = document.createElement("script");
-        script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js";
+        script.src = "https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js";
         script.onload = resolve;
-        script.onerror = () => reject(Error("PDF generator could not load. Check your connection."));
+        script.onerror = () => reject(Error("PDF generator could not load. Check your connection and try again."));
         document.head.appendChild(script);
       });
     }
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation:"portrait", unit:"pt", format:"letter", compress:true });
-    const W = 612, M = 40, right = W-M;
-    const navy = [25,50,77], ink = [22,36,55], muted = [95,112,130];
-    const clean = v => String(v ?? "").replace(/[\u2013\u2014]/g," - ").replace(/[^\x20-\x7e]/g," ");
-    const money = n => "$" + (Number(n)||0).toFixed(2);
-    const text = (value,x,y,size=9,bold=false,align="left") => {
-      pdf.setTextColor(...ink);pdf.setFont("helvetica",bold?"bold":"normal");pdf.setFontSize(size);
-      pdf.text(clean(value),x,y,{align});
-    };
-    const rule = (y,color=[215,224,232],width=.8) => {
-      pdf.setDrawColor(...color);pdf.setLineWidth(width);pdf.line(M,y,right,y);
-    };
+    const doc = new jsPDF({ orientation:"portrait", unit:"pt", format:"letter", compress:true });
+    doc.setProperties({title:"Purchase Order "+poNumber,subject:"Pep Shop Texas purchase order",author:"Pep Shop Texas"});
+    const currency = value => "$" + (Number(value) || 0).toFixed(2);
     const vendor = vendorForIncomingRow(rows[0]);
     const vendorName = vendor?.company_name || rows[0].vendor_name || rows[0].supplier_name || "Not specified";
     const date = fmtShortDate(rows[0].ordered_at || rows[0].created_at);
-    let subtotal=0,shipping=0,discount=0;
-    const items=rows.map(row=>{
-      const qty=Number(row.ordered_quantity||0);
-      const perKit=Number(row.kit_vial_count||10);
-      if (!Number.isFinite(perKit)||perKit<=0||qty%perKit!==0) throw Error("PO "+poNumber+" has an incomplete kit for "+(row.product_name||row.product_key||"a product")+".");
-      const kits=qty/perKit;
-      const unit=Number(row.cost_per_unit??row.unit_cost??(Number(row.kit_cost||0)/perKit))||0;
-      const price=Number(row.kit_cost??unit*perKit)||0;
-      const total=kits*price;
-      subtotal+=total;shipping+=Number(row.shipping_cost||0);discount+=Number(row.discount_amount||row.po_discount||0);
-      return {name:clean(row.product_name||row.product_key||"Product"),key:clean(row.product_key||""),sku:clean(incomingVendorItemNumber(row)||"-"),kits,price,total};
-    });
-    // Image is already on the website. Load it into the PDF, not a browser-printed page.
-    let logo=null,logoWidth=0,logoHeight=0;
-    try {
-      const img=await new Promise((resolve,reject)=>{
-        const image=new Image();
-        image.onload=()=>resolve(image);image.onerror=reject;
-        image.src=new URL("pst-header-logo.png",location.href).href;
-      });
-      const canvas=document.createElement("canvas");
-      canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
-      canvas.getContext("2d").drawImage(img,0,0);
-      logo=canvas.toDataURL("image/png");
-      const ratio=Math.min(105/img.naturalWidth,66/img.naturalHeight,1);
-      logoWidth=img.naturalWidth*ratio;logoHeight=img.naturalHeight*ratio;
-    } catch(e) { console.warn("PO logo could not be embedded",e); }
-    function startPage(continued=false) {
-      let y=M;
-      if (!continued) {
-        if (logo) pdf.addImage(logo,"PNG",M,y,logoWidth,logoHeight);
-        else text("PEP SHOP TEXAS",M,y+15,16,true);
-        text("PURCHASE ORDER",right,y+14,16,true,"right");
-        y+=Math.max(logoHeight,32)+10;
-        ["Jimmie Weaver","2313 Starr Dr","Waco, TX 76710 USA","wacoweaver@gmail.com","254-498-7249","pepshoptexas.com"].forEach(v=>{text(v,M,y,9);y+=12;});
-        y+=6;rule(y,navy,1.8);y+=24;
-        text("Supplier",M,y,10,true);text("PO Number: "+poNumber,right,y,10,true,"right");y+=17;
-        text(vendorName,M,y,10);text("Order Date: "+date,right,y,10,false,"right");y+=26;
-      } else {
-        text("Pep Shop Texas - PO "+poNumber+" (continued)",M,y+10,10,true);
-        y+=35;
+    let subtotal = 0, shipping = 0, discount = 0;
+    const items = rows.map(row => {
+      const qty = Number(row.ordered_quantity || 0);
+      const kitVials = Number(row.kit_vial_count || 10);
+      if (!Number.isFinite(kitVials) || kitVials <= 0 || qty % kitVials !== 0) {
+        throw Error("PO " + poNumber + " contains a quantity that is not a full kit for " + (row.product_name || row.product_key || "a product") + ".");
       }
-      pdf.setFillColor(237,242,247);pdf.rect(M,y-12,right-M,25,"F");
-      text("PRODUCT / SKU",M+7,y+4,8,true);
-      text("VENDOR ITEM #",242,y+4,8,true);
-      text("QTY (KITS)",400,y+4,8,true,"right");
-      text("PRICE / KIT",478,y+4,8,true,"right");
-      text("LINE TOTAL",right-4,y+4,8,true,"right");
-      return y+27;
-    }
-    let y=startPage();
-    items.forEach(item=>{
-      const nameLines=pdf.splitTextToSize(item.name,178);
-      const rowHeight=Math.max(40,14*nameLines.length+22);
-      if(y+rowHeight>704){pdf.addPage("letter","portrait");y=startPage(true);}
-      pdf.setFont("helvetica","bold");pdf.setFontSize(9);pdf.setTextColor(...ink);
-      pdf.text(nameLines,M+7,y+13);
-      text(item.key,M+7,y+14*nameLines.length+14,7);
-      text(item.sku,242,y+13,9);
-      text(item.kits,400,y+13,9,false,"right");
-      text(money(item.price),478,y+13,9,false,"right");
-      text(money(item.total),right-4,y+13,9,false,"right");
-      y+=rowHeight;rule(y);y+=3;
+      const kits = qty / kitVials;
+      const unit = Number(row.cost_per_unit ?? row.unit_cost ?? (Number(row.kit_cost || 0) / kitVials)) || 0;
+      const kitPrice = Number(row.kit_cost ?? unit * kitVials) || 0;
+      const total = kits * kitPrice;
+      subtotal += total;
+      shipping += Number(row.shipping_cost || 0);
+      discount += Number(row.discount_amount || row.po_discount || 0);
+      return { name:String(row.product_name || row.product_key || "Product"), sku:String(row.product_key || ""),
+        vendorSku:String(incomingVendorItemNumber(row) || "—"), kits:String(kits), kitPrice:currency(kitPrice), total:currency(total) };
     });
-    const totalHeight=110;
-    if(y+totalHeight>744){pdf.addPage("letter","portrait");y=startPage(true);}
-    y+=16;
-    const labelX=350;
-    const totalRows=[["Subtotal",money(subtotal)],["Shipping / Fees",money(shipping)],["Discount","-"+money(discount)]];
-    totalRows.forEach(([label,value])=>{text(label,labelX,y,9);text(value,right,y,9,false,"right");y+=20;});
-    pdf.setDrawColor(...navy);pdf.setLineWidth(1.5);pdf.line(labelX,y-9,right,y-9);
-    text("TOTAL",labelX,y+7,14,true);text(money(subtotal+shipping-discount),right,y+7,14,true,"right");
-    pdf.setProperties({title:"Purchase Order "+poNumber,subject:"Pep Shop Texas vendor purchase order"});
-    const pdfUrl=URL.createObjectURL(pdf.output("blob"));
-    viewer.location.replace(pdfUrl);
-    setStatus("PO "+poNumber+" generated as a fixed-layout PDF.", "good");
+    const W=612,H=792,L=37,R=575;
+    const navy=[22,36,55], light=[236,242,247], muted=[89,105,123];
+    const txt=(value,x,y,size=9,bold=false,align="left")=>{
+      doc.setFont("helvetica",bold?"bold":"normal");
+      doc.setFontSize(size);doc.setTextColor(...navy);
+      doc.text(String(value),x,y,{align});
+    };
+    const line=(y)=>{doc.setDrawColor(210,221,231);doc.setLineWidth(.55);doc.line(L,y,R,y);};
+    const logoUrl = new URL("pst-header-logo.png", window.location.href).href;
+    try {
+      const logo = new Image(); logo.crossOrigin="anonymous";
+      await new Promise((resolve,reject)=>{logo.onload=resolve;logo.onerror=reject;logo.src=logoUrl;});
+      const canvas=document.createElement("canvas");canvas.width=logo.naturalWidth;canvas.height=logo.naturalHeight;
+      canvas.getContext("2d").drawImage(logo,0,0);
+      const maxW=148,maxH=49,ratio=Math.min(maxW/logo.naturalWidth,maxH/logo.naturalHeight);
+      doc.addImage(canvas.toDataURL("image/png"),"PNG",L,32,logo.naturalWidth*ratio,logo.naturalHeight*ratio);
+    } catch(e) { txt("PEP SHOP TEXAS",L,52,16,true); }
+    txt("PURCHASE ORDER",R,51,16,true,"right");
+    const contact=["Jimmie Weaver","2313 Starr Dr","Waco, TX 76710 USA","wacoweaver@gmail.com","254-498-7249","pepshoptexas.com"];
+    contact.forEach((t,i)=>txt(t,L,94+i*12,9));
+    doc.setDrawColor(25,50,77);doc.setLineWidth(1.3);doc.line(L,173,R,173);
+    txt("Supplier",L,192,9,true);txt(vendorName,L,206,9);
+    txt("PO Number: "+poNumber,R,192,9,true,"right");
+    txt("Order Date: "+date,R,206,9,false,"right");
+    const columns=[L,L+184,L+270,L+352,L+450,R];
+    const header=(y)=>{
+      doc.setFillColor(...light);doc.rect(L,y,R-L,28,"F");
+      txt("PRODUCT / SKU",columns[0]+6,y+18,7.9,true);
+      txt("VENDOR ITEM #",columns[1]+4,y+18,7.7,true);
+      txt("QTY (KITS)",columns[3]-7,y+18,7.7,true,"right");
+      txt("PRICE / KIT",columns[4]-6,y+18,7.7,true,"right");
+      txt("LINE TOTAL",R-6,y+18,7.7,true,"right");
+      return y+28;
+    };
+    let y=223;
+    y=header(y);
+    items.forEach((it,index)=>{
+      doc.setFont("helvetica","bold");doc.setFontSize(8.8);
+      const nameLines=doc.splitTextToSize(it.name,columns[1]-columns[0]-14);
+      const rowHeight=Math.max(40,20+nameLines.length*11);
+      if(y+rowHeight+105>H-36){
+        doc.addPage();y=38;y=header(y);
+      }
+      nameLines.forEach((t,j)=>txt(t,columns[0]+6,y+14+j*11,8.8,true));
+      if(it.sku) {doc.setTextColor(...muted);doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.text(it.sku,columns[0]+6,y+14+nameLines.length*11);}
+      txt(it.vendorSku,columns[1]+4,y+17,8.5);
+      txt(it.kits,columns[3]-7,y+17,8.5,false,"right");
+      txt(it.kitPrice,columns[4]-6,y+17,8.5,false,"right");
+      txt(it.total,R-6,y+17,8.5,false,"right");
+      line(y+rowHeight); y+=rowHeight;
+    });
+    if(y+112>H-37){doc.addPage();y=38;}
+    const tL=333,tR=R;
+    y+=17;
+    [["Subtotal",currency(subtotal)],["Shipping / Fees",currency(shipping)],["Discount","-"+currency(discount)]].forEach(([label,val])=>{
+      txt(label,tL,y,9);txt(val,tR,y,9,false,"right");y+=17;
+    });
+    doc.setDrawColor(25,50,77);doc.setLineWidth(1.5);doc.line(tL,y-5,tR,y-5);
+    txt("TOTAL",tL,y+14,13,true);txt(currency(subtotal+shipping-discount),tR,y+14,13,true,"right");
+    const blob=doc.output("blob"),url=URL.createObjectURL(blob);
+    const fileName=String(poNumber).replace(/[^a-zA-Z0-9_-]/g,"_")+".pdf";
+    if(viewer && !viewer.closed) {viewer.location.replace(url);}
+    else { const a=document.createElement("a");a.href=url;a.download=fileName;document.body.appendChild(a);a.click();a.remove(); }
+    setStatus("PO "+poNumber+" PDF generated at US Letter size. Save or share the PDF directly.", "good");
+    // Retain the blob URL for viewing/sharing; it will be released on page unload.
+    window.addEventListener("pagehide",()=>URL.revokeObjectURL(url),{once:true});
   } catch(error) {
-    viewer.close();
+    if(viewer && !viewer.closed) viewer.close();
     throw error;
   }
 }
