@@ -2925,6 +2925,7 @@ async function pstLoadVendorKitPrices(){
  if(!id){pstApplyVendorKitPrice();return;}
  const {data,error}=await db.from("pst_vendor_prices").select("product_key,kit_cost,vendor_item_number").eq("vendor_id",id);
  if(error){console.warn("Vendor price list unavailable",error);return;}
+ if(String($("incomingVendorSelect")?.value||"")!==String(id))return;
  for(const p of data||[])pstVendorKitPrices.set(String(p.product_key),p);
  pstApplyVendorKitPrice();
 }
@@ -6286,6 +6287,7 @@ async function init() {
     const ok = await checkAdmin();
     if (!ok) return;
     await loadInventory();
+    await pstLoadIncomingSortNames();
     await loadVendors();
   } catch (err) {
     console.error(err);
