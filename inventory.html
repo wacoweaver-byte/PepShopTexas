@@ -4572,17 +4572,17 @@ function exportIncomingPurchaseOrderPDF(poNumber) {
         '</td><td class="num">' + currency(kitPrice) + '</td><td class="num">' + currency(total) + '</td></tr>';
     }).join("");
     const html = '<!doctype html><html><head><meta charset="utf-8"><title>Purchase Order ' + esc(poNumber) +
-      '</title><style>@page{size:A4;margin:15mm}body{font:12px Arial,sans-serif;color:#162437;margin:0}' +
-      '.head{display:flex;justify-content:space-between;align-items:start;border-bottom:2px solid #19324d;padding-bottom:15px}' +
-      'h1{font-size:22px;margin:0}h2{font-size:20px;margin:0}.business-contact{line-height:1.55;margin-top:8px}small{display:block;color:#64748b;margin-top:4px}' +
-      '.meta{display:flex;justify-content:space-between;margin:20px 0;line-height:1.8}' +
-      'table{width:100%;border-collapse:collapse}th{background:#edf2f7;text-align:left}th,td{padding:9px;border-bottom:1px solid #d8e0e8}' +
-      '.num{text-align:right;white-space:nowrap}tr{break-inside:avoid}.totals{margin:20px 0 0 auto;max-width:310px}' +
-      '.totals div{display:flex;justify-content:space-between;padding:6px 0}.grand{font-weight:bold;font-size:16px;border-top:2px solid #19324d}' +
-      '.tools{padding:12px 0 25px}.tools button{padding:10px 16px;font-weight:bold;cursor:pointer}' +
-      '@media print{.tools{display:none}}</style></head><body>' +
+      '</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:letter portrait;margin:0.42in}html,body{width:100%;margin:0;padding:0}body{font:9pt/1.35 Arial,sans-serif;color:#162437;-webkit-print-color-adjust:exact;print-color-adjust:exact}*{box-sizing:border-box}' +
+      '.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #19324d;padding-bottom:10pt;gap:12pt}.po-logo{display:block;max-width:175pt;max-height:65pt;width:auto;height:auto;object-fit:contain;margin-bottom:6pt}' +
+      'h1{font-size:16pt;margin:0}h2{font-size:15pt;margin:0;white-space:nowrap}.business-contact{line-height:1.4;margin-top:5pt}small{display:block;color:#64748b;margin-top:3pt}' +
+      '.meta{display:flex;justify-content:space-between;margin:13pt 0;line-height:1.5;gap:14pt}.meta>div:last-child{text-align:right}' +
+      'table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:8.5pt}th{background:#edf2f7;text-align:left;font-size:8pt}th,td{padding:6pt 5pt;border-bottom:1px solid #d8e0e8;overflow-wrap:anywhere;vertical-align:top}th:nth-child(1){width:34%}th:nth-child(2){width:16%}th:nth-child(3){width:14%}th:nth-child(4){width:21%}th:nth-child(5){width:15%}thead{display:table-header-group}' +
+      '.num{text-align:right;white-space:nowrap}tr{break-inside:avoid;page-break-inside:avoid}.totals{margin:13pt 0 0 auto;width:245pt;max-width:100%;break-inside:avoid;page-break-inside:avoid}' +
+      '.totals div{display:flex;justify-content:space-between;padding:4pt 0}.grand{font-weight:bold;font-size:13pt;border-top:2px solid #19324d}' +
+      '.tools{padding:10pt 0 15pt}.tools button{padding:8pt 12pt;font-weight:bold;cursor:pointer}' +
+      '@media print{.tools{display:none!important}html,body{width:auto!important;min-width:0!important;max-width:none!important}table{width:100%!important}}@media screen and (max-width:700px){body{min-width:0}.head,.meta{flex-wrap:nowrap}}</style></head><body>' +
       '<div class="tools"><button onclick="window.print()">Print / Save as PDF</button></div>' +
-      '<div class="head"><div><h1>Pep Shop Texas</h1><div class="business-contact">Jimmie Weaver<br>2313 Starr Dr<br>Waco, TX 76710 USA<br>wacoweaver@gmail.com<br>254-498-7249</div><small>pepshoptexas.com</small></div><h2>PURCHASE ORDER</h2></div>' +
+      '<div class="head"><div><img class="po-logo" src="' + new URL('pst-header-logo.png', window.location.href).href + '" alt="Pep Shop Texas logo"><div class="business-contact">Jimmie Weaver<br>2313 Starr Dr<br>Waco, TX 76710 USA<br>wacoweaver@gmail.com<br>254-498-7249</div><small>pepshoptexas.com</small></div><h2>PURCHASE ORDER</h2></div>' +
       '<div class="meta"><div><b>Supplier</b><div>' + esc(vendorName) + '</div></div><div><b>PO Number:</b> ' +
       esc(poNumber) + '<br><b>Order Date:</b> ' + esc(date) + '</div></div>' +
       '<table><thead><tr><th>PRODUCT / SKU</th><th>VENDOR ITEM #</th><th class="num">QTY (KITS)</th>' +
