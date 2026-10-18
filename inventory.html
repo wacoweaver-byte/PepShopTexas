@@ -2919,20 +2919,24 @@ let selectedIncomingPoLineIds = new Set();
 let incomingPoHistoryVisible = false;
 let vendors = [];
 let pstVendorKitPrices = new Map();
+let pstVendorCatalogItems = [];
 async function pstLoadVendorKitPrices(){
  const id=$("incomingVendorSelect")?.value;
  pstVendorKitPrices=new Map();
- if(!id){pstApplyVendorKitPrice();return;}
- const {data,error}=await db.from("pst_vendor_prices").select("product_key,kit_cost,vendor_item_number").eq("vendor_id",id);
+ if(!id){pstVendorCatalogItems=[];populateIncomingProductSelect();pstApplyVendorKitPrice();return;}
+ const [{data,error},catalogResult]=await Promise.all([db.from("pst_vendor_prices").select("product_key,kit_cost,vendor_item_number").eq("vendor_id",id),db.from("pst_vendor_catalog_items").select("id,product_key,product_name,strength,vendor_item_number,kit_cost").eq("vendor_id",id).order("product_name")]);
  if(error){console.warn("Vendor price list unavailable",error);return;}
  if(String($("incomingVendorSelect")?.value||"")!==String(id))return;
+ pstVendorCatalogItems=catalogResult.error?[]:(catalogResult.data||[]);
  for(const p of data||[])pstVendorKitPrices.set(String(p.product_key),p);
+ populateIncomingProductSelect();
  pstApplyVendorKitPrice();
 }
 function pstApplyVendorKitPrice(){
  const product=selectedIncomingProduct();
  const key=String(product?.product_key||product?._catalog_product_key||"");
- const record=pstVendorKitPrices.get(key);
+ const selectedVendorItem=pstVendorCatalogItems.find(x=>"vendor:"+x.id===$("incomingProductSelect")?.value);
+ const record=selectedVendorItem||pstVendorKitPrices.get(key);
  const field=$("incomingKitCost");
  if(!field)return;
  field.value=record?Number(record.kit_cost).toFixed(2):"";
@@ -4073,6 +4077,23 @@ function selectedIncomingProduct() {
   const id = $("incomingProductSelect")?.value || "";
   return allItems.find(item => String(item.id) === String(id)) || null;
 }
+function pstSelectedUnmatchedVendorItem(){
+ const value=$("incomingProductSelect")?.value||"";
+ return pstVendorCatalogItems.find(item=>!item.product_key&&value==="vendor:"+item.id)||null;
+}
+async function pstCreateUnmatchedVendorPO(item){
+ const qty=Number($("incomingQty")?.value||0);
+ if(!Number.isInteger(qty)||qty<10||qty%10!==0){alert("Enter vial quantity in full groups of 10.");return;}
+ if(incomingDraftLines.length){alert("Save the existing PST product lines first. Vendor-only items currently create a separate purchase order.");return;}
+ if(editingIncomingPoNumber){alert("Finish editing this purchase order before creating a vendor-only order.");return;}
+ if(!confirm("Create a separate purchase order for "+qty/10+" kit(s) of "+item.product_name+" "+(item.strength||"")+"? This item will not enter sellable inventory."))return;
+ const {data,error}=await db.rpc("pst_admin_order_vendor_only_item",{p_item_id:item.id,p_kits:qty/10});
+ if(error){alert("Unable to create vendor-only PO: "+error.message);return;}
+ resetIncomingOrderForm({preserveMessage:true});
+ await loadIncomingInventory();
+ setStatus("Created vendor-only purchase order "+data+". Match the item before receiving into inventory.","good");
+}
+
 
 async function pstLoadIncomingSortNames(){
  const {data,error}=await db.from("product_catalog").select("product_key,sort_name,strength");
@@ -4096,7 +4117,15 @@ function populateIncomingProductSelect() {
     return true;
   });
   uniqueItems.sort((a,b)=>incomingProductLabel(a).localeCompare(incomingProductLabel(b),undefined,{numeric:true}));
-  select.innerHTML = `<option value="">Select product...</option>` + uniqueItems.map(item => `<option value="${esc(item.id)}">${esc(incomingProductLabel(item))}</option>`).join("");
+  const vendorSelected=!!$("incomingVendorSelect")?.value;
+  const vendorOptions=pstVendorCatalogItems.map(p=>{
+    const linked=allItems.find(item=>String(item.product_key||item._catalog_product_key||"")===String(p.product_key));
+    const value=linked?String(linked.id):"vendor:"+p.id;
+    return {value,label:p.product_name+" — "+(p.strength||"")+" — "+p.vendor_item_number+" — $"+Number(p.kit_cost).toFixed(2)+"/kit"+(linked?" · "+p.product_key:" · UNMATCHED")};
+  }).sort((a,b)=>a.label.localeCompare(b.label,undefined,{numeric:true}));
+  select.innerHTML = vendorSelected
+    ? '<option value="">Select vendor product...</option>'+vendorOptions.map(p=>`<option value="${esc(p.value)}">${esc(p.label)}</option>`).join("")
+    : `<option value="">Select product...</option>` + uniqueItems.map(item => `<option value="${esc(item.id)}">${esc(incomingProductLabel(item))}</option>`).join("");
   if (current && allItems.some(item => String(item.id) === String(current))) select.value = current;
 }
 
@@ -4284,6 +4313,8 @@ function syncIncomingTotalCostField() {
 }
 
 function addIncomingDraftLine() {
+  const unmatched=pstSelectedUnmatchedVendorItem();
+  if(unmatched){pstCreateUnmatchedVendorPO(unmatched).catch(e=>alert(e.message));return;}
   const product = selectedIncomingProduct();
   const enteredQty = Number($("incomingQty")?.value || 0);
   const qty = incomingRoundQtyToFullKits(enteredQty);
@@ -4330,6 +4361,7 @@ function resetIncomingOrderForm(options = {}) {
   if ($("incomingTotalCost")) $("incomingTotalCost").value = "";
   if ($("incomingVendorSelect")) $("incomingVendorSelect").value = "";
   pstVendorKitPrices=new Map();
+  pstVendorCatalogItems=[];
   if ($("incomingTracking")) $("incomingTracking").value = "";
   if ($("incomingStatus")) $("incomingStatus").value = "ordered";
   if ($("incomingNotes")) $("incomingNotes").value = "";
@@ -5013,6 +5045,8 @@ function setIncomingOrderDateToday(force=false) {
 }
 
 async function addIncomingInventory() {
+  const unmatched=pstSelectedUnmatchedVendorItem();
+  if(unmatched){await pstCreateUnmatchedVendorPO(unmatched);return;}
   if (editingIncomingPoNumber) {
     await saveIncomingPurchaseOrderEdit();
     return;
