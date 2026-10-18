@@ -4,7 +4,7 @@ const CART_KEY = "pst_cart_v1";
 const REORDER_NOTICE_KEY = "pst_reorder_notice_v1";
 const SUPPORT_EMAIL = "support@pepshoptexas.com";
 const ADMIN_ORDER_NOTIFICATION_EMAILS = ["wacoweaver@gmail.com"];
-const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,research_focus,series,description,research_notes,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
+const PRODUCT_FIELDS = "id,product_key,display_name,strength,category,research_focus,series,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,testing_statement,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label";
 const PROMOTION_FIELDS = "id,title,body,badge,button_text,button_link,image_url,is_active,starts_at,ends_at,sort_order,accent_color,audience";
 const EMAIL_FUNCTION_NAME = "send-order-email";
 const PAYMENT_OPTIONS_STORAGE_KEY = "pst_payment_options_v2";
@@ -659,8 +659,6 @@ async function renderProductDetail() {
           <a class="secondary-action" href="cart.html">View Inquiry</a>
         </div>
         <p class="research-use">Research use only. Not for human consumption.</p>
-        ${product.description ? `<section><h2>Description</h2><p>${escapeHtml(product.description)}</p></section>` : ""}
-        ${product.research_notes ? `<section><h2>Research Notes</h2>${researchNotesMarkup(product.research_notes)}</section>` : ""}
       </div>
     `;
     shell.querySelector("[data-detail-variant-select]")?.addEventListener("change", (event) => {
