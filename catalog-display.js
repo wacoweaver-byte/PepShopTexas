@@ -131,7 +131,7 @@
           b.addEventListener("click",()=>choose(p));strengths.appendChild(b);
         });
         choose(availableVariants.find(p=>p.product_key===selectedKey)||availableVariants[0]||active);
-        detail.querySelector(".pst-mobile-back").addEventListener("click",()=>grid.classList.remove("pst-mobile-open"));
+        detail.querySelector(".pst-mobile-back").addEventListener("click",()=>{grid.classList.remove("pst-mobile-open");requestAnimationFrame(()=>{const top=Math.max(0,window.scrollY+grid.getBoundingClientRect().top-12);window.scrollTo({left:0,top,behavior:"instant"});});});
         bindCartButtons();
         add.addEventListener("click",()=>{if(add.dataset.requestAvailability&&typeof window.pstOpenAvailabilityRequest==="function")window.pstOpenAvailabilityRequest(active);});
       }
