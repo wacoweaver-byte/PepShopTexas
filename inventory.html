@@ -2583,7 +2583,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       </div>
       <div class="field">
         <label>Kit Cost Override (10 vials)</label>
-        <input id="incomingKitCost" type="number" min="0" step="0.01" placeholder="Auto from inventory cost" />
+        <input id="incomingKitCost" type="number" min="0" step="0.01" placeholder="Auto from inventory cost" /><div id="incomingVendorPriceNote" class="note">Select a vendor and product to load the kit cost.</div>
       </div>
       <div class="field">
         <label>Ship / Fees</label>
@@ -2600,7 +2600,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       <div class="field">
         <label>Vendor</label>
         <select id="incomingVendorSelect"><option value="">Select vendor...</option></select>
-        <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div>
+        <div class="vendor-inline-note" id="incomingVendorInfo">Lead time fills from vendor.</div><a href="vendor-prices.html" target="_blank" rel="noopener" style="display:inline-block;margin-top:7px">Manage / Import Vendor Price Lists ↗</a>
       </div>
       <div class="field incoming-status-field">
         <label>Status</label>
@@ -2917,6 +2917,28 @@ let expandedIncomingPoNumbers = new Set();
 let selectedIncomingPoLineIds = new Set();
 let incomingPoHistoryVisible = false;
 let vendors = [];
+let pstVendorKitPrices = new Map();
+async function pstLoadVendorKitPrices(){
+ const id=$("incomingVendorSelect")?.value;
+ pstVendorKitPrices=new Map();
+ if(!id){pstApplyVendorKitPrice();return;}
+ const {data,error}=await db.from("pst_vendor_prices").select("product_key,kit_cost,vendor_item_number").eq("vendor_id",id);
+ if(error){console.warn("Vendor price list unavailable",error);return;}
+ for(const p of data||[])pstVendorKitPrices.set(String(p.product_key),p);
+ pstApplyVendorKitPrice();
+}
+function pstApplyVendorKitPrice(){
+ const product=selectedIncomingProduct();
+ const key=String(product?.product_key||product?._catalog_product_key||"");
+ const record=pstVendorKitPrices.get(key);
+ const field=$("incomingKitCost");
+ if(!field)return;
+ field.value=record?Number(record.kit_cost).toFixed(2):"";
+ field.placeholder=record?"Vendor kit price loaded":"Enter kit cost (no vendor price listed)";
+ if($("incomingVendorPriceNote"))$("incomingVendorPriceNote").textContent=record?"Vendor list: $"+Number(record.kit_cost).toFixed(2)+" per 10-vial kit.": "No saved vendor cost for this product; enter kit cost manually.";
+ syncIncomingTotalCostField();
+}
+
 let vendorsAvailable = false;
 let editingVendorId = null;
 const PST_INCOMING_LEAD_DAYS = 10;
@@ -3045,7 +3067,7 @@ function populateVendorDropdown() {
   updateIncomingVendorInfo();
 }
 
-function updateIncomingVendorInfo() {
+function updateIncomingVendorInfo() { pstLoadVendorKitPrices().catch(console.error);
   const vendor = selectedIncomingVendor();
   const info = $("incomingVendorInfo");
   if (info) {
@@ -4171,6 +4193,8 @@ function incomingDefaultKitCost() {
 
 function incomingAutoKitCostForProduct(product = {}) {
   const item = product || {};
+  const vendorRecord=pstVendorKitPrices.get(String(item.product_key||item._catalog_product_key||""));
+  if(vendorRecord)return Number(vendorRecord.kit_cost);
   const unitCost = Number(
     item.cost_per_unit ??
     item._catalog_cost_per_unit ??
@@ -6189,6 +6213,7 @@ function wireEvents() {
   if ($("addVendorBtn")) $("addVendorBtn")?.addEventListener("click", () => addVendor().catch(err => { console.error("Vendor save failed:", err); setStatus(err.message || "Vendor could not be saved.", "bad"); }));
   if ($("incomingVendorSelect")) $("incomingVendorSelect")?.addEventListener("change", updateIncomingVendorInfo);
   if ($("refreshIncomingBtn")) $("refreshIncomingBtn")?.addEventListener("click", loadIncomingInventory);
+  $("incomingProductSelect")?.addEventListener("change",pstApplyVendorKitPrice);
   ["incomingProductSelect","incomingQty","incomingShippingCost","incomingDiscountAmount"].forEach(id => {
     const el = $(id);
     if (el) el.addEventListener("input", syncIncomingTotalCostField);
