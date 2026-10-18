@@ -157,7 +157,8 @@
             list.querySelectorAll("button").forEach(el=>el.setAttribute("aria-current",String(el===b)));
             drawDetail(g);grid.classList.add("pst-mobile-open");
             requestAnimationFrame(()=>{
-               const target=Math.max(0,window.scrollY+grid.getBoundingClientRect().top-12);
+               const back=detail.querySelector(".pst-mobile-back");
+               const target=Math.max(0,window.scrollY+back.getBoundingClientRect().top-12);
                window.scrollTo({left:0,top:target,behavior:"instant"});
              });
           });
