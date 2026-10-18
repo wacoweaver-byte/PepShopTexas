@@ -4540,7 +4540,7 @@ function incomingPoCenterGroupElement(poNumber) {
     .find(element => cleanText(element.dataset.poNumber).toLowerCase() === cleanText(poNumber).toLowerCase()) || null;
 }
 
-function exportIncomingPurchaseOrderPDF(poNumber) {
+async function exportIncomingPurchaseOrderPDF(poNumber) {
   const rows = (incomingInventoryRows || []).filter(row => cleanText(row.po_number) === cleanText(poNumber));
   if (!rows.length) throw Error("Purchase order not found.");
   // The PDF is laid out directly in points on US Letter paper. No device's print CSS is involved.
