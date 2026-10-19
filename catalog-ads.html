@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-auth-guard="admin">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Pep Shop Texas | Catalog Advertisements</title>
+<style id="pst-auth-guard-style">html{visibility:hidden}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script defer src="auth-guard.js?v=1"></script>
+<style>
+:root{--navy:#102a43;--gold:#bb943f;--border:#d9e2ec}*{box-sizing:border-box}
+body{margin:0;font:15px Arial,Helvetica,sans-serif;background:#f4f7f9;color:var(--navy)}
+header{background:var(--navy);color:white;padding:16px max(20px,calc((100vw - 1100px)/2));display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;border-bottom:3px solid var(--gold)}
+header a{color:white;text-decoration:none;font-weight:700}header nav{display:flex;gap:22px;flex-wrap:wrap}
+main{max-width:1100px;margin:30px auto;padding:0 20px 60px}
+h1{font:normal 34px Georgia,serif;margin:0 0 9px}h2{font-size:20px}
+.panel{background:white;border:1px solid var(--border);border-radius:12px;padding:22px;margin:20px 0}
+.note{color:#637487;font-size:13px;line-height:1.5}
+label{display:grid;gap:7px;font-weight:700;margin:0 0 13px}
+input[type=text],input[type=number],input[type=file]{width:100%;padding:12px;border:1px solid #bdcad5;border-radius:7px;font:inherit}
+button,.button{background:var(--navy);color:white;border:1px solid var(--navy);border-radius:7px;padding:10px 16px;min-height:42px;font:700 14px Arial;cursor:pointer}
+button.secondary{background:white;color:var(--navy)}button.danger{border-color:#a92929;background:white;color:#a92929}
+button:disabled{opacity:.55;cursor:wait}
+.items{display:grid;gap:13px}
+.item{display:grid;grid-template-columns:180px minmax(0,1fr);gap:16px;padding:14px;border:1px solid var(--border);border-radius:9px;background:#fff}
+.item img{width:180px;height:140px;object-fit:contain;background:#102a43;border-radius:5px}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.row input[type=number]{max-width:95px}
+.item h3{margin:0 0 12px;overflow-wrap:anywhere}
+.status{min-height:20px;margin:12px 0;color:#176639}
+@media(max-width:600px){.item{grid-template-columns:1fr}.item img{width:100%;height:185px}h1{font-size:28px}}
+</style></head>
+<body>
+<header><strong>PEP SHOP TEXAS · ADMIN</strong><nav><a href="admin.html">Orders</a><a href="inventory.html">Inventory</a><a href="promotions.html">Promotions</a><a href="catalog.html" target="_blank" rel="noopener">View Catalog ↗</a></nav></header>
+<main><h1>Catalog Advertisement Manager</h1>
+<p>Manage the desktop carousel displayed under “Explore Our Research Catalog” before visitors select a peptide. The mobile catalog is unchanged.</p>
+<section class="panel"><h2>Upload Advertisement</h2>
+<form id="uploadForm">
+<label>Image (JPG, PNG, WebP, or GIF; maximum 10 MB)<input id="adFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required></label>
+<label>Advertisement title<input id="adTitle" type="text" maxlength="120" placeholder="Example: Featured research collection"></label>
+<button id="uploadBtn" type="submit">Upload Image</button>
+</form><p class="note">The uploaded image is displayed without cropping. Images rotate every 6.5 seconds on desktop; selecting a product hides the carousel.</p></section>
+<section class="panel"><h2>Carousel Images</h2><p class="note">Set display order, hide an image without deleting it, or permanently remove an image and its stored file.</p>
+<p id="status" class="status" role="status"></p><div id="items" class="items">Checking admin access…</div></section>
+</main>
+<script>
+(function(){
+ const URL_BASE="https://ucejjztsbmrogiteivxl.supabase.co",KEY="sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
+ const client=window.supabase.createClient(URL_BASE,KEY),bucket="catalog-carousel";
+ const $=id=>document.getElementById(id);
+ const status=(message,bad=false)=>{$("status").textContent=message;$("status").style.color=bad?"#a92929":"#176639"};
+ let records=[];
+ const escapeHtml=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ async function assertAdmin(){
+  const {data:{user},error}=await client.auth.getUser();if(error||!user)throw Error("Sign in as an administrator.");
+  const {data,error:roleError}=await client.from("admin_users").select("user_id").eq("user_id",user.id).eq("is_active",true).maybeSingle();
+  if(roleError||!data)throw Error("Administrator access required.");
+ }
+ async function refresh(){
+  const {data,error}=await client.from("catalog_carousel_ads").select("*").order("sort_order",{ascending:true}).order("created_at",{ascending:true});
+  if(error)throw error;records=data||[];const host=$("items");host.replaceChildren();
+  if(!records.length){host.textContent="No advertisements uploaded yet.";return;}
+  records.forEach(ad=>{
+   const div=document.createElement("div");div.className="item";const img=document.createElement("img");
+   img.src=client.storage.from(bucket).getPublicUrl(ad.image_path).data.publicUrl;img.alt=ad.title||"Catalog advertisement";
+   div.appendChild(img);const body=document.createElement("div");
+   body.innerHTML='<h3>'+escapeHtml(ad.title)+'</h3><div class="row"><label>Order <input type="number" min="0" step="1" data-sort value="'+Number(ad.sort_order||0)+'"></label><label><input type="checkbox" data-active '+(ad.is_active?'checked':'')+'> Active</label></div><div class="row"><button type="button" data-save>Save Changes</button><button type="button" class="danger" data-delete>Remove Image</button></div>';
+   div.appendChild(body);host.appendChild(div);
+   body.querySelector("[data-save]").onclick=async()=>{
+    const btn=body.querySelector("[data-save]");btn.disabled=true;
+    try{const order=Math.max(0,Math.trunc(Number(body.querySelector("[data-sort]").value)||0));
+     const {error}=await client.from("catalog_carousel_ads").update({sort_order:order,is_active:body.querySelector("[data-active]").checked}).eq("id",ad.id);
+     if(error)throw error;status("Advertisement updated.");await refresh();}
+    catch(e){status(e.message,true)}finally{btn.disabled=false}
+   };
+   body.querySelector("[data-delete]").onclick=async()=>{
+    if(!confirm("Permanently remove this advertisement?"))return;
+    const btn=body.querySelector("[data-delete]");btn.disabled=true;
+    try{const {error}=await client.from("catalog_carousel_ads").delete().eq("id",ad.id);if(error)throw error;
+     const {error:fileError}=await client.storage.from(bucket).remove([ad.image_path]);if(fileError)status("Advertisement removed from carousel, but its image file could not be removed: "+fileError.message,true);else status("Advertisement removed.");
+     await refresh();}
+    catch(e){status(e.message,true)}finally{btn.disabled=false}
+   };
+  });
+ }
+ $("uploadForm").addEventListener("submit",async e=>{
+  e.preventDefault();const file=$("adFile").files[0];if(!file)return;
+  if(!["image/jpeg","image/png","image/webp","image/gif"].includes(file.type)||file.size>10485760){status("Choose a supported image under 10 MB.",true);return}
+  const btn=$("uploadBtn");btn.disabled=true;status("Uploading image…");
+  const ext=({"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif"})[file.type];
+  const path=crypto.randomUUID()+"."+ext;
+  try{await assertAdmin();const {error:uploadError}=await client.storage.from(bucket).upload(path,file,{contentType:file.type,upsert:false});if(uploadError)throw uploadError;
+   const {error:dbError}=await client.from("catalog_carousel_ads").insert({image_path:path,title:$("adTitle").value.trim()||file.name,sort_order:records.reduce((m,r)=>Math.max(m,Number(r.sort_order)||0),0)+1,is_active:true});
+   if(dbError){await client.storage.from(bucket).remove([path]);throw dbError;}
+   $("uploadForm").reset();status("Advertisement uploaded and activated.");await refresh();}
+  catch(e){status(e.message,true)}finally{btn.disabled=false}
+ });
+ async function init(){try{await assertAdmin();await refresh()}catch(e){$("items").textContent=e.message;status(e.message,true)}}
+ window.addEventListener("pst-auth-ready",init,{once:true});
+ if(window.pstAuthenticatedUser)init();
+})();
+</script></body></html>
