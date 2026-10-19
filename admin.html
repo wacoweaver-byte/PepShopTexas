@@ -1570,6 +1570,22 @@ body[data-admin-page="orders"] #order-list-card,
 body[data-admin-page="orders"] #detailCard {height:auto!important;max-height:none!important;overflow:visible!important;align-self:start!important;}
 body[data-admin-page="orders"] #order-list-card .table-wrap {height:auto!important;max-height:none!important;min-height:0!important;resize:none!important;overflow-x:auto!important;overflow-y:visible!important;}
 </style>
+<style id="pst-mobile-email-actions-fix">
+@media (max-width: 800px) {
+  #detailCard, #detailCard .card-body, #detailCard .detail-section,
+  #detailCard .email-box, #detailCard .email-action-group,
+  #detailCard .email-action-buttons {box-sizing:border-box!important;min-width:0!important;max-width:100%!important}
+  #detailCard {width:100%!important;overflow-x:hidden!important}
+  #detailCard .email-box {padding:12px!important;overflow:visible!important}
+  #detailCard .email-action-group {display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:10px!important;width:100%!important;padding:12px!important}
+  #detailCard .email-action-group>strong {display:block!important;min-width:0!important;width:100%!important;font-size:15px!important;line-height:1.35!important;overflow-wrap:anywhere!important}
+  #detailCard .email-action-group>div {width:100%!important;min-width:0!important;max-width:100%!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:9px!important}
+  #detailCard #awaitingPaymentEmailMethod {flex:0 1 auto!important;min-width:0!important;width:100%!important;max-width:100%!important;height:42px!important}
+  #detailCard .email-action-buttons {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;gap:9px!important;align-items:stretch!important}
+  #detailCard .email-action-buttons button.btn {display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important;min-height:44px!important;height:44px!important;padding:8px 10px!important;font-size:14px!important;line-height:1.2!important;white-space:normal!important}
+  #detailCard .tracking-link {max-width:100%!important;overflow-wrap:anywhere!important}
+}
+</style>
 </head>
 <body class="admin-auth-pending" data-admin-page="orders">
 <header class="pst-admin-header">
