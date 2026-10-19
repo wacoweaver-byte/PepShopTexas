@@ -1573,6 +1573,11 @@ body[data-admin-page="orders"] #order-list-card .table-wrap {height:auto!importa
 <style id="pst-mobile-email-actions-fix">
 /* Compact, legible shipment/order email controls on phones. */
 @media (max-width:800px) {
+  #ordersGrid.admin-dashboard-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;min-width:0!important;max-width:100%!important}
+  #ordersGrid > .card{grid-column:1/-1!important;width:100%!important;min-width:0!important;max-width:100%!important}
+  #detailCard .card-body,#detailCard .detail-section,#detailCard .email-box{width:100%!important;min-width:0!important;overflow-wrap:break-word!important}
+  #detailCard .email-box > div{min-width:0!important;max-width:100%!important;width:100%!important;grid-template-columns:minmax(0,1fr)!important}
+
   #detailCard, #detailCard .card-body, #detailCard .detail-section, #detailCard .email-box {
     box-sizing:border-box!important;min-width:0!important;max-width:100%!important;
   }
