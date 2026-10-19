@@ -15,6 +15,9 @@
   .pst-list-button[aria-current="true"]{background:#eef4f9;border-left:4px solid #102a43;padding-left:15px}
   .pst-split-detail{min-width:0;width:100%;max-width:none;box-sizing:border-box;padding:30px 34px;color:#102a43}
   .pst-split-detail h2{font-size:2rem;margin:0 0 6px;color:#102a43}
+  .pst-catalog-welcome{min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:42px 20px;box-sizing:border-box;color:#102a43}
+  .pst-catalog-welcome h2{font-size:1.8rem!important;margin:0 0 14px!important}
+  .pst-catalog-welcome p{font-size:1rem;max-width:440px;color:#627487;margin:0;line-height:1.6}
   .pst-blend-subtitle{font-size:1.3rem;font-weight:600;line-height:1.35;color:#102a43;margin:0 0 10px}\n  .pst-split-category{color:#627487;margin:0 0 16px}
   .pst-split-detail p{line-height:1.55}
   .pst-split-detail h3{font-size:1.08rem;margin:20px 0 12px}
@@ -91,7 +94,7 @@
       syncFocus();
       focusButtons.forEach(b=>b.addEventListener("click",()=>{focusFilter=b.dataset.focus;syncFocus();grid.classList.remove("pst-mobile-open");drawList();}));
       function drawDetail(group){
-        if(!group||!group.length){detail.innerHTML='<p>Select a product to view details.</p>';return;}
+        if(!group||!group.length){detail.innerHTML='<div class="pst-catalog-welcome"><h2>Explore Our Research Catalog</h2><p>Select a product from the list to view its available strengths and details.</p></div>';return;}
         let active=group.find(p=>p.product_key===selectedKey)||group[0];
         const title=active.display_name||"";
         const blend=String(title).trim().match(/^(.+?)\s*\(([^()]+)\)\s*$/);
@@ -147,7 +150,7 @@
         list.replaceChildren();
         if(!currentGroups.length){list.innerHTML='<p style="padding:20px">No matching products.</p>';detail.innerHTML='<p>No matching products.</p>';return;}
         let chosen=currentGroups.find(g=>g.some(p=>p.product_key===selectedKey));
-        if(!chosen){chosen=currentGroups[0];selectedKey=chosen[0].product_key;}
+        if(!chosen) selectedKey="";
         currentGroups.forEach(g=>{
           const p=g[0];const b=document.createElement("button");b.type="button";b.className="pst-list-button";
           b.dataset.key=p.product_key;b.setAttribute("aria-current",String(g===chosen));
@@ -164,7 +167,7 @@
           });
           list.appendChild(b);
         });
-        drawDetail(chosen);
+        drawDetail(chosen||null);
       }
       window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
       search.addEventListener("input",()=>{grid.classList.remove("pst-mobile-open");drawList()});
