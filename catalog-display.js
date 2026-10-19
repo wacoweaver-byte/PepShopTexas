@@ -15,6 +15,15 @@
   .pst-list-button[aria-current="true"]{background:#eef4f9;border-left:4px solid #102a43;padding-left:15px}
   .pst-split-detail{min-width:0;width:100%;max-width:none;box-sizing:border-box;padding:30px 34px;color:#102a43}
   .pst-split-detail h2{font-size:2rem;margin:0 0 6px;color:#102a43}
+  .pst-carousel{position:relative;width:100%;max-width:840px;margin:20px auto 0}
+  .pst-carousel-viewport{background:#102a43;border:1px solid #c59c49;border-radius:10px;overflow:hidden;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
+  .pst-carousel-viewport img{display:block;width:100%;height:100%;object-fit:contain}
+  .pst-carousel-arrow{position:absolute;top:45%;border:1px solid #c59c49;background:#fff;color:#102a43;border-radius:50%;width:38px;height:38px;font-size:23px;cursor:pointer;z-index:1;display:grid;place-items:center}
+  .pst-carousel-arrow.prev{left:-16px}.pst-carousel-arrow.next{right:-16px}
+  .pst-carousel-dots{display:flex;justify-content:center;gap:9px;margin:13px auto}
+  .pst-carousel-dots button{width:11px;height:11px;padding:0;border-radius:50%;border:0;background:#cbd5df;cursor:pointer}
+  .pst-carousel-dots button[aria-current="true"]{background:#b99038}
+  @media(max-width:760px){.pst-carousel{display:none!important}}
   .pst-catalog-welcome{min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:42px 20px;box-sizing:border-box;color:#102a43}
   .pst-catalog-welcome h2{font-size:1.8rem!important;margin:0 0 14px!important}
   .pst-catalog-welcome p{font-size:1rem;max-width:440px;color:#627487;margin:0;line-height:1.6}
@@ -89,12 +98,39 @@
       const detail=grid.querySelector(".pst-split-detail");
       search.value=query;
 
+      let carouselAds=[];
+      let carouselIndex=0;
+      let carouselTimer=null;
+      const carouselClient=(typeof requireSupabaseClient==="function")?requireSupabaseClient():null;
+      function clearCarouselTimer(){if(carouselTimer!==null){clearInterval(carouselTimer);carouselTimer=null;}}
+      function showWelcome(){
+        clearCarouselTimer();
+        detail.innerHTML='<div class="pst-catalog-welcome"><h2>Explore Our Research Catalog</h2><p>Select a product to view its available strengths and details.</p><div class="pst-carousel" aria-label="Catalog advertisements"></div></div>';
+        const host=detail.querySelector(".pst-carousel");
+        if(window.matchMedia("(max-width:760px)").matches||!carouselAds.length){host.remove();return;}
+        host.innerHTML='<button class="pst-carousel-arrow prev" type="button" aria-label="Previous advertisement">‹</button><div class="pst-carousel-viewport"><img alt="Pep Shop Texas advertisement"></div><button class="pst-carousel-arrow next" type="button" aria-label="Next advertisement">›</button><div class="pst-carousel-dots" role="group" aria-label="Choose advertisement"></div>';
+        const img=host.querySelector("img"),dots=host.querySelector(".pst-carousel-dots");
+        carouselAds.forEach((ad,i)=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-label","Advertisement "+(i+1));b.addEventListener("click",()=>showAd(i));dots.appendChild(b);});
+        function showAd(index){
+          carouselIndex=(index+carouselAds.length)%carouselAds.length;
+          const ad=carouselAds[carouselIndex];
+          img.src=carouselClient.storage.from("catalog-carousel").getPublicUrl(ad.image_path).data.publicUrl;
+          img.alt=ad.title||"Pep Shop Texas advertisement";
+          [...dots.children].forEach((b,i)=>b.setAttribute("aria-current",String(i===carouselIndex)));
+        }
+        host.querySelector(".prev").addEventListener("click",()=>showAd(carouselIndex-1));
+        host.querySelector(".next").addEventListener("click",()=>showAd(carouselIndex+1));
+        showAd(carouselIndex);
+        if(carouselAds.length<=1){host.querySelectorAll(".pst-carousel-arrow").forEach(b=>b.hidden=true);dots.hidden=true;}
+        else carouselTimer=setInterval(()=>{if(!document.hidden&&!selectedKey&&detail.contains(host))showAd(carouselIndex+1);},6500);
+      }
+      if(carouselClient)carouselClient.from("catalog_carousel_ads").select("id,title,image_path,sort_order").eq("is_active",true).order("sort_order",{ascending:true}).order("created_at",{ascending:true}).then(({data,error})=>{if(!error){carouselAds=data||[];if(!selectedKey)showWelcome();}});
       const focusButtons=[...grid.querySelectorAll("[data-focus]")];
       function syncFocus(){focusButtons.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.focus===focusFilter)));}
       syncFocus();
       focusButtons.forEach(b=>b.addEventListener("click",()=>{focusFilter=b.dataset.focus;syncFocus();grid.classList.remove("pst-mobile-open");drawList();}));
       function drawDetail(group){
-        if(!group||!group.length){detail.innerHTML='<div class="pst-catalog-welcome"><h2>Explore Our Research Catalog</h2><p>Select a product from the list to view its available strengths and details.</p></div>';return;}
+        if(!group||!group.length){showWelcome();return;} clearCarouselTimer();
         let active=group.find(p=>p.product_key===selectedKey)||group[0];
         const title=active.display_name||"";
         const blend=String(title).trim().match(/^(.+?)\s*\(([^()]+)\)\s*$/);
