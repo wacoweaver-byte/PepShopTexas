@@ -1597,11 +1597,12 @@ body[data-admin-page="orders"] #order-list-card .table-wrap {height:auto!importa
     height:42px!important;font-size:14px!important;
   }
   #detailCard .email-action-group .email-action-buttons {
-    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    flex-direction:initial!important;box-sizing:border-box!important;
+    display:flex!important;flex-direction:column!important;
+    grid-template-columns:none!important;box-sizing:border-box!important;
     min-width:0!important;max-width:100%!important;width:100%!important;
     align-items:stretch!important;gap:8px!important;
   }
+  #detailCard .email-action-group .email-action-buttons > button {flex:0 0 42px!important;position:static!important;inset:auto!important;transform:none!important}
   #detailCard .email-action-group .email-action-buttons > button.btn {
     display:inline-flex!important;align-items:center!important;justify-content:center!important;
     box-sizing:border-box!important;min-width:0!important;max-width:100%!important;width:100%!important;
