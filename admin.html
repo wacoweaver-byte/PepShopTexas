@@ -1571,18 +1571,54 @@ body[data-admin-page="orders"] #detailCard {height:auto!important;max-height:non
 body[data-admin-page="orders"] #order-list-card .table-wrap {height:auto!important;max-height:none!important;min-height:0!important;resize:none!important;overflow-x:auto!important;overflow-y:visible!important;}
 </style>
 <style id="pst-mobile-email-actions-fix">
-@media (max-width: 800px) {
-  #detailCard, #detailCard .card-body, #detailCard .detail-section,
-  #detailCard .email-box, #detailCard .email-action-group,
-  #detailCard .email-action-buttons {box-sizing:border-box!important;min-width:0!important;max-width:100%!important}
+/* Compact, legible shipment/order email controls on phones. */
+@media (max-width:800px) {
+  #detailCard, #detailCard .card-body, #detailCard .detail-section, #detailCard .email-box {
+    box-sizing:border-box!important;min-width:0!important;max-width:100%!important;
+  }
   #detailCard {width:100%!important;overflow-x:hidden!important}
   #detailCard .email-box {padding:12px!important;overflow:visible!important}
-  #detailCard .email-action-group {display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:10px!important;width:100%!important;padding:12px!important}
-  #detailCard .email-action-group>strong {display:block!important;min-width:0!important;width:100%!important;font-size:15px!important;line-height:1.35!important;overflow-wrap:anywhere!important}
-  #detailCard .email-action-group>div {width:100%!important;min-width:0!important;max-width:100%!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:9px!important}
-  #detailCard #awaitingPaymentEmailMethod {flex:0 1 auto!important;min-width:0!important;width:100%!important;max-width:100%!important;height:42px!important}
-  #detailCard .email-action-buttons {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;gap:9px!important;align-items:stretch!important}
-  #detailCard .email-action-buttons button.btn {display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important;min-height:44px!important;height:44px!important;padding:8px 10px!important;font-size:14px!important;line-height:1.2!important;white-space:normal!important}
+  #detailCard .email-action-group {
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    justify-content:flex-start!important;box-sizing:border-box!important;
+    min-width:0!important;max-width:100%!important;width:100%!important;
+    padding:12px!important;gap:9px!important;
+  }
+  #detailCard .email-action-group > strong {
+    display:block!important;min-width:0!important;width:auto!important;
+    font-size:15px!important;line-height:1.3!important;overflow-wrap:anywhere!important;
+  }
+  #detailCard .email-action-group > div:not(.email-action-buttons) {
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    min-width:0!important;width:100%!important;max-width:100%!important;gap:9px!important;
+  }
+  #detailCard #awaitingPaymentEmailMethod {
+    flex:0 0 auto!important;min-width:0!important;width:100%!important;max-width:100%!important;
+    height:42px!important;font-size:14px!important;
+  }
+  #detailCard .email-action-group .email-action-buttons {
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    flex-direction:initial!important;box-sizing:border-box!important;
+    min-width:0!important;max-width:100%!important;width:100%!important;
+    align-items:stretch!important;gap:8px!important;
+  }
+  #detailCard .email-action-group .email-action-buttons > button.btn {
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    box-sizing:border-box!important;min-width:0!important;max-width:100%!important;width:100%!important;
+    min-height:42px!important;max-height:42px!important;height:42px!important;
+    padding:9px 8px!important;font:700 14px/1.2 Arial,Helvetica,sans-serif!important;
+    letter-spacing:0!important;text-transform:none!important;text-align:center!important;
+    opacity:1!important;visibility:visible!important;border-radius:7px!important;
+    box-shadow:none!important;white-space:nowrap!important;
+  }
+  #detailCard .email-action-group .email-action-buttons > button.preview-email-action {
+    background:#fff!important;color:#102a43!important;border:1px solid #102a43!important;
+    -webkit-text-fill-color:#102a43!important;
+  }
+  #detailCard .email-action-group .email-action-buttons > button.email-action {
+    background:#19324d!important;color:#fff!important;border:1px solid #19324d!important;
+    -webkit-text-fill-color:#fff!important;
+  }
   #detailCard .tracking-link {max-width:100%!important;overflow-wrap:anywhere!important}
 }
 </style>
