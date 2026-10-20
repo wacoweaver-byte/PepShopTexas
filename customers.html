@@ -37,7 +37,7 @@
 </header>
 <div id="adminStatus" style="display:none;">Checking admin access...</div>
 <main>
-  <div class="button-row" style="margin-top:0;"><button class="btn" id="addCustomerBtn">+ Add Customer</button><a class="btn secondary" href="manual-order.html">+ Create Order</a><button class="btn secondary" id="refreshBtn">Refresh</button><button id="exportCsvBtn" class="btn secondary">Export CSV</button></div>
+  <div class="button-row" style="margin-top:0;"><button class="btn" id="addCustomerBtn">+ Add Customer</button><button class="btn secondary" id="inviteCustomerBtn" type="button">+ Create Login Account</button><a class="btn secondary" href="manual-order.html">+ Create Order</a><button class="btn secondary" id="refreshBtn">Refresh</button><button id="exportCsvBtn" class="btn secondary">Export CSV</button></div>
   <div class="notice"><strong>Payment privacy rule:</strong> full card numbers, bank account numbers, routing numbers, payment tokens, authorization IDs, and saved payment credentials are never displayed by this page. Only safe last-four fields such as <code>card_last4</code>, <code>cc_last4</code>, <code>bank_last4</code>, or <code>account_last4</code> are allowed if those columns exist.</div>
   <section class="panel"><h2>Filters</h2><div class="controls-grid">
     <div class="control"><label for="searchInput">Search</label><input id="searchInput" placeholder="Name, email, phone, city, notes..." /></div>
@@ -72,6 +72,13 @@
 </div><div class="status-line" id="manualCustomerStatus"></div>
 <div class="button-row"><button class="btn" id="saveManualCustomerBtn" type="submit">Save Customer</button><button class="btn secondary" id="cancelManualCustomerBtn" type="button">Cancel</button></div>
 </form></div></div>
+<div class="modal-backdrop" id="inviteCustomerModal"><div class="modal" style="max-width:760px"><h2>Create Customer Login</h2><p class="subhead">Send an invitation so the customer can set their own password. Existing manual customers with the same email will be linked automatically.</p><form id="inviteCustomerForm"><div class="detail-grid">
+<label>First Name *<input name="first_name" required maxlength="100"></label><label>Last Name *<input name="last_name" required maxlength="100"></label>
+<label>Email *<input name="email" type="email" required maxlength="250"></label><label>Phone<input name="phone" type="tel"></label>
+<label>Researcher Type *<select name="research_role" required><option value="">Select researcher type</option><option>Independent Researcher</option><option>Laboratory / Research Facility</option><option>Healthcare / Medical Office</option><option>Compounding / Formulation Business</option><option>Academic / University Research</option><option>Biotech / Pharmaceutical Research</option><option>Other Research-Related Use</option></select></label>
+<label>Shipping Address<input name="shipping_address"></label><label>City<input name="shipping_city"></label><label>State<input name="shipping_state"></label><label>ZIP<input name="shipping_zip"></label>
+<label style="grid-column:1/-1;display:flex;align-items:center;gap:8px"><input name="marketing_opt_in" type="checkbox" style="width:auto"> Customer explicitly consented to promotional emails</label>
+</div><div class="status-line" id="inviteCustomerStatus" role="status"></div><div class="button-row"><button class="btn" id="sendInviteBtn" type="submit">Create Account &amp; Send Invitation</button><button class="btn secondary" type="button" id="cancelInviteBtn">Cancel</button></div></form></div></div>
 <div class="modal-backdrop" id="blastModal"><div class="modal"><h2>Email Blast Eligible List</h2><p class="subhead">This list excludes customers who appear opted out. Use your email platform’s unsubscribe handling and do not manually re-add opted-out customers.</p><textarea class="email-output" id="emailOutput" readonly></textarea><div class="button-row"><button class="btn secondary" id="copyBlastEmailsBtn">Copy Emails</button><button id="downloadBlastEmailsBtn" class="btn secondary">Download TXT</button><button id="closeBlastModalBtn" class="btn secondary">Close</button></div><div class="status-line" id="blastStatus"></div></div></div>
 <div class="modal-backdrop" id="customerModal"><div class="modal"><h2 id="modalCustomerName">Customer</h2><p class="subhead" id="modalCustomerEmail"></p><div class="detail-grid" id="modalDetails"></div><section class="credit-panel"><h3>Store Credit</h3><div class="credit-balance" id="storeCreditBalance">$0.00</div><div class="credit-controls"><label>Amount<input id="storeCreditAmount" type="number" min="0.01" step="0.01" placeholder="25.00"></label><label>Reason<input id="storeCreditReason" type="text" maxlength="180" placeholder="Return, service recovery, promotion..."></label></div><div class="button-row"><button class="btn secondary" id="addStoreCreditBtn">Add Credit</button><button id="deductStoreCreditBtn" class="btn secondary">Deduct Credit</button></div><div class="status-line" id="storeCreditStatus"></div><div class="credit-history" id="storeCreditHistory"></div></section><div class="button-row"><button id="createCustomerOrderBtn" class="btn">+ Create Order</button><button id="closeCustomerModalBtn" class="btn secondary">Close</button></div></div></div>
 <script>
@@ -138,5 +145,24 @@ document.addEventListener("DOMContentLoaded",()=>{renderColumnToggles();wireEven
 </script>
 <script>window.addEventListener("error",function(event){var el=document.getElementById("loadStatus");if(el)el.innerHTML='<span class="error">Customer page script error: '+String(event.message||'Unknown error')+'</span>'});window.addEventListener("unhandledrejection",function(event){var el=document.getElementById("loadStatus"),reason=event&&event.reason?(event.reason.message||event.reason):'Unknown promise error';if(el)el.innerHTML='<span class="error">Customer page load error: '+String(reason)+'</span>'});</script>
 <script defer src="email-blast.js?v=2"></script>\n<script defer src="admin-footer.js?v=4"></script>
-</body>
+<script>
+(()=>{
+ const by=id=>document.getElementById(id),modal=by("inviteCustomerModal"),form=by("inviteCustomerForm"),status=by("inviteCustomerStatus");
+ const close=()=>modal.classList.remove("active");
+ by("inviteCustomerBtn").addEventListener("click",()=>{status.textContent="";modal.classList.add("active")});
+ by("cancelInviteBtn").addEventListener("click",close);
+ modal.addEventListener("click",e=>{if(e.target===modal)close()});
+ form.addEventListener("submit",async e=>{
+ e.preventDefault();const button=by("sendInviteBtn");button.disabled=true;status.textContent="Sending invitation...";
+ try{
+  const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();
+  if(sessionError||!session)throw Error("Admin session expired. Sign in again.");
+  const data=Object.fromEntries(new FormData(form).entries());data.marketing_opt_in=form.elements.marketing_opt_in.checked;
+  const response=await fetch(SUPABASE_URL+"/functions/v1/admin-invite-customer",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify(data)});
+  const result=await response.json();if(!response.ok)throw Error(result.error||"Invitation failed");
+  status.textContent=result.message;form.reset();await loadCustomers();
+ }catch(error){status.textContent=error.message||"Invitation failed"}finally{button.disabled=false}
+ });
+})();
+</script></body>
 </html>
