@@ -2001,9 +2001,31 @@ body[data-admin-page="orders"] #order-list-card .table-wrap {height:auto!importa
         const payload={product_name:row.product_name,product_strength:row.product_strength,quantity:row.quantity,unit_price:row.unit_price,line_total:pstEditMoney(row.quantity*row.unit_price),updated_at:now};
         if(row.id){const {data,error}=await supabaseClient.from("order_items").update(payload).eq("id",row.id).eq("order_id",order.id).select("id");if(error)throw error;if(!data?.length)throw new Error("Could not update an existing item.");}
         else{
-          // order_items belongs to the customer through order_id -> orders.
-          // Do not insert customer_id, user_id or product_key: those fields are not part of this item schema.
-          const insert={order_id:order.id,product_name:row.product_name,product_strength:row.product_strength,quantity:row.quantity,unit_price:row.unit_price,line_total:payload.line_total,created_at:now};
+          // Resolve the real inventory key before inserting: the reservation trigger
+          // requires it on priced items. Existing orders retain names such as
+          // Bacteriostatic Water even when the inventory display name has changed.
+          let productKey=String(row.product_key||"").trim();
+          if(!productKey){
+            const {data:matches,error:matchError}=await supabaseClient.from("order_items")
+              .select("product_key,product_id,product_name,product_strength")
+              .ilike("product_name",row.product_name)
+              .ilike("product_strength",row.product_strength)
+              .not("product_key","is",null).limit(40);
+            if(matchError)throw matchError;
+            const keys=[...new Set((matches||[]).map(item=>item.product_key).filter(Boolean))];
+            if(keys.length===1)productKey=keys[0];
+          }
+          if(!productKey){
+            throw new Error("Select "+row.product_name+" "+row.product_strength+" from the catalog. A valid inventory product is required.");
+          }
+          const {data:stock,error:stockError}=await supabaseClient.from("product_inventory")
+            .select("product_key,current_inventory,is_active").eq("product_key",productKey).maybeSingle();
+          if(stockError)throw stockError;
+          if(!stock)throw new Error("No inventory record for "+row.product_name+" "+row.product_strength+" ("+productKey+").");
+          if(Number(row.unit_price)>0&&(!stock.is_active||Number(stock.current_inventory)<row.quantity)){
+            throw new Error("Insufficient available inventory for "+row.product_name+" "+row.product_strength+".");
+          }
+          const insert={order_id:order.id,product_name:row.product_name,product_strength:row.product_strength,quantity:row.quantity,unit_price:row.unit_price,line_total:payload.line_total,created_at:now,product_key:productKey};
           if(row.product_id)insert.product_id=row.product_id;
           const {error}=await supabaseClient.from("order_items").insert(insert);if(error)throw error;
         }
