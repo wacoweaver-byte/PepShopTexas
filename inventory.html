@@ -4338,20 +4338,20 @@ function syncIncomingTotalCostField() {
 
 function addIncomingDraftLine() {
   const unmatched=pstSelectedUnmatchedVendorItem();
-  if(unmatched){pstCreateUnmatchedVendorPO(unmatched).catch(e=>alert(e.message));return;}
   const product = selectedIncomingProduct();
   const enteredKits = Number($("incomingQty")?.value || 0);
   const qty = enteredKits * PST_KIT_VIAL_COUNT;
   const typedKitCost = Number($("incomingKitCost")?.value || 0);
-  const kitCost = typedKitCost > 0 ? typedKitCost : incomingAutoKitCostForProduct(product);
-  if (!product) { alert("Select a product before adding a line."); return; }
+  const kitCost = typedKitCost > 0 ? typedKitCost : (unmatched ? Number(unmatched.kit_cost) : incomingAutoKitCostForProduct(product));
+  if (!product && !unmatched) { alert("Select a product before adding a line."); return; }
   if (!Number.isInteger(enteredKits) || enteredKits <= 0) { alert("Enter a whole number of kits."); return; }
   if (!Number.isFinite(kitCost) || kitCost <= 0) { alert("Enter the vendor cost per kit before adding this line."); return; }
   incomingDraftLines.push({
     id: crypto?.randomUUID ? crypto.randomUUID() : `draft_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-    productId: product.id,
-    productKey: product._catalog_product_key || product.product_key || null,
-    productName: incomingProductLabel(product),
+    productId: product?.id || null,
+    productKey: product?._catalog_product_key || product?.product_key || null,
+    productName: unmatched ? unmatched.product_name+" — "+(unmatched.strength||"")+" [Vendor SKU: "+unmatched.vendor_item_number+"]" : incomingProductLabel(product),
+    vendorOnly:!!unmatched,
     qty,
     kitCost
   });
@@ -5119,7 +5119,6 @@ function setIncomingOrderDateToday(force=false) {
 
 async function addIncomingInventory() {
   const unmatched=pstSelectedUnmatchedVendorItem();
-  if(unmatched){await pstCreateUnmatchedVendorPO(unmatched);return;}
   if (editingIncomingPoNumber) {
     await saveIncomingPurchaseOrderEdit();
     return;
@@ -5141,7 +5140,7 @@ async function addIncomingInventory() {
 
   if (!lines.length) { alert("Add at least one product line to the incoming order."); return; }
   if(lines.some(line => incomingLineKitCost(line)<=0)){alert("Every PO line requires a vendor kit cost. Add a vendor price or enter a kit cost manually.");return;}
-  if (lines.some(line => !line.productId || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
+  if (lines.some(line => (!line.productId && !line.vendorOnly) || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
     alert("Every incoming line needs a product and ordered quantity greater than zero.");
     return;
   }
@@ -5193,7 +5192,7 @@ async function addIncomingInventory() {
       lead_time_days: leadTimeDays,
       tracking_number: trackingNumber,
       status,
-      notes: userNote,
+      notes: line.vendorOnly ? "UNMATCHED VENDOR PRODUCT — receiving must be manually matched before inventory addition" : userNote,
       ordered_at: orderedAt,
       expected_arrival_date: expectedArrival,
       created_at: orderedAt,
@@ -5228,7 +5227,7 @@ async function saveIncomingPurchaseOrderEdit() {
   if (!poNumber) return;
 
   const lines = incomingDraftLines.slice();
-  if (lines.some(line => !line.productId || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
+  if (lines.some(line => (!line.productId && !line.vendorOnly) || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
     alert("Every retained or added PO line needs a product and ordered quantity greater than zero.");
     return;
   }
