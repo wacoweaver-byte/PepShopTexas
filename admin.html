@@ -2001,12 +2001,10 @@ body[data-admin-page="orders"] #order-list-card .table-wrap {height:auto!importa
         const payload={product_name:row.product_name,product_strength:row.product_strength,quantity:row.quantity,unit_price:row.unit_price,line_total:pstEditMoney(row.quantity*row.unit_price),updated_at:now};
         if(row.id){const {data,error}=await supabaseClient.from("order_items").update(payload).eq("id",row.id).eq("order_id",order.id).select("id");if(error)throw error;if(!data?.length)throw new Error("Could not update an existing item.");}
         else{
-          const first=oldItems[0]||{};
-          const insert={order_id:order.id,product_name:row.product_name,product_strength:row.product_strength,quantity:row.quantity,unit_price:row.unit_price,line_total:payload.line_total,created_at:now,updated_at:now};
+          // order_items belongs to the customer through order_id -> orders.
+          // Do not insert customer_id, user_id or product_key: those fields are not part of this item schema.
+          const insert={order_id:order.id,product_name:row.product_name,product_strength:row.product_strength,quantity:row.quantity,unit_price:row.unit_price,line_total:payload.line_total,created_at:now};
           if(row.product_id)insert.product_id=row.product_id;
-          if(row.product_key)insert.product_key=row.product_key;
-          if(order.user_id||first.user_id)insert.user_id=order.user_id||first.user_id;
-          if(order.customer_id||first.customer_id)insert.customer_id=order.customer_id||first.customer_id;
           const {error}=await supabaseClient.from("order_items").insert(insert);if(error)throw error;
         }
       }
