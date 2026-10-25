@@ -1,7 +1,7 @@
 /* Pep Shop Texas service worker (v3: tells open pages when an alert arrives so the bell updates). Network-first pages, cached static files, push alerts.
    Admin pages and every Supabase call always go straight to the network. */
-const V = "pst-v40";
-const CORE = ["offline.html", "css/pst-bl.css?v=40", "js/pst-core.js?v=40", "img/pst-emblem-96.webp", "img/pst-emblem-192.webp", "icons/icon-192.png", "icons/badge-96.png"];
+const V = "pst-v41";
+const CORE = ["offline.html", "css/pst-bl.css?v=41", "js/pst-core.js?v=41", "img/pst-emblem-96.webp", "img/pst-emblem-192.webp", "icons/icon-192.png", "icons/badge-96.png"];
 const ADMIN = /\/(admin|admin-coa|inventory|products|promotions|reports|customers|discounts|manual-order|availability-requests|bulk-requests)\.html$/;
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

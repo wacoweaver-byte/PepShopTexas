@@ -142,7 +142,7 @@ ${due.length ? due.map(d => `<div class="dueitem"><div><b>${esc(d.x.product_name
     el.innerHTML = `<h2 class="serif" style="font-size:2rem">Notifications</h2><div data-npanel><p class="muted small">Loading…</p></div>
 <h3 class="serif" style="font-size:1.4rem;margin:30px 0 8px">The app</h3>
 <div class="setrow"><div><b>Pep Shop Texas app</b><span>${P.isStandalone() ? "You're using the app. It opens on the shop and keeps you signed in." : "Add it to your Home Screen. It opens signed in, right on the shop."}</span></div>${P.isStandalone() ? "" : `<a class="btn ghost sm" href="install.html">Get the app</a>`}</div>
-${admin ? `<div class="setrow"><div><b>Store owner</b><span>Order inbox with new-order alerts, plus the full admin dashboard.</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn primary sm" href="owner.html">Order inbox</a><a class="btn ghost sm" href="admin.html">Admin</a></div></div>` : ""}
+${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (orders, payments, products, customers, alerts) and the full admin dashboard. Add the owner app to your Home Screen from its page.</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn primary sm" href="owner.html">Owner app</a><a class="btn ghost sm" href="admin.html">Admin</a></div></div>` : ""}
 <div class="setrow"><div><b>Signed in as</b><span>${esc(user.email)}</span></div><button class="btn ghost sm" type="button" data-signout>Sign out</button></div>
 <p class="muted small" style="margin-top:14px"><a class="linkish" href="forgot-password.html">Change password</a></p>`;
     P.notifyPanel($("[data-npanel]", el), "customer");

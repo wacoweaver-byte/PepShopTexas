@@ -650,8 +650,8 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
       const a = $("[data-acct]"); if (!a) return;
       if (u) { const p = await getProfile(u); a.textContent = `Hi, ${firstName(p, u)}`; refreshBell(); appAlertsNudge();
         if (await isAdmin(u)) { // same as his old header: staff see an Admin link (plus the order inbox)
-          a.insertAdjacentHTML("beforebegin", `<a href="admin.html" data-adminlink>Admin</a>`);
-          $("#drawer nav")?.insertAdjacentHTML("afterbegin", `<details open><summary>Store owner</summary><a href="admin.html">Admin dashboard</a><a href="owner.html">Order inbox &amp; alerts</a></details>`);
+          a.insertAdjacentHTML("beforebegin", `<a href="owner.html" data-adminlink>Owner app</a><a href="admin.html" data-adminlink>Admin</a>`);
+          $("#drawer nav")?.insertAdjacentHTML("afterbegin", `<details open><summary>Store owner</summary><a href="owner.html">Owner app (phone)</a><a href="admin.html">Admin dashboard</a></details>`);
         } }
       else a.href = `login.html?redirect=${encodeURIComponent((location.pathname.split("/").pop() || "index.html") + location.search)}`;
       const promo = await activePromotion(u).catch(() => null), el = $("[data-annc]");

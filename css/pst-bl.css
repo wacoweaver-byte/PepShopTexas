@@ -484,3 +484,4 @@ img.vimg{object-fit:contain;filter:drop-shadow(0 18px 22px rgba(0,0,0,.45))}
 .mbq{display:flex;align-items:center;gap:6px;margin-top:6px}.mbq button{width:32px;height:32px;border:1px solid var(--line2);border-radius:99px;background:none;font-size:16px;line-height:1}.mbq button:disabled{opacity:.35}
 .mbq b{min-width:18px;text-align:center;font-family:var(--fb);font-size:14px}.mbq .mbrm{width:auto;border:0;padding:0 4px;margin-left:8px;color:var(--muted);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px}
 .cline .rm{color:var(--ink);opacity:.8;min-height:40px;padding:0 6px}
+.hd .nav a,.hd [data-adminlink],.hd [data-acct]{white-space:nowrap}
