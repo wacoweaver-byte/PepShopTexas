@@ -4044,17 +4044,16 @@ function incomingProductLabel(item) {
 
 function incomingVendorItemNumber(itemOrRow) {
   if (!itemOrRow) return "";
-  const direct = itemOrRow.vendor_item_number ?? itemOrRow.vendor_item_no ?? itemOrRow.vendor_sku ?? itemOrRow.supplier_item_number ?? itemOrRow.admin_only ?? itemOrRow.admin_only_field ?? itemOrRow.admin_notes ?? itemOrRow._catalog_admin_only;
-  if (cleanText(direct)) return cleanText(direct);
-  const productId = itemOrRow.product_id ?? itemOrRow.productId ?? itemOrRow.id;
-  const productKey = cleanText(itemOrRow.product_key || itemOrRow.product_sku || itemOrRow.sku).toLowerCase();
-  const item = allItems.find(candidate =>
-    (productId && String(candidate.id) === String(productId)) ||
-    (productKey && cleanText(candidate._catalog_product_key || candidate.product_key || candidate.sku).toLowerCase() === productKey)
-  );
-  if (!item) return "";
-  const catalog = productCatalogForInventoryItem(item) || {};
-  return cleanText(catalog.admin_only ?? catalog.admin_only_field ?? catalog.admin_notes ?? catalog.vendor_item_number ?? catalog.vendor_item_no ?? catalog.vendor_sku ?? catalog.supplier_item_number ?? item._catalog_admin_only);
+  const direct = cleanText(itemOrRow.vendor_item_number ?? itemOrRow.vendorItemNumber ?? itemOrRow.vendor_sku ?? "");
+  if (direct) return direct;
+  const label = String(itemOrRow.productName || itemOrRow.product_name || "");
+  const embedded = label.match(/\\[Vendor SKU:\\s*([^\\]]+)\\]/i);
+  if (embedded) return embedded[1].trim();
+  const key = cleanText(itemOrRow.productKey || itemOrRow.product_key || "");
+  const vendorId = cleanText(itemOrRow.vendor_id || $("incomingVendorSelect")?.value || "");
+  if (!key || !vendorId) return "";
+  const vendorItem = pstVendorCatalogItems.find(x=>String(x.product_key)===key);
+  return cleanText(vendorItem?.vendor_item_number || "");
 }
 
 function incomingSortValue(row, key) {
@@ -4350,7 +4349,8 @@ function addIncomingDraftLine() {
     id: crypto?.randomUUID ? crypto.randomUUID() : `draft_${Date.now()}_${Math.random().toString(16).slice(2)}`,
     productId: product?.id || null,
     productKey: product?._catalog_product_key || product?.product_key || null,
-    productName: unmatched ? unmatched.product_name+" — "+(unmatched.strength||"")+" [Vendor SKU: "+unmatched.vendor_item_number+"]" : incomingProductLabel(product),
+    productName: unmatched ? unmatched.product_name+" — "+(unmatched.strength||"") : incomingProductLabel(product),
+    vendor_item_number: unmatched?.vendor_item_number || pstVendorCatalogItems.find(x=>String(x.product_key)===String(product?._catalog_product_key||product?.product_key||""))?.vendor_item_number || "",
     vendorOnly:!!unmatched,
     qty,
     kitCost
@@ -4425,6 +4425,7 @@ function beginIncomingPurchaseOrderEdit(poNumber) {
     productKey: row.product_key || null,
     vendorOnly: !row.product_id && !row.product_key && String(row.product_name||"").includes("[Vendor SKU:"),
     productName: row.product_name || row.product_key || "Product",
+    vendor_item_number: (String(row.product_name||"").match(/\\[Vendor SKU:\\s*([^\\]]+)\\]/i)||[])[1] || "",
     qty: Number(row.ordered_quantity || 0),
     kitCost: incomingKitCost(row)
   }));
