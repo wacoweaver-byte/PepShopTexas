@@ -67,7 +67,7 @@ $("load").onclick=async()=>{
  let rows;
  if(/\.csv$/i.test(file.name)){const csv=await file.text();await ensureXLSX();const wb=XLSX.read(csv,{type:"string"});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});}
  else rows=await readSpreadsheet(file);
- staged=rows.map(r=>{const name=get(r,"Product Name","Product","Name","Peptide"),strength=get(r,"Strength","Specification","Size","Vial Strength"),sku=get(r,"Vendor Item Number","Vendor SKU","Item Number","Item #","SKU","Code"),key=get(r,"PST Product Key","Product Key","PST SKU"),costStr=get(r,"Kit Cost","Price per Kit","Kit Price","Cost per Kit","Price"),cost=Number(costStr.replace(/[$,]/g,""));let match=products.find(p=>key&&norm(p.product_key)===norm(key));
+ staged=rows.map(r=>{const name=get(r,"Product Name","Product","Name","Peptide"),strength=get(r,"Strength","Specification","Specification per kit","Size","Vial Strength"),sku=get(r,"Vendor Item Number","Vendor SKU","Item Number","Item #","Item","SKU","Code"),key=get(r,"PST Product Key","Product Key","PST SKU"),costStr=get(r,"Kit Cost","Price per Kit","Kit Price","Cost per Kit","Price","USD"),cost=Number(costStr.replace(/[$,]/g,""));let match=products.find(p=>key&&norm(p.product_key)===norm(key));
  if(!match&&sku)match=products.find(p=>p.product_key===savedMappings.get(norm(sku)+"|"+normStrength(strength)));
  if(!match){const candidates=products.filter(p=>p.display_name&&matchName(p.display_name)===matchName(name)&&normStrength(p.strength)===normStrength(strength));if(candidates.length===1)match=candidates[0];}
  return{name,strength,sku:sku||stableSku(name,strength),cost,key:match?.product_key||"",generatedSku:!sku};}).filter(r=>r.name||r.sku||r.key);
