@@ -168,7 +168,7 @@ ${mine.length ? `<div class="mylist">${mine.map(productRow).join("")}</div><p cl
     const group = all.filter(p => String(p.display_name || "").trim().toLowerCase() === String(cur.display_name || "").trim().toLowerCase()).sort(P.cmpProduct);
     // v46: share the product's own page (it carries the product picture and name for texts and social posts) when it exists
     let shareUrl = location.href; { const g0 = group[0] || cur, slug = String(P.titleParts(g0).main || "").toLowerCase().replace(/\([^)]*\)/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "product";
-      const cand = new URL(`p/${slug}-${String(g0.product_key || "").toLowerCase()}.html`, location.href).href; fetch(cand, { method: "HEAD" }).then(r => { if (r.ok) shareUrl = cand; }).catch(() => {}); }
+      const cand = new URL(`${slug}-${String(g0.product_key || "").toLowerCase()}.html`, location.href).href; fetch(cand, { method: "HEAD" }).then(r => { if (r.ok) shareUrl = cand; }).catch(() => {}); }
     if (P.qty(cur) <= 0 && !P.params.get("key")) cur = P.gBest(group);
     let qty = 1;
     const t = P.titleParts(cur);
