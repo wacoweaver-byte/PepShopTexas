@@ -4583,6 +4583,32 @@ async function exportIncomingPurchaseOrderPDF(poNumber) {
     const vendor = vendorForIncomingRow(rows[0]);
     const vendorName = vendor?.company_name || rows[0].vendor_name || rows[0].supplier_name || "Not specified";
     const date = fmtShortDate(rows[0].ordered_at || rows[0].created_at);
+    // Resolve supplier-specific item numbers from the selected supplier's saved catalog.
+    // Do not use PST sort names or internal SKU as supplier item numbers.
+    const vendorId = rows[0].vendor_id || vendor?.id;
+    let poVendorCatalog = [];
+    if (vendorId) {
+      const {data, error} = await db.from("pst_vendor_catalog_items")
+        .select("product_key,product_name,strength,vendor_item_number")
+        .eq("vendor_id",vendorId);
+      if (!error) poVendorCatalog = data || [];
+      else console.warn("Could not load supplier SKU catalog for purchase order",error);
+    }
+    const poNormalize = value => String(value || "").toLowerCase().replace(/[^a-z0-9]+/g,"");
+    const poVendorSku = row => {
+      const saved = cleanText(row.vendor_item_number || row.vendor_sku || "");
+      if (saved) return saved;
+      const key = cleanText(row.product_key || "");
+      const keyed = key && poVendorCatalog.find(item => cleanText(item.product_key) === key);
+      if (keyed?.vendor_item_number) return cleanText(keyed.vendor_item_number);
+      const label = String(row.product_name || "").replace(/\\[Vendor SKU:[^\\]]+\\]/gi,"").trim();
+      const matched = poVendorCatalog.filter(item => {
+        const full = String(item.product_name || "") + " — " + String(item.strength || "");
+        return poNormalize(label) === poNormalize(full);
+      });
+      if (matched.length === 1) return cleanText(matched[0].vendor_item_number);
+      return incomingVendorItemNumber(row);
+    };
     let subtotal = 0, shipping = 0, discount = 0;
     const items = rows.map(row => {
       const qty = Number(row.ordered_quantity || 0);
@@ -4598,7 +4624,7 @@ async function exportIncomingPurchaseOrderPDF(poNumber) {
       shipping += Number(row.shipping_cost || 0);
       discount += Number(row.discount_amount || row.po_discount || 0);
       return { name:String(row.product_name || row.product_key || "Product"), sku:String(row.product_key || ""),
-        vendorSku:String(incomingVendorItemNumber(row) || "—"), kits:String(kits), kitPrice:currency(kitPrice), total:currency(total) };
+        vendorSku:String(poVendorSku(row) || "—"), kits:String(kits), kitPrice:currency(kitPrice), total:currency(total) };
     });
     const W=612,H=792,L=37,R=575;
     const navy=[22,36,55], light=[236,242,247], muted=[89,105,123];
