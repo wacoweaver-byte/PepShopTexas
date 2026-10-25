@@ -56,7 +56,7 @@ const claimedBy=(key,except)=>staged.some((r,i)=>i!==except&&r.key===key);
 function openPicker(i){
  activeRow=i;const row=staged[i];$("picker").hidden=false;
  const sel=$("oneProduct");sel.innerHTML='<option value="">Unmatched / vendor only</option>'+products.map(p=>{
- const used=claimedBy(p.product_key,i);
+ const used=claimedBy(p.product_key,i)||savedCatalog.some(x=>x.product_key===p.product_key&&(norm(x.vendor_item_number)+"|"+normStrength(x.strength))!==(norm(row.sku)+"|"+normStrength(row.strength)));
  return '<option value="'+esc(p.product_key)+'"'+(used?' disabled':'')+'>'+esc(p.display_name+" | "+p.strength+(used?" — ALREADY MATCHED":""))+'</option>';
  }).join("");
  sel.value=row.key||"";
@@ -69,7 +69,7 @@ function render(){
  const existing=new Set(staged.map(r=>norm(r.sku)+"|"+normStrength(r.strength)));
  const otherSaved=new Map(savedCatalog.filter(x=>x.product_key&&!existing.has(norm(x.vendor_item_number)+"|"+normStrength(x.strength))).map(x=>[x.product_key,x]));
  $("rows").innerHTML=staged.map((r,i)=>{
- const saved=otherSaved.get(r.key);
+ const saved=savedCatalog.find(x=>x.product_key===r.key&&norm(x.vendor_item_number)===norm(r.sku)&&normStrength(x.strength)===normStrength(r.strength));
  const status=r.key?(saved?"Previously matched in vendor catalog":"Matched to "+titleFor(r.key)):"Unmatched";
  return '<tr><td>'+esc(r.name)+'</td><td>'+esc(r.strength)+'</td><td>'+esc(r.sku)+'</td><td><button type="button" data-match-row="'+i+'">'+esc(r.key?titleFor(r.key):"Select PST product")+'</button></td><td><input type="number" min="0" step="0.01" data-index="'+i+'" value="'+(Number.isFinite(r.cost)?r.cost:"")+'"></td><td class="'+(r.key?"good":"warn")+'">'+esc(status)+'</td></tr>';
  }).join("");
