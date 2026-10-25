@@ -1,36 +1,35 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta name="robots" content="noindex, nofollow">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login | PEP Shop Texas</title>
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="css/customer.css?v=27">
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=59"></script>
-  <link rel="stylesheet" href="css/header-logo.css?v=5">
-</head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sign in | Pep Shop Texas</title>
+<meta name="description" content="Sign in to your Pep Shop Texas account.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a101c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Pep Shop Texas"><meta property="og:title" content="Sign in | Pep Shop Texas"><meta property="og:description" content="Sign in to your Pep Shop Texas account."><meta property="og:image" content="https://www.pepshoptexas.com/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Pep Shop TX">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ndpfnerhvawbavkotinh.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/pst-bl.css?v=37">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="js/pst-core.js?v=37"></script>
+<script defer src="js/pst-account.js?v=37"></script>
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
 <body data-page="login">
-  <header class="pst-customer-header"><div class="pst-customer-header-inner"><a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home"><img src="pst-header-logo.webp?v=4" alt="PST Pep Shop Texas" class="pst-customer-header-logo"></a><div class="pst-customer-header-right"><form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form><label class="sr-only" for="pst-customer-search-input">Search peptides</label><input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off"><button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button></form><nav class="pst-customer-nav main-nav" aria-label="Main navigation"><a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a><a href="catalog.html?category=Multi-Peptide%20Product">RESEARCH BLENDS <span aria-hidden="true">⌄</span></a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a>
-          <a href="account.html" data-account-link>LOGIN</a><a class="cart-link" href="cart.html">MY CART <span class="pst-cart-count" data-cart-count>0</span></a></nav></div></div></header>
-  <main class="auth-page">
-    <section class="page-heading"><p>Account access</p><h1>Sign In</h1></section>
-    <section class="auth-shell">
-      <form class="auth-card" data-login-form>
-        <h2>Customer / Admin Login</h2>
-        <label>Email <input name="email" type="email" autocomplete="email" required></label>
-        <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
-        <button class="primary-action" type="submit">Sign In</button>
-        <div class="auth-links"><a href="reset-password.html">Reset password</a><a href="register.html">Create account</a></div>
-        <p data-auth-message></p>
-      </form>
-    </section>
-  </main>
+<main id="main">
+<section class="wrap pad"><div class="authcard">
+<span class="kick">Welcome back</span><h1 class="serif">Sign in</h1>
+<form class="form" data-form="login"><label>Email<input name="email" type="email" autocomplete="email" required inputmode="email"></label>
+<label class="pw">Password<input id="lpw" name="password" type="password" autocomplete="current-password" required><button type="button" data-pw="lpw" aria-label="Show password">Show</button></label>
+<button class="btn primary wide" type="submit">Sign in</button><p class="notice" data-msg hidden role="status"></p></form>
+<div class="alt"><a href="forgot-password.html">Forgot password?</a><a href="register.html" data-keep-redirect>Create an account</a></div>
+</div></section>
+</main>
 </body>
 </html>

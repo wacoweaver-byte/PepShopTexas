@@ -1,72 +1,31 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta name="robots" content="noindex, nofollow">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cart | PEP Shop Texas</title>
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#102a43">
-  <link rel="stylesheet" href="css/customer.css?v=27">
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script defer src="app.js?v=76"></script>
-  <script defer src="customer-footer.js?v=7"></script>
-  <link rel="stylesheet" href="css/header-logo.css?v=5">
-  <link rel="stylesheet" href="css/inquiry.css?v=6">
-</head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Your bag | Pep Shop Texas</title>
+<meta name="description" content="Review your bag and check out with Venmo or local pickup.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a101c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Pep Shop Texas"><meta property="og:title" content="Your bag | Pep Shop Texas"><meta property="og:description" content="Review your bag and check out with Venmo or local pickup."><meta property="og:image" content="https://www.pepshoptexas.com/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Pep Shop TX">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ndpfnerhvawbavkotinh.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/pst-bl.css?v=37">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="js/pst-core.js?v=37"></script>
+<script defer src="js/pst-cart.js?v=37"></script>
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
 <body data-page="cart">
-  <header class="pst-customer-header">
-    <div class="pst-customer-header-inner">
-      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
-        <img src="pst-header-logo.webp?v=4" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
-      </a>
-      <div class="pst-customer-header-right">
-        <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
-          <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
-          <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-          <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button>
-        </form>
-        <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
-          <a href="catalog.html">CATALOG <span aria-hidden="true">⌄</span></a>
-          <a href="catalog.html?category=Multi-Peptide%20Product">RESEARCH BLENDS <span aria-hidden="true">⌄</span></a>
-          <a href="faq.html">FAQ</a>
-          <a href="contact.html">CONTACT</a>
+<main id="main">
 
-          <a href="account.html" data-account-link>LOGIN</a>
-          <a class="cart-link" href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
-        </nav>
-      </div>
-    </div>
-  </header>
+<section class="wrap pad"><div data-bagtitle><span class="kick">Checkout</span><h1 class="serif">Your bag</h1></div><div data-cart></div></section>
 
-  <main class="cart-page">
-    <section class="page-heading">
-      <p>Product information</p>
-      <h1>Your Cart</h1>
-    </section>
-    <section class="cart-layout">
-      <div class="cart-main-column">
-        <div class="cart-items" data-cart-items></div>
-      </div>
-      <div class="pst-cart-checkout-column">
-        <section class="pst-delivery-box" aria-labelledby="pst-delivery-heading">
-          <h2 id="pst-delivery-heading">Delivery Method</h2>
-          <fieldset class="pst-delivery-method">
-            <label><input type="radio" name="delivery_method" value="shipping" checked> Ship My Order</label>
-            <label><input type="radio" name="delivery_method" value="pickup"> Local Pickup — No Shipping Charge</label>
-          </fieldset>
-        </section>
-        <aside class="cart-summary" data-cart-summary></aside>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer"></footer>
-
+</main>
 </body>
 </html>

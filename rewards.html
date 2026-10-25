@@ -1,39 +1,45 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Researcher Rewards | Pep Shop Texas</title><meta name="description" content="Learn about Pep Shop Texas Researcher Rewards membership tiers and qualifying purchase rules.">
-<link rel="icon" href="favicon.ico"><link rel="stylesheet" href="css/customer.css?v=27"><link rel="stylesheet" href="css/header-logo.css?v=5">
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script defer src="app.js?v=76"></script><script defer src="customer-footer.js?v=9"></script>
-<style>
-.rewards-page{max-width:1160px;margin:0 auto;padding:36px 22px 70px;color:#102a43}
-.rewards-hero{padding:42px 28px;background:linear-gradient(125deg,#102a43,#19435c);color:#fff;border-radius:18px;text-align:center}
-.rewards-hero h1{font-size:clamp(2rem,4vw,3.1rem);margin:9px 0}.rewards-hero p{max-width:740px;margin:10px auto;line-height:1.7}
-.rewards-pending{display:inline-block;padding:7px 14px;border:1px solid #b9cedc;border-radius:20px;font-weight:bold;font-size:.86rem}
-.reward-section{margin-top:38px}.reward-section h2{font-size:1.65rem;margin-bottom:13px}.reward-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.reward-tier{border:1px solid #d7e1e8;border-radius:14px;padding:22px 18px;background:#fff;box-shadow:0 5px 22px #102a4310}
-.reward-tier h3{font-size:1.35rem;margin:0}.reward-tier .threshold{font-weight:800;font-size:1.08rem;margin:13px 0}.reward-tier p{line-height:1.6;margin:0}.reward-tier.bronze{border-top:6px solid #ae754b}.reward-tier.silver{border-top:6px solid #8996a7}.reward-tier.gold{border-top:6px solid #c5a049}.reward-tier.diamond{border-top:6px solid #6e8fa6}
-.reward-table-wrap{overflow-x:auto;border:1px solid #d7e1e8;border-radius:12px}.reward-table{border-collapse:collapse;width:100%;min-width:530px}.reward-table th,.reward-table td{padding:13px 16px;text-align:left;border-bottom:1px solid #d7e1e8}.reward-table th{background:#edf3f7}.reward-table tr:last-child td{border-bottom:none}
-.reward-callout{background:#f2f6f9;padding:20px;border-radius:12px;line-height:1.75}.reward-faq details{border-bottom:1px solid #d7e1e8;padding:17px 0}.reward-faq summary{font-weight:700;cursor:pointer}.reward-faq p{line-height:1.7}
-.reward-link{display:inline-block;background:#bd0000;color:#fff!important;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;margin-top:18px}
-@media(max-width:900px){.reward-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.reward-grid{grid-template-columns:1fr}.rewards-page{padding:20px 14px 45px}.rewards-hero{padding:30px 17px}}
-</style></head>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Researcher Rewards | Pep Shop Texas</title>
+<meta name="description" content="Four membership levels based on qualifying purchases.">
+<link rel="canonical" href="https://www.pepshoptexas.com/rewards.html">
+<meta name="theme-color" content="#0a101c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Pep Shop Texas"><meta property="og:title" content="Researcher Rewards | Pep Shop Texas"><meta property="og:description" content="Four membership levels based on qualifying purchases."><meta property="og:image" content="https://www.pepshoptexas.com/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Pep Shop TX">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ndpfnerhvawbavkotinh.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/pst-bl.css?v=37">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="js/pst-core.js?v=37"></script>
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
 <body data-page="rewards">
-<header class="pst-customer-header"><div class="pst-customer-header-inner"><a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home"><img src="pst-header-logo.webp?v=4" alt="Pep Shop Texas" class="pst-customer-header-logo"></a><div class="pst-customer-header-right"><form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form><label class="sr-only" for="reward-site-search">Search products</label><input id="reward-site-search" name="search" type="search" placeholder="Search products..."><button type="submit" aria-label="Search">Search</button></form><nav class="pst-customer-nav main-nav" aria-label="Main navigation"><a href="catalog.html">CATALOG</a><a href="rewards.html" aria-current="page">REWARDS</a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a><a href="account.html" data-account-link>LOGIN</a><a class="cart-link" href="cart.html">MY CART <span class="pst-cart-count" data-cart-count>0</span></a></nav></div></div></header>
-<main class="rewards-page">
-<section class="rewards-hero"><span class="rewards-pending">Program details · Launch pending</span><h1>PST Researcher Rewards</h1><p>A four-level membership program designed to recognize returning Pep Shop Texas customers. Your level is based on cumulative qualifying merchandise purchases.</p><p><strong>Benefits are not yet active.</strong> The rules below describe the planned program and may be updated before launch.</p></section>
-<section class="reward-section"><h2>Four levels of membership</h2><div class="reward-grid">
-<article class="reward-tier bronze"><h3>Bronze</h3><p class="threshold">$0–$1,499.99</p><p>Starting membership. No loyalty Buy One, Get One rewards or extra tier benefits.</p></article>
-<article class="reward-tier silver"><h3>Silver</h3><p class="threshold">$1,500–$2,999.99</p><p>Eligible for Buy One, Get One offers with the complimentary product selected by Pep Shop Texas.</p></article>
-<article class="reward-tier gold"><h3>Gold</h3><p class="threshold">$3,000–$4,999.99</p><p>Eligible for Buy One, Get One offers with a choice of complimentary products from a designated reward selection, plus free standard shipping.</p></article>
-<article class="reward-tier diamond"><h3>Diamond</h3><p class="threshold">$5,000+</p><p>All Gold benefits, plus complimentary bacteriostatic water with qualifying orders according to the schedule below.</p></article>
-</div></section>
-<section class="reward-section"><h2>Diamond complimentary BAC water</h2><div class="reward-table-wrap"><table class="reward-table"><thead><tr><th>Paid qualifying peptide vials</th><th>Complimentary BAC water</th></tr></thead><tbody><tr><td>1</td><td>1 × 3 mL</td></tr><tr><td>2</td><td>2 × 3 mL</td></tr><tr><td>3</td><td>2 × 3 mL</td></tr><tr><td>4 or more</td><td>1 × 10 mL (maximum per order)</td></tr></tbody></table></div><p>Complimentary BOGO vials do not increase the number of paid vials counted. All rewards depend on eligibility, stock availability, and applicable restrictions.</p></section>
-<section class="reward-section"><h2>How spending counts</h2><div class="reward-callout">Only the <strong>actual qualifying merchandise amount paid after discounts</strong> counts toward tier progress. Shipping, taxes, complimentary products, cancelled orders, and refunded amounts are excluded. For example, a vial normally priced at <strong>$100</strong> but purchased at 50% off contributes <strong>$50</strong> toward membership, not $100. Eligible purchases accumulate toward the listed thresholds.</div></section>
-<section class="reward-section"><h2>Annual membership requalification</h2><div class="reward-table-wrap"><table class="reward-table"><thead><tr><th>Current tier</th><th>Annual qualifying purchase minimum to retain</th></tr></thead><tbody><tr><td>Bronze</td><td>No minimum</td></tr><tr><td>Silver</td><td>$750</td></tr><tr><td>Gold</td><td>$1,500</td></tr><tr><td>Diamond</td><td>$2,500</td></tr></tbody></table></div><p>Once earned, a tier may be retained by meeting 50% of its original qualification threshold during the following membership year. A missed annual retention target results in a drop of no more than one tier per annual review. Membership-anniversary tracking and automatic annual reviews will begin when the rewards program is activated.</p></section>
-<section class="reward-section reward-faq"><h2>Frequently asked questions</h2>
-<details><summary>Can I choose my free product on Silver?</summary><p>No. Pep Shop Texas designates the complimentary product for Silver-tier offers. Gold and Diamond can choose from the eligible free-product selection associated with the offer.</p></details>
-<details><summary>Does every order automatically receive a BOGO reward?</summary><p>No. Bronze members have no loyalty BOGO benefit. Higher-tier rewards depend on the promotion's terms and eligible product availability.</p></details>
-<details><summary>Do discounted products count at full price?</summary><p>No. Only the net merchandise amount paid after eligible discounts counts toward membership.</p></details>
-<details><summary>Are benefits available today?</summary><p>Not yet. This is an explanation of the planned program. Launch and account-based tier tracking will be announced separately.</p></details>
-</section>
-<a class="reward-link" href="account.html">View My Account</a>
-</main><footer class="site-footer pst-customer-footer"></footer></body></html>
+<main id="main">
+<section class="wrap pad"><div class="prose"><span class="kick">Program details · launch pending</span><h1 class="serif">Researcher Rewards</h1>
+<p>A four-level membership program designed to recognize returning Pep Shop Texas customers. Your level is based on cumulative qualifying merchandise purchases.</p>
+<div class="callout"><b>Benefits are not yet active.</b> The rules below describe the planned program and may be updated before launch.</div>
+<div class="tiers4"><div><b>Bronze</b><p class="muted small">$0–$1,499.99</p><p class="small">Starting membership. No loyalty Buy One, Get One rewards or extra tier benefits.</p></div>
+<div><b>Silver</b><p class="muted small">$1,500–$2,999.99</p><p class="small">Eligible for Buy One, Get One offers with the complimentary product selected by Pep Shop Texas.</p></div>
+<div><b>Gold</b><p class="muted small">$3,000–$4,999.99</p><p class="small">Eligible for Buy One, Get One offers with a choice of complimentary products from a designated reward selection, plus free standard shipping.</p></div>
+<div><b>Diamond</b><p class="muted small">$5,000+</p><p class="small">All Gold benefits, plus complimentary bacteriostatic water with qualifying orders according to the schedule below.</p></div></div>
+<h2>Diamond complimentary BAC water</h2><table class="specs"><tr><td>Paid qualifying peptide vials</td><td>Complimentary BAC water</td></tr><tr><td>1</td><td>1 × 3 mL</td></tr><tr><td>2</td><td>2 × 3 mL</td></tr><tr><td>3</td><td>2 × 3 mL</td></tr><tr><td>4 or more</td><td>1 × 10 mL (maximum per order)</td></tr></table>
+<p>Complimentary BOGO vials do not increase the number of paid vials counted. All rewards depend on eligibility, stock availability, and applicable restrictions.</p>
+<h2>How spending counts</h2><p>Only the <strong>actual qualifying merchandise amount paid after discounts</strong> counts toward tier progress. Shipping, taxes, complimentary products, cancelled orders, and refunded amounts are excluded. For example, a vial normally priced at <strong>$100</strong> but purchased at 50% off contributes <strong>$50</strong> toward membership, not $100. Eligible purchases accumulate toward the listed thresholds.</p>
+<h2>Annual membership requalification</h2><table class="specs"><tr><td>Current tier</td><td>Annual minimum to retain</td></tr><tr><td>Bronze</td><td>No minimum</td></tr><tr><td>Silver</td><td>$750</td></tr><tr><td>Gold</td><td>$1,500</td></tr><tr><td>Diamond</td><td>$2,500</td></tr></table>
+<p>Once earned, a tier may be retained by meeting 50% of its original qualification threshold during the following membership year. A missed annual retention target results in a drop of no more than one tier per annual review. Membership-anniversary tracking and automatic annual reviews will begin when the rewards program is activated.</p>
+<h2>Questions</h2><div class="faq">
+<details><summary>Can I choose my free product on Silver?</summary><div class="in">No. Pep Shop Texas designates the complimentary product for Silver-tier offers. Gold and Diamond can choose from the eligible free-product selection associated with the offer.</div></details>
+<details><summary>Does every order automatically receive a BOGO reward?</summary><div class="in">No. Bronze members have no loyalty BOGO benefit. Higher-tier rewards depend on the promotion's terms and eligible product availability.</div></details>
+<details><summary>Do discounted products count at full price?</summary><div class="in">No. Only the net merchandise amount paid after eligible discounts counts toward membership.</div></details>
+<details><summary>Are benefits available today?</summary><div class="in">Not yet. This is an explanation of the planned program. Launch and account-based tier tracking will be announced separately.</div></details></div>
+<p style="margin-top:22px"><a class="btn ghost" href="account.html#rewards" style="text-decoration:none">See my level</a></p></div></section>
+</main>
+</body>
+</html>

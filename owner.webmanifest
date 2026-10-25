@@ -1,0 +1,16 @@
+{
+  "name": "PST Orders",
+  "short_name": "PST Orders",
+  "description": "Pep Shop Texas order inbox and new-order alerts.",
+  "id": "./owner.html?app=owner",
+  "start_url": "./owner.html?source=app",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a101c",
+  "theme_color": "#0a101c",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

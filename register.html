@@ -1,116 +1,44 @@
-<!-- PST_REGISTER_PATCH_V4_PROFILE_TRIGGER_METADATA -->
-<!-- PST_REGISTER_PATCH_V2_MARKETING_OPT_IN -->
-<!-- PST_REGISTER_PATCH_V3_RESEARCH_ROLE_REQUIRED -->
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Create Account | Pep Shop Texas</title>
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000">
-  <link rel="stylesheet" href="css/customer.css?v=27">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = "https://ucejjztsbmrogiteivxl.supabase.co";
-    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX";
-    const pstSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-  </script>
-  <link rel="stylesheet" href="css/header-logo.css?v=4">
-</head>
-<body>
-  <header class="pst-customer-header"><div class="pst-customer-header-inner"><a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home"><img src="pst-header-logo.webp?v=4" alt="PST Pep Shop Texas" class="pst-customer-header-logo"></a><div class="pst-customer-header-right"><form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form><label class="sr-only" for="pst-customer-search-input">Search peptides</label><input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off"><button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button></form><nav class="pst-customer-nav main-nav" aria-label="Main navigation"><a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a><a href="catalog.html?category=Multi-Peptide%20Product">RESEARCH BLENDS <span aria-hidden="true">⌄</span></a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a>
-          <a href="account.html" data-account-link>LOGIN</a><a class="cart-link" href="cart.html">MY CART <span class="pst-cart-count" data-cart-count>0</span></a></nav></div></div></header>
-  <main class="wrap">
-    <section class="auth-card">
-      <h1 class="section-title">Create Account</h1><div class="underline"></div>
-      <p class="small">Create your Pep Shop Texas customer account. Products are listed for research purposes only.</p>
-      <form id="registerForm" class="grid">
-        <div><label>First Name</label><input name="first_name" required></div><div><label>Last Name</label><input name="last_name" required></div>
-        <div><label>Email Address</label><input name="email" type="email" required></div><div><label>Phone Number</label><input name="phone" type="tel"></div>
-        <div><label>Username</label><input name="username" required></div>
-        <div><label for="password">Password</label><div class="password-wrap"><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required><button class="password-toggle" type="button" data-toggle-password="password" aria-label="Show password">Show</button></div></div>
-        <div class="full"><label>Research Role / Organization Type</label><select name="research_role" required><option value="">Select one</option><option value="Independent Researcher">Independent Researcher</option><option value="Laboratory / Research Facility">Laboratory / Research Facility</option><option value="Healthcare / Medical Office">Healthcare / Medical Office</option><option value="Compounding / Formulation Business">Compounding / Formulation Business</option><option value="Academic / University Research">Academic / University Research</option><option value="Biotech / Pharmaceutical Research">Biotech / Pharmaceutical Research</option><option value="Other Research-Related Use">Other Research-Related Use</option></select></div>
-        <div><label>Billing Address</label><input name="billing_address" required></div><div><label>Billing City</label><input name="billing_city" required></div><div><label>Billing State</label><input name="billing_state" required></div><div><label>Billing ZIP</label><input name="billing_zip" required></div>
-        <div class="full"><label class="check-row"><input type="checkbox" id="sameAsBilling" name="same_as_billing"> Shipping address is the same as billing address.</label></div>
-        <div><label>Shipping Address</label><input name="shipping_address" required></div><div><label>Shipping City</label><input name="shipping_city" required></div><div><label>Shipping State</label><input name="shipping_state" required></div><div><label>Shipping ZIP</label><input name="shipping_zip" required></div>
-        <div class="full"><label class="check-row"><input type="checkbox" name="age" required> I confirm I am at least 18 years old.</label><label class="check-row"><input type="checkbox" name="research" required> I confirm that this account and any purchases are for research purposes only.</label><label class="check-row"><input type="checkbox" name="tos" required> I agree to the Terms of Service.</label><label class="check-row"><input type="checkbox" name="marketing_opt_in" id="marketingOptIn"> I agree to receive Pep Shop Texas updates, promotions, and product availability emails. I understand I can unsubscribe at any time.</label></div>
-        <div class="full actions"><button class="btn primary" type="submit">Create Account</button><a class="btn secondary" href="login.html">Already have an account?</a></div>
-      </form>
-      <div id="notice" class="notice"></div>
-    </section>
-  </main>
-  <script>
-function setupPasswordToggles(){
-  document.querySelectorAll('[data-toggle-password]').forEach(function(btn){
-    const input = document.getElementById(btn.getAttribute('data-toggle-password'));
-    if (!input) return;
-    btn.addEventListener('click', function(){
-      const show = input.type === 'password';
-      input.type = show ? 'text' : 'password';
-      btn.textContent = show ? 'Hide' : 'Show';
-      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-    });
-  });
-}
-setupPasswordToggles();
-function showNotice(id, message, type) {
-  const el = document.getElementById(id);
-  if (!el) { alert(message); return; }
-  el.textContent = message;
-  el.className = 'notice ' + (type === 'ok' ? 'ok' : 'err');
-}
-const registerForm = document.getElementById('registerForm');
-const submitButton = registerForm.querySelector('button[type="submit"]');
-const sameAsBillingCheckbox = document.getElementById('sameAsBilling');
-const addressPairs = [['billing_address','shipping_address'],['billing_city','shipping_city'],['billing_state','shipping_state'],['billing_zip','shipping_zip']];
-function copyBillingToShipping() {
-  if (!sameAsBillingCheckbox || !sameAsBillingCheckbox.checked) return;
-  addressPairs.forEach(([billingName, shippingName]) => {
-    const billingInput = registerForm.querySelector(`[name="${billingName}"]`);
-    const shippingInput = registerForm.querySelector(`[name="${shippingName}"]`);
-    if (billingInput && shippingInput) shippingInput.value = billingInput.value;
-  });
-}
-if (sameAsBillingCheckbox) {
-  sameAsBillingCheckbox.addEventListener('change', copyBillingToShipping);
-  addressPairs.forEach(([billingName]) => {
-    const billingInput = registerForm.querySelector(`[name="${billingName}"]`);
-    if (billingInput) { billingInput.addEventListener('input', copyBillingToShipping); billingInput.addEventListener('change', copyBillingToShipping); }
-  });
-}
-registerForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  showNotice('notice', 'Creating account... please wait.', 'ok');
-  submitButton.disabled = true;
-  submitButton.textContent = 'Creating...';
-  try {
-    copyBillingToShipping();
-    if (!window.supabase || !pstSupabaseClient) throw new Error('Supabase did not load. Check the CDN script or internet connection.');
-    const f = new FormData(e.target);
-    const formValue = (name) => String(f.get(name) || '').trim();
-    const email = formValue('email').toLowerCase();
-    const password = String(f.get('password') || '');
-    const marketingOptIn = f.get('marketing_opt_in') === 'on';
-    const profileData = {first_name:formValue('first_name'),last_name:formValue('last_name'),email,phone:formValue('phone'),username:formValue('username'),research_role:formValue('research_role'),billing_address:formValue('billing_address'),billing_city:formValue('billing_city'),billing_state:formValue('billing_state'),billing_zip:formValue('billing_zip'),shipping_address:formValue('shipping_address'),shipping_city:formValue('shipping_city'),shipping_state:formValue('shipping_state'),shipping_zip:formValue('shipping_zip'),marketing_opt_in:marketingOptIn,marketing_opt_out:false,marketing_source:marketingOptIn?'registration':null};
-    const { error } = await pstSupabaseClient.auth.signUp({email,password,options:{emailRedirectTo:'https://www.pepshoptexas.com/login.html',data:profileData}});
-    if (error) throw error;
-    try {
-      await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_PUBLISHABLE_KEY}`},body:JSON.stringify({type:'account_created',to:email,customer_email:email,customer_name:[profileData.first_name,profileData.last_name].filter(Boolean).join(' '),...profileData})});
-    } catch (emailError) { console.warn('Account created email did not send', emailError); }
-    showNotice('notice', 'Account created. Check your email to confirm your account, then log in.', 'ok');
-    e.target.reset();
-  } catch (err) {
-    showNotice('notice', err.message || 'Something went wrong while creating the account.', 'err');
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = 'Create Account';
-  }
-});
-  </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Create account | Pep Shop Texas</title>
+<meta name="description" content="Create a Pep Shop Texas account to order, track and reorder.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a101c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Pep Shop Texas"><meta property="og:title" content="Create account | Pep Shop Texas"><meta property="og:description" content="Create a Pep Shop Texas account to order, track and reorder."><meta property="og:image" content="https://www.pepshoptexas.com/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Pep Shop TX">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ndpfnerhvawbavkotinh.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/pst-bl.css?v=37">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="js/pst-core.js?v=37"></script>
+<script defer src="js/pst-account.js?v=37"></script>
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
+<body data-page="register">
+<main id="main">
+<section class="wrap pad"><div class="authcard wide">
+<span class="kick">New here</span><h1 class="serif">Create your account</h1><p class="muted">Takes a minute. Your orders, rewards and reorder reminders live here.</p>
+<form class="form" data-form="register"><div class="g2"><label>First name<input name="first_name" required autocomplete="given-name"></label><label>Last name<input name="last_name" required autocomplete="family-name"></label></div>
+<div class="g2"><label>Email<input name="email" type="email" required autocomplete="email" inputmode="email"></label><label>Mobile<input name="phone" type="tel" autocomplete="tel" inputmode="tel"></label></div>
+<div class="g2"><label>Username<input name="username" autocomplete="username"></label><label class="pw">Password<input id="rpw" name="password" type="password" minlength="8" required autocomplete="new-password"><button type="button" data-pw="rpw" aria-label="Show password">Show</button></label></div>
+<label>Research role<select name="research_role" required><option value="">Select one</option><option>Independent Researcher</option><option>Laboratory / Research Facility</option><option>Healthcare / Medical Office</option><option>Compounding / Formulation Business</option><option>Academic / University Research</option><option>Biotech / Pharmaceutical Research</option><option>Other Research-Related Use</option></select></label>
+<fieldset><legend>Shipping address</legend><label>Street<input name="shipping_address" autocomplete="shipping street-address"></label><div class="g3"><label>City<input name="shipping_city" autocomplete="shipping address-level2"></label><label>State<input name="shipping_state" autocomplete="shipping address-level1"></label><label>ZIP<input name="shipping_zip" inputmode="numeric" autocomplete="shipping postal-code"></label></div>
+<p class="muted small" style="margin:0">Picking up locally? You can leave this blank and add it later.</p></fieldset>
+<fieldset><legend>Billing address</legend><label class="chk"><input type="checkbox" name="same_as_shipping" checked> Same as shipping</label><div data-bill><label>Street<input name="billing_address" autocomplete="billing street-address"></label><div class="g3"><label>City<input name="billing_city"></label><label>State<input name="billing_state"></label><label>ZIP<input name="billing_zip" inputmode="numeric"></label></div></div></fieldset>
+<label class="chk"><input type="checkbox" name="age" required> I confirm I am at least 18 years old.</label>
+<label class="chk"><input type="checkbox" name="research" required> This account and any purchases are for research purposes only.</label>
+<label class="chk"><input type="checkbox" name="tos" required> I agree to the <a class="linkish" href="terms.html" target="_blank">Terms of Use</a>.</label>
+<label class="chk"><input type="checkbox" name="marketing_opt_in"> Email me restocks, promotions and updates. Unsubscribe any time.</label>
+<button class="btn primary wide" type="submit">Create account</button><p class="notice" data-msg hidden role="status"></p></form>
+<div class="alt"><span class="muted">Already have an account?</span><a href="login.html">Sign in</a></div>
+</div></section>
+</main>
 </body>
 </html>

@@ -1,160 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Explore Pep Shop Texas research resources, catalog information, and testing and verification information.">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://www.pepshoptexas.com/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Pep Shop Texas">
-  <meta property="og:title" content="Pep Shop Texas | Research Peptide Resources">
-  <meta property="og:description" content="Explore Pep Shop Texas research resources, catalog information, and testing and verification information.">
-  <meta property="og:url" content="https://www.pepshoptexas.com/">
-  <meta property="og:image" content="https://www.pepshoptexas.com/pst-logo-master.webp">
-  <meta name="twitter:card" content="summary_large_image">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Pep Shop Texas","url":"https://www.pepshoptexas.com/","logo":"https://www.pepshoptexas.com/pst-logo-master.webp"}</script>
-  <title>Pep Shop Texas | Research Peptide Resources</title>
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" href="favicon-32x32.png" sizes="32x32" type="image/png">
-  <link rel="icon" href="favicon-16x16.png" sizes="16x16" type="image/png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#bd0000">
-  <link rel="preload" as="image" href="pst-logo-master.webp" type="image/webp" fetchpriority="high">
-  <link rel="stylesheet" href="css/customer.css?v=27">
-  <link rel="stylesheet" href="css/index.css?v=32">
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="app.js?v=20261018"></script>
-
-  <style id="pst-featured-text-layout">
-    .featured-grid{align-items:stretch;gap:16px}
-    .featured-product{justify-content:center;padding:20px 12px;border:1px solid #e8e3da}
-    .featured-product>strong{margin-top:0}
-    @media(max-width:600px){.featured-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.featured-product>strong{font-size:18px}.featured-product>span:last-child{font-size:13px}}
-  </style>
-
-  <script defer src="customer-footer.js?v=8"></script>
-</head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pep Shop Texas | Lab-verified research peptides</title>
+<meta name="description" content="Texas-owned research peptide shop. Small batch, third-party lab reports, free local pickup and one-tap Venmo checkout.">
+<link rel="canonical" href="https://www.pepshoptexas.com/index.html">
+<meta name="theme-color" content="#0a101c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Pep Shop Texas"><meta property="og:title" content="Pep Shop Texas | Lab-verified research peptides"><meta property="og:description" content="Texas-owned research peptide shop. Small batch, third-party lab reports, free local pickup and one-tap Venmo checkout."><meta property="og:image" content="https://www.pepshoptexas.com/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Pep Shop TX">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ndpfnerhvawbavkotinh.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/pst-bl.css?v=37"><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "name": "Pep Shop Texas", "url": "https://www.pepshoptexas.com/", "logo": "https://www.pepshoptexas.com/icons/icon-512.png", "email": "support@pepshoptexas.com"}, {"@type": "WebSite", "name": "Pep Shop Texas", "url": "https://www.pepshoptexas.com/", "potentialAction": {"@type": "SearchAction", "target": "https://www.pepshoptexas.com/catalog.html?search={q}", "query-input": "required name=q"}}]}</script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="js/pst-core.js?v=37"></script>
+<script defer src="js/pst-shop.js?v=37"></script>
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
 <body data-page="home">
-  <header id="pst-header-v3">
-    <nav aria-label="Main navigation" class="pst-left">
-      <a href="catalog.html">CATALOG</a>
-      <a href="catalog.html?category=Multi-Peptide%20Product">RESEARCH BLENDS</a>
+<main id="main">
 
-      <a href="faq.html">FAQ</a>
-      <a href="contact.html">CONTACT</a>
-    </nav>
-    <span aria-hidden="true" class="pst-logo"></span>
-    <div class="pst-right main-nav">
-      <a class="cart-link pst-header-cart" href="cart.html">CART <span data-cart-count>0</span></a>
-      <a class="pst-account" href="account.html" data-account-link>
-        <span aria-hidden="true" class="pst-account-icon">◯</span>
-        <strong>LOGIN</strong>
-      </a>
-      <form action="catalog.html" class="pst-search" data-product-search-form method="get" role="search">
-        <label class="sr-only" for="site-search">Search peptides</label>
-        <input autocomplete="off" id="site-search" name="search" placeholder="Search peptides..." type="search">
-        <button aria-label="Search" type="submit">
-          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg>
-        </button>
-      </form>
-    </div>
-  </header>
-  <main>
-    <section class="pst-masthead" aria-label="Pep Shop Texas">
-      <div class="pst-masthead-logo-frame"><img class="pst-masthead-logo" src="pst-logo-master.webp" alt="Pep Shop Texas" width="1400" height="934" decoding="async" fetchpriority="high"></div>
-      <nav class="pst-masthead-links" aria-label="Shop and information links">
-        <a href="catalog.html">CATALOG</a>
-        <a href="catalog.html?category=Multi-Peptide%20Product">RESEARCH BLENDS</a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">CONTACT</a>
-      </nav>
-    </section>
-    <section class="focus-section" aria-labelledby="focus-heading">
-      <h2 class="section-kicker" id="focus-heading">EXPLORE BY RESEARCH FOCUS</h2>
-      <div class="focus-grid">
-        <article class="focus-item">
-          <div class="focus-mark" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><path d="M16 42c8-1 11-8 13-16l4 8 8-5 7 5"/><path d="M13 47h38"/><path d="M20 42V29m28 13V31"/></svg>
-          </div>
-          <h3>PERFORMANCE</h3>
-          <p>Researched for performance, endurance, and metabolic function.</p>
-          <a href="catalog.html?focus=performance">EXPLORE PERFORMANCE <span aria-hidden="true">→</span></a>
-        </article>
-        <article class="focus-item">
-          <div class="focus-mark" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><path d="M32 12v40M12 32h40"/><circle cx="32" cy="32" r="23"/></svg>
-          </div>
-          <h3>RECOVERY</h3>
-          <p>Researched for recovery, tissue repair, and inflammatory pathways.</p>
-          <a href="catalog.html?focus=recovery">EXPLORE RECOVERY <span aria-hidden="true">→</span></a>
-        </article>
-        <article class="focus-item">
-          <div class="focus-mark" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><path d="M20 12h24M20 52h24M23 12c0 12 18 12 18 20S23 40 23 52M41 12c0 12-18 12-18 20s18 8 18 20"/></svg>
-          </div>
-          <h3>LONGEVITY</h3>
-          <p>Researched for longevity, cellular health, and metabolic function.</p>
-          <a href="catalog.html?focus=longevity">EXPLORE LONGEVITY <span aria-hidden="true">→</span></a>
-        </article>
-      </div>
-    </section>
+<section data-shelf hidden aria-label="My products"></section>
+<section class="hero"><div class="glow"></div><div class="in">
+  <img class="medal" src="img/pst-emblem-384.webp" width="190" height="190" alt="Pep Shop Texas">
+  <h1 class="wm big">PEP SHOP<small>TEXAS</small></h1>
+  <p class="tagl">Premium Purity <span>|</span> Proven Quality <span>|</span> Responsibly Sourced</p>
+  <div class="hcta"><a class="btn primary" href="catalog.html">Enter the collection</a><a class="btn ghost" href="catalog.html?stock=1">Available now</a></div>
+  <div class="hstats" data-hstats></div>
+</div></section>
+<div class="marq" data-marquee></div>
+<section class="wrap pad" aria-labelledby="feat"><div class="shead"><div><span class="kick">From the shop</span><h2 class="serif" id="feat">Featured</h2></div></div><div class="ads" data-ads></div></section>
+<section class="wrap" aria-labelledby="coll"><span class="kick">The Collection</span><h2 class="serif" id="coll">Small batch. Lab verified.</h2><div data-editorial></div></section>
+<section class="band" style="margin-top:40px"><div class="wrap bgrid">
+  <div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3h6M10 3v6L4 19a1.5 1.5 0 0 0 1.3 2h13.4A1.5 1.5 0 0 0 20 19l-6-10V3"/></svg><b>Tested</b><span>Independent labs</span></div>
+  <div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2v20M4 6l16 12M20 6 4 18"/></svg><b>Ships same night</b><span>USPS Priority · about 4 days</span></div>
+  <div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-6.3-7-12a7 7 0 0 1 14 0c0 5.7-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg><b>Local pickup</b><span>Free, we text when ready</span></div>
+  <div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><b>Order alerts</b><span>Paid, ready, shipped</span></div>
+</div></section>
+<section class="wrap pad" aria-labelledby="focus"><span class="kick">Shop by research focus</span><h2 class="serif" id="focus">Choose a direction</h2>
+<div class="focus"><a href="catalog.html?focus=performance"><div><b>Performance</b><span>Endurance and metabolic research</span></div><em>Explore →</em></a>
+<a href="catalog.html?focus=recovery"><div><b>Recovery</b><span>Tissue and repair-pathway research</span></div><em>Explore →</em></a>
+<a href="catalog.html?focus=longevity"><div><b>Longevity</b><span>Cellular health research</span></div><em>Explore →</em></a></div></section>
+<section class="wrap" aria-labelledby="avail"><div class="shead"><h2 class="serif" id="avail">Available now</h2><a class="lnk" href="catalog.html">Full collection →</a></div><div class="lgrid" data-avail-grid></div></section>
+<section class="wrap" data-home-recent></section>
+<section class="wrap pad"><div class="rewards"><div><span class="kick">Researcher Rewards</span><h2 class="serif">Every order counts.</h2><p class="muted">Four membership levels based on your qualifying purchases, with BOGO offers, free shipping and more as you move up.</p><a class="lnk" href="rewards.html">How it works →</a></div>
+<div class="tiers"><div><b>Bronze</b><span>$0+</span></div><div><b>Silver</b><span>$1,500+</span></div><div><b>Gold</b><span>$3,000+</span></div><div><b>Diamond</b><span>$5,000+</span></div></div></div></section>
+<section class="wrap" style="padding-bottom:30px"><div class="rewards" style="grid-template-columns:auto 1fr;align-items:center"><img src="img/pst-emblem-96.webp" width="64" height="64" alt="" style="border-radius:50%"><div><b class="serif" style="font-size:1.6rem">Get the app</b><p class="muted" style="margin:2px 0 10px">Add Pep Shop Texas to your Home Screen for one-tap reorders and order alerts.</p><button class="btn ghost sm" type="button" data-act="install">Show me how</button></div></div></section>
 
-    <section class="featured-section" aria-labelledby="featured-heading">
-      <h2 id="featured-heading">POPULAR PEPTIDES</h2>
-      <div class="featured-rule" aria-hidden="true"></div>
-      <div class="featured-grid" data-featured-peptides>
-        <a class="featured-product" data-feature-slot="1" data-product="KLOW" href="catalog.html?search=KLOW">
-          <strong>KLOW</strong><span>80 MG</span>
-        </a>
-        <a class="featured-product" data-feature-slot="2" data-product="Wolverine" href="catalog.html?search=Wolverine">
-          <strong>Wolverine</strong><span>10 MG</span>
-        </a>
-        <a class="featured-product" data-feature-slot="3" data-product="MOTS-C" href="catalog.html?search=MOTS-C">
-          <strong>MOTS-C</strong><span>40 MG</span>
-        </a>
-        <a class="featured-product" data-feature-slot="4" data-product="NAD+" href="catalog.html?search=NAD%2B">
-          <strong>NAD+</strong><span>500 MG</span>
-        </a>
-      </div>
-    </section>
-  </main>
-  <footer class="site-footer">
-
-    <div class="footer-main">
-      <div class="footer-main-inner">
-        <div class="footer-brand">
-          <strong>PEP SHOP TEXAS</strong>
-          <span>Peptide information and resources</span>
-        </div>
-
-        <nav class="footer-column" aria-label="Footer resource links">
-          <strong>RESOURCES</strong>
-          <a href="catalog.html">Catalog</a>
-          <a href="catalog.html?category=Multi-Peptide%20Product">Research Blends</a>
-          <a href="testing.html">Testing / Verification</a>
-
-        </nav>
-
-        <nav class="footer-column" aria-label="Footer customer service links">
-          <strong>CUSTOMER SERVICE</strong>
-          <a href="faq.html">FAQ</a>
-
-
-          <a href="terms.html">Terms</a>
-          <a href="privacy.html">Privacy</a>
-        </nav>
-
-        <nav class="footer-column" aria-label="Footer contact links">
-          <strong>CONTACT</strong>
-          <a href="contact.html">Contact Us</a>
-          <span>pepshoptexas.com</span>
-        </nav>
-      </div>
-    </div>
-
-    <div class="footer-legal">RESEARCH USE ONLY <span aria-hidden="true">•</span> NOT FOR HUMAN OR VETERINARY USE</div>
-  </footer>
+</main>
 </body>
 </html>

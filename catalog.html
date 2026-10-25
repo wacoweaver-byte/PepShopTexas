@@ -1,67 +1,35 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta name="robots" content="noindex, follow">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Browse the Pep Shop Texas catalog of research products and available product names and strengths.">
-  <link rel="canonical" href="https://www.pepshoptexas.com/catalog.html">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Pep Shop Texas">
-  <meta property="og:title" content="Research Catalog | Pep Shop Texas">
-  <meta property="og:description" content="Browse the Pep Shop Texas catalog of research products and available product names and strengths.">
-  <meta property="og:url" content="https://www.pepshoptexas.com/catalog.html">
-  <meta property="og:image" content="https://www.pepshoptexas.com/pst-logo-master.webp">
-  <meta name="twitter:card" content="summary_large_image">
-  <title>Research Catalog | Pep Shop Texas</title>
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#102a43">
-  <link rel="stylesheet" href="css/customer.css?v=28">
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Collection | Pep Shop Texas</title>
+<meta name="description" content="Browse every research peptide and blend at Pep Shop Texas, with live stock, strengths, prices and lab reports.">
+<link rel="canonical" href="https://www.pepshoptexas.com/catalog.html">
+<meta name="theme-color" content="#0a101c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Pep Shop Texas"><meta property="og:title" content="The Collection | Pep Shop Texas"><meta property="og:description" content="Browse every research peptide and blend at Pep Shop Texas, with live stock, strengths, prices and lab reports."><meta property="og:image" content="https://www.pepshoptexas.com/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Pep Shop TX">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ndpfnerhvawbavkotinh.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/pst-bl.css?v=37">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="js/pst-core.js?v=37"></script>
+<script defer src="js/pst-shop.js?v=37"></script>
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
+<body data-page="catalog">
+<main id="main">
 
-  <script defer src="catalog-display.js?v=20261019carousel1"></script>
-  <script defer src="app.js?v=20261018"></script>
-  <script defer src="customer-footer.js?v=8"></script>
-  <link rel="stylesheet" href="css/header-logo.css?v=5">
-</head>
-<body data-page="products">
-  <header class="pst-customer-header">
-    <div class="pst-customer-header-inner">
-      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
-        <img src="pst-header-logo.webp?v=4" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
-      </a>
+<section class="wrap pad"><span class="kick">Pep Shop Texas</span><h1 class="serif" data-head>The Collection</h1>
+<div class="ctop"><form class="csearch" role="search" data-cform><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><label class="sr" for="cq">Search the collection</label><input id="cq" type="search" placeholder="Search peptides, blends, strengths" autocomplete="off" enterkeyhint="search"></form>
+<div class="tabs" role="toolbar" aria-label="Filter" data-tabs></div>
+<div class="ctools"><span data-count>Loading…</span><span class="ctr"><label class="toggle"><input type="checkbox" id="instock"> In stock</label><label class="sortl"><span class="sr">Sort by</span><select id="csort" aria-label="Sort by"><option value="featured">Featured</option><option value="best">Best sellers</option><option value="new">Newest</option><option value="price">Price: low to high</option><option value="pricedesc">Price: high to low</option><option value="name">Name A–Z</option></select></label></span></div></div>
+<div class="lgrid" data-grid aria-live="polite"></div></section>
 
-      <div class="pst-customer-header-right">
-        <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
-          <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
-          <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-          <button type="submit" aria-label="Search">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
-            </svg>
-          </button>
-        </form>
-
-        <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
-          <a href="catalog.html">CATALOG <span aria-hidden="true">⌄</span></a>
-          <a href="catalog.html?category=Multi-Peptide%20Product">RESEARCH BLENDS <span aria-hidden="true">⌄</span></a>
-          <a href="faq.html">FAQ</a>
-          <a href="contact.html">CONTACT</a>
-
-          <a href="account.html" data-account-link>LOGIN</a>
-          <a class="cart-link" href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
-        </nav>
-      </div>
-    </div>
-  </header>
-
-  <main class="catalog-page">
-    <section class="page-heading"><h1>Peptide Catalog</h1><div class="catalog-heading-rule" aria-hidden="true"></div></section>
-    <section class="catalog-grid" data-catalog-grid><p class="loading-row">Loading products...</p></section>
-  </main>
+</main>
 </body>
 </html>

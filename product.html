@@ -1,73 +1,31 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Product | PEP Shop Texas</title>
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#102a43">
-  <link rel="stylesheet" href="css/customer.css?v=31">
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Product | Pep Shop Texas</title>
+<meta name="description" content="Research peptide details, strengths, live stock and third-party lab report.">
+<link rel="canonical" href="https://www.pepshoptexas.com/product.html">
+<meta name="theme-color" content="#0a101c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Pep Shop Texas"><meta property="og:title" content="Product | Pep Shop Texas"><meta property="og:description" content="Research peptide details, strengths, live stock and third-party lab report."><meta property="og:image" content="https://www.pepshoptexas.com/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Pep Shop TX">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ndpfnerhvawbavkotinh.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/pst-bl.css?v=37">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="js/pst-core.js?v=37"></script>
+<script defer src="js/pst-shop.js?v=37"></script>
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
+<body data-page="product">
+<main id="main">
 
-  <script defer src="app.js?v=67"></script>
-  <script defer src="product-detail-layout.js?v=7"></script>
-  <script defer src="catalog-inventory-fix.js?v=9"></script>
-  <script defer src="customer-footer.js?v=7"></script>
-  <link rel="stylesheet" href="css/header-logo.css?v=5">
-</head>
-<body data-page="product-detail">
-  <header class="pst-customer-header">
-    <div class="pst-customer-header-inner">
-      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home">
-        <img src="pst-header-logo.webp?v=4" alt="PST Pep Shop Texas" class="pst-customer-header-logo">
-      </a>
-      <div class="pst-customer-header-right">
-        <form class="pst-customer-search" role="search" action="catalog.html" method="get" data-product-search-form>
-          <label class="sr-only" for="pst-customer-search-input">Search peptides</label>
-          <input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off">
-          <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button>
-        </form>
-        <nav class="pst-customer-nav main-nav" aria-label="Main navigation">
-          <a href="catalog.html">CATALOG <span aria-hidden="true">⌄</span></a>
-          <a href="catalog.html?category=Multi-Peptide%20Product">RESEARCH BLENDS <span aria-hidden="true">⌄</span></a>
-          <a href="faq.html">FAQ</a>
-          <a href="contact.html">CONTACT</a>
+<div data-pdp><div class="pdp"><div class="spot"><div class="skel" style="width:150px;height:250px"></div></div><div class="pinfo"><div class="skel" style="height:14px;width:30%"></div><div class="skel" style="height:44px;width:70%;margin-top:14px"></div><div class="skel" style="height:22px;width:40%;margin-top:18px"></div><div class="skel" style="height:64px;margin-top:22px"></div></div></div></div>
 
-          <a href="account.html" data-account-link>LOGIN</a>
-          <a class="cart-link" href="cart.html">CART <span class="pst-cart-count" data-cart-count>0</span></a>
-        </nav>
-      </div>
-    </div>
-  </header>
-  <main class="detail-page">
-    <a class="back-link" href="catalog.html">‹ Back to products</a>
-    <section class="detail-shell" data-product-detail><p class="loading-row">Loading product...</p></section>
-  </main>
-  <footer class="site-footer">
-    <div class="site-footer-inner">
-      <div class="site-footer-brand"><strong>Pep Shop Texas</strong><span>Research-use catalog. Not for human or veterinary use.</span></div>
-      <nav class="site-footer-links" aria-label="Footer policies">
-        <a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a>
-      </nav>
-    </div>
-  </footer>
-  <script>
-    (() => {
-      const desired = "Research use only. Not for human consumption.";
-      const applyDisclaimer = () => {
-        document.querySelectorAll(".research-use").forEach((node) => {
-          if (node.textContent !== desired) node.textContent = desired;
-        });
-      };
-      applyDisclaimer();
-      const host = document.querySelector("[data-product-detail]");
-      if (host) new MutationObserver(applyDisclaimer).observe(host, { childList: true, subtree: true });
-    })();
-  </script>
+</main>
 </body>
 </html>
