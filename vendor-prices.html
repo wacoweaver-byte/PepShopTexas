@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
 const norm=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
 let products=[],vendors=[],staged=[],savedMappings=new Map();
-const normStrength=s=>norm(String(s||"").replace(/\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\b(milligrams?|mgs?)\b/gi,"mg").replace(/\b(micrograms?|mcgs?)\b/gi,"mcg"));
+const normStrength=s=>norm(String(s||"").replace(/\s*\/\s*vial\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\s*\/\s*vial\s*$/i,"").replace(/\b(milligrams?|mgs?)\b/gi,"mg").replace(/\b(micrograms?|mcgs?)\b/gi,"mcg"));
 const stableSku=(name,strength)=>"PST-AUTO-"+norm(name).slice(0,45)+"-"+norm(strength).slice(0,25);
 const get=(r,...keys)=>{for(const k of keys){const found=Object.keys(r).find(x=>norm(x)===norm(k));if(found&&r[found]!==undefined)return String(r[found]).trim();}return "";};
 const options=()=>'<option value="">Match product...</option>'+products.map(p=>'<option value="'+esc(p.product_key)+'">'+esc((p.display_name||"No display name")+" | "+(p.strength||"")+" | "+p.product_key+" ("+p.display_name+")")+'</option>').join("");
@@ -32,7 +32,7 @@ async function current(){
 }
 $("vendor").addEventListener("change",current);
 $("load").onclick=async()=>{const file=$("file").files[0];if(!file||!$("vendor").value){$("status").textContent="Choose a vendor and a spreadsheet.";return;}if(!window.XLSX){$("status").textContent="Spreadsheet reader unavailable. Please try again.";return;}
-try{const workbook=XLSX.read(await file.arrayBuffer(),{type:"array"});const rows=XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]],{defval:""});staged=rows.map(r=>{const name=get(r,"Product Name","Product","Name","Peptide"),strength=get(r,"Strength","Specification","Size","Vial Strength"),sku=get(r,"Vendor Item Number","Vendor SKU","Item Number","SKU","Code"),key=get(r,"PST Product Key","Product Key","PST SKU"),costStr=get(r,"Kit Cost","Price per Kit","Kit Price","Cost per Kit","Price"),cost=Number(costStr.replace(/[$,]/g,""));let match=products.find(p=>key&&norm(p.product_key)===norm(key));
+try{const workbook=XLSX.read(await file.arrayBuffer(),{type:"array"});const rows=XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]],{defval:""});staged=rows.map(r=>{const name=get(r,"Product Name","Product","Name","Peptide"),strength=get(r,"Strength","Specification","Size","Vial Strength"),sku=get(r,"Vendor Item Number","Vendor SKU","Item Number","Item #","SKU","Code"),key=get(r,"PST Product Key","Product Key","PST SKU"),costStr=get(r,"Kit Cost","Price per Kit","Kit Price","Cost per Kit","Price"),cost=Number(costStr.replace(/[$,]/g,""));let match=products.find(p=>key&&norm(p.product_key)===norm(key));
 if(!match&&sku){match=products.find(p=>p.product_key===savedMappings.get(norm(sku)));}
 if(!match){const candidates=products.filter(p=>p.display_name&&norm(p.display_name)===norm(name)&&normStrength(p.strength)===normStrength(strength));if(candidates.length===1)match=candidates[0];}
 return{name,strength,sku:sku||stableSku(name,strength),cost,key:match?.product_key||"",generatedSku:!sku};}).filter(r=>r.name||r.sku||r.key);
