@@ -1,0 +1,132 @@
+<!doctype html><html lang="en" data-auth-guard="admin"><head>
+<meta name="robots" content="noindex, nofollow"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vendor Price Lists | Pep Shop Texas</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script defer src="auth-guard.js?v=1"></script><style>body{margin:0;background:#f4f7fa;color:#102a43;font:15px Arial}header{padding:18px;background:#101820;color:white}a{color:#235b82}header a{color:white;margin-right:20px}main{max-width:1300px;margin:28px auto;padding:0 20px}section{background:#fff;border:1px solid #dce5eb;border-radius:12px;padding:20px;margin:16px 0}label{display:block;font-weight:700;margin:10px 0 5px}select,input,button{box-sizing:border-box;padding:10px;font:inherit;max-width:100%}button{cursor:pointer;background:#102a43;color:#fff;border:0;border-radius:5px}table{border-collapse:collapse;width:100%;min-width:650px}td,th{text-align:left;padding:9px;border-bottom:1px solid #dce5eb}th{background:#e9eff5}.scroll{overflow:auto}td select{width:100%;min-width:180px}td input{width:130px}.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:end}.bar>div{flex:1;min-width:220px}.muted{color:#617183}.warn{color:#a1481d}.good{color:#116b38}</style><meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head><body><header><a href="inventory.html">← Inventory / Purchase Orders</a><a href="admin.html">Admin</a></header><main><h1>Vendor Price Lists</h1><p>Import vendor cost per <strong>kit of 10 vials</strong>. These costs never change the website's retail prices. Existing purchase orders retain their saved prices.</p><section><div class="bar"><div><label for="vendor">Vendor</label><select id="vendor"><option value="">Loading vendors...</option></select></div><div><label for="file">Vendor Excel or CSV price list</label><input id="file" type="file" accept=".xlsx,.xls,.csv"></div><button id="load" type="button">Review Upload</button><span id="loadFeedback" role="status" aria-live="polite" style="font-weight:700;color:#102a43"></span></div><p class="muted">Accepted columns: <strong>Product / Specification / Code / Price</strong> or <strong>Product Name / Strength / Vendor Item Number / Kit Cost</strong>. Include <strong>PST Product Key</strong> for exact automatic matching. Automatic matching uses the <strong>PST Display Name + Strength</strong> (not Sort Name). Ambiguous products must be matched manually before saving.</p><p id="status" role="status"></p></section><section id="review" hidden><h2>Review matches and prices</h2><p id="summary"></p><div id="reviewPages" style="display:flex;align-items:center;gap:12px;margin:10px 0"><button type="button" id="prevPage">Previous</button><span id="pageLabel"></span><button type="button" id="nextPage">Next</button></div><div id="picker" hidden style="border:1px solid #dce5eb;padding:12px;margin:12px 0"><label for="oneProduct">Match selected vendor row to PST item</label><select id="oneProduct" style="min-width:300px;max-width:100%"></select> <button type="button" id="closePicker">Done</button><p id="pickerInfo" class="muted"></p></div><div class="scroll"><table><thead><tr><th>Vendor item</th><th>Strength</th><th>Vendor SKU</th><th>Match to PST product</th><th>Kit cost ($)</th><th>Result</th></tr></thead><tbody id="rows"></tbody></table></div><p><button id="save" type="button">Save Matched Vendor Prices</button></p></section><section><h2>Full Vendor Catalog</h2><p class="muted">Every vendor item is saved, including unmatched items. Unmatched items can be ordered without publishing them on the website.</p><p id="catalogCount"></p><div class="scroll"><table><thead><tr><th>Vendor product</th><th>Vendor SKU</th><th>Match status</th><th>Cost per kit</th><th>Action</th></tr></thead><tbody id="current"></tbody></table></div></section></main><script>
+const db=supabase.createClient("https://ndpfnerhvawbavkotinh.supabase.co","sb_publishable_7d5fHwVYUeD1SuxZuM-Qbw_nql4agIH");
+const $=id=>document.getElementById(id);
+const feedback=message=>{$("status").textContent=message;$("loadFeedback").textContent=message;};
+async function ensureXLSX(){if(window.XLSX)return;for(const src of ["https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js","https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"]){try{await new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});if(window.XLSX)return;}catch(e){}}throw Error("Spreadsheet library could not load. Check your network or browser content blocker.");}
+const esc=s=>String(s??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
+const norm=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+let products=[],vendors=[],staged=[],savedMappings=new Map(),savedCatalog=[],activeRow=-1,reviewPage=0;
+const pageSize=25;
+const normStrength=s=>norm(String(s||"").replace(/\s*\/\s*vial\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\s*\/\s*vial\s*$/i,"").replace(/\b(milligrams?|mgs?)\b/gi,"mg").replace(/\b(micrograms?|mcgs?)\b/gi,"mcg"));
+const nameAliases={
+ "retatrutide":"pst3ret","tirzepatide":"pst2tir","semaglutide":"pst1sem",
+ "epithalon":"epitalon","kisspeptin10":"kisspeptin","ll37":"ll37","cjc1295nodac":"cjc1295","tb500":"tb4tb500thymosinb4",
+ "thymosinalpha1":"thymosinalpha1","b12":"b12",
+ "miclipocb12":"miclipocwb12","melanotan2":"melantoninii",
+ "hcg":"pst5000iu","bpc15710mgtb50010mg":"wolverine"
+};
+const matchName=n=>nameAliases[norm(n)]||norm(n);
+
+const get=(r,...keys)=>{for(const k of keys){const found=Object.keys(r).find(x=>norm(x)===norm(k));if(found&&r[found]!==undefined)return String(r[found]).trim();}return "";};
+const options=()=>'<option value="">Match product...</option>'+products.map(p=>'<option value="'+esc(p.product_key)+'">'+esc((p.display_name||"No display name")+" | "+(p.strength||"")+" | "+p.product_key+" ("+p.display_name+")")+'</option>').join("");
+async function init(){const u=await db.auth.getUser();if(!u.data?.user){location.href="login.html?redirect=vendor-prices.html";return;}
+const [v,p]=await Promise.all([db.from("vendors").select("id,company_name,pst_vendor_id").order("company_name"),db.from("product_catalog").select("product_key,display_name,sort_name,strength").order("sort_name")]);
+if(v.error||p.error){$("status").textContent=(v.error||p.error).message;return;}vendors=v.data||[];products=p.data||[];
+$("vendor").innerHTML='<option value="">Select vendor...</option>'+vendors.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.pst_vendor_id+" — "+x.company_name)+'</option>').join("");
+}
+async function current(){
+ const id=$("vendor").value;$("current").innerHTML="";savedMappings=new Map();savedCatalog=[];if(!id)return;
+ const {data,error}=await db.from("pst_vendor_catalog_items").select("id,product_key,product_name,strength,vendor_item_number,kit_cost").eq("vendor_id",id).order("product_name");
+ if(error){$("status").textContent=error.message;return;}
+ savedCatalog=data||[];savedMappings=new Map(savedCatalog.filter(x=>x.vendor_item_number&&x.product_key).map(x=>[norm(x.vendor_item_number)+"|"+normStrength(x.strength),x.product_key]));
+ $("catalogCount").textContent=(data||[]).length+" items · "+(data||[]).filter(x=>x.product_key).length+" matched · "+(data||[]).filter(x=>!x.product_key).length+" unmatched";
+ $("current").innerHTML=(data||[]).map(x=>'<tr><td>'+esc(x.product_name+" — "+(x.strength||""))+'</td><td>'+esc(x.vendor_item_number)+'</td><td>'+(x.product_key?'<span class="good">Matched: '+esc(x.product_key)+'</span>':'<span class="warn">Vendor-only / unmatched</span>')+'</td><td>$'+Number(x.kit_cost).toFixed(2)+'</td><td>'+(x.product_key?'<a href="inventory.html">Order via Inventory</a>':'<button type="button" data-order-id="'+esc(x.id)+'">Create PO</button>')+'</td></tr>').join("")||'<tr><td colspan="5">No vendor products imported.</td></tr>';
+ $("current").querySelectorAll("[data-order-id]").forEach(btn=>btn.onclick=async()=>{
+  const value=prompt("Number of 10-vial kits to order?","1");if(value===null)return;
+  const kits=Number(value);if(!Number.isInteger(kits)||kits<1){alert("Enter a valid whole number.");return;}
+  if(!confirm("Create purchase order for "+kits+" kits? Product will stay outside PST inventory until manually matched."))return;
+  btn.disabled=true;const {data:po,error}=await db.rpc("pst_admin_order_vendor_only_item",{p_item_id:btn.dataset.orderId,p_kits:kits});btn.disabled=false;
+  if(error){alert("PO not created: "+error.message);return;}
+  alert("Created purchase order "+po+". Review under Inventory / Purchase Orders. Inventory is NOT increased.");
+ });
+}
+$("vendor").addEventListener("change",()=>{feedback("");current();});
+async function readSpreadsheet(file){
+ const source=`self.onmessage=async event=>{try{
+  importScripts("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
+  const bytes=event.data;
+  const workbook=XLSX.read(bytes,{type:"array",sheetRows:2000});
+  const worksheet=workbook.Sheets[workbook.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(worksheet,{defval:""});
+  postMessage({rows});
+ }catch(e){postMessage({error:String(e&&e.message||e)});}}`;
+ const url=URL.createObjectURL(new Blob([source],{type:"application/javascript"}));
+ const worker=new Worker(url);URL.revokeObjectURL(url);
+ try{return await new Promise(async(resolve,reject)=>{
+  let done=false;const timer=setTimeout(()=>{if(!done){done=true;reject(new Error("Spreadsheet processing exceeded 20 seconds. Check the file's size or convert it to CSV."));}},20000);
+  worker.onmessage=e=>{if(done)return;done=true;clearTimeout(timer);e.data.error?reject(new Error(e.data.error)):resolve(e.data.rows);};
+  worker.onerror=e=>{if(done)return;done=true;clearTimeout(timer);reject(new Error("Spreadsheet worker failed: "+e.message));};
+  try{const bytes=await file.arrayBuffer();worker.postMessage(bytes,[bytes]);}catch(e){if(!done){done=true;clearTimeout(timer);reject(e);}}
+ });}finally{worker.terminate();}
+}
+$("load").onclick=async()=>{
+ const file=$("file").files[0];if(!file||!$("vendor").value){feedback("Choose a vendor and a spreadsheet.");return;}
+ $("load").disabled=true;$("load").textContent="Reading file…";feedback("Reading "+file.name+" in a separate worker…");
+ try{
+ let rows;
+ if(/\.csv$/i.test(file.name)){const csv=await file.text();await ensureXLSX();const wb=XLSX.read(csv,{type:"string"});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});}
+ else rows=await readSpreadsheet(file);
+ staged=rows.map(r=>{const name=get(r,"Product Name","Product","Name","Peptide"),strength=get(r,"Strength","Specification","Specification per kit","Size","Vial Strength"),sku=get(r,"Vendor Item Number","Vendor SKU","Item Number","Item #","Item","SKU","Code"),key=get(r,"PST Product Key","Product Key","PST SKU"),costStr=get(r,"Kit Cost","Price per Kit","Kit Price","Cost per Kit","Price","USD"),cost=Number(costStr.replace(/[$,]/g,""));let match=products.find(p=>key&&norm(p.product_key)===norm(key));
+ if(!match&&sku)match=products.find(p=>p.product_key===savedMappings.get(norm(sku)+"|"+normStrength(strength)));
+ if(!match){const candidates=products.filter(p=>p.display_name&&matchName(p.display_name)===matchName(name)&&normStrength(p.strength)===normStrength(strength));if(candidates.length===1)match=candidates[0];}
+ return{name,strength,sku:sku,cost,key:match?.product_key||"",generatedSku:false};}).filter(r=>r.name||r.sku||r.key);
+ const seen=new Set();for(const r of staged){if(r.key&&seen.has(r.key))r.key="";if(r.key)seen.add(r.key);}
+ reviewPage=0;$("review").hidden=false;render();
+ feedback(staged.length+" rows loaded; "+staged.filter(r=>r.key).length+" matched. Showing 25 items per page.");
+ $("review").scrollIntoView({behavior:"smooth",block:"start"});
+ }catch(e){feedback("Unable to review file: "+e.message);}
+ finally{$("load").disabled=false;$("load").textContent="Review Upload";}
+};
+const titleFor=k=>{const p=products.find(p=>p.product_key===k);return p?(p.display_name+" | "+p.strength):k;};
+const claimedBy=(key,except)=>staged.some((r,i)=>i!==except&&r.key===key);
+function openPicker(i){
+ activeRow=i;const row=staged[i];$("picker").hidden=false;
+ const sel=$("oneProduct");sel.innerHTML='<option value="">Unmatched / vendor only</option>'+products.map(p=>{
+ const used=claimedBy(p.product_key,i)||savedCatalog.some(x=>x.product_key===p.product_key&&(norm(x.vendor_item_number)+"|"+normStrength(x.strength))!==(norm(row.sku)+"|"+normStrength(row.strength)));
+ return '<option value="'+esc(p.product_key)+'"'+(used?' disabled':'')+'>'+esc(p.display_name+" | "+p.strength+(used?" — ALREADY MATCHED":""))+'</option>';
+ }).join("");
+ sel.value=row.key||"";
+ $("pickerInfo").textContent="Vendor: "+row.name+" | "+row.strength+" | SKU "+row.sku+". Items already assigned to another row cannot be selected.";
+ $("picker").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+$("oneProduct").onchange=()=>{if(activeRow<0)return;const key=$("oneProduct").value;if(key&&claimedBy(key,activeRow)){feedback("That PST product is already matched to another vendor row.");return;}staged[activeRow].key=key;render();openPicker(activeRow);};
+$("closePicker").onclick=()=>{$("picker").hidden=true;activeRow=-1;};
+$("prevPage").onclick=()=>{if(reviewPage>0){reviewPage--;render();}};
+$("nextPage").onclick=()=>{if((reviewPage+1)*pageSize<staged.length){reviewPage++;render();}};
+function render(){
+ const pages=Math.max(1,Math.ceil(staged.length/pageSize));
+ reviewPage=Math.min(reviewPage,pages-1);
+ $("pageLabel").textContent="Page "+(reviewPage+1)+" of "+pages;
+ $("prevPage").disabled=reviewPage===0;
+ $("nextPage").disabled=reviewPage>=pages-1;
+ const existing=new Set(staged.map(r=>norm(r.sku)+"|"+normStrength(r.strength)));
+ const otherSaved=new Map(savedCatalog.filter(x=>x.product_key&&!existing.has(norm(x.vendor_item_number)+"|"+normStrength(x.strength))).map(x=>[x.product_key,x]));
+ $("rows").innerHTML=staged.slice(reviewPage*pageSize,(reviewPage+1)*pageSize).map((r,offset)=>{const i=reviewPage*pageSize+offset;
+ const saved=savedCatalog.find(x=>x.product_key===r.key&&norm(x.vendor_item_number)===norm(r.sku)&&normStrength(x.strength)===normStrength(r.strength));
+ const status=r.key?(saved?"Previously matched in vendor catalog":"Matched to "+titleFor(r.key)):"Unmatched";
+ return '<tr><td>'+esc(r.name)+'</td><td>'+esc(r.strength)+'</td><td>'+esc(r.sku)+'</td><td><button type="button" data-match-row="'+i+'">'+esc(r.key?titleFor(r.key):"Select PST product")+'</button></td><td><input type="number" min="0" step="0.01" data-index="'+i+'" value="'+(Number.isFinite(r.cost)?r.cost:"")+'"></td><td class="'+(r.key?"good":"warn")+'">'+esc(status)+'</td></tr>';
+ }).join("");
+ $("rows").querySelectorAll("[data-match-row]").forEach(b=>b.onclick=()=>openPicker(Number(b.dataset.matchRow)));
+ $("rows").querySelectorAll("input[data-index]").forEach(el=>el.onchange=()=>{staged[Number(el.dataset.index)].cost=Number(el.value);});
+ $("summary").textContent=staged.length+" vendor rows; "+staged.filter(r=>r.key).length+" matched; "+staged.filter(r=>!r.key).length+" unmatched. One PST catalog item can only be used once per upload.";
+}
+$("save").onclick=async()=>{
+ if(!$("vendor").value)return;
+ const invalid=staged.map((r,i)=>({r,i})).filter(({r})=>!r.name||!Number.isFinite(r.cost)||r.cost<0);
+ if(invalid.length){$("status").textContent="Cannot save: "+invalid.length+" invalid rows (first at Excel row "+(invalid[0].i+2)+"). Each row needs a product name and valid nonnegative kit cost.";return;}
+ const valid=staged;
+ if(!valid.length){$("status").textContent="No vendor rows to save.";return;}
+ if(new Set(valid.filter(r=>r.sku).map(r=>r.sku.toLowerCase()+"|"+normStrength(r.strength))).size!==valid.filter(r=>r.sku).length){$("status").textContent="Duplicate SKU and strength combination: resolve before saving.";return;}
+ if(new Set(valid.filter(r=>r.key).map(r=>r.key)).size!==valid.filter(r=>r.key).length){feedback("One PST product is matched more than once. Correct it before saving.");return;}
+ if(!confirm("Save "+valid.length+" vendor products, including unmatched? Retail prices stay unchanged."))return;
+ $("save").disabled=true;
+ const {data,error}=await db.rpc("pst_admin_import_vendor_catalog",{p_vendor_id:$("vendor").value,p_rows:valid.map(r=>({product_name:r.name,strength:r.strength,vendor_item_number:r.sku,kit_cost:r.cost,product_key:r.key||null}))});
+ $("save").disabled=false;
+ if(error){$("status").textContent="Save failed: "+error.message;return;}
+ $("status").textContent=data+" vendor products saved (including unmatched). Retail prices unchanged.";
+ await current();
+ if(!$("status").textContent.startsWith("Save failed"))$("status").textContent=data+" vendor products saved and catalog refreshed.";
+};
+init();
+</script></body></html>

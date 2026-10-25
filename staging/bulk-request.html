@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bulk requests | Pep Shop Texas</title>
+<meta name="description" content="Request lab or bulk quantities from Pep Shop Texas.">
+<link rel="canonical" href="https://www.pepshoptexas.com/bulk-request.html">
+<meta name="theme-color" content="#0a101c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Pep Shop Texas"><meta property="og:title" content="Bulk requests | Pep Shop Texas"><meta property="og:description" content="Request lab or bulk quantities from Pep Shop Texas."><meta property="og:image" content="https://www.pepshoptexas.com/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Pep Shop TX">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ndpfnerhvawbavkotinh.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/pst-bl.css?v=35">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="js/pst-core.js?v=35"></script>
+<script defer src="js/pst-account.js?v=35"></script>
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
+<body data-page="bulk">
+<main id="main">
+<section class="wrap pad"><div class="authcard wide">
+<span class="kick">Bulk &amp; lab quantities</span><h1 class="serif">Bulk request</h1><p class="muted">1 kit = 10 vials. This is a request only: no order is placed and nothing is charged.</p>
+<form class="form" data-form="bulk"><div class="g2"><label>Name<input name="name" maxlength="120" required autocomplete="name"></label><label>Company / organization<input name="company" maxlength="160" autocomplete="organization"></label></div>
+<div class="g2"><label>Email<input name="email" type="email" maxlength="254" required autocomplete="email"></label><label>Phone<input name="phone" type="tel" maxlength="50" autocomplete="tel"></label></div>
+<div class="g2"><label>Product<input name="product" list="bulkproducts" maxlength="160" required placeholder="Research product"><datalist id="bulkproducts"></datalist></label><label>Strength<input name="strength" maxlength="100" required placeholder="e.g. 10 mg"></label></div>
+<div class="g2"><label>Number of kits<input name="kits" type="number" min="1" max="500" value="1" required inputmode="numeric"></label><label>Testing preference<select name="testing" required><option value="pst_coordinated">Pep Shop Texas coordinates independent testing</option><option value="customer_coordinated">I coordinate independent testing</option></select></label></div>
+<label>Special requirements / notes<textarea name="requirements" maxlength="2000" placeholder="Tell us about your request"></textarea></label>
+<label class="chk"><input type="checkbox" name="ack" required> I understand the products are for legitimate laboratory research only, not human or veterinary use, and that submitting this request does not place an order or guarantee availability.</label>
+<button class="btn primary wide" type="submit">Send bulk request</button><p class="notice" data-msg hidden role="status"></p></form>
+</div></section>
+</main>
+</body>
+</html>

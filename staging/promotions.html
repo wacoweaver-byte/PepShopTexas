@@ -1,0 +1,1969 @@
+<!-- PST_ADMIN_SHARED_NAV_PATCH_ADD_CUSTOMERS_LINK -->
+<!DOCTYPE html>
+<!-- PST_PROMOTIONS_PATCH_V2_DISCOUNT_DROPDOWN_LINKED -->
+<!-- PST_PROMOTIONS_PATCH_V1_ADMIN_MANAGER -->
+<html lang="en" data-auth-guard="admin"><head>
+<meta name="robots" content="noindex, nofollow">
+  <style id="pst-auth-guard-style">html{visibility:hidden}</style><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pep Shop Texas | Promotions</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#bd0000"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="auth-guard.js?v=1"></script><style>
+:root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--danger:#b42318;--white:#fff}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border)}.topbar{max-width:1540px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:16px;font-weight:900}.pst-master-admin-logo{height:54px;max-width:230px}.pst-master-page-label{color:#596579;font-size:16px;font-weight:800}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{min-height:40px;padding:10px 13px;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.btn.secondary{background:#fff;color:var(--dark);border:1px solid var(--border)}.btn.secondary.active{background:var(--blue)!important;color:#fff!important}.btn.danger{background:var(--danger)}.btn.success{background:var(--success)}main{max-width:1540px;margin:auto;padding:22px 18px 54px}.status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted)}.status.good{color:var(--success)}.status.bad{color:var(--danger)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 10px 30px rgba(16,24,32,.08);overflow:hidden}.card h2{margin:0;padding:16px;border-bottom:1px solid var(--border);font-size:18px}.card-body{padding:16px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field-note{font-size:12px;color:var(--muted);line-height:1.35;margin-top:2px}.full{grid-column:1/-1}label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted)}input,select,textarea{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff}textarea{min-height:90px;resize:vertical}.inline{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.inline label{display:flex;align-items:center;gap:6px;text-transform:none;font-size:13px;letter-spacing:0;color:var(--dark)}input[type=checkbox]{width:18px;min-height:18px}.list{display:grid;gap:10px}.promo-row{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fbfcfe;display:flex;justify-content:space-between;gap:10px}.promo-row strong{display:block}.preview{border:1px solid var(--border);border-radius:16px;padding:22px;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#fff}.badge{display:inline-flex;border-radius:999px;padding:6px 10px;background:#f4f8ff;color:000000;font-weight:900;margin-bottom:10px}.preview img{max-width:100%;max-height:150px;object-fit:contain;margin:10px 0}.preview a{margin-top:12px;text-decoration:none;background:000000;color:#fff;border-radius:10px;padding:10px 14px;font-weight:900}@media(max-width:900px){.grid,.fields{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+
+
+/* PST_SITE_TYPOGRAPHY_AND_LOGO_STANDARD_V1
+   Purpose: standardize font hierarchy and logo display across public/admin pages.
+   Keep actions/prices readable without the heavy all-bold/Impact look.
+*/
+:root {
+  --pst-ui-font: Arial, Helvetica, sans-serif;
+}
+body, input, button, select, textarea {
+  font-family: var(--pst-ui-font) !important;
+}
+.brand, .logo, .logo-mark {
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
+}
+.brand-logo-img, .account-logo-img, .header-logo-img, .footer-logo-img, .pst-master-admin-logo {
+  display: block !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+.brand-logo-img, .account-logo-img {
+  width: clamp(155px, 18vw, 220px) !important;
+  max-width: 100% !important;
+}
+.pst-master-admin-logo {
+  width: clamp(150px, 16vw, 210px) !important;
+  max-width: 100% !important;
+}
+.page-title, .section-title, .card h2, .auth-card h1, .auth-card h2,
+.security-box h3, .email-pref-box h3, footer h4, .home-showcase-title,
+.pst-master-page-label, .reports-title, .admin-title, .inventory-title,
+.product-title, .discount-title, .customer-title, h1, h2, h3 {
+  font-family: var(--pst-ui-font) !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+.page-title {
+  font-weight: 600 !important;
+  text-transform: none !important;
+}
+.menu, .menu a, .account-status, .account-status a, .account-status button,
+.btn, button, label, th, .profile-row strong, .order-meta strong,
+.form-field label, .same-row, .top-strip, .badge, .status, .empty-state {
+  font-weight: 600 !important;
+}
+p, li, td, .subtitle, .small, .profile-row span, .order-meta span,
+.email-pref-copy, .security-copy, .footer-disclaimer {
+  font-weight: 400 !important;
+}
+strong {
+  font-weight: 600 !important;
+}
+@media(max-width:560px) {
+  .brand-logo-img, .account-logo-img {
+    width: clamp(135px, 42vw, 170px) !important;
+  }
+}
+</style>
+<style>
+
+/* PST_ADMIN_HEADER_LOCK_V2
+   Purpose: force every admin page header to use the exact same layout, logo size, spacing, title placement, nav placement, and typography.
+   Do not move this block above older admin CSS. It intentionally loads last.
+*/
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  min-height: 92px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 92px !important;
+  margin: 0 !important;
+  padding: 14px 28px !important;
+  display: grid !important;
+  grid-template-columns: 420px minmax(0, 1fr) !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  gap: 18px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+header .brand,
+header .pst-admin-brand-lock {
+  width: 420px !important;
+  min-width: 420px !important;
+  max-width: 420px !important;
+  display: grid !important;
+  grid-template-columns: 132px 260px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  column-gap: 22px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  color: #596579 !important;
+}
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+}
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: #596579 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+header .actions,
+header .pst-admin-actions-lock {
+  min-width: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar {
+  display: none !important;
+}
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .actions button.btn {
+  flex: 0 0 auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  border: 1px solid #d9e2ec !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+}
+header .actions .btn.secondary.active,
+header .pst-admin-actions-lock .btn.secondary.active {
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
+  color: #ffffff !important;
+}
+header .actions .btn.danger,
+header .pst-admin-actions-lock .btn.danger {
+  background: #b42318 !important;
+  border-color: #b42318 !important;
+  color: #ffffff !important;
+}
+@media (max-width: 1180px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+    padding: 14px 18px !important;
+    gap: 12px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    grid-template-columns: 132px minmax(0, 1fr) !important;
+  }
+  header .pst-master-page-label {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    white-space: normal !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    justify-content: flex-start !important;
+  }
+}
+@media (max-width: 640px) {
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 112px !important;
+    height: 54px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    column-gap: 14px !important;
+  }
+  header .pst-master-page-label {
+    min-height: 54px !important;
+    font-size: 18px !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 14px !important;
+    font-size: 15px !important;
+  }
+}
+
+</style>
+
+<style>
+/* PST_ADMIN_HEADER_FINAL_LOCK_V3_NO_OVERLAP
+   Single admin header system for every admin page.
+   This block intentionally loads last and overrides older page-specific header CSS.
+*/
+html, body {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 92px !important;
+  margin: 0 !important;
+  padding: 14px 28px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  flex-wrap: nowrap !important;
+  background: #ffffff !important;
+}
+header .brand,
+header .pst-admin-brand-lock {
+  flex: 0 0 420px !important;
+  width: 420px !important;
+  min-width: 420px !important;
+  max-width: 420px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 132px 260px !important;
+  column-gap: 22px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+}
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: #596579 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+header .actions,
+header .pst-admin-actions-lock {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .actions button.btn {
+  flex: 0 0 auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  border: 1px solid #d9e2ec !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+}
+header .actions .btn.secondary.active,
+header .pst-admin-actions-lock .btn.secondary.active {
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
+  color: #ffffff !important;
+}
+header .actions .btn.danger,
+header .pst-admin-actions-lock .btn.danger {
+  background: #b42318 !important;
+  border-color: #b42318 !important;
+  color: #ffffff !important;
+}
+@media (max-width: 1240px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    min-height: 150px !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 10px 18px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    flex: 0 0 420px !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}
+@media (max-width: 640px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    padding: 12px 16px !important;
+    min-height: 138px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    flex-basis: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    column-gap: 14px !important;
+  }
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 112px !important;
+    height: 54px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+  }
+  header .pst-master-page-label {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    font-size: 18px !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 14px !important;
+    font-size: 15px !important;
+  }
+}
+
+
+/* PST ADMIN HEADER FINAL HARD LOCK V4 - NO OVERLAP / SAME PLACEMENT / LIGHTER TYPE */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  min-height: 92px !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 92px !important;
+  margin: 0 !important;
+  padding: 14px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 22px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+header .brand,
+header .pst-admin-brand-lock {
+  flex: 0 0 390px !important;
+  width: 390px !important;
+  min-width: 390px !important;
+  max-width: 390px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 132px 1fr !important;
+  column-gap: 22px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-decoration: none !important;
+}
+
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+}
+
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 21px !important;
+  font-weight: 500 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: #596579 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+
+header .actions,
+header .pst-admin-actions-lock {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 6px 0 0 !important;
+  box-sizing: border-box !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
+
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .pst-admin-actions-lock a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock button.btn {
+  flex: 0 0 auto !important;
+  min-width: auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  background: #ffffff !important;
+  color: #101820 !important;
+  border: 1px solid #d9e2ec !important;
+}
+
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  background: #0085d5 !important;
+  color: #ffffff !important;
+  border-color: #0085d5 !important;
+}
+
+@media (max-width: 1180px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    gap: 14px !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    flex-basis: 350px !important;
+    width: 350px !important;
+    min-width: 350px !important;
+    max-width: 350px !important;
+    grid-template-columns: 120px 1fr !important;
+    column-gap: 18px !important;
+  }
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 120px !important;
+    height: 58px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+  }
+  header .pst-master-page-label {
+    font-size: 19px !important;
+    font-weight: 500 !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 15px !important;
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  header { overflow: visible !important; }
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    min-height: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+    overflow: visible !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex-basis: auto !important;
+    grid-template-columns: 120px minmax(0, 1fr) !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    width: 100% !important;
+    height: 46px !important;
+  }
+}
+</style>
+
+
+<style>
+/* PST_ADMIN_HEADER_BUTTON_ALIGNMENT_FINAL
+   Fixes header button drift caused by extra Refresh/Sign Out utility buttons.
+   Header is now identical on all admin pages and cannot overlap the title.
+*/
+header .pst-admin-topbar-lock,
+header .topbar {
+  display: grid !important;
+  grid-template-columns: 420px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 20px !important;
+  row-gap: 10px !important;
+}
+header .pst-admin-brand-lock,
+header .brand {
+  grid-column: 1 !important;
+}
+header .pst-admin-actions-lock,
+header .actions {
+  grid-column: 2 !important;
+  justify-content: flex-start !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding-bottom: 2px !important;
+}
+header .pst-master-page-label {
+  font-weight: 400 !important;
+}
+header .pst-admin-actions-lock .btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn {
+  font-weight: 500 !important;
+}
+@media (max-width: 1500px) {
+  header .pst-admin-topbar-lock,
+  header .topbar {
+    grid-template-columns: 1fr !important;
+    min-height: 144px !important;
+    align-items: start !important;
+  }
+  header .pst-admin-brand-lock,
+  header .brand {
+    grid-column: 1 !important;
+  }
+  header .pst-admin-actions-lock,
+  header .actions {
+    grid-column: 1 !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}
+@media (max-width: 640px) {
+  header .pst-admin-topbar-lock,
+  header .topbar {
+    min-height: 136px !important;
+  }
+}
+</style>
+
+
+
+<style id="pst-admin-inventory-shell-final">
+/* PST_ADMIN_INVENTORY_MIRROR_FINAL
+   One admin shell copied across every admin page.
+   Scope: header, admin page container, page titles, card/section headings, basic typography only.
+   Does not modify page scripts or page-specific business logic.
+*/
+:root {
+  --pst-admin-font: Arial, Helvetica, sans-serif;
+  --pst-admin-blue: 000000;
+  --pst-admin-accent: #0085d5;
+  --pst-admin-text: #101820;
+  --pst-admin-muted: #596579;
+  --pst-admin-line: #d9e2ec;
+  --pst-admin-shell-width: 1500px;
+  --pst-admin-x: 18px;
+}
+html, body {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+body, input, select, textarea, button {
+  font-family: var(--pst-admin-font) !important;
+}
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--pst-admin-line) !important;
+  font-family: var(--pst-admin-font) !important;
+  overflow: visible !important;
+}
+header .topbar,
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: var(--pst-admin-shell-width) !important;
+  min-height: 92px !important;
+  margin: 0 auto !important;
+  padding: 14px var(--pst-admin-x) !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: 390px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 22px !important;
+  row-gap: 10px !important;
+  background: #ffffff !important;
+}
+header .brand,
+header .pst-admin-brand-lock {
+  grid-column: 1 !important;
+  width: 390px !important;
+  min-width: 390px !important;
+  max-width: 390px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 132px minmax(0, 1fr) !important;
+  align-items: center !important;
+  column-gap: 22px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--pst-admin-muted) !important;
+  text-decoration: none !important;
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  line-height: 1.15 !important;
+  overflow: visible !important;
+}
+header .pst-master-admin-logo,
+header img.pst-master-admin-logo,
+header .pst-admin-logo {
+  display: block !important;
+  width: 132px !important;
+  height: 64px !important;
+  min-width: 132px !important;
+  max-width: 132px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+header .pst-master-page-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-width: 0 !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  color: var(--pst-admin-muted) !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: 21px !important;
+  font-weight: 400 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+header .actions,
+header .pst-admin-actions-lock {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  margin: 0 !important;
+  padding: 0 6px 0 0 !important;
+  box-sizing: border-box !important;
+}
+header .actions::-webkit-scrollbar,
+header .pst-admin-actions-lock::-webkit-scrollbar { display: none !important; }
+header .actions .btn,
+header .pst-admin-actions-lock .btn,
+header .actions a.btn,
+header .pst-admin-actions-lock a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock button.btn {
+  flex: 0 0 auto !important;
+  min-width: auto !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--pst-admin-line) !important;
+  background: #ffffff !important;
+  color: var(--pst-admin-text) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  background: var(--pst-admin-accent) !important;
+  border-color: var(--pst-admin-accent) !important;
+  color: #ffffff !important;
+}
+main,
+.admin-main,
+.page-wrap,
+.wrap,
+.container,
+.admin-container,
+.dashboard,
+.content {
+  max-width: var(--pst-admin-shell-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: var(--pst-admin-x) !important;
+  padding-right: var(--pst-admin-x) !important;
+  box-sizing: border-box !important;
+}
+main {
+  padding-top: 22px !important;
+  padding-bottom: 60px !important;
+}
+.page-title,
+.title-row,
+.page-head,
+.admin-page-head {
+  max-width: var(--pst-admin-shell-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: 16px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+h1,
+.page-title h1,
+.title-row h1,
+.page-head h1,
+.admin-page-head h1 {
+  margin: 0 0 6px !important;
+  color: var(--pst-admin-text) !important;
+  font-family: var(--pst-admin-font) !important;
+  font-size: clamp(26px, 3vw, 38px) !important;
+  font-weight: 400 !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+h2, h3,
+.card h2,
+.card h3,
+.panel h2,
+.panel h3,
+.section-title,
+.box-title,
+.settings-title {
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+.subtitle,
+.page-subtitle,
+.help-text,
+p, li, td, input, select, textarea {
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 400 !important;
+}
+label,
+th,
+.badge,
+.status,
+.empty-state,
+.small-label,
+.meta-label,
+.form-field label,
+.order-meta strong,
+.profile-row strong {
+  font-family: var(--pst-admin-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+strong { font-weight: 500 !important; }
+@media (max-width: 1180px) {
+  header .topbar,
+  header .pst-admin-topbar-lock {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+    padding: 12px var(--pst-admin-x) !important;
+  }
+  header .brand,
+  header .pst-admin-brand-lock {
+    grid-column: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  header .actions,
+  header .pst-admin-actions-lock {
+    grid-column: 1 !important;
+    width: 100% !important;
+  }
+}
+@media (max-width: 640px) {
+  :root { --pst-admin-x: 14px; }
+  header .brand,
+  header .pst-admin-brand-lock {
+    height: 54px !important;
+    min-height: 54px !important;
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    column-gap: 14px !important;
+  }
+  header .pst-master-admin-logo,
+  header img.pst-master-admin-logo,
+  header .pst-admin-logo {
+    width: 112px !important;
+    height: 54px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+  }
+  header .pst-master-page-label {
+    height: 54px !important;
+    min-height: 54px !important;
+    font-size: 18px !important;
+  }
+  header .actions .btn,
+  header .pst-admin-actions-lock .btn {
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 14px !important;
+    font-size: 15px !important;
+  }
+  h1,
+  .page-title h1,
+  .title-row h1,
+  .page-head h1,
+  .admin-page-head h1 {
+    font-size: 30px !important;
+  }
+}
+</style>
+
+<style id="pst-admin-header-unified-v1">
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  min-height: 86px !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #d9e2ec !important;
+  box-shadow: 0 3px 18px rgba(16,24,32,.04) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+header .pst-admin-topbar-lock {
+  width: 100% !important;
+  max-width: 1540px !important;
+  min-height: 86px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px !important;
+  display: grid !important;
+  grid-template-columns: minmax(300px, 430px) minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 18px !important;
+  box-sizing: border-box !important;
+}
+header .pst-admin-brand-lock {
+  display: grid !important;
+  grid-template-columns: 54px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  color: #101820 !important;
+  text-decoration: none !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  line-height: 1.1 !important;
+}
+header .pst-admin-logo-mark {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #d10000, #a00000) !important;
+  color: #fff !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
+}
+header .pst-admin-title-lock {
+  display: grid !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+}
+header .pst-admin-title-lock strong {
+  display: block !important;
+  color: #101820 !important;
+  font-size: 21px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+header .pst-admin-title-lock small {
+  display: block !important;
+  color: #596579 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: .01em !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+header .pst-admin-actions-lock {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn {
+  min-height: 38px !important;
+  padding: 9px 12px !important;
+  border-radius: 10px !important;
+  border: 1px solid #d9e2ec !important;
+  background: #ffffff !important;
+  color: #101820 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+}
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  color: #ffffff !important;
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
+}
+@media (max-width: 980px) {
+  header .pst-admin-topbar-lock { grid-template-columns: 1fr !important; align-items: start !important; }
+  header .pst-admin-actions-lock { justify-content: flex-start !important; }
+}
+@media (max-width: 560px) {
+  header .pst-admin-brand-lock { grid-template-columns: 46px minmax(0, 1fr) !important; }
+  header .pst-admin-logo-mark {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #d10000, #a00000) !important;
+  color: #fff !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 10px 24px rgba(189,0,0,.22) !important;
+}
+</style>
+<style id="pst-admin-red-button-overrides">
+:root {
+  --blue: #bd0000 !important;
+  --pst-blue: #bd0000 !important;
+  --pst-admin-blue: #bd0000 !important;
+  --pst-admin-accent: #bd0000 !important;
+}
+header .actions .btn.active,
+header .actions .btn.primary,
+header .header-actions .btn.active,
+header .header-actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary,
+.admin-dashboard-nav .btn.active,
+.admin-dashboard-nav .btn[aria-pressed="true"],
+.inventory-jump-link.active,
+.inventory-jump-link[aria-pressed="true"],
+.inventory-collapse-toggle.active,
+.inventory-collapse-toggle[aria-expanded="true"],
+.collapse-toggle.active,
+.collapse-toggle[aria-expanded="true"],
+.reports-jumpbar a.active,
+.reports-jumpbar a[aria-pressed="true"],
+.btn.primary,
+.btn.active,
+.btn[aria-pressed="true"],
+.btn.secondary.active,
+button.btn.primary,
+a.btn.primary {
+  background: #bd0000 !important;
+  border-color: #bd0000 !important;
+  color: #ffffff !important;
+}
+.btn:not(.secondary):not(.danger):not(.success):not(.warning) {
+  background-color: #bd0000;
+  border-color: #bd0000;
+  color: #ffffff;
+}
+button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
+  background-color: #bd0000;
+  border-color: #bd0000;
+  color: #ffffff;
+}
+</style>
+
+<style id="pst-promotions-compact-catalog-pill-style-v1">
+/* PST promotions compact catalog pill style
+   Target: same small pill language as catalog On Order / Out.
+   Scope: header links, save/new/delete actions, saved-list edit buttons,
+   preview badge/button, linked discount/status pills, disabled states,
+   and mobile sizing. */
+:root {
+  --pst-promo-pill-h: 26px;
+  --pst-promo-pill-font: 10px;
+  --pst-promo-pill-weight: 700;
+  --pst-promo-pill-radius: 999px;
+  --pst-promo-pill-pad-x: 10px;
+  --pst-promo-pill-line: #000000;
+  --pst-promo-pill-ink: #000000;
+  --pst-promo-pill-blue: 000000;
+  --pst-promo-pill-red: #000000;
+  --pst-promo-pill-green: #000000;
+  --pst-promo-pill-warn: #000000;
+  --pst-promo-pill-danger: #000000;
+}
+
+/* Compact pill base. */
+.btn,
+a.btn,
+button.btn,
+header .actions .btn,
+header .actions a.btn,
+header .actions button.btn,
+header .pst-admin-actions-lock .btn,
+header .pst-admin-actions-lock a.btn,
+header .pst-admin-actions-lock button.btn,
+.inline .btn,
+.promo-row .btn,
+.badge,
+.preview a,
+.pst-mini-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: var(--pst-promo-pill-h) !important;
+  height: var(--pst-promo-pill-h) !important;
+  margin: 0 !important;
+  padding: 0 var(--pst-promo-pill-pad-x) !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--pst-promo-pill-radius) !important;
+  background: #ffffff !important;
+  color: var(--pst-promo-pill-ink) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: var(--pst-promo-pill-font) !important;
+  font-weight: var(--pst-promo-pill-weight) !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-shadow: none !important;
+}
+
+/* Header page links: compact grey-outline pills. */
+header .actions,
+header .pst-admin-actions-lock {
+  gap: 6px !important;
+  height: auto !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+
+header .actions .btn.secondary,
+header .pst-admin-actions-lock .btn.secondary {
+  color: var(--pst-promo-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-line) !important;
+}
+
+/* Current page / active buttons. */
+.btn.active,
+.btn.primary,
+.btn[aria-pressed="true"],
+header .actions .btn.active,
+header .actions .btn.primary,
+header .pst-admin-actions-lock .btn.active,
+header .pst-admin-actions-lock .btn.primary {
+  color: #ffffff !important;
+  background: var(--pst-promo-pill-red) !important;
+  border-color: var(--pst-promo-pill-red) !important;
+}
+
+/* Action colors keep meaning but stay small/outlined. */
+.btn.success,
+button.btn.success,
+a.btn.success,
+#saveBtn {
+  color: var(--pst-promo-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-green) !important;
+}
+
+.btn.danger,
+button.btn.danger,
+a.btn.danger,
+#deleteBtn {
+  color: var(--pst-promo-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-danger) !important;
+}
+
+.btn.secondary,
+button.btn.secondary,
+a.btn.secondary,
+#newBtn,
+.promo-row .btn.secondary {
+  color: var(--pst-promo-pill-ink) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-line) !important;
+}
+
+/* Disabled state: grey compact Out-style pill. */
+.btn:disabled,
+button.btn:disabled,
+.btn[aria-disabled="true"],
+button.btn[aria-disabled="true"],
+.btn.disabled {
+  color: #000000 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-line) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Preview badge and preview CTA use the same compact pill language. */
+.badge {
+  color: var(--pst-promo-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-blue) !important;
+  margin-bottom: 10px !important;
+}
+
+.preview a {
+  color: var(--pst-promo-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-blue) !important;
+  margin-top: 12px !important;
+}
+
+/* Saved promotion rows: compact metadata pills instead of loose text. */
+.promo-list-meta {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-top: 6px !important;
+}
+
+.pst-mini-pill.is-active {
+  color: var(--pst-promo-pill-green) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-green) !important;
+}
+
+.pst-mini-pill.is-inactive {
+  color: var(--pst-promo-pill-danger) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-danger) !important;
+}
+
+.pst-mini-pill.is-sort {
+  color: #000000 !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-line) !important;
+}
+
+.pst-mini-pill.is-code {
+  color: var(--pst-promo-pill-blue) !important;
+  background: #ffffff !important;
+  border-color: var(--pst-promo-pill-blue) !important;
+}
+
+/* Promotions row layout stays compact. */
+.promo-row {
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.inline {
+  gap: 6px !important;
+}
+
+.promo-row .btn,
+.inline .btn {
+  cursor: pointer !important;
+}
+
+/* Status banners remain message boxes, not action pills. */
+.status {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+/* Mobile: preserve compact pill sizing. */
+@media (max-width: 700px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .inline .btn,
+  .promo-row .btn,
+  .badge,
+  .preview a,
+  .pst-mini-pill {
+    min-height: 25px !important;
+    height: 25px !important;
+    padding: 0 9px !important;
+    font-size: 9.5px !important;
+  }
+
+  .promo-row {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .btn,
+  a.btn,
+  button.btn,
+  header .actions .btn,
+  header .actions a.btn,
+  header .actions button.btn,
+  header .pst-admin-actions-lock .btn,
+  header .pst-admin-actions-lock a.btn,
+  header .pst-admin-actions-lock button.btn,
+  .inline .btn,
+  .promo-row .btn,
+  .badge,
+  .preview a,
+  .pst-mini-pill {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 9px !important;
+  }
+}
+</style>
+
+<style id="pst-admin-header-final">
+  .pst-admin-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    overflow: hidden !important;
+    background: #000 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #262626 !important;
+    box-shadow: none !important;
+  }
+
+  .pst-admin-nav-wrap {
+    width: 100% !important;
+    max-width: 1540px !important;
+    min-height: 40px !important;
+    margin: 0 auto !important;
+    padding: 0 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    position: relative !important;
+  }
+
+  .pst-admin-logo-link {
+    position: static !important;
+    transform: none !important;
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-header-logo {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    object-fit: contain !important;
+  }
+
+  .pst-admin-nav {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 24px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .pst-admin-nav a {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #fff !important;
+    font: 800 14px/1 Arial, Helvetica, sans-serif !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+  }
+
+  .pst-admin-nav a:hover,
+  .pst-admin-nav a:focus-visible {
+    color: #fff !important;
+    text-decoration: none !important;
+  }
+
+  .pst-admin-nav a.active::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 3px !important;
+    height: 2px !important;
+    background: #fff !important;
+  }
+
+  @media (max-width: 980px) {
+    .pst-admin-nav-wrap {
+      height: 40px !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      padding: 0 14px !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 16px !important;
+    }
+
+    .pst-admin-nav {
+      flex: 1 1 auto !important;
+      flex-wrap: nowrap !important;
+      justify-content: flex-end !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scrollbar-width: none !important;
+    }
+
+    .pst-admin-nav::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pst-admin-nav-wrap {
+      padding: 0 10px !important;
+      gap: 12px !important;
+    }
+
+    .pst-admin-nav {
+      gap: 16px !important;
+    }
+  }
+</style>
+<style id="pst-admin-black-pill-final">
+  /*
+    Locked admin pill system:
+    - Existing font, font size, height, padding, and radius are preserved.
+    - Default state: white background, black text, black outline.
+    - Hover/focus: light gray background, black text, black outline.
+    - Active/selected/open state: black background, white text, black outline.
+    - Semantic success/warning/danger controls retain their status colors.
+  */
+
+  /* Standard admin action pills and jump links. */
+  .btn:not(.success):not(.warning):not(.danger),
+  a.btn:not(.success):not(.warning):not(.danger),
+  button.btn:not(.success):not(.warning):not(.danger),
+  .step,
+  .jump-link,
+  .inventory-jump-link,
+  .collapse-toggle,
+  .inventory-collapse-toggle,
+  .sort-btn,
+  .field-order-btn,
+  .row-audit-btn,
+  .edit-incoming-btn,
+  .close-incoming-edit-btn,
+  .incoming-line-remove,
+  .pill.info,
+  .status-pill:not(.good):not(.warn):not(.danger),
+  .center-card,
+  .report-center-card {
+    border-color: #000 !important;
+    color: #000 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  /* Hover and keyboard focus retain the same dimensions and typography. */
+  .btn:not(.success):not(.warning):not(.danger):hover,
+  a.btn:not(.success):not(.warning):not(.danger):hover,
+  button.btn:not(.success):not(.warning):not(.danger):hover,
+  .step:hover,
+  .jump-link:hover,
+  .inventory-jump-link:hover,
+  .collapse-toggle:hover,
+  .inventory-collapse-toggle:hover,
+  .sort-btn:hover,
+  .field-order-btn:hover,
+  .row-audit-btn:hover,
+  .edit-incoming-btn:hover,
+  .close-incoming-edit-btn:hover,
+  .incoming-line-remove:hover,
+  .pill.info:hover,
+  .status-pill:not(.good):not(.warn):not(.danger):hover,
+  .center-card:hover,
+  .report-center-card:hover {
+    border-color: #000 !important;
+    color: #000 !important;
+    background: #f2f2f2 !important;
+  }
+
+  /* Persistent selected/open/current state. */
+  .btn.active:not(.success):not(.warning):not(.danger),
+  a.btn.active:not(.success):not(.warning):not(.danger),
+  button.btn.active:not(.success):not(.warning):not(.danger),
+  .btn[aria-pressed="true"]:not(.success):not(.warning):not(.danger),
+  .btn[aria-expanded="true"]:not(.success):not(.warning):not(.danger),
+  .btn[aria-current="page"]:not(.success):not(.warning):not(.danger),
+  .step.active,
+  .jump-link.active,
+  .inventory-jump-link.active,
+  .collapse-toggle.active,
+  .collapse-toggle[aria-expanded="true"],
+  .inventory-collapse-toggle.active,
+  .inventory-collapse-toggle[aria-expanded="true"],
+  .sort-btn.active,
+  .pill.info.active,
+  .status-pill.active:not(.good):not(.warn):not(.danger),
+  .center-card.active,
+  .report-center-card.active {
+    border-color: #000 !important;
+    color: #fff !important;
+    background: #000 !important;
+    box-shadow: none !important;
+  }
+
+  /* Keep text/icons white inside selected controls. */
+  .btn.active:not(.success):not(.warning):not(.danger) *,
+  .btn[aria-pressed="true"]:not(.success):not(.warning):not(.danger) *,
+  .btn[aria-expanded="true"]:not(.success):not(.warning):not(.danger) *,
+  .btn[aria-current="page"]:not(.success):not(.warning):not(.danger) *,
+  .step.active *,
+  .jump-link.active *,
+  .inventory-jump-link.active *,
+  .collapse-toggle.active *,
+  .collapse-toggle[aria-expanded="true"] *,
+  .inventory-collapse-toggle.active *,
+  .inventory-collapse-toggle[aria-expanded="true"] *,
+  .sort-btn.active *,
+  .pill.info.active *,
+  .status-pill.active:not(.good):not(.warn):not(.danger) *,
+  .center-card.active *,
+  .report-center-card.active * {
+    color: #fff !important;
+  }
+
+  /* Accessible focus ring without changing pill dimensions. */
+  .btn:not(.success):not(.warning):not(.danger):focus-visible,
+  .step:focus-visible,
+  .jump-link:focus-visible,
+  .inventory-jump-link:focus-visible,
+  .collapse-toggle:focus-visible,
+  .inventory-collapse-toggle:focus-visible,
+  .sort-btn:focus-visible,
+  .pill.info:focus-visible,
+  .center-card:focus-visible,
+  .report-center-card:focus-visible {
+    outline: 2px solid #000 !important;
+    outline-offset: 2px !important;
+  }
+</style>
+
+<style id="pst-admin-mobile-link-behavior-only">
+@media (max-width: 980px) {
+  .pst-admin-header {
+    height: auto !important;
+    min-height: 40px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .pst-admin-nav-wrap {
+    height: auto !important;
+    min-height: 40px !important;
+    max-height: none !important;
+    padding: 0 14px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .pst-admin-logo-link {
+    flex: 0 0 auto !important;
+    align-self: flex-start !important;
+  }
+
+  .pst-admin-nav {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px 18px !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+  }
+
+  .pst-admin-nav a {
+    width: auto !important;
+    min-height: 32px !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+}
+</style>
+<link rel="stylesheet" href="css/admin.css?v=10">
+<style>
+/* PST_PROMOTIONS_STUDIO_V1 */
+.pst-studio-hero{background:linear-gradient(115deg,#102b43,#1d4965);color:#fff;border-radius:18px;padding:25px 30px;margin:0 0 18px;display:flex;align-items:center;justify-content:space-between;gap:20px;box-shadow:0 12px 28px #102b4320}
+.pst-studio-hero h1{font:700 31px/1.2 Georgia,serif;margin:3px 0 8px;color:#fff}.pst-studio-hero p{margin:0;color:#cfdae3}.pst-studio-hero .pst-eyebrow{color:#ddb765;font-size:11px;text-transform:uppercase;letter-spacing:.16em;font-weight:800}
+.pst-studio-hero button{background:#d4ab58!important;color:#102b43!important;border:0!important;border-radius:9px;padding:13px 19px;font-weight:800;cursor:pointer;white-space:nowrap}
+.pst-studio-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:20px}
+.pst-studio-metric{background:#fff;border:1px solid #dbe2ea;border-radius:14px;padding:18px 20px;box-shadow:0 4px 16px #102b430a;display:flex;gap:12px;align-items:center}
+.pst-studio-metric .pst-metric-icon{font-size:23px;background:#eef3f7;border-radius:11px;width:46px;height:46px;display:grid;place-items:center}
+.pst-studio-metric b{display:block;font-size:26px;line-height:1.2;color:#102b43}.pst-studio-metric small{color:#697989;font-weight:700}
+.pst-studio-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr);gap:18px;align-items:start}
+.pst-studio-layout>.card{min-width:0}.pst-studio-layout>.card h2,.pst-saved-campaigns h2{color:#102b43}
+.pst-studio-section{border:1px solid #dbe3ec;border-radius:12px;background:#fff;margin:12px 0;overflow:hidden}
+.pst-studio-section summary{list-style:none;cursor:pointer;padding:17px 19px;background:#f3f6f9;font-weight:800;color:#102b43;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pst-studio-section summary::-webkit-details-marker{display:none}.pst-studio-section summary::after{content:'＋';font-size:18px}.pst-studio-section[open] summary::after{content:'−'}
+.pst-studio-section .pst-section-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;padding:18px}
+.pst-studio-section .field{min-width:0}.pst-studio-section .field.full{grid-column:1/-1}
+.pst-studio-section .pst-section-copy{font-weight:400;color:#718094;font-size:12px}
+.pst-studio-editor>.card-body>.fields{display:block}.pst-studio-editor .pst-editor-actions{display:flex;gap:10px;flex-wrap:wrap;padding:15px 0 4px}
+.pst-studio-preview{position:sticky;top:115px}.pst-studio-preview .card-body{background:#f2f5f8;padding:24px!important}
+.pst-studio-preview #preview{min-height:290px;box-shadow:0 15px 30px #102b431c;border-radius:13px;overflow:hidden}
+.pst-studio-preview-note{font-size:12px;color:#6e7b88;margin-top:12px}
+.pst-saved-campaigns{margin:0 0 19px}.pst-saved-campaigns .list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pst-saved-campaigns .promo-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#fff,#f7f9fb);border:1px solid #dde5ed;border-radius:13px;padding:18px!important;min-height:116px;box-shadow:0 4px 14px #102b4308}
+.pst-saved-campaigns .promo-row>div{min-width:0}.pst-saved-campaigns .promo-row strong{font-size:16px;color:#102b43;line-height:1.4}.pst-saved-campaigns .promo-row .btn{flex:none}
+.pst-promo-type-note{font-size:12px;color:#687787;padding-top:7px}
+.pst-studio-hidden{display:none!important}
+@media(max-width:1080px){.pst-studio-layout{grid-template-columns:1fr}.pst-studio-preview{position:static}.pst-studio-metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.pst-studio-metrics{grid-template-columns:1fr 1fr}.pst-saved-campaigns .list{grid-template-columns:1fr}.pst-studio-hero{flex-direction:column;align-items:flex-start}.pst-studio-section .pst-section-fields{grid-template-columns:1fr}.pst-studio-section .field{grid-column:1/-1}}
+</style><meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head><body><header class="pst-admin-header">
+  <div class="pst-admin-nav-wrap">
+    <a class="pst-admin-logo-link" href="index.html" aria-label="Pep Shop Texas Home">
+      <img src="pst-header-logo.png" alt="PST Pep Shop Texas" class="pst-admin-header-logo">
+    </a>
+    <nav class="pst-admin-nav" aria-label="Admin navigation">
+      <a href="admin.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="products.html">Products</a>
+      <a href="discounts.html">Discounts</a>
+      <a href="promotions.html" class="active">Promotions</a>
+      <a href="reports.html">Reports</a>
+      <a href="customers.html">Customers</a>
+      <a href="index.html">View Site</a>
+    </nav>
+  </div>
+</header><main><div style="margin:0 0 16px;padding:16px 18px;border:1px solid #b99038;border-radius:10px;background:#fff"><strong style="color:#102a43">Catalog Carousel Advertisements</strong><p style="margin:7px 0 12px;color:#536779">Upload, activate, reorder, and remove desktop catalog images.</p><a href="catalog-ads.html" style="display:inline-block;padding:11px 17px;background:#102a43;color:white;border-radius:6px;text-decoration:none;font-weight:700">Manage Catalog Advertisements ↗</a></div><div id="status" class="status">Checking admin access...</div><div class="grid"><section class="card"><h2>Create / Edit Promotion</h2><div class="card-body"><div class="fields"><div class="field full"><label>Promotion ID</label><select id="promoSelect"><option value="">New promotion</option></select></div><div class="field"><label>Title</label><input id="title"></div><div class="field"><label>Badge / Label</label><input id="badge" placeholder="Limited Time"></div><div class="field full"><label>Body</label><textarea id="body"></textarea></div><div class="field"><label>Button Text</label><input id="button_text"></div><div class="field"><label>Button Link</label><input id="button_link" placeholder="register.html"></div><div class="field"><label>Promotion Type</label><select id="promotion_type"><option value="banner">Standard Promotion</option><option value="free_product">Buy X, Get Y Free</option></select></div><div class="field"><label>Eligibility</label><select id="pstAudience"><option value="public_all">Everyone</option><option value="selected_customers">Selected Customers Only</option></select></div><div class="field full" id="pstEligibleCustomerPanel" style="display:none"><label>Select Eligible Customers</label><input id="pstCustomerFilter" type="search" placeholder="Search names or emails"><div id="pstCustomerChecklist" style="max-height:230px;overflow:auto;border:1px solid #ccc;padding:10px"></div><small id="pstCustomerCount"></small></div><div class="field"><label>Free Product / Strength</label><select id="reward_product_key"><option value="">Select inventory item</option></select></div><div class="field"><label>Free Reward Type</label><select id="pstRewardMode"><option value="fixed">Fixed Reward</option><option value="customer_choice">Choose From Eligible Products</option></select></div><div class="field full" id="pstRewardChoicePanel" style="display:none"><label>Eligible Free Products and Strengths</label><input type="search" id="pstRewardFilter" placeholder="Filter products"><div id="pstRewardChoiceList" style="max-height:230px;overflow:auto;border:1px solid #ccc;padding:10px"></div><small id="pstRewardChoiceCount"></small></div><div class="field"><label>Free Vials</label><input id="reward_quantity" type="number" min="1" value="1"></div><div class="field"><label>Minimum Purchased Vials</label><input id="minimum_paid_quantity" type="number" min="1" value="1"></div><div class="field"><label>Redemption Limit</label><select id="redemption_limit"><option value="once_per_customer">Once per customer</option><option value="once_per_order">Once per order</option></select></div><div class="field"><label>Campaign Redemption Cap</label><input id="max_redemptions" type="number" min="1" placeholder="Unlimited"></div><div class="field"><label>Linked Discount Code</label><select id="discount_id"><option value="">No linked discount</option></select><div class="field-note">Dropdown pulls from Discount Manager. No manual code typing.</div></div><div class="field"><label>Auto-Apply After Account Creation</label><select id="auto_apply_discount"><option value="false">No</option><option value="true">Yes</option></select></div><div class="field full"><label>Image URL</label><input id="image_url"></div><div class="field"><label>Start Date/Time</label><input id="starts_at" type="datetime-local"></div><div class="field"><label>End Date/Time</label><input id="ends_at" type="datetime-local"></div><div class="field"><label>Sort Order</label><input id="sort_order" type="number" value="100"></div><div class="field"><label>Alignment</label><select id="text_align"><option>center</option><option>left</option><option>right</option></select></div><div class="field"><label>Title Size</label><input id="title_size" type="number" value="28"></div><div class="field"><label>Body Size</label><input id="body_size" type="number" value="15"></div><div class="field"><label>Text Color</label><input id="text_color" type="color" value="#101820"></div><div class="field"><label>Background</label><input id="background_color" type="color" value="#ffffff"></div><div class="field"><label>Accent Color</label><input id="accent_color" type="color" value="000000"></div><div class="field full"><label>Formatting</label><div class="inline"><label><input id="is_active" type="checkbox"> Active</label><label><input id="title_bold" type="checkbox" checked> Title Bold</label><label><input id="title_italic" type="checkbox"> Title Italic</label><label><input id="title_underline" type="checkbox"> Title Underline</label><label><input id="body_bold" type="checkbox"> Body Bold</label><label><input id="body_italic" type="checkbox"> Body Italic</label><label><input id="body_underline" type="checkbox"> Body Underline</label></div></div><div class="field full"><div class="inline"><button class="btn success" id="saveBtn">Save Promotion</button><button class="btn secondary" id="newBtn">New</button><button class="btn danger" id="deleteBtn">Delete</button></div></div></div></div></section><section class="card"><h2>Live Preview</h2><div class="card-body"><div id="preview" class="preview"></div></div></section><section class="card full"><h2>Saved Promotions</h2><div class="card-body"><div id="promoList" class="list"></div></div></section></div></main><script>
+const PST_SUPABASE_URL='https://ndpfnerhvawbavkotinh.supabase.co';const PST_SUPABASE_PUBLISHABLE_KEY='sb_publishable_7d5fHwVYUeD1SuxZuM-Qbw_nql4agIH';const db=window.supabase.createClient(PST_SUPABASE_URL,PST_SUPABASE_PUBLISHABLE_KEY);let currentUser=null,promos=[],discounts=[];const $=id=>document.getElementById(id);function setStatus(m,t=''){const statusEl=document.getElementById('status');if(statusEl){statusEl.textContent=m;statusEl.className='status '+t}else{console.log(m)}}function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function isoLocal(v){if(!v)return'';const d=new Date(v);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)}function fromLocal(v){return v?new Date(v).toISOString():null}
+function discountLabel(d){
+ const code=String(d?.code||'').toUpperCase();
+ const pct=Number(d?.percent_off||0);
+ const amt=Number(d?.amount_off||0);
+ const active=d?.active!==false?'Active':'Inactive';
+ const value=pct>0?(pct+'% off'):(amt>0?('$'+amt.toFixed(2)+' off'):'No value set');
+ const assigned=d?.assigned_email?(' · '+d.assigned_email):'';
+ return code+' — '+value+' — '+active+assigned;
+}
+async function loadDiscountOptions(){
+ const sel=$('discount_id'); if(!sel) return;
+ const {data,error}=await db.from('discount_codes').select('id,code,percent_off,amount_off,active,assigned_email,expires_at').order('code',{ascending:true});
+ if(error){console.warn('Discount dropdown unavailable:',error.message||error);return;}
+ discounts=data||[];
+ sel.innerHTML='<option value="">No linked discount</option>'+discounts.map(d=>`<option value="${esc(d.id)}">${esc(discountLabel(d))}</option>`).join('');
+}
+async function loadRewardProducts(){const {data,error}=await db.from('product_inventory').select('product_key,display_name,strength,current_inventory').eq('is_active',true).order('display_name');if(error){setStatus(error.message,'bad');return;}reward_product_key.innerHTML='<option value="">Select inventory item</option>'+(data||[]).map(p=>'<option value="'+esc(p.product_key)+'">'+esc(p.display_name+' '+(p.strength||'')+' — Stock: '+(p.current_inventory||0))+'</option>').join('');}function selectedDiscount(){const id=$('discount_id')?.value||'';return discounts.find(d=>d.id===id)||null;}
+let pstRewardItems=[],pstRewardSelected=new Set();
+function pstRenderRewardChoices(){
+ $("pstRewardChoicePanel").style.display=$("pstRewardMode").value==="customer_choice"?"block":"none";
+ const q=String($("pstRewardFilter").value||"").trim().toLowerCase();
+ $("pstRewardChoiceList").innerHTML=pstRewardItems.filter(p=>(p.display_name+" "+p.strength+" "+p.product_key).toLowerCase().includes(q)).slice(0,200).map(p=>'<label style="display:flex;gap:8px;padding:4px"><input type="checkbox" data-reward-key="'+esc(p.product_key)+'" '+(pstRewardSelected.has(p.product_key)?'checked':'')+'>'+esc(p.display_name+" "+(p.strength||""))+' ('+Number(p.current_inventory||0)+' available)</label>').join("")||"No matches";
+ $("pstRewardChoiceCount").textContent=pstRewardSelected.size+" eligible product(s)";
+}
+async function pstLoadRewardSelection(id){
+ pstRewardSelected.clear();
+ if(id){const {data,error}=await db.rpc("pst_get_promotion_reward_options",{p_id:id});if(error){setStatus("Unable to load rewards: "+error.message,"bad");return;}pstRewardSelected=new Set(data||[]);}
+ pstRenderRewardChoices();
+}
+let pstCustomerOptions=[],pstSelectedCustomerEmails=new Set();
+function pstRenderCustomers(){
+ $("pstEligibleCustomerPanel").style.display=$("pstAudience").value==="selected_customers"?"block":"none";
+ const q=String($("pstCustomerFilter").value||"").toLowerCase().trim();
+ const rows=pstCustomerOptions.filter(c=>(c.name+" "+c.email).toLowerCase().includes(q)).slice(0,180);
+ $("pstCustomerChecklist").innerHTML=rows.map(c=>'<label style="display:flex;gap:8px;padding:5px;align-items:center"><input type="checkbox" data-eligible-email="'+esc(c.email)+'" '+(pstSelectedCustomerEmails.has(c.email)?'checked':'')+'>'+esc(c.name)+' — '+esc(c.email)+'</label>').join("")||"No matching customers";
+ $("pstCustomerCount").textContent=pstSelectedCustomerEmails.size+" customer(s) selected";
+}
+async function pstLoadCustomerOptions(){
+ const [a,b]=await Promise.all([db.from("customer_profiles").select("email,first_name,last_name").limit(1000),db.from("manual_customers").select("email,first_name,last_name").limit(1000)]);
+ if(a.error&&b.error){setStatus("Unable to load customer list.","bad");return;}
+ const map=new Map();for(const p of [...(a.data||[]),...(b.data||[])]){const email=String(p.email||"").trim().toLowerCase();if(email&&!map.has(email))map.set(email,{email,name:[p.first_name,p.last_name].filter(Boolean).join(" ").trim()||email});}
+ pstCustomerOptions=[...map.values()].sort((a,b)=>a.name.localeCompare(b.name));pstRenderCustomers();
+}
+async function pstLoadSelectedCustomers(id){
+ pstSelectedCustomerEmails.clear();
+ if(id){const {data,error}=await db.rpc("pst_get_promotion_customers",{p_id:id});if(error){setStatus("Could not load eligibility: "+error.message,"bad");return;}pstSelectedCustomerEmails=new Set((data||[]).map(e=>String(e).toLowerCase()));}
+ pstRenderCustomers();
+}
+function data(){return{title:title.value,body:body.value,badge:badge.value,button_text:button_text.value,button_link:button_link.value,image_url:image_url.value,promotion_type:promotion_type.value,reward_product_key:reward_product_key.value||null,reward_quantity:Number(reward_quantity.value||1),minimum_paid_quantity:Number(minimum_paid_quantity.value||1),redemption_limit:redemption_limit.value,max_redemptions:max_redemptions.value?Number(max_redemptions.value):null,discount_id:discount_id.value||null,auto_apply_discount:auto_apply_discount.value==="true",is_active:is_active.checked,starts_at:fromLocal(starts_at.value),ends_at:fromLocal(ends_at.value),sort_order:Number(sort_order.value||100),title_bold:title_bold.checked,title_italic:title_italic.checked,title_underline:title_underline.checked,body_bold:body_bold.checked,body_italic:body_italic.checked,body_underline:body_underline.checked,title_size:Number(title_size.value||28),body_size:Number(body_size.value||15),text_align:text_align.value,text_color:text_color.value,background_color:background_color.value,accent_color:accent_color.value}}function fill(p={}){$('pstRewardMode').value=p.reward_mode==='customer_choice'?'customer_choice':'fixed';pstRewardSelected.clear();pstRenderRewardChoices();$('pstAudience').value=p.audience==='selected_customers'?'selected_customers':'public_all';pstSelectedCustomerEmails.clear();pstRenderCustomers();title.value=p.title||'';body.value=p.body||'';badge.value=p.badge||'';button_text.value=p.button_text||'';button_link.value=p.button_link||'';image_url.value=p.image_url||'';promotion_type.value=p.promotion_type||'banner';reward_product_key.value=p.reward_product_key||'';reward_quantity.value=p.reward_quantity||1;minimum_paid_quantity.value=p.minimum_paid_quantity||1;redemption_limit.value=p.redemption_limit||'once_per_customer';max_redemptions.value=p.max_redemptions||'';if($('discount_id')) discount_id.value=p.discount_id||'';if($('auto_apply_discount')) auto_apply_discount.value=p.auto_apply_discount?'true':'false';is_active.checked=!!p.is_active;starts_at.value=isoLocal(p.starts_at);ends_at.value=isoLocal(p.ends_at);sort_order.value=p.sort_order??100;title_bold.checked=p.title_bold??true;title_italic.checked=!!p.title_italic;title_underline.checked=!!p.title_underline;body_bold.checked=!!p.body_bold;body_italic.checked=!!p.body_italic;body_underline.checked=!!p.body_underline;title_size.value=p.title_size??28;body_size.value=p.body_size??15;text_align.value=p.text_align||'center';text_color.value=p.text_color||'#101820';background_color.value=p.background_color||'#ffffff';accent_color.value=p.accent_color||'000000';renderPreview()}function renderPreview(){const p=data();const d=selectedDiscount();const linkedCode=d?.code?('Code: '+String(d.code).toUpperCase()):'';preview.style.background=p.background_color;preview.style.textAlign=p.text_align;preview.style.alignItems=p.text_align==='left'?'flex-start':p.text_align==='right'?'flex-end':'center';preview.innerHTML=`${p.badge?`<div class="badge" style="color:${p.accent_color};background:#f4f8ff">${esc(p.badge)}</div>`:''}${p.image_url?`<img src="${esc(p.image_url)}">`:''}<div style="font-size:${p.title_size}px;color:${p.text_color};font-weight:${p.title_bold?900:400};font-style:${p.title_italic?'italic':'normal'};text-decoration:${p.title_underline?'underline':'none'}">${esc(p.title||'Promotion Title')}</div><div style="margin-top:8px;font-size:${p.body_size}px;color:${p.text_color};font-weight:${p.body_bold?800:400};font-style:${p.body_italic?'italic':'normal'};text-decoration:${p.body_underline?'underline':'none'}">${esc(p.body||'Promotion body text...')}</div>${(p.button_text||linkedCode)?`<a style="background:${p.accent_color}" href="${esc(p.button_link||'#')}">${esc(p.button_text||linkedCode)}</a>`:''}`}
+async function loadPromos(){const {data,error}=await db.from('site_promotions').select('*, discount_codes(id,code,percent_off,amount_off,active,assigned_email,expires_at)').order('sort_order',{ascending:true}).order('created_at',{ascending:false});if(error){setStatus(error.message,'bad');return}promos=data||[];promoSelect.innerHTML='<option value="">New promotion</option>'+promos.map(p=>`<option value="${p.id}">${esc(p.title||'(Untitled)')}</option>`).join('');promoList.innerHTML=promos.map(p=>`<div class="promo-row"><div><strong>${esc(p.title||'(Untitled)')}</strong><span class="promo-list-meta"><span class="pst-mini-pill ${p.is_active?'is-active':'is-inactive'}">${p.is_active?'Active':'Inactive'}</span><span class="pst-mini-pill is-sort">Sort ${p.sort_order??100}</span>${p.discount_codes?.code?'<span class="pst-mini-pill is-code">Code '+esc(String(p.discount_codes.code).toUpperCase())+'</span>':''}</span></div><button class="btn secondary" type="button" data-pst-edit-promo="${esc(p.id)}">Edit</button></div>`).join('')||'<div class="muted">No promotions yet.</div>';setStatus('Promotion manager ready.','good')}document.getElementById("promoList")?.addEventListener("click",function(e){const button=e.target.closest("button[data-pst-edit-promo]");if(!button)return;e.preventDefault();e.stopPropagation();editPromo(button.dataset.pstEditPromo);});function editPromo(id){const p=promos.find(x=>String(x.id)===String(id));if(!p){setStatus("Promotion not found. Reload the page.","bad");return;}promoSelect.value=p.id;fill(p);pstLoadSelectedCustomers(p.id);pstLoadRewardSelection(p.id);document.querySelectorAll(".pst-studio-section").forEach(section=>{if(section.querySelector("#promoSelect"))section.open=true});setStatus("Editing: "+(p.title||"Promotion")+". Make changes below and click Save Promotion.","good");const editor=document.querySelector(".pst-studio-editor");if(editor){const top=editor.getBoundingClientRect().top+window.scrollY-(document.querySelector("header")?.offsetHeight||0)-20;window.scrollTo({top:Math.max(0,top),behavior:"smooth"});} }async function savePromo(){const payload=data();payload.reward_mode=$('pstRewardMode').value;if(payload.reward_mode==='customer_choice'&&pstRewardSelected.size===0){setStatus('Choose at least one eligible free product.','bad');return;}payload.audience=$('pstAudience').value;if(payload.audience==='selected_customers'&&!pstSelectedCustomerEmails.size){setStatus('Select at least one customer.','bad');return;}const previous=promos.find(p=>p.id===promoSelect.value);if(payload.audience==='selected_customers'&&previous?.audience!=='selected_customers')payload.eligibility_starts_at=new Date().toISOString();if(payload.promotion_type==='free_product'){if(payload.reward_mode==='fixed'&&!payload.reward_product_key){setStatus('Choose the free vial and strength.','bad');return;}payload.discount_id=null;payload.auto_apply_discount=false;}let res;if(promoSelect.value){res=await db.from('site_promotions').update(payload).eq('id',promoSelect.value)}else{res=await db.from('site_promotions').insert({...payload,eligibility_starts_at:payload.audience==='selected_customers'?new Date().toISOString():null}).select('id').single()}if(res.error){setStatus(res.error.message,'bad');return}const savedId=promoSelect.value||res.data?.id;if(savedId){const sync=await db.rpc('pst_set_promotion_customers',{p_id:savedId,p_emails:payload.audience==='selected_customers'?[...pstSelectedCustomerEmails]:[]});if(sync.error){setStatus('Promotion saved, but eligible customers were not: '+sync.error.message,'bad');return;}const options=await db.rpc('pst_save_promotion_reward_options',{p_promotion_id:savedId,p_keys:payload.reward_mode==='customer_choice'?[...pstRewardSelected]:[]});if(options.error){setStatus('Promotion saved, but eligible products were not: '+options.error.message,'bad');return;}}setStatus('Promotion and customer eligibility saved.','good');await loadPromos()}async function deletePromo(){if(!promoSelect.value)return;if(!confirm('Delete this promotion?'))return;const {error}=await db.from('site_promotions').delete().eq('id',promoSelect.value);if(error){setStatus(error.message,'bad');return}fill({});promoSelect.value='';await loadPromos()}async function init(){const {data:{user}}=await db.auth.getUser();if(!user){setStatus('Please log in first.','bad');return}currentUser=user;const {data:admin}=await db.from('admin_users').select('user_id').eq('user_id',user.id).eq('is_active',true).maybeSingle();if(!admin){setStatus('Admin access required.','bad');return}await loadDiscountOptions();await loadRewardProducts();const {data:rewardStock,error:rewardError}=await db.from('product_inventory').select('product_key,display_name,strength,current_inventory').order('display_name').limit(1000);if(rewardError)throw rewardError;pstRewardItems=rewardStock||[];pstRenderRewardChoices();await pstLoadCustomerOptions();await loadPromos()}document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('input,select,textarea').forEach(el=>{
+    el.addEventListener('input',renderPreview);
+  });
+
+  $('pstRewardMode')?.addEventListener('change',pstRenderRewardChoices);
+  $('pstRewardFilter')?.addEventListener('input',pstRenderRewardChoices);
+  $('pstRewardChoiceList')?.addEventListener('change',event=>{const el=event.target.closest('[data-reward-key]');if(!el)return;if(el.checked)pstRewardSelected.add(el.dataset.rewardKey);else pstRewardSelected.delete(el.dataset.rewardKey);pstRenderRewardChoices();});
+  $('pstAudience')?.addEventListener('change',pstRenderCustomers);
+  $('pstCustomerFilter')?.addEventListener('input',pstRenderCustomers);
+  $('pstCustomerChecklist')?.addEventListener('change',event=>{const el=event.target.closest('[data-eligible-email]');if(!el)return;if(el.checked)pstSelectedCustomerEmails.add(el.dataset.eligibleEmail);else pstSelectedCustomerEmails.delete(el.dataset.eligibleEmail);pstRenderCustomers();});
+  const promoSelectEl=document.getElementById('promoSelect');
+  const saveBtnEl=document.getElementById('saveBtn');
+  const deleteBtnEl=document.getElementById('deleteBtn');
+  const newBtnEl=document.getElementById('newBtn');
+
+  if(promoSelectEl){
+    promoSelectEl.addEventListener('change',()=>{
+      promoSelectEl.value?editPromo(promoSelectEl.value):fill({});
+    });
+  }
+
+  if(saveBtnEl) saveBtnEl.onclick=savePromo;
+  if(deleteBtnEl) deleteBtnEl.onclick=deletePromo;
+  if(newBtnEl){
+    newBtnEl.onclick=()=>{
+      if(promoSelectEl) promoSelectEl.value='';
+      fill({});
+    };
+  }
+
+  try{
+    fill({});
+    init();
+  }catch(err){
+    console.error(err);
+    const statusEl=document.getElementById('status');
+    if(statusEl){
+      statusEl.textContent=err.message||String(err);
+      statusEl.className='status bad';
+    }
+  }
+});
+</script><script>
+(function(){
+const groups=[
+["Campaign Details","What customers will see",["promoSelect","title","badge","body","button_text","button_link"],true],
+["Qualification & Rewards","Purchase requirements and free products",["promotion_type","pstAudience","pstEligibleCustomerPanel","pstRewardMode","pstRewardChoicePanel","reward_product_key","reward_quantity","minimum_paid_quantity","redemption_limit","max_redemptions"],true],
+["Schedule & Visibility","When this promotion runs",["is_active","starts_at","ends_at"],false],
+["Visual Design","Images, typography and color",["image_url","text_align","title_size","body_size","text_color","background_color","accent_color","title_bold","title_italic","title_underline","body_bold","body_italic","body_underline"],false],
+["Advanced Options","Discount linking and display priority",["discount_id","auto_apply_discount","sort_order"],false]];
+function build(){
+ const main=document.querySelector("main");if(!main||document.querySelector(".pst-studio-hero"))return;
+ const grid=main.querySelector(":scope > .grid");if(!grid)return;
+ const cards=[...grid.children];if(cards.length<3)return;const [editor,previewCard,saved]=cards;
+ editor.classList.add("pst-studio-editor");previewCard.classList.add("pst-studio-preview");saved.classList.add("pst-saved-campaigns");
+ const hero=document.createElement("div");hero.className="pst-studio-hero";hero.innerHTML='<div><div class="pst-eyebrow">Pep Shop Texas / Marketing Studio</div><h1>Promotions Manager</h1><p>Create refined campaigns, set reward rules, and preview the customer experience.</p></div><button type="button" id="pstStudioNew">＋ New Promotion</button>';
+ const metrics=document.createElement("div");metrics.className="pst-studio-metrics";metrics.innerHTML=[["Active","●"],["Scheduled","◷"],["Inactive / Ended","◯"],["Free Product","◆"]].map((m,i)=>'<div class="pst-studio-metric"><span class="pst-metric-icon">'+m[1]+'</span><div><b id="pstMetric'+i+'">—</b><small>'+m[0]+'</small></div></div>').join("");
+ main.insertBefore(hero,grid);main.insertBefore(metrics,grid);
+ grid.classList.add("pst-studio-layout");grid.classList.remove("grid");saved.remove();main.insertBefore(saved,grid);
+ const form=editor.querySelector(".fields");if(!form)return;
+ groups.forEach(([title,sub,ids,open])=>{
+  const section=document.createElement("details");section.className="pst-studio-section";section.open=open;
+  const summary=document.createElement("summary");summary.innerHTML='<span>'+title+'<div class="pst-section-copy">'+sub+'</div></span>';
+  const fields=document.createElement("div");fields.className="pst-section-fields";section.append(summary,fields);
+  for(const id of ids){const input=document.getElementById(id);if(!input)continue;const field=input.closest(".field");if(field){fields.appendChild(field);continue;}if(input.type==="checkbox"){const label=input.closest("label");if(label){const box=document.createElement("div");box.className="field";box.appendChild(label);fields.appendChild(box);}}}
+  form.appendChild(section);
+ });
+ const buttons=document.getElementById("saveBtn")?.closest(".field");if(button){buttons.classList.add("pst-editor-actions");form.appendChild(button);}
+ const note=document.createElement("p");note.className="pst-studio-preview-note";note.textContent="Live preview reflects the visual design. Reward eligibility is enforced at checkout/payment.";previewCard.querySelector(".card-body")?.appendChild(note);
+ document.getElementById("pstStudioNew").onclick=()=>{document.getElementById("newBtn")?.click();editor.scrollIntoView({behavior:"smooth",block:"start"})};
+ function reflectType(){
+ const free=document.getElementById("promotion_type")?.value==="free_product";
+ ["reward_product_key","reward_quantity","minimum_paid_quantity","redemption_limit","max_redemptions"].forEach(id=>document.getElementById(id)?.closest(".field")?.classList.toggle("pst-studio-hidden",!free));
+ ["discount_id","auto_apply_discount"].forEach(id=>document.getElementById(id)?.closest(".field")?.classList.toggle("pst-studio-hidden",free));
+ }
+ const type=document.getElementById("promotion_type");type?.addEventListener("change",reflectType);
+ const mo=new MutationObserver(()=>{reflectType();const p=typeof promos!=="undefined"?promos:[];const now=Date.now();const active=p.filter(x=>x.is_active&&(!x.starts_at||Date.parse(x.starts_at)<=now)&&(!x.ends_at||Date.parse(x.ends_at)>=now)).length;const scheduled=p.filter(x=>x.is_active&&x.starts_at&&Date.parse(x.starts_at)>now).length;const inactive=p.length-active-scheduled;[active,scheduled,inactive,p.filter(x=>x.promotion_type==="free_product").length].forEach((n,i)=>{const el=document.getElementById("pstMetric"+i);if(el)el.textContent=n;});});
+ const list=document.getElementById("promoList");if(list)mo.observe(list,{childList:true});
+ document.getElementById("promoSelect")?.addEventListener("change",()=>setTimeout(reflectType,0));document.getElementById("newBtn")?.addEventListener("click",()=>setTimeout(reflectType,0));reflectType();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",build);else build();
+})();
+</script><script defer src="admin-footer.js?v=4"></script></body></html>

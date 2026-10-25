@@ -1,0 +1,256 @@
+/* Pep Shop Texas cart payment-method discounts.
+   Styling intentionally unchanged: this script reuses existing cart classes. */
+(function () {
+  let paymentMethodDiscountRates = {};
+  let paymentMethodLabels = {
+    pending: "Payment pending",
+    venmo: "Venmo",
+    zelle: "Zelle",
+    bitcoin: "Bitcoin",
+    credit_card: "Credit Card",
+    apple_pay: "Apple Pay",
+    apple_cash: "Apple Cash",
+    google_pay: "Google Pay"
+  };
+
+  function normalizePaymentDiscountPercent(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.min(100, Math.max(0, number)) : 0;
+  }
+
+  function registerPaymentMethods(methods = []) {
+    paymentMethodDiscountRates = {};
+    methods.forEach((method) => {
+      const id = String(method.id || method.key || "").trim();
+      if (!id) return;
+      paymentMethodDiscountRates[id] = normalizePaymentDiscountPercent(method.discountPercent ?? method.discount_percent);
+      paymentMethodLabels[id] = String(method.label || paymentMethodLabels[id] || id).trim();
+    });
+  }
+
+  function methodIdFromSelect() {
+    const select = document.querySelector("[data-checkout-form] [name='payment_method']");
+    return String(select?.value || "").trim();
+  }
+
+  function paymentDiscountRate(methodId) {
+    const percent = normalizePaymentDiscountPercent(paymentMethodDiscountRates[String(methodId || "").trim()]);
+    return percent / 100;
+  }
+
+  function paymentBaseLabel(method = {}) {
+    const id = String(method.id || method.key || "").trim();
+    return String(method.label || paymentMethodLabels[id] || id || "Payment method").trim();
+  }
+
+  function paymentDisplayLabel(method = {}) {
+    const id = String(method.id || method.key || "").trim();
+    const base = paymentBaseLabel(method);
+    const percent = Math.round(paymentDiscountRate(id) * 10000) / 100;
+    if (!percent) return base;
+    return `${base} — Save ${percent}%${id === "bitcoin" ? " 🔥" : ""}`;
+  }
+
+  function paymentDiscountLabel(methodId) {
+    const rate = paymentDiscountRate(methodId);
+    if (!rate) return "";
+    const base = paymentMethodLabels[methodId] || "Payment";
+    return `${base} Savings (-${Math.round(rate * 10000) / 100}%)`;
+  }
+
+  function roundPaymentDiscount(value) {
+    return Math.round((Number(value) || 0) * 100) / 100;
+  }
+
+  function parsePaymentMoney(text) {
+    return Number(String(text || "").replace(/[^0-9.-]/g, "")) || 0;
+  }
+
+  function formatPaymentMoney(value) {
+    if (typeof formatMoney === "function") return formatMoney(value);
+    return Number(value || 0).toLocaleString("en-US", { style: "currency", currency: "USD" });
+  }
+
+  function patchCalculateCartTotals() {
+    if (typeof calculateCartTotals !== "function" || calculateCartTotals.pstPaymentDiscountPatched) return;
+    const originalCalculateCartTotals = calculateCartTotals;
+
+    calculateCartTotals = function patchedCalculateCartTotals(rows, profile = {}) {
+      const base = originalCalculateCartTotals(rows, profile);
+      const methodId = methodIdFromSelect();
+      const rate = paymentDiscountRate(methodId);
+      const existingPromoDiscount = Number(base.discount || 0);
+      const paymentDiscount = existingPromoDiscount > 0 ? 0 : roundPaymentDiscount(Number(base.subtotal || 0) * rate);
+      const discount = roundPaymentDiscount(existingPromoDiscount + paymentDiscount);
+      const total = roundPaymentDiscount(Number(base.total || 0) - paymentDiscount);
+
+      return {
+        ...base,
+        discount,
+        paymentDiscount,
+        paymentDiscountRate: rate,
+        paymentDiscountMethod: methodId,
+        paymentDiscountBlocked: existingPromoDiscount > 0 && rate > 0,
+        total
+      };
+    };
+
+    calculateCartTotals.pstPaymentDiscountPatched = true;
+  }
+
+  function patchSummaryHtml() {
+    if (typeof summaryHtml !== "function" || summaryHtml.pstPaymentDiscountPatched) return;
+    const originalSummaryHtml = summaryHtml;
+
+    summaryHtml = function patchedSummaryHtml(rows, context = {}) {
+      const html = originalSummaryHtml(rows, context);
+      const profile = context.profile || {};
+      const totals = calculateCartTotals(rows, profile);
+      const baseTotal = roundPaymentDiscount(Number(totals.total || 0) + Number(totals.paymentDiscount || 0));
+      const paymentLine = totals.paymentDiscount > 0
+        ? `<div class="summary-line" data-payment-discount-line><span>${escapeHtml(paymentDiscountLabel(totals.paymentDiscountMethod))}</span><strong>-${formatPaymentMoney(totals.paymentDiscount)}</strong></div>`
+        : `<div class="summary-line" data-payment-discount-line hidden><span>Payment Savings</span><strong>-${formatPaymentMoney(0)}</strong></div>`;
+
+      return html
+        .replace(`<div class="summary-line"><span>Subtotal</span><strong>${formatPaymentMoney(totals.subtotal)}</strong></div>`, `<div class="summary-line"><span>Subtotal</span><strong>${formatPaymentMoney(totals.subtotal)}</strong></div>${paymentLine}`)
+        .replace(/<div class="summary-line summary-total"><span>Total Before Store Credit<\/span><strong>[^<]*<\/strong><\/div>/, `<div class="summary-line summary-total"><span>Total Before Store Credit</span><strong data-cart-total-display data-base-total="${baseTotal}">${formatPaymentMoney(totals.total)}</strong></div>`);
+    };
+
+    summaryHtml.pstPaymentDiscountPatched = true;
+  }
+
+  function patchCheckoutFormHtml() {
+    if (typeof checkoutFormHtml !== "function" || checkoutFormHtml.pstPaymentDiscountPatched) return;
+    const originalCheckoutFormHtml = checkoutFormHtml;
+
+    checkoutFormHtml = function patchedCheckoutFormHtml(rows, context) {
+      const nextContext = { ...context };
+      registerPaymentMethods(context.paymentMethods || []);
+      const methods = (context.paymentMethods || []).map((method) => ({
+        ...method,
+        label: paymentBaseLabel(method),
+        displayLabel: paymentDisplayLabel(method)
+      }));
+      nextContext.paymentMethods = methods;
+
+      let html = originalCheckoutFormHtml(rows, nextContext);
+
+      methods.forEach((method) => {
+        const base = paymentBaseLabel(method);
+        const display = paymentDisplayLabel(method);
+        if (display !== base) {
+          html = html.replace(`>${escapeHtml(base)}</option>`, `>${escapeHtml(display)}</option>`);
+        }
+      });
+
+      html = html.replace(
+        `<label>Payment Method <select name="payment_method">`,
+        `<p class="checkout-note">Choose a payment method below. Eligible payment discounts are applied automatically and cannot be combined with promotional discounts.</p><label>Payment Method <select name="payment_method">`
+      );
+
+      html = html.replace(
+        `<p class="payment-instructions" data-payment-instructions></p>`,
+        `<p class="payment-instructions" data-payment-instructions></p><p class="checkout-note" data-payment-discount-message hidden></p>`
+      );
+
+      return html;
+    };
+
+    checkoutFormHtml.pstPaymentDiscountPatched = true;
+  }
+
+  function updatePaymentDiscountDisplay() {
+    const select = document.querySelector("[data-checkout-form] [name='payment_method']");
+    if (!select) return;
+
+    const methodId = String(select.value || "").trim();
+    const subtotalText = document.querySelector("[data-cart-summary] .summary-line:first-of-type strong")?.textContent || "";
+    const subtotal = parsePaymentMoney(subtotalText);
+    const rate = paymentDiscountRate(methodId);
+    const promotionalDiscountApplied = Boolean(document.querySelector("[data-promo-discount-line]"));
+    const discount = promotionalDiscountApplied ? 0 : roundPaymentDiscount(subtotal * rate);
+    const line = document.querySelector("[data-payment-discount-line]");
+    const message = document.querySelector("[data-payment-discount-message]");
+    const totalDisplay = document.querySelector("[data-cart-total-display]");
+    const storeCreditCheckbox = document.querySelector("[data-checkout-form] [name='apply_store_credit']");
+    const availableStoreCredit = Number(document.querySelector("[data-available-store-credit]")?.dataset?.availableStoreCredit || 0);
+    const storeCreditLine = document.querySelector("[data-store-credit-applied-line]");
+
+    if (line) {
+      if (discount > 0) {
+        line.hidden = false;
+        line.querySelector("span").textContent = paymentDiscountLabel(methodId);
+        line.querySelector("strong").textContent = `-${formatPaymentMoney(discount)}`;
+      } else {
+        line.hidden = true;
+      }
+    }
+
+    if (totalDisplay) {
+      const baseTotal = parsePaymentMoney(totalDisplay.dataset.baseTotal || totalDisplay.textContent);
+      totalDisplay.dataset.baseTotal = String(baseTotal);
+      totalDisplay.textContent = formatPaymentMoney(roundPaymentDiscount(baseTotal - discount));
+    }
+
+    if (storeCreditLine) {
+      const discountedTotal = totalDisplay ? parsePaymentMoney(totalDisplay.textContent) : 0;
+      const storeCreditApplied = storeCreditCheckbox?.checked
+        ? roundPaymentDiscount(Math.min(availableStoreCredit, discountedTotal))
+        : 0;
+      storeCreditLine.hidden = storeCreditApplied <= 0;
+      storeCreditLine.querySelector("strong").textContent = `-${formatPaymentMoney(storeCreditApplied)}`;
+    }
+
+    if (message) {
+      if (discount > 0) {
+        const base = paymentMethodLabels[methodId] || "this payment method";
+        message.hidden = false;
+        message.textContent = `✓ Payment discount applied. You saved ${formatPaymentMoney(discount)} by paying with ${base}.`;
+      } else if (promotionalDiscountApplied && rate > 0) {
+        message.hidden = false;
+        message.textContent = "The promotional code is applied, so the payment-method discount is not combined with it.";
+      } else {
+        message.textContent = "";
+        message.hidden = true;
+      }
+    }
+  }
+
+  function patchBindCartPageButtons() {
+    if (typeof bindCartPageButtons !== "function" || bindCartPageButtons.pstPaymentDiscountPatched) return;
+    const originalBindCartPageButtons = bindCartPageButtons;
+
+    bindCartPageButtons = function patchedBindCartPageButtons() {
+      originalBindCartPageButtons();
+      const select = document.querySelector("[data-checkout-form] [name='payment_method']");
+      if (select && !select.dataset.paymentDiscountBound) {
+        select.dataset.paymentDiscountBound = "true";
+        select.addEventListener("change", updatePaymentDiscountDisplay);
+      }
+      const storeCreditCheckbox = document.querySelector("[data-checkout-form] [name='apply_store_credit']");
+      if (storeCreditCheckbox && !storeCreditCheckbox.dataset.storeCreditDisplayBound) {
+        storeCreditCheckbox.dataset.storeCreditDisplayBound = "true";
+        storeCreditCheckbox.addEventListener("change", updatePaymentDiscountDisplay);
+      }
+      updatePaymentDiscountDisplay();
+    };
+
+    bindCartPageButtons.pstPaymentDiscountPatched = true;
+  }
+
+  function applyPatches() {
+    patchCalculateCartTotals();
+    patchSummaryHtml();
+    patchCheckoutFormHtml();
+    patchBindCartPageButtons();
+  }
+
+  applyPatches();
+
+  document.addEventListener("DOMContentLoaded", function () {
+    applyPatches();
+    if (document.body?.dataset?.page === "cart" && typeof renderCartPage === "function") {
+      renderCartPage();
+    }
+  });
+})();

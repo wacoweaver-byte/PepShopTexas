@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex, follow">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browse the Pep Shop Texas research library and informational resources.">
+  <link rel="canonical" href="https://www.pepshoptexas.com/research-library.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pep Shop Texas">
+  <meta property="og:title" content="Research Library | Pep Shop Texas">
+  <meta property="og:description" content="Browse the Pep Shop Texas research library and informational resources.">
+  <meta property="og:url" content="https://www.pepshoptexas.com/research-library.html">
+  <meta property="og:image" content="https://www.pepshoptexas.com/pst-logo-master.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Research Library | Pep Shop Texas</title>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#bd0000">
+  <link rel="stylesheet" href="css/customer.css?v=27">
+  <link rel="stylesheet" href="css/header-logo.css?v=4">
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
+<body>
+  <header class="pst-customer-header">
+    <div class="pst-customer-header-inner">
+      <a class="pst-customer-logo-link" href="index.html" aria-label="Pep Shop Texas home"><img src="pst-header-logo.webp?v=4" alt="PST Pep Shop Texas" class="pst-customer-header-logo"></a>
+      <div class="pst-customer-header-right">
+        <form class="pst-customer-search" role="search" action="catalog.html" method="get"><label class="sr-only" for="pst-customer-search-input">Search peptides</label><input id="pst-customer-search-input" name="search" type="search" placeholder="Search peptides..." autocomplete="off"><button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path></svg></button></form>
+        <nav class="pst-customer-nav main-nav" aria-label="Main navigation"><a href="catalog.html">PEPTIDES A-Z <span aria-hidden="true">⌄</span></a><a href="catalog.html?category=Multi-Peptide%20Product">RESEARCH BLENDS <span aria-hidden="true">⌄</span></a><a href="research-library.html">RESEARCH</a><a href="faq.html">FAQ</a><a href="contact.html">CONTACT</a>
+          <a href="account.html" data-account-link>LOGIN</a><a class="cart-link" href="cart.html">MY CART <span class="pst-cart-count" data-cart-count>0</span></a></nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap research-library-page">
+    <section class="page-heading"><p>Research resources</p><h1>Research Library &amp; COA Lookup</h1></section>
+    <div class="notice info">Products and information are provided for research-use context only. Not for human or veterinary use. Not medical advice. Batch-specific third-party testing is available only when listed for a specific product or lot.</div>
+
+    <section class="research-section">
+      <h2>COA Lookup</h2><div class="underline"></div>
+      <div class="lookup-panel card">
+        <p>Enter a product name, lot number, or batch number to check whether testing documentation is currently listed. Until lot-specific documents are uploaded, a product should not be represented as having a verified batch COA.</p>
+        <div class="lookup-row"><input id="coaSearch" type="search" placeholder="Example: BPC-157, NAD+, LOT-0001, TX-1..."><button class="btn primary" type="button" onclick="runCoaLookup()">Search</button></div>
+        <div id="coaResult" class="result"></div>
+      </div>
+    </section>
+
+    <section class="research-section research-soft">
+      <h2>Testing Documentation</h2><div class="underline"></div>
+      <div class="research-grid">
+        <article class="card"><h3>Batch-Specific Testing</h3><p>Testing documentation should correspond to a specific batch or lot. A general product name alone is not the same as a lot-specific COA.</p></article>
+        <article class="card"><h3>No Blanket Purity Guarantee</h3><p>Pep Shop Texas should use the phrase “Batch-specific third-party testing available when listed” unless every active product has matching lot-specific documentation.</p></article>
+        <article class="card"><h3>Document Review</h3><p>COA records may include identity, purity, appearance, method, date, batch number, and laboratory information when supplied.</p></article>
+      </div>
+    </section>
+
+    <section class="research-section">
+      <h2>Sample COA Format</h2><div class="underline"></div>
+      <div class="sample-coa card">
+        <div class="sample-coa-head"><span>Sample COA Layout</span><span>For format demonstration only</span></div>
+        <div class="table-wrap"><table class="sample-table"><tbody>
+          <tr><th>Product Name</th><td>Example Peptide Name</td></tr><tr><th>Batch / Lot Number</th><td>LOT-EXAMPLE-0001</td></tr><tr><th>Testing Laboratory</th><td>Third-party laboratory name, when available</td></tr><tr><th>Testing Date</th><td>Date listed on batch-specific report</td></tr><tr><th>Testing Method</th><td>Example: HPLC, LC-MS, or other method listed by the laboratory</td></tr><tr><th>Reported Result</th><td>Result as reported on the batch-specific testing document</td></tr><tr><th>Important Note</th><td>This sample is not a COA and does not verify any product. It only shows the type of information a COA may contain.</td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <section class="research-section research-soft">
+      <h2>Research-Only FAQ</h2><div class="underline"></div>
+      <div class="research-faq">
+        <details><summary>Are products intended for human or veterinary use?</summary><p>No. Products are provided for research-use context only and are not for human or veterinary use.</p></details>
+        <details><summary>Is this medical advice?</summary><p>No. Website content is not medical advice, diagnostic guidance, treatment guidance, dosing advice, or a recommendation for human or animal use.</p></details>
+        <details><summary>Does every product have a COA?</summary><p>No blanket claim should be made. Batch-specific third-party testing is available only when listed for a specific product or lot.</p></details>
+        <details><summary>What if a product image shows a vial or label?</summary><p>Product images are representative visual references. Actual packaging, labeling, cap color, batch, lot, and documentation may vary.</p></details>
+        <details><summary>Can product composition be verified?</summary><p>Composition should be reviewed through batch-specific testing documentation when listed. If no lot-specific document is listed, do not assume verification.</p></details>
+      </div>
+    </section>
+
+    <section class="research-section"><h2>Product Image Disclaimer</h2><div class="underline"></div><div class="strong-warning">Product images, vial renderings, label designs, and package visuals are representative only. They may not reflect the final product, actual lot, actual batch, final label, cap color, or available testing documentation. Always refer to listed batch-specific documentation when available.</div></section>
+  </main>
+
+  <footer class="site-footer"><div class="site-footer-inner"><div class="site-footer-brand"><strong>Pep Shop Texas</strong><span>Research-use catalog and product information. Not for human or veterinary use. Not medical advice.</span></div><nav class="site-footer-links" aria-label="Footer links"><a href="research-library.html">Research Library</a><a href="faq.html">FAQ</a><a href="contact.html">Contact</a><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a></nav></div></footer>
+
+  <script>
+const sampleCoaRecords=[{product:"Sample Product",lot:"LOT-EXAMPLE-0001",status:"sample",message:"This is a sample COA format only. It does not verify any product."}];
+function runCoaLookup(){const input=document.getElementById("coaSearch");const result=document.getElementById("coaResult");const query=(input.value||"").trim().toLowerCase();result.className="result active";if(!query){result.classList.add("warn");result.innerHTML="Enter a product name, batch number, or lot number to search.";return;}const match=sampleCoaRecords.find(record=>record.product.toLowerCase().includes(query)||record.lot.toLowerCase().includes(query));if(match){result.classList.add("info");result.innerHTML=`<strong>${match.product}</strong><br>Lot: ${match.lot}<br>${match.message}`;return;}result.classList.add("warn");result.innerHTML="No batch-specific COA is currently listed for this search. Do not represent this product or lot as COA-verified unless a matching batch-specific document is uploaded and listed.";}
+  </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Create account | Pep Shop Texas</title>
+<meta name="description" content="Create a Pep Shop Texas account to order, track and reorder.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a101c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Pep Shop Texas"><meta property="og:title" content="Create account | Pep Shop Texas"><meta property="og:description" content="Create a Pep Shop Texas account to order, track and reorder."><meta property="og:image" content="https://www.pepshoptexas.com/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Pep Shop TX">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ndpfnerhvawbavkotinh.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/pst-bl.css?v=35">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="js/pst-core.js?v=35"></script>
+<script defer src="js/pst-account.js?v=35"></script>
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
+<body data-page="register">
+<main id="main">
+<section class="wrap pad"><div class="authcard wide">
+<span class="kick">New here</span><h1 class="serif">Create your account</h1><p class="muted">Takes a minute. Your orders, rewards and reorder reminders live here.</p>
+<form class="form" data-form="register"><div class="g2"><label>First name<input name="first_name" required autocomplete="given-name"></label><label>Last name<input name="last_name" required autocomplete="family-name"></label></div>
+<div class="g2"><label>Email<input name="email" type="email" required autocomplete="email" inputmode="email"></label><label>Mobile<input name="phone" type="tel" autocomplete="tel" inputmode="tel"></label></div>
+<div class="g2"><label>Username<input name="username" autocomplete="username"></label><label class="pw">Password<input id="rpw" name="password" type="password" minlength="8" required autocomplete="new-password"><button type="button" data-pw="rpw" aria-label="Show password">Show</button></label></div>
+<label>Research role<select name="research_role" required><option value="">Select one</option><option>Independent Researcher</option><option>Laboratory / Research Facility</option><option>Healthcare / Medical Office</option><option>Compounding / Formulation Business</option><option>Academic / University Research</option><option>Biotech / Pharmaceutical Research</option><option>Other Research-Related Use</option></select></label>
+<fieldset><legend>Shipping address</legend><label>Street<input name="shipping_address" autocomplete="shipping street-address"></label><div class="g3"><label>City<input name="shipping_city" autocomplete="shipping address-level2"></label><label>State<input name="shipping_state" autocomplete="shipping address-level1"></label><label>ZIP<input name="shipping_zip" inputmode="numeric" autocomplete="shipping postal-code"></label></div>
+<p class="muted small" style="margin:0">Picking up locally? You can leave this blank and add it later.</p></fieldset>
+<fieldset><legend>Billing address</legend><label class="chk"><input type="checkbox" name="same_as_shipping" checked> Same as shipping</label><div data-bill><label>Street<input name="billing_address" autocomplete="billing street-address"></label><div class="g3"><label>City<input name="billing_city"></label><label>State<input name="billing_state"></label><label>ZIP<input name="billing_zip" inputmode="numeric"></label></div></div></fieldset>
+<label class="chk"><input type="checkbox" name="age" required> I confirm I am at least 18 years old.</label>
+<label class="chk"><input type="checkbox" name="research" required> This account and any purchases are for research purposes only.</label>
+<label class="chk"><input type="checkbox" name="tos" required> I agree to the <a class="linkish" href="terms.html" target="_blank">Terms of Use</a>.</label>
+<label class="chk"><input type="checkbox" name="marketing_opt_in"> Email me restocks, promotions and updates. Unsubscribe any time.</label>
+<button class="btn primary wide" type="submit">Create account</button><p class="notice" data-msg hidden role="status"></p></form>
+<div class="alt"><span class="muted">Already have an account?</span><a href="login.html">Sign in</a></div>
+</div></section>
+</main>
+</body>
+</html>

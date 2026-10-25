@@ -1,0 +1,340 @@
+<!-- PST_REPORT_WRITER_PATCH_V3_REPORT_ONLY_PRINT_PDF -->
+<!DOCTYPE html>
+<html lang="en" data-auth-guard="admin"><head>
+<meta name="robots" content="noindex, nofollow">
+  <style id="pst-auth-guard-style">html{visibility:hidden}</style><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Pep Shop Texas | Report Writer</title>
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="site.webmanifest"><meta name="theme-color" content="#bd0000">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="auth-guard.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<style>
+:root{--blue:#0077c8;--dark:#101820;--light:#f5f8fb;--border:#d9e2ec;--muted:#667085;--success:#0f8a3b;--warning:#b7791f;--danger:#b42318;--white:#fff;--shadow:0 10px 30px rgba(16,24,32,.08);--radius:16px}
+*{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:var(--dark)}a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid var(--border);min-height:92px;overflow:hidden}.topbar{width:100%;min-height:92px;margin:0;padding:14px 24px;display:flex;align-items:center;justify-content:flex-start;gap:22px;background:#fff;overflow:hidden}.brand{flex:0 0 390px;width:390px;min-width:390px;max-width:390px;height:64px;display:grid;grid-template-columns:132px 236px;column-gap:22px;align-items:center}.logo-mark{width:132px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#101820;color:#fff;font-size:26px;font-weight:600;letter-spacing:.08em}.title-lock{width:236px;height:64px;display:flex;flex-direction:column;justify-content:center;gap:3px;color:#596579;line-height:1.15;overflow:hidden}.title-lock strong{font-size:21px;font-weight:600;white-space:nowrap}.title-lock small{font-size:14px;font-weight:400;white-space:nowrap;color:#667085}
+.actions{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}.actions::-webkit-scrollbar{display:none}
+.btn,a.btn,button.btn{flex:0 0 auto;min-height:26px;height:26px;padding:0 10px;border-radius:999px;border:1px solid #d9e2ec;background:#fff;color:#101820;cursor:pointer;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;line-height:1;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}.btn.secondary.active{background:#bd0000;border-color:#bd0000;color:#fff}.btn.primary{color:#003f9e;border-color:#003f9e}.btn.success{color:#0c6b3a;border-color:#0c6b3a}.btn.danger{color:#8a1f17;border-color:#8a1f17}
+main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}h1{margin:0 0 6px;font-size:clamp(24px,3vw,36px);line-height:1.15;font-weight:600}.subtitle{margin:0;color:var(--muted);line-height:1.4}.status{margin:12px 0 18px;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--muted);min-height:42px;font-size:13px}.status.good{color:var(--success);border-color:rgba(15,138,59,.25);background:rgba(15,138,59,.06)}.status.bad{color:var(--danger);border-color:rgba(180,35,24,.25);background:rgba(180,35,24,.06)}
+.center-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}.center-card{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;border:1px solid var(--border);background:#fff;border-radius:14px;padding:13px;box-shadow:0 6px 18px rgba(16,24,32,.05);min-height:86px}.center-icon{font-size:22px;width:30px;height:30px;display:flex;align-items:center;justify-content:center}.center-card strong{display:block;font-size:15px;font-weight:600;margin-bottom:4px}.center-card span span{display:block;color:var(--muted);font-size:12px;line-height:1.25}.center-card.active{border-color:#bd0000}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.span-12{grid-column:span 12}.span-6{grid-column:span 6}.card-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.card-header h2{margin:0;font-size:18px;font-weight:600}.card-body{padding:16px}.muted{color:var(--muted);font-size:13px;line-height:1.4}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.step{height:26px;padding:0 10px;border:1px solid var(--border);border-radius:999px;background:#fff;color:#101820;font-size:10px;font-weight:700;white-space:nowrap}.step.active{color:#bd0000;border-color:#bd0000}.panel{display:none}.panel.active{display:block}
+.form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:end}.field{display:flex;flex-direction:column;gap:6px}label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--muted);display:block}input,select,textarea{width:100%;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:var(--dark);font-family:Arial,Helvetica,sans-serif}
+.check-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.check-item{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:8px;border:1px solid var(--border);background:#fbfcfe;border-radius:10px;padding:9px 10px;min-height:38px;font-size:13px;line-height:1.2}.check-item input{width:16px;min-height:16px;height:16px;flex:0 0 auto}.field-order-btn{width:24px!important;min-width:24px!important;height:24px!important;min-height:24px!important;padding:0!important;border-radius:999px!important;font-size:12px!important;line-height:1!important}.field-order-note{margin:8px 0 0;color:var(--muted);font-size:12px;font-weight:600;line-height:1.35}
+.filter-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px}.sort-builder{grid-column:1/-1;border:1px solid var(--border);border-radius:14px;background:#fbfcfe;padding:12px}.sort-builder-title{margin:0 0 9px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--muted)}.sort-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,.45fr) auto;gap:10px;align-items:end;margin-bottom:8px}.sort-row:last-child{margin-bottom:0}.sort-priority{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:5px}.sort-actions{display:flex;gap:8px;align-items:center;margin-top:10px}.table-wrap{overflow:hidden;border:1px solid var(--border);border-radius:14px;background:#fff}.table-scroll-top{height:15px;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid var(--border);background:#fbfcfe}.table-scroll-top-inner{height:1px}.table-scroll-main{overflow:auto;max-height:68vh}.report-table{width:max-content;min-width:0;table-layout:auto;border-collapse:collapse}.report-table th,.report-table td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:11.5px;line-height:1.2;white-space:nowrap;max-width:none;overflow:visible;text-overflow:clip}.report-table th{position:sticky;top:0;z-index:2;font-size:9.5px;text-transform:uppercase;letter-spacing:.035em;color:var(--muted);background:#fbfcfe}.report-table .compact-status-cell{width:118px;max-width:118px}.report-table .compact-history-cell{width:126px;max-width:126px;white-space:normal;line-height:1.15}.inventory-status-pill{display:inline-flex;align-items:center;justify-content:center;min-height:20px;padding:0 7px;border:1px solid #c9ced6;border-radius:999px;background:#fff;color:#101820;font-size:9px;font-weight:700;white-space:nowrap}.inventory-status-pill.on-order{color:#9a5a00;border-color:#c98a28}.inventory-status-pill.in-transit{color:#003f9e;border-color:#003f9e}.inventory-status-pill.issue{color:#8a1f17;border-color:#8a1f17}.inventory-status-pill.in-stock{color:#0c6b3a;border-color:#0c6b3a}.inventory-history{display:grid;gap:2px;font-size:9.5px;color:#596579}.inventory-history strong{color:#101820;font-weight:700}.pill{display:inline-flex;align-items:center;justify-content:center;height:26px;padding:0 10px;border-radius:999px;font-size:10px;font-weight:700;border:1px solid var(--border);white-space:nowrap;background:#fff;color:#101820}.pill.info{color:#003f9e;border-color:#003f9e}
+.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px}.summary-card{border:1px solid var(--border);background:#fbfcfe;border-radius:14px;padding:12px;min-height:76px}.summary-card strong{display:block;font-size:20px;line-height:1.05;font-weight:600;color:#0077c8;margin-bottom:7px;word-break:break-word}.summary-card span{display:block;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.045em;line-height:1.2}.empty{padding:22px;color:var(--muted);font-size:13px;line-height:1.4;background:#fbfcfe;border:1px dashed var(--border);border-radius:14px}
+.po-select-cell{width:42px;text-align:center!important}.po-select-cell input{width:16px;height:16px;min-height:16px;margin:0;vertical-align:middle}.po-toolbar-note{font-size:12px;color:var(--muted);font-weight:600}.po-unmatched{opacity:.45;cursor:not-allowed}
+.print-only{display:none}
+@media(max-width:1240px){.topbar{min-height:150px;align-items:flex-start;justify-content:flex-start;flex-wrap:wrap}.brand{flex:0 0 390px}.actions{flex:0 0 100%;width:100%;justify-content:flex-start}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.check-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.center-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.topbar{padding:12px 16px;min-height:138px}.brand{flex-basis:100%;width:100%;min-width:0;max-width:none;height:54px;grid-template-columns:112px minmax(0,1fr)}.logo-mark{width:112px;height:54px;font-size:22px}.title-lock{width:auto;height:54px}.title-lock strong{font-size:18px}.title-lock small{font-size:12px}.btn{height:25px;min-height:25px;padding:0 9px;font-size:9.5px}.page-title{flex-direction:column}.center-grid,.form-grid,.check-grid,.summary-grid{grid-template-columns:1fr}.filter-row,.sort-row{grid-template-columns:1fr}.span-6{grid-column:span 12}}
+@media print{
+  @page{size:landscape;margin:.35in}
+  body.printing-report{background:#fff!important;overflow:visible!important}
+  body.printing-report *{visibility:hidden!important}
+  body.printing-report [data-panel="4"],body.printing-report [data-panel="4"] *{visibility:visible!important}
+  body.printing-report [data-panel="4"]{display:block!important;position:absolute!important;inset:0 auto auto 0!important;width:100%!important;margin:0!important;padding:0!important;background:#fff!important}
+  body.printing-report [data-panel="4"]>.actions,body.printing-report [data-panel="4"] .po-toolbar-note{display:none!important}
+  body.printing-report .print-only{display:block!important}
+  body.printing-report .print-report-header{margin:0 0 12px!important;padding:0 0 10px!important;border-bottom:2px solid #101820!important}
+  body.printing-report .print-report-header h1{margin:0 0 4px!important;font-size:24px!important}
+  body.printing-report .print-report-meta{font-size:10px!important;color:#596579!important;line-height:1.35!important}
+  body.printing-report .summary-grid{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:7px!important;margin-bottom:10px!important}
+  body.printing-report .summary-card{min-height:0!important;padding:7px!important;break-inside:avoid!important}
+  body.printing-report .summary-card strong{font-size:14px!important;margin-bottom:3px!important}
+  body.printing-report .summary-card span{font-size:8px!important}
+  body.printing-report .table-wrap{overflow:visible!important;border:0!important;border-radius:0!important}
+  body.printing-report .table-scroll-top{display:none!important}
+  body.printing-report .table-scroll-main{overflow:visible!important;max-height:none!important}
+  body.printing-report .report-table{width:100%!important;min-width:0!important;table-layout:auto!important;border-collapse:collapse!important}
+  body.printing-report .report-table th,body.printing-report .report-table td{position:static!important;max-width:none!important;overflow:visible!important;text-overflow:clip!important;white-space:normal!important;padding:4px 5px!important;border:1px solid #cfd6df!important;font-size:8px!important;line-height:1.15!important;color:#101820!important}
+  body.printing-report .report-table th{font-size:7.5px!important;background:#eef2f6!important}
+  body.printing-report .report-table thead{display:table-header-group!important}
+  body.printing-report .report-table tr{break-inside:avoid!important}
+  body.printing-report .po-select-cell{display:none!important}
+  /* Remove non-report layout from print flow instead of only hiding it. */
+  body.printing-report header,body.printing-report footer,body.printing-report nav,
+  body.printing-report .pst-admin-header,body.printing-report .pst-admin-footer,
+  body.printing-report .page-title,body.printing-report .steps,
+  body.printing-report .panel:not([data-panel="4"]),
+  body.printing-report #saved-reports{display:none!important}
+  body.printing-report main,body.printing-report .container,body.printing-report .center-grid,
+  body.printing-report .card,body.printing-report .card-body{min-height:0!important;max-height:none!important;height:auto!important;overflow:visible!important}
+  body.printing-report [data-panel="4"]{position:static!important;inset:auto!important;float:none!important;break-after:auto!important;page-break-after:auto!important}
+  body.printing-report .report-table{width:max-content!important;max-width:100%!important;table-layout:auto!important;margin:0!important}
+  body.printing-report .summary-grid{display:none!important}
+  body.printing-report .table-scroll-main{width:100%!important}
+  body.printing-report .report-table th,body.printing-report .report-table td{padding:3px 6px!important}
+}
+
+/* PST PRINT FIX 2026-10-25: remove hidden layout ancestors from page flow. */
+@media print{
+  @page {size:landscape; margin:0.4in}
+  html,body,body.printing-report{height:auto!important;min-height:0!important;overflow:visible!important}
+  body.printing-report main{display:block!important;width:100%!important;max-width:none!important;padding:0!important;margin:0!important}
+  body.printing-report main > :not(.grid){display:none!important}
+  body.printing-report main > .grid{display:block!important;margin:0!important;padding:0!important;gap:0!important}
+  body.printing-report #report-writer{display:block!important;grid-column:auto!important;border:0!important;border-radius:0!important;box-shadow:none!important;margin:0!important;padding:0!important;overflow:visible!important}
+  body.printing-report #report-writer > .card-header{display:none!important}
+  body.printing-report #report-writer > .card-body{display:block!important;padding:0!important;margin:0!important;overflow:visible!important}
+  body.printing-report #report-writer .steps{display:none!important}
+  body.printing-report #report-writer .panel:not([data-panel="4"]){display:none!important}
+  body.printing-report #report-writer [data-panel="4"]{display:block!important;position:static!important;width:auto!important;margin:0!important;padding:0!important;float:none!important;overflow:visible!important}
+  body.printing-report #report-writer [data-panel="4"] > .actions{display:none!important}
+  body.printing-report #report-writer .print-report-header{display:block!important;margin:0 0 8px!important;padding:0 0 7px!important;break-after:avoid!important}
+  body.printing-report #report-writer .print-report-header h1{font-size:20px!important;margin:0 0 4px!important}
+  body.printing-report #report-writer .table-wrap,
+  body.printing-report #report-writer .table-scroll-main{display:block!important;width:auto!important;max-width:none!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important}
+  body.printing-report #report-writer .report-table{width:max-content!important;max-width:100%!important;min-width:0!important;table-layout:auto!important;margin:0!important;border-collapse:collapse!important}
+  body.printing-report #report-writer .report-table tr{break-inside:avoid!important;page-break-inside:avoid!important}
+  body.printing-report #report-writer .report-table th,body.printing-report #report-writer .report-table td{padding:3px 6px!important;font-size:9px!important;line-height:1.15!important;white-space:nowrap!important}
+  body.printing-report #report-writer .report-table th{font-size:8px!important}
+}
+</style><link rel="stylesheet" href="css/admin.css?v=10">
+<meta name="robots" content="noindex,nofollow"><script src="staging-banner.js" defer></script></head>
+<body><header class="pst-admin-header">
+  <div class="pst-admin-nav-wrap">
+    <a class="pst-admin-logo-link" href="admin.html" aria-label="Pep Shop Texas Admin Home">
+      <img src="pst-header-logo.png" alt="PST Pep Shop Texas" class="pst-admin-header-logo">
+    </a>
+    <nav class="pst-admin-nav" aria-label="Admin navigation">
+      <a href="admin.html">Orders</a>
+      <a href="inventory.html">Inventory</a>
+      <a href="products.html">Products</a>
+      <a href="discounts.html">Discounts</a>
+      <a href="promotions.html">Promotions</a>
+      <a href="reports.html" class="active" aria-current="page">Reports</a>
+      <a href="customers.html">Customers</a>
+      <a href="index.html">View Site</a>
+    </nav>
+  </div>
+</header>
+<main><div class="page-title"><div><h1>Report Center</h1><p class="subtitle">Build custom reports using the actual Supabase tables and fields in Pep Shop Texas.</p></div><div class="actions"><a class="btn secondary" href="reports.html">Back to Reports</a><button class="btn secondary" onclick="printReport()">Print Report</button></div></div><div id="statusLine" class="status">Checking admin access...</div>
+<section class="center-grid"><a class="center-card" href="reports.html#quick-snapshot-card"><span class="center-icon">📊</span><span><strong>Dashboard</strong><span>Quick KPIs and charts</span></span></a><a class="center-card active" href="#report-writer"><span class="center-icon">📝</span><span><strong>Report Writer</strong><span>Build custom reports</span></span></a><a class="center-card" href="#saved-reports"><span class="center-icon">⭐</span><span><strong>Saved Reports</strong><span>One-click favorites</span></span></a></section>
+<section class="grid"><div class="card span-12" id="report-writer"><div class="card-header"><h2>📝 Report Writer</h2><span class="pill info" id="sourcePill">No source selected</span></div><div class="card-body"><div class="steps"><button class="step active" data-step="1">1. Data Source</button><button class="step" data-step="2">2. Fields</button><button class="step" data-step="3">3. Filters</button><button class="step" data-step="4">4. Preview</button><button class="step" data-step="5">5. Export</button></div>
+<div class="panel active" data-panel="1"><div class="form-grid"><div class="field"><label>Report Name</label><input id="reportName" value="Custom Report"></div><div class="field"><label>Data Source</label><select id="dataSource"></select></div><div class="field"><label>Date Range</label><select id="datePreset"><option value="all">All dates</option><option value="today">Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="mtd">Month-to-date</option><option value="custom">Custom</option></select></div><div class="field"><label>Preview Limit</label><select id="limitRows"><option>50</option><option>100</option><option>250</option><option>500</option><option>1000</option></select></div><div class="field"><label>Start Date</label><input id="startDate" type="date"></div><div class="field"><label>End Date</label><input id="endDate" type="date"></div><div class="sort-builder"><div class="sort-builder-title">Sort Order</div><div id="sortRows"><div class="sort-row" data-sort-priority="1"><div class="field"><div class="sort-priority">Primary sort</div><label for="sortField">Sort By</label><select id="sortField" class="sort-field"></select></div><div class="field"><label for="sortDirection">Sort Direction</label><select id="sortDirection" class="sort-direction"><option value="desc">Descending</option><option value="asc">Ascending</option></select></div><span aria-hidden="true"></span></div></div><div class="sort-actions"><button class="btn secondary" id="addSort" type="button">Add Another Sort</button><span class="muted">Additional sorts are applied in the order shown.</span></div></div></div><p class="muted">These fields now match your actual Supabase schema.</p><div class="actions"><button class="btn primary" data-next="2">Next: Fields</button></div></div>
+<div class="panel" data-panel="2"><div class="actions" style="justify-content:flex-start;margin-bottom:10px"><button class="btn secondary" id="selectAllFields">Select All</button><button class="btn secondary" id="clearFields">Clear</button></div><div class="check-grid" id="fieldList"></div><p class="field-order-note">Column order follows the order shown here. Use ↑ and ↓ to move fields before running/exporting the report.</p><div class="actions" style="margin-top:14px;justify-content:flex-start"><button class="btn secondary" data-prev="1">Back</button><button class="btn primary" data-next="3">Next: Filters</button></div></div>
+<div class="panel" data-panel="3"><div id="filtersList"></div><div class="actions" style="justify-content:flex-start"><button class="btn secondary" id="addFilter">Add Filter</button><button class="btn secondary" id="clearFilters">Clear Filters</button></div><p class="muted">Filters are optional. Filter only by actual fields on the selected table.</p><div class="actions" style="margin-top:14px;justify-content:flex-start"><button class="btn secondary" data-prev="2">Back</button><button class="btn primary" data-next="4">Next: Preview</button></div></div>
+<div class="panel" data-panel="4"><div class="print-only print-report-header"><h1 id="printReportTitle">Custom Report</h1><div class="print-report-meta" id="printReportMeta"></div></div><div class="summary-grid" id="previewSummary"></div><div class="actions" style="justify-content:flex-start;margin-bottom:12px"><button class="btn success" id="runPreview">Run Preview</button><button class="btn secondary" id="saveReport">Save Template</button><button class="btn primary" id="createInventoryPO" disabled>Create Inventory PO</button><span class="po-toolbar-note" id="poSelectionNote">Product-level reports can be sent to an inventory purchase order.</span></div><div class="table-wrap" id="previewTable"><div class="empty">Choose a data source and fields, then run preview.</div></div><div class="actions" style="margin-top:14px;justify-content:flex-start"><button class="btn secondary" data-prev="3">Back</button><button class="btn primary" data-next="5">Next: Export</button></div></div>
+<div class="panel" data-panel="5"><div class="actions" style="justify-content:flex-start;margin-bottom:12px"><button class="btn success" id="exportExcel">Export Excel Workbook</button><button class="btn secondary" id="exportCsv">Export CSV</button><button class="btn secondary" id="copyCsv">Copy CSV</button><button class="btn secondary" onclick="printReport()">Print / Save PDF</button></div><p class="muted">Excel exports are formatted for immediate review and clean landscape printing. CSV and PDF remain available when needed.</p><div class="actions" style="margin-top:14px;justify-content:flex-start"><button class="btn secondary" data-prev="4">Back</button></div></div>
+</div></div><div class="card span-12" id="saved-reports"><div class="card-header"><h2>⭐ Saved Reports</h2><span class="pill info" id="savedCount">0 saved</span></div><div class="card-body"><div id="savedReportsList"></div></div></div></section></main>
+<script>
+const SUPABASE_URL="https://ndpfnerhvawbavkotinh.supabase.co",SUPABASE_KEY="sb_publishable_7d5fHwVYUeD1SuxZuM-Qbw_nql4agIH",SAVED_KEY="pst_report_writer_saved_v2",SAVED_MIGRATION_KEY="pst_report_writer_saved_v2_migrated_to_supabase",PO_HANDOFF_KEY="pst_report_writer_po_handoff_v1";
+const SOURCES={"orders":{"label":"Orders","table":"orders","dateField":"created_at","fields":["id","customer_id","order_number","status","subtotal","shipping","tax","total","shipping_name","shipping_email","shipping_phone","shipping_address_line1","shipping_address_line2","shipping_city","shipping_state","shipping_zip","payment_method","payment_status","tracking_number","tracking_carrier","customer_notes","admin_notes","created_at","updated_at","inventory_deducted","inventory_restored","inventory_deducted_at","inventory_restored_at","inventory_failure_reason","admin_note","rejection_reason","rejected_at","shipped_at","order_status","shipping_carrier","subtotal_before_discount","discount_code","discount_id","discount_type","discount_percent","discount_amount","discount_code_amount","vial_discount_amount","no_tracking_required","no_tracking_reason","last_admin_actor","last_admin_actor_email","refund_number","refund_status","refund_reason","refund_amount","refund_requested_at","refund_issued_at","order_sequence_number","legacy_order_number"]},"order_items":{"label":"Order Items","table":"order_items","dateField":"created_at","fields":["id","order_id","product_id","product_name","product_strength","product_category","quantity","unit_price","line_total","created_at"]},"customer_profiles":{"label":"Customers","table":"customer_profiles","dateField":"created_at","fields":["user_id","first_name","last_name","email","phone","username","billing_address","billing_city","billing_state","billing_zip","shipping_address","shipping_city","shipping_state","shipping_zip","account_status","age_confirmed","research_use_acknowledged","tos_accepted","admin_notes","created_at","updated_at","marketing_opt_in","marketing_opt_out","marketing_opt_in_at","marketing_opt_out_at","marketing_source","customer_tags","card_last4","bank_last4","research_role","research_role_confirmed_at","customer_number"]},"product_inventory":{"label":"Product Inventory","table":"product_inventory","dateField":"updated_at","fields":["id","product_key","display_name","category","strength","price","current_inventory","low_stock_threshold","limited_stock_threshold","status_override","is_active","image_file","image_data","featured","blend_stack","admin_note","created_at","updated_at","cost_per_unit","coa_url","coa_label"]},"product_catalog":{"label":"Product Catalog","table":"product_catalog","dateField":"updated_at","fields":["id","product_key","display_name","strength","category","series","admin_only","price","current_inventory","low_stock_threshold","limited_stock_threshold","is_active","featured","blend_stack","image_file","image_data","coa_file","coa_image","sort_name","created_at","updated_at","image_status","hot_peptide","label_line_1","label_line_2","label_line_3","label_dose","sale_enabled","sale_price","sale_label","coa_url","coa_label"]},"incoming_inventory":{"label":"Incoming Inventory","table":"incoming_inventory","dateField":"ordered_at","fields":["id","product_id","product_key","product_name","ordered_quantity","kit_cost","kit_vial_count","cost_per_unit","shipping_cost","total_cost","supplier_name","tracking_number","status","notes","ordered_at","expected_arrival_date","received_at","received_quantity","created_by","created_by_email","audit_note","created_at","updated_at","vendor_id","vendor_name","lead_time_days"]},"inventory_movements":{"label":"Inventory Audit / Movement","table":"inventory_movements","dateField":"created_at","fields":["id","product_id","product_key","movement_type","quantity_change","previous_quantity","new_quantity","admin_note","created_by","created_by_email","created_at"]},"operating_expenses":{"label":"Operating Expenses","table":"operating_expenses","dateField":"date","fields":["id","date","category","description","amount","method","created_by","created_by_email","created_at","updated_at"]},"discount_codes":{"label":"Discount Codes","table":"discount_codes","dateField":"created_at","fields":["id","code","discount_type","percent_off","amount_off","assigned_email","one_time_use","max_uses","times_used","uses","active","expires_at","created_by","created_at","updated_at","promotion_title","promotion_description","hero_banner_text","hero_banner_active","promotion_starts_at","promotion_ends_at"]},"discount_usage":{"label":"Discount Usage","table":"discount_usage","dateField":"used_at","fields":["id","discount_id","order_id","customer_email","amount_saved","used_at"]},"customer_credits":{"label":"Customer Credits","table":"customer_credits","dateField":"created_at","fields":["id","user_id","customer_email","customer_name","amount","remaining_amount","reason","related_order_id","related_order_number","parent_credit_id","source","status","created_by","created_by_email","created_at","updated_at"]},"order_audit_log":{"label":"Order Audit Log","table":"order_audit_log","dateField":"created_at","fields":["id","order_id","order_number","action_type","field_name","old_value","new_value","changed_by","changed_by_email","created_at"]},"site_promotions":{"label":"Site Promotions","table":"site_promotions","dateField":"created_at","fields":["id","title","body","badge","button_text","button_link","image_url","is_active","starts_at","ends_at","sort_order","title_bold","title_italic","title_underline","body_bold","body_italic","body_underline","title_size","body_size","text_align","text_color","background_color","accent_color","created_at","updated_at","discount_id","auto_apply_discount","audience"]},"site_payment_options":{"label":"Payment Options","table":"site_payment_options","dateField":"updated_at","fields":["id","payment_methods","venmo_enabled","venmo_handle","venmo_note","venmo_qr","venmo_qr_image","venmo_image","qr_image","updated_at"]},"admin_users":{"label":"Admin Users","table":"admin_users","dateField":"created_at","fields":["user_id","created_at","email","is_active"]},"vendors":{"label":"Vendors","table":"vendors","dateField":"created_at","fields":["id","pst_vendor_id","company_name","address","contact_name","standard_shipping_lead_time","whatsapp_number","is_active","created_at","updated_at"]},"product_key_aliases":{"label":"Product Key Aliases","table":"product_key_aliases","dateField":"created_at","fields":["old_product_key","new_product_key","product_id","display_name","strength","migration_label","created_at"]}};
+let client=null,currentRows=[],currentExportRows=[],currentPoRows=[],selectedPoIndexes=new Set(),inventoryProductLookup=[],incomingInventoryLookup=[],savedReportTemplates=[],currentAdminUser=null;
+const $=id=>document.getElementById(id),esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])),labelize=v=>String(v||"").replace(/_/g," ").replace(/\b\w/g,m=>m.toUpperCase());
+const EXTRA_REPORT_FIELDS=["inventory_status","last_order_date","last_received_date"];const CATALOG_LOOKUP_FIELDS=["sort_name","label_color"];let reportCatalogLookup=[];
+SOURCES.inventory_labels={label:"Inventory & Incoming — Labels",table:"product_inventory",dateField:null,fields:["display_name","sort_name","label_color","strength","product_key","current_inventory","incoming_quantity","total_quantity",...EXTRA_REPORT_FIELDS]};
+for(const key of ["product_inventory","product_catalog","order_items","incoming_inventory","inventory_movements"]){SOURCES[key].fields.push(...EXTRA_REPORT_FIELDS.filter(f=>!SOURCES[key].fields.includes(f)))}for(const key of ["product_inventory","inventory_labels"]){SOURCES[key].fields.push(...CATALOG_LOOKUP_FIELDS.filter(f=>!SOURCES[key].fields.includes(f)))}
+function cfg(){return SOURCES[$("dataSource").value]}function selectedFields(){return [...document.querySelectorAll("#fieldList input:checked")].map(i=>i.value)}function filters(){return [...document.querySelectorAll(".filter-row")].map(r=>({field:r.querySelector(".filter-field").value,op:r.querySelector(".filter-op").value,value:r.querySelector(".filter-value").value.trim()})).filter(f=>f.value)}function sortLevels(){return [...document.querySelectorAll("#sortRows .sort-row")].map(r=>({field:r.querySelector(".sort-field")?.value||"",direction:r.querySelector(".sort-direction")?.value||"desc"})).filter(s=>s.field)}
+function money(v){const n=Number(v||0);return Number.isFinite(n)?n.toLocaleString(undefined,{style:"currency",currency:"USD"}):""}function formatCell(f,v){if(v==null)return"";if(/amount|total|price|cost|tax|shipping|credit|subtotal|refund|percent|value/i.test(f))return money(v);if(typeof v==="object")return JSON.stringify(v);return String(v)}
+async function boot(){client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);setupUi();currentAdminUser=await requireAdmin();if(!currentAdminUser)return;await loadSourceFields();await migrateLocalSavedReports();await loadSavedReports()}
+async function requireAdmin(){try{const{data:userData,error}=await client.auth.getUser();if(error||!userData?.user){location.href=`login.html?redirect=${encodeURIComponent("report-writer.html")}`;return null}const u=userData.user,checks=[client.from("admin_users").select("*").eq("user_id",u.id).maybeSingle(),client.from("admin_users").select("*").eq("email",u.email).maybeSingle()],results=await Promise.allSettled(checks),admin=results.find(r=>r.status==="fulfilled"&&r.value?.data)?.value?.data;if(!admin||!(admin.is_active===true||admin.active===true||admin.is_admin===true||admin.email===u.email)){$("statusLine").className="status bad";$("statusLine").textContent="Admin access required.";return null}$("statusLine").className="status good";$("statusLine").textContent="Admin access confirmed. Actual Supabase fields loaded.";return u}catch(e){$("statusLine").className="status bad";$("statusLine").textContent=`Admin check failed: ${e.message||e}`;return null}}
+function setupUi(){$("dataSource").innerHTML=Object.entries(SOURCES).map(([k,c])=>`<option value="${k}">${esc(c.label)}</option>`).join("");$("dataSource").onchange=()=>loadSourceFields();$("datePreset").onchange=applyDatePreset;document.querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>showStep(b.dataset.step));document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>showStep(b.dataset.next));document.querySelectorAll("[data-prev]").forEach(b=>b.onclick=()=>showStep(b.dataset.prev));$("selectAllFields").onclick=()=>document.querySelectorAll("#fieldList input").forEach(i=>i.checked=true);$("clearFields").onclick=()=>document.querySelectorAll("#fieldList input").forEach(i=>i.checked=false);$("addFilter").onclick=()=>addFilterRow();$("clearFilters").onclick=()=>$("filtersList").innerHTML="";$("addSort").onclick=()=>addSortRow({field:"",direction:"asc"});$("runPreview").onclick=runPreview;$("saveReport").onclick=saveReport;$("createInventoryPO").onclick=createInventoryPurchaseOrder;$("exportExcel").onclick=exportExcel;$("exportCsv").onclick=exportCsv;$("copyCsv").onclick=copyCsv;applyDatePreset();renderFields();renderSortFields();renderFilters();updateSourcePill()}
+function showStep(s){document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.dataset.panel===String(s)));document.querySelectorAll(".step").forEach(p=>p.classList.toggle("active",p.dataset.step===String(s)));if(s==="4")runPreview()}
+async function loadSourceFields(){const c=cfg();if(!c)return;try{$("sourcePill").textContent=`${c.label} • loading fields`;const{data,error}=await client.from(c.table).select("*").limit(1);if(error){console.warn("Dynamic field load failed; using fallback field list.",error);$("statusLine").className="status bad";$("statusLine").textContent=`Could not auto-load ${c.label} fields. Using saved fallback list: ${error.message}`;}else if(data&&data[0]){const dynamic=Object.keys(data[0]);c.fields=[...new Set([...dynamic,...(c.fields||[])])];$("statusLine").className="status good";$("statusLine").textContent=`${c.label}: ${c.fields.length} fields loaded from Supabase.`;}else{$("statusLine").className="status good";$("statusLine").textContent=`${c.label}: no rows found, using saved fallback field list.`;}}catch(e){console.warn("Dynamic field load failed; using fallback field list.",e);$("statusLine").className="status bad";$("statusLine").textContent=`Could not auto-load fields. Using saved fallback list: ${e.message||e}`;}renderFields();renderSortFields();renderFilters();updateSourcePill()}
+function updateSourcePill(){$("sourcePill").textContent=cfg().label}function moveFieldButton(button,direction){const item=button.closest(".check-item"),list=$("fieldList");if(!item||!list)return;if(direction<0&&item.previousElementSibling)list.insertBefore(item,item.previousElementSibling);if(direction>0&&item.nextElementSibling)list.insertBefore(item.nextElementSibling,item)}function applyFieldOrder(fields=[]){const list=$("fieldList");if(!list||!fields.length)return;[...fields].reverse().forEach(field=>{const input=list.querySelector(`input[value="${CSS.escape(field)}"]`);const item=input?.closest(".check-item");if(item)list.prepend(item)})}function renderFields(){const original=cfg().fields,defaults=new Set(original.slice(0,12));const fields=[...new Set(original)].sort((a,b)=>labelize(a).localeCompare(labelize(b),undefined,{numeric:true,sensitivity:"base"}));$("fieldList").innerHTML=fields.map(f=>`<label class="check-item"><input type="checkbox" value="${esc(f)}" ${defaults.has(f)&&!EXTRA_REPORT_FIELDS.includes(f)?"checked":""}><span>${esc(labelize(f))}</span><button class="btn secondary field-order-btn" type="button" title="Move up" onclick="moveFieldButton(this,-1)">↑</button><button class="btn secondary field-order-btn" type="button" title="Move down" onclick="moveFieldButton(this,1)">↓</button></label>`).join("")}function sortFieldOptions(selected=""){return `<option value="">Default / none</option>`+[...new Set(cfg().fields)].sort((a,b)=>labelize(a).localeCompare(labelize(b),undefined,{numeric:true,sensitivity:"base"})).map(f=>`<option value="${esc(f)}" ${selected===f?"selected":""}>${esc(labelize(f))}</option>`).join("")}function renumberSortRows(){document.querySelectorAll("#sortRows .sort-row").forEach((row,index)=>{row.dataset.sortPriority=String(index+1);const label=row.querySelector(".sort-priority");if(label)label.textContent=index===0?"Primary sort":`Then sort by (${index+1})`})}function addSortRow(sort={}){const list=$("sortRows"),index=list.children.length,row=document.createElement("div"),primary=index===0;row.className="sort-row";row.dataset.sortPriority=String(index+1);row.innerHTML=`<div class="field"><div class="sort-priority">${primary?"Primary sort":`Then sort by (${index+1})`}</div><label>${primary?"Sort By":"Additional Sort"}</label><select class="sort-field" ${primary?'id="sortField"':""}>${sortFieldOptions(sort.field||"")}</select></div><div class="field"><label>Sort Direction</label><select class="sort-direction" ${primary?'id="sortDirection"':""}><option value="desc">Descending</option><option value="asc">Ascending</option></select></div>${primary?'<span aria-hidden="true"></span>':'<button class="btn danger remove-sort" type="button">Remove</button>'}`;row.querySelector(".sort-direction").value=sort.direction||"desc";row.querySelector(".remove-sort")?.addEventListener("click",()=>{row.remove();renumberSortRows()});list.appendChild(row);renumberSortRows()}function renderSortRows(sorts=[]){const list=$("sortRows");list.innerHTML="";(sorts.length?sorts:[{field:"",direction:"desc"}]).forEach(addSortRow)}function renderSortFields(){const current=sortLevels();renderSortRows(current.length?current:[{field:"",direction:"desc"}])}function renderFilters(){$("filtersList").innerHTML="";addFilterRow()}
+/* Keep field-order controls intact after the multi-sort enhancement. */
+function moveFieldButton(button,direction){const item=button.closest(".check-item"),list=$("fieldList");if(!item||!list)return;if(direction<0&&item.previousElementSibling)list.insertBefore(item,item.previousElementSibling);if(direction>0&&item.nextElementSibling)list.insertBefore(item.nextElementSibling,item)}
+function addFilterRow(filter={}){const row=document.createElement("div");row.className="filter-row";row.innerHTML=`<div class="field"><label>Field</label><select class="filter-field">${cfg().fields.map(f=>`<option value="${esc(f)}" ${filter.field===f?"selected":""}>${esc(labelize(f))}</option>`).join("")}</select></div><div class="field"><label>Operator</label><select class="filter-op"><option value="contains">Contains</option><option value="equals">Equals</option><option value="not_equals">Not equals</option><option value="gte">Greater/equal</option><option value="lte">Less/equal</option></select></div><div class="field"><label>Value</label><input class="filter-value" value="${esc(filter.value||"")}"></div><button class="btn danger" type="button">Remove</button>`;row.querySelector(".filter-op").value=filter.op||"contains";row.querySelector("button").onclick=()=>row.remove();$("filtersList").appendChild(row)}
+function applyDatePreset(){const p=$("datePreset").value,t=new Date(),iso=d=>d.toISOString().slice(0,10);let start="",end=iso(t);if(p==="today")start=end;if(p==="7"){const d=new Date(t);d.setDate(d.getDate()-6);start=iso(d)}if(p==="30"){const d=new Date(t);d.setDate(d.getDate()-29);start=iso(d)}if(p==="mtd"){const d=new Date(t.getFullYear(),t.getMonth(),1);start=iso(d)}if(p==="all"){start="";end=""}if(p!=="custom"){$("startDate").value=start;$("endDate").value=end}}
+const PRODUCT_REPORT_SOURCES=new Set(["product_inventory","product_catalog","order_items","incoming_inventory","inventory_movements"]);
+function productIdentityFields(source){if(source==="product_inventory")return["id","product_key","display_name","strength","cost_per_unit"];if(source==="product_catalog")return["id","product_key","display_name","strength"];if(source==="order_items")return["product_id","product_name","product_strength"];if(source==="incoming_inventory")return["product_id","product_key","product_name","ordered_quantity","cost_per_unit"];if(source==="inventory_movements")return["product_id","product_key"];return[]}
+async function loadReportCatalogLookup(){const {data,error}=await client.from("product_catalog").select("product_key,display_name,strength,sort_name,label_color").limit(5000);if(error){console.warn("Catalog lookup failed",error);return[]}reportCatalogLookup=data||[];return reportCatalogLookup}
+async function loadInventoryProductLookup(){if(inventoryProductLookup.length)return inventoryProductLookup;const{data,error}=await client.from("product_inventory").select("id,product_key,display_name,strength,cost_per_unit,current_inventory,status_override,is_active").limit(5000);if(error){console.warn("Inventory product lookup failed",error);return[]}inventoryProductLookup=data||[];return inventoryProductLookup}
+function normalizeKey(v){return String(v??"").trim().toLowerCase()}
+async function loadIncomingInventoryLookup(){if(incomingInventoryLookup.length)return incomingInventoryLookup;const{data,error}=await client.from("incoming_inventory").select("id,product_id,product_key,status,ordered_at,received_at,expected_arrival_date,ordered_quantity,received_quantity,product_name").order("ordered_at",{ascending:false,nullsFirst:false}).limit(5000);if(error){console.warn("Incoming inventory lookup failed",error);return[]}incomingInventoryLookup=data||[];return incomingInventoryLookup}
+function parseDateValue(v){const d=v?new Date(v):null;return d&&!Number.isNaN(d.getTime())?d:null}
+function shortReportDate(v){const d=parseDateValue(v);return d?d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"2-digit"}):"—"}
+function inventoryHistoryFor(product){if(!product)return{status:"Not linked",statusClass:"",lastOrdered:null,lastReceived:null};const rows=incomingInventoryLookup.filter(r=>(r.product_id!=null&&String(r.product_id)===String(product.id))||(r.product_key&&normalizeKey(r.product_key)===normalizeKey(product.product_key)));let lastOrdered=null,lastReceived=null,open=null;for(const r of rows){const ordered=parseDateValue(r.ordered_at),received=parseDateValue(r.received_at),status=normalizeKey(r.status);if(ordered&&(!lastOrdered||ordered>lastOrdered))lastOrdered=ordered;if(received&&(!lastReceived||received>lastReceived))lastReceived=received;if(["ordered","in_transit","issue_shorted"].includes(status)&&(!open||(ordered&&ordered>(parseDateValue(open.ordered_at)||new Date(0)))))open=r}const stock=Number(product.current_inventory||0),openStatus=normalizeKey(open?.status);let status="Out of Stock",statusClass="";if(openStatus==="issue_shorted"){status=stock>0?"In Stock / Issue":"Order Issue";statusClass="issue"}else if(openStatus==="in_transit"){status=stock>0?"In Stock / Transit":"In Transit";statusClass="in-transit"}else if(openStatus==="ordered"){status=stock>0?"In Stock / On Order":"On Order";statusClass="on-order"}else if(stock>0){status="In Stock";statusClass="in-stock"}return{status,statusClass,lastOrdered,lastReceived}}
+function inventoryStatusHtml(meta){return`<span class="inventory-status-pill ${esc(meta.statusClass)}" title="${esc(meta.status)}">${esc(meta.status)}</span>`}
+function inventoryHistoryHtml(meta){return`<span class="inventory-history"><span><strong>O:</strong> ${esc(shortReportDate(meta.lastOrdered))}</span><span><strong>R:</strong> ${esc(shortReportDate(meta.lastReceived))}</span></span>`}
+function syncReportScrollbars(){const top=document.querySelector("#previewTable .table-scroll-top"),main=document.querySelector("#previewTable .table-scroll-main"),inner=document.querySelector("#previewTable .table-scroll-top-inner"),table=document.querySelector("#previewTable .report-table");if(!top||!main||!inner||!table)return;inner.style.width=`${table.scrollWidth}px`;let syncing=false;top.addEventListener("scroll",()=>{if(syncing)return;syncing=true;main.scrollLeft=top.scrollLeft;syncing=false});main.addEventListener("scroll",()=>{if(syncing)return;syncing=true;top.scrollLeft=main.scrollLeft;syncing=false});window.addEventListener("resize",()=>{inner.style.width=`${table.scrollWidth}px`},{once:true})}
+function matchInventoryProduct(row,source){const directId=source==="product_inventory"||source==="inventory_labels"?row.id:row.product_id;if(directId!=null){const match=inventoryProductLookup.find(p=>String(p.id)===String(directId));if(match)return match}const key=row.product_key||(source==="product_catalog"?row.product_key:null);if(key){const match=inventoryProductLookup.find(p=>normalizeKey(p.product_key)===normalizeKey(key));if(match)return match}const name=row.display_name||row.product_name||"",strength=row.strength||row.product_strength||"";if(name){return inventoryProductLookup.find(p=>normalizeKey(p.display_name)===normalizeKey(name)&&(!strength||normalizeKey(p.strength)===normalizeKey(strength)))||null}return null}
+function updatePoSelectionUi(){const btn=$("createInventoryPO"),note=$("poSelectionNote");if(btn)btn.disabled=selectedPoIndexes.size===0;if(note){const eligible=currentPoRows.filter(x=>x.product).length;note.textContent=eligible?`${selectedPoIndexes.size} selected • ${eligible} inventory-linked row${eligible===1?"":"s"} available`:`This report does not contain inventory-linked product rows.`}const all=$("selectAllPoRows");if(all){const eligibleIndexes=currentPoRows.map((x,i)=>x.product?i:null).filter(i=>i!==null);const selected=eligibleIndexes.filter(i=>selectedPoIndexes.has(i)).length;all.checked=eligibleIndexes.length>0&&selected===eligibleIndexes.length;all.indeterminate=selected>0&&selected<eligibleIndexes.length;all.disabled=eligibleIndexes.length===0}}
+function togglePoRow(index,checked){if(checked)selectedPoIndexes.add(Number(index));else selectedPoIndexes.delete(Number(index));updatePoSelectionUi()}
+function toggleAllPoRows(checked){currentPoRows.forEach((entry,index)=>{if(entry.product){if(checked)selectedPoIndexes.add(index);else selectedPoIndexes.delete(index)}});document.querySelectorAll(".po-row-select:not(:disabled)").forEach(cb=>cb.checked=checked);updatePoSelectionUi()}
+function createInventoryPurchaseOrder(){const selected=[...selectedPoIndexes].sort((a,b)=>a-b).map(i=>currentPoRows[i]).filter(x=>x?.product);if(!selected.length){alert("Select one or more inventory-linked products first.");return}const seen=new Set(),lines=[];selected.forEach(({row,product})=>{const key=String(product.id);if(seen.has(key))return;seen.add(key);lines.push({productId:product.id,productKey:product.product_key||row.product_key||null,productName:[product.display_name,product.strength].filter(Boolean).join(" ").trim(),qty:10,kitCost:Number(product.cost_per_unit||0)*10})});localStorage.setItem(PO_HANDOFF_KEY,JSON.stringify({createdAt:new Date().toISOString(),source:cfg().label,reportName:$("reportName").value||"Custom Report",lines}));location.href="inventory.html#incomingInventoryCard"}
+function naturalAlphanumericCompare(a,b){const aEmpty=a===null||a===undefined||a==="",bEmpty=b===null||b===undefined||b==="";if(aEmpty&&bEmpty)return 0;if(aEmpty)return 1;if(bEmpty)return-1;if(typeof a==="number"&&typeof b==="number")return a-b;return String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:"base"})}
+function naturalSortRows(rows,sorts){if(!sorts.length)return rows.slice();return rows.map((row,index)=>({row,index})).sort((a,b)=>{for(const sort of sorts){const source=$("dataSource").value;const result=naturalAlphanumericCompare(reportFieldValue(sort.field,a.row,source),reportFieldValue(sort.field,b.row,source));if(result)return sort.direction==="asc"?result:-result}return a.index-b.index}).map(entry=>entry.row)}
+function applyReportFilters(q,c){const start=$("startDate").value,end=$("endDate").value;if(c.dateField&&start)q=q.gte(c.dateField,start);if(c.dateField&&end)q=q.lte(c.dateField,end+"T23:59:59");filters().forEach(f=>{if(f.op==="equals")q=q.eq(f.field,f.value);else if(f.op==="not_equals")q=q.neq(f.field,f.value);else if(f.op==="gte")q=q.gte(f.field,f.value);else if(f.op==="lte")q=q.lte(f.field,f.value);else q=q.ilike(f.field,`%${f.value}%`)});return q}
+async function fetchAllReportRows(c,queryFields){const pageSize=1000,allRows=[],stableField=c.fields[0];for(let from=0;;from+=pageSize){let q=client.from(c.table).select(queryFields.join(","));q=applyReportFilters(q,c).order(stableField,{ascending:true}).range(from,from+pageSize-1);const{data,error}=await q;if(error)return{data:null,error};const page=data||[];allRows.push(...page);if(page.length<pageSize)break}return{data:allRows,error:null}}
+async function runPreview(){const fields=selectedFields();if(!fields.length){alert("Select at least one field.");showStep(2);return}const c=cfg(),source=$("dataSource").value,sorts=sortLevels(),queryFields=[...new Set([...fields,...sorts.map(sort=>sort.field),...productIdentityFields(source)])];selectedPoIndexes.clear();currentRows=[];currentExportRows=[];currentPoRows=[];updatePoSelectionUi();if(PRODUCT_REPORT_SOURCES.has(source)||source==="inventory_labels")await Promise.all([loadInventoryProductLookup(),loadIncomingInventoryLookup(),loadReportCatalogLookup()]);const previewLimit=Number($("limitRows").value||100);$("previewTable").innerHTML='<div class="empty">Loading preview and all export rows...</div>';const{data,error}=source==="inventory_labels"?{data:buildLabelRows(),error:null}:await fetchAllReportRows(c,queryFields.filter(f=>!EXTRA_REPORT_FIELDS.includes(f)&&!(source==="product_inventory"&&CATALOG_LOOKUP_FIELDS.includes(f))));if(error){$("previewTable").innerHTML=`<div class="empty">Preview failed: ${esc(error.message)}<br><br>This usually means RLS blocks this table or this admin account does not have read access to it.</div>`;return}currentExportRows=naturalSortRows(data||[],sorts);currentRows=currentExportRows.slice(0,previewLimit);renderPreview(fields,currentRows)}
+function renderPreview(fields,rows){$("previewSummary").innerHTML=`<div class="summary-card"><strong>${rows.length} of ${currentExportRows.length}</strong><span>Preview / Matching Rows</span></div><div class="summary-card"><strong>${fields.length}</strong><span>Selected Fields</span></div><div class="summary-card"><strong>${esc(cfg().label)}</strong><span>Data Source</span></div><div class="summary-card"><strong>${filters().length}</strong><span>Filters</span></div>`;selectedPoIndexes.clear();const source=$("dataSource").value,isProductReport=PRODUCT_REPORT_SOURCES.has(source)||source==="inventory_labels";currentPoRows=isProductReport?rows.map(row=>{const product=matchInventoryProduct(row,source);return{row,product,inventoryMeta:inventoryHistoryFor(product)}}):[];if(!rows.length){$("previewTable").innerHTML='<div class="empty">No records matched this report.</div>';updatePoSelectionUi();return}const selectHead=isProductReport?'<th class="po-select-cell"><input id="selectAllPoRows" type="checkbox" aria-label="Select all inventory-linked rows"></th>':"",inventoryHeads="";const body=rows.map((r,index)=>{const entry=currentPoRows[index],matched=entry?.product,meta=entry?.inventoryMeta;const selectCell=isProductReport?`<td class="po-select-cell"><input class="po-row-select ${matched?"":"po-unmatched"}" type="checkbox" data-po-index="${index}" ${matched?"":"disabled"} title="${matched?"Select for inventory purchase order":"Not linked to product inventory"}"></td>`:"",inventoryCells="";return`<tr>${selectCell}${inventoryCells}${fields.map(f=>{const value=formatCell(f,reportFieldValue(f,r,source));return`<td title="${esc(value)}">${esc(value)}</td>`}).join("")}</tr>`}).join("");const table=`<table class="report-table"><thead><tr>${selectHead}${inventoryHeads}${fields.map(f=>`<th>${esc(labelize(f))}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table>`;$("previewTable").innerHTML=`<div class="table-scroll-top" aria-label="Horizontal report scrollbar"><div class="table-scroll-top-inner"></div></div><div class="table-scroll-main">${table}</div>`;syncReportScrollbars();$("selectAllPoRows")?.addEventListener("change",e=>toggleAllPoRows(e.target.checked));document.querySelectorAll(".po-row-select").forEach(cb=>cb.addEventListener("change",e=>togglePoRow(e.target.dataset.poIndex,e.target.checked)));updatePoSelectionUi()}
+function state(){const sorts=sortLevels(),first=sorts[0]||{field:"",direction:"desc"};return{name:$("reportName").value||"Custom Report",source:$("dataSource").value,fields:selectedFields(),datePreset:$("datePreset").value,startDate:$("startDate").value,endDate:$("endDate").value,sorts,sortField:first.field,sortDirection:first.direction,limitRows:$("limitRows").value,filters:filters(),saved_at:new Date().toISOString()}}
+async function migrateLocalSavedReports(){
+  if(localStorage.getItem(SAVED_MIGRATION_KEY)==="true")return;
+  let localReports=[];
+  try{localReports=JSON.parse(localStorage.getItem(SAVED_KEY)||"[]");if(!Array.isArray(localReports))localReports=[]}catch(_){localReports=[]}
+  if(!localReports.length){localStorage.setItem(SAVED_MIGRATION_KEY,"true");return}
+  const rows=localReports.map(report=>({name:String(report.name||"Custom Report"),source:String(report.source||"orders"),configuration:report,created_by:currentAdminUser.id,created_by_email:currentAdminUser.email||null,created_at:report.saved_at||new Date().toISOString(),updated_at:report.saved_at||new Date().toISOString()}));
+  const{error}=await client.from("saved_report_templates").insert(rows);
+  if(error){console.warn("Saved report migration failed",error);$("statusLine").className="status bad";$("statusLine").textContent=`Existing browser templates could not be imported: ${error.message}`;return}
+  localStorage.setItem(SAVED_MIGRATION_KEY,"true");
+  $("statusLine").className="status good";
+  $("statusLine").textContent=`Imported ${rows.length} browser-saved report template${rows.length===1?"":"s"} into shared Supabase storage.`;
+}
+async function loadSavedReports(){
+  const{data,error}=await client.from("saved_report_templates").select("id,name,source,configuration,created_by_email,created_at,updated_at").order("updated_at",{ascending:false}).limit(200);
+  if(error){savedReportTemplates=[];$("savedCount").textContent="0 saved";$("savedReportsList").innerHTML=`<div class="empty">Shared saved reports could not load: ${esc(error.message)}</div>`;return}
+  savedReportTemplates=data||[];
+  renderSaved();
+}
+async function saveReport(){
+  const report=state();
+  const payload={name:report.name,source:report.source,configuration:report,created_by:currentAdminUser.id,created_by_email:currentAdminUser.email||null,updated_at:new Date().toISOString()};
+  const{error}=await client.from("saved_report_templates").insert(payload);
+  if(error){alert(`Report template could not be saved: ${error.message}`);return}
+  await loadSavedReports();
+  alert("Report template saved for all admins.");
+}
+function renderSaved(){
+  const list=savedReportTemplates;
+  $("savedCount").textContent=`${list.length} saved`;
+  $("savedReportsList").innerHTML=list.length?list.map((row,i)=>{const r=row.configuration||{};return `<div class="empty" style="margin-bottom:8px"><strong>${esc(row.name||r.name||"Custom Report")}</strong><br>${esc(SOURCES[row.source||r.source]?.label||row.source||r.source)} • ${esc((r.fields||[]).length)} fields<div class="actions" style="justify-content:flex-start;margin-top:8px"><button class="btn primary" onclick="loadSaved(${i})">Load</button><button class="btn danger" onclick="deleteSaved(${i})">Delete</button></div></div>`}).join(""):'<div class="empty">No saved reports yet.</div>'
+}
+window.loadSaved=i=>{
+  const row=savedReportTemplates[i],r=row?.configuration||null;
+  if(!r)return;
+  $("reportName").value=row.name||r.name||"Custom Report";
+  $("dataSource").value=row.source||r.source;
+  renderFields();
+  renderSortRows(Array.isArray(r.sorts)&&r.sorts.length?r.sorts:[{field:r.sortField||"",direction:r.sortDirection||"desc"}]);
+  $("datePreset").value=r.datePreset||"all";$("startDate").value=r.startDate||"";$("endDate").value=r.endDate||"";$("limitRows").value=r.limitRows||"100";
+  document.querySelectorAll("#fieldList input").forEach(input=>input.checked=(r.fields||[]).includes(input.value));
+  applyFieldOrder(r.fields||[]);
+  $("filtersList").innerHTML="";
+  (r.filters||[]).forEach(addFilterRow);
+  updateSourcePill();showStep(4);runPreview()
+};
+window.deleteSaved=async i=>{
+  const row=savedReportTemplates[i];
+  if(!row?.id)return;
+  const{error}=await client.from("saved_report_templates").delete().eq("id",row.id);
+  if(error){alert(`Report template could not be deleted: ${error.message}`);return}
+  await loadSavedReports()
+};
+function buildLabelRows(){const result=[];const openStatuses=new Set(["ordered","in_transit","issue_shorted"]);for(const product of inventoryProductLookup){const onHand=Number(product.current_inventory||0);const incoming=incomingInventoryLookup.filter(r=>((r.product_id!=null&&String(r.product_id)===String(product.id))||(r.product_key&&normalizeKey(r.product_key)===normalizeKey(product.product_key)))&&openStatuses.has(normalizeKey(r.status))).reduce((sum,r)=>sum+Math.max(0,Number(r.ordered_quantity||0)-Number(r.received_quantity||0)),0);if(onHand>0||incoming>0)result.push({...product,incoming_quantity:incoming,total_quantity:onHand+incoming})}return result}
+function reportFieldValue(field,row,source){if(CATALOG_LOOKUP_FIELDS.includes(field)&&source!=="product_catalog"){const product=matchInventoryProduct(row,source)||row;const catalog=reportCatalogLookup.find(p=>(p.product_key&&normalizeKey(p.product_key)===normalizeKey(product.product_key))||(normalizeKey(p.display_name)===normalizeKey(product.display_name)&&normalizeKey(p.strength)===normalizeKey(product.strength)));return catalog?.[field]||""}if(EXTRA_REPORT_FIELDS.includes(field)){const meta=inventoryHistoryFor(matchInventoryProduct(row,source));return field==="inventory_status"?meta.status:shortReportDate(field==="last_order_date"?meta.lastOrdered:meta.lastReceived)}return row[field]}
+function reportExportData(){
+  const fields=selectedFields(),source=$("dataSource").value,isProductReport=PRODUCT_REPORT_SOURCES.has(source)||source==="inventory_labels";
+  const headers=fields;
+  const rows=currentExportRows.map(row=>{
+    const meta=isProductReport?inventoryHistoryFor(matchInventoryProduct(row,source)):{};
+    return fields.map(field=>reportFieldValue(field,row,source));
+  });
+  return{headers,rows};
+}
+function csv(){
+  const{headers,rows}=reportExportData(),quote=value=>`"${String(value??"").replace(/"/g,'""')}"`;
+  return[headers.map(quote).join(","),...rows.map(row=>row.map(quote).join(","))].join("\n");
+}
+function safeReportFileName(extension){
+  const base=($("reportName").value||"report").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"report";
+  return`${base}-${new Date().toISOString().slice(0,10)}.${extension}`;
+}
+function downloadBlob(blob,file){
+  const url=URL.createObjectURL(blob),link=document.createElement("a");
+  link.href=url;link.download=file;document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function excelDisplayValue(value){
+  if(value===null||value===undefined)return"";
+  if(typeof value==="object")return JSON.stringify(value);
+  return value;
+}
+function excelColumnLetter(number){
+  let result="";
+  while(number>0){number--;result=String.fromCharCode(65+(number%26))+result;number=Math.floor(number/26)}
+  return result;
+}
+async function exportExcel(){
+  if(!currentExportRows.length){alert("Run Preview first.");return}
+  if(!window.ExcelJS){alert("The Excel workbook tool did not load. Refresh the page and try again.");return}
+  const{headers,rows}=reportExportData(),workbook=new ExcelJS.Workbook();
+  workbook.creator="Pep Shop Texas Report Writer";
+  workbook.created=new Date();
+  workbook.modified=new Date();
+
+  const rawTitle=String($("reportName").value||"Custom Report").trim()||"Custom Report";
+  const sheetName=rawTitle.replace(/[\\\/?*\[\]:]/g," ").trim().slice(0,31)||"Report";
+  const sheet=workbook.addWorksheet(sheetName,{
+    views:[{state:"frozen",ySplit:4}],
+    pageSetup:{
+      paperSize:1,
+      orientation:"landscape",
+      fitToPage:true,
+      fitToWidth:1,
+      fitToHeight:0,
+      horizontalCentered:false,
+      margins:{left:0.25,right:0.25,top:0.5,bottom:0.5,header:0.2,footer:0.2}
+    }
+  });
+  sheet.properties.defaultRowHeight=18;
+
+  headers.forEach((header,index)=>{const lengths=[String(labelize(header)).length,...rows.map(row=>String(row[index]??"").length)];sheet.getColumn(index+1).width=Math.min(55,Math.max(12,lengths.reduce((m,n)=>Math.max(m,n),0)+2))});
+  const lastColumn=excelColumnLetter(Math.max(1,headers.length));
+  sheet.mergeCells(`A1:${lastColumn}1`);
+  const titleCell=sheet.getCell("A1");
+  titleCell.value=rawTitle;
+  titleCell.font={name:"Arial",size:16,bold:true,color:{argb:"FFFFFFFF"}};
+  titleCell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF101820"}};
+  titleCell.alignment={vertical:"middle",horizontal:"left"};
+  sheet.getRow(1).height=28;
+
+  const config=cfg(),metaParts=[config?.label||"Report",`Generated ${new Date().toLocaleString()}`,`${rows.length} row${rows.length===1?"":"s"}`];
+  if($("startDate").value||$("endDate").value)metaParts.push(`${$("startDate").value||"Start"} to ${$("endDate").value||"End"}`);
+  if(filters().length)metaParts.push(`${filters().length} filter${filters().length===1?"":"s"}`);
+  if(sortLevels().length)metaParts.push(`Sort: ${sortLevels().map(sort=>`${labelize(sort.field)} ${sort.direction.toUpperCase()}`).join(" → ")}`);
+  sheet.mergeCells(`A2:${lastColumn}2`);
+  const metaCell=sheet.getCell("A2");
+  metaCell.value=metaParts.join("  •  ");
+  metaCell.font={name:"Arial",size:9,color:{argb:"FF596579"}};
+  metaCell.alignment={vertical:"middle",horizontal:"left",wrapText:true};
+  sheet.getRow(2).height=22;
+
+  const headerRow=sheet.getRow(4);
+  headers.forEach((header,index)=>{
+    const cell=headerRow.getCell(index+1);
+    cell.value=labelize(header);
+    cell.font={name:"Arial",size:9,bold:true,color:{argb:"FFFFFFFF"}};
+    cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF003F9E"}};
+    cell.alignment={vertical:"middle",horizontal:"left",wrapText:true};
+    cell.border={top:{style:"thin",color:{argb:"FFD9E2EC"}},left:{style:"thin",color:{argb:"FFD9E2EC"}},bottom:{style:"thin",color:{argb:"FFD9E2EC"}},right:{style:"thin",color:{argb:"FFD9E2EC"}}};
+  });
+  headerRow.height=24;
+
+  rows.forEach((row,rowIndex)=>{
+    const excelRow=sheet.getRow(rowIndex+5);
+    row.forEach((value,columnIndex)=>{
+      const cell=excelRow.getCell(columnIndex+1),displayValue=excelDisplayValue(value);
+      cell.value=displayValue;
+      cell.font={name:"Arial",size:8.5,color:{argb:"FF101820"}};
+      cell.alignment={vertical:"top",horizontal:typeof displayValue==="number"?"right":"left",wrapText:true};
+      cell.border={top:{style:"hair",color:{argb:"FFE7ECF2"}},left:{style:"hair",color:{argb:"FFE7ECF2"}},bottom:{style:"hair",color:{argb:"FFE7ECF2"}},right:{style:"hair",color:{argb:"FFE7ECF2"}}};
+      if(rowIndex%2===1)cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF8FAFC"}};
+    });
+    excelRow.height=18;
+  });
+
+  headers.forEach((header,index)=>{
+    const samples=[labelize(header),...rows.slice(0,250).map(row=>excelDisplayValue(row[index]))].map(value=>String(value??""));
+    const longest=Math.max(...samples.map(value=>Math.min(60,value.length)));
+    let width=Math.max(10,Math.min(32,longest+2));
+    if(/id$|_id$|email|address|description|note|reason|tracking|name|status/i.test(header))width=Math.max(width,16);
+    sheet.getColumn(index+1).width=width;
+  });
+
+  sheet.autoFilter={from:{row:4,column:1},to:{row:4,column:Math.max(1,headers.length)}};
+  sheet.headerFooter.oddHeader=`&C&\"Arial,Bold\"${rawTitle}`;
+  sheet.headerFooter.oddFooter="&LPep Shop Texas&CPage &P of &N&R&D";
+  sheet.printTitlesRow="1:4";
+
+  const buffer=await workbook.xlsx.writeBuffer();
+  downloadBlob(new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),safeReportFileName("xlsx"));
+}
+function exportCsv(){if(!currentExportRows.length){alert("Run Preview first.");return}downloadBlob(new Blob([csv()],{type:"text/csv;charset=utf-8"}),safeReportFileName("csv"))}
+async function copyCsv(){if(!currentExportRows.length){alert("Run Preview first.");return}try{await navigator.clipboard.writeText(csv());alert("CSV copied to clipboard.")}catch(e){alert(`Copy failed: ${e.message||e}`)}}
+function printReport(){if(!currentRows.length){alert("Run Preview first.");return}const title=$("reportName").value||"Custom Report",c=cfg(),sortText=sortLevels().map(s=>`${labelize(s.field)} ${s.direction}`).join(" → ")||"Default";$("printReportTitle").textContent=title;$("printReportMeta").textContent=`${c?.label||"Report"} • ${currentRows.length} preview row${currentRows.length===1?"":"s"} • Sort: ${sortText}`;document.body.classList.add("printing-report");requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));}
+window.addEventListener("afterprint",()=>document.body.classList.remove("printing-report"));
+boot();
+</script>
+<script defer src="admin-footer.js?v=9"></script>
+</body></html>
