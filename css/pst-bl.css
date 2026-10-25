@@ -485,3 +485,41 @@ img.vimg{object-fit:contain;filter:drop-shadow(0 18px 22px rgba(0,0,0,.45))}
 .mbq b{min-width:18px;text-align:center;font-family:var(--fb);font-size:14px}.mbq .mbrm{width:auto;border:0;padding:0 4px;margin-left:8px;color:var(--muted);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px}
 .cline .rm{color:var(--ink);opacity:.8;min-height:40px;padding:0 6px}
 .hd .nav a,.hd [data-adminlink],.hd [data-acct]{white-space:nowrap}
+/* v43: live visitors in Insights */
+.ilive{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--card);padding:12px 14px;margin:4px 0 10px;flex-wrap:wrap}
+.ilive b{font-size:1.7rem;font-weight:800;line-height:1}.ilive small{display:block;color:var(--muted);font-size:12px}.ilive [data-livewhere]{flex-basis:100%;margin-left:24px}
+.ldot{width:10px;height:10px;border-radius:50%;background:var(--dim);flex:none}.ilive.on .ldot{background:var(--ok);box-shadow:0 0 0 0 rgba(127,207,159,.6);animation:lpulse 1.8s infinite}
+@keyframes lpulse{0%{box-shadow:0 0 0 0 rgba(127,207,159,.55)}70%{box-shadow:0 0 0 10px rgba(127,207,159,0)}100%{box-shadow:0 0 0 0 rgba(127,207,159,0)}}
+@media(prefers-reduced-motion:reduce){.ilive.on .ldot{animation:none}}
+/* v44: incoming PO cards */
+.pocard{border:1px solid var(--line);background:var(--card);padding:14px;margin-bottom:12px;display:grid;gap:10px}
+.pohd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.pohd b{display:block;font-size:16px;letter-spacing:.02em}.pohd small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.posum{font-size:13px;color:var(--muted)}.posum b{color:var(--ink);font-size:15px}
+.polines{border-top:1px solid var(--line)}.poline{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.poline b{display:block;font-size:14px;font-weight:600}.poline small{display:block;color:var(--warn);font-size:12px}.poline em{font-style:normal;font-weight:800;color:var(--gold2)}
+.poline .vial,.poline .vimg{width:22px;height:auto}.pov{width:22px;height:37px;border:1px dashed var(--line2);border-radius:4px}.poline.warn b{color:var(--muted)}
+.powarn{display:flex;gap:6px;align-items:flex-start;color:var(--warn);margin:0}.powarn svg{flex:none;margin-top:2px}
+/* v44: shelf */
+.schips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:8px -18px 4px;padding:0 18px}.schips::-webkit-scrollbar{display:none}
+.schips .chip{white-space:nowrap;flex:none}.schips .chip b{margin-left:4px;font-weight:800;color:var(--ink)}
+.shelf{display:grid;gap:6px;margin:6px 0 10px}
+.shrow{display:grid;grid-template-columns:26px 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);padding:9px 14px;color:inherit;border-radius:10px}
+.shrow:active{border-color:var(--gold)}.shrow b{display:block;font-size:14.5px;font-weight:600}.shrow b .muted{font-weight:500}.shrow small{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+.shrow em{font-style:normal;font-weight:800;font-size:20px;min-width:34px;text-align:right;color:var(--ink)}
+.shrow.low em,.shrow.low small{color:var(--warn)}.shrow.out em{color:var(--dim)}.shrow.hidden{opacity:.7}
+.shrow .vial,.shrow .vimg{width:26px;height:auto}
+/* v45: segmented tabs that always fit (no sideways scrolling) */
+.oseg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;padding:4px;margin:6px 0 14px;background:var(--bg2);border:1px solid var(--line);border-radius:12px}
+.oseg button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:6px 4px;border:0;border-radius:9px;background:none;color:var(--muted);font:600 13.5px/1.1 var(--fb);white-space:nowrap}
+.oseg button.on{background:var(--card2);color:var(--ink);box-shadow:0 0 0 1px var(--line2) inset}
+.oseg button i{font-style:normal;font-size:11px;font-weight:800;min-width:18px;height:18px;line-height:18px;padding:0 5px;border-radius:9px;background:var(--line2);color:var(--ink)}
+.oseg button.on i{background:var(--gold);color:#17120a}
+.schips{flex-wrap:wrap;overflow:visible;margin:8px 0 4px;padding:0}
+/* v45: order rows read cleanly at any width */
+.ocard .oh.orow2{display:block}.or1{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.or1 b{font-size:15.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.or1 .ot{flex:none;color:var(--gold2)}
+.ocard .oh .or2{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:6px}.ocard .oh .or2 span{display:inline}.ocard .oh .or2>span:last-child{color:var(--muted);font-size:12.5px}
+.opill.sm{font-size:9.5px;letter-spacing:.1em;padding:2px 6px}
+.pmtop .btn{white-space:nowrap;flex:none}
+.ocard .oh .or1{display:flex;justify-content:space-between;align-items:baseline;gap:10px;color:var(--ink);font-size:15.5px}.ocard .oh .or1 b{display:block}
+.ocard .oh .or2 .opill.sm{display:inline-block;font-size:9.5px;letter-spacing:.1em;padding:2px 6px}
+.ocard .oh .or2 .opill.pend{color:var(--warn)}.ocard .oh .or2 .opill.ok{color:var(--ok)}.ocard .oh .or2 .opill.ship{color:#8fb8ff}.ocard .oh .or2 .opill.bad{color:var(--bad)}

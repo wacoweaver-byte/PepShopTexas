@@ -9,9 +9,9 @@
   const pickup = o => /local pickup/i.test(o.customer_notes || "");
   const done = o => ["shipped", "delivered", "complete", "completed"].includes(os(o));
   const TABS = {
-    pay: { t: "To be paid", f: o => !dead(o) && ps(o) !== "paid" && !done(o) },
+    pay: { t: "Unpaid", f: o => !dead(o) && ps(o) !== "paid" && !done(o) },
     pack: { t: "To pack", f: o => !dead(o) && ps(o) === "paid" && !done(o) && os(o) !== "packed" },
-    ready: { t: "Ready / out", f: o => !dead(o) && (os(o) === "packed" || os(o) === "shipped") },
+    ready: { t: "Ready / out", s: "Out", f: o => !dead(o) && (os(o) === "packed" || os(o) === "shipped") },
     all: { t: "All", f: () => true }
   };
   const phoneOf = o => String(o.customer_phone || o.shipping_phone || "").replace(/[^\d+]/g, "");
@@ -38,9 +38,9 @@
 <div class="oquick"><button class="btn primary" type="button" data-q="neworder">${P.icon("plus", 16)} New order</button><button class="btn ghost" type="button" data-q="addcust">${P.icon("users", 16)} Add customer</button></div>
 <div data-vmbox></div><h2 class="serif osec">Needs you</h2><div data-attn></div>
 <h2 class="serif osec">Running low soon</h2><p class="muted small">Customers likely to run low in the next 10 days, based on their own reorder rhythm. A friendly text sells.</p><div data-due></div></section>
-<section class="opane" data-pane="orders" hidden><div class="pmtop"><input class="psearch" type="search" data-osearch placeholder="Name, order # or email" aria-label="Search orders"><button class="btn primary sm" type="button" data-q="neworder">+ New</button></div><div class="atabs otabs" role="tablist" data-tabs></div><div data-list aria-live="polite"></div></section>
-<section class="opane" data-pane="products" hidden><div class="atabs otabs" role="tablist"><button class="tab on" type="button" data-psub="catalog">Catalog</button><button class="tab" type="button" data-psub="stock">Stock &amp; invoices</button></div>
-<div data-pm><p class="muted small">Loading…</p></div><div data-stock hidden><div data-po></div><h2 class="serif osec">On the shelf</h2><input class="psearch" type="search" data-ssearch placeholder="Search products" aria-label="Search stock"><div data-slist><p class="muted small">Loading…</p></div></div></section>
+<section class="opane" data-pane="orders" hidden><div class="pmtop"><input class="psearch" type="search" data-osearch placeholder="Search orders" aria-label="Search orders by name, order number or email"><button class="btn primary sm" type="button" data-q="neworder">+ New</button></div><div class="oseg" role="tablist" data-tabs></div><div data-list aria-live="polite"></div></section>
+<section class="opane" data-pane="products" hidden><div class="oseg two" role="tablist"><button class="on" type="button" data-psub="catalog">Catalog</button><button type="button" data-psub="stock">Stock &amp; incoming</button></div>
+<div data-pm><p class="muted small">Loading…</p></div><div data-stock hidden><div data-po></div><h2 class="serif osec">On the shelf</h2><p class="muted small" data-ssum></p><div class="schips" role="tablist" data-schips></div><input class="psearch" type="search" data-ssearch placeholder="Search products" aria-label="Search stock"><div data-slist><p class="muted small">Loading…</p></div><p class="muted small">Tap a product to correct its count.</p></div></section>
 <section class="opane" data-pane="customers" hidden><div data-custs></div></section>
 <section class="opane" data-pane="more" hidden><div data-morehome><div class="mcards">${MORE.map(m => mcard(...m)).join("")}${mcard("", "gear", "Full admin", "Everything else, on the computer", "admin.html")}${mcard("", "shop", "View the shop", "See it the way customers do", "index.html")}</div>
 <p class="mlinks"><a href="install.html">Install guide</a><button type="button" class="linkish" data-signout>Sign out</button></p>
@@ -88,13 +88,33 @@
     $("[data-pm]").hidden = k !== "catalog"; $("[data-stock]").hidden = k !== "stock";
     if (k === "stock") stockList();
   }
+  // v44: the shelf, organized: In stock / Running low / Out of stock / Hidden, with what's on the way. Tap a row to count it.
+  let sfilter = "in", sinc = {}, scat = {};
+  const sState = p => { const n = Number(p.current_inventory || 0); return p.is_active === false ? "hidden" : n <= 0 ? "out" : n <= Number(p.low_stock_threshold ?? 5) ? "low" : "in"; };
   async function stockList() {
     PSTOps.stockPane($("[data-po]"));
-    const { data, error } = await P.client().from("product_inventory").select("*").order("display_name");
-    if (error) { $("[data-slist]").innerHTML = `<p class="notice err">${esc(error.message)}</p>`; return; }
-    stockRows = data || [];
-    $("[data-slist]").innerHTML = stockRows.map(p => { const n = Number(p.current_inventory || 0), low = n > 0 && n <= Number(p.low_stock_threshold ?? 5);
-      return `<div class="srow" data-sname="${esc(`${p.display_name} ${p.strength || ""} ${p.product_key}`.toLowerCase())}"><span><b>${esc(p.display_name)} ${esc(p.strength || "")}</b><small class="muted">${[p.is_active === false ? "Hidden" : "", n <= 0 ? "Out of stock" : low ? "Running low" : ""].filter(Boolean).join(" · ")}</small></span><em class="${n <= 0 ? "bad" : low ? "warn" : ""}">${n}</em><button class="btn ghost sm" type="button" data-count="${esc(p.product_key)}">Count</button></div>`; }).join("") || `<p class="muted small">No products yet.</p>`;
+    const [inv, inc, cat] = await Promise.all([P.client().from("product_inventory").select("*").order("display_name"),
+      P.client().from("incoming_inventory").select("product_key,product_id,ordered_quantity,expected_arrival_date,status").not("status", "in", "(received,cancelled)"),
+      P.client().from("product_catalog").select("*")]);
+    if (inv.error) { $("[data-slist]").innerHTML = `<p class="notice err">${esc(inv.error.message)}</p>`; return; }
+    stockRows = (inv.data || []).sort((a, b) => P.cmpProduct(a, b));
+    scat = Object.fromEntries((cat.data || []).map(c => [c.product_key, c]));
+    const idKey = Object.fromEntries(stockRows.map(r => [String(r.id), r.product_key])); sinc = {};
+    (inc.data || []).forEach(l => { const k = l.product_key || idKey[String(l.product_id || "")]; if (!k) return; const x = sinc[k] ||= { n: 0, at: null }; x.n += Number(l.ordered_quantity || 0); if (l.expected_arrival_date && (!x.at || l.expected_arrival_date < x.at)) x.at = l.expected_arrival_date; });
+    drawShelf();
+  }
+  function drawShelf() {
+    const cnt = { in: 0, low: 0, out: 0, hidden: 0 }; let vials = 0;
+    stockRows.forEach(p => { const st = sState(p); cnt[st]++; if (st !== "hidden") vials += Math.max(0, Number(p.current_inventory || 0)); });
+    $("[data-ssum]").textContent = `${vials} vials on hand · ${cnt.in + cnt.low} products in stock · ${cnt.out} out`;
+    const F = [["in", "In stock", cnt.in + cnt.low], ["low", "Running low", cnt.low], ["out", "Out of stock", cnt.out], ["hidden", "Hidden", cnt.hidden], ["all", "All", stockRows.length]];
+    $("[data-schips]").innerHTML = F.map(([k, l, n]) => `<button type="button" class="chip${sfilter === k ? " on" : ""}" data-sf="${k}" role="tab" aria-selected="${sfilter === k}">${l} <b>${n}</b></button>`).join("");
+    const show = p => { const st = sState(p); return sfilter === "all" || (sfilter === "in" ? st === "in" || st === "low" : st === sfilter); };
+    const list = stockRows.filter(show);
+    $("[data-slist]").innerHTML = list.length ? `<div class="shelf">${list.map(p => { const n = Number(p.current_inventory || 0), st = sState(p), inc = sinc[p.product_key], c = scat[p.product_key];
+      const sub = [st === "low" ? `Running low` : st === "out" ? (c?.coming_soon ? "Coming soon" : "Out of stock") : st === "hidden" ? "Hidden from the shop" : "", inc ? `${inc.n} on the way${inc.at ? ` · ${P.fmtDate(inc.at)}` : ""}` : ""].filter(Boolean).join(" · ");
+      return `<button type="button" class="shrow ${st}" data-count="${esc(p.product_key)}" data-sname="${esc(`${p.display_name} ${p.strength || ""} ${p.product_key}`.toLowerCase())}">${c ? P.vial(c, 26) : `<span class="pov"></span>`}<span><b>${esc(p.display_name)} <span class="muted">${esc(p.strength || "")}</span></b>${sub ? `<small>${esc(sub)}</small>` : ""}</span><em>${n}</em></button>`; }).join("")}</div>`
+      : `<p class="muted small" style="padding:14px 0">${sfilter === "low" ? "Nothing running low." : sfilter === "out" ? "Nothing out of stock." : sfilter === "hidden" ? "No hidden products." : "Nothing here."}</p>`;
     const q = $("[data-ssearch]")?.value; if (q) filterRows("[data-sname]", q);
   }
   const filterRows = (sel, q) => { q = q.trim().toLowerCase(); $$(sel).forEach(r => r.hidden = !!q && !r.getAttribute(sel.slice(1, -1)).includes(q)); };
@@ -124,13 +144,13 @@
   function drawOrders() {
     const q = oq.trim().toLowerCase();
     $("[data-tabs]").hidden = !!q;
-    $("[data-tabs]").innerHTML = Object.entries(TABS).map(([k, v]) => `<button class="tab${k === tab ? " on" : ""}" type="button" role="tab" aria-selected="${k === tab}" data-tab="${k}">${v.t}${k !== "all" ? ` (${orders.filter(v.f).length})` : ""}</button>`).join("");
+    $("[data-tabs]").innerHTML = Object.entries(TABS).map(([k, v]) => { const n = k !== "all" ? orders.filter(v.f).length : 0; return `<button class="${k === tab ? "on" : ""}" type="button" role="tab" aria-selected="${k === tab}" data-tab="${k}">${v.s || v.t}${n ? ` <i>${n}</i>` : ""}</button>`; }).join("");
     const list = (q ? orders.filter(o => `${o.customer_name || ""} ${o.shipping_name || ""} ${o.order_number || ""} ${o.customer_email || ""}`.toLowerCase().includes(q)) : orders.filter(TABS[tab].f)).slice(0, 80);
     $("[data-list]").innerHTML = list.length ? list.map(card).join("") : `<div class="empty">${P.icon(q ? "search" : "check", 28)}<p>${q ? "No orders match that." : "Nothing here. Nice."}</p></div>`;
   }
   function card(o) {
     const st = PSTOps.stage(o), n = (items[o.id] || []).reduce((s, i) => s + Number(i.quantity || 0), 0);
-    return `<article class="ocard" data-card="${o.id}"><button class="oh" type="button" data-ord="${o.id}"><div><b>${esc(PSTOps.custName(o))} · ${money(o.total)}</b><span>${esc(o.order_number || "")} · ${ago(o.created_at)} · ${pickup(o) ? "Pickup" : "Ship"}${n ? ` · ${n} item${n === 1 ? "" : "s"}` : ""}${o.payment_method ? ` · ${esc(o.payment_method)}` : ""}</span></div><span class="opill ${st.cls}">${esc(st.t)}</span></button></article>`;
+    return `<article class="ocard" data-card="${o.id}"><button class="oh orow2" type="button" data-ord="${o.id}"><span class="or1"><b>${esc(PSTOps.custName(o))}</b><b class="ot">${money(o.total)}</b></span><span class="or2"><span class="opill sm ${st.cls}">${esc(st.t)}</span><span>${esc(o.order_number || "")} · ${ago(o.created_at)} · ${pickup(o) ? "Pickup" : "Ship"}${n ? ` · ${n} item${n === 1 ? "" : "s"}` : ""}${o.payment_method ? ` · ${esc(o.payment_method)}` : ""}</span></span></button></article>`;
   }
   function texts(o) {
     const n = first(o), no = o.order_number || "", t = money(o.total);
@@ -271,7 +291,7 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
     const bars = (rows, key, lab) => { const mx = Math.max(1, ...rows.map(x => +x[key] || 0)); return `<div class="ibars">${rows.map(x => `<div title="${esc(x.d)}: ${lab(x)}"><i style="height:${Math.round((+x[key] || 0) / mx * 100)}%"></i></div>`).join("")}</div>`; };
     const list = (rows, label, val) => rows.length ? `<ol class="ilist">${rows.map(x => `<li><span>${label(x)}</span><b>${val(x)}</b></li>`).join("")}</ol>` : `<p class="muted small">Nothing yet.</p>`;
     const f = w.funnel, fz = [["Visits", f.sessions], ["Viewed a product", f.viewed_product], ["Added to bag", f.added_to_bag], ["Started checkout", f.started_checkout], ["Placed order", f.placed_order]];
-    el.innerHTML = `<div class="irange">${[[7, "7 days"], [30, "30 days"], [90, "90 days"], [365, "This year"]].map(([n, l]) => `<button type="button" class="tab${n === days ? " on" : ""}" data-range="${n}">${l}</button>`).join("")}</div>
+    el.innerHTML = `<div class="ilive" data-ilive><span class="ldot"></span><div><b data-livenum>…</b><small>on the site right now</small></div><span class="muted small" data-livewhere></span></div><div class="oseg">${[[7, "7 days"], [30, "30 days"], [90, "90 days"], [365, "Year"]].map(([n, l]) => `<button type="button" class="${n === days ? "on" : ""}" data-range="${n}">${l}</button>`).join("")}</div>
 <div class="tiles itiles"><div class="tile"><small>Paid sales</small><b>${money(r.revenue_paid)}</b><span class="muted small">${r.paid_orders} paid · ${money(r.revenue_pending)} waiting</span></div>
 <div class="tile"><small>Orders</small><b>${r.orders}</b><span class="muted small">avg ${money(r.avg_order)} · ${r.cancelled} cancelled</span></div>
 <div class="tile"><small>Customers</small><b>${r.customers}</b><span class="muted small">${r.new_customers} new · ${r.repeat_customers} returning</span></div>
@@ -290,8 +310,27 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
 <section><h3 class="kick">Devices</h3>${list(Object.entries(w.devices).map(([k, v]) => ({ k, v })), x => esc(x.k), x => x.v)}</section>
 <section><h3 class="kick">Running low</h3>${list(st.low, x => esc(`${x.display_name} ${x.strength || ""}`), x => `${x.current_inventory} left`)}<p class="muted small">${st.out} products out of stock</p></section>
 </div><p class="muted small" style="margin-top:12px">Site numbers are counted without cookies or third parties. Admin pages and your own owner app aren't counted.</p>`;
+    liveNow(names);
   }
 
+  /* ---- who's on the site right now: anyone whose browser sent a page or product view in the last 5 minutes ---- */
+  let liveTimer = null;
+  async function liveNow(names) {
+    clearTimeout(liveTimer);
+    const box = $("[data-ilive]"); if (!box || box.closest("[hidden]")) return;
+    const since = new Date(Date.now() - 5 * 60000).toISOString();
+    const { data, error } = await P.client().from("pst_web_events").select("session,path,product_key,device,app,at").gte("at", since).order("at", { ascending: false }).limit(1000);
+    if (!error) {
+      const last = new Map(); (data || []).forEach(e => { if (!last.has(e.session)) last.set(e.session, e); });
+      const now = [...last.values()], n = now.length;
+      box.querySelector("[data-livenum]").textContent = n;
+      box.classList.toggle("on", n > 0);
+      const where = {}; now.forEach(e => { const k = e.product_key ? (names[e.product_key] || e.product_key) : String(e.path || "").replace(/^\//, "").replace(/\.html.*$/, "") || "home"; where[k] = (where[k] || 0) + 1; });
+      const apps = now.filter(e => e.app).length;
+      box.querySelector("[data-livewhere]").textContent = n ? Object.entries(where).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, c]) => `${c} on ${k === "index" ? "home" : k}`).join(" · ") + (apps ? ` · ${apps} in the app` : "") : "Nobody right now";
+    }
+    liveTimer = setTimeout(() => liveNow(names), 30000);
+  }
   /* ---- private protocols: Jimmie's own reference, used only to work out how long an order lasts ---- */
   async function loadProtos() {
     const r = await P.client().from("pst_protocols").select("*");
@@ -369,7 +408,7 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
     else if (t.matches("[data-psearch]")) protoFilter(t.value);
     else if (t.matches("[data-csearch]")) PSTOps.filterCustomers(t.value);
     else if (t.matches("[data-osearch]")) { oq = t.value; drawOrders(); }
-    else if (t.matches("[data-ssearch]")) filterRows("[data-sname]", t.value);
+    else if (t.matches("[data-ssearch]")) { if (t.value.trim() && sfilter !== "all") { sfilter = "all"; drawShelf(); } filterRows("[data-sname]", t.value); }
   }
   async function onChange(e) {
     const t = e.target;
@@ -385,6 +424,7 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
     const g = t.closest("[data-go]"); if (g) { go(g.dataset.go); return; }
     const ot = t.closest("[data-otab]"); if (ot) { tab = ot.dataset.otab; oq = ""; const s = $("[data-osearch]"); if (s) s.value = ""; go("orders"); drawOrders(); return; }
     const tb = t.closest("[data-tab]"); if (tb) { tab = tb.dataset.tab; drawOrders(); return; }
+    const sfb = t.closest("[data-sf]"); if (sfb) { sfilter = sfb.dataset.sf; drawShelf(); return; }
     const psb = t.closest("[data-psub]"); if (psb) { sub(psb.dataset.psub); return; }
     const mo = t.closest("[data-more]"); if (mo) { moreSub(mo.dataset.more); return; }
     if (t.closest("[data-moreback]")) { moreHome(); history.replaceState(null, "", "#more"); window.scrollTo(0, 0); return; }
