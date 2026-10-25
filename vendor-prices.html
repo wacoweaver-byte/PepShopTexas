@@ -6,6 +6,14 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&
 const norm=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
 let products=[],vendors=[],staged=[],savedMappings=new Map();
 const normStrength=s=>norm(String(s||"").replace(/\s*\/\s*vial\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\s*\/\s*vial\s*$/i,"").replace(/\b(milligrams?|mgs?)\b/gi,"mg").replace(/\b(micrograms?|mcgs?)\b/gi,"mcg"));
+const nameAliases={
+ "retatrutide":"pst3ret","tirzepatide":"pst2tir","semaglutide":"pst1sem",
+ "epithalon":"epitalon","kisspeptin10":"kisspeptin","ll37":"ll37",
+ "thymosinalpha1":"thymosinalpha1","b12":"b12",
+ "miclipocb12":"miclipocwb12","melanotan2":"melantoninii",
+ "hcg":"pst5000iu"
+};
+const matchName=n=>nameAliases[norm(n)]||norm(n);
 const stableSku=(name,strength)=>"PST-AUTO-"+norm(name).slice(0,45)+"-"+norm(strength).slice(0,25);
 const get=(r,...keys)=>{for(const k of keys){const found=Object.keys(r).find(x=>norm(x)===norm(k));if(found&&r[found]!==undefined)return String(r[found]).trim();}return "";};
 const options=()=>'<option value="">Match product...</option>'+products.map(p=>'<option value="'+esc(p.product_key)+'">'+esc((p.display_name||"No display name")+" | "+(p.strength||"")+" | "+p.product_key+" ("+p.display_name+")")+'</option>').join("");
@@ -34,14 +42,14 @@ $("vendor").addEventListener("change",current);
 $("load").onclick=async()=>{const file=$("file").files[0];if(!file||!$("vendor").value){$("status").textContent="Choose a vendor and a spreadsheet.";return;}if(!window.XLSX){$("status").textContent="Spreadsheet reader unavailable. Please try again.";return;}
 try{const workbook=XLSX.read(await file.arrayBuffer(),{type:"array"});const rows=XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]],{defval:""});staged=rows.map(r=>{const name=get(r,"Product Name","Product","Name","Peptide"),strength=get(r,"Strength","Specification","Size","Vial Strength"),sku=get(r,"Vendor Item Number","Vendor SKU","Item Number","Item #","SKU","Code"),key=get(r,"PST Product Key","Product Key","PST SKU"),costStr=get(r,"Kit Cost","Price per Kit","Kit Price","Cost per Kit","Price"),cost=Number(costStr.replace(/[$,]/g,""));let match=products.find(p=>key&&norm(p.product_key)===norm(key));
 if(!match&&sku){match=products.find(p=>p.product_key===savedMappings.get(norm(sku)));}
-if(!match){const candidates=products.filter(p=>p.display_name&&norm(p.display_name)===norm(name)&&normStrength(p.strength)===normStrength(strength));if(candidates.length===1)match=candidates[0];}
+if(!match){const candidates=products.filter(p=>p.display_name&&matchName(p.display_name)===matchName(name)&&normStrength(p.strength)===normStrength(strength));if(candidates.length===1)match=candidates[0];}
 return{name,strength,sku:sku||stableSku(name,strength),cost,key:match?.product_key||"",generatedSku:!sku};}).filter(r=>r.name||r.sku||r.key);
 $("review").hidden=false;render();$("status").textContent=staged.length+" rows loaded. "+staged.filter(r=>r.generatedSku).length+" rows lacked vendor SKUs; stable PST-AUTO identifiers were generated. Review matches before saving.";
 }catch(e){$("status").textContent="Unable to read file: "+e.message;}};
-function render(){const ops=options();$("rows").innerHTML=staged.map((r,i)=>'<tr><td>'+esc(r.name)+'</td><td>'+esc(r.strength)+'</td><td>'+esc(r.sku)+'</td><td><select data-index="'+i+'" data-field="key">'+ops+'</select></td><td><input type="number" min="0" step="0.01" data-index="'+i+'" data-field="cost" value="'+(Number.isFinite(r.cost)?r.cost:"")+'"></td><td class="'+(r.key?"good":"warn")+'">'+(r.key?"Matched":"Needs match")+'</td></tr>').join("");
+function render(){const ops=options();$("rows").innerHTML=staged.map((r,i)=>'<tr><td>'+esc(r.name)+'</td><td>'+esc(r.strength)+'</td><td>'+esc(r.sku)+'</td><td><select data-index="'+i+'" data-field="key">'+ops+'</select></td><td><input type="number" min="0" step="0.01" data-index="'+i+'" data-field="cost" value="'+(Number.isFinite(r.cost)?r.cost:"")+'"></td><td class="'+(r.key?"good":"warn")+'">'+(r.key?"Matched":"No PST name + strength match")+'</td></tr>').join("");
 $("rows").querySelectorAll('select[data-field="key"]').forEach(el=>el.value=staged[+el.dataset.index].key);
-$("summary").textContent=staged.length+" rows; "+staged.filter(x=>x.key).length+" product matches. Unmatched products are also saved.";
-$("rows").querySelectorAll("select,input").forEach(el=>el.onchange=()=>{const x=staged[+el.dataset.index];x[el.dataset.field]=el.dataset.field==="cost"?Number(el.value):el.value;el.closest("tr").lastElementChild.textContent=x.key?"Matched":"Needs match";});
+$("summary").textContent=staged.length+" vendor rows; "+staged.filter(x=>x.key).length+" matched to existing PST name and strength; "+staged.filter(x=>!x.key).length+" unmatched (not necessarily an error: some are not in the PST catalog). Manual choices are saved when you click Save Matched Vendor Prices.";
+$("rows").querySelectorAll("select,input").forEach(el=>el.onchange=()=>{const x=staged[+el.dataset.index];x[el.dataset.field]=el.dataset.field==="cost"?Number(el.value):el.value;el.closest("tr").lastElementChild.textContent=x.key?"Matched":"No PST name + strength match";});
 }
 $("save").onclick=async()=>{
  if(!$("vendor").value)return;
