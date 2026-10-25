@@ -4039,18 +4039,34 @@ function incomingProductLabel(item) {
   return strength && !display.toLowerCase().includes(strength.toLowerCase()) ? `${display} — ${strength}` : display;
 }
 
+const incomingVendorSkuCache = new Map();
+async function loadIncomingVendorSkuCache(rows) {
+  const ids = [...new Set((rows || []).map(row => String(row.vendor_id || "")).filter(Boolean))];
+  await Promise.all(ids.map(async id => {
+    const {data,error} = await db.from("pst_vendor_catalog_items")
+      .select("product_key,product_name,strength,vendor_item_number").eq("vendor_id",id);
+    if (error) { console.warn("Vendor SKU catalog unavailable", id, error); return; }
+    incomingVendorSkuCache.set(id,data || []);
+  }));
+}
+function incomingSkuNorm(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g,"");
+}
 function incomingVendorItemNumber(itemOrRow) {
   if (!itemOrRow) return "";
-  const direct = cleanText(itemOrRow.vendor_item_number ?? itemOrRow.vendorItemNumber ?? itemOrRow.vendor_sku ?? "");
+  const direct = cleanText(itemOrRow.vendor_item_number || itemOrRow.vendorItemNumber || itemOrRow.vendor_sku || "");
   if (direct) return direct;
   const label = String(itemOrRow.productName || itemOrRow.product_name || "");
   const embedded = label.match(/\[Vendor SKU:\s*([^\]]+)\]/i);
   if (embedded) return embedded[1].trim();
   const key = cleanText(itemOrRow.productKey || itemOrRow.product_key || "");
   const vendorId = cleanText(itemOrRow.vendor_id || $("incomingVendorSelect")?.value || "");
-  if (!key || !vendorId) return "";
-  const vendorItem = pstVendorCatalogItems.find(x=>String(x.product_key)===key);
-  return cleanText(vendorItem?.vendor_item_number || "");
+  const catalog = incomingVendorSkuCache.get(vendorId) || (String($("incomingVendorSelect")?.value || "") === vendorId ? pstVendorCatalogItems : []);
+  const byKey = key && catalog.find(x => cleanText(x.product_key) === key && cleanText(x.vendor_item_number));
+  if (byKey) return cleanText(byKey.vendor_item_number);
+  const normalizedLabel = incomingSkuNorm(label.replace(/\[Vendor SKU:[^\]]+\]/gi,""));
+  const candidates = catalog.filter(x => incomingSkuNorm(String(x.product_name || "") + " — " + String(x.strength || "")) === normalizedLabel);
+  return candidates.length === 1 ? cleanText(candidates[0].vendor_item_number) : "";
 }
 
 function incomingSortValue(row, key) {
@@ -5107,6 +5123,7 @@ async function loadIncomingInventory() {
     incomingInventoryRows = readIncomingLocalRows();
     if ($("incomingInventoryNote")) $("incomingInventoryNote").textContent = "Incoming inventory is using local browser storage because the incoming_inventory table is not available or not accessible yet. Receiving still adds stock to product_inventory, but this incoming list will only appear in this browser until Supabase is connected.";
   }
+  await loadIncomingVendorSkuCache(incomingInventoryRows);
   const targetIncomingId = incomingTargetIdFromUrl();
   if (targetIncomingId) {
     incomingReceivedHistoryVisible = true;
