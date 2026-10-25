@@ -1,7 +1,7 @@
 {
-  "name": "PST Orders",
-  "short_name": "PST Orders",
-  "description": "Pep Shop Texas order inbox and new-order alerts.",
+  "name": "Pep Shop Texas Owner",
+  "short_name": "PST Owner",
+  "description": "Pep Shop Texas owner app: orders, payments, products, customers and alerts.",
   "id": "./owner.html?app=owner",
   "start_url": "./owner.html?source=app",
   "scope": "./",
@@ -9,8 +9,39 @@
   "background_color": "#0a101c",
   "theme_color": "#0a101c",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today",
+      "url": "./owner.html#today"
+    },
+    {
+      "name": "Orders",
+      "url": "./owner.html#orders"
+    },
+    {
+      "name": "Customers",
+      "url": "./owner.html#customers"
+    },
+    {
+      "name": "Alerts",
+      "url": "./owner.html#alerts"
+    }
   ]
 }

@@ -137,8 +137,11 @@
     const name = `${p.display_name} ${p.product_key}`; for (const [re, col] of COLOR_RULES) if (re.test(name)) return col; return "Blue"; };
   const vialHex = p => { const c = vialColorName(p); return /^#/.test(c) ? c : LABEL_COLORS[c.toLowerCase()]; };
   const vialName = p => String(p.label_line_1 || p.display_name || "").replace(/\s*\(.*\)\s*/, "").toUpperCase();
-  const vialStrength = p => String(p.strength || "").replace(/\s+/g, "");
-  const vialSig = p => [p.product_key, vialName(p), vialStrength(p), vialHex(p)].join("|");
+  const vialStrength = p => { const v = String(p.strength || "").replace(/\s+/g, ""); return /^b-?12\b/i.test(String(p.display_name || "")) ? v.replace(/\/.*$/, "") : v; }; // B12 label reads "10mg" (Mike's rule)
+  // Mike's rules (Oct 2026): what the liquid below the label looks like. Everything else shows the white powder cake.
+  const LIQUID = [[/^b-?12\b/i, "#a3122a"], [/ghk-?cu|^glow\b|^klow\b/i, "#1f5fc4"], [/5-?amino/i, "#f1b67c"]];
+  const vialLiquid = p => (LIQUID.find(([re]) => re.test(String(p.display_name || ""))) || [])[1] || "";
+  const vialSig = p => [p.product_key, vialName(p), vialStrength(p), vialHex(p), vialLiquid(p)].join("|");
   const vialCache = new Map(); let vialAssets = null; const vialByKey = new Map();
   const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
   function vialAssetsP() {
@@ -153,6 +156,14 @@
     const bandC = mk(), bg = bandC.getContext("2d"); bg.fillStyle = col; bg.fillRect(0, 0, W, H);
     bg.globalCompositeOperation = "hard-light"; bg.drawImage(shade, 0, 0, W, H); bg.globalCompositeOperation = "destination-in"; bg.drawImage(shade, 0, 0, W, H);
     g.drawImage(bandC, 0, 0);
+    // liquid below the label: tint the glass bottom, keeping the photo's light and shadow
+    const liq = vialLiquid(p);
+    if (liq) {
+      const y0 = (m.label[1] + m.label[3]) * S, liqC = mk(), lq = liqC.getContext("2d");
+      lq.drawImage(base, 0, 0, W, H); lq.globalCompositeOperation = "multiply"; lq.fillStyle = liq; lq.fillRect(0, 0, W, H);
+      lq.globalCompositeOperation = "destination-in"; lq.drawImage(base, 0, 0, W, H);
+      g.save(); g.beginPath(); g.rect(0, y0, W, H - y0); g.clip(); g.globalAlpha = .92; g.drawImage(liqC, 0, 0); g.restore();
+    }
     // flat artwork: name, strength bar, research line, rule, vertical strength
     const art = mk(), a = art.getContext("2d"), name = vialName(p), str = vialStrength(p), X = v => v * S;
     let fs = m.name.size; a.font = `700 ${X(fs)}px PSTLabel`; while (a.measureText(name).width > X(m.name.maxW) && fs > 14) { fs--; a.font = `700 ${X(fs)}px PSTLabel`; }
@@ -175,7 +186,7 @@
   async function vialURL(p, sc = 2) {
     const sig = vialSig(p) + "@" + sc; if (vialCache.has(sig)) return vialCache.get(sig);
     const req = location.origin + "/__pst_vial/" + encodeURIComponent(sig);
-    let box = null; try { box = await caches.open("pst-vials-v1"); const hit = await box.match(req); if (hit) { const u = URL.createObjectURL(await hit.blob()); vialCache.set(sig, u); return u; } } catch {}
+    let box = null; try { box = await caches.open("pst-vials-v2"); const hit = await box.match(req); if (hit) { const u = URL.createObjectURL(await hit.blob()); vialCache.set(sig, u); return u; } } catch {}
     const c = await vialCanvas(p, sc), blob = await toBlob(c);
     const u = URL.createObjectURL(blob); vialCache.set(sig, u);
     try { box && blob && box.put(req, new Response(blob, { headers: { "Content-Type": blob.type } })); } catch {}
@@ -229,7 +240,7 @@
 <defs><linearGradient id="${id}c" x1="0" x2="1"><stop offset="0" stop-color="#8d7a4f"/><stop offset=".45" stop-color="#ecdcaa"/><stop offset="1" stop-color="#7d6a3f"/></linearGradient>
 <linearGradient id="${id}g" x1="0" x2="1"><stop offset="0" stop-color="#dfe6ee"/><stop offset=".2" stop-color="#fff"/><stop offset=".75" stop-color="#eef2f6"/><stop offset="1" stop-color="#c9d2dc"/></linearGradient></defs>
 <ellipse cx="60" cy="194" rx="40" ry="5" fill="#000" opacity=".25"/><rect x="34" y="8" width="52" height="28" rx="5" fill="url(#${id}c)"/><rect x="40" y="34" width="40" height="12" fill="#c9cfd6"/>
-<rect x="22" y="46" width="76" height="146" rx="12" fill="url(#${id}g)" stroke="#b9c3ce"/><rect x="28" y="150" width="64" height="36" rx="6" fill="#f4f1ea" opacity=".9"/>
+<rect x="22" y="46" width="76" height="146" rx="12" fill="url(#${id}g)" stroke="#b9c3ce"/><rect x="28" y="150" width="64" height="36" rx="6" fill="${vialLiquid(p) || "#f4f1ea"}" opacity=".9"/>
 <rect x="22" y="78" width="76" height="62" fill="#fff"/><rect x="22" y="78" width="10" height="62" fill="${c}"/><rect x="88" y="78" width="10" height="62" fill="${c}"/>
 <text x="60" y="100" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="${fs}" fill="#13294b"${fit}>${esc(name)}</text>
 <rect x="38" y="107" width="44" height="15" rx="3" fill="${c}"/><text x="60" y="118.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="10" fill="#fff">${esc(p.strength || "")}</text>
@@ -329,13 +340,15 @@
     }
     return out.sort((a, b) => a.left - b.left);
   }
-  function isDone(o) { return ["delivered", "complete", "completed"].includes(String(o.order_status || o.status || "").toLowerCase()) || (String(o.order_status || o.status || "").toLowerCase() === "shipped" && !/local pickup/i.test(o.customer_notes || "")); }
+  // Jimmie records a pickup hand-off as a "Hand Delivered" shipment (status shipped): that order is picked up, i.e. done
+  const handedOff = o => /hand\s*deliver/i.test(`${o.tracking_carrier || ""} ${o.tracking_number || ""}`);
+  function isDone(o) { const s = String(o.order_status || o.status || "").toLowerCase(); return ["delivered", "complete", "completed"].includes(s) || (s === "shipped" && (!/local pickup/i.test(o.customer_notes || "") || handedOff(o))); }
   /* where an order is, in customer words */
   function stageOf(o) {
     const s = String(o.order_status || o.status || "pending").toLowerCase(), pay = String(o.payment_status || "pending").toLowerCase(), pickup = /local pickup/i.test(o.customer_notes || "");
     if (DEAD.includes(s)) return { n: -1, label: s.charAt(0).toUpperCase() + s.slice(1), cls: "bad", pickup };
     const n = ["shipped", "delivered", "complete", "completed"].includes(s) ? 3 : s === "packed" ? 2 : (pay === "paid" || s === "processing" || s === "paid") ? 1 : 0;
-    const label = n === 3 ? (pickup ? (s === "shipped" ? "Ready for pickup" : "Picked up") : s === "delivered" ? "Delivered" : "On the way") : n === 2 ? (pickup ? "Ready for pickup" : "Packed") : n === 1 ? "Paid · getting it ready" : "Awaiting payment";
+    const label = n === 3 ? (handedOff(o) ? (pickup ? "Picked up" : "Hand delivered") : pickup ? (s === "shipped" ? "Ready for pickup" : "Picked up") : s === "delivered" ? "Delivered" : "On the way") : n === 2 ? (pickup ? "Ready for pickup" : "Packed") : n === 1 ? "Paid · getting it ready" : "Awaiting payment";
     return { n, label, cls: n === 0 ? "pend" : n === 3 ? "ship" : "ok", pickup };
   }
   async function paidNotice(orderId) {
@@ -898,12 +911,19 @@ ${prefs ? `<p class="kick" style="margin:22px 0 6px">What you'll hear about</p><
     const rows = (await cartRows()).filter(r => r.product), sub = rows.reduce((s, r) => s + unitPrice(r.product) * r.quantity, 0);
     const left = Math.max(0, CFG.freeShip - sub), pct = Math.min(100, sub / CFG.freeShip * 100);
     const w = sheet(`<div class="mbag"><h2 class="serif">${addedKey ? `${icon("check", 22)} Added to your bag` : "Your bag"}</h2>
-${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === addedKey ? " new" : ""}">${vial(r.product, 30)}<span><b>${esc(titleParts(r.product).main)}</b><small>${esc(r.product.strength || "")} · qty ${r.quantity}</small></span><em>${money(unitPrice(r.product) * r.quantity)}</em></div>`).join("")}</div>
+${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === addedKey ? " new" : ""}">${vial(r.product, 30)}<span><b>${esc(titleParts(r.product).main)}</b><small>${esc(r.product.strength || "")}</small><span class="mbq"><button type="button" data-mbq="${esc(r.key)}" data-d="-1" aria-label="${r.quantity > 1 ? "One fewer" : "Remove"}">−</button><b>${r.quantity}</b><button type="button" data-mbq="${esc(r.key)}" data-d="1" aria-label="One more"${qty(r.product) > 0 && r.quantity >= qty(r.product) ? " disabled" : ""}>+</button><button type="button" class="mbrm" data-mbrm="${esc(r.key)}">Remove</button></span></span><em>${money(unitPrice(r.product) * r.quantity)}</em></div>`).join("")}</div>
 <div class="ship"><div class="shipbar"><i style="width:${pct}%"></i></div><span>${left > 0 ? `${money(left)} away from free shipping` : "You've got free shipping"} <small class="muted">· local pickup is always free</small></span></div>
 <div class="sum"><div class="r tot"><span>Subtotal</span><b>${money(sub)}</b></div></div>
 <a class="btn primary wide" href="cart.html">Check out</a><button class="btn ghost wide" type="button" data-act="close-sheet" style="margin-top:8px">Keep shopping</button>`
       : `<p class="muted">Nothing in your bag yet.</p><a class="btn primary wide" href="catalog.html">Browse the collection</a>`}</div>`, { label: "Bag" });
     w.classList.add("side");
+    // v39: change quantity or remove right from the bag sheet
+    w.addEventListener("click", e => {
+      const q = e.target.closest("[data-mbq]"), rm = e.target.closest("[data-mbrm]"); if (!q && !rm) return;
+      const key = (q || rm).dataset.mbq || rm?.dataset.mbrm, r = rows.find(x => x.key === key); if (!r) return;
+      const n = rm ? 0 : r.quantity + Number(q.dataset.d); setQty(key, n);
+      if (n <= 0) toast("Removed from your bag"); miniBag(n > 0 ? addedKey : null);
+    });
   }
   function addAndShow(key, n = 1) { addToCart(key, n); miniBag(key); }
 
@@ -927,7 +947,7 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   document.addEventListener("DOMContentLoaded", async () => { if (await appLaunch()) return; mountChrome(); appBar(); registerSW(); track("page_view"); if (VIAL_ON) vialAssetsP().catch(() => {}); }); // v3.2: no visit pop-up; 18+ is confirmed at sign-up (his rule)
 
   window.PST = { CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
-    products, groups, cycles, suggestDays, myHistory, myProducts, isDone, stageOf, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
+    products, groups, cycles, suggestDays, myHistory, myProducts, isDone, handedOff, stageOf, vialLiquid, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
     photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,
     icon, toast, sheet, closeSheet, saved, isSaved, toggleSaved, heart, recordRecent, recent, badges, gkey, miniBag, addAndShow, openSearch, install, canPrompt, promptInstall, pushSupported, pushState, enablePush, disablePush, getPrefs, setPref, testPush, openInbox, refreshBell, notifyPanel, PREFS, emailPayload, postEmail };

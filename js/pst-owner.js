@@ -1,4 +1,4 @@
-/* Pep Shop Texas · Owner app: order inbox, alerts, one-tap texts. Status changes stay in admin.html (it sends the emails). */
+/* Pep Shop Texas · Owner app (v39): Today · Orders · Products · Customers · More. Order actions live in pst-owner-ops.js and follow admin.html's rules. */
 (function () {
   "use strict";
   const P = window.PST, { $, $$, esc, money } = P;
@@ -19,43 +19,85 @@
   const sms = (o, body) => `sms:${phoneOf(o)}${/iphone|ipad/i.test(navigator.userAgent) ? "&" : "?"}body=${encodeURIComponent(body)}`;
   const itemsText = o => (items[o.id] || []).map(i => `${i.product_name} ${i.product_strength || ""}${i.quantity > 1 ? ` ×${i.quantity}` : ""}`.trim()).join(", ");
 
+  /* ---- v38 app shell: bottom tabs like PepKeep (Today · Orders · Products · Customers · More) ---- */
+  let view = "today", oq = "", pmLoaded = false, stockRows = [];
+  const NAV = [["today", "home", "Today"], ["orders", "box", "Orders"], ["products", "flask", "Products"], ["customers", "users", "Customers"], ["more", "dots", "More"]];
+  const TITLES = { today: "Today", orders: "Orders", products: "Products", customers: "Customers", more: "More", insights: "Insights", protos: "My protocols", times: "Write-ups" };
+  const MORE = [["insights", "chart", "Insights", "Sales, customers, site traffic"], ["stock", "box", "Stock & invoices", "Receive shipments, count the shelf"],
+    ["protos", "lock", "My protocols", "Private reference, only you see it"], ["times", "doc", "Write-ups & reorder times", "Product pages and running-low reminders"]];
+  const mcard = (k, i, t, s, href) => `<${href ? `a href="${href}"` : `button type="button" data-more="${k}"`} class="mcard"><span class="mic">${P.icon(i, 20)}</span><span><b>${t}</b><small>${s}</small></span>${P.icon("next", 18)}</${href ? "a" : "button"}>`;
+
   async function boot() {
     const root = $("[data-owner]");
     me = await P.getUser();
     if (!me) { root.innerHTML = `<div class="empty"><h1 class="serif">Owner sign in</h1><p>Sign in with your admin account.</p><a class="btn primary" href="login.html?redirect=owner.html">Sign in</a></div>`; return; }
     if (!(await P.isAdmin(me))) { root.innerHTML = `<div class="empty"><h1 class="serif">Owners only</h1><p>This page is for Pep Shop Texas staff.</p><a class="btn ghost" href="index.html">Go to the shop</a></div>`; return; }
-    root.innerHTML = `<header class="ohd"><div><small>Pep Shop Texas</small><h1 class="serif">Orders</h1></div><div class="ohr"><button class="btn ghost sm bell" type="button" data-bell data-act="inbox" aria-label="Notifications">${P.icon("bell", 18)}<i hidden>0</i></button><button class="btn ghost sm" type="button" data-o="refresh" aria-label="Refresh">↻</button><a class="btn ghost sm" href="admin.html">Admin</a></div></header>
-<div data-alerts></div><div class="tiles" data-stats></div><div class="atabs otabs" role="tablist" data-tabs></div><div data-list aria-live="polite"></div>
-<details class="ownsec pm" style="margin-top:26px"><summary class="serif">Products <span class="muted small">· add, edit, put live</span></summary><div data-pm><p class="muted small">Loading…</p></div></details>
-<details class="ownsec ins" style="margin-top:12px"><summary class="serif">Insights <span class="muted small">· sales, customers &amp; site traffic</span></summary><div data-ins><p class="muted small">Loading…</p></div></details>
-<details class="ownsec proto" style="margin-top:12px"><summary class="serif">My protocols <span class="muted small">· private, only you see this</span></summary><div data-protos><p class="muted small">Loading…</p></div></details>
-<details class="ownsec nal" style="margin-top:12px" id="alerts"><summary class="serif">Alerts &amp; notifications <span class="muted small">· phone and computer</span></summary><div data-nal><p class="muted small">Loading…</p></div></details>
-<details class="ownsec" style="margin-top:12px"><summary class="serif">Products: write-ups &amp; reorder times</summary><div data-times><p class="muted small">Loading…</p></div></details>
-<section style="margin-top:26px"><h2 class="serif" style="font-size:1.7rem">Running low soon</h2><p class="muted small">Customers likely to run low in the next 10 days, based on their own reorder rhythm. A friendly text sells.</p><div data-due></div></section>`;
-    root.addEventListener("click", onClick);
-    root.querySelector(".ownsec:not(.proto)").addEventListener("toggle", e => { if (e.target.open) times(); });
-    root.querySelector(".ownsec.proto").addEventListener("toggle", e => { if (e.target.open) protoPage(); });
-    root.querySelector(".ownsec.ins").addEventListener("toggle", e => { if (e.target.open) insights(30); });
-    root.querySelector(".ownsec.pm").addEventListener("toggle", e => { if (e.target.open) pmList(); });
-    root.querySelector(".ownsec.nal").addEventListener("toggle", e => { if (e.target.open) P.notifyPanel($("[data-nal]"), "owner"); });
-    const openSec = (sel) => { const d = root.querySelector(sel); if (d) { d.open = true; setTimeout(() => d.scrollIntoView({ block: "start", behavior: "smooth" }), 60); } };
-    if (location.hash === "#alerts") openSec(".ownsec.nal");
-    if (location.hash === "#stock") openSec(".ownsec.ins");
-    if (location.hash === "#products") openSec(".ownsec.pm");
-    root.addEventListener("input", e => { if (e.target.matches("[data-pmsearch]")) pmFilter(e.target.value); });
-    root.addEventListener("input", e => { if (e.target.matches("[data-psearch]")) protoFilter(e.target.value); });
-    root.addEventListener("change", async e => { const t = e.target;
-      if (t.matches("[data-pf]")) { saveProto(t.closest("[data-proto]")); return; }
-      if (t.matches("[data-days]")) { const v = Math.round(Number(t.value)) || null; setDays(t.dataset.days, v, "owner"); return; }
-      if (t.matches("[data-summary]")) { const v = t.value.trim() || null; const { error } = await P.client().from("product_catalog").update({ research_summary: v }).eq("display_name", t.dataset.summary); P.toast(error ? "Couldn't save: " + error.message : v ? "Write-up saved" : "Write-up cleared"); return; }
-      if (!t.matches("[data-default]")) return; const v = Math.max(0, Math.min(365, Number(t.value) || 0)) || null;
-      const { error } = await P.client().from("product_catalog").update({ reorder_days_default: v }).eq("product_key", t.dataset.default);
-      P.toast(error ? "Couldn't save: " + error.message : v ? `Saved: ${v} days` : "Cleared"); });
-    alertsCard(); P.refreshBell(); await load();
+    document.body.classList.add("oapp");
+    root.innerHTML = `<header class="ohd"><div><small>Pep Shop Texas</small><h1 class="serif" data-otitle>Today</h1></div><div class="ohr"><button class="btn ghost sm bell" type="button" data-bell data-act="inbox" aria-label="Notifications">${P.icon("bell", 18)}<i hidden>0</i></button><button class="btn ghost sm" type="button" data-o="refresh" aria-label="Refresh">↻</button></div></header>
+<section class="opane" data-pane="today"><div data-alerts></div><div class="tiles otiles" data-stats></div>
+<div class="oquick"><button class="btn primary" type="button" data-q="neworder">${P.icon("plus", 16)} New order</button><button class="btn ghost" type="button" data-q="addcust">${P.icon("users", 16)} Add customer</button></div>
+<div data-vmbox></div><h2 class="serif osec">Needs you</h2><div data-attn></div>
+<h2 class="serif osec">Running low soon</h2><p class="muted small">Customers likely to run low in the next 10 days, based on their own reorder rhythm. A friendly text sells.</p><div data-due></div></section>
+<section class="opane" data-pane="orders" hidden><div class="pmtop"><input class="psearch" type="search" data-osearch placeholder="Name, order # or email" aria-label="Search orders"><button class="btn primary sm" type="button" data-q="neworder">+ New</button></div><div class="atabs otabs" role="tablist" data-tabs></div><div data-list aria-live="polite"></div></section>
+<section class="opane" data-pane="products" hidden><div class="atabs otabs" role="tablist"><button class="tab on" type="button" data-psub="catalog">Catalog</button><button class="tab" type="button" data-psub="stock">Stock &amp; invoices</button></div>
+<div data-pm><p class="muted small">Loading…</p></div><div data-stock hidden><div data-po></div><h2 class="serif osec">On the shelf</h2><input class="psearch" type="search" data-ssearch placeholder="Search products" aria-label="Search stock"><div data-slist><p class="muted small">Loading…</p></div></div></section>
+<section class="opane" data-pane="customers" hidden><div data-custs></div></section>
+<section class="opane" data-pane="more" hidden><div data-morehome><div class="mcards">${MORE.map(m => mcard(...m)).join("")}${mcard("", "gear", "Full admin", "Everything else, on the computer", "admin.html")}${mcard("", "shop", "View the shop", "See it the way customers do", "index.html")}</div>
+<p class="mlinks"><a href="install.html">Install guide</a><button type="button" class="linkish" data-signout>Sign out</button></p>
+<div class="nalbox" id="alerts"><h2 class="serif">Alerts on this device</h2><div data-nal><p class="muted small">Loading…</p></div></div></div>
+<div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
+<nav class="otabbar" aria-label="Owner app">${NAV.map(([k, i, l]) => `<button type="button" data-go="${k}" aria-current="${k === "today" ? "page" : "false"}">${P.icon(i, 22)}<span>${l}</span><i data-badge="${k}" hidden></i></button>`).join("")}</nav>`;
+    PSTOps.init({ me, get orders() { return orders; }, get items() { return items; }, reload: load, lineExtra: (o, i) => lineDays(o, i) });
+    document.addEventListener("click", onClick);
+    document.addEventListener("input", onInput);
+    document.addEventListener("change", onChange);
+    window.addEventListener("hashchange", route);
+    alertsCard(); P.refreshBell(); await load(); route();
     document.addEventListener("visibilitychange", () => { if (!document.hidden) { load(); P.refreshBell(); } });
     timer = setInterval(() => { if (!document.hidden) load(); }, 45000);
-    const m = location.hash.match(/o=([\w-]+)/); if (m) { tab = "all"; draw(); const el = $(`[data-card="${m[1]}"]`); if (el) { el.querySelector(".ob").hidden = false; el.scrollIntoView({ block: "center" }); } }
   }
+  // owner.html#o=<id>&pay=1 (alerts), #alerts, #stock, #products, #customers, #insights…
+  function route() {
+    const h = location.hash.slice(1), m = h.match(/(?:^|&)o=([\w-]+)/);
+    P.closeSheet();
+    if (m) { go("orders"); PSTOps.openOrder(m[1], { pay: /(?:^|&)pay=1\b/.test(h) }); return; }
+    if (h === "alerts") { go("more"); setTimeout(() => $("#alerts")?.scrollIntoView({ block: "start", behavior: "smooth" }), 120); return; }
+    if (h === "stock") { go("products"); sub("stock"); return; }
+    if (["insights", "protos", "times"].includes(h)) { go("more"); moreSub(h); return; }
+    go(NAV.some(n => n[0] === h) ? h : "today");
+  }
+  function go(v) {
+    view = v; $$("[data-pane]").forEach(p => p.hidden = p.dataset.pane !== v);
+    $$("[data-go]").forEach(b => b.setAttribute("aria-current", b.dataset.go === v ? "page" : "false"));
+    $("[data-otitle]").textContent = TITLES[v]; history.replaceState(null, "", "#" + v);
+    if (v === "products" && !pmLoaded) { pmLoaded = true; pmList(); }
+    if (v === "customers") PSTOps.customersPane($("[data-custs]"));
+    if (v === "more") moreHome();
+    window.scrollTo(0, 0);
+  }
+  function moreHome() { $("[data-morehome]").hidden = false; $("[data-moresub]").hidden = true; $("[data-otitle]").textContent = "More"; P.notifyPanel($("[data-nal]"), "owner"); }
+  function moreSub(k) {
+    if (k === "stock") { go("products"); sub("stock"); return; }
+    $("[data-morehome]").hidden = true; $("[data-moresub]").hidden = false; $$("[data-sub]").forEach(x => x.hidden = x.dataset.sub !== k);
+    $("[data-otitle]").textContent = TITLES[k]; history.replaceState(null, "", "#" + k);
+    if (k === "insights") insights(30); if (k === "protos") protoPage(); if (k === "times") times();
+    window.scrollTo(0, 0);
+  }
+  function sub(k) {
+    $$("[data-psub]").forEach(b => b.classList.toggle("on", b.dataset.psub === k));
+    $("[data-pm]").hidden = k !== "catalog"; $("[data-stock]").hidden = k !== "stock";
+    if (k === "stock") stockList();
+  }
+  async function stockList() {
+    PSTOps.stockPane($("[data-po]"));
+    const { data, error } = await P.client().from("product_inventory").select("*").order("display_name");
+    if (error) { $("[data-slist]").innerHTML = `<p class="notice err">${esc(error.message)}</p>`; return; }
+    stockRows = data || [];
+    $("[data-slist]").innerHTML = stockRows.map(p => { const n = Number(p.current_inventory || 0), low = n > 0 && n <= Number(p.low_stock_threshold ?? 5);
+      return `<div class="srow" data-sname="${esc(`${p.display_name} ${p.strength || ""} ${p.product_key}`.toLowerCase())}"><span><b>${esc(p.display_name)} ${esc(p.strength || "")}</b><small class="muted">${[p.is_active === false ? "Hidden" : "", n <= 0 ? "Out of stock" : low ? "Running low" : ""].filter(Boolean).join(" · ")}</small></span><em class="${n <= 0 ? "bad" : low ? "warn" : ""}">${n}</em><button class="btn ghost sm" type="button" data-count="${esc(p.product_key)}">Count</button></div>`; }).join("") || `<p class="muted small">No products yet.</p>`;
+    const q = $("[data-ssearch]")?.value; if (q) filterRows("[data-sname]", q);
+  }
+  const filterRows = (sel, q) => { q = q.trim().toLowerCase(); $$(sel).forEach(r => r.hidden = !!q && !r.getAttribute(sel.slice(1, -1)).includes(q)); };
   async function load() {
     let r = await P.client().from("orders").select("*").order("created_at", { ascending: false }).limit(120);
     if (r.error) { $("[data-list]").innerHTML = `<p class="notice err">Couldn't load orders: ${esc(r.error.message)}</p>`; return; }
@@ -67,22 +109,28 @@
     draw(); due();
     if (navigator.setAppBadge) { const n = orders.filter(TABS.pay.f).length; try { n ? navigator.setAppBadge(n) : navigator.clearAppBadge(); } catch {} }
   }
-  function draw() {
+  function draw() { drawToday(); drawOrders(); }
+  const sum = list => money(list.reduce((s, o) => s + Number(o.total || 0), 0));
+  function drawToday() {
     const today = new Date().toDateString(), tod = orders.filter(o => new Date(o.created_at).toDateString() === today && !dead(o));
-    $("[data-stats]").innerHTML = `<div class="tile"><small>Today</small><b>${tod.length}</b><span class="muted small">${money(tod.reduce((s, o) => s + Number(o.total || 0), 0))}</span></div><div class="tile"><small>Waiting on payment</small><b>${orders.filter(TABS.pay.f).length}</b><span class="muted small">${money(orders.filter(TABS.pay.f).reduce((s, o) => s + Number(o.total || 0), 0))}</span></div>`;
+    const pay = orders.filter(TABS.pay.f), pack = orders.filter(TABS.pack.f), ready = orders.filter(TABS.ready.f);
+    const tile = (k, l, n, s) => `<button type="button" class="tile" data-otab="${k}"><small>${l}</small><b>${n}</b><span class="muted small">${s}</span></button>`;
+    $("[data-stats]").innerHTML = tile("all", "Today", tod.length, sum(tod)) + tile("pay", "Waiting on payment", pay.length, sum(pay)) + tile("pack", "To pack", pack.length, pack.length ? "paid, ready to go" : "all caught up") + tile("ready", "Ready / out", ready.length, "packed or shipped");
+    const attn = [...pack, ...pay];
+    $("[data-attn]").innerHTML = attn.length ? attn.slice(0, 8).map(card).join("") + (attn.length > 8 ? `<button class="btn ghost wide" type="button" data-otab="pay">See all ${attn.length}</button>` : "") : `<div class="empty">${P.icon("check", 28)}<p>Nothing waiting on you. Nice.</p></div>`;
+    PSTOps.venmoMatches($("[data-vmbox]"));
+    const n = attn.length, bd = $('[data-badge="orders"]'); if (bd) { bd.hidden = !n; bd.textContent = n > 99 ? "99+" : n; }
+  }
+  function drawOrders() {
+    const q = oq.trim().toLowerCase();
+    $("[data-tabs]").hidden = !!q;
     $("[data-tabs]").innerHTML = Object.entries(TABS).map(([k, v]) => `<button class="tab${k === tab ? " on" : ""}" type="button" role="tab" aria-selected="${k === tab}" data-tab="${k}">${v.t}${k !== "all" ? ` (${orders.filter(v.f).length})` : ""}</button>`).join("");
-    const list = orders.filter(TABS[tab].f).slice(0, 60);
-    $("[data-list]").innerHTML = list.length ? list.map(card).join("") : `<div class="empty">${P.icon("check", 28)}<p>Nothing here. Nice.</p></div>`;
+    const list = (q ? orders.filter(o => `${o.customer_name || ""} ${o.shipping_name || ""} ${o.order_number || ""} ${o.customer_email || ""}`.toLowerCase().includes(q)) : orders.filter(TABS[tab].f)).slice(0, 80);
+    $("[data-list]").innerHTML = list.length ? list.map(card).join("") : `<div class="empty">${P.icon(q ? "search" : "check", 28)}<p>${q ? "No orders match that." : "Nothing here. Nice."}</p></div>`;
   }
   function card(o) {
-    const its = items[o.id] || [], pk = pickup(o), rem = (o.customer_notes || "").match(/Reorder reminder:\s*(.+)/i);
-    const st = dead(o) ? ["bad", os(o)] : done(o) ? ["ship", os(o) === "delivered" ? (pk ? "Picked up" : "Delivered") : pk ? "Ready" : "Shipped"] : os(o) === "packed" ? ["ok", pk ? "Ready for pickup" : "Packed"] : ps(o) === "paid" ? ["ok", "Paid · pack it"] : ["pend", "Awaiting payment"];
-    return `<article class="ocard" data-card="${o.id}"><button class="oh" type="button" data-open="${o.id}"><div><b>${esc(o.customer_name || "Customer")} · ${money(o.total)}</b><span>${esc(o.order_number || "")} · ${ago(o.created_at)} · ${pk ? "Pickup" : "Ship"} · ${esc(o.payment_method || "")}</span></div><span class="opill ${st[0]}">${esc(st[1])}</span></button>
-<div class="ob" hidden><div class="oitems">${its.map(i => `<div class="oline"><span>${esc(i.product_name)} ${esc(i.product_strength || "")} × ${i.quantity}${i.backorder_quantity ? ` <span class="bo">· ${i.backorder_quantity} on backorder</span>` : ""}</span><b>${money(i.line_total)}</b>${lineDays(o, i)}</div>`).join("")}
-<div><span class="muted">${pk ? "Local pickup" : "Shipping"}</span><span>${o.shipping ? money(o.shipping) : "Free"}</span></div><div><b>Total</b><b>${money(o.total)}</b></div></div>
-${!pk && o.shipping_address ? `<p class="small muted">${P.icon("truck", 14)} ${esc(o.shipping_address)}</p>` : ""}${rem ? `<p class="small" style="color:var(--gold2)">${P.icon("bell", 14)} Reorder reminder: ${esc(rem[1])}</p>` : ""}
-${holdRow(o)}<p class="small muted">${esc(o.customer_email || "")}${phoneOf(o) ? ` · ${esc(o.customer_phone || o.shipping_phone)}` : ""}</p>
-<div class="oacts">${phoneOf(o) ? `<button class="btn primary sm" type="button" data-texts="${o.id}">${P.icon("chat", 16)} Text</button><a class="btn ghost sm" href="tel:${phoneOf(o)}">Call</a>` : ""}<a class="btn ghost sm" href="mailto:${esc(o.customer_email || "")}?subject=${encodeURIComponent("Your Pep Shop Texas order " + (o.order_number || ""))}">Email</a><a class="btn ghost sm" href="admin.html">Update in Admin</a><button class="btn ghost sm" type="button" data-copy="${esc(o.order_number || o.id)}">Copy #</button></div></div></article>`;
+    const st = PSTOps.stage(o), n = (items[o.id] || []).reduce((s, i) => s + Number(i.quantity || 0), 0);
+    return `<article class="ocard" data-card="${o.id}"><button class="oh" type="button" data-ord="${o.id}"><div><b>${esc(PSTOps.custName(o))} · ${money(o.total)}</b><span>${esc(o.order_number || "")} · ${ago(o.created_at)} · ${pickup(o) ? "Pickup" : "Ship"}${n ? ` · ${n} item${n === 1 ? "" : "s"}` : ""}${o.payment_method ? ` · ${esc(o.payment_method)}` : ""}</span></div><span class="opill ${st.cls}">${esc(st.t)}</span></button></article>`;
   }
   function texts(o) {
     const n = first(o), no = o.order_number || "", t = money(o.total);
@@ -315,10 +363,42 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
     if (st === "on") { el.innerHTML = ""; return; }
     el.innerHTML = `<div class="alertcta" style="margin-top:0">${P.icon("bell", 24)}<b>${st === "needs-install" ? "Add this to your Home Screen" : "Get a ping for every new order"}</b><span>${st === "needs-install" ? "Share → Add to Home Screen, open it from there, then turn on alerts." : st === "blocked" ? "Notifications are blocked. Turn them on in Settings → Notifications." : "New orders, with the customer, items and total."}</span>${st === "blocked" || st === "unsupported" ? "" : `<button class="btn primary" type="button" data-o="push">${st === "needs-install" ? "Show me how" : "Turn on new-order alerts"}</button>`}</div>`;
   }
+  function onInput(e) {
+    const t = e.target;
+    if (t.matches("[data-pmsearch]")) pmFilter(t.value);
+    else if (t.matches("[data-psearch]")) protoFilter(t.value);
+    else if (t.matches("[data-csearch]")) PSTOps.filterCustomers(t.value);
+    else if (t.matches("[data-osearch]")) { oq = t.value; drawOrders(); }
+    else if (t.matches("[data-ssearch]")) filterRows("[data-sname]", t.value);
+  }
+  async function onChange(e) {
+    const t = e.target;
+    if (t.matches("[data-pf]")) { saveProto(t.closest("[data-proto]")); return; }
+    if (t.matches("[data-days]")) { const v = Math.round(Number(t.value)) || null; setDays(t.dataset.days, v, "owner"); return; }
+    if (t.matches("[data-summary]")) { const v = t.value.trim() || null; const { error } = await P.client().from("product_catalog").update({ research_summary: v }).eq("display_name", t.dataset.summary); P.toast(error ? "Couldn't save: " + error.message : v ? "Write-up saved" : "Write-up cleared"); return; }
+    if (!t.matches("[data-default]")) return; const v = Math.max(0, Math.min(365, Number(t.value) || 0)) || null;
+    const { error } = await P.client().from("product_catalog").update({ reorder_days_default: v }).eq("product_key", t.dataset.default);
+    P.toast(error ? "Couldn't save: " + error.message : v ? `Saved: ${v} days` : "Cleared");
+  }
   async function onClick(e) {
     const t = e.target;
-    const tb = t.closest("[data-tab]"); if (tb) { tab = tb.dataset.tab; draw(); return; }
-    const op = t.closest("[data-open]"); if (op) { const b = op.parentElement.querySelector(".ob"); b.hidden = !b.hidden; return; }
+    const g = t.closest("[data-go]"); if (g) { go(g.dataset.go); return; }
+    const ot = t.closest("[data-otab]"); if (ot) { tab = ot.dataset.otab; oq = ""; const s = $("[data-osearch]"); if (s) s.value = ""; go("orders"); drawOrders(); return; }
+    const tb = t.closest("[data-tab]"); if (tb) { tab = tb.dataset.tab; drawOrders(); return; }
+    const psb = t.closest("[data-psub]"); if (psb) { sub(psb.dataset.psub); return; }
+    const mo = t.closest("[data-more]"); if (mo) { moreSub(mo.dataset.more); return; }
+    if (t.closest("[data-moreback]")) { moreHome(); history.replaceState(null, "", "#more"); window.scrollTo(0, 0); return; }
+    const qk = t.closest("[data-q]"); if (qk) { if (qk.dataset.q === "neworder") PSTOps.pickCustomer(k => PSTOps.newOrderFlow(k)); else PSTOps.addCustomerFlow(k => PSTOps.openCustomer(k)); return; }
+    const od = t.closest("[data-ord]"); if (od) { PSTOps.openOrder(od.dataset.ord); return; }
+    const vm = t.closest("[data-vm]"); if (vm) { PSTOps.openOrder(vm.dataset.vm, { pay: true }); return; }
+    const vx = t.closest("[data-vmx]"); if (vx) { const { error } = await P.client().from("pst_payment_matches").update({ confirmed_at: new Date().toISOString() }).eq("id", vx.dataset.vmx); P.toast(error ? "Couldn't dismiss: " + error.message : "Dismissed"); PSTOps.venmoMatches($("[data-vmbox]")); return; }
+    const cu = t.closest("[data-cust]"); if (cu) { PSTOps.openCustomer(cu.dataset.cust); return; }
+    if (t.closest("[data-cnew]")) { PSTOps.addCustomerFlow(k => PSTOps.openCustomer(k)); return; }
+    const no = t.closest("[data-neworder]"); if (no) { PSTOps.newOrderFlow(no.dataset.neworder); return; }
+    const cr = t.closest("[data-credit]"); if (cr) { PSTOps.creditFlow(cr.dataset.credit); return; }
+    const rv = t.closest("[data-recv]"); if (rv) { await PSTOps.receivePO(rv.dataset.recv, $("[data-po]")); stockList(); return; }
+    const ct = t.closest("[data-count]"); if (ct) { const p = stockRows.find(x => x.product_key === ct.dataset.count); if (p) PSTOps.countFlow(p, stockList); return; }
+    if (t.closest("[data-signout]")) { await P.client().auth.signOut(); location.href = "login.html?redirect=owner.html"; return; }
     const tx = t.closest("[data-texts]"); if (tx) { texts(orders.find(o => String(o.id) === tx.dataset.texts)); return; }
     const sp = t.closest("[data-std]"); if (sp) { const i = Object.values(items).flat().find(x => String(x.id) === sp.dataset.std); const d = i && protoDays(i); if (d) await setDays(i.id, d, "protocol"); return; }
     const pe = t.closest("[data-pmedit]"); if (pe) { pmEdit(pe.dataset.pmedit); return; }
@@ -326,11 +406,11 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
     const pb = t.closest("[data-pmbake]"); if (pb) { pmBakeAll(pb); return; }
     const pl = t.closest("[data-pmlive]"); if (pl) { e.preventDefault(); pmLive(pl.dataset.pmlive, pl.getAttribute("aria-checked") !== "true", pl); return; }
     const rg = t.closest("[data-range]"); if (rg) { insights(Number(rg.dataset.range)); return; }
-    const hd = t.closest("[data-hold]"); if (hd) { hd.disabled = true; const { error } = await P.client().rpc("pst_hold_until_paid", { p_order_id: hd.dataset.hold, p_hold: hd.dataset.on === "1" }); P.toast(error ? "Couldn't change hold: " + error.message : hd.dataset.on === "1" ? "Held until paid" : "24-hour timer restarted"); await load(); return; }
+    const hd = t.closest("[data-hold]"); if (hd) { hd.disabled = true; const { error } = await P.client().rpc("pst_hold_until_paid", { p_order_id: hd.dataset.hold, p_hold: hd.dataset.on === "1" }); P.toast(error ? "Couldn't change hold: " + error.message : hd.dataset.on === "1" ? "Held until paid" : "24-hour timer restarted"); await load(); if (document.querySelector(`[data-osheet="${hd.dataset.hold}"]`)) PSTOps.openOrder(hd.dataset.hold); return; }
     const cp = t.closest("[data-copy]"); if (cp) { navigator.clipboard?.writeText(cp.dataset.copy).then(() => P.toast("Copied " + cp.dataset.copy)); return; }
     const o = t.closest("[data-o]"); if (!o) return;
     if (o.dataset.o === "refresh") { o.disabled = true; await load(); o.disabled = false; P.toast("Up to date"); }
-    if (o.dataset.o === "push") { try { if (await P.enablePush("owner")) { P.toast("New-order alerts are on"); alertsCard(); const n = $("[data-nal]"); if (n && n.closest("details").open) P.notifyPanel(n, "owner"); } } catch (err) { P.toast(err.message); } }
+    if (o.dataset.o === "push") { try { if (await P.enablePush("owner")) { P.toast("Alerts are on"); alertsCard(); if (view === "more") P.notifyPanel($("[data-nal]"), "owner"); } } catch (err) { P.toast(err.message); } }
   }
   document.addEventListener("DOMContentLoaded", boot);
 })();

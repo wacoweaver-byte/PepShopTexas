@@ -37,7 +37,7 @@
     let act = "";
     if (st.n === 0) act = `${venmo ? `<a class="btn venmo sm" href="${esc(P.venmoLink(o.total, o.order_number || o.id))}" target="_blank" rel="noopener">Pay ${money(o.total)} with Venmo</a>` : ""}<button class="btn ghost sm" type="button" data-sent="${o.id}"${notified ? " disabled" : ""}>${notified ? "✓ Payment sent" : "I've sent payment"}</button>`;
     else if (st.n >= 2 && st.pickup) act = `<span class="muted small">We'll text you the pickup spot and time.</span>`;
-    else if (st.n === 3 && o.tracking_number && !/no tracking/i.test(o.tracking_number)) act = `<a class="btn ghost sm" target="_blank" rel="noopener" href="https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(o.tracking_number)}">Track package</a>`;
+    else if (st.n === 3 && o.tracking_number && !/no tracking/i.test(o.tracking_number) && !P.handedOff(o)) act = `<a class="btn ghost sm" target="_blank" rel="noopener" href="https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(o.tracking_number)}">Track package</a>`;
     return `<div class="obanner ${st.cls}"><div class="obt"><span class="opill ${st.cls}">${esc(st.label)}</span><b>${esc(o.order_number || "Your order")} · ${money(o.total)}</b><span class="muted small">${esc(its)}</span></div><div class="oacts">${act}<a class="btn ghost sm" href="account.html?o=${esc(o.id)}#orders">Details</a></div></div>`;
   }
   function productRow(m) {
