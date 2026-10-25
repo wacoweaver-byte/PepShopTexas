@@ -4041,7 +4041,7 @@ function incomingProductLabel(item) {
 
 const incomingVendorSkuCache = new Map();
 async function loadIncomingVendorSkuCache(rows) {
-  const ids = [...new Set((rows || []).map(row => String(row.vendor_id || "")).filter(Boolean))];
+  const ids = [...new Set((rows || []).map(row => String(row.vendor_id || vendorForIncomingRow(row)?.id || "")).filter(Boolean))];
   await Promise.all(ids.map(async id => {
     const {data,error} = await db.from("pst_vendor_catalog_items")
       .select("product_key,product_name,strength,vendor_item_number").eq("vendor_id",id);
@@ -4060,13 +4060,19 @@ function incomingVendorItemNumber(itemOrRow) {
   const embedded = label.match(/\[Vendor SKU:\s*([^\]]+)\]/i);
   if (embedded) return embedded[1].trim();
   const key = cleanText(itemOrRow.productKey || itemOrRow.product_key || "");
-  const vendorId = cleanText(itemOrRow.vendor_id || $("incomingVendorSelect")?.value || "");
+  const vendorId = cleanText(itemOrRow.vendor_id || vendorForIncomingRow(itemOrRow)?.id || $("incomingVendorSelect")?.value || "");
   const catalog = incomingVendorSkuCache.get(vendorId) || (String($("incomingVendorSelect")?.value || "") === vendorId ? pstVendorCatalogItems : []);
   const byKey = key && catalog.find(x => cleanText(x.product_key) === key && cleanText(x.vendor_item_number));
   if (byKey) return cleanText(byKey.vendor_item_number);
   const normalizedLabel = incomingSkuNorm(label.replace(/\[Vendor SKU:[^\]]+\]/gi,""));
   const candidates = catalog.filter(x => incomingSkuNorm(String(x.product_name || "") + " — " + String(x.strength || "")) === normalizedLabel);
-  return candidates.length === 1 ? cleanText(candidates[0].vendor_item_number) : "";
+  if (candidates.length === 1) return cleanText(candidates[0].vendor_item_number);
+  // Older PO rows can use a different display name; only accept an unambiguous
+  // supplier catalog record with the same name and strength.
+  const name = label.replace(/\\s*[—–-]\\s*(?:\\d+(?:\\.\\d+)?\\s*(?:mg|mcg|iu))\\s*$/i,"").trim();
+  const strength = (label.match(/(\\d+(?:\\.\\d+)?\\s*(?:mg|mcg|iu))\\s*$/i)||[])[1] || "";
+  const exact = catalog.filter(x => incomingSkuNorm(x.product_name) === incomingSkuNorm(name) && incomingSkuNorm(x.strength) === incomingSkuNorm(strength));
+  return exact.length === 1 ? cleanText(exact[0].vendor_item_number) : "";
 }
 
 function incomingSortValue(row, key) {
