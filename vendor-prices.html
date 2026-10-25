@@ -4,7 +4,9 @@ const db=supabase.createClient("https://ucejjztsbmrogiteivxl.supabase.co","sb_pu
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
 const norm=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
-let products=[],vendors=[],staged=[];
+let products=[],vendors=[],staged=[],savedMappings=new Map();
+const normStrength=s=>norm(String(s||"").replace(/\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\b(milligrams?|mgs?)\b/gi,"mg").replace(/\b(micrograms?|mcgs?)\b/gi,"mcg"));
+const stableSku=(name,strength)=>"PST-AUTO-"+norm(name).slice(0,45)+"-"+norm(strength).slice(0,25);
 const get=(r,...keys)=>{for(const k of keys){const found=Object.keys(r).find(x=>norm(x)===norm(k));if(found&&r[found]!==undefined)return String(r[found]).trim();}return "";};
 const options=()=>'<option value="">Match product...</option>'+products.map(p=>'<option value="'+esc(p.product_key)+'">'+esc((p.display_name||"No display name")+" | "+(p.strength||"")+" | "+p.product_key+" ("+p.display_name+")")+'</option>').join("");
 async function init(){const u=await db.auth.getUser();if(!u.data?.user){location.href="login.html?redirect=vendor-prices.html";return;}
@@ -13,9 +15,10 @@ if(v.error||p.error){$("status").textContent=(v.error||p.error).message;return;}
 $("vendor").innerHTML='<option value="">Select vendor...</option>'+vendors.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.pst_vendor_id+" — "+x.company_name)+'</option>').join("");
 }
 async function current(){
- const id=$("vendor").value;$("current").innerHTML="";if(!id)return;
+ const id=$("vendor").value;$("current").innerHTML="";savedMappings=new Map();if(!id)return;
  const {data,error}=await db.from("pst_vendor_catalog_items").select("id,product_key,product_name,strength,vendor_item_number,kit_cost").eq("vendor_id",id).order("product_name");
  if(error){$("status").textContent=error.message;return;}
+ savedMappings=new Map((data||[]).filter(x=>x.vendor_item_number&&x.product_key).map(x=>[norm(x.vendor_item_number),x.product_key]));
  $("catalogCount").textContent=(data||[]).length+" items · "+(data||[]).filter(x=>x.product_key).length+" matched · "+(data||[]).filter(x=>!x.product_key).length+" unmatched";
  $("current").innerHTML=(data||[]).map(x=>'<tr><td>'+esc(x.product_name+" — "+(x.strength||""))+'</td><td>'+esc(x.vendor_item_number)+'</td><td>'+(x.product_key?'<span class="good">Matched: '+esc(x.product_key)+'</span>':'<span class="warn">Vendor-only / unmatched</span>')+'</td><td>$'+Number(x.kit_cost).toFixed(2)+'</td><td>'+(x.product_key?'<a href="inventory.html">Order via Inventory</a>':'<button type="button" data-order-id="'+esc(x.id)+'">Create PO</button>')+'</td></tr>').join("")||'<tr><td colspan="5">No vendor products imported.</td></tr>';
  $("current").querySelectorAll("[data-order-id]").forEach(btn=>btn.onclick=async()=>{
@@ -29,8 +32,11 @@ async function current(){
 }
 $("vendor").addEventListener("change",current);
 $("load").onclick=async()=>{const file=$("file").files[0];if(!file||!$("vendor").value){$("status").textContent="Choose a vendor and a spreadsheet.";return;}if(!window.XLSX){$("status").textContent="Spreadsheet reader unavailable. Please try again.";return;}
-try{const workbook=XLSX.read(await file.arrayBuffer(),{type:"array"});const rows=XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]],{defval:""});staged=rows.map(r=>{const name=get(r,"Product Name","Product","Name","Peptide"),strength=get(r,"Strength","Specification","Size","Vial Strength"),sku=get(r,"Vendor Item Number","Vendor SKU","Item Number","SKU","Code"),key=get(r,"PST Product Key","Product Key","PST SKU"),costStr=get(r,"Kit Cost","Price per Kit","Kit Price","Cost per Kit","Price"),cost=Number(costStr.replace(/[$,]/g,""));let match=products.find(p=>norm(p.product_key)===norm(key)&&key);if(!match){const candidates=products.filter(p=>p.display_name&&norm(p.display_name)===norm(name)&&norm(p.strength)===norm(strength.replace(/\s*[*×x]\s*10\s*vials?\s*$/i,"")));if(candidates.length===1)match=candidates[0];}return{name,strength,sku,cost,key:match?.product_key||""};}).filter(r=>r.name||r.sku||r.key);
-$("review").hidden=false;render();$("status").textContent=staged.length+" rows loaded. Review all matches and costs before saving.";
+try{const workbook=XLSX.read(await file.arrayBuffer(),{type:"array"});const rows=XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]],{defval:""});staged=rows.map(r=>{const name=get(r,"Product Name","Product","Name","Peptide"),strength=get(r,"Strength","Specification","Size","Vial Strength"),sku=get(r,"Vendor Item Number","Vendor SKU","Item Number","SKU","Code"),key=get(r,"PST Product Key","Product Key","PST SKU"),costStr=get(r,"Kit Cost","Price per Kit","Kit Price","Cost per Kit","Price"),cost=Number(costStr.replace(/[$,]/g,""));let match=products.find(p=>key&&norm(p.product_key)===norm(key));
+if(!match&&sku){match=products.find(p=>p.product_key===savedMappings.get(norm(sku)));}
+if(!match){const candidates=products.filter(p=>p.display_name&&norm(p.display_name)===norm(name)&&normStrength(p.strength)===normStrength(strength));if(candidates.length===1)match=candidates[0];}
+return{name,strength,sku:sku||stableSku(name,strength),cost,key:match?.product_key||"",generatedSku:!sku};}).filter(r=>r.name||r.sku||r.key);
+$("review").hidden=false;render();$("status").textContent=staged.length+" rows loaded. "+staged.filter(r=>r.generatedSku).length+" rows lacked vendor SKUs; stable PST-AUTO identifiers were generated. Review matches before saving.";
 }catch(e){$("status").textContent="Unable to read file: "+e.message;}};
 function render(){const ops=options();$("rows").innerHTML=staged.map((r,i)=>'<tr><td>'+esc(r.name)+'</td><td>'+esc(r.strength)+'</td><td>'+esc(r.sku)+'</td><td><select data-index="'+i+'" data-field="key">'+ops+'</select></td><td><input type="number" min="0" step="0.01" data-index="'+i+'" data-field="cost" value="'+(Number.isFinite(r.cost)?r.cost:"")+'"></td><td class="'+(r.key?"good":"warn")+'">'+(r.key?"Matched":"Needs match")+'</td></tr>').join("");
 $("rows").querySelectorAll('select[data-field="key"]').forEach(el=>el.value=staged[+el.dataset.index].key);
@@ -39,8 +45,10 @@ $("rows").querySelectorAll("select,input").forEach(el=>el.onchange=()=>{const x=
 }
 $("save").onclick=async()=>{
  if(!$("vendor").value)return;
- const valid=staged.filter(r=>r.sku&&r.name&&Number.isFinite(r.cost)&&r.cost>=0);
- if(!valid.length){$("status").textContent="No valid vendor rows to save.";return;}
+ const invalid=staged.map((r,i)=>({r,i})).filter(({r})=>!r.sku||!r.name||!Number.isFinite(r.cost)||r.cost<0);
+ if(invalid.length){$("status").textContent="Cannot save: "+invalid.length+" invalid rows (first at Excel row "+(invalid[0].i+2)+"). Each row needs a product name and valid nonnegative kit cost.";return;}
+ const valid=staged;
+ if(!valid.length){$("status").textContent="No vendor rows to save.";return;}
  if(new Set(valid.map(r=>r.sku.toLowerCase())).size!==valid.length){$("status").textContent="Duplicate vendor item numbers: resolve before saving.";return;}
  if(!confirm("Save "+valid.length+" vendor products, including unmatched? Retail prices stay unchanged."))return;
  $("save").disabled=true;
@@ -49,6 +57,7 @@ $("save").onclick=async()=>{
  if(error){$("status").textContent="Save failed: "+error.message;return;}
  $("status").textContent=data+" vendor products saved (including unmatched). Retail prices unchanged.";
  await current();
+ if(!$("status").textContent.startsWith("Save failed"))$("status").textContent=data+" vendor products saved and catalog refreshed.";
 };
 init();
 </script></body></html>
