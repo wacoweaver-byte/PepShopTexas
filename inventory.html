@@ -4442,7 +4442,7 @@ function beginIncomingPurchaseOrderEdit(poNumber) {
     originalRowId: row.id,
     productId: row.product_id,
     productKey: row.product_key || null,
-    vendorOnly: !row.product_id && !row.product_key && String(row.product_name||"").includes("[Vendor SKU:"),
+    vendorOnly: !row.product_id && !row.product_key && Boolean(cleanText(row.product_name)),
     productName: row.product_name || row.product_key || "Product",
     vendor_item_number: (String(row.product_name||"").match(/\[Vendor SKU:\s*([^\]]+)\]/i)||[])[1] || "",
     qty: Number(row.ordered_quantity || 0),
@@ -5188,7 +5188,7 @@ async function addIncomingInventory() {
 
   if (!lines.length) { alert("Add at least one product line to the incoming order."); return; }
   if(lines.some(line => incomingLineKitCost(line)<=0)){alert("Every PO line requires a vendor kit cost. Add a vendor price or enter a kit cost manually.");return;}
-  if (lines.some(line => (!line.productId && !line.vendorOnly) || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
+  if (lines.some(line => (!line.productId && !cleanText(line.productName)) || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
     alert("Every incoming line needs a product and ordered quantity greater than zero.");
     return;
   }
@@ -5275,7 +5275,7 @@ async function saveIncomingPurchaseOrderEdit() {
   if (!poNumber) return;
 
   const lines = incomingDraftLines.slice();
-  if (lines.some(line => (!line.productId && !line.vendorOnly) || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
+  if (lines.some(line => (!line.productId && !cleanText(line.productName)) || !Number.isFinite(Number(line.qty)) || Number(line.qty) <= 0)) {
     alert("Every retained or added PO line needs a product and ordered quantity greater than zero.");
     return;
   }
