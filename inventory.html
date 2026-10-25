@@ -4084,7 +4084,7 @@ function incomingSortValue(row, key) {
   if (key === "ordered_at") return new Date(orderedAt).getTime() || 0;
   if (key === "days") return daysBetween(orderedAt);
   if (key === "expected") return new Date(incomingExpectedArrivalForRow(row)).getTime() || 0;
-  if (key === "supplier") return row.vendor_name || row.supplier_name || row.supplier || row.tracking_number || "";
+  if (key === "supplier") return vendorForIncomingRow(row)?.company_name || row.vendor_name || row.supplier_name || row.supplier || "";
   if (key === "cost") return incomingTotalCost(row);
   if (key === "status") return incomingStatusLabel(row.status || "ordered");
   if (key === "user") return row.notes || "";
@@ -5046,7 +5046,7 @@ function renderIncomingInventory() {
     const status = String(row.status || "ordered").toLowerCase();
     const isReceived = status === "received";
     const isCancelled = status === "cancelled";
-    const source = [row.vendor_name || row.supplier_name || row.supplier || "", row.tracking_number || ""].filter(Boolean).join(" / ") || "—";
+    const source = [vendorForIncomingRow(row)?.company_name || row.vendor_name || row.supplier_name || row.supplier || "", row.tracking_number || ""].filter(Boolean).join(" / ") || "—";
     const kitCost = incomingKitCost(row);
     const unitCost = incomingCostPerUnit(row);
     const shipCost = incomingShippingCost(row);
