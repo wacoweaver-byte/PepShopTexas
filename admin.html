@@ -1998,7 +1998,7 @@ body[data-admin-page="orders"] #order-list-card .table-wrap {height:auto!importa
       await safeUpdateOrder(order.id,{subtotal,total,updated_at:new Date().toISOString()},order);
       const now=new Date().toISOString();
       for(const row of changed){
-        const payload={product_name:row.product_name,product_strength:row.product_strength,quantity:row.quantity,unit_price:row.unit_price,line_total:pstEditMoney(row.quantity*row.unit_price),updated_at:now};
+        const payload={product_name:row.product_name,product_strength:row.product_strength,quantity:row.quantity,unit_price:row.unit_price,line_total:pstEditMoney(row.quantity*row.unit_price)};
         if(row.id){const {data,error}=await supabaseClient.from("order_items").update(payload).eq("id",row.id).eq("order_id",order.id).select("id");if(error)throw error;if(!data?.length)throw new Error("Could not update an existing item.");}
         else{
           // Resolve the real inventory key before inserting: the reservation trigger
