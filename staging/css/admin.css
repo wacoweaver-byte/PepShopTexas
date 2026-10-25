@@ -1,0 +1,312 @@
+/* Pep Shop Texas — shared admin design system
+   Shared admin colors, typography, forms, actions, statuses, header, and footer.
+   Page-specific card geometry remains owned by each page. */
+
+:root {
+  --pst-admin-navy: #102a43;
+  --pst-admin-navy-deep: #0b2037;
+  --pst-admin-gold: #b79a63;
+  --pst-admin-gold-soft: #d8c8a4;
+  --pst-admin-ink: #24303b;
+  --pst-admin-muted: #6f7782;
+  --pst-admin-line: #e8e3da;
+  --pst-admin-soft: #faf9f6;
+  --pst-admin-white: #ffffff;
+  --pst-admin-green: #0f8a3b;
+  --pst-admin-warn: #b7791f;
+  --pst-admin-danger: #b42318;
+  --pst-admin-font: "Avenir Next", "Segoe UI", Arial, Helvetica, sans-serif;
+  --pst-admin-heading: Georgia, "Times New Roman", serif;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{min-width:320px}
+body{margin:0!important;color:var(--pst-admin-ink)!important;background:#fff!important;font-family:var(--pst-admin-font)!important}
+button,input,select,textarea{font:inherit}
+a{color:inherit;text-decoration:none}
+[hidden]{display:none!important}
+
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+/* ADMIN HEADER */
+.pst-admin-header,body>header.pst-admin-header{position:sticky!important;top:0!important;z-index:1000!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;background:#fff!important;border:0!important;border-bottom:1px solid var(--pst-admin-line)!important;box-shadow:none!important}
+.pst-admin-nav-wrap{width:min(1180px,calc(100% - 40px))!important;min-height:92px!important;margin:0 auto!important;padding:14px 0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:28px!important}
+.pst-admin-logo-link{flex:0 0 190px!important;width:190px!important;height:62px!important;display:block!important;background:url("../pst-header-logo.png") center/contain no-repeat!important}
+.pst-admin-header-logo{width:100%!important;height:100%!important;opacity:0!important;display:block!important}
+.pst-admin-nav{min-width:0!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:10px 22px!important}
+.pst-admin-nav a{position:relative!important;display:inline-flex!important;align-items:center!important;min-height:32px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--pst-admin-navy)!important;font-family:var(--pst-admin-font)!important;font-size:12px!important;font-weight:650!important;line-height:1!important;letter-spacing:.055em!important;text-transform:uppercase!important;white-space:nowrap!important;box-shadow:none!important;transition:color .18s ease!important}
+.pst-admin-nav a:hover,.pst-admin-nav a:focus-visible{color:var(--pst-admin-gold)!important}
+.pst-admin-nav a.active,.pst-admin-nav a[aria-current="page"]{color:var(--pst-admin-navy)!important}
+.pst-admin-nav a.active::after,.pst-admin-nav a[aria-current="page"]::after{content:""!important;position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:1px!important;background:var(--pst-admin-gold)!important}
+
+/* PAGE TYPOGRAPHY + SHARED SURFACE COLORING */
+main{background:#fff!important}
+h1,h2,h3,.page-title,.section-title,.reports-title,.admin-title,.inventory-title,.product-title,.discount-title,.customer-title{color:var(--pst-admin-navy)!important}
+h1,.page-title h1{font-family:var(--pst-admin-heading)!important;font-weight:500!important;letter-spacing:-.02em!important}
+h2,h3{font-family:var(--pst-admin-font)!important;font-weight:600!important}
+.subtitle,.muted{color:var(--pst-admin-muted)!important}
+.card,.panel,.modal,.summary-card,.attention-card,.kv,.item,.audit-item,.generated-id{background:#fff!important;border-color:var(--pst-admin-line)!important}
+.card-header,.card-head,.card-footer{border-color:var(--pst-admin-line)!important}
+tr:hover,tr.active,tr.order-row:hover{background:#fcfbf8!important}
+th{color:var(--pst-admin-navy)!important;background:var(--pst-admin-soft)!important}
+td,th{border-color:var(--pst-admin-line)!important}
+
+/* FORMS */
+input,select,textarea{color:var(--pst-admin-ink)!important;background:#fff!important;border:1px solid #d8dce2!important;border-radius:2px!important;box-shadow:none!important}
+input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(--pst-admin-gold)!important;box-shadow:0 0 0 2px rgba(183,154,99,.10)!important}
+label{color:var(--pst-admin-navy)!important}
+
+/* ACTIONS — shared navy/gold treatment */
+.btn,a.btn,button.btn,.inventory-jump-link,.inventory-collapse-toggle,.row-save,.row-audit-btn,.edit-incoming-btn,.close-incoming-edit-btn,.cancel-incoming-btn,.receive-incoming-btn,.transit-incoming-btn,.save-incoming-edit-btn,.incoming-line-remove,.reorder-action-btn,.step,.jump-link,.collapse-toggle,.field-order-btn{box-sizing:border-box!important;width:auto!important;min-width:0!important;min-height:36px!important;height:auto!important;margin:0!important;padding:8px 12px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;color:#fff!important;background:var(--pst-admin-navy)!important;border:1px solid var(--pst-admin-navy)!important;border-radius:2px!important;box-shadow:none!important;font-family:var(--pst-admin-font)!important;font-size:11px!important;font-weight:650!important;line-height:1!important;letter-spacing:.055em!important;text-align:center!important;text-transform:uppercase!important;text-decoration:none!important;white-space:nowrap!important;cursor:pointer!important;transition:background-color .18s ease,border-color .18s ease,color .18s ease!important}
+.btn:hover,a.btn:hover,button.btn:hover,.inventory-jump-link:hover,.inventory-collapse-toggle:hover,.row-save:hover,.row-audit-btn:hover,.edit-incoming-btn:hover,.close-incoming-edit-btn:hover,.cancel-incoming-btn:hover,.receive-incoming-btn:hover,.transit-incoming-btn:hover,.save-incoming-edit-btn:hover,.incoming-line-remove:hover,.reorder-action-btn:hover,.step:hover,.jump-link:hover,.collapse-toggle:hover,.field-order-btn:hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}
+.btn.secondary,a.btn.secondary,button.btn.secondary{color:#fff!important;background:var(--pst-admin-navy)!important;border-color:var(--pst-admin-navy)!important}
+.btn.secondary:hover,a.btn.secondary:hover,button.btn.secondary:hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}
+
+/* Inventory navigation controls override generic secondary-button white treatment */
+.btn.secondary.inventory-jump-link,
+button.btn.secondary.inventory-jump-link,
+.btn.secondary.inventory-collapse-toggle,
+button.btn.secondary.inventory-collapse-toggle{color:#fff!important;background:var(--pst-admin-navy)!important;border-color:var(--pst-admin-navy)!important}
+.btn.secondary.inventory-jump-link:hover,
+button.btn.secondary.inventory-jump-link:hover,
+.btn.secondary.inventory-collapse-toggle:hover,
+button.btn.secondary.inventory-collapse-toggle:hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}
+.btn.active,.btn.primary,.btn[aria-pressed="true"],.btn[aria-expanded="true"]{color:#fff!important;background:var(--pst-admin-navy-deep)!important;border-color:var(--pst-admin-navy-deep)!important}
+.btn.success,a.btn.success,button.btn.success,.receive-incoming-btn,.row-save,.btn.warning,a.btn.warning,button.btn.warning,.transit-incoming-btn{color:#fff!important;background:var(--pst-admin-navy)!important;border-color:var(--pst-admin-navy)!important}
+.btn.danger,a.btn.danger,button.btn.danger,.cancel-incoming-btn{color:#fff!important;background:var(--pst-admin-danger)!important;border-color:var(--pst-admin-danger)!important}
+.btn.danger:hover,a.btn.danger:hover,button.btn.danger:hover,.cancel-incoming-btn:hover{color:#fff!important;background:#8f1d15!important;border-color:#8f1d15!important}
+.btn:disabled,button.btn:disabled,.btn[aria-disabled="true"],.reorder-action-btn:disabled{color:#7a8188!important;background:#f4f4f4!important;border-color:#d8dce1!important;opacity:1!important;cursor:not-allowed!important;pointer-events:none!important}
+.btn:focus-visible,a.btn:focus-visible,button.btn:focus-visible,.inventory-jump-link:focus-visible,.inventory-collapse-toggle:focus-visible,.reorder-action-btn:focus-visible{outline:2px solid var(--pst-admin-gold)!important;outline-offset:2px!important}
+
+/* Inventory action controls should visually match Report Writer actions */
+body[data-admin-page="inventory"] .inventory-jump-link,
+body[data-admin-page="inventory"] .inventory-collapse-toggle,
+body[data-admin-page="inventory"] .row-save,
+body[data-admin-page="inventory"] .row-audit-btn,
+body[data-admin-page="inventory"] .edit-incoming-btn,
+body[data-admin-page="inventory"] .close-incoming-edit-btn,
+body[data-admin-page="inventory"] .cancel-incoming-btn,
+body[data-admin-page="inventory"] .receive-incoming-btn,
+body[data-admin-page="inventory"] .transit-incoming-btn,
+body[data-admin-page="inventory"] .save-incoming-edit-btn,
+body[data-admin-page="inventory"] .incoming-line-remove,
+body[data-admin-page="inventory"] .reorder-action-btn,
+body[data-admin-page="inventory"] .jump-link,
+body[data-admin-page="inventory"] .collapse-toggle,
+body[data-admin-page="inventory"] button:not([class]),
+body[data-admin-page="inventory"] button[type="button"]:not(.btn):not(.field-order-btn),
+body[data-admin-page="inventory"] button[type="submit"]:not(.btn){color:#fff!important;background:var(--pst-admin-navy)!important;border:1px solid var(--pst-admin-navy)!important;border-radius:2px!important;font-family:var(--pst-admin-font)!important;font-size:11px!important;font-weight:650!important;letter-spacing:.055em!important;text-transform:uppercase!important;min-height:36px!important;padding:8px 12px!important;box-shadow:none!important}
+body[data-admin-page="inventory"] .inventory-jump-link:hover,
+body[data-admin-page="inventory"] .inventory-collapse-toggle:hover,
+body[data-admin-page="inventory"] .row-save:hover,
+body[data-admin-page="inventory"] .row-audit-btn:hover,
+body[data-admin-page="inventory"] .edit-incoming-btn:hover,
+body[data-admin-page="inventory"] .close-incoming-edit-btn:hover,
+body[data-admin-page="inventory"] .receive-incoming-btn:hover,
+body[data-admin-page="inventory"] .transit-incoming-btn:hover,
+body[data-admin-page="inventory"] .save-incoming-edit-btn:hover,
+body[data-admin-page="inventory"] .incoming-line-remove:hover,
+body[data-admin-page="inventory"] .reorder-action-btn:hover,
+body[data-admin-page="inventory"] .jump-link:hover,
+body[data-admin-page="inventory"] .collapse-toggle:hover,
+body[data-admin-page="inventory"] button:not([class]):hover,
+body[data-admin-page="inventory"] button[type="button"]:not(.btn):not(.field-order-btn):hover,
+body[data-admin-page="inventory"] button[type="submit"]:not(.btn):hover{color:var(--pst-admin-navy)!important;background:var(--pst-admin-gold)!important;border-color:var(--pst-admin-gold)!important}
+body[data-admin-page="inventory"] .cancel-incoming-btn,
+body[data-admin-page="inventory"] button.danger:not(.btn){color:#fff!important;background:var(--pst-admin-danger)!important;border-color:var(--pst-admin-danger)!important}
+body[data-admin-page="inventory"] .cancel-incoming-btn:hover,
+body[data-admin-page="inventory"] button.danger:not(.btn):hover{color:#fff!important;background:#8f1d15!important;border-color:#8f1d15!important}
+
+/* STATUS LABELS — compact rectangles */
+.pill,.status-pill,.reorder-badge,.incoming-pill,.vendor-id-pill,.active-pill,.inactive-pill,.locked-pill,.payment-method-pill,.inventory-restored-pill,.inventory-restore-needed-pill,.inventory-deduct-pill,.inventory-deduct-needed-pill,.inventory-readonly-value,.inventory-current-readonly,.inventory-price-readonly,.inventory-category,.inventory-strength{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;min-height:24px!important;height:auto!important;padding:4px 8px!important;border-radius:2px!important;border:1px solid var(--pst-admin-line)!important;background:#fff!important;color:var(--pst-admin-navy)!important;box-shadow:none!important;font-size:10px!important;font-weight:650!important;line-height:1.1!important;white-space:nowrap!important}
+.status-pill.in_stock,.status-pill.available,.active-pill,.incoming-received,.reorder-healthy,.pill.paid,.pill.complete,.pill.shipped,.pill.delivered{color:var(--pst-admin-green)!important;border-color:rgba(15,138,59,.35)!important;background:#fff!important}
+.status-pill.limited,.incoming-in_transit,.reorder-now,.reorder-watch,.pill.pending,.pill.awaiting_payment{color:var(--pst-admin-warn)!important;border-color:rgba(183,121,31,.35)!important;background:#fff!important}
+.status-pill.low,.status-pill.out_of_stock,.status-pill.out,.status-pill.inactive,.inactive-pill,.incoming-cancelled,.incoming-issue_shorted,.reorder-critical,.pill.cancelled,.pill.rejected,.pill.failed{color:var(--pst-admin-danger)!important;border-color:rgba(180,35,24,.35)!important;background:#fff!important}
+
+/* ADMIN FOOTER */
+.site-footer.pst-admin-footer{margin-top:56px!important;background:var(--pst-admin-navy)!important;border-top:1px solid var(--pst-admin-gold)!important;color:#fff!important}
+.pst-admin-footer-inner{width:min(1180px,calc(100% - 40px))!important;margin:0 auto!important;padding:28px 0!important;display:grid!important;grid-template-columns:1.4fr repeat(2,minmax(150px,1fr))!important;gap:36px!important}
+.pst-admin-footer-brand strong{display:block!important;color:#fff!important;font-family:var(--pst-admin-heading)!important;font-size:22px!important;font-weight:500!important}
+.pst-admin-footer-brand span,.pst-admin-footer-column span,.pst-admin-footer-column a{display:block!important;margin-top:7px!important;color:rgba(255,255,255,.78)!important;font-size:12px!important;line-height:1.45!important}
+.pst-admin-footer-column strong{color:var(--pst-admin-gold)!important;font-size:11px!important;letter-spacing:.08em!important;text-transform:uppercase!important}
+.pst-admin-footer-column a:hover{color:var(--pst-admin-gold)!important}
+.pst-admin-footer-legal{padding:12px 20px!important;border-top:1px solid rgba(255,255,255,.18)!important;text-align:center!important;color:rgba(255,255,255,.65)!important;font-size:10px!important;letter-spacing:.06em!important;text-transform:uppercase!important}
+
+.bulk-tools,.bulk,.actions,.pst-admin-actions-lock,.inventory-card-actions,.reorder-controls,.reorder-selected-actions,.incoming-actions,.incoming-edit-actions,.back-to-inventory-top,.inventory-jumpbar{gap:8px!important}
+
+@media(max-width:900px){.pst-admin-nav-wrap{width:calc(100% - 28px)!important;flex-direction:column!important;align-items:center!important;gap:10px!important}.pst-admin-logo-link{width:160px!important;height:54px!important;flex:0 0 54px!important}.pst-admin-nav{justify-content:center!important;gap:8px 16px!important}.pst-admin-footer-inner{grid-template-columns:1fr!important;gap:22px!important}}
+@media(max-width:560px){.pst-admin-nav a{font-size:10.5px!important}.btn,a.btn,button.btn,.inventory-jump-link,.inventory-collapse-toggle,.row-save,.row-audit-btn,.edit-incoming-btn,.close-incoming-edit-btn,.cancel-incoming-btn,.receive-incoming-btn,.transit-incoming-btn,.save-incoming-edit-btn,.incoming-line-remove,.reorder-action-btn{min-height:34px!important;padding:7px 10px!important;font-size:10px!important}}
+
+/* REPORT WRITER ACTION GEOMETRY — shared admin standard */
+body .steps .step,
+body .actions .btn,
+body .actions a.btn,
+body .actions button.btn,
+body .card .btn,
+body .card a.btn,
+body .card button.btn,
+body .field-order-btn {
+  border-radius: 2px !important;
+  min-height: 36px !important;
+  height: auto !important;
+  padding: 8px 12px !important;
+  color: #fff !important;
+  background: var(--pst-admin-navy) !important;
+  border-color: var(--pst-admin-navy) !important;
+}
+body .steps .step:hover,
+body .actions .btn:hover,
+body .actions a.btn:hover,
+body .actions button.btn:hover,
+body .card .btn:hover,
+body .card a.btn:hover,
+body .card button.btn:hover,
+body .field-order-btn:hover {
+  color: var(--pst-admin-navy) !important;
+  background: var(--pst-admin-gold) !important;
+  border-color: var(--pst-admin-gold) !important;
+}
+body .actions .btn.danger,
+body .card .btn.danger {
+  color: #fff !important;
+  background: var(--pst-admin-danger) !important;
+  border-color: var(--pst-admin-danger) !important;
+}
+body .actions .btn:disabled,
+body .card .btn:disabled {
+  color: #7a8188 !important;
+  background: #f4f4f4 !important;
+  border-color: #d8dce1 !important;
+}
+
+/* PST ADMIN ACTION STANDARD V10 */
+/* Interactive admin controls use one visual standard. Status-only labels/pills are untouched. */
+html body main button,
+html body main a.btn,
+html body main [role="button"],
+html body [class*="jumpbar"] a,
+html body [class*="jumpbar"] button,
+html body button[class*="jump"],
+html body a[class*="jump"],
+html body button[class*="collapse"],
+html body a[class*="collapse"],
+html body button[aria-expanded],
+html body a[aria-expanded],
+html body button.pill,
+html body a.pill {
+  box-sizing:border-box!important;
+  color:#fff!important;
+  background:var(--pst-admin-navy)!important;
+  border:1px solid var(--pst-admin-navy)!important;
+  border-radius:2px!important;
+  box-shadow:none!important;
+  min-height:36px!important;
+  height:auto!important;
+  padding:8px 12px!important;
+  font-family:var(--pst-admin-font)!important;
+  font-size:11px!important;
+  font-weight:650!important;
+  line-height:1!important;
+  letter-spacing:.055em!important;
+  text-transform:uppercase!important;
+  text-decoration:none!important;
+  cursor:pointer!important;
+}
+html body main button:hover,
+html body main a.btn:hover,
+html body main [role="button"]:hover,
+html body [class*="jumpbar"] a:hover,
+html body [class*="jumpbar"] button:hover,
+html body button[class*="jump"]:hover,
+html body a[class*="jump"]:hover,
+html body button[class*="collapse"]:hover,
+html body a[class*="collapse"]:hover,
+html body button[aria-expanded]:hover,
+html body a[aria-expanded]:hover,
+html body button.pill:hover,
+html body a.pill:hover {
+  color:var(--pst-admin-navy)!important;
+  background:var(--pst-admin-gold)!important;
+  border-color:var(--pst-admin-gold)!important;
+}
+html body main button.danger,
+html body main .btn.danger,
+html body main a.btn.danger {
+  color:#fff!important;
+  background:var(--pst-admin-danger)!important;
+  border-color:var(--pst-admin-danger)!important;
+}
+html body main button.danger:hover,
+html body main .btn.danger:hover,
+html body main a.btn.danger:hover {
+  color:#fff!important;
+  background:#8f1d15!important;
+  border-color:#8f1d15!important;
+}
+html body main button:disabled,
+html body main .btn:disabled,
+html body main [aria-disabled="true"] {
+  color:#7a8188!important;
+  background:#f4f4f4!important;
+  border-color:#d8dce1!important;
+  cursor:not-allowed!important;
+}
+
+/* Page-local legacy pill rules must never beat the shared admin action system. */
+html body main .btn.secondary,
+html body main a.btn.secondary,
+html body main button.btn.secondary,
+html body .reports-jumpbar a,
+html body .reports-jumpbar a:not(.active):not([aria-pressed="true"]),
+html body .reports-jumpbar a.active,
+html body .reports-jumpbar a[aria-pressed="true"],
+html body .collapse-toggle,
+html body .collapse-toggle.active,
+html body .collapse-toggle[aria-expanded="true"],
+html body .card.collapsible-card:not(.collapsed) .collapse-toggle,
+html body .inventory-jumpbar a,
+html body .inventory-jumpbar button,
+html body .jumpbar a,
+html body .jumpbar button {
+  color:#fff!important;
+  background:var(--pst-admin-navy)!important;
+  border-color:var(--pst-admin-navy)!important;
+  border-radius:2px!important;
+  box-shadow:none!important;
+  min-height:36px!important;
+  height:auto!important;
+  padding:8px 12px!important;
+}
+html body main .btn.secondary:hover,
+html body main a.btn.secondary:hover,
+html body main button.btn.secondary:hover,
+html body .reports-jumpbar a:hover,
+html body .reports-jumpbar a:not(.active):not([aria-pressed="true"]):hover,
+html body .reports-jumpbar a.active:hover,
+html body .reports-jumpbar a[aria-pressed="true"]:hover,
+html body .collapse-toggle:hover,
+html body .collapse-toggle.active:hover,
+html body .collapse-toggle[aria-expanded="true"]:hover,
+html body .card.collapsible-card:not(.collapsed) .collapse-toggle:hover,
+html body .inventory-jumpbar a:hover,
+html body .inventory-jumpbar button:hover,
+html body .jumpbar a:hover,
+html body .jumpbar button:hover {
+  color:var(--pst-admin-navy)!important;
+  background:var(--pst-admin-gold)!important;
+  border-color:var(--pst-admin-gold)!important;
+}
+
+/* Products: Add Product is a standard admin primary action. */
+html body button#newProductBtn {
+  color:#fff!important;
+  background:var(--pst-admin-navy)!important;
+  border-color:var(--pst-admin-navy)!important;
+  border-radius:2px!important;
+}
+html body button#newProductBtn:hover,
+html body button#newProductBtn:focus-visible {
+  color:var(--pst-admin-navy)!important;
+  background:var(--pst-admin-gold)!important;
+  border-color:var(--pst-admin-gold)!important;
+}
