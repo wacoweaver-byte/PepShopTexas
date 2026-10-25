@@ -8,10 +8,10 @@ let products=[],vendors=[],staged=[],savedMappings=new Map();
 const normStrength=s=>norm(String(s||"").replace(/\s*\/\s*vial\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\s*[*×x]\s*10\s*vials?\s*$/i,"").replace(/\s*\/\s*vial\s*$/i,"").replace(/\b(milligrams?|mgs?)\b/gi,"mg").replace(/\b(micrograms?|mcgs?)\b/gi,"mcg"));
 const nameAliases={
  "retatrutide":"pst3ret","tirzepatide":"pst2tir","semaglutide":"pst1sem",
- "epithalon":"epitalon","kisspeptin10":"kisspeptin","ll37":"ll37",
+ "epithalon":"epitalon","kisspeptin10":"kisspeptin","ll37":"ll37","cjc1295nodac":"cjc1295","tb500":"tb4tb500thymosinb4",
  "thymosinalpha1":"thymosinalpha1","b12":"b12",
  "miclipocb12":"miclipocwb12","melanotan2":"melantoninii",
- "hcg":"pst5000iu"
+ "hcg":"pst5000iu","bpc15710mgtb50010mg":"wolverine"
 };
 const matchName=n=>nameAliases[norm(n)]||norm(n);
 const stableSku=(name,strength)=>"PST-AUTO-"+norm(name).slice(0,45)+"-"+norm(strength).slice(0,25);
