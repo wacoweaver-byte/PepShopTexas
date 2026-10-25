@@ -55,7 +55,7 @@
     ({ orders: paneOrders, "running-low": paneDue, rewards: paneRewards, profile: paneProfile, alerts: paneAlerts })[k](pane);
   }
   function paneOrders(el) {
-    const want = P.params.get("o"), wantItem = P.params.get("item"), openIdx = Math.max(0, orders.findIndex(o => String(o.id) === want));
+    const on = P.params.get("on"), want = P.params.get("o") || (on ? String((orders.find(o => String(o.order_number || "").toLowerCase() === on.toLowerCase()) || {}).id || "") : "") || null, wantItem = P.params.get("item"), openIdx = Math.max(0, orders.findIndex(o => String(o.id) === want));
     if (!orders.length) { el.innerHTML = `<div class="empty">${P.icon("box", 32)}<p>No orders yet. When you check out, your orders show up here with live status.</p><a class="btn primary" href="catalog.html">Browse the collection</a></div>`; return; }
     el.innerHTML = orders.map((o, i) => {
       const st = stageOf(o), its = items[o.id] || [], unpaid = st.n === 0 && !st.bad, venmo = /venmo/i.test(o.payment_method || "");
@@ -106,7 +106,7 @@ ${due.length ? due.map(d => `<div class="dueitem"><div><b>${esc(d.x.product_name
     el.innerHTML = `<h2 class="serif" style="font-size:2rem">Profile</h2>
 <form class="form" data-form="profile"><div class="g2"><label>First name<input name="first_name" value="${v("first_name")}" autocomplete="given-name"></label><label>Last name<input name="last_name" value="${v("last_name")}" autocomplete="family-name"></label></div>
 <div class="g2"><label>Email<input name="email" type="email" value="${esc(profile?.email || user.email || "")}" autocomplete="email"></label><label>Mobile<input name="phone" value="${v("phone")}" inputmode="tel" autocomplete="tel"></label></div>
-<label>Username<input name="username" value="${v("username")}" autocomplete="username"></label>
+
 <fieldset><legend>Shipping address</legend><label>Street<input name="shipping_address" value="${esc(profile?.shipping_address || profile?.address_line1 || profile?.billing_address || "")}" autocomplete="shipping street-address"></label>
 <div class="g3"><label>City<input name="shipping_city" value="${esc(profile?.shipping_city || profile?.city || "")}" autocomplete="shipping address-level2"></label><label>State<input name="shipping_state" value="${esc(profile?.shipping_state || profile?.state || "")}" autocomplete="shipping address-level1" maxlength="20"></label><label>ZIP<input name="shipping_zip" value="${esc(profile?.shipping_zip || profile?.zip || "")}" inputmode="numeric" autocomplete="shipping postal-code"></label></div></fieldset>
 <fieldset><legend>Billing address</legend><label class="chk"><input type="checkbox" data-same ${(profile?.billing_address || "") === (profile?.shipping_address || "") ? "checked" : ""}> Same as shipping</label><div data-bill>
@@ -120,7 +120,7 @@ ${due.length ? due.map(d => `<div class="dueitem"><div><b>${esc(d.x.product_name
   async function saveProfile(e) {
     e.preventDefault(); const f = e.target, b = f.querySelector("button"), st = $("[data-pstat]"), g = n => String(f.elements[n]?.value || "").trim();
     const same = $("[data-same]").checked, now = new Date().toISOString(), opt = f.elements.marketing_opt_in.checked;
-    const payload = { user_id: user.id, first_name: g("first_name"), last_name: g("last_name"), email: g("email") || user.email || "", phone: g("phone"), username: g("username"),
+    const payload = { user_id: user.id, first_name: g("first_name"), last_name: g("last_name"), email: g("email") || user.email || "", phone: g("phone"),
       shipping_address: g("shipping_address"), shipping_city: g("shipping_city"), shipping_state: g("shipping_state"), shipping_zip: g("shipping_zip"),
       billing_address: same ? g("shipping_address") : g("billing_address"), billing_city: same ? g("shipping_city") : g("billing_city"), billing_state: same ? g("shipping_state") : g("billing_state"), billing_zip: same ? g("shipping_zip") : g("billing_zip"),
       account_status: "active" };
@@ -203,7 +203,7 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>Order inbox with new
       e.preventDefault(); const b = f.querySelector("button[type=submit]"), v = n => String(f.elements[n]?.value || "").trim();
       const email = v("email").toLowerCase(), pw = f.password.value, mk = f.marketing_opt_in.checked;
       const sh = { shipping_address: v("shipping_address"), shipping_city: v("shipping_city"), shipping_state: v("shipping_state"), shipping_zip: v("shipping_zip") };
-      const data = { first_name: v("first_name"), last_name: v("last_name"), email, phone: v("phone"), username: v("username"), research_role: v("research_role"),
+      const data = { first_name: v("first_name"), last_name: v("last_name"), email, phone: v("phone"), research_role: v("research_role"),
         billing_address: same.checked ? sh.shipping_address : v("billing_address"), billing_city: same.checked ? sh.shipping_city : v("billing_city"), billing_state: same.checked ? sh.shipping_state : v("billing_state"), billing_zip: same.checked ? sh.shipping_zip : v("billing_zip"),
         ...sh, marketing_opt_in: mk, marketing_opt_out: false, marketing_source: mk ? "registration" : null };
       b.disabled = true; b.textContent = "Creating account…"; notice(msg, "");
