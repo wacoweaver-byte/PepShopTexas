@@ -65,7 +65,7 @@ $("load").onclick=async()=>{
  $("load").disabled=true;$("load").textContent="Reading file…";feedback("Reading "+file.name+" in a separate worker…");
  try{
  let rows;
- if(/\\.csv$/i.test(file.name)){const csv=await file.text();await ensureXLSX();const wb=XLSX.read(csv,{type:"string"});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});}
+ if(/\.csv$/i.test(file.name)){const csv=await file.text();await ensureXLSX();const wb=XLSX.read(csv,{type:"string"});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});}
  else rows=await readSpreadsheet(file);
  staged=rows.map(r=>{const name=get(r,"Product Name","Product","Name","Peptide"),strength=get(r,"Strength","Specification","Size","Vial Strength"),sku=get(r,"Vendor Item Number","Vendor SKU","Item Number","Item #","SKU","Code"),key=get(r,"PST Product Key","Product Key","PST SKU"),costStr=get(r,"Kit Cost","Price per Kit","Kit Price","Cost per Kit","Price"),cost=Number(costStr.replace(/[$,]/g,""));let match=products.find(p=>key&&norm(p.product_key)===norm(key));
  if(!match&&sku)match=products.find(p=>p.product_key===savedMappings.get(norm(sku)+"|"+normStrength(strength)));
