@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
-
+Disallow: /admin.html
+Disallow: /owner.html
 Sitemap: https://www.pepshoptexas.com/sitemap.xml

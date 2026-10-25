@@ -131,20 +131,13 @@ ${credit > 0 ? `<label class="toggle" style="margin-top:10px"><input type="check
     window.scrollTo(0, 0); const bt = $("[data-bagtitle]"); if (bt) bt.hidden = true; document.title = `Order ${r.no} | Pep Shop Texas`;
     host().innerHTML = `<div class="placed"><div class="okc">${P.icon("check", 30)}</div><span class="kick">Order received</span><h1 class="serif">Order ${esc(r.no)}</h1>
 <p class="muted">${r.emailed ? `A confirmation is on its way to ${esc(r.email)}.` : "Your order is saved. The confirmation email didn't send, but we can see your order."}</p>
-${isV && r.due > 0 ? `<div class="paycard"><div class="vh"><span class="vlogo" style="width:40px;height:40px;border-radius:9px;background:#008CFF;display:grid;place-items:center"><svg viewBox="0 0 48 48" width="26" height="26"><path d="M33.6 11c1 1.6 1.4 3.3 1.4 5.4 0 6.7-5.7 15.4-10.4 21.6H13.9L9.6 12.4l9.4-.9 2.3 18.4c2.1-3.5 4.7-9 4.7-12.7 0-2-.3-3.4-.9-4.6l8.5-1.6z" fill="#fff"/></svg></span><div><b>Send ${money(r.due)} on Venmo</b><span>to @${esc(P.CFG.venmo)}</span></div></div>
-<div class="paygrid"><div class="qrwrap"><div id="qr" style="width:140px;height:140px"></div>Scan with your phone</div><div>
-<ol><li>Tap <b>Pay with Venmo</b>. The amount and note are filled in.</li><li>Keep the note as <code>${esc(r.no)}</code>, just the order number.</li><li>We'll confirm your payment and ${r.delivery === "pickup" ? "text you when it's ready for pickup" : "ship it the same night"}.</li></ol>
-<a class="btn venmo wide" href="${esc(link)}" target="_blank" rel="noopener">Pay with Venmo</a><button class="btn ghost wide" type="button" data-sent="${esc(r.id)}" style="margin-top:8px">I've sent payment</button></div></div></div>`
-        : r.due > 0 ? `<div class="paycard"><b>Pay with ${esc(P.payLabel({ id: /apple/i.test(r.method) ? "apple_pay" : "", label: r.method }))}</b><p class="muted">Payment instructions for ${esc(r.method)} are in your confirmation email. Include order number <code>${esc(r.no)}</code> if the app allows a note.</p><button class="btn ghost wide" type="button" data-sent="${esc(r.id)}">I've sent payment</button></div>` : ""}
+${r.due > 0 ? `<div data-paycard><div class="paycard"><p class="muted">Loading payment details…</p></div></div>` : ""}
 ${r.due > 0 ? `<p class="holdnote">${P.icon("clock", 15)} We're holding your items until <b>${new Date(r.deadline).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" })}</b>. Pay within 24 hours, or the order is cancelled automatically and the items go back on the shelf.</p>` : ""}
 ${r.backorder?.length ? `<p class="holdnote">${P.icon("box", 15)} ${r.backorder.map(esc).join("<br>")}. Backordered vials go out as soon as they arrive.</p>` : ""}
 <ol class="track"><li class="ok"><b>Order placed</b><span>Just now</span></li><li class="cur"><b>Payment confirmed</b><span>We match it to your order number</span></li><li><b>${r.delivery === "pickup" ? "Ready for pickup" : "Packed"}</b><span>${r.delivery === "pickup" ? "We'll text you where and when" : "Goes out the same night"}</span></li><li><b>${r.delivery === "pickup" ? "Picked up" : "Shipped"}</b><span>${r.delivery === "pickup" ? "" : "Tracking in your account"}</span></li></ol>
 <div data-alertcta></div>
 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn ghost" href="account.html">Track this order</a><a class="btn ghost" href="catalog.html">Keep browsing</a></div></div>`;
-    if (isV && matchMedia("(min-width:900px)").matches) {
-      const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
-      s.onload = () => { try { new window.QRCode($("#qr"), { text: link, width: 140, height: 140, colorDark: "#0a101c", colorLight: "#ffffff" }); } catch {} }; document.head.appendChild(s);
-    }
+    if (r.due > 0) P.payCard(r.method, r.due, r.no, r.id).then(h => { const el = $("[data-paycard]"); if (el) el.innerHTML = h; }).catch(() => {});
     const cta = $("[data-alertcta]"), st = await P.pushState().catch(() => "unsupported");
     if (st === "off" || st === "needs-install") {
       cta.innerHTML = `<div class="alertcta">${P.icon("bell", 26)}<b>Get a ping when it's confirmed</b><span>${st === "needs-install" ? "Add Pep Shop Texas to your Home Screen to get order alerts on your iPhone." : "Payment confirmed, ready for pickup, shipped. One alert each."}</span><button class="btn primary" type="button" data-act3="push">${st === "needs-install" ? "Show me how" : "Turn on order alerts"}</button></div>`;

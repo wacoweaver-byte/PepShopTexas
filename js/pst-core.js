@@ -4,8 +4,8 @@
 (function () {
   "use strict";
   const CFG = {
-    url: "https://ndpfnerhvawbavkotinh.supabase.co",
-    key: "sb_publishable_7d5fHwVYUeD1SuxZuM-Qbw_nql4agIH",
+    url: "https://ucejjztsbmrogiteivxl.supabase.co",
+    key: "sb_publishable_ZZweuz4h3PMhOGrs0hBpiA_jruqk4dX",
     venmo: "jimmie-weaver-2",              // Venmo handle for the one-tap pay button
     support: "support@pepshoptexas.com",
     adminEmails: ["wacoweaver@gmail.com"], // order alert emails (same as app.js)
@@ -355,6 +355,21 @@
   }
   // payment-method savings: % of subtotal, never combined with a discount code (his rule)
   const payDiscount = (sub, method, code) => (code || !method?.pct ? 0 : round(sub * method.pct / 100));
+  /* v3.7: "how to pay" card with his own QR code, account and instructions (checkout confirmation + unpaid orders) */
+  async function payCard(methodLabel, due, orderNo, orderId) {
+    const all = await paymentMethods().catch(() => []);
+    const m = all.find(x => String(x.label).toLowerCase() === String(methodLabel || "").toLowerCase() || String(x.id).toLowerCase() === String(methodLabel || "").toLowerCase()) || { label: methodLabel || "Payment" };
+    const isV = /venmo/i.test(m.id || m.label), label = payLabel(m), handle = (m.account || "@" + CFG.venmo).replace(/^@?/, "@");
+    const qr = m.qr && /^(https?:|data:image\/|[\w./-]+\.(png|jpe?g|webp|gif)$)/i.test(m.qr) ? m.qr : "";
+    const vlink = venmoLink(due, orderNo);
+    return `<div class="paycard paycard2"><div class="vh">${isV ? `<span class="vlogo" style="width:40px;height:40px;border-radius:9px;background:#008CFF;display:grid;place-items:center"><svg viewBox="0 0 48 48" width="26" height="26"><path d="M33.6 11c1 1.6 1.4 3.3 1.4 5.4 0 6.7-5.7 15.4-10.4 21.6H13.9L9.6 12.4l9.4-.9 2.3 18.4c2.1-3.5 4.7-9 4.7-12.7 0-2-.3-3.4-.9-4.6l8.5-1.6z" fill="#fff"/></svg></span>` : `<span class="pcic">${icon("check", 20)}</span>`}<div><b>Send ${money(due)} ${isV ? "on Venmo" : `with ${esc(label)}`}</b>${m.account ? `<span>${esc(m.accountLabel || "Send payment to")}: <strong class="pcacct">${esc(isV ? handle : m.account)}</strong> <button type="button" class="pccopy" data-copyval="${esc(isV ? handle : m.account)}">Copy</button></span>` : ""}</div></div>
+<div class="paygrid2">${qr ? `<figure class="pcqr"><img src="${esc(qr)}" alt="${esc(label)} QR code" width="180" height="180" loading="lazy"><figcaption>Scan to pay</figcaption></figure>` : ""}<div>
+${m.instructions ? `<p class="pcins">${esc(m.instructions)}</p>` : ""}
+<p class="pcnote">Payment note: <code>${esc(orderNo)}</code> <span class="muted small">(the order number only, don't mention products)</span></p>
+${isV ? `<a class="btn venmo wide" href="${esc(vlink)}" target="_blank" rel="noopener">Pay ${money(due)} with Venmo</a>` : ""}
+${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(orderId)}" style="margin-top:8px">I've sent payment</button>` : ""}</div></div></div>`;
+  }
+  document.addEventListener("click", e => { const b = e.target.closest("[data-copyval]"); if (!b) return; navigator.clipboard?.writeText(b.dataset.copyval).then(() => { b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy", 1500); }); });
   const payLabel = m => (/apple/i.test(m?.id || "") && /apple pay/i.test(m?.label || "") ? "Apple Cash" : m?.label || ""); // what his Apple option really is
   let boP = null; // checkout backorders are on only after the v4 server update is installed
   const backordersOn = () => boP || (boP = client().rpc("pst_backorders_enabled").then(r => r.data === true, () => false));
@@ -399,7 +414,9 @@
         try { // v3.2: his per-method discount (e.g. Bitcoin 10%), same rule as his cart-payment-discounts.js
           const { data } = await client().from("site_payment_options").select("payment_methods").eq("id", 1).maybeSingle();
           let saved = data?.payment_methods; if (typeof saved === "string") saved = JSON.parse(saved);
-          for (const m of list) { const s = (saved || []).find(x => String(x.id) === String(m.id)); const n = Number(s?.discountPercent ?? s?.discount_percent); m.pct = Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : 0; }
+          for (const m of list) { const s = (saved || []).find(x => String(x.id) === String(m.id)); const n = Number(s?.discountPercent ?? s?.discount_percent); m.pct = Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : 0;
+            // v3.7: his saved payment details, same fields his old checkout showed (QR, account, instructions)
+            if (s) { m.account = String(s.account || s.handle || s.wallet || s.value || "").trim(); m.accountLabel = String(s.accountLabel || s.account_label || "Send payment to").trim(); m.instructions = String(s.instructions || s.note || s.notes || "").trim(); m.qr = String(s.qr_image || s.qrUrl || s.qr_url || s.qr || s.qr_code || s.qr_image_url || s.image || s.image_url || "").trim(); } }
         } catch {}
         return list;
       }
@@ -725,7 +742,7 @@
   /* ---------- v3.7: notification center (bell), per-category settings, test alert ---------- */
   const PREFS = {
     customer: [["orders", "Order updates", "Payment confirmed, packed, ready for pickup, shipped, delivered."], ["reminders", "Reorder reminders", "A heads-up a couple of days before you'd run low."]],
-    owner: [["new_orders", "New order", "Customer, items, total, payment method and pickup or ship, the moment it's placed."], ["payments", "Customer says they paid", "When a customer taps \u201cI've sent payment\u201d on their order."], ["cancellations", "Order cancelled", "Including the 24-hour auto-cancel when an order isn't paid."], ["signups", "New account", "Someone signs up, with their email and city."], ["requests", "Requests", "Availability requests (with the running total) and bulk requests."], ["sold_out", "Sold out", "The moment an item hits 0."], ["low_stock", "Low stock", "One note a day when items are running low or out."]]
+    owner: [["new_orders", "New order", "Customer, items, total, payment method and pickup or ship, the moment it's placed."], ["payments", "Customer says they paid", "When a customer taps \u201cI've sent payment\u201d on their order."], ["payments_in", "Venmo payment received", "Venmo says someone paid you, matched to the order by number and amount."], ["cancellations", "Order cancelled", "Including the 24-hour auto-cancel when an order isn't paid."], ["signups", "New account", "Someone signs up, with their email and city."], ["requests", "Requests", "Availability requests (with the running total) and bulk requests."], ["sold_out", "Sold out", "The moment an item hits 0."], ["low_stock", "Low stock", "One note a day when items are running low or out."]]
   };
   async function getPrefs(role = "customer") {
     const u = await getUser(); if (!u) return null;
@@ -907,6 +924,6 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   window.PST = { CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, stageOf, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
-    photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, submitOrder, venmoLink, openAvailability,
+    photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,
     icon, toast, sheet, closeSheet, saved, isSaved, toggleSaved, heart, recordRecent, recent, badges, gkey, miniBag, addAndShow, openSearch, install, canPrompt, promptInstall, pushSupported, pushState, enablePush, disablePush, getPrefs, setPref, testPush, openInbox, refreshBell, notifyPanel, PREFS, emailPayload, postEmail };
 })();
