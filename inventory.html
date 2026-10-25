@@ -2954,16 +2954,34 @@ async function pstLoadVendorKitPrices(){
  populateIncomingProductSelect();
  pstApplyVendorKitPrice();
 }
+function pstIncomingVendorPriceForProduct(product) {
+  if(!product)return null;
+  const keys=[product._catalog_product_key,product.product_key].filter(Boolean).map(String);
+  const byKey=pstVendorCatalogItems.filter(x=>x.product_key&&keys.includes(String(x.product_key)));
+  if(byKey.length===1)return byKey[0];
+  const saved=keys.map(key=>pstVendorKitPrices.get(key)).find(Boolean);
+  if(saved)return saved;
+  // Vendor identities are based on display name AND strength, not PST sort name.
+  const catalog=productCatalogForInventoryItem(product)||{};
+  const name=String(catalog.display_name||product._catalog_display_name||product.display_name||"").trim();
+  const strength=String(catalog.strength||product._catalog_strength||product.strength||"").trim();
+  const normalize=v=>String(v||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const matching=pstVendorCatalogItems.filter(x=>normalize(x.product_name)===normalize(name)&&normalize(x.strength)===normalize(strength));
+  return matching.length===1?matching[0]:null;
+}
+function pstCurrentVendorPriceRecord(){
+ const selected=$("incomingProductSelect")?.value||"";
+ const vendorItem=pstVendorCatalogItems.find(x=>"vendor:"+x.id===selected);
+ return vendorItem||pstIncomingVendorPriceForProduct(selectedIncomingProduct());
+}
 function pstApplyVendorKitPrice(){
- const product=selectedIncomingProduct();
- const key=String(product?.product_key||product?._catalog_product_key||"");
- const selectedVendorItem=pstVendorCatalogItems.find(x=>"vendor:"+x.id===$("incomingProductSelect")?.value);
- const record=selectedVendorItem||pstVendorKitPrices.get(key);
+ const record=pstCurrentVendorPriceRecord();
  const field=$("incomingKitCost");
  if(!field)return;
- field.value=record?Number(record.kit_cost).toFixed(2):"";
- field.placeholder=record?"Vendor kit price loaded":"Enter kit cost (no vendor price listed)";
- if($("incomingVendorPriceNote"))$("incomingVendorPriceNote").textContent=record?"Vendor list: $"+Number(record.kit_cost).toFixed(2)+" per 10-vial kit.": "No saved vendor cost for this product; enter kit cost manually.";
+ const cost=Number(record?.kit_cost||0);
+ field.value=Number.isFinite(cost)&&cost>0?cost.toFixed(2):"";
+ field.placeholder=cost>0?"Vendor kit price loaded":"Enter kit cost (no vendor price listed)";
+ if($("incomingVendorPriceNote"))$("incomingVendorPriceNote").textContent=cost>0?"Vendor list: $"+cost.toFixed(2)+" per 10-vial kit.":"No saved vendor cost for this product; enter kit cost manually.";
  syncIncomingTotalCostField();
 }
 
@@ -4274,7 +4292,7 @@ function incomingDefaultKitCost() {
 
 function incomingAutoKitCostForProduct(product = {}) {
   const item = product || {};
-  const vendorRecord=pstVendorKitPrices.get(String(item.product_key||item._catalog_product_key||""));
+  const vendorRecord=pstIncomingVendorPriceForProduct(item);
   if(vendorRecord)return Number(vendorRecord.kit_cost);
   if(selectedIncomingVendor()) return 0;
   const unitCost = Number(
