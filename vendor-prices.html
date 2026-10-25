@@ -113,11 +113,11 @@ function render(){
 }
 $("save").onclick=async()=>{
  if(!$("vendor").value)return;
- const invalid=staged.map((r,i)=>({r,i})).filter(({r})=>!r.sku||!r.name||!Number.isFinite(r.cost)||r.cost<0);
+ const invalid=staged.map((r,i)=>({r,i})).filter(({r})=>!r.name||!Number.isFinite(r.cost)||r.cost<0);
  if(invalid.length){$("status").textContent="Cannot save: "+invalid.length+" invalid rows (first at Excel row "+(invalid[0].i+2)+"). Each row needs a product name and valid nonnegative kit cost.";return;}
  const valid=staged;
  if(!valid.length){$("status").textContent="No vendor rows to save.";return;}
- if(new Set(valid.map(r=>r.sku.toLowerCase()+"|"+normStrength(r.strength))).size!==valid.length){$("status").textContent="Duplicate SKU and strength combination: resolve before saving.";return;}
+ if(new Set(valid.filter(r=>r.sku).map(r=>r.sku.toLowerCase()+"|"+normStrength(r.strength))).size!==valid.filter(r=>r.sku).length){$("status").textContent="Duplicate SKU and strength combination: resolve before saving.";return;}
  if(new Set(valid.filter(r=>r.key).map(r=>r.key)).size!==valid.filter(r=>r.key).length){feedback("One PST product is matched more than once. Correct it before saving.");return;}
  if(!confirm("Save "+valid.length+" vendor products, including unmatched? Retail prices stay unchanged."))return;
  $("save").disabled=true;
