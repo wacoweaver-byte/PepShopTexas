@@ -712,7 +712,22 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
   /* ---------- PWA: service worker, install, push ---------- */
   let deferredInstall = null;
   window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; });
-  function registerSW() { if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {}); }
+  // v42: the site and the installed app update themselves. Every time the app opens or comes back to the front, it checks
+  // for a new version; when one is ready the page reloads once (never while someone is typing in a form).
+  function registerSW() {
+    if (!("serviceWorker" in navigator) || location.protocol !== "https:") return;
+    const sw = navigator.serviceWorker, hadController = !!sw.controller;
+    let pending = false, last = 0;
+    const busy = () => /input|textarea|select/i.test(document.activeElement?.tagName || "") || !!document.querySelector("#sheet form");
+    const reload = () => { if (document.hidden || !busy()) { try { sessionStorage.setItem("pst_updated", "1"); } catch {} location.reload(); } else pending = true; };
+    sw.addEventListener("controllerchange", () => { if (hadController) reload(); });
+    sw.register("sw.js", { updateViaCache: "none" }).then(reg => {
+      const check = () => { if (Date.now() - last > 60000) { last = Date.now(); reg.update().catch(() => {}); } };
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) { if (pending) { pending = false; reload(); return; } check(); } });
+      window.addEventListener("focus", check); setInterval(() => { if (!document.hidden) check(); }, 30 * 60000);
+    }).catch(() => {});
+    try { if (sessionStorage.getItem("pst_updated")) { sessionStorage.removeItem("pst_updated"); setTimeout(() => toast("Updated to the latest version"), 600); } } catch {}
+  }
   const canPrompt = () => !!deferredInstall;
   async function promptInstall() {
     if (!deferredInstall) return false;

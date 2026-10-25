@@ -1,7 +1,7 @@
-/* Pep Shop Texas service worker (v3: tells open pages when an alert arrives so the bell updates). Network-first pages, cached static files, push alerts.
+/* Pep Shop Texas service worker (v4: pages always revalidate so uploads show up right away; v3: tells open pages when an alert arrives so the bell updates). Network-first pages, cached static files, push alerts.
    Admin pages and every Supabase call always go straight to the network. */
-const V = "pst-v41";
-const CORE = ["offline.html", "css/pst-bl.css?v=41", "js/pst-core.js?v=41", "img/pst-emblem-96.webp", "img/pst-emblem-192.webp", "icons/icon-192.png", "icons/badge-96.png"];
+const V = "pst-v42";
+const CORE = ["offline.html", "css/pst-bl.css?v=42", "js/pst-core.js?v=42", "img/pst-emblem-96.webp", "img/pst-emblem-192.webp", "icons/icon-192.png", "icons/badge-96.png"];
 const ADMIN = /\/(admin|admin-coa|inventory|products|promotions|reports|customers|discounts|manual-order|availability-requests|bulk-requests)\.html$/;
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -11,7 +11,7 @@ self.addEventListener("fetch", e => {
   if (u.hostname.endsWith("supabase.co")) return;                       // live data, never cached
   if (u.origin === location.origin && ADMIN.test(u.pathname)) return;   // admin untouched
   if (r.mode === "navigate") {
-    e.respondWith(fetch(r).then(res => { const c = res.clone(); caches.open(V).then(x => x.put(r, c)); return res; })
+    e.respondWith(fetch(r, { cache: "no-cache" }).then(res => { const c = res.clone(); caches.open(V).then(x => x.put(r, c)); return res; })
       .catch(() => caches.match(r, { ignoreSearch: true }).then(m => m || caches.match("offline.html"))));
     return;
   }

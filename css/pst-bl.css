@@ -353,8 +353,8 @@ img.vimg{object-fit:contain;filter:drop-shadow(0 18px 22px rgba(0,0,0,.45))}
 .iphone{justify-self:center;width:min(260px,52vw);aspect-ratio:9/19;border-radius:42px;padding:10px;background:linear-gradient(145deg,#2a3142,#0b0f18);box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 0 0 1px #3a4256}
 .iscreen{position:relative;height:100%;border-radius:33px;overflow:hidden;background:radial-gradient(120% 70% at 30% 0%,#1f2c4a 0%,#0d1525 55%,#090d16 100%);padding:44px 18px 0}
 .iclock{position:absolute;top:12px;left:0;right:0;text-align:center;font-weight:700;font-size:13px;color:#f3ede1}
-.igrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 12px}
-.igrid i,.idock i{display:block;aspect-ratio:1;border-radius:26%;background:rgba(255,255,255,.07)}.igrid i{margin-bottom:13px}
+.iscreen .igrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 12px;margin:0}
+.iscreen .igrid i,.idock i{display:block;aspect-ratio:1;border-radius:26%;background:rgba(255,255,255,.07)}.iscreen .igrid i{margin-bottom:13px} /* v42: scoped so the owner Insights grid isn't turned into app icons */
 .iicon{width:100%;margin:0;display:flex;flex-direction:column;align-items:center;gap:5px;grid-column:span 1}
 .iicon img{width:100%;height:auto;border-radius:26%;box-shadow:0 0 0 2px var(--gold),0 0 24px rgba(201,164,92,.45);animation:ipulse 2.6s ease-in-out infinite}
 .iicon figcaption{font-size:8px;line-height:1;overflow:visible;color:#f3ede1;white-space:nowrap;font-weight:600}

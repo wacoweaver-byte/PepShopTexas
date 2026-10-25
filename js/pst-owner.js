@@ -281,7 +281,7 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
 <section><h3 class="kick">Sales by day</h3>${bars(r.by_day, "paid", x => money(x.paid))}</section>
 <section><h3 class="kick">Visitors by day</h3>${bars(w.by_day, "visitors", x => x.visitors + " visitors")}</section>
 <section><h3 class="kick">Shopping funnel</h3><div class="funnel">${fz.map(([l, n]) => `<div><span>${l}</span><i style="width:${f.sessions ? Math.max(2, Math.round(n / f.sessions * 100)) : 0}%"></i><b>${n}</b></div>`).join("")}</div></section>
-<section><h3 class="kick">Top products · sales</h3>${list(r.top_products, x => esc(`${x.name} ${x.strength || ""}`), x => `${money(x.revenue)} · ${x.units}`)}</section>
+<section><h3 class="kick">Top products · sales</h3>${list(r.top_products, x => esc(names[x.product_key] || `${x.name} ${x.strength || ""}`), x => `${money(x.revenue)} · ${x.units}`)}</section>
 <section><h3 class="kick">Most viewed</h3>${list(w.top_viewed, x => esc(names[x.product_key] || x.product_key), x => x.n)}</section>
 <section><h3 class="kick">Where visitors come from</h3>${list(w.sources, x => esc(x.src), x => x.n)}</section>
 <section><h3 class="kick">What people search for</h3>${list(w.searches, x => esc(x.term), x => x.n)}</section>
