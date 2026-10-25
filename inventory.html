@@ -4044,7 +4044,7 @@ function incomingVendorItemNumber(itemOrRow) {
   const direct = cleanText(itemOrRow.vendor_item_number ?? itemOrRow.vendorItemNumber ?? itemOrRow.vendor_sku ?? "");
   if (direct) return direct;
   const label = String(itemOrRow.productName || itemOrRow.product_name || "");
-  const embedded = label.match(/\\[Vendor SKU:\\s*([^\\]]+)\\]/i);
+  const embedded = label.match(/\[Vendor SKU:\s*([^\]]+)\]/i);
   if (embedded) return embedded[1].trim();
   const key = cleanText(itemOrRow.productKey || itemOrRow.product_key || "");
   const vendorId = cleanText(itemOrRow.vendor_id || $("incomingVendorSelect")?.value || "");
@@ -4422,7 +4422,7 @@ function beginIncomingPurchaseOrderEdit(poNumber) {
     productKey: row.product_key || null,
     vendorOnly: !row.product_id && !row.product_key && String(row.product_name||"").includes("[Vendor SKU:"),
     productName: row.product_name || row.product_key || "Product",
-    vendor_item_number: (String(row.product_name||"").match(/\\[Vendor SKU:\\s*([^\\]]+)\\]/i)||[])[1] || "",
+    vendor_item_number: (String(row.product_name||"").match(/\[Vendor SKU:\s*([^\]]+)\]/i)||[])[1] || "",
     qty: Number(row.ordered_quantity || 0),
     kitCost: incomingKitCost(row)
   }));
