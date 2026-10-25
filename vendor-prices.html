@@ -57,7 +57,7 @@ $("save").onclick=async()=>{
  if(invalid.length){$("status").textContent="Cannot save: "+invalid.length+" invalid rows (first at Excel row "+(invalid[0].i+2)+"). Each row needs a product name and valid nonnegative kit cost.";return;}
  const valid=staged;
  if(!valid.length){$("status").textContent="No vendor rows to save.";return;}
- if(new Set(valid.map(r=>r.sku.toLowerCase())).size!==valid.length){$("status").textContent="Duplicate vendor item numbers: resolve before saving.";return;}
+ if(new Set(valid.map(r=>r.sku.toLowerCase()+"|"+normStrength(r.strength))).size!==valid.length){$("status").textContent="Duplicate SKU and strength combination: resolve before saving.";return;}
  if(!confirm("Save "+valid.length+" vendor products, including unmatched? Retail prices stay unchanged."))return;
  $("save").disabled=true;
  const {data,error}=await db.rpc("pst_admin_import_vendor_catalog",{p_vendor_id:$("vendor").value,p_rows:valid.map(r=>({product_name:r.name,strength:r.strength,vendor_item_number:r.sku,kit_cost:r.cost,product_key:r.key||null}))});
