@@ -63,6 +63,30 @@ main{max-width:1540px;margin:0 auto;padding:22px 18px 54px}.page-title{display:f
   body.printing-report .table-scroll-main{width:100%!important}
   body.printing-report .report-table th,body.printing-report .report-table td{padding:3px 6px!important}
 }
+
+/* PST PRINT FIX 2026-10-25: remove hidden layout ancestors from page flow. */
+@media print{
+  @page {size:landscape; margin:0.4in}
+  html,body,body.printing-report{height:auto!important;min-height:0!important;overflow:visible!important}
+  body.printing-report main{display:block!important;width:100%!important;max-width:none!important;padding:0!important;margin:0!important}
+  body.printing-report main > :not(.grid){display:none!important}
+  body.printing-report main > .grid{display:block!important;margin:0!important;padding:0!important;gap:0!important}
+  body.printing-report #report-writer{display:block!important;grid-column:auto!important;border:0!important;border-radius:0!important;box-shadow:none!important;margin:0!important;padding:0!important;overflow:visible!important}
+  body.printing-report #report-writer > .card-header{display:none!important}
+  body.printing-report #report-writer > .card-body{display:block!important;padding:0!important;margin:0!important;overflow:visible!important}
+  body.printing-report #report-writer .steps{display:none!important}
+  body.printing-report #report-writer .panel:not([data-panel="4"]){display:none!important}
+  body.printing-report #report-writer [data-panel="4"]{display:block!important;position:static!important;width:auto!important;margin:0!important;padding:0!important;float:none!important;overflow:visible!important}
+  body.printing-report #report-writer [data-panel="4"] > .actions{display:none!important}
+  body.printing-report #report-writer .print-report-header{display:block!important;margin:0 0 8px!important;padding:0 0 7px!important;break-after:avoid!important}
+  body.printing-report #report-writer .print-report-header h1{font-size:20px!important;margin:0 0 4px!important}
+  body.printing-report #report-writer .table-wrap,
+  body.printing-report #report-writer .table-scroll-main{display:block!important;width:auto!important;max-width:none!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important}
+  body.printing-report #report-writer .report-table{width:max-content!important;max-width:100%!important;min-width:0!important;table-layout:auto!important;margin:0!important;border-collapse:collapse!important}
+  body.printing-report #report-writer .report-table tr{break-inside:avoid!important;page-break-inside:avoid!important}
+  body.printing-report #report-writer .report-table th,body.printing-report #report-writer .report-table td{padding:3px 6px!important;font-size:9px!important;line-height:1.15!important;white-space:nowrap!important}
+  body.printing-report #report-writer .report-table th{font-size:8px!important}
+}
 </style><link rel="stylesheet" href="css/admin.css?v=10">
 </head>
 <body><header class="pst-admin-header">
@@ -308,7 +332,7 @@ async function exportExcel(){
 }
 function exportCsv(){if(!currentExportRows.length){alert("Run Preview first.");return}downloadBlob(new Blob([csv()],{type:"text/csv;charset=utf-8"}),safeReportFileName("csv"))}
 async function copyCsv(){if(!currentExportRows.length){alert("Run Preview first.");return}try{await navigator.clipboard.writeText(csv());alert("CSV copied to clipboard.")}catch(e){alert(`Copy failed: ${e.message||e}`)}}
-function printReport(){if(!currentRows.length){alert("Run Preview first.");return}const title=$("reportName").value||"Custom Report",c=cfg(),sortText=sortLevels().map(s=>`${labelize(s.field)} ${s.direction}`).join(" → ")||"Default";$("printReportTitle").textContent=title;$("printReportMeta").textContent=`${c?.label||"Report"} • ${currentRows.length} preview row${currentRows.length===1?"":"s"} • Sort: ${sortText}`;document.body.classList.add("printing-report");requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));setTimeout(()=>document.body.classList.remove("printing-report"),1500)}
+function printReport(){if(!currentRows.length){alert("Run Preview first.");return}const title=$("reportName").value||"Custom Report",c=cfg(),sortText=sortLevels().map(s=>`${labelize(s.field)} ${s.direction}`).join(" → ")||"Default";$("printReportTitle").textContent=title;$("printReportMeta").textContent=`${c?.label||"Report"} • ${currentRows.length} preview row${currentRows.length===1?"":"s"} • Sort: ${sortText}`;document.body.classList.add("printing-report");requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));}
 window.addEventListener("afterprint",()=>document.body.classList.remove("printing-report"));
 boot();
 </script>
