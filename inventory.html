@@ -4423,6 +4423,7 @@ function beginIncomingPurchaseOrderEdit(poNumber) {
     originalRowId: row.id,
     productId: row.product_id,
     productKey: row.product_key || null,
+    vendorOnly: !row.product_id && !row.product_key && String(row.product_name||"").includes("[Vendor SKU:"),
     productName: row.product_name || row.product_key || "Product",
     qty: Number(row.ordered_quantity || 0),
     kitCost: incomingKitCost(row)
