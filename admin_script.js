@@ -179,6 +179,29 @@
     }).join("")}</div>`;
   }
 
+  async function saveItemQuantity(order,item,newQty){
+    const quantity=Number(newQty);
+    if(!Number.isInteger(quantity)||quantity<1){alert("Enter a whole number of vials (at least 1).");return;}
+    if(!confirm("Change "+(item.product_name||"item")+" from "+item.quantity+" to "+quantity+" vials? Inventory and order total will be adjusted. Payment remains Paid."))return;
+    try{
+      setStatus("Updating quantity...");
+      const {error}=await supabaseClient.rpc("pst_admin_change_order_item_quantity",{p_order_id:order.id,p_item_id:item.id,p_quantity:quantity});
+      if(error)throw error;
+      await loadOrders();
+      const fresh=allOrders.find(x=>x.id===order.id);
+      if(fresh)renderOrderDetail(fresh);
+      setStatus("Quantity, inventory and order total updated. Payment status unchanged.","good");
+    }catch(e){setStatus(e.message||"Quantity update failed.","bad");alert(e.message||"Quantity update failed.");}
+  }
+  function setupQuantityEditor(order){
+    const btn=$("editItemQtyBtn"),panel=$("itemQtyEditor");
+    if(!btn||!panel)return;
+    btn.onclick=()=>{
+      panel.style.display=panel.style.display==="none"?"block":"none";
+      panel.innerHTML=(order.items||[]).map((item,i)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap"><strong>${esc(item.product_name||"Item")}</strong><label>Vials <input type="number" min="1" step="1" style="width:90px" id="itemQty_${i}" value="${Number(item.quantity||1)}"></label><button class="btn success" type="button" id="saveItemQty_${i}">Save Quantity</button></div>`).join("");
+      (order.items||[]).forEach((item,i)=>{const b=$("saveItemQty_"+i);if(b)b.onclick=()=>saveItemQuantity(order,item,$("itemQty_"+i).value);});
+    };
+  }
   function historyMarkup(order){
     const events = [];
     if(order.created_at) events.push(["Order created", order.created_at]);
@@ -205,7 +228,7 @@
       <div class="card-header"><h2>Manage Order #${esc(orderNumber(order))}</h2><button class="btn secondary" id="reloadDetailBtn" type="button">Reload</button></div>
       <div class="detail-section"><h3>Customer</h3><div class="kv-grid"><div class="kv"><strong>Name</strong>${esc(customerName(order))}</div><div class="kv"><strong>Email</strong>${esc(customerEmail(order)||"—")}</div><div class="kv"><strong>Phone</strong>${esc(customerPhone(order))}</div><div class="kv"><strong>Address</strong>${esc(shippingAddress(order))}</div></div></div>
       <div class="detail-section"><h3>Order Summary</h3><div class="kv-grid"><div class="kv"><strong>Date</strong>${esc(fmtDate(order.created_at || order.order_date))}</div><div class="kv"><strong>Total</strong>${money(orderTotal(order))}</div><div class="kv"><strong>Order Status</strong>${pill(orderStatus(order))}</div><div class="kv"><strong>Payment Status</strong>${pill(paymentStatus(order))}</div></div></div>
-      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}</div>
+      <div class="detail-section"><h3>Items</h3>${itemsMarkup(order)}<div style="margin-top:12px"><button class="btn secondary" id="editItemQtyBtn" type="button">Edit Item Quantity</button></div><div id="itemQtyEditor" style="display:none;margin-top:12px"></div></div>
       <div class="detail-section"><h3>Update Order</h3>
         <div class="edit-grid">
           <div class="field"><label for="editOrderStatus">Order Status</label><select id="editOrderStatus">${orderStatuses.map(s=>`<option value="${s}" ${norm(orderStatus(order))===s?"selected":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div>
@@ -222,6 +245,7 @@
       <div class="detail-section"><h3>History</h3>${historyMarkup(order)}</div>`;
 
     $("reloadDetailBtn").addEventListener("click", loadOrders);
+    setupQuantityEditor(order);
     $("saveOrderBtn").addEventListener("click", () => saveOrder(order, false));
     $("saveAndEmailBtn").addEventListener("click", () => saveOrder(order, true));
     document.querySelectorAll(".email-action").forEach(btn => btn.addEventListener("click", () => sendOrderEmail(order, btn.dataset.emailType)));
