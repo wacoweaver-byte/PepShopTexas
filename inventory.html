@@ -2601,7 +2601,7 @@ button:not(.secondary):not(.danger):not(.success):not(.warning).btn {
       </div>
       <div class="po-entry-row">
         <div class="field po-product">
-          <label for="incomingProductSelect">Product (Sort Name / Strength / PST SKU)</label>
+          <label for="incomingProductSelect">Product (Display Name / Strength)</label>
           <select id="incomingProductSelect"><option value="">Loading products...</option></select>
           <div id="incomingVendorPriceNote" class="note">Select a vendor and product to load the kit cost.</div>
         </div>
@@ -4036,10 +4036,7 @@ function incomingProductLabel(item) {
   const sku = String(catalog.product_key || item._catalog_product_key || item.product_key || item.sku || "").trim();
   const display = String(catalog.display_name || item._catalog_display_name || item.display_name || sku || item.id || "Product").trim();
   const strength = String(catalog.strength || item._catalog_strength || item.strength || "").trim();
-  const sortName = String(catalog.sort_name || item._catalog_sort_name || item.sort_name || "").trim();
-  const name = sortName || display;
-  const fullLabel = strength && !name.toLowerCase().includes(strength.toLowerCase()) ? `${name} — ${strength}` : name;
-  return sku ? `${fullLabel} — ${sku}` : fullLabel;
+  return strength && !display.toLowerCase().includes(strength.toLowerCase()) ? `${display} — ${strength}` : display;
 }
 
 function incomingVendorItemNumber(itemOrRow) {
