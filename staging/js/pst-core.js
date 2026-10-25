@@ -14,7 +14,7 @@
     pushFn: "pst-push",
     minAge: 18,                            // matches his current sign-up rule (change to 21 here if he wants)
     cartKey: "pst_cart_v1", remindKey: "pst_remind_v1", gateKey: "pst_gate_v1",
-    fields: "id,product_key,display_name,strength,category,research_focus,series,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label,coa_url,coa_label,label_color,reorder_days_default,research_summary"
+    fields: "id,product_key,display_name,strength,category,research_focus,series,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label,coa_url,coa_label,label_color,label_line_1,reorder_days_default,research_summary,home_feature_rank,bottle_url,bottle_sig"
   };
   const FOCUS = { performance: "Performance", recovery: "Recovery", longevity: "Longevity" };
   const COLORS = { Blue: "#1d4ea3", Orange: "#e2661b", Red: "#c3262c", Purple: "#6b3fb4", Black: "#1d1d1f", Green: "#2c7a4b" };
@@ -169,9 +169,30 @@
     for (let x = 0; x < lw; x++) { const xs = x - half, src = rad * Math.asin(Math.max(-1, Math.min(1, xs / rad))) * (half / (rad * ang)) + cx; g.drawImage(art, src, ly, 1, lh, lx + x, ly, 1, lh); }
     return out;
   }
-  async function vialURL(p) {
-    const sig = vialSig(p); if (vialCache.has(sig)) return vialCache.get(sig);
-    const c = await vialCanvas(p); const url = c.toDataURL("image/webp", .9); vialCache.set(sig, url); return url;
+  // draw only as many pixels as the spot needs (thumbnails are ~10x cheaper), remember results across visits
+  const vialScale = w => { const px = w * Math.min(2, window.devicePixelRatio || 1); return px <= 70 ? .4 : px <= 160 ? .7 : px <= 260 ? 1.2 : 2; };
+  const toBlob = (c, type = "image/webp", q = .88) => new Promise(r => c.toBlob(r, type, q));
+  async function vialURL(p, sc = 2) {
+    const sig = vialSig(p) + "@" + sc; if (vialCache.has(sig)) return vialCache.get(sig);
+    const req = location.origin + "/__pst_vial/" + encodeURIComponent(sig);
+    let box = null; try { box = await caches.open("pst-vials-v1"); const hit = await box.match(req); if (hit) { const u = URL.createObjectURL(await hit.blob()); vialCache.set(sig, u); return u; } } catch {}
+    const c = await vialCanvas(p, sc), blob = await toBlob(c);
+    const u = URL.createObjectURL(blob); vialCache.set(sig, u);
+    try { box && blob && box.put(req, new Response(blob, { headers: { "Content-Type": blob.type } })); } catch {}
+    return u;
+  }
+  // owner app: make the full-size bottle once and save it, so shoppers download a finished picture
+  async function bakeBottle(p) {
+    const sig = vialSig(p), c = await vialCanvas(p, 2), blob = await toBlob(c, "image/webp", .9);
+    const ext = blob.type === "image/webp" ? "webp" : "png";
+    let h = 0; for (const ch of sig) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const path = `${p.product_key}-${h.toString(36)}.${ext}`;
+    const up = await client().storage.from("product-bottles").upload(path, blob, { upsert: true, contentType: blob.type, cacheControl: "31536000" });
+    if (up.error) throw up.error;
+    const url = client().storage.from("product-bottles").getPublicUrl(path).data.publicUrl;
+    const { error } = await client().from("product_catalog").update({ bottle_url: url, bottle_sig: sig }).eq("product_key", p.product_key);
+    if (error) throw error;
+    p.bottle_url = url; p.bottle_sig = sig; return url;
   }
   async function vialStudio(p, size = 1200) {
     const [bgI, v] = await Promise.all([loadImg("img/vial-studio.webp"), vialCanvas(p, 3)]);
@@ -182,18 +203,25 @@
     g.drawImage(v, x, y, vw, vh); return c.toDataURL("image/jpeg", .9);
   }
   // fill in bottles as they appear on the page
+  let vq = Promise.resolve();
+  const fill = im => { const p = vialByKey.get(im.dataset.vkey); if (!p) return; const sc = Number(im.dataset.vs) || 2, sig = vialSig(p) + "@" + sc;
+    if (im.dataset.vsig === sig) return; im.dataset.vsig = sig;
+    vq = vq.then(() => vialURL(p, sc)).then(u => { im.src = u; }, () => {}); };   // one at a time keeps the page responsive
+  const io = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { io.unobserve(e.target); fill(e.target); } }), { rootMargin: "400px" }) : null;
   function hydrateVials(root = document) {
-    root.querySelectorAll?.("img[data-vkey]").forEach(async im => {
-      const p = vialByKey.get(im.dataset.vkey); if (!p) return; const sig = vialSig(p);
-      if (im.dataset.vsig === sig) return; im.dataset.vsig = sig;
-      try { im.src = await vialURL(p); } catch {}
-    });
+    root.querySelectorAll?.("img[data-vkey]").forEach(im => { const p = vialByKey.get(im.dataset.vkey); if (!p) return;
+      if (im.dataset.vsig === vialSig(p) + "@" + (Number(im.dataset.vs) || 2)) return; io ? io.observe(im) : fill(im); });
   }
   if (typeof MutationObserver !== "undefined") new MutationObserver(ms => { for (const m of ms) m.addedNodes.forEach(n => n.nodeType === 1 && hydrateVials(n.matches?.("img[data-vkey]") ? n.parentNode : n)); })
     .observe(document.documentElement, { childList: true, subtree: true });
   function vial(p, w = 110) {
     if (p?.product_key) vialByKey.set(p.product_key, p);
-    if (VIAL_ON) return `<img class="vial vimg" data-vkey="${esc(p.product_key)}" src="${vialCache.get(vialSig(p)) || BLANK}" width="${w}" height="${Math.round(w * 200 / 120)}" alt="${esc(p.display_name)} ${esc(p.strength || "")} vial" decoding="async">`;
+    if (VIAL_ON) {
+      const alt = `${esc(p.display_name)} ${esc(p.strength || "")} vial`, h = Math.round(w * 200 / 120);
+      if (p.bottle_url && p.bottle_sig === vialSig(p)) return `<img class="vial vimg" src="${esc(p.bottle_url)}" width="${w}" height="${h}" alt="${alt}" loading="lazy" decoding="async">`;
+      const sc = vialScale(w);
+      return `<img class="vial vimg" data-vkey="${esc(p.product_key)}" data-vs="${sc}" src="${vialCache.get(vialSig(p) + "@" + sc) || BLANK}" width="${w}" height="${h}" alt="${alt}" decoding="async">`;
+    }
     const c = COLORS[p.label_color] || "#13294b", id = "v" + Math.random().toString(36).slice(2, 7);
     let name = titleParts(p).main; if (name.length > 13) name = name.replace(/\s*\(.*\)/, "").slice(0, 13);
     const fs = name.length > 7 ? 12 : 14, fit = name.length * fs * .62 > 52 ? ' textLength="52" lengthAdjust="spacingAndGlyphs"' : "";
@@ -752,11 +780,11 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
     else if (a === "search") { e.preventDefault(); openSearch(); }
     else if (a === "minibag") miniBag();
   });
-  document.addEventListener("DOMContentLoaded", () => { mountChrome(); registerSW(); track("page_view"); }); // v3.2: no visit pop-up; 18+ is confirmed at sign-up (his rule)
+  document.addEventListener("DOMContentLoaded", () => { mountChrome(); registerSW(); track("page_view"); if (VIAL_ON) vialAssetsP().catch(() => {}); }); // v3.2: no visit pop-up; 18+ is confirmed at sign-up (his rule)
 
   window.PST = { CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, stageOf, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
-    photo: () => VIAL_ON, vialStudio, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, submitOrder, venmoLink, openAvailability,
+    photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, submitOrder, venmoLink, openAvailability,
     icon, toast, sheet, closeSheet, saved, isSaved, toggleSaved, heart, recordRecent, recent, badges, gkey, miniBag, addAndShow, openSearch, install, pushSupported, pushState, enablePush, disablePush, emailPayload, postEmail };
 })();

@@ -125,10 +125,19 @@ ${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>$
   async function pmList() {
     const el = $("[data-pm]");
     try { await pmLoad(); } catch (err) { el.innerHTML = `<p class="notice err">${esc(err.message)}</p>`; return; }
-    el.innerHTML = `<div class="pmtop"><input class="psearch" type="search" data-pmsearch placeholder="Search products" aria-label="Search products"><button class="btn primary sm" type="button" data-pmnew>+ New product</button></div>
+    el.innerHTML = `<div class="pmtop"><input class="psearch" type="search" data-pmsearch placeholder="Search products" aria-label="Search products"><button class="btn primary sm" type="button" data-pmnew>+ New product</button></div><p class="muted small pmbake"><button class="btn ghost sm" type="button" data-pmbake>Update bottle pictures</button> <span data-pmbakest>Makes finished bottle pictures so the shop loads faster. Run it after big changes.</span></p>
 <div class="pmlist">${pmRows.map(p => { const on = p.is_active !== false, n = Number(pmInv[p.product_key]?.current_inventory ?? p.current_inventory ?? 0);
   return `<div class="pmrow" data-pmname="${esc(`${p.display_name} ${p.strength || ""} ${p.product_key}`.toLowerCase())}"><button type="button" class="pmmain" data-pmedit="${esc(p.product_key)}">${P.vial(p, 34)}<span><b>${esc(p.display_name)} ${esc(p.strength || "")}</b><small>${money(P.unitPrice(p))} · ${n} on hand · ${esc(P.vialColorName(p))}</small></span></button>
 <button type="button" class="pmlive" role="switch" aria-checked="${on}" data-pmlive="${esc(p.product_key)}" aria-label="Live on site"><i></i><span>${on ? "Live" : "Hidden"}</span></button></div>`; }).join("")}</div>`;
+  }
+  async function pmBakeAll(btn) {
+    const st = $("[data-pmbakest]"); btn.disabled = true; let done = 0, skipped = 0, failed = 0;
+    for (const p of pmRows) {
+      if (p.bottle_url && p.bottle_sig === P.vialSig(p)) { skipped++; continue; }
+      try { await P.bakeBottle(p); done++; } catch (e) { failed++; if (failed === 1) st.textContent = "Couldn't save: " + (e.message || e); }
+      st.textContent = `Updating… ${done + skipped + failed} of ${pmRows.length}`;
+    }
+    st.textContent = failed ? `${done} updated, ${failed} couldn't be saved.` : `All set: ${done} updated, ${skipped} already current.`; btn.disabled = false;
   }
   function pmFilter(q) { q = q.trim().toLowerCase(); $$("[data-pmname]").forEach(r => r.hidden = !!q && !r.dataset.pmname.includes(q)); }
   async function pmLive(key, on, btn) {
@@ -152,6 +161,7 @@ ${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>$
 <label>Label color<select name="label_color"><option value="">Auto (${esc(P.vialColorName({ ...v, label_color: "" }))})</option>${colors.map(c => `<option${String(v.label_color || "").toLowerCase() === c.toLowerCase() ? " selected" : ""}>${c}</option>`).join("")}</select></label></div>
 <div class="pm2"><label class="toggle"><input type="checkbox" name="sale_enabled"${v.sale_enabled ? " checked" : ""}> On sale</label><label>Sale price<input name="sale_price" type="number" step="0.01" min="0" inputmode="decimal" value="${v.sale_price ?? ""}"></label></div>
 <label class="toggle"><input type="checkbox" name="is_active"${v.is_active !== false ? " checked" : ""}> Live on the site</label>
+<label>Feature on the home page<select name="home_feature_rank"><option value="">No</option>${[1, 2, 3, 4, 5, 6].map(n => `<option value="${n}"${Number(v.home_feature_rank) === n ? " selected" : ""}>Spot ${n}</option>`).join("")}</select></label>
 ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step="0.01" min="0" inputmode="decimal"></label><p class="muted small">New products start with 0 in stock. Receive stock in <a href="inventory.html">Inventory</a>.</p>` : `<p class="muted small">${Number(pmInv[v.product_key]?.current_inventory ?? v.current_inventory ?? 0)} on hand · stock, COAs and costs stay in <a href="products.html">admin → Products</a> and <a href="inventory.html">Inventory</a>.</p>`}
 <button class="btn primary wide" type="submit">${isNew ? "Create product" : "Save changes"}</button><p class="status" data-pmstat role="status"></p></form>`, { label: isNew ? "New product" : "Edit product" });
     const f = w.querySelector("form"), prev = w.querySelector("[data-pmprev]");
@@ -162,7 +172,7 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
       e.preventDefault(); const st = f.querySelector("[data-pmstat]"), btn = f.querySelector("[type=submit]"); btn.disabled = true; st.textContent = "Saving…"; st.className = "status";
       const now = new Date().toISOString(), name = f.display_name.value.trim(), strength = f.strength.value.trim() || null, category = f.category.value, price = Math.max(0, Number(f.price.value) || 0), live = f.is_active.checked;
       const fields = { display_name: name, strength, category, price, label_color: f.label_color.value || null, is_active: live, blend_stack: category === "Multi-Peptide Product",
-        sale_enabled: f.sale_enabled.checked, sale_price: f.sale_enabled.checked && Number(f.sale_price.value) > 0 ? Number(f.sale_price.value) : null, updated_at: now };
+        sale_enabled: f.sale_enabled.checked, sale_price: f.sale_enabled.checked && Number(f.sale_price.value) > 0 ? Number(f.sale_price.value) : null, home_feature_rank: f.home_feature_rank.value ? Number(f.home_feature_rank.value) : null, updated_at: now };
       try {
         if (isNew) {
           const k = pmNextKey();
@@ -178,6 +188,8 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
           if (r2.error) throw new Error(`Saved to the shop, but the inventory record didn't update: ${r2.error.message}`);
           P.toast("Saved");
         }
+        // save a finished bottle picture for the shop (needs the v7 server update; the site draws it live until then)
+        try { const { data: fresh } = await P.client().from("product_catalog").select("*").eq("display_name", name).eq("strength", strength).order("updated_at", { ascending: false }).limit(1).maybeSingle(); if (fresh) await P.bakeBottle(fresh); } catch {}
         P.closeSheet?.(); document.querySelector("#sheet")?.remove(); document.body.classList.remove("noscroll"); pmList();
       } catch (err) { st.textContent = err.message || "Couldn't save."; st.className = "status bad"; btn.disabled = false; }
     });
@@ -295,6 +307,7 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
     const sp = t.closest("[data-std]"); if (sp) { const i = Object.values(items).flat().find(x => String(x.id) === sp.dataset.std); const d = i && protoDays(i); if (d) await setDays(i.id, d, "protocol"); return; }
     const pe = t.closest("[data-pmedit]"); if (pe) { pmEdit(pe.dataset.pmedit); return; }
     const pn = t.closest("[data-pmnew]"); if (pn) { pmEdit(null); return; }
+    const pb = t.closest("[data-pmbake]"); if (pb) { pmBakeAll(pb); return; }
     const pl = t.closest("[data-pmlive]"); if (pl) { e.preventDefault(); pmLive(pl.dataset.pmlive, pl.getAttribute("aria-checked") !== "true", pl); return; }
     const rg = t.closest("[data-range]"); if (rg) { insights(Number(rg.dataset.range)); return; }
     const hd = t.closest("[data-hold]"); if (hd) { hd.disabled = true; const { error } = await P.client().rpc("pst_hold_until_paid", { p_order_id: hd.dataset.hold, p_hold: hd.dataset.on === "1" }); P.toast(error ? "Couldn't change hold: " + error.message : hd.dataset.on === "1" ? "Held until paid" : "24-hour timer restarted"); await load(); return; }

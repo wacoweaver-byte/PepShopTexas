@@ -100,6 +100,13 @@ ${mine.length ? `<div class="mylist">${mine.map(productRow).join("")}</div><p cl
   async function loadAds(host) {
     if (!host) return;
     try {
+      const feat = P.groups(await P.products()).map(g => ({ g, r: Math.min(...g.map(x => x.home_feature_rank || 99)) })).filter(x => x.r < 99).sort((a, b) => a.r - b.r);
+      if (feat.length) {
+        host.classList.add("featrow");
+        host.innerHTML = feat.map(({ g }) => { const p = g.find(x => x.home_feature_rank) || P.gBest(g), t = P.titleParts(p), inS = g.some(x => P.qty(x) > 0);
+          return `<a class="featcard" href="${P.productUrl(p)}"><div class="fimg">${P.vial(p, 150)}</div><div class="ftxt"><span class="kick">${esc((P.focuses(p).map(f => P.FOCUS[f])[0]) || (P.isBlend(p) ? "Research blend" : "Research peptide"))}</span><b class="serif">${esc(t.main)}</b><small>${esc(g.map(x => x.strength).filter(Boolean).join(" · "))}</small><span class="fpr">from ${money(P.gMin(g))}${inS ? "" : " · <i>restocking</i>"}</span><span class="lnk">Shop now →</span></div></a>`; }).join("");
+        return;
+      }
       const { data } = await P.client().from("catalog_carousel_ads").select("id,title,image_path,sort_order").eq("is_active", true).order("sort_order", { ascending: true }).order("created_at", { ascending: true });
       if (!data?.length) { host.closest("section")?.remove(); return; }
       host.innerHTML = data.map((ad, i) => `<a href="catalog.html"><img src="${esc(P.client().storage.from("catalog-carousel").getPublicUrl(ad.image_path).data.publicUrl)}" alt="Pep Shop Texas feature ${i + 1}" loading="${i ? "lazy" : "eager"}"></a>`).join("");
