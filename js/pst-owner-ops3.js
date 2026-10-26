@@ -76,7 +76,7 @@
 <div class="pm2"><label>Order date<input name="date" type="date" value="${d0}"></label><label>Status<select name="status">${["ordered", "in_transit", "issue_shorted"].map(s => `<option value="${s}"${s === st0 ? " selected" : ""}>${STATUS[s]}</option>`).join("")}</select></label></div>
 ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tracking_number || "")}"></label>` : ""}
 <p class="kick" style="margin:8px 0 0">Products</p><div data-polines></div>
-<div class="csearch nopick">${P.icon("search", 18)}<input type="search" data-poq placeholder="Add a product" autocomplete="off" aria-label="Add a product"></div><div class="sres" data-por></div>
+<div class="csearch nopick">${P.icon("search", 18)}<input type="search" data-poq placeholder="Search: tirz, TR10, BPC…" autocomplete="off" aria-label="Search products to add"></div><div class="sres" data-por></div>
 <div class="pm2"><label>Shipping &amp; fees ($)<input name="ship" type="number" min="0" step="0.01" inputmode="decimal" value="${ship0 ? ship0.toFixed(2) : ""}"></label><label>Discount ($)<input name="disc" type="number" min="0" step="0.01" inputmode="decimal" value="${disc0 > 0.004 ? disc0.toFixed(2) : ""}"></label></div>
 <div class="ntot" data-potot></div><p class="status" data-pos role="status"></p><button class="btn primary wide" type="submit">${editing ? "Save changes" : "Save purchase order"}</button></form>`, editing ? "Edit purchase order" : "New purchase order");
     const f = w.querySelector("form"), q = f.querySelector("[data-poq]"), res = f.querySelector("[data-por]");
@@ -86,20 +86,31 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
     const draw = () => {
       f.querySelector("[data-polines]").innerHTML = lines.map((l, k) => { const kc = kitCostOf(l); return `<div class="edrow"><div><b>${esc(l.productName)}</b>${l.vendorOnly ? ` <small class="bo">not set up in your products: can't be received until it is</small>` : ""}</div>
 <div class="edctl"><span class="qstep"><button type="button" data-pk="${k}" data-d="-1" aria-label="One less kit">−</button><b>${l.qty / KIT}</b><button type="button" data-pk="${k}" data-d="1" aria-label="One more kit">+</button></span><small class="muted">kit${l.qty === KIT ? "" : "s"} · ${l.qty} vials</small>
-<label class="edp">$<input type="number" min="0" step="0.01" inputmode="decimal" value="${kc > 0 ? kc.toFixed(2) : ""}" placeholder="kit cost" data-pc="${k}" aria-label="Cost per 10-vial kit"></label><button type="button" class="linkish" data-px="${k}">Remove</button></div></div>`; }).join("") || `<p class="muted small">Search below to add products.</p>`;
+<label class="edp">$<input type="number" min="0" step="0.01" inputmode="decimal" value="${kc > 0 ? kc.toFixed(2) : ""}" placeholder="kit cost" data-pc="${k}" aria-label="Cost per 10-vial kit"></label><button type="button" class="linkish" data-px="${k}">Remove</button></div></div>`; }).join("") || `<p class="muted small">${f.vendor.value ? "Tap items below to add them." : "Pick a vendor to see their price list, or search below."}</p>`;
       const t = totals(); f.querySelector("[data-potot]").innerHTML = lines.length ? `<div><span>${t.kits} kit${t.kits === 1 ? "" : "s"} · ${t.kits * KIT} vials</span><b>${usd(t.prod)}</b></div><div><span>Shipping &amp; fees</span><b>${usd(t.ship)}</b></div>${t.disc ? `<div><span>Discount</span><b>−${usd(t.disc)}</b></div>` : ""}<div class="big"><span>Total paid</span><b>${usd(t.total)}</b></div>` : "";
     };
-    const search = () => { const s = q.value.trim().toLowerCase(); if (!s) { res.innerHTML = ""; return; }
-      const fromInv = items.filter(i => `${label(i)} ${i.product_key} ${/pst-misc/i.test(label(i)) ? "bac water bacteriostatic" : ""}`.toLowerCase().includes(s)).slice(0, 8).map(i => { const r = priceFor(i, vp), kc = autoKitCost(i, vp, !!vendor()); return `<button type="button" class="sr1" data-poadd="${esc(i.id)}"><span class="pov"></span><span><b>${esc(label(i))}${/pst-misc/i.test(label(i)) ? " (BAC water)" : ""}</b><small>${Number(i.current_inventory || 0)} on hand${r?.vendor_item_number ? ` · ${esc(r.vendor_item_number)}` : ""}</small></span><span class="srr"><em>${kc > 0 ? usd(kc) + "/kit" : "no price"}</em></span></button>`; });
-      const unmatched = vp.catalog.filter(x => !x.product_key || !items.some(i => i.product_key === x.product_key)).filter(x => `${x.product_name} ${x.strength} ${x.vendor_item_number}`.toLowerCase().includes(s)).slice(0, 5)
-        .map(x => `<button type="button" class="sr1" data-povo="${esc(x.id)}"><span class="pov"></span><span><b>${esc(x.product_name)} ${esc(x.strength || "")}</b><small>${esc(x.vendor_item_number || "")} · not in your products</small></span><span class="srr"><em>${usd(x.kit_cost)}/kit</em></span></button>`);
-      res.innerHTML = [...fromInv, ...unmatched].join("") || `<p class="muted small">No match.</p>`; };
+    // v5.2: his shop names are discreet (PST-2TR …), so search also matches the vendor's own names, SKUs and the usual peptide names
+    const ALIAS = [[/pst-?1/i, "semaglutide sema"], [/pst-?2/i, "tirzepatide tirz"], [/pst-?3/i, "retatrutide reta"], [/pst-?5000/i, "hcg"], [/pst-misc/i, "bac water bacteriostatic"]];
+    const alias = n => ALIAS.filter(([r]) => r.test(n)).map(a => a[1]).join(" ");
+    const thumb = i => { const c = i && catBy[nk(i.product_key)]; return c ? P.vial(c, 26) : `<span class="pov"></span>`; };
+    const added = key => lines.some(l => l.productKey && l.productKey === key);
+    const rowInv = (i, x) => { const kc = x ? Number(x.kit_cost) : autoKitCost(i, vp, !!vendor()), v = vendor(), on = added(i.product_key);
+      return `<button type="button" class="porow${on ? " on" : ""}" data-poadd="${esc(i.id)}">${thumb(i)}<span><b>${esc(label(i))}</b><small>${x ? `${esc(x.vendor_item_number || "")} · ${esc(`${x.product_name} ${x.strength || ""}`.trim())} · ` : v ? "not on this vendor's list · " : ""}${Number(i.current_inventory || 0)} on hand</small></span><em>${on ? "added" : kc > 0 ? usd(kc) + "/kit" : "no price"}</em></button>`; };
+    const rowVo = x => `<button type="button" class="porow vo" data-povo="${esc(x.id)}"><span class="pov"></span><span><b>${esc(`${x.product_name} ${x.strength || ""}`.trim())}</b><small>${esc(x.vendor_item_number || "")} · not set up in your products yet</small></span><em>${usd(x.kit_cost)}/kit</em></button>`;
+    const search = () => { const s = q.value.trim().toLowerCase(), v = vendor(), byKey = Object.fromEntries(items.map(i => [i.product_key, i]));
+      const vrows = vp.catalog.map(x => ({ x, i: x.product_key ? byKey[x.product_key] : null })).sort((a, c) => `${a.x.product_name} ${a.x.strength}`.localeCompare(`${c.x.product_name} ${c.x.strength}`, undefined, { numeric: true, sensitivity: "base" }));
+      const hayV = r => `${r.x.product_name} ${r.x.strength} ${r.x.vendor_item_number} ${r.i ? `${label(r.i)} ${r.i.product_key} ${alias(label(r.i))}` : ""}`.toLowerCase();
+      if (!s) { res.innerHTML = v && vrows.length ? `<p class="kick sreshd">${esc(v.company_name)}'s price list · ${vrows.length} item${vrows.length === 1 ? "" : "s"} · tap to add</p>${vrows.map(r => r.i ? rowInv(r.i, r.x) : rowVo(r.x)).join("")}` : v ? `<p class="muted small">${esc(v.company_name)} has no price list yet. Search your products, or upload one under More → Vendor price lists.</p>` : ""; return; }
+      const words = s.split(/\s+/).filter(Boolean), hit = h => words.every(w => h.includes(w));
+      const vHits = vrows.filter(r => hit(hayV(r))), inV = new Set(vHits.filter(r => r.i).map(r => r.i.product_key)), onList = new Set(vrows.filter(r => r.i).map(r => r.i.product_key));
+      const others = items.filter(i => !onList.has(i.product_key) && hit(`${label(i)} ${i.product_key} ${alias(label(i))}`.toLowerCase())).slice(0, 8);
+      res.innerHTML = [...vHits.map(r => r.i ? rowInv(r.i, r.x) : rowVo(r.x)), ...others.filter(i => !inV.has(i.product_key)).map(i => rowInv(i, null))].join("") || `<p class="muted small">No match for "${esc(q.value.trim())}".</p>`; };
     q.addEventListener("input", search);
     f.addEventListener("change", async e => { if (e.target.name === "vendor") { vendorId = f.vendor.value; vp = await vendorPrices(vendorId); lines.forEach(l => { if (!l.originalRowId) l.kitCost = 0; }); search(); } draw(); });
     f.addEventListener("input", e => { const c = e.target.closest("[data-pc]"); if (c) { lines[+c.dataset.pc].kitCost = Number(c.value || 0); const t = totals(); const tb = f.querySelector("[data-potot] .big b"); if (tb) tb.textContent = usd(t.total); return; } if (["ship", "disc"].includes(e.target.name)) draw(); });
     f.addEventListener("click", e => {
-      const a = e.target.closest("[data-poadd]"); if (a) { const it = items.find(i => String(i.id) === a.dataset.poadd); lines.push({ productId: it.id, productKey: it.product_key || null, productName: label(it), qty: KIT, kitCost: 0 }); q.value = ""; res.innerHTML = ""; draw(); return; }
-      const vo = e.target.closest("[data-povo]"); if (vo) { const x = vp.catalog.find(c => c.id === vo.dataset.povo); lines.push({ productId: null, productKey: null, productName: `${x.product_name} — ${x.strength || ""}`, vendorOnly: true, qty: KIT, kitCost: Number(x.kit_cost) }); q.value = ""; res.innerHTML = ""; draw(); return; }
+      const a = e.target.closest("[data-poadd]"); if (a) { const it = items.find(i => String(i.id) === a.dataset.poadd); if (added(it.product_key)) { P.toast("Already on this order: use + to add kits"); return; } lines.push({ productId: it.id, productKey: it.product_key || null, productName: label(it), qty: KIT, kitCost: 0 }); q.value = ""; draw(); search(); P.toast(`${label(it)} added`); return; }
+      const vo = e.target.closest("[data-povo]"); if (vo) { const x = vp.catalog.find(c => c.id === vo.dataset.povo); lines.push({ productId: null, productKey: null, productName: `${x.product_name} — ${x.strength || ""}`, vendorOnly: true, qty: KIT, kitCost: Number(x.kit_cost) }); q.value = ""; draw(); search(); return; }
       const s = e.target.closest("[data-pk]"); if (s) { const l = lines[+s.dataset.pk]; l.qty = Math.max(KIT, l.qty + Number(s.dataset.d) * KIT); draw(); return; }
       const x = e.target.closest("[data-px]"); if (x) { lines.splice(+x.dataset.px, 1); draw(); }
     });
@@ -138,7 +149,7 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
         }
       } catch (err) { st.textContent = err.message || String(err); st.className = "status bad"; b.disabled = false; }
     });
-    draw();
+    draw(); search();
   }
 
   /* ================= ONE PO: receive all / some, tracking, status, edit, cancel a line ================= */

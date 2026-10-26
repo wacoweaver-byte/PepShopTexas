@@ -666,17 +666,27 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     let el = $("#toast"); if (!el) { el = document.createElement("div"); el.id = "toast"; el.setAttribute("role", "status"); el.setAttribute("aria-live", "polite"); document.body.appendChild(el); }
     el.innerHTML = `${esc(msg)}${link ? ` <a href="${link[0]}">${esc(link[1])}</a>` : ""}`; el.className = "show"; clearTimeout(toast.t); toast.t = setTimeout(() => el.className = "", 2800);
   }
+  // v5.2: real scroll lock for sheets on iPhone (overflow:hidden alone lets the page underneath scroll and shift fixed bars)
+  let lockY = 0;
+  function lockScroll(on) {
+    const b = document.body, locked = b.classList.contains("noscroll");
+    if (on && !locked) { lockY = window.scrollY; b.style.top = `-${lockY}px`; b.classList.add("noscroll"); }
+    else if (!on && locked) { b.classList.remove("noscroll"); b.style.top = ""; window.scrollTo(0, lockY); }
+  }
+  // after the keyboard closes, iPhone can leave fixed bars and sheets offset until the next scroll: nudge it back
+  if (window.visualViewport) { let vt; const settle = () => { clearTimeout(vt); vt = setTimeout(() => { if (!/input|textarea|select/i.test(document.activeElement?.tagName || "")) window.scrollTo(window.scrollX, window.scrollY); }, 150); };
+    visualViewport.addEventListener("resize", settle); document.addEventListener("focusout", settle); }
   function sheet(html, opts = {}) {
     closeSheet();
     const w = document.createElement("div"); w.id = "sheet"; w.className = "sheetwrap";
     w.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"${opts.label ? ` aria-label="${esc(opts.label)}"` : ""}><button class="sx" type="button" data-act="close-sheet" aria-label="Close">${icon("x")}</button>${html}</div>`;
-    document.body.appendChild(w); document.body.classList.add("noscroll");
+    document.body.appendChild(w); lockScroll(true);
     requestAnimationFrame(() => w.classList.add("in"));
     w.addEventListener("click", e => { if (e.target === w) closeSheet(); });
-    const f = w.querySelector("input,select,textarea,button:not(.sx)"); setTimeout(() => f?.focus(), 60);
+    const f = w.querySelector("input,select,textarea,button:not(.sx)"); if (matchMedia("(hover: hover) and (pointer: fine)").matches) setTimeout(() => f?.focus(), 60); // no auto-keyboard on phones
     return w;
   }
-  function closeSheet() { const w = $("#sheet"); if (w) { w.remove(); document.body.classList.remove("noscroll"); } }
+  function closeSheet() { const w = $("#sheet"); if (w) { w.remove(); lockScroll(false); } }
   document.addEventListener("keydown", e => { if (e.key === "Escape") { closeSheet(); openDrawer(false); openMega(false); } if (e.key === "/" && !/input|textarea/i.test(document.activeElement?.tagName || "")) { e.preventDefault(); openSearch(); } });
   document.addEventListener("click", e => {
     if (!e.target.closest(".mega,.mm")) openMega(false);
@@ -691,7 +701,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     w.innerHTML = `<div class="gbox" role="dialog" aria-modal="true" aria-labelledby="gt"><img src="${EMB2}" alt="" width="96" height="96"><div class="wm" id="gt">PEP SHOP<small>TEXAS</small></div>
 <p>Research compounds for adults ${CFG.minAge} and over. For research use only, not for human or veterinary use.</p>
 <button class="btn primary wide" type="button" data-act="gate-yes">I'm ${CFG.minAge}+ and agree</button><button class="btn ghost wide" type="button" data-act="gate-no">Leave</button></div>`;
-    document.body.appendChild(w); document.body.classList.add("noscroll");
+    document.body.appendChild(w); lockScroll(true);
   }
 
   /* availability request sheet (same RPC as catalog-display.js) */
@@ -899,7 +909,7 @@ ${prefs ? `<p class="kick" style="margin:22px 0 6px">What you'll hear about</p><
     if (g.some(onSale)) out.push("Sale");
     return out; };
 
-  function openDrawer(on) { const d = $("#drawer"); if (!d) return; d.hidden = !on; document.body.classList.toggle("noscroll", on); if (on) setTimeout(() => d.querySelector(".sx")?.focus(), 30); }
+  function openDrawer(on) { const d = $("#drawer"); if (!d) return; d.hidden = !on; lockScroll(on); if (on) setTimeout(() => d.querySelector(".sx")?.focus(), 30); }
   async function openMega(on) {
     const m = $("#mega"), b = $("[data-act=mega]"); if (!m) return; m.hidden = !on; b?.setAttribute("aria-expanded", on);
     if (on && !m.dataset.filled) { m.dataset.filled = 1; try { const gs = groups(await products()).filter(gIn).sort((a, b) => (b.some(x => x.hot_peptide || x.featured) - a.some(x => x.hot_peptide || x.featured))); const g = gs[0]; if (g) { const p = gBest(g); $("[data-mfeat]").innerHTML = `<a href="${productUrl(p)}" class="mfcard">${vial(p, 60)}<span><small>Featured</small><b>${esc(titleParts(p).main)}</b><em>from ${money(gMin(g))}</em></span></a>`; } } catch {} }
@@ -949,7 +959,7 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
     const b = e.target.closest("[data-act]"); if (!b) return;
     const a = b.dataset.act;
     if (a === "close-sheet") closeSheet();
-    else if (a === "gate-yes") { store.set(CFG.gateKey, 1); $("#gate")?.remove(); document.body.classList.remove("noscroll"); }
+    else if (a === "gate-yes") { store.set(CFG.gateKey, 1); $("#gate")?.remove(); lockScroll(false); }
     else if (a === "gate-no") { const p = $("#gate p"); if (p) p.textContent = "No problem. This site is only for adults "+CFG.minAge+"+ purchasing for research."; }
     else if (a === "install") install();
     else if (a === "inbox") openInbox();
@@ -963,7 +973,7 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   document.addEventListener("visibilitychange", () => { if (!document.hidden && $("[data-bell]:not([hidden])")) refreshBell(); });
   document.addEventListener("DOMContentLoaded", async () => { if (await appLaunch()) return; mountChrome(); appBar(); registerSW(); track("page_view"); if (VIAL_ON) vialAssetsP().catch(() => {}); }); // v3.2: no visit pop-up; 18+ is confirmed at sign-up (his rule)
 
-  window.PST = { CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
+  window.PST = { lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, handedOff, stageOf, vialLiquid, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
     photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,

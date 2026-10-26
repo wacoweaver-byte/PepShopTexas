@@ -36,7 +36,7 @@
     if (!(await P.isAdmin(me))) { root.innerHTML = `<div class="empty"><h1 class="serif">Owners only</h1><p>This page is for Pep Shop Texas staff.</p><a class="btn ghost" href="index.html">Go to the shop</a></div>`; return; }
     document.body.classList.add("oapp");
     root.innerHTML = `<header class="ohd"><div><small>Pep Shop Texas</small><h1 class="serif" data-otitle>Today</h1></div><div class="ohr"><button class="btn ghost sm" type="button" data-q="lookup" aria-label="Look up anything">${P.icon("search", 18)}</button><button class="btn ghost sm bell" type="button" data-bell data-act="inbox" aria-label="Notifications">${P.icon("bell", 18)}<i hidden>0</i></button><button class="btn ghost sm" type="button" data-o="refresh" aria-label="Refresh">↻</button></div></header>
-<section class="opane" data-pane="today"><div data-alerts></div><div class="tiles otiles" data-stats></div>
+<section class="opane" data-pane="today"><p class="vibe" data-vibe></p><div data-cheer></div><div data-alerts></div><div class="tiles otiles" data-stats></div>
 <div class="oquick"><button class="btn primary" type="button" data-q="neworder">${P.icon("plus", 16)} New order</button><button class="btn ghost" type="button" data-q="addcust">${P.icon("users", 16)} Add customer</button></div>
 <div data-vmbox></div><h2 class="serif osec">Needs you</h2><div data-attn></div>
 <h2 class="serif osec">Running low soon</h2><p class="muted small">Customers likely to run low in the next 10 days, based on their own reorder rhythm. A friendly text sells.</p><div data-due></div></section>
@@ -143,8 +143,16 @@
     items = {};
     if (ids.length) { const ir = await P.client().from("order_items").select("*").in("order_id", ids); (ir.data || []).forEach(i => (items[i.order_id] ||= []).push(i)); }
     await loadProtos();
-    draw(); due();
+    vibe(); draw(); due();
     if (navigator.setAppBadge) { const n = orders.filter(TABS.pay.f).length; try { n ? navigator.setAppBadge(n) : navigator.clearAppBadge(); } catch {} }
+  }
+  // v5.2: a little personality (owner app only)
+  let vibeAt = 0, clearLine = "";
+  function vibe() {
+    if (!window.PSTVibe) return;
+    if (Date.now() - vibeAt > 30 * 60000) { vibeAt = Date.now(); const g = $("[data-vibe]"); if (g) g.textContent = PSTVibe.greeting(me); }
+    const c = PSTVibe.newOrders(me, orders, { dead, name: o => PSTOps.custName(o) });
+    if (c) { const box = $("[data-cheer]"); if (box) box.innerHTML = `<div class="cheer" role="status">${P.icon("bag", 20)}<span>${esc(c.text)}</span><button type="button" class="sx" data-cheerx aria-label="Dismiss">${P.icon("x", 16)}</button></div>`; P.toast(c.text); if (navigator.vibrate) try { navigator.vibrate(30); } catch {} }
   }
   function draw() { drawToday(); drawOrders(); }
   const sum = list => money(list.reduce((s, o) => s + Number(o.total || 0), 0));
@@ -154,7 +162,8 @@
     const tile = (k, l, n, s) => `<button type="button" class="tile" data-otab="${k}"><small>${l}</small><b>${n}</b><span class="muted small">${s}</span></button>`;
     $("[data-stats]").innerHTML = tile("all", "Today", tod.length, sum(tod)) + tile("pay", "Waiting on payment", pay.length, sum(pay)) + tile("pack", "To pack", pack.length, pack.length ? "paid, ready to go" : "all caught up") + tile("ready", "Ready / out", ready.length, "packed or shipped");
     const attn = [...pack, ...pay];
-    $("[data-attn]").innerHTML = attn.length ? attn.slice(0, 8).map(card).join("") + (attn.length > 8 ? `<button class="btn ghost wide" type="button" data-otab="pay">See all ${attn.length}</button>` : "") : `<div class="empty">${P.icon("check", 28)}<p>Nothing waiting on you. Nice.</p></div>`;
+    $("[data-attn]").innerHTML = attn.length ? attn.slice(0, 8).map(card).join("") + (attn.length > 8 ? `<button class="btn ghost wide" type="button" data-otab="pay">See all ${attn.length}</button>` : "") : `<div class="empty allclear">${P.icon("check", 28)}<p>${esc(clearLine ||= (window.PSTVibe ? PSTVibe.allClear(me) : "Nothing waiting on you. Nice."))}</p></div>`;
+    if (attn.length) clearLine = "";
     PSTOps.venmoMatches($("[data-vmbox]"));
     const n = attn.length, bd = $('[data-badge="orders"]'); if (bd) { bd.hidden = !n; bd.textContent = n > 99 ? "99+" : n; }
   }
@@ -312,7 +321,7 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
         }
         // save a finished bottle picture for the shop (needs the v7 server update; the site draws it live until then)
         try { const { data: fresh } = await P.client().from("product_catalog").select("*").eq("display_name", name).eq("strength", strength).order("updated_at", { ascending: false }).limit(1).maybeSingle(); if (fresh) await P.bakeBottle(fresh); } catch {}
-        P.closeSheet?.(); document.querySelector("#sheet")?.remove(); document.body.classList.remove("noscroll"); pmList();
+        P.closeSheet?.(); pmList();
       } catch (err) { st.textContent = err.message || "Couldn't save."; st.className = "status bad"; btn.disabled = false; }
     });
   }
@@ -494,6 +503,7 @@ ${stale.length ? `<div class="notice">${stale.length} protocol${stale.length ===
     const tx = t.closest("[data-texts]"); if (tx) { texts(orders.find(o => String(o.id) === tx.dataset.texts)); return; }
     const sp = t.closest("[data-std]"); if (sp) { const i = Object.values(items).flat().find(x => String(x.id) === sp.dataset.std); const d = i && protoDays(i); if (d) await setDays(i.id, d, "protocol"); return; }
     if (t.closest("[data-psync]")) { let n = 0; for (const name in protos) if (protoOn({ display_name: name })) n += await protoSync(name, protos[name]); P.toast(`Reminder timing set on ${n} product${n === 1 ? "" : "s"}`); protoPage(); return; }
+    if (t.closest("[data-cheerx]")) { $("[data-cheer]").innerHTML = ""; return; }
     const th = t.closest("[data-th]"); if (th) { applyTheme(th.dataset.th); return; }
     const pe = t.closest("[data-pmedit]"); if (pe) { pmEdit(pe.dataset.pmedit); return; }
     const pn = t.closest("[data-pmnew]"); if (pn) { pmEdit(null); return; }

@@ -166,7 +166,7 @@ ${st.k !== "dead" && nm(pStatus(o)) === "paid" ? btn("refund", "Mark refunded", 
     w.addEventListener("click", e => { const b = e.target.closest("[data-oa]"); if (b) act(o, b.dataset.oa, { match, hist, left }); });
     if (opt.pay && st.k === "unpaid") setTimeout(() => act(o, "paid", { match }), 200);
   }
-  async function done(o, msg) { P.toast(msg); await ctx.reload(); const fresh = ctx.orders.find(x => x.id === o.id); if (fresh) openOrder(o.id); } // show the order again with its new status and next step
+  async function done(o, msg) { const k = /picked up|delivered/i.test(msg) ? "delivered" : /shipped/i.test(msg) ? "shipped" : /packed|ready/i.test(msg) ? "packed" : /paid/i.test(msg) ? "paid" : "", v = k && window.PSTVibe ? PSTVibe.afterAction(ctx.me, k) : ""; P.toast(v ? `${msg} · ${v}` : msg); await ctx.reload(); const fresh = ctx.orders.find(x => x.id === o.id); if (fresh) openOrder(o.id); } // show the order again with its new status and next step
 
   async function act(o, a, extra = {}) {
     try {
