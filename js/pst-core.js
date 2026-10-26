@@ -727,7 +727,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
   // v42: the site and the installed app update themselves. Every time the app opens or comes back to the front, it checks
   // for a new version; when one is ready the page reloads once (never while someone is typing in a form).
   // v5.7: a preview copy of an update (hosted on vercel.app) runs on the real shop data so Jimmie can check a fix before it goes live
-  const PREVIEW = /\.vercel\.app$/i.test(location.hostname);
+  const PREVIEW = /\.vercel\.app$|(^|\.)githack\.com$/i.test(location.hostname);
   function previewBanner() { const b = document.createElement("div"); b.className = "pvbar"; b.innerHTML = `PREVIEW of the next update · this is the real shop, so changes you make are real`; document.body.prepend(b); document.body.classList.add("preview"); }
   function registerSW() {
     if (!("serviceWorker" in navigator) || location.protocol !== "https:") return;
