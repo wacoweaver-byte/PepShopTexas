@@ -255,7 +255,7 @@
   }
   function writeCart(c) { store.set(CFG.cartKey, c); refreshCount(); }
   /* ---------- built-in analytics (no cookies, no third parties; owner-only reports) ---------- */
-  const ANALYTICS_OFF = () => /^(owner|admin)/.test(document.body?.dataset.page || "") || /admin|owner|inventory|reports|products|customers|discounts|promotions|manual-order|report-writer|vendor|catalog-ads|availability-requests|bulk-requests/.test(location.pathname.split("/").pop() || "");
+  const ANALYTICS_OFF = () => PREVIEW || /^(owner|admin)/.test(document.body?.dataset.page || "") || /admin|owner|inventory|reports|products|customers|discounts|promotions|manual-order|report-writer|vendor|catalog-ads|availability-requests|bulk-requests/.test(location.pathname.split("/").pop() || "");
   function ids() {
     let v = store.get("pst_vid", ""); if (!v) { v = (crypto.randomUUID?.() || String(Math.random()).slice(2)).replace(/-/g, "").slice(0, 24); store.set("pst_vid", v); }
     let s = null; try { s = JSON.parse(sessionStorage.getItem("pst_sid") || "null"); } catch {}
@@ -726,8 +726,12 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
   window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; });
   // v42: the site and the installed app update themselves. Every time the app opens or comes back to the front, it checks
   // for a new version; when one is ready the page reloads once (never while someone is typing in a form).
+  // v5.7: a preview copy of an update (hosted on vercel.app) runs on the real shop data so Jimmie can check a fix before it goes live
+  const PREVIEW = /\.vercel\.app$/i.test(location.hostname);
+  function previewBanner() { const b = document.createElement("div"); b.className = "pvbar"; b.innerHTML = `PREVIEW of the next update · this is the real shop, so changes you make are real`; document.body.prepend(b); document.body.classList.add("preview"); }
   function registerSW() {
     if (!("serviceWorker" in navigator) || location.protocol !== "https:") return;
+    if (PREVIEW) { navigator.serviceWorker.getRegistrations?.().then(rs => rs.forEach(r => r.unregister())).catch(() => {}); previewBanner(); return; } // previews never install or cache
     const sw = navigator.serviceWorker, hadController = !!sw.controller;
     let pending = false, last = 0;
     const busy = () => /input|textarea|select/i.test(document.activeElement?.tagName || "") || !!document.querySelector("#sheet form");
@@ -741,7 +745,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     sw.register("sw.js", { updateViaCache: "none" }).then(reg => {
       const check = () => { if (Date.now() - last > 60000) { last = Date.now(); reg.update().catch(() => {}); } };
       document.addEventListener("visibilitychange", () => { if (!document.hidden) { if (pending) { pending = false; reload(); return; } check(); } });
-      window.addEventListener("focus", check); setInterval(() => { if (!document.hidden) check(); }, 30 * 60000);
+      window.addEventListener("focus", check); setInterval(() => { if (!document.hidden) check(); }, 5 * 60000); // v5.7: an open app picks up updates within ~5 min
     }).catch(() => {});
     try { if (sessionStorage.getItem("pst_updated")) { sessionStorage.removeItem("pst_updated"); window.PST_JUST_UPDATED = true; if (!document.body.classList.contains("oapp") && !/owner\.html/.test(location.pathname)) setTimeout(() => toast("Pep Shop Texas just updated to the latest version"), 600); } } catch {}
   }
@@ -770,6 +774,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     return sub ? "on" : "off";
   }
   async function enablePush(role = "customer") {
+    if (PREVIEW) throw new Error("Alerts stay off in a preview. Use the regular app.");
     if (!pushSupported()) { if (isIOS() && !isStandalone()) { install(); return false; } throw new Error("This browser can't show notifications."); }
     const u = await getUser(true); if (!u) { location.href = "login.html?redirect=" + encodeURIComponent(location.pathname.split("/").pop() + location.search); return false; }
     const perm = await Notification.requestPermission(); if (perm !== "granted") throw new Error("Notifications are blocked. Allow them in Settings for this app.");
@@ -987,7 +992,7 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   document.addEventListener("visibilitychange", () => { if (!document.hidden && $("[data-bell]:not([hidden])")) refreshBell(); });
   document.addEventListener("DOMContentLoaded", async () => { if (await appLaunch()) return; mountChrome(); appBar(); registerSW(); track("page_view"); if (VIAL_ON) vialAssetsP().catch(() => {}); }); // v3.2: no visit pop-up; 18+ is confirmed at sign-up (his rule)
 
-  window.PST = { lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
+  window.PST = { PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, handedOff, stageOf, vialLiquid, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
     photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,

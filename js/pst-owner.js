@@ -22,8 +22,8 @@
   /* ---- v38 app shell: bottom tabs like PepKeep (Today · Orders · Products · Customers · More) ---- */
   let view = "today", oq = "", pmLoaded = false, stockRows = [];
   const NAV = [["today", "home", "Today"], ["orders", "box", "Orders"], ["products", "flask", "Products"], ["customers", "users", "Customers"], ["more", "dots", "More"]];
-  const TITLES = { today: "Today", orders: "Orders", products: "Products", customers: "Customers", more: "More", insights: "Insights", protos: "My protocols", times: "Write-ups", requests: "Requests", coa: "Lab reports", vendors: "Vendors", discounts: "Discount codes", promos: "Promotions", blast: "Email blast", ads: "Shop pictures", whatsnew: "What's new", vprices: "Vendor price lists", reports: "Reports", writer: "Report writer", paymethods: "Payment methods", emails: "Emails & reminders" };
-  const MORE = [["reports", "chart", "Reports", "Sales, profit, expenses, stock moves"], ["writer", "doc", "Report writer", "Build any list, save it, download it"], ["insights", "chart", "Insights", "Customers and site traffic"], ["requests", "bell", "Requests", "Restock and bulk requests"], ["coa", "doc", "Lab reports", "Upload certificates, copy QR links"], ["stock", "box", "Stock & purchase orders", "Order from vendors, receive, reorder review"], ["vendors", "truck", "Vendors", "Who you buy from and lead times"], ["vprices", "doc", "Vendor price lists", "Upload a vendor's prices, match them"],
+  const TITLES = { today: "Today", orders: "Orders", products: "Products", customers: "Customers", more: "More", insights: "Insights", protos: "My protocols", times: "Write-ups", requests: "Requests", coa: "Lab reports", vendors: "Vendors", discounts: "Discount codes", promos: "Promotions", blast: "Email blast", ads: "Shop pictures", whatsnew: "What's new", vprices: "Vendor price lists", reports: "Reports", writer: "Report writer", paymethods: "Payment methods", emails: "Emails & reminders", help: "Report a problem", updates: "Updates" };
+  const MORE = [["help", "chat", "Report a problem", "Screenshots + what happened, sent for a fix"], ["updates", "star", "Updates", "Fixes to check and publish"], ["reports", "chart", "Reports", "Sales, profit, expenses, stock moves"], ["writer", "doc", "Report writer", "Build any list, save it, download it"], ["insights", "chart", "Insights", "Customers and site traffic"], ["requests", "bell", "Requests", "Restock and bulk requests"], ["coa", "doc", "Lab reports", "Upload certificates, copy QR links"], ["stock", "box", "Stock & purchase orders", "Order from vendors, receive, reorder review"], ["vendors", "truck", "Vendors", "Who you buy from and lead times"], ["vprices", "doc", "Vendor price lists", "Upload a vendor's prices, match them"],
     ["discounts", "tag", "Discount codes", "Codes, limits, who can use them"], ["promos", "star", "Promotions", "Banners, free items, spend rewards"],
     ["emails", "bell", "Emails & reminders", "Everything your shop sends, and when"], ["blast", "chat", "Email blast", "Write and send to subscribers"], ["paymethods", "lock", "Payment methods", "What shoppers can pay with, discounts"], ["ads", "shop", "Shop pictures", "The carousel on the shop"],
     ["protos", "lock", "My protocols", "Private reference, only you see it"], ["times", "doc", "Write-ups & reorder times", "Product pages and running-low reminders"]];
@@ -36,10 +36,10 @@
     if (!(await P.isAdmin(me))) { root.innerHTML = `<div class="empty"><h1 class="serif">Owners only</h1><p>This page is for Pep Shop Texas staff.</p><a class="btn ghost" href="index.html">Go to the shop</a></div>`; return; }
     document.body.classList.add("oapp");
     root.innerHTML = `<header class="ohd"><div><small>Pep Shop Texas</small><h1 class="serif" data-otitle>Today</h1></div><div class="ohr"><button class="btn ghost sm" type="button" data-q="lookup" aria-label="Look up anything">${P.icon("search", 18)}</button><button class="btn ghost sm bell" type="button" data-bell data-act="inbox" aria-label="Notifications">${P.icon("bell", 18)}<i hidden>0</i></button><button class="btn ghost sm" type="button" data-o="refresh" aria-label="Refresh">↻</button></div></header>
-<section class="opane" data-pane="today"><p class="vibe" data-vibe></p><div data-cheer></div><div data-alerts></div><div class="tiles otiles" data-stats></div>
+<section class="opane" data-pane="today"><p class="vibe" data-vibe></p><div data-rels></div><div data-cheer></div><div data-alerts></div><div class="tiles otiles" data-stats></div>
 <div class="oquick"><button class="btn primary" type="button" data-q="neworder">${P.icon("plus", 16)} New order</button><button class="btn ghost" type="button" data-q="addcust">${P.icon("users", 16)} Add customer</button></div>
 <div data-vmbox></div><h2 class="serif osec">Needs you</h2><div data-attn></div>
-<h2 class="serif osec">Running low soon</h2><p class="muted small">Customers likely to run low in the next 10 days, based on their own reorder rhythm. A friendly text sells.</p><div data-due></div></section>
+<h2 class="serif osec">Running low soon</h2><p class="muted small">Customers likely to run low in the next 10 days, based on their own reorder rhythm. A friendly text sells.</p><div data-due></div><p class="mlinks hlink"><button type="button" class="linkish" data-go-help>Something not right? Report it with a screenshot</button></p></section>
 <section class="opane" data-pane="orders" hidden><div class="pmtop"><input class="psearch" type="search" data-osearch placeholder="Search orders" aria-label="Search orders by name, order number or email"><button class="btn primary sm" type="button" data-q="neworder">+ New</button></div><div class="oseg" role="tablist" data-tabs></div><div data-list aria-live="polite"></div></section>
 <section class="opane" data-pane="products" hidden><div class="oseg three" role="tablist"><button class="on" type="button" data-psub="catalog">Catalog</button><button type="button" data-psub="stock">Stock</button><button type="button" data-psub="reorder">Reorder</button></div>
 <div data-pm><p class="muted small">Loading…</p></div><div data-reorder hidden></div><div data-stock hidden><div class="pmtop"><p class="muted small" style="margin:0;flex:1">Purchase orders and the shelf</p><button class="btn primary sm" type="button" data-newpo>+ New PO</button></div><div data-po></div><h2 class="serif osec">On the shelf</h2><p class="muted small" data-ssum></p><div class="schips" role="tablist" data-schips></div><input class="psearch" type="search" data-ssearch placeholder="Search products" aria-label="Search stock"><div data-slist><p class="muted small">Loading…</p></div><p class="muted small">Tap a product to correct its count.</p></div></section>
@@ -48,9 +48,9 @@
 <div class="nalbox thbox"><h2 class="serif">Look</h2><div class="oseg three" role="radiogroup" aria-label="App look" data-theme-pick>${[["dark", "Dark"], ["light", "Light"], ["auto", "Match phone"]].map(([k, l]) => `<button type="button" role="radio" data-th="${k}" aria-checked="${themePref() === k}" class="${themePref() === k ? "on" : ""}">${l}</button>`).join("")}</div></div>
 <p class="mlinks"><a href="install.html">Install guide</a><button type="button" class="linkish" data-signout>Sign out</button></p>
 <div class="nalbox" id="alerts"><h2 class="serif">Alerts on this device</h2><div data-nal><p class="muted small">Loading…</p></div></div></div>
-<div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="requests" data-reqs hidden></div><div data-sub="coa" data-coa hidden></div><div data-sub="vendors" data-vens hidden></div><div data-sub="blast" data-blast hidden></div><div data-sub="ads" data-ads hidden></div><div data-sub="whatsnew" data-wn hidden></div><div data-sub="vprices" data-vpr hidden></div><div data-sub="reports" data-rep hidden></div><div data-sub="writer" data-wri hidden></div><div data-sub="paymethods" data-pay hidden></div><div data-sub="emails" data-ems2 hidden></div><div data-sub="discounts" data-discs hidden></div><div data-sub="promos" data-promos hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
+<div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="requests" data-reqs hidden></div><div data-sub="coa" data-coa hidden></div><div data-sub="vendors" data-vens hidden></div><div data-sub="blast" data-blast hidden></div><div data-sub="ads" data-ads hidden></div><div data-sub="whatsnew" data-wn hidden></div><div data-sub="vprices" data-vpr hidden></div><div data-sub="reports" data-rep hidden></div><div data-sub="writer" data-wri hidden></div><div data-sub="paymethods" data-pay hidden></div><div data-sub="emails" data-ems2 hidden></div><div data-sub="help" data-help hidden></div><div data-sub="updates" data-upd hidden></div><div data-sub="discounts" data-discs hidden></div><div data-sub="promos" data-promos hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
 <nav class="otabbar" aria-label="Owner app">${NAV.map(([k, i, l]) => `<button type="button" data-go="${k}" aria-current="${k === "today" ? "page" : "false"}">${P.icon(i, 22)}<span>${l}</span><i data-badge="${k}" hidden></i></button>`).join("")}</nav>`;
-    setTimeout(wnDot, 0); setTimeout(updNote, 400);
+    setTimeout(wnDot, 0); setTimeout(updNote, 400); setTimeout(() => window.PSTHelp?.notices(n => { if (n) { const b = $('[data-badge="more"]'); if (b) { b.hidden = false; b.textContent = n; } } }), 2500);
     PSTOps.init({ me, get orders() { return orders; }, get items() { return items; }, reload: load, lineExtra: (o, i) => lineDays(o, i) });
     document.addEventListener("click", onClick);
     document.addEventListener("input", onInput);
@@ -69,7 +69,7 @@
     if (h === "stock") { go("products"); sub("stock"); return; }
     if (h === "reorder") { go("products"); sub("reorder"); return; }
     if (h === "products") { go("products"); sub("catalog"); return; }
-    if (["insights", "protos", "times", "requests", "coa", "vendors", "discounts", "promos", "blast", "ads", "whatsnew", "vprices", "reports", "writer", "paymethods", "emails"].includes(h)) { go("more"); moreSub(h); return; }
+    if (["insights", "protos", "times", "requests", "coa", "vendors", "discounts", "promos", "blast", "ads", "whatsnew", "vprices", "reports", "writer", "paymethods", "emails", "help", "updates"].includes(h)) { go("more"); moreSub(h); return; }
     go(NAV.some(n => n[0] === h) ? h : "today");
   }
   function go(v) {
@@ -106,7 +106,7 @@
     if (k === "insights") insights(30); if (k === "protos") protoPage(); if (k === "times") times();
     if (k === "requests") PSTOps.requestsPane($("[data-reqs]")); if (k === "coa") PSTOps.coaPane($("[data-coa]"));
     if (k === "vendors") PSTOps3.vendorsPane($("[data-vens]")); if (k === "discounts") PSTOps2.discountsPane($("[data-discs]")); if (k === "promos") PSTOps2.promotionsPane($("[data-promos]"));
-    if (k === "blast") PSTOps4.blastPane($("[data-blast]")); if (k === "ads") PSTOps4.adsPane($("[data-ads]")); if (k === "vprices") PSTOps5.vendorPricesPane($("[data-vpr]")); if (k === "reports") PSTOps6.reportsPane($("[data-rep]")); if (k === "writer") PSTOps7.writerPane($("[data-wri]")); if (k === "paymethods") PSTOps6.payMethodsPane($("[data-pay]")); if (k === "emails") PSTOps8.emailsPane($("[data-ems2]")); if (k === "whatsnew") { PSTOps4.whatsNew($("[data-wn]")); wnDot(); }
+    if (k === "blast") PSTOps4.blastPane($("[data-blast]")); if (k === "ads") PSTOps4.adsPane($("[data-ads]")); if (k === "vprices") PSTOps5.vendorPricesPane($("[data-vpr]")); if (k === "reports") PSTOps6.reportsPane($("[data-rep]")); if (k === "writer") PSTOps7.writerPane($("[data-wri]")); if (k === "paymethods") PSTOps6.payMethodsPane($("[data-pay]")); if (k === "emails") PSTOps8.emailsPane($("[data-ems2]")); if (k === "help") PSTHelp.helpPane($("[data-help]")); if (k === "updates") PSTRelease.pane($("[data-upd]"), me); if (k === "whatsnew") { PSTOps4.whatsNew($("[data-wn]")); wnDot(); }
     window.scrollTo(0, 0);
   }
   function sub(k) {
@@ -153,7 +153,7 @@
     items = {};
     if (ids.length) { const ir = await P.client().from("order_items").select("*").in("order_id", ids); (ir.data || []).forEach(i => (items[i.order_id] ||= []).push(i)); }
     await loadProtos();
-    vibe(); draw(); due();
+    vibe(); draw(); due(); window.PSTRelease?.today($("[data-rels]"), me);
     if (navigator.setAppBadge) { const n = orders.filter(TABS.pay.f).length; try { n ? navigator.setAppBadge(n) : navigator.clearAppBadge(); } catch {} }
   }
   // v5.2: a little personality (owner app only)
@@ -513,6 +513,7 @@ ${stale.length ? `<div class="notice">${stale.length} protocol${stale.length ===
     const tx = t.closest("[data-texts]"); if (tx) { texts(orders.find(o => String(o.id) === tx.dataset.texts)); return; }
     const sp = t.closest("[data-std]"); if (sp) { const i = Object.values(items).flat().find(x => String(x.id) === sp.dataset.std); const d = i && protoDays(i); if (d) await setDays(i.id, d, "protocol"); return; }
     if (t.closest("[data-psync]")) { let n = 0; for (const name in protos) if (protoOn({ display_name: name })) n += await protoSync(name, protos[name]); P.toast(`Reminder timing set on ${n} product${n === 1 ? "" : "s"}`); protoPage(); return; }
+    if (t.closest("[data-go-help]")) { P.closeSheet(); go("more"); moreSub("help"); return; }
     if (t.closest("[data-cheerx]")) { $("[data-cheer]").innerHTML = ""; return; }
     const th = t.closest("[data-th]"); if (th) { applyTheme(th.dataset.th); return; }
     const pe = t.closest("[data-pmedit]"); if (pe) { pmEdit(pe.dataset.pmedit); return; }

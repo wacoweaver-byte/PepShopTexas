@@ -135,6 +135,9 @@
   /* ================= WHAT'S NEW ================= */
   const L = (t, h) => ({ t, h });
   const RELEASES = [
+    { v: "5.7", d: "Oct 26, 2026", title: "How fixes reach you now", items: [L("Report a problem (More → Report a problem): talk or type, add screenshots", "#help"), L("When a fix is ready, a \"Fix ready to check\" card shows on Today with a preview link", "#today"), L("Try it in the preview, then tap Looks good (or Something's off)", "#updates"), L("Mike publishes it, your app updates itself, and your report shows Fixed", "#help")] },
+    { v: "5.6", d: "Oct 26, 2026", title: "Report a problem, by voice", items: [L("Talk instead of type: tap Talk, or the mic on your keyboard", "#help"), L("Each report shows its progress: Sent → Looking → Fix being checked → Fixed", "#help"), L("A heads-up when one of your reports gets an answer, and you confirm it's fixed", "#help")] },
+    { v: "5.5", d: "Oct 26, 2026", title: "Report a problem", items: [L("More → Report a problem (or the link at the bottom of Today): say what happened, add screenshots, send", "#help"), L("Your phone and app details go with it, and replies show up right there", "#help")] },
     { v: "5.4", d: "Oct 26, 2026", title: "Alerts while the app is open", items: [L("New-order and other alerts now pop up inside the app when it's open, not just on the lock screen", "#more")] },
     { v: "5.3", d: "Oct 26, 2026", title: "Update notices", items: [L("A heads-up like this one whenever your app updates", "#whatsnew"), L("If you're in the middle of something, an Update button waits for you instead", "#today")] },
     { v: "5.2", d: "Oct 26, 2026", title: "Faster purchase orders, smoother scrolling", items: [L("Pick a vendor and their whole price list shows up, tap to add", "#stock"), L("Search finds your products by the vendor's name too (tirz, TR10…)", "#stock"), L("Pop-up screens no longer let the page slide around underneath", "#customers"), L("Bottom bar stays put after typing", "#today"), L("A few words of encouragement on Today", "#today")] },
@@ -144,7 +147,7 @@
     { v: "4.8", d: "Oct 25, 2026", title: "Every order tool on your phone", items: [L("Edit items, reduce, add a free item, refund", "#orders"), L("Email tools with preview", "#orders"), L("Find anything from the search button", "#today"), L("Restock and bulk requests", "#requests"), L("Lab reports with QR links", "#coa")] },
     { v: "4.7", d: "Oct 25, 2026", title: "Updates itself", items: [L("Your app and your customers' apps update on their own", ""), L("Live visitor count on Insights", "#insights")] }
   ];
-  const NEXT = ["Running-low reminders by email, not just phone alerts", "An email address for invoices that turns them into expenses", "Then the old computer admin pages come out of the menus (kept as a backup)"];
+  const NEXT = ["Fixes reach you in a couple of taps: report → check the preview → published", "Running-low reminders by email, not just phone alerts", "An email address for invoices that turns them into expenses", "Then the old computer admin pages come out of the menus (kept as a backup)"];
   const SEEN = "pst-owner-seen";
   const unseen = () => { try { return localStorage.getItem(SEEN) !== RELEASES[0].v; } catch { return false; } };
   function whatsNew(el) {
