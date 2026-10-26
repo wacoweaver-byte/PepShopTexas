@@ -503,3 +503,31 @@ ${stale.length ? `<div class="notice">${stale.length} protocol${stale.length ===
   }
   document.addEventListener("DOMContentLoaded", boot);
 })();
+/* v5.11: tab bar stays on the bottom edge on iPhone (report #6).
+   iOS can leave a fixed bar where the keyboard pushed it, so it floats mid-screen while scrolling.
+   While typing on a phone the bar steps aside; after the keyboard closes it is snapped back to the bottom
+   of what's actually on screen. Nothing else in the app changes. */
+(() => {
+  const vv = window.visualViewport, root = document.documentElement;
+  const coarse = window.matchMedia ? matchMedia("(pointer:coarse)") : { matches: false };
+  const isField = el => !!el && el.matches?.('textarea,select,[contenteditable="true"],input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=reset]):not([type=file]):not([type=range]):not([type=color])');
+  let raf = 0;
+  const pin = () => {
+    raf = 0;
+    const bar = document.querySelector(".otabbar"); if (!bar) return;
+    const typing = coarse.matches && isField(document.activeElement);
+    root.classList.toggle("okb", typing);
+    let gap = 0;
+    if (vv && !typing && Math.abs(vv.scale - 1) < 0.01) gap = Math.max(0, Math.round(vv.offsetTop + vv.height - window.innerHeight)); // only ever push it down to the real bottom, never up
+    bar.style.transform = gap ? `translate3d(0,${gap}px,0)` : "";
+  };
+  const soon = () => { if (!raf) raf = requestAnimationFrame(pin); };
+  const settle = () => { soon(); [80, 300, 650].forEach(ms => setTimeout(() => { if (!isField(document.activeElement)) window.scrollTo(window.scrollX, window.scrollY); soon(); }, ms)); };
+  document.addEventListener("focusin", e => { if (isField(e.target)) soon(); });
+  document.addEventListener("focusout", e => { if (isField(e.target)) settle(); });
+  if (vv) { vv.addEventListener("resize", soon); vv.addEventListener("scroll", soon); }
+  window.addEventListener("scroll", soon, { passive: true });
+  window.addEventListener("orientationchange", settle);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) settle(); });
+  window.PSTTabPin = pin;
+})();

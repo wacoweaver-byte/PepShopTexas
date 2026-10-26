@@ -703,6 +703,8 @@ body.oapp #updbar{bottom:calc(76px + var(--safe) + 12px)}@media(min-width:900px)
 .htoday{display:flex;align-items:center;gap:12px;border:1px solid var(--line2);background:var(--card);border-radius:12px;padding:12px 14px;margin:0 0 12px;color:var(--ink);text-decoration:none}.htoday>svg:first-child{color:var(--gold2);flex:none}.htoday span{flex:1;min-width:0}.htoday b{display:block;font-size:15px}.htoday small{display:block;color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .relrow{width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;align-items:center}.relrow>svg{color:var(--muted)}
 .reldls{margin:10px 0 0}.reldl{padding:10px 0;border-bottom:1px solid var(--line)}.reldl dt{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}.reldl dd{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}.reldl .relnotes{margin:0}
+/* v5.11: tab bar steps aside while typing on a phone, so iOS can't strand it mid-screen (report #6) */
+html.okb .otabbar{display:none}
 /* ==== v51 light theme (generated) ==== */
 html[data-theme=light]{color-scheme:light;--bg:#f6f3ec;--bg2:#efeadf;--card:#ffffff;--card2:#f3eee4;--line:#e2dccf;--line2:#cbbd98;--ink:#1b2333;--muted:#5f6675;--dim:#868b95;--gold:#9a7a2f;--gold2:#7a5c18;--ok:#2e8a57;--warn:#a56f00;--bad:#c0473d}
 html[data-theme=light] input,html[data-theme=light] select,html[data-theme=light] textarea{color-scheme:light}
