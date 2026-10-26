@@ -22,8 +22,8 @@
   /* ---- v38 app shell: bottom tabs like PepKeep (Today · Orders · Products · Customers · More) ---- */
   let view = "today", oq = "", pmLoaded = false, stockRows = [];
   const NAV = [["today", "home", "Today"], ["orders", "box", "Orders"], ["products", "flask", "Products"], ["customers", "users", "Customers"], ["more", "dots", "More"]];
-  const TITLES = { today: "Today", orders: "Orders", products: "Products", customers: "Customers", more: "More", insights: "Insights", protos: "My protocols", times: "Write-ups" };
-  const MORE = [["insights", "chart", "Insights", "Sales, customers, site traffic"], ["stock", "box", "Stock & invoices", "Receive shipments, count the shelf"],
+  const TITLES = { today: "Today", orders: "Orders", products: "Products", customers: "Customers", more: "More", insights: "Insights", protos: "My protocols", times: "Write-ups", requests: "Requests", coa: "Lab reports" };
+  const MORE = [["insights", "chart", "Insights", "Sales, customers, site traffic"], ["requests", "bell", "Requests", "Restock and bulk requests"], ["coa", "doc", "Lab reports", "Upload certificates, copy QR links"], ["stock", "box", "Stock & invoices", "Receive shipments, count the shelf"],
     ["protos", "lock", "My protocols", "Private reference, only you see it"], ["times", "doc", "Write-ups & reorder times", "Product pages and running-low reminders"]];
   const mcard = (k, i, t, s, href) => `<${href ? `a href="${href}"` : `button type="button" data-more="${k}"`} class="mcard"><span class="mic">${P.icon(i, 20)}</span><span><b>${t}</b><small>${s}</small></span>${P.icon("next", 18)}</${href ? "a" : "button"}>`;
 
@@ -33,7 +33,7 @@
     if (!me) { root.innerHTML = `<div class="empty"><h1 class="serif">Owner sign in</h1><p>Sign in with your admin account.</p><a class="btn primary" href="login.html?redirect=owner.html">Sign in</a></div>`; return; }
     if (!(await P.isAdmin(me))) { root.innerHTML = `<div class="empty"><h1 class="serif">Owners only</h1><p>This page is for Pep Shop Texas staff.</p><a class="btn ghost" href="index.html">Go to the shop</a></div>`; return; }
     document.body.classList.add("oapp");
-    root.innerHTML = `<header class="ohd"><div><small>Pep Shop Texas</small><h1 class="serif" data-otitle>Today</h1></div><div class="ohr"><button class="btn ghost sm bell" type="button" data-bell data-act="inbox" aria-label="Notifications">${P.icon("bell", 18)}<i hidden>0</i></button><button class="btn ghost sm" type="button" data-o="refresh" aria-label="Refresh">↻</button></div></header>
+    root.innerHTML = `<header class="ohd"><div><small>Pep Shop Texas</small><h1 class="serif" data-otitle>Today</h1></div><div class="ohr"><button class="btn ghost sm" type="button" data-q="lookup" aria-label="Look up anything">${P.icon("search", 18)}</button><button class="btn ghost sm bell" type="button" data-bell data-act="inbox" aria-label="Notifications">${P.icon("bell", 18)}<i hidden>0</i></button><button class="btn ghost sm" type="button" data-o="refresh" aria-label="Refresh">↻</button></div></header>
 <section class="opane" data-pane="today"><div data-alerts></div><div class="tiles otiles" data-stats></div>
 <div class="oquick"><button class="btn primary" type="button" data-q="neworder">${P.icon("plus", 16)} New order</button><button class="btn ghost" type="button" data-q="addcust">${P.icon("users", 16)} Add customer</button></div>
 <div data-vmbox></div><h2 class="serif osec">Needs you</h2><div data-attn></div>
@@ -45,7 +45,7 @@
 <section class="opane" data-pane="more" hidden><div data-morehome><div class="mcards">${MORE.map(m => mcard(...m)).join("")}${mcard("", "gear", "Full admin", "Everything else, on the computer", "admin.html")}${mcard("", "shop", "View the shop", "See it the way customers do", "index.html")}</div>
 <p class="mlinks"><a href="install.html">Install guide</a><button type="button" class="linkish" data-signout>Sign out</button></p>
 <div class="nalbox" id="alerts"><h2 class="serif">Alerts on this device</h2><div data-nal><p class="muted small">Loading…</p></div></div></div>
-<div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
+<div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="requests" data-reqs hidden></div><div data-sub="coa" data-coa hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
 <nav class="otabbar" aria-label="Owner app">${NAV.map(([k, i, l]) => `<button type="button" data-go="${k}" aria-current="${k === "today" ? "page" : "false"}">${P.icon(i, 22)}<span>${l}</span><i data-badge="${k}" hidden></i></button>`).join("")}</nav>`;
     PSTOps.init({ me, get orders() { return orders; }, get items() { return items; }, reload: load, lineExtra: (o, i) => lineDays(o, i) });
     document.addEventListener("click", onClick);
@@ -63,7 +63,7 @@
     if (m) { go("orders"); PSTOps.openOrder(m[1], { pay: /(?:^|&)pay=1\b/.test(h) }); return; }
     if (h === "alerts") { go("more"); setTimeout(() => $("#alerts")?.scrollIntoView({ block: "start", behavior: "smooth" }), 120); return; }
     if (h === "stock") { go("products"); sub("stock"); return; }
-    if (["insights", "protos", "times"].includes(h)) { go("more"); moreSub(h); return; }
+    if (["insights", "protos", "times", "requests", "coa"].includes(h)) { go("more"); moreSub(h); return; }
     go(NAV.some(n => n[0] === h) ? h : "today");
   }
   function go(v) {
@@ -81,6 +81,7 @@
     $("[data-morehome]").hidden = true; $("[data-moresub]").hidden = false; $$("[data-sub]").forEach(x => x.hidden = x.dataset.sub !== k);
     $("[data-otitle]").textContent = TITLES[k]; history.replaceState(null, "", "#" + k);
     if (k === "insights") insights(30); if (k === "protos") protoPage(); if (k === "times") times();
+    if (k === "requests") PSTOps.requestsPane($("[data-reqs]")); if (k === "coa") PSTOps.coaPane($("[data-coa]"));
     window.scrollTo(0, 0);
   }
   function sub(k) {
@@ -428,7 +429,7 @@ ${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step=
     const psb = t.closest("[data-psub]"); if (psb) { sub(psb.dataset.psub); return; }
     const mo = t.closest("[data-more]"); if (mo) { moreSub(mo.dataset.more); return; }
     if (t.closest("[data-moreback]")) { moreHome(); history.replaceState(null, "", "#more"); window.scrollTo(0, 0); return; }
-    const qk = t.closest("[data-q]"); if (qk) { if (qk.dataset.q === "neworder") PSTOps.pickCustomer(k => PSTOps.newOrderFlow(k)); else PSTOps.addCustomerFlow(k => PSTOps.openCustomer(k)); return; }
+    const qk = t.closest("[data-q]"); if (qk) { if (qk.dataset.q === "lookup") { PSTOps.lookup(); return; } if (qk.dataset.q === "neworder") PSTOps.pickCustomer(k => PSTOps.newOrderFlow(k)); else PSTOps.addCustomerFlow(k => PSTOps.openCustomer(k)); return; }
     const od = t.closest("[data-ord]"); if (od) { PSTOps.openOrder(od.dataset.ord); return; }
     const vm = t.closest("[data-vm]"); if (vm) { PSTOps.openOrder(vm.dataset.vm, { pay: true }); return; }
     const vx = t.closest("[data-vmx]"); if (vx) { const { error } = await P.client().from("pst_payment_matches").update({ confirmed_at: new Date().toISOString() }).eq("id", vx.dataset.vmx); P.toast(error ? "Couldn't dismiss: " + error.message : "Dismissed"); PSTOps.venmoMatches($("[data-vmbox]")); return; }

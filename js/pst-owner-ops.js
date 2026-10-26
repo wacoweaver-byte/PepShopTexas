@@ -156,7 +156,11 @@ ${o.tracking_number ? `<p class="small">${P.icon("truck", 14)} ${esc(o.tracking_
 <p class="small muted">${esc(custEmail(o))}${ph ? ` · ${esc(o.customer_phone || o.shipping_phone)}` : ""}</p>
 <div class="ocontact">${ph ? `<button class="btn ghost sm" type="button" data-texts="${o.id}">${P.icon("chat", 15)} Text</button><a class="btn ghost sm" href="tel:${ph}">Call</a>` : ""}${custEmail(o) ? `<a class="btn ghost sm" href="mailto:${esc(custEmail(o))}?subject=${encodeURIComponent("Your Pep Shop Texas order " + (o.order_number || ""))}">Email</a>` : ""}<button class="btn ghost sm" type="button" data-copy="${esc(o.order_number || o.id)}">Copy #</button></div>
 <div class="obar">${next}</div>
-${st.k !== "dead" && st.k !== "done" ? `<details class="omore"><summary>More</summary>${btn("cancel", "Cancel order", "danger")}<a class="btn ghost wide" href="admin.html">Open in full admin</a></details>` : `<a class="btn ghost wide" href="admin.html" style="margin-top:10px">Open in full admin</a>`}
+<details class="omore"><summary>More actions</summary>
+${st.k !== "dead" && !isLocked(o) ? btn("edit", "Edit items") : ""}${st.k !== "dead" && isLocked(o) && left > 0 ? btn("reduce", "Remove unshipped items") : ""}${st.k !== "dead" ? btn("comp", "+ Free item ($0)") : ""}
+${st.k === "unpaid" && o.payment_deadline_at ? btn("extend", "Give 24 more hours to pay") : ""}${btn("emails", "Email the customer…")}
+${st.k !== "dead" && nm(pStatus(o)) === "paid" ? btn("refund", "Mark refunded", "danger") : ""}${st.k !== "dead" && st.k !== "done" ? btn("cancel", "Cancel order", "danger") : ""}
+<a class="btn ghost wide" href="admin.html">Open in full admin</a></details>
 </div>`, { label: `Order ${o.order_number || ""}` });
     w.classList.add("full");
     w.addEventListener("click", e => { const b = e.target.closest("[data-oa]"); if (b) act(o, b.dataset.oa, { match, hist, left }); });
@@ -175,6 +179,12 @@ ${st.k !== "dead" && st.k !== "done" ? `<details class="omore"><summary>More</su
         await sendEmail(o, "order_packed"); return done(o, isPickup(o) ? "Marked ready for pickup" : "Marked packed");
       }
       if (a === "ship") return shipFlow(o);
+      if (a === "edit") return editItemsFlow(o);
+      if (a === "reduce") return reduceFlow(o);
+      if (a === "comp") return compFlow(o);
+      if (a === "extend") return extendFlow(o);
+      if (a === "emails") return emailToolsFlow(o);
+      if (a === "refund") return refundFlow(o);
       if (a === "pickedup") {
         if (!(await confirmSheet("Picked up?", `Records ${esc(o.order_number || "")} as handed off and complete, and emails ${esc(custName(o))} a thank-you.`, "Yes, picked up"))) return;
         const hist = await shipHistory(o), m = shippedMap(hist), lines = (ctx.items[o.id] || []).map(i => ({ id: i.id, qty: Math.max(0, Number(i.quantity || 1) - (m.get(String(i.id)) || 0)) })).filter(x => x.qty > 0);
@@ -466,5 +476,321 @@ ${po !== "(no PO number)" ? `<button class="btn ${un.length ? "ghost" : "primary
     });
   }
 
-  window.PSTOps = { init: c => { ctx = c; }, openOrder, stage, venmoMatches, customersPane, filterCustomers, openCustomer, creditFlow, addCustomerFlow, newOrderFlow, pickCustomer, stockPane, receivePO, countFlow, custName, isPickup };
+  /* ================= STAGE 1 (v4.8): everything his order page could do, plus lookup, requests and lab reports ================= */
+  const isLocked = o => nm(pStatus(o)) === "paid" || ["packed", "shipped", "delivered", "complete"].includes(nm(oStatus(o))); // = his isOrderLocked
+  const money2 = n => Math.round(Number(n || 0) * 100) / 100; // = his pstEditMoney
+
+  /* ---- edit items on an unpaid order (= his pstSaveEditedItems; no email is sent) ---- */
+  async function editItemsFlow(o) {
+    if (isLocked(o)) { P.toast("Items can be edited before payment or packing. Use \"Remove unshipped items\" instead."); return; }
+    const cat = (await P.client().from("product_catalog").select("*").order("display_name")).data || [];
+    const rows = (ctx.items[o.id] || []).map(i => ({ id: i.id, product_id: i.product_id || null, product_key: i.product_key || "", product_name: i.product_name || "", product_strength: i.product_strength || "", quantity: Number(i.quantity || 1), unit_price: Number(i.unit_price || 0) }));
+    const w = P.sheet(`<div class="osheet" data-edf><h2 class="serif">Edit items · ${esc(o.order_number || "")}</h2><p class="muted small">Change quantities or prices, remove a line or add one. The customer isn't emailed.</p>
+<div data-edrows></div><div class="csearch nopick">${P.icon("search", 18)}<input type="search" data-edq placeholder="Add a product" autocomplete="off" aria-label="Add a product"></div><div class="sres" data-edr></div>
+<div class="ntot" data-edtot></div><p class="status" data-eds role="status"></p><button class="btn primary wide" type="button" data-edsave>Save item changes</button></div>`, { label: "Edit items" });
+    w.classList.add("full");
+    const root = w.querySelector("[data-edf]"), q = root.querySelector("[data-edq]");
+    const total = () => { const sub = money2(rows.reduce((s, r) => s + r.quantity * r.unit_price, 0)); return { sub, tot: Math.max(0, money2(sub - Number(o.discount_amount || 0) + Number(o.shipping || 0) + Number(o.tax || 0))) }; };
+    const draw = () => {
+      root.querySelector("[data-edrows]").innerHTML = rows.map((r, k) => `<div class="edrow"><div><b>${esc(r.product_name)}</b> <small class="muted">${esc(r.product_strength)}</small></div>
+<div class="edctl"><span class="qstep"><button type="button" data-edq2="${k}" data-d="-1" aria-label="Less">−</button><b>${r.quantity}</b><button type="button" data-edq2="${k}" data-d="1" aria-label="More">+</button></span><label class="edp">$<input type="number" min="0" step="0.01" inputmode="decimal" value="${r.unit_price.toFixed(2)}" data-edp="${k}" aria-label="Unit price"></label><button type="button" class="linkish" data-edx="${k}">Remove</button></div></div>`).join("") || `<p class="muted small">No items. Add at least one.</p>`;
+      const t = total(); root.querySelector("[data-edtot]").innerHTML = `<div><span>Items</span><b>${money(t.sub)}</b></div><div class="big"><span>New total</span><b>${money(t.tot)}</b></div><small class="muted">Was ${money(o.total)}</small>`;
+    };
+    q.addEventListener("input", () => { const s = q.value.trim().toLowerCase(); root.querySelector("[data-edr]").innerHTML = s ? cat.filter(p => `${p.display_name} ${p.strength} ${p.product_key}`.toLowerCase().includes(s)).slice(0, 8).map(p => `<button type="button" class="sr1" data-edadd="${esc(p.product_key)}">${P.vial(p, 26)}<span><b>${esc(p.display_name)}</b><small>${esc(p.strength || "")} · ${P.qty(p)} in stock</small></span><span class="srr"><em>${money(P.unitPrice(p))}</em></span></button>`).join("") || `<p class="muted small">No match.</p>` : ""; });
+    root.addEventListener("input", e => { const p = e.target.closest("[data-edp]"); if (p) { rows[+p.dataset.edp].unit_price = Number(p.value); const t = total(); root.querySelector("[data-edtot] .big b").textContent = money(t.tot); } });
+    root.addEventListener("click", async e => {
+      const a = e.target.closest("[data-edadd]"); if (a) { const p = cat.find(x => x.product_key === a.dataset.edadd); rows.push({ isNew: true, product_id: p.id || null, product_key: p.product_key, product_name: p.display_name, product_strength: p.strength || "", quantity: 1, unit_price: Number(p.price ?? 0) }); q.value = ""; root.querySelector("[data-edr]").innerHTML = ""; draw(); return; }
+      const s = e.target.closest("[data-edq2]"); if (s) { const r = rows[+s.dataset.edq2]; r.quantity = Math.max(1, r.quantity + Number(s.dataset.d)); draw(); return; }
+      const x = e.target.closest("[data-edx]"); if (x) { rows.splice(+x.dataset.edx, 1); draw(); return; }
+      const sv = e.target.closest("[data-edsave]"); if (!sv) return;
+      const st = root.querySelector("[data-eds]");
+      try {
+        if (!rows.length) throw new Error("An order must contain at least one item.");
+        if (rows.some(r => !r.product_name || !Number.isInteger(r.quantity) || r.quantity < 1 || !Number.isFinite(r.unit_price) || r.unit_price < 0)) throw new Error("Every line needs a whole-number quantity and a valid price.");
+        if (isLocked(o)) throw new Error("This order was paid or packed meanwhile. Reload it.");
+        const old = ctx.items[o.id] || [], oldById = new Map(old.map(r => [String(r.id), r])), kept = new Set(rows.filter(r => r.id).map(r => String(r.id)));
+        const changed = rows.filter(r => { const p = oldById.get(String(r.id)); return !p || String(p.product_name || "") !== r.product_name || String(p.product_strength || "") !== r.product_strength || Number(p.quantity) !== r.quantity || Number(p.unit_price) !== r.unit_price; });
+        const removed = old.filter(r => !kept.has(String(r.id)));
+        if (!changed.length && !removed.length) { st.textContent = "No changes to save."; return; }
+        const t = total();
+        sv.disabled = true; sv.textContent = "Saving…";
+        await safeUpdate(o, { subtotal: t.sub, total: t.tot, updated_at: nowIso() }); // parent first, like his
+        const now = nowIso();
+        for (const r of changed) {
+          const pl = { product_name: r.product_name, product_strength: r.product_strength, quantity: r.quantity, unit_price: r.unit_price, line_total: money2(r.quantity * r.unit_price) };
+          if (r.id) { const { data, error } = await P.client().from("order_items").update(pl).eq("id", r.id).eq("order_id", o.id).select("id"); if (error) throw error; if (!data?.length) throw new Error("Could not update an existing item."); }
+          else {
+            const { data: stock, error: se } = await P.client().from("product_inventory").select("product_key,current_inventory,is_active").eq("product_key", r.product_key).maybeSingle();
+            if (se) throw se; if (!stock) throw new Error(`No inventory record for ${r.product_name} ${r.product_strength}.`);
+            if (r.unit_price > 0 && (!stock.is_active || Number(stock.current_inventory) < r.quantity)) throw new Error(`Not enough ${r.product_name} ${r.product_strength} in stock.`);
+            const ins = { order_id: o.id, product_name: r.product_name, product_strength: r.product_strength, quantity: r.quantity, unit_price: r.unit_price, line_total: pl.line_total, created_at: now, product_key: r.product_key };
+            if (r.product_id) ins.product_id = r.product_id;
+            const { error } = await P.client().from("order_items").insert(ins); if (error) throw error;
+          }
+        }
+        for (const r of removed) { const { error } = await P.client().from("order_items").delete().eq("id", r.id).eq("order_id", o.id); if (error) throw error; }
+        // v4.8: keep stock right. New lines are reserved by his checkout trigger; changed and removed lines adjust stock here
+        // (his desktop editor doesn't, which can leave phantom or missing vials).
+        const held = (o.inventory_deducted === true || String(o.inventory_deducted) === "true") && !(o.inventory_restored === true || String(o.inventory_restored) === "true") && o.payment_deadline_at;
+        if (held) {
+          const moves = [];
+          changed.filter(r => r.id).forEach(r => { const p = oldById.get(String(r.id)); if (p && Number(p.unit_price || 0) > 0 && p.product_key) moves.push({ key: p.product_key, item: r.id, delta: r.quantity - Number(p.quantity || 0), bo: Number(p.backorder_quantity || 0), name: `${r.product_name} ${r.product_strength}`.trim() }); });
+          removed.forEach(p => { if (Number(p.unit_price || 0) > 0 && p.product_key) moves.push({ key: p.product_key, delta: -Number(p.quantity || 0), bo: Number(p.backorder_quantity || 0), name: `${p.product_name} ${p.product_strength || ""}`.trim(), gone: true }); });
+          for (const m of moves.filter(x => x.delta !== 0)) {
+            const { data: inv } = await P.client().from("product_inventory").select("id,current_inventory").eq("product_key", m.key).maybeSingle(); if (!inv) continue;
+            const prev = Number(inv.current_inventory || 0);
+            let change = 0, bo = m.bo;
+            if (m.delta > 0) { change = -Math.min(m.delta, Math.max(0, prev)); bo = m.bo + (m.delta + change); } // take what's on the shelf, the rest waits as backorder
+            else { const fromBo = Math.min(-m.delta, m.bo); bo = m.bo - fromBo; change = -m.delta - fromBo; }        // unfilled backorder comes off first, then real vials go back
+            if (change) {
+              await P.client().from("product_inventory").update({ current_inventory: prev + change, updated_at: nowIso() }).eq("id", inv.id);
+              await P.client().from("product_catalog").update({ current_inventory: prev + change }).eq("product_key", m.key);
+              await P.client().from("inventory_movements").insert({ product_id: inv.id, product_key: m.key, movement_type: change < 0 ? "sold_checkout" : "restored_order", quantity_change: change, previous_quantity: prev, new_quantity: prev + change, admin_note: `Order edit on ${o.order_number || o.id}: ${m.name} ${m.delta > 0 ? "+" : ""}${m.delta}`, created_by: me().id, created_by_email: me().email });
+            }
+            if (!m.gone && bo !== m.bo) await P.client().from("order_items").update({ backorder_quantity: bo }).eq("id", m.item);
+          }
+        }
+        await audit(o, `Order items revised: ${changed.length} added/modified, ${removed.length} removed. Subtotal ${money(old.reduce((s, r) => s + Number(r.line_total || 0), 0))} → ${money(t.sub)}; total ${money(o.total)} → ${money(t.tot)}. Customer email not sent.`);
+        P.closeSheet(); done(o, "Items saved. The customer wasn't emailed.");
+      } catch (err) { st.textContent = (err.message || err) + " Reload the order before trying again."; st.className = "status bad"; sv.disabled = false; sv.textContent = "Save item changes"; }
+    });
+    draw();
+  }
+
+  /* ---- paid/packed orders: take unshipped units off (= his pstProtectedReduceItem, password required) ---- */
+  async function reduceFlow(o) {
+    const hist = await shipHistory(o), m = shippedMap(hist);
+    const ch = (ctx.items[o.id] || []).map(i => ({ ...i, un: Math.max(0, Number(i.quantity || 0) - (m.get(String(i.id)) || 0)) })).filter(i => i.un > 0);
+    if (!ch.length) { P.toast("Everything on this order has shipped. Nothing can be removed."); return; }
+    const w = P.sheet(`<form class="osheet"><h2 class="serif">Remove unshipped items</h2><p class="muted small">Takes units off ${esc(o.order_number || "")} and lowers the order value. Payment status doesn't change; handle any refund or store credit separately.</p>
+${ch.map((i, k) => `<label class="chip rowchip"><input type="radio" name="it" value="${k}"${k === 0 ? " checked" : ""}><span>${esc(i.product_name)} ${esc(i.product_strength || "")} · ${i.un} unshipped · ${money(i.unit_price)} each</span></label>`).join("")}
+<label>How many to remove<input name="q" type="number" min="1" step="1" inputmode="numeric" value="1" required></label><p class="status" data-rs></p><button class="btn danger wide" type="submit">Remove</button></form>`, { label: "Remove items" });
+    w.classList.add("full");
+    const f = w.querySelector("form");
+    f.addEventListener("submit", async e => { e.preventDefault();
+      const it = ch[+f.it.value], q = Number(f.q.value), st = f.querySelector("[data-rs]");
+      if (!Number.isInteger(q) || q < 1 || q > it.un) { st.textContent = `Enter 1 to ${it.un}.`; return; }
+      const amt = money2(Number(it.unit_price || 0) * q);
+      if (!(await confirmSheet("Remove these units?", `${q} × ${esc(it.product_name)} ${esc(it.product_strength || "")} from ${esc(o.order_number || "")}. The order value goes down ${money(amt)}. Shipment history stays the same.`, "Remove", true))) return;
+      if (!(await confirmPassword(`Remove unshipped items from ${o.order_number || "this order"}`))) return;
+      const { error } = await P.client().rpc("pst_admin_reduce_unshipped_item", { p_order_id: o.id, p_item_id: it.id, p_remove_qty: q });
+      if (error) { P.toast("Blocked: " + error.message); return; }
+      done(o, "Removed. Payment status unchanged: handle any refund or credit separately.");
+    });
+  }
+
+  /* ---- complimentary $0 item (= his pstAddComplimentaryItem, password required) ---- */
+  async function compFlow(o) {
+    const { data: stock, error } = await P.client().from("product_inventory").select("product_key,display_name,strength,current_inventory").gt("current_inventory", 0).order("display_name");
+    if (error || !stock?.length) { P.toast(error ? error.message : "Nothing is in stock."); return; }
+    const hist = await shipHistory(o).catch(() => []);
+    const w = P.sheet(`<form class="osheet"><h2 class="serif">Add a free item</h2><p class="muted small">Adds it to ${esc(o.order_number || "")} at $0.00 and takes it out of stock now. The order total doesn't change.</p>
+<label>Product<select name="p" required><option value="">Choose…</option>${stock.map((p, k) => `<option value="${k}">${esc(p.display_name)} ${esc(p.strength || "")} · ${p.current_inventory} on hand</option>`).join("")}</select></label>
+<label>How many<input name="q" type="number" min="1" step="1" inputmode="numeric" value="1" required></label>
+${hist.length ? `<label>Goes with<select name="sh"><option value="">Not shipped yet</option>${hist.map(s => `<option value="${esc(s.id)}">${esc(s.carrier || "Shipment")} ${esc(s.tracking_number || "")}</option>`).join("")}</select></label>` : ""}
+<p class="status" data-cs></p><button class="btn primary wide" type="submit">Add free item</button></form>`, { label: "Free item" });
+    w.classList.add("full");
+    const f = w.querySelector("form");
+    f.addEventListener("submit", async e => { e.preventDefault();
+      const p = stock[+f.p.value], q = Number(f.q.value), st = f.querySelector("[data-cs]");
+      if (!p) { st.textContent = "Choose a product."; return; }
+      if (!Number.isInteger(q) || q < 1 || q > Number(p.current_inventory)) { st.textContent = `Enter 1 to ${p.current_inventory}.`; return; }
+      const shipmentId = f.sh?.value || null;
+      if (!(await confirmPassword("Adding a free item takes it out of stock"))) return;
+      const { error: e2 } = await P.client().rpc("pst_add_complimentary_order_item", { p_order_id: o.id, p_product_key: p.product_key, p_quantity: q, p_shipment_id: shipmentId, p_request_key: crypto.randomUUID() });
+      if (e2) { P.toast(e2.message); return; }
+      await audit(o, `Complimentary item added: ${q} × ${p.display_name} ${p.strength || ""} at $0.00, inventory deducted. ${shipmentId ? "Linked to existing shipment." : "Not linked to a shipment."}`);
+      done(o, `Free item added · ${q} taken out of stock`);
+    });
+  }
+
+  /* ---- unpaid: +24 hours (= his pstExtendOrderPaymentDeadline) ---- */
+  async function extendFlow(o) {
+    if (!(await confirmSheet("Give them 24 more hours?", `Pushes the payment deadline for ${esc(o.order_number || "")} out by 24 hours. The vials stay reserved.`, "Extend 24 hours"))) return;
+    const { data, error } = await P.client().rpc("pst_extend_payment_deadline", { p_order_id: o.id });
+    if (error) { P.toast(error.message); return; }
+    const until = data?.payment_deadline_at || data || null;
+    await audit(o, "Payment reservation extended 24 hours" + (until && !isNaN(new Date(until)) ? " to " + new Date(until).toLocaleString() : ""));
+    done(o, "Deadline extended 24 hours");
+  }
+
+  /* ---- email tools (= his "Email Preview / Manual Resend") ---- */
+  const MANUAL = ["order_received", "awaiting_payment", "payment_accepted", "payment_issue", "order_processing", "order_packed", "order_shipped", "order_delivered", "order_cancelled", "order_rejected"];
+  function emailToolsFlow(o) {
+    if (!custEmail(o)) { P.toast("This order has no customer email."); return; }
+    const w = P.sheet(`<div class="osheet"><h2 class="serif">Email ${esc(custName(o).split(/\s+/)[0])}</h2><p class="muted small">To ${esc(custEmail(o))} · ${esc(o.order_number || "")}. Preview any email first, or send it again.</p>
+<div class="etools">${MANUAL.map(t => `<div class="etool"><span>${esc(LABEL[t] || t)}</span><button class="btn ghost sm" type="button" data-ep="${t}">Preview</button><button class="btn ghost sm" type="button" data-esend="${t}">Send</button></div>`).join("")}</div></div>`, { label: "Email tools" });
+    w.classList.add("full");
+    w.addEventListener("click", async e => {
+      const p = e.target.closest("[data-ep]"), s = e.target.closest("[data-esend]"); if (!p && !s) return;
+      const t = (p || s).dataset.ep || s.dataset.esend;
+      if (p) { previewEmail(o, t, {}); return; }
+      if (PREVIEW.includes(t)) { previewEmail(o, t, {}); return; } // his rule: these are always previewed first
+      if (!(await confirmSheet(`Send "${LABEL[t] || t}"?`, `Emails ${esc(custEmail(o))} about ${esc(o.order_number || "")}.`, "Send"))) return;
+      const ok = await sendEmail(o, t, { skipPreview: true }); P.toast(ok ? "Email sent" : "Email not sent");
+    });
+  }
+
+  /* ---- refund (his status rule: paid → refunded needs the password; stock goes back if it was taken) ---- */
+  async function refundFlow(o) {
+    if (!(await confirmSheet("Mark this order refunded?", `${esc(o.order_number || "")} · ${money(o.total)} · ${esc(custName(o))}<br><br>Send the money back the way they paid first. This records it and puts any unshipped vials back on the shelf. No email goes out; use "Email the customer" if you want to tell them.`, "Mark refunded", true))) return;
+    if (!(await confirmPassword("Refunds change payment and may put stock back"))) return;
+    const now = nowIso(), fromO = oStatus(o), fromP = pStatus(o);
+    const taken = o.inventory_deducted === true || String(o.inventory_deducted) === "true", restored = o.inventory_restored === true || String(o.inventory_restored) === "true";
+    await safeUpdate(o, { payment_status: "refunded", order_status: "refunded", status: "refunded", last_admin_actor: adminName(), last_admin_actor_email: me().email, updated_at: now });
+    await audit(o, `Payment status changed by ${adminName()}: ${String(fromP).replaceAll("_", " ")} → refunded; order status ${String(fromO).replaceAll("_", " ")} → refunded`);
+    if (taken && !restored) { // his inventoryRestoreNeeded (refundLike)
+      const { data, error } = await P.client().rpc("restore_inventory_for_order", { p_order_id: o.id, p_reason: `Inventory restored after order refund by ${adminName()}` });
+      if (error || data?.success === false) P.toast("Refunded, but stock didn't go back: " + (error?.message || data?.message || "unknown"));
+      else await audit(o, `Inventory restored after order refund. ${data?.message || "Inventory restore request completed."}`);
+    }
+    done(o, "Marked refunded");
+  }
+
+  /* ================= LOOK UP ANYTHING (= his Global Lookup) ================= */
+  let lkOrders = null, lkItems = {}, lkCust = null, lkProds = null;
+  async function lookupData() {
+    if (!lkOrders) {
+      const r = await P.client().from("orders").select("*").order("created_at", { ascending: false }).limit(2000); lkOrders = r.data || [];
+      const ids = lkOrders.map(o => o.id); lkItems = {};
+      for (let i = 0; i < ids.length; i += 200) { const ir = await P.client().from("order_items").select("order_id,product_key,product_name,product_strength,product_id,quantity").in("order_id", ids.slice(i, i + 200)); (ir.data || []).forEach(x => (lkItems[x.order_id] ||= []).push(x)); }
+      const [a, b] = await Promise.all([P.client().from("customer_profiles").select("user_id,customer_number,email,first_name,last_name,phone"), P.client().from("manual_customers").select("id,customer_number,email,first_name,last_name,phone")]);
+      lkCust = [...(a.data || []).map(c => ({ ...c, source: "online", id: c.user_id })), ...(b.data || []).map(c => ({ ...c, source: "manual" }))];
+      lkProds = (await P.client().from("product_catalog").select("*")).data || [];
+    }
+  }
+  const cnum = v => { const s = String(v ?? "").trim(); return !s ? "" : s.toUpperCase().startsWith("PST-C") ? s.toUpperCase() : `PST-C${s}`; };
+  const hay = o => [o.order_number, o.order_sequence_number, o.legacy_order_number, o.refund_number ? `R${o.refund_number}` : "", o.refund_number, o.tracking_number, o.tracking_carrier, o.shipping_name, o.shipping_email, o.shipping_phone, o.customer_email, o.customer_number ? cnum(o.customer_number) : "", ...(lkItems[o.id] || []).flatMap(i => [i.product_key, i.product_name, i.product_strength])].filter(Boolean).join(" ").toLowerCase();
+  function match(text, raw) { const q = String(raw).trim().toLowerCase(), d = q.replace(/\D/g, ""); if (text.includes(q)) return true; return /^\d+$/.test(q) && d.length >= 3 && text.replace(/\D/g, "").includes(d); }
+  async function lookup() {
+    const w = P.sheet(`<div class="osheet"><h2 class="serif">Look up anything</h2><div class="csearch nopick">${P.icon("search", 18)}<input type="search" data-lq placeholder="Order #, PST-C number, tracking, phone, name, product…" autocomplete="off" aria-label="Look up"></div><div data-lr><p class="muted small">Searches every order, customer and product.</p></div></div>`, { label: "Look up" });
+    w.classList.add("full");
+    const q = w.querySelector("[data-lq]"), out = w.querySelector("[data-lr]");
+    let t; q.addEventListener("input", () => { clearTimeout(t); t = setTimeout(run, 160); });
+    async function run() {
+      const raw = q.value.trim(); if (raw.length < 2) { out.innerHTML = `<p class="muted small">Searches every order, customer and product.</p>`; return; }
+      if (!lkOrders) { out.innerHTML = `<p class="muted small">Loading…</p>`; await lookupData(); }
+      const os = lkOrders.filter(o => match(hay(o), raw)).slice(0, 25);
+      const cs = lkCust.filter(c => match([cnum(c.customer_number), c.email, c.first_name, c.last_name, `${c.first_name || ""} ${c.last_name || ""}`, c.phone].filter(Boolean).join(" ").toLowerCase(), raw)).slice(0, 15);
+      const ps = lkProds.filter(p => match(`${p.display_name} ${p.strength || ""} ${p.product_key}`.toLowerCase(), raw)).slice(0, 10);
+      out.innerHTML = (os.length || cs.length || ps.length) ? `${os.length ? `<h3 class="kick">Orders</h3>${os.map(o => `<button type="button" class="crow" data-lko="${o.id}"><span class="cav">${P.icon("box", 16)}</span><span><b>${esc(o.order_number || "")} · ${money(o.total)}</b><small>${esc(custName(o))} · ${P.fmtDate(o.created_at)} · ${esc(stage(o).t)}${o.tracking_number && !/hand/i.test(o.tracking_number) ? ` · ${esc(o.tracking_number)}` : ""}</small></span></button>`).join("")}` : ""}
+${cs.length ? `<h3 class="kick">Customers</h3>${cs.map(c => `<button type="button" class="crow" data-lkc="${esc(c.source + ":" + c.id)}"><span class="cav">${esc(String(c.first_name || c.email || "?")[0].toUpperCase())}</span><span><b>${esc([c.first_name, c.last_name].filter(Boolean).join(" ") || c.email || "Customer")}</b><small>${esc([cnum(c.customer_number), c.email, c.phone].filter(Boolean).join(" · "))}</small></span></button>`).join("")}` : ""}
+${ps.length ? `<h3 class="kick">Products</h3>${ps.map(p => `<a class="crow" href="${P.productUrl(p)}">${P.vial(p, 24)}<span><b>${esc(p.display_name)} ${esc(p.strength || "")}</b><small>${esc(p.product_key)} · ${P.qty(p)} on hand${p.is_active === false ? " · hidden" : ""}</small></span></a>`).join("")}` : ""}`
+        : `<p class="muted small">Nothing matches "${esc(raw)}".</p>`;
+    }
+    out.addEventListener("click", async e => {
+      const o = e.target.closest("[data-lko]"); if (o) { const ord = lkOrders.find(x => String(x.id) === o.dataset.lko); if (ord && !ctx.orders.some(x => x.id === ord.id)) ctx.orders.push(ord); openOrder(o.dataset.lko); return; }
+      const c = e.target.closest("[data-lkc]"); if (c) { await loadCustomers(); openCustomer(c.dataset.lkc); }
+    });
+    setTimeout(() => q.focus(), 80);
+  }
+
+  /* ================= REQUESTS: availability (= availability-requests.html) and bulk (= bulk-requests.html) ================= */
+  async function requestsPane(el, sub = "avail") {
+    el.innerHTML = `<div class="oseg two"><button type="button" class="${sub === "avail" ? "on" : ""}" data-rq="avail">Restock requests</button><button type="button" class="${sub === "bulk" ? "on" : ""}" data-rq="bulk">Bulk requests</button></div><div data-rqbody><p class="muted small">Loading…</p></div>`;
+    el.onclick = async e => {
+      const t = e.target.closest("[data-rq]"); if (t) { requestsPane(el, t.dataset.rq); return; }
+      const g = e.target.closest("[data-rqst]"); if (g) return; // select handled on change
+      const nb = e.target.closest("[data-rqnew]"); if (nb) { addRestockFlow(() => requestsPane(el, "avail")); return; }
+      const bo = e.target.closest("[data-bulk]"); if (bo) { bulkDetail(+bo.dataset.bulk, () => requestsPane(el, "bulk")); return; }
+      const bf = e.target.closest("[data-bf]"); if (bf) { el._bf = bf.dataset.bf; requestsPane(el, "bulk"); }
+    };
+    el.onchange = async e => { const s = e.target.closest("[data-rqst]"); if (!s) return; const { error } = await P.client().from("product_availability_requests").update({ status: s.value }).eq("id", s.dataset.rqst); P.toast(error ? error.message : "Saved: " + s.value); };
+    const body = el.querySelector("[data-rqbody]");
+    if (sub === "avail") {
+      const { data, error } = await P.client().from("product_availability_requests").select("*").order("created_at", { ascending: false }).limit(1000);
+      if (error) { body.innerHTML = `<p class="notice err">${esc(error.message)}</p>`; return; }
+      const open = (data || []).filter(r => r.status === "pending"), by = {};
+      (data || []).forEach(r => { (by[r.product_key || r.product_name] ||= []).push(r); });
+      const groups = Object.values(by).sort((a, b) => b.filter(r => r.status === "pending").length - a.filter(r => r.status === "pending").length || String(a[0].product_name).localeCompare(b[0].product_name));
+      body.innerHTML = `<div class="pmtop"><p class="muted small" style="margin:0;flex:1">${open.length} waiting · ${new Set(open.map(r => String(r.customer_email).toLowerCase())).size} people · ${open.reduce((n, r) => n + Number(r.requested_quantity || 0), 0)} vials</p><button class="btn primary sm" type="button" data-rqnew>+ Add</button></div>
+${groups.map(g => { const w = g.filter(r => r.status === "pending"); return `<details class="rqgrp"${w.length ? " open" : ""}><summary><b>${esc(g[0].product_name)} ${esc(g[0].product_strength || "")}</b><span class="muted small">${w.length ? `${w.length} waiting · ${w.reduce((n, r) => n + Number(r.requested_quantity || 0), 0)} vials` : "nobody waiting"}</span></summary>
+${g.map(r => `<div class="rqrow"><div><b>${esc(r.customer_name || r.customer_email)}</b><small><a href="mailto:${esc(r.customer_email)}">${esc(r.customer_email)}</a> · ×${r.requested_quantity} · ${P.fmtDate(r.created_at)}${r.notify_when_available ? " · wants a restock email" : ""}</small></div><select data-rqst="${esc(r.id)}" aria-label="Status">${["pending", "notified", "closed"].map(s => `<option${r.status === s ? " selected" : ""}>${s}</option>`).join("")}</select></div>`).join("")}</details>`; }).join("") || `<p class="muted small">No requests yet.</p>`}`;
+    } else {
+      const { data, error } = await P.client().from("bulk_requests").select("*").order("created_at", { ascending: false });
+      if (error) { body.innerHTML = `<p class="notice err">${esc(error.message)}</p>`; return; }
+      const f = el._bf || "", rows = (data || []).filter(r => !f || r.status === f), ST = ["new", "reviewed", "quoted", "ordered", "closed"];
+      body.innerHTML = `<div class="schips">${["", ...ST].map(s => `<button type="button" class="chip${f === s ? " on" : ""}" data-bf="${s}">${s ? s[0].toUpperCase() + s.slice(1) : "All"} <b>${(data || []).filter(r => !s || r.status === s).length}</b></button>`).join("")}</div>
+${rows.map(r => `<button type="button" class="crow" data-bulk="${r.request_number}"><span class="cav">${P.icon("box", 16)}</span><span><b>${esc(bref(r.request_number))} · ${esc(r.name)}</b><small>${esc(r.product)} ${esc(r.strength || "")} · ${r.kits} kit${r.kits === 1 ? "" : "s"} · ${P.fmtDate(r.created_at)}</small></span><em class="opill sm ${r.status === "new" ? "pend" : r.status === "closed" ? "bad" : "ok"}">${esc(r.status)}</em></button>`).join("") || `<p class="muted small">No bulk requests${f ? " with that status" : ""}.</p>`}`;
+    }
+  }
+  const bref = n => "PST-B" + String(n).padStart(6, "0");
+  async function addRestockFlow(then) { // = availability-requests.html → Add Restock Notification
+    const { data } = await P.client().from("product_inventory").select("product_key,display_name,strength,current_inventory,status_override").order("display_name");
+    const un = (data || []).filter(p => Number(p.current_inventory || 0) <= 0 || p.status_override === "out_of_stock");
+    const w = P.sheet(`<form class="osheet"><h2 class="serif">Add a restock request</h2><p class="muted small">For someone who asked you in person or by text. They get a confirmation email now and an email when it's back.</p>
+<label>Their email<input name="em" type="email" inputmode="email" required autocomplete="off"></label>
+<label>Product<select name="pk" required><option value="">Choose an item that's out…</option>${un.map(p => `<option value="${esc(p.product_key)}">${esc(p.display_name)} ${esc(p.strength || "Standard")}</option>`).join("")}</select></label>
+<label class="toggle"><input type="checkbox" name="ok" required> They asked to be told when it's back</label><p class="status" data-ns></p><button class="btn primary wide" type="submit">Save request</button></form>`, { label: "Restock request" });
+    w.classList.add("full");
+    const f = w.querySelector("form");
+    f.addEventListener("submit", async e => { e.preventDefault(); const st = f.querySelector("[data-ns]"), b = f.querySelector("[type=submit]"); b.disabled = true; st.textContent = "Saving…";
+      try {
+        const { data: id, error } = await P.client().rpc("pst_admin_add_availability_notification", { p_email: f.em.value.trim(), p_product_key: f.pk.value, p_name: null }); if (error) throw error;
+        st.textContent = "Saved. Sending their confirmation email…";
+        const { data: s } = await P.client().auth.getSession();
+        const r = await fetch(`${P.CFG.url}/functions/v1/pst-availability-confirmation`, { method: "POST", headers: { Authorization: "Bearer " + s?.session?.access_token, apikey: P.CFG.key, "Content-Type": "application/json" }, body: JSON.stringify({ request_id: id }) }).catch(() => null);
+        const j = r ? await r.json().catch(() => ({})) : {};
+        P.closeSheet(); P.toast(r && r.ok && j.sent ? "Saved and confirmation email sent" : "Saved, but the confirmation email didn't go out"); then && then();
+      } catch (err) { st.textContent = "Couldn't save: " + (err.message || err); b.disabled = false; }
+    });
+  }
+  async function bulkDetail(n, then) { // = bulk-requests.html detail + save
+    const { data: r } = await P.client().from("bulk_requests").select("*").eq("request_number", n).maybeSingle(); if (!r) return;
+    const { data: au } = await P.client().from("bulk_request_audit").select("*").eq("request_number", n).order("created_at", { ascending: false });
+    const w = P.sheet(`<form class="osheet"><div class="oshead"><div><small class="muted">${esc(bref(n))} · ${new Date(r.created_at).toLocaleString()}</small><h2 class="serif">${esc(r.name)}${r.company ? ` <span class="muted small">${esc(r.company)}</span>` : ""}</h2></div></div>
+<div class="ocontact">${r.phone ? `<a class="btn ghost sm" href="sms:${esc(String(r.phone).replace(/[^\d+]/g, ""))}">${P.icon("chat", 15)} Text</a><a class="btn ghost sm" href="tel:${esc(String(r.phone).replace(/[^\d+]/g, ""))}">Call</a>` : ""}<a class="btn ghost sm" href="mailto:${esc(r.email)}">Email</a></div>
+<div class="oitems"><div><span class="muted">Product</span><b>${esc(r.product)} ${esc(r.strength || "")}</b></div><div><span class="muted">Kits</span><b>${r.kits} (${r.kits * 10} vials)</b></div><div><span class="muted">Testing</span><span>${r.testing_path === "pst_coordinated" ? "PST coordinates independent testing" : "Customer coordinates independent testing"}</span></div></div>
+${r.requirements ? `<p class="small"><b>Requirements:</b> ${esc(r.requirements)}</p>` : ""}
+<label>Status<select name="st">${["new", "reviewed", "quoted", "ordered", "closed"].map(s => `<option value="${s}"${r.status === s ? " selected" : ""}>${s[0].toUpperCase() + s.slice(1)}</option>`).join("")}</select></label>
+<label>Quote ($)<input name="qa" type="number" min="0" step="0.01" inputmode="decimal" value="${esc(r.quote_amount ?? "")}"></label>
+<label>Quote notes<textarea name="qn" rows="2">${esc(r.quote_notes || "")}</textarea></label>
+<label>PO number<input name="po" value="${esc(r.po_number || "")}" placeholder="Enter when the order is placed"></label>
+<label>Internal notes<textarea name="an" rows="2">${esc(r.admin_notes || "")}</textarea></label>
+<p class="status" data-bs></p><button class="btn primary wide" type="submit">Save</button>
+<details class="omore"><summary>History</summary>${(au || []).map(a => `<p class="small"><b>${esc(String(a.action).replaceAll("_", " "))}</b> · ${esc(a.actor_email || "Public submission")} · ${new Date(a.created_at).toLocaleString()}${a.old_status !== a.new_status && a.old_status ? ` · ${esc(a.old_status)} → ${esc(a.new_status)}` : ""}</p>`).join("") || `<p class="muted small">No history yet.</p>`}</details></form>`, { label: "Bulk request" });
+    w.classList.add("full");
+    const f = w.querySelector("form");
+    f.addEventListener("submit", async e => { e.preventDefault(); const b = f.querySelector("[type=submit]"); b.disabled = true;
+      const qa = f.qa.value.trim();
+      const { error } = await P.client().from("bulk_requests").update({ status: f.st.value, quote_amount: qa === "" ? null : Number(qa), quote_notes: f.qn.value.trim() || null, po_number: f.po.value.trim() || null, admin_notes: f.an.value.trim() || null }).eq("request_number", n);
+      if (error) { f.querySelector("[data-bs]").textContent = error.message; b.disabled = false; return; }
+      P.closeSheet(); P.toast(bref(n) + " saved"); then && then();
+    });
+  }
+
+  /* ================= LAB REPORTS (= admin-coa.html) ================= */
+  const coaLink = (lot, name, strength) => { const u = new URL("coa.html", location.href); u.searchParams.set("lot", lot); u.searchParams.set("peptide", name); u.searchParams.set("strength", strength); return u.href; };
+  async function coaPane(el) {
+    el.innerHTML = `<p class="muted small">Loading…</p>`;
+    const { data, error } = await P.client().from("coa_records").select("*").order("peptide_name", { ascending: true }).order("strength", { ascending: true }).order("lot_number", { ascending: true });
+    if (error) { el.innerHTML = `<p class="notice err">${esc(error.message)}</p>`; return; }
+    el.innerHTML = `<form class="osheet coaform" data-coaf><h3 class="kick">Add a lab report</h3>
+<div class="pm2"><label>Peptide<input name="nm" required placeholder="Retatrutide"></label><label>Strength<input name="sg" required placeholder="60 mg"></label></div>
+<label>Lot number<input name="lot" required placeholder="JPS20260905" autocapitalize="characters"></label>
+<label>PDF (under 10 MB)<input name="pdf" type="file" accept="application/pdf,.pdf" required></label>
+<p class="status" data-coas></p><button class="btn primary wide" type="submit">Upload and publish</button></form>
+<h3 class="kick" style="margin-top:18px">Published (${(data || []).length})</h3>
+<div class="clist">${(data || []).map(r => `<div class="coarow"><div><b>${esc(r.peptide_name)} · ${esc(r.strength)}</b><small class="muted">Lot ${esc(r.lot_number)}</small></div><div class="coaacts"><a class="btn ghost sm" target="_blank" rel="noopener" href="${esc(P.client().storage.from("coa-pdfs").getPublicUrl(r.storage_path).data.publicUrl)}">View</a><button class="btn ghost sm" type="button" data-coaq="${esc(coaLink(r.lot_number, r.peptide_name, r.strength))}">QR link</button><button class="btn ghost sm" type="button" data-coax="${esc(r.id)}" data-coap="${esc(r.storage_path)}" data-coal="${esc(r.lot_number)}">Remove</button></div></div>`).join("") || `<p class="muted small">No certificates uploaded yet.</p>`}</div>`;
+    const f = el.querySelector("[data-coaf]");
+    f.addEventListener("submit", async e => { e.preventDefault(); const st = f.querySelector("[data-coas]"), b = f.querySelector("[type=submit]");
+      const file = f.pdf.files[0]; if (!file || file.type !== "application/pdf" || file.size > 10485760) { st.textContent = "Choose a PDF under 10 MB."; return; }
+      b.disabled = true; st.textContent = "Uploading…";
+      const lot = f.lot.value.trim(), name = f.nm.value.trim(), strength = f.sg.value.trim(), path = crypto.randomUUID() + ".pdf";
+      let { error } = await P.client().storage.from("coa-pdfs").upload(path, file, { contentType: "application/pdf", upsert: false });
+      if (!error) { const r = await P.client().from("coa_records").insert({ peptide_name: name, strength, lot_number: lot, storage_path: path, is_published: true }); if (r.error) { await P.client().storage.from("coa-pdfs").remove([path]); error = r.error; } }
+      if (error) { st.textContent = "Upload failed: " + error.message; b.disabled = false; return; }
+      P.toast(`Published ${lot}`); coaPane(el);
+    });
+    el.onclick = async e => {
+      const q = e.target.closest("[data-coaq]"); if (q) { navigator.clipboard?.writeText(q.dataset.coaq).then(() => P.toast("QR link copied")); return; }
+      const x = e.target.closest("[data-coax]"); if (!x) return;
+      if (!(await confirmSheet("Remove this lab report?", `Lot ${esc(x.dataset.coal)} comes off the site and its QR link stops working.`, "Remove", true))) return;
+      const { error } = await P.client().from("coa_records").delete().eq("id", x.dataset.coax);
+      if (error) { P.toast(error.message); return; }
+      await P.client().storage.from("coa-pdfs").remove([x.dataset.coap]); P.toast("Removed"); coaPane(el);
+    };
+  }
+
+  window.PSTOps = { init: c => { ctx = c; }, openOrder, stage, venmoMatches, customersPane, filterCustomers, openCustomer, creditFlow, addCustomerFlow, newOrderFlow, pickCustomer, lookup, requestsPane, coaPane, stockPane, receivePO, countFlow, custName, isPickup };
 })();
