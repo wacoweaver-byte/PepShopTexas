@@ -446,7 +446,7 @@ ${c.email ? `<button class="btn primary wide" type="button" data-sendinv>Email $
     el.innerHTML = Object.keys(pos).length ? `<h2 class="serif osec">Incoming</h2>${Object.entries(pos).map(([po, rs]) => {
       const vials = rs.reduce((n, r) => n + Number(r.ordered_quantity || 0), 0), un = rs.filter(r => !link(r)), r0 = rs[0], late = r0.expected_arrival_date && new Date(r0.expected_arrival_date) < new Date(new Date().setHours(0, 0, 0, 0));
       return `<article class="pocard"><div class="pohd"><div><b>${esc(po)}</b><small>${r0.expected_arrival_date ? `Expected ${P.fmtDate(r0.expected_arrival_date)} · ${when(r0.expected_arrival_date)}` : "No arrival date"}${r0.vendor_name || r0.supplier_name ? ` · ${esc(r0.vendor_name || r0.supplier_name)}` : ""}</small></div><span class="opill ${late ? "bad" : "pend"}">${esc(String(r0.status || "ordered").replace(/_/g, " "))}</span></div>
-<div class="posum"><b>${vials}</b> vials · ${rs.length} product${rs.length === 1 ? "" : "s"}</div>
+<div class="posum"><b>${vials}</b> vials · ${rs.length} product${rs.length === 1 ? "" : "s"}${po !== "(no PO number)" ? ` · <button type="button" class="linkish" data-poopen="${esc(po)}">Open: receive some, tracking, edit</button>` : ""}</div>
 <div class="polines">${rs.map(r => { const l = link(r), c = l && catBy[l.product_key]; return `<div class="poline${l ? "" : " warn"}">${c ? P.vial(c, 22) : `<span class="pov"></span>`}<span><b>${esc(l ? `${l.display_name} ${l.strength || ""}`.trim() : clean(r.product_name))}</b>${l ? "" : `<small>Not set up in your products yet</small>`}</span><em>×${Number(r.ordered_quantity || 0)}</em></div>`; }).join("")}</div>
 ${un.length ? `<p class="small powarn">${P.icon("bell", 14)} ${un.length} item${un.length === 1 ? " isn't" : "s aren't"} linked to a product, so this order can't be received yet. Add ${un.length === 1 ? "it" : "them"} under Products (or link ${un.length === 1 ? "it" : "them"} in Inventory on the computer), then receive.</p>` : ""}
 ${po !== "(no PO number)" ? `<button class="btn ${un.length ? "ghost" : "primary"} wide" type="button" data-recv="${esc(po)}"${un.length ? " disabled" : ""}>Receive ${vials} vials</button>` : ""}</article>`; }).join("")}` : "";
@@ -792,5 +792,5 @@ ${r.requirements ? `<p class="small"><b>Requirements:</b> ${esc(r.requirements)}
     };
   }
 
-  window.PSTOps = { init: c => { ctx = c; }, openOrder, stage, venmoMatches, customersPane, filterCustomers, openCustomer, creditFlow, addCustomerFlow, newOrderFlow, pickCustomer, lookup, requestsPane, coaPane, stockPane, receivePO, countFlow, custName, isPickup };
+  window.PSTOps = { init: c => { ctx = c; }, openOrder, stage, venmoMatches, customersPane, filterCustomers, openCustomer, creditFlow, addCustomerFlow, newOrderFlow, pickCustomer, lookup, requestsPane, coaPane, stockPane, receivePO, countFlow, confirmSheet, custName, isPickup };
 })();
