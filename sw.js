@@ -1,7 +1,7 @@
 /* Pep Shop Texas service worker (v4: pages always revalidate so uploads show up right away; v3: tells open pages when an alert arrives so the bell updates). Network-first pages, cached static files, push alerts.
    Admin pages and every Supabase call always go straight to the network. */
-const V = "pst-v53";
-const CORE = ["offline.html", "css/pst-bl.css?v=53", "js/pst-core.js?v=53", "img/pst-emblem-96.webp", "img/pst-emblem-192.webp", "icons/icon-192.png", "icons/badge-96.png"];
+const V = "pst-v54";
+const CORE = ["offline.html", "css/pst-bl.css?v=54", "js/pst-core.js?v=54", "img/pst-emblem-96.webp", "img/pst-emblem-192.webp", "icons/icon-192.png", "icons/badge-96.png"];
 const ADMIN = /\/(admin|admin-coa|inventory|products|promotions|reports|customers|discounts|manual-order|availability-requests|bulk-requests)\.html$/;
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -33,7 +33,7 @@ self.addEventListener("push", e => {
       data: { url: new URL(d.url || "account.html#orders", scopeUrl).href, addUrl: d.addUrl ? new URL(d.addUrl, scopeUrl).href : "" },
       actions: Array.isArray(d.actions) ? d.actions.slice(0, 2) : []
     });
-    try { (await self.clients.matchAll({ type: "window", includeUncontrolled: true })).forEach(c => c.postMessage({ type: "pst-push", tag: d.tag || "" })); } catch {}
+    try { (await self.clients.matchAll({ type: "window", includeUncontrolled: true })).forEach(c => c.postMessage({ type: "pst-push", tag: d.tag || "", title: d.title || "Pep Shop Texas", body: d.body || "", url: new URL(d.url || "account.html#orders", scopeUrl).href })); } catch {}
     if (typeof d.badge === "number" && self.navigator.setAppBadge) { try { d.badge ? await self.navigator.setAppBadge(d.badge) : await self.navigator.clearAppBadge(); } catch {} }
   })());
 });

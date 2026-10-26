@@ -837,7 +837,16 @@ ${rows.length ? `<div class="nlist">${rows.map(row).join("")}</div>` : `<div cla
     w.classList.add("side");
     await markAllRead(rows); refreshBell();
   }
-  if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener?.("message", e => { if (e.data && e.data.type === "pst-push") refreshBell(); });
+  // v5.4: iPhone doesn't show a banner for an alert while the app is open, so show it in the app too
+  function inAppAlert(m) {
+    if (document.hidden || !m.title) return; $("#pushnote")?.remove();
+    const n = document.createElement("a"); n.id = "pushnote"; n.href = m.url || "#"; n.setAttribute("role", "status");
+    n.innerHTML = `${icon("bell", 18)}<span><b>${esc(m.title)}</b>${m.body ? `<small>${esc(m.body)}</small>` : ""}</span><button type="button" class="sx" aria-label="Dismiss">${icon("x", 14)}</button>`;
+    n.addEventListener("click", e => { if (e.target.closest(".sx")) { e.preventDefault(); n.remove(); } });
+    document.body.appendChild(n); requestAnimationFrame(() => n.classList.add("in")); if (navigator.vibrate) try { navigator.vibrate(40); } catch { /* no vibration */ }
+    setTimeout(() => { if (n.isConnected) { n.classList.remove("in"); setTimeout(() => n.remove(), 300); } }, 7000);
+  }
+  if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener?.("message", e => { if (e.data && e.data.type === "pst-push") { refreshBell(); inAppAlert(e.data); } });
 
   /* one panel used by Account → Notifications and the owner app */
   async function notifyPanel(el, role = "customer") {

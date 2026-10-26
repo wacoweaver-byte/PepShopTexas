@@ -135,6 +135,7 @@
   /* ================= WHAT'S NEW ================= */
   const L = (t, h) => ({ t, h });
   const RELEASES = [
+    { v: "5.4", d: "Oct 26, 2026", title: "Alerts while the app is open", items: [L("New-order and other alerts now pop up inside the app when it's open, not just on the lock screen", "#more")] },
     { v: "5.3", d: "Oct 26, 2026", title: "Update notices", items: [L("A heads-up like this one whenever your app updates", "#whatsnew"), L("If you're in the middle of something, an Update button waits for you instead", "#today")] },
     { v: "5.2", d: "Oct 26, 2026", title: "Faster purchase orders, smoother scrolling", items: [L("Pick a vendor and their whole price list shows up, tap to add", "#stock"), L("Search finds your products by the vendor's name too (tirz, TR10…)", "#stock"), L("Pop-up screens no longer let the page slide around underneath", "#customers"), L("Bottom bar stays put after typing", "#today"), L("A few words of encouragement on Today", "#today")] },
     { v: "5.1", d: "Oct 26, 2026", title: "Protocols, emails, light mode", items: [L("Green dot on products that have a protocol", "#products"), L("Protocols now set when running-low reminders go out", "#protos"), L("Emails & reminders: everything your shop sends, with previews", "#emails"), L("Purchase orders show up as expenses on their own", "#reports"), L("Light or dark look (bottom of More)", "#more"), L("Fixed: white boxes on iPhone when adding to a purchase order", "#stock")] },
