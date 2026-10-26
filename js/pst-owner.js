@@ -22,9 +22,10 @@
   /* ---- v38 app shell: bottom tabs like PepKeep (Today · Orders · Products · Customers · More) ---- */
   let view = "today", oq = "", pmLoaded = false, stockRows = [];
   const NAV = [["today", "home", "Today"], ["orders", "box", "Orders"], ["products", "flask", "Products"], ["customers", "users", "Customers"], ["more", "dots", "More"]];
-  const TITLES = { today: "Today", orders: "Orders", products: "Products", customers: "Customers", more: "More", insights: "Insights", protos: "My protocols", times: "Write-ups", requests: "Requests", coa: "Lab reports", vendors: "Vendors", discounts: "Discount codes", promos: "Promotions" };
-  const MORE = [["insights", "chart", "Insights", "Sales, customers, site traffic"], ["requests", "bell", "Requests", "Restock and bulk requests"], ["coa", "doc", "Lab reports", "Upload certificates, copy QR links"], ["stock", "box", "Stock & purchase orders", "Order from vendors, receive, reorder review"], ["vendors", "truck", "Vendors", "Who you buy from and lead times"],
+  const TITLES = { today: "Today", orders: "Orders", products: "Products", customers: "Customers", more: "More", insights: "Insights", protos: "My protocols", times: "Write-ups", requests: "Requests", coa: "Lab reports", vendors: "Vendors", discounts: "Discount codes", promos: "Promotions", blast: "Email blast", ads: "Shop pictures", whatsnew: "What's new", vprices: "Vendor price lists", reports: "Reports", writer: "Report writer", paymethods: "Payment methods" };
+  const MORE = [["reports", "chart", "Reports", "Sales, profit, expenses, stock moves"], ["writer", "doc", "Report writer", "Build any list, save it, download it"], ["insights", "chart", "Insights", "Customers and site traffic"], ["requests", "bell", "Requests", "Restock and bulk requests"], ["coa", "doc", "Lab reports", "Upload certificates, copy QR links"], ["stock", "box", "Stock & purchase orders", "Order from vendors, receive, reorder review"], ["vendors", "truck", "Vendors", "Who you buy from and lead times"], ["vprices", "doc", "Vendor price lists", "Upload a vendor's prices, match them"],
     ["discounts", "tag", "Discount codes", "Codes, limits, who can use them"], ["promos", "star", "Promotions", "Banners, free items, spend rewards"],
+    ["blast", "chat", "Email blast", "Write and send to subscribers"], ["paymethods", "lock", "Payment methods", "What shoppers can pay with, discounts"], ["ads", "shop", "Shop pictures", "The carousel on the shop"],
     ["protos", "lock", "My protocols", "Private reference, only you see it"], ["times", "doc", "Write-ups & reorder times", "Product pages and running-low reminders"]];
   const mcard = (k, i, t, s, href) => `<${href ? `a href="${href}"` : `button type="button" data-more="${k}"`} class="mcard"><span class="mic">${P.icon(i, 20)}</span><span><b>${t}</b><small>${s}</small></span>${P.icon("next", 18)}</${href ? "a" : "button"}>`;
 
@@ -43,11 +44,12 @@
 <section class="opane" data-pane="products" hidden><div class="oseg three" role="tablist"><button class="on" type="button" data-psub="catalog">Catalog</button><button type="button" data-psub="stock">Stock</button><button type="button" data-psub="reorder">Reorder</button></div>
 <div data-pm><p class="muted small">Loading…</p></div><div data-reorder hidden></div><div data-stock hidden><div class="pmtop"><p class="muted small" style="margin:0;flex:1">Purchase orders and the shelf</p><button class="btn primary sm" type="button" data-newpo>+ New PO</button></div><div data-po></div><h2 class="serif osec">On the shelf</h2><p class="muted small" data-ssum></p><div class="schips" role="tablist" data-schips></div><input class="psearch" type="search" data-ssearch placeholder="Search products" aria-label="Search stock"><div data-slist><p class="muted small">Loading…</p></div><p class="muted small">Tap a product to correct its count.</p></div></section>
 <section class="opane" data-pane="customers" hidden><div data-custs></div></section>
-<section class="opane" data-pane="more" hidden><div data-morehome><div class="mcards">${MORE.map(m => mcard(...m)).join("")}${mcard("", "gear", "Full admin", "Everything else, on the computer", "admin.html")}${mcard("", "shop", "View the shop", "See it the way customers do", "index.html")}</div>
+<section class="opane" data-pane="more" hidden><div data-morehome><button type="button" class="wnbar" data-more="whatsnew">${P.icon("star", 18)}<span><b>What's new</b><small>v${PSTOps4.RELEASES[0].v} · ${PSTOps4.RELEASES[0].title}</small></span><i data-wndot${PSTOps4.unseen() ? "" : " hidden"}>New</i></button><div class="mcards">${MORE.map(m => mcard(...m)).join("")}${mcard("", "gear", "Full admin", "Everything else, on the computer", "admin.html")}${mcard("", "shop", "View the shop", "See it the way customers do", "index.html")}</div>
 <p class="mlinks"><a href="install.html">Install guide</a><button type="button" class="linkish" data-signout>Sign out</button></p>
 <div class="nalbox" id="alerts"><h2 class="serif">Alerts on this device</h2><div data-nal><p class="muted small">Loading…</p></div></div></div>
-<div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="requests" data-reqs hidden></div><div data-sub="coa" data-coa hidden></div><div data-sub="vendors" data-vens hidden></div><div data-sub="discounts" data-discs hidden></div><div data-sub="promos" data-promos hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
+<div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="requests" data-reqs hidden></div><div data-sub="coa" data-coa hidden></div><div data-sub="vendors" data-vens hidden></div><div data-sub="blast" data-blast hidden></div><div data-sub="ads" data-ads hidden></div><div data-sub="whatsnew" data-wn hidden></div><div data-sub="vprices" data-vpr hidden></div><div data-sub="reports" data-rep hidden></div><div data-sub="writer" data-wri hidden></div><div data-sub="paymethods" data-pay hidden></div><div data-sub="discounts" data-discs hidden></div><div data-sub="promos" data-promos hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
 <nav class="otabbar" aria-label="Owner app">${NAV.map(([k, i, l]) => `<button type="button" data-go="${k}" aria-current="${k === "today" ? "page" : "false"}">${P.icon(i, 22)}<span>${l}</span><i data-badge="${k}" hidden></i></button>`).join("")}</nav>`;
+    setTimeout(wnDot, 0);
     PSTOps.init({ me, get orders() { return orders; }, get items() { return items; }, reload: load, lineExtra: (o, i) => lineDays(o, i) });
     document.addEventListener("click", onClick);
     document.addEventListener("input", onInput);
@@ -65,7 +67,8 @@
     if (h === "alerts") { go("more"); setTimeout(() => $("#alerts")?.scrollIntoView({ block: "start", behavior: "smooth" }), 120); return; }
     if (h === "stock") { go("products"); sub("stock"); return; }
     if (h === "reorder") { go("products"); sub("reorder"); return; }
-    if (["insights", "protos", "times", "requests", "coa", "vendors", "discounts", "promos"].includes(h)) { go("more"); moreSub(h); return; }
+    if (h === "products") { go("products"); sub("catalog"); return; }
+    if (["insights", "protos", "times", "requests", "coa", "vendors", "discounts", "promos", "blast", "ads", "whatsnew", "vprices", "reports", "writer", "paymethods"].includes(h)) { go("more"); moreSub(h); return; }
     go(NAV.some(n => n[0] === h) ? h : "today");
   }
   function go(v) {
@@ -77,6 +80,7 @@
     if (v === "more") moreHome();
     window.scrollTo(0, 0);
   }
+  function wnDot() { const u = PSTOps4.unseen(); $$("[data-wndot]").forEach(x => x.hidden = !u); const b = $('[data-badge="more"]'); if (b) { b.hidden = !u; b.textContent = "•"; b.classList.toggle("dot", u); } }
   function moreHome() { $("[data-morehome]").hidden = false; $("[data-moresub]").hidden = true; $("[data-otitle]").textContent = "More"; P.notifyPanel($("[data-nal]"), "owner"); }
   function moreSub(k) {
     if (k === "stock") { go("products"); sub("stock"); return; }
@@ -85,12 +89,13 @@
     if (k === "insights") insights(30); if (k === "protos") protoPage(); if (k === "times") times();
     if (k === "requests") PSTOps.requestsPane($("[data-reqs]")); if (k === "coa") PSTOps.coaPane($("[data-coa]"));
     if (k === "vendors") PSTOps3.vendorsPane($("[data-vens]")); if (k === "discounts") PSTOps2.discountsPane($("[data-discs]")); if (k === "promos") PSTOps2.promotionsPane($("[data-promos]"));
+    if (k === "blast") PSTOps4.blastPane($("[data-blast]")); if (k === "ads") PSTOps4.adsPane($("[data-ads]")); if (k === "vprices") PSTOps5.vendorPricesPane($("[data-vpr]")); if (k === "reports") PSTOps6.reportsPane($("[data-rep]")); if (k === "writer") PSTOps7.writerPane($("[data-wri]")); if (k === "paymethods") PSTOps6.payMethodsPane($("[data-pay]")); if (k === "whatsnew") { PSTOps4.whatsNew($("[data-wn]")); wnDot(); }
     window.scrollTo(0, 0);
   }
   function sub(k) {
     $$("[data-psub]").forEach(b => b.classList.toggle("on", b.dataset.psub === k));
     $("[data-pm]").hidden = k !== "catalog"; $("[data-stock]").hidden = k !== "stock"; $("[data-reorder]").hidden = k !== "reorder";
-    if (k !== "catalog") history.replaceState(null, "", "#" + k);
+    history.replaceState(null, "", "#" + (k === "catalog" ? "products" : k));
     if (k === "stock") stockList(); if (k === "reorder") PSTOps3.reorderPane($("[data-reorder]"));
   }
   // v44: the shelf, organized: In stock / Running low / Out of stock / Hidden, with what's on the way. Tap a row to count it.
@@ -246,34 +251,52 @@ ${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>$
 <label class="toggle"><input type="checkbox" name="coming_soon"${(isNew || v.coming_soon) ? " checked" : ""}> Coming soon <span class="muted small">(not stocked yet: shoppers see "Coming soon" and can request it. Turns off by itself when stock arrives.)</span></label>
 ${!isNew && pmAsk[v.product_key] ? `<p class="pmask" style="margin:-4px 0 6px">${pmAsk[v.product_key].people.size} ${pmAsk[v.product_key].people.size === 1 ? "person has" : "people have"} asked for ${pmAsk[v.product_key].vials} vial${pmAsk[v.product_key].vials === 1 ? "" : "s"} · <a class="linkish" href="availability-requests.html">see requests</a></p>` : ""}
 <label>Feature on the home page<select name="home_feature_rank"><option value="">No</option>${[1, 2, 3, 4, 5, 6].map(n => `<option value="${n}"${Number(v.home_feature_rank) === n ? " selected" : ""}>Spot ${n}</option>`).join("")}</select></label>
-${isNew ? `<label>Cost per vial (optional)<input name="cost" type="number" step="0.01" min="0" inputmode="decimal"></label><p class="muted small">New products start with 0 in stock. Receive stock in <a href="inventory.html">Inventory</a>.</p>` : `<p class="muted small">${Number(pmInv[v.product_key]?.current_inventory ?? v.current_inventory ?? 0)} on hand · stock, COAs and costs stay in <a href="products.html">admin → Products</a> and <a href="inventory.html">Inventory</a>.</p>`}
+<div class="pm2"><label>Cost per vial<input name="cost" type="number" step="0.01" min="0" inputmode="decimal" value="${!isNew && Number(pmInv[v.product_key]?.cost_per_unit) > 0 ? Number(pmInv[v.product_key].cost_per_unit).toFixed(2) : ""}" placeholder="${isNew ? "optional" : "not set"}"></label><div class="pmmargin" data-pmmargin></div></div>
+<button type="button" class="linkish small" data-pmsug hidden></button>
+<details class="omore"${v.admin_only || v.coa_url ? " open" : ""}><summary>More details</summary>
+<div class="pm2"><label>Sort name<input name="sort_name" maxlength="80" value="${esc(v.sort_name || "")}" placeholder="${esc(v.display_name || "Same as name")}"></label><label>Sale tag<input name="sale_label" maxlength="30" value="${esc(v.sale_label || "")}" placeholder="Sale"></label></div>
+<p class="kick" style="margin:8px 0 4px">Shop by category</p><div class="chips">${["performance", "recovery", "longevity"].map(k => `<label class="chip"><input type="checkbox" name="rf" value="${k}"${((Array.isArray(v.research_focus) ? v.research_focus : String(v.research_focus || "").split(",")).map(x => String(x).trim().toLowerCase())).includes(k) ? " checked" : ""}><span>${k[0].toUpperCase() + k.slice(1)}</span></label>`).join("")}</div>
+<label>Lab report link (COA)<input name="coa_url" value="${esc(v.coa_url || "")}" placeholder="/assets/coas/… or https://…"></label><label>Lab report button text<input name="coa_label" maxlength="40" value="${esc(v.coa_label || "View COA")}"></label>
+<label>Private notes (only you see these)<textarea name="admin_only" rows="3">${esc(v.admin_only || "")}</textarea></label>
+${isNew ? "" : `<p class="muted small">Item # ${esc(v.product_key)} · ${Number(pmInv[v.product_key]?.current_inventory ?? v.current_inventory ?? 0)} on hand · <a class="linkish" href="product.html?key=${encodeURIComponent(v.product_key)}" target="_blank" rel="noopener">see it in the shop</a></p>`}</details>
+${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock with a purchase order under Products → Stock.</p>` : ""}
 <button class="btn primary wide" type="submit">${isNew ? "Create product" : "Save changes"}</button><p class="status" data-pmstat role="status"></p></form>`, { label: isNew ? "New product" : "Edit product" });
     const f = w.querySelector("form"), prev = w.querySelector("[data-pmprev]");
     const cur = () => ({ ...v, product_key: v.product_key, display_name: f.display_name.value.trim() || "NEW PRODUCT", label_line_1: f.label_line_1.value.trim() || null, strength: f.strength.value.trim(), label_color: f.label_color.value, category: f.category.value });
     const drawPrev = () => { const c = cur(); c.product_key = "__prev_" + (v.product_key || "new"); prev.innerHTML = P.vial(c, 130);
       const a = f.querySelector("[data-pmauto]"); if (a) a.textContent = `Auto (${P.vialColorName({ ...c, label_color: "" })})`;
       f.label_line_1.placeholder = String(f.display_name.value.trim() || "Same as name").replace(/\s*\(.*\)\s*/, "").toUpperCase(); };
-    drawPrev(); f.addEventListener("input", () => { clearTimeout(f._t); f._t = setTimeout(drawPrev, 250); });
+    const margin = () => { const c = Number(f.cost.value || 0), pr = f.sale_enabled.checked && Number(f.sale_price.value) > 0 ? Number(f.sale_price.value) : Number(f.price.value || 0), box = f.querySelector("[data-pmmargin]"), sg = f.querySelector("[data-pmsug]");
+      box.innerHTML = c > 0 && pr > 0 ? `<small class="muted">Profit</small><b>${(((pr - c) / pr) * 100).toFixed(1)}%</b>` : `<small class="muted">Profit</small><b>—</b>`;
+      const sug = c > 0 ? (c / 0.2 + 5).toFixed(2) : ""; sg.hidden = !sug; sg.textContent = `Use 80% margin + $5: $${sug}`; sg.dataset.v = sug; }; // = his Apply 80% Margin + $5
+    f.addEventListener("click", e => { const sg = e.target.closest("[data-pmsug]"); if (sg) { f.price.value = sg.dataset.v; margin(); } });
+    drawPrev(); margin(); f.addEventListener("input", () => { margin(); clearTimeout(f._t); f._t = setTimeout(drawPrev, 250); });
     f.addEventListener("submit", async e => {
       e.preventDefault(); const st = f.querySelector("[data-pmstat]"), btn = f.querySelector("[type=submit]"); btn.disabled = true; st.textContent = "Saving…"; st.className = "status";
       const now = new Date().toISOString(), name = f.display_name.value.trim(), strength = f.strength.value.trim() || null, category = f.category.value, price = Math.max(0, Number(f.price.value) || 0), live = f.is_active.checked;
       const fields = { display_name: name, label_line_1: f.label_line_1.value.trim().toUpperCase() || null, strength, category, price, label_color: f.label_color.value || null, is_active: live, blend_stack: category === "Multi-Peptide Product",
-        coming_soon: f.coming_soon.checked, sale_enabled: f.sale_enabled.checked, sale_price: f.sale_enabled.checked && Number(f.sale_price.value) > 0 ? Number(f.sale_price.value) : null, home_feature_rank: f.home_feature_rank.value ? Number(f.home_feature_rank.value) : null, updated_at: now };
+        coming_soon: f.coming_soon.checked, sale_enabled: f.sale_enabled.checked, sale_price: f.sale_enabled.checked && Number(f.sale_price.value) > 0 ? Number(f.sale_price.value) : null, home_feature_rank: f.home_feature_rank.value ? Number(f.home_feature_rank.value) : null, updated_at: now,
+        sort_name: f.sort_name.value.trim() || name, sale_label: f.sale_label.value.trim() || null, research_focus: $$("input[name=rf]:checked", f).map(x => x.value), coa_url: f.coa_url.value.trim() || null, coa_label: f.coa_label.value.trim() || "View COA", admin_only: f.admin_only.value.trim() || null };
+      if (f.sale_enabled.checked && !(Number(f.sale_price.value) > 0)) { st.textContent = "Add the sale price, or turn the sale off."; st.className = "status bad"; btn.disabled = false; return; }
+      if (f.sale_enabled.checked && Number(f.sale_price.value) >= price) { st.textContent = "The sale price should be lower than the regular price."; st.className = "status bad"; btn.disabled = false; return; }
+      if (live && !f.coming_soon.checked && !(price > 0)) { st.textContent = "Set a price before putting it live."; st.className = "status bad"; btn.disabled = false; return; }
       try {
         if (isNew) {
           const k = pmNextKey();
-          const ins = () => P.client().from("product_catalog").insert({ product_key: k, sort_name: name, coa_label: "View COA", current_inventory: 0, featured: false, hot_peptide: false, sale_label: null, created_at: now, ...fields }).select("product_key,label_color").single();
+          const ins = () => P.client().from("product_catalog").insert({ product_key: k, current_inventory: 0, featured: false, hot_peptide: false, sale_label: null, created_at: now, ...fields }).select("product_key,label_color").single();
           let r1 = await ins(); if (r1.error && /coming_soon/.test(r1.error.message)) { delete fields.coming_soon; r1 = await ins(); } // before the v9 server update
           if (r1.error) throw r1.error;
           const cost = Number(f.cost?.value || 0);
-          const r2 = await P.client().from("product_inventory").upsert({ product_key: k, display_name: name, category, strength, price, current_inventory: 0, low_stock_threshold: 5, limited_stock_threshold: 10, is_active: live, featured: false, blend_stack: fields.blend_stack, coa_label: "View COA", cost_per_unit: cost > 0 ? cost : null, updated_at: now }, { onConflict: "product_key" });
+          const r2 = await P.client().from("product_inventory").upsert({ product_key: k, display_name: name, category, strength, price, current_inventory: 0, low_stock_threshold: 5, limited_stock_threshold: 10, is_active: live, featured: false, blend_stack: fields.blend_stack, coa_url: fields.coa_url, coa_label: fields.coa_label, cost_per_unit: cost > 0 ? cost : null, updated_at: now }, { onConflict: "product_key" });
           if (r2.error) throw new Error(`${k} was created, but the inventory record didn't save: ${r2.error.message}`);
           P.toast(`${name} ${strength || ""} created · label ${r1.data?.label_color || "auto"}`);
         } else {
           let r1 = await P.client().from("product_catalog").update(fields).eq("product_key", v.product_key);
           if (r1.error && /coming_soon/.test(r1.error.message)) { delete fields.coming_soon; r1 = await P.client().from("product_catalog").update(fields).eq("product_key", v.product_key); }
           if (r1.error) throw r1.error;
-          const r2 = await P.client().from("product_inventory").update({ display_name: name, category, strength, price, is_active: live, blend_stack: fields.blend_stack, updated_at: now }).eq("product_key", v.product_key);
+          const c0 = Number(pmInv[v.product_key]?.cost_per_unit || 0), c1 = Number(f.cost.value || 0), invUp = { display_name: name, category, strength, price, is_active: live, blend_stack: fields.blend_stack, coa_url: fields.coa_url, coa_label: fields.coa_label, updated_at: now };
+          if (f.cost.value !== "" && c1 > 0 && Math.abs(c1 - c0) > 0.004) invUp.cost_per_unit = c1; // only when he changes it (his page could overwrite or wipe it)
+          const r2 = await P.client().from("product_inventory").update(invUp).eq("product_key", v.product_key);
           if (r2.error) throw new Error(`Saved to the shop, but the inventory record didn't update: ${r2.error.message}`);
           P.toast("Saved");
         }
