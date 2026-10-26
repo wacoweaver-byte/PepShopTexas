@@ -36,7 +36,7 @@
     if (!(await P.isAdmin(me))) { root.innerHTML = `<div class="empty"><h1 class="serif">Owners only</h1><p>This page is for Pep Shop Texas staff.</p><a class="btn ghost" href="index.html">Go to the shop</a></div>`; return; }
     document.body.classList.add("oapp");
     root.innerHTML = `<header class="ohd"><div><small>Pep Shop Texas</small><h1 class="serif" data-otitle>Today</h1></div><div class="ohr"><button class="btn ghost sm" type="button" data-q="lookup" aria-label="Look up anything">${P.icon("search", 18)}</button><button class="btn ghost sm bell" type="button" data-bell data-act="inbox" aria-label="Notifications">${P.icon("bell", 18)}<i hidden>0</i></button><button class="btn ghost sm" type="button" data-o="refresh" aria-label="Refresh">↻</button></div></header>
-<section class="opane" data-pane="today"><p class="vibe" data-vibe></p><div data-rels></div><div data-cheer></div><div data-alerts></div><div class="tiles otiles" data-stats></div>
+<section class="opane" data-pane="today"><p class="vibe" data-vibe></p><div data-rels></div><div data-tix></div><div data-cheer></div><div data-alerts></div><div class="tiles otiles" data-stats></div>
 <div class="oquick"><button class="btn primary" type="button" data-q="neworder">${P.icon("plus", 16)} New order</button><button class="btn ghost" type="button" data-q="addcust">${P.icon("users", 16)} Add customer</button></div>
 <div data-vmbox></div><h2 class="serif osec">Needs you</h2><div data-attn></div>
 <h2 class="serif osec">Running low soon</h2><p class="muted small">Customers likely to run low in the next 10 days, based on their own reorder rhythm. A friendly text sells.</p><div data-due></div><p class="mlinks hlink"><button type="button" class="linkish" data-go-help>Something not right? Report it with a screenshot</button></p></section>
@@ -154,6 +154,7 @@
     if (ids.length) { const ir = await P.client().from("order_items").select("*").in("order_id", ids); (ir.data || []).forEach(i => (items[i.order_id] ||= []).push(i)); }
     await loadProtos();
     vibe(); draw(); due(); window.PSTRelease?.today($("[data-rels]"), me);
+    if (window.PSTRelease?.isPublisher?.(me)) window.PSTHelp?.openFor($("[data-tix]")).then(n => { if (n) { const bd = $('[data-badge="more"]'); if (bd) { bd.hidden = false; bd.textContent = n; } } }).catch(() => {});
     if (navigator.setAppBadge) { const n = orders.filter(TABS.pay.f).length; try { n ? navigator.setAppBadge(n) : navigator.clearAppBadge(); } catch {} }
   }
   // v5.2: a little personality (owner app only)
@@ -232,7 +233,7 @@ ${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>$
     const [c, i, r] = await Promise.all([P.client().from("product_catalog").select("*").order("display_name"), P.client().from("product_inventory").select("product_key,current_inventory,cost_per_unit,is_active"),
       P.client().from("product_availability_requests").select("product_key,customer_email,requested_quantity").eq("status", "pending").limit(2000)]);
     await loadProtos().catch(() => {});
-    if (c.error) throw c.error; pmRows = c.data || []; pmInv = Object.fromEntries((i.data || []).map(x => [x.product_key, x]));
+    if (c.error) throw c.error; pmRows = (c.data || []).sort(P.cmpProduct); // v5.10 (report #3): name A–Z, then smallest dose first (5000iu before 10000iu) pmInv = Object.fromEntries((i.data || []).map(x => [x.product_key, x]));
     pmAsk = {}; (r.data || []).forEach(x => { const a = pmAsk[x.product_key] ||= { people: new Set(), vials: 0 }; a.people.add(String(x.customer_email || "").toLowerCase()); a.vials += Number(x.requested_quantity || 0); });
   }
   async function pmList() {
@@ -479,6 +480,7 @@ ${stale.length ? `<div class="notice">${stale.length} protocol${stale.length ===
     const cr = t.closest("[data-credit]"); if (cr) { PSTOps.creditFlow(cr.dataset.credit); return; }
     const rv = t.closest("[data-recv]"); if (rv) { await PSTOps.receivePO(rv.dataset.recv, $("[data-po]")); stockList(); return; }
     const pc = t.closest("[data-poopen]"); if (pc) { PSTOps3.poOpen(pc.dataset.poopen, stockList); return; }
+    const pmt = t.closest("[data-pomatch]"); if (pmt && !pmt.closest("#sheet")) { PSTOps3.matchLine(pmt.dataset.pomatch, stockList); return; }
     if (t.closest("[data-newpo]")) { PSTOps3.poSheet({ then: stockList }); return; }
     const ct = t.closest("[data-count]"); if (ct) { const p = stockRows.find(x => x.product_key === ct.dataset.count); if (p) PSTOps.countFlow(p, stockList); return; }
     if (t.closest("[data-signout]")) { await P.client().auth.signOut(); location.href = "login.html?redirect=owner.html"; return; }

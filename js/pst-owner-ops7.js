@@ -108,11 +108,29 @@ ${c[2] ? `<label>Dates (${esc(lab(c[2]))})<select name="preset">${[["all", "All 
 <p class="status" data-ws role="status"></p></form><div data-wout></div>`;
     if (rows.length) out(el);
   }
+  /* v5.10 (report #4): Save as PDF. Builds the PDF on the phone (jsPDF, loaded only when tapped) with every row of the report,
+     then opens the share sheet so it can be printed, saved to Files, AirDropped or emailed. Falls back to a download. */
+  const loadJs = src => new Promise((res, rej) => { if (document.querySelector(`script[src="${src}"]`)) return res(); const t = document.createElement("script"); t.src = src; t.onload = res; t.onerror = () => rej(new Error("Couldn't load the PDF maker. Check your connection and try again.")); document.head.appendChild(t); });
+  async function savePdf() {
+    if (!window.jspdf?.jsPDF?.API?.autoTable) { await loadJs("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"); await loadJs("https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"); }
+    const cols = S.fields, wide = cols.length > 5, doc = new window.jspdf.jsPDF({ orientation: wide ? "landscape" : "portrait", unit: "pt", format: "letter" });
+    const title = S.name || "Report", when = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+    const cell = v => v == null ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.text(title, 40, 40);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(110); doc.text(`Pep Shop Texas · ${rows.length} row${rows.length === 1 ? "" : "s"} · ${when}`, 40, 56);
+    doc.autoTable({ startY: 68, head: [cols.map(lab)], body: rows.slice(0, 5000).map(r => cols.map(f => cell(fmt(f, value(r, f))))), margin: { left: 40, right: 40 },
+      styles: { fontSize: wide ? 7.5 : 9, cellPadding: 4, overflow: "linebreak" }, headStyles: { fillColor: [16, 42, 67], textColor: 255 }, alternateRowStyles: { fillColor: [246, 243, 236] },
+      didDrawPage: d => { doc.setFontSize(8); doc.setTextColor(140); doc.text(`Page ${d.pageNumber}`, doc.internal.pageSize.getWidth() - 80, doc.internal.pageSize.getHeight() - 20); } });
+    const slug = (title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "report") + "-" + ymd(new Date()) + ".pdf";
+    const blob = doc.output("blob"), file = new File([blob], slug, { type: "application/pdf" });
+    if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file], title }); return; } catch (err) { if (err?.name === "AbortError") return; } }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = slug; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+  }
   function out(el) {
     const o = el.querySelector("[data-wout]"), lim = Number(S.limitRows || 50), cols = S.fields;
     o.innerHTML = `<div class="pmtop"><p class="muted small" style="flex:1;margin:0">${Math.min(lim, rows.length)} of ${rows.length} row${rows.length === 1 ? "" : "s"}</p><select data-wlim aria-label="Rows shown">${[50, 100, 250, 500, 1000].map(n => `<option${n === lim ? " selected" : ""}>${n}</option>`).join("")}</select></div>
 <div class="wtable"><table><thead><tr>${cols.map(f => `<th>${esc(lab(f))}</th>`).join("")}</tr></thead><tbody>${rows.slice(0, lim).map(r => `<tr>${cols.map(f => `<td>${esc(fmt(f, value(r, f)))}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
-<div class="obar"><button class="btn ghost wide" type="button" data-wcsv>Download CSV (all ${rows.length})</button><button class="btn ghost wide" type="button" data-wsave>${editingId ? "Save changes to this report" : "Save this report"}</button>${editingId ? `<button class="btn ghost wide" type="button" data-wsaveas>Save as a new report</button><button class="btn danger wide" type="button" data-wdel>Delete this saved report</button>` : ""}</div>`;
+<div class="obar"><button class="btn primary wide" type="button" data-wpdf>Save as PDF (all ${rows.length})</button><button class="btn ghost wide" type="button" data-wcsv>Download CSV (all ${rows.length})</button><button class="btn ghost wide" type="button" data-wsave>${editingId ? "Save changes to this report" : "Save this report"}</button>${editingId ? `<button class="btn ghost wide" type="button" data-wsaveas>Save as a new report</button><button class="btn danger wide" type="button" data-wdel>Delete this saved report</button>` : ""}</div>`;
   }
   const readForm = el => { const f = el.querySelector("[data-wf]"); S.name = f.name.value.trim(); if (f.preset) { S.datePreset = f.preset.value; const d = presetDates(S.datePreset); if (d) [S.startDate, S.endDate] = d; else { S.startDate = f.sd?.value || S.startDate; S.endDate = f.ed?.value || S.endDate; } }
     $$("[data-ff]", f).forEach(x => { S.filters[+x.dataset.ff].field = x.value; }); $$("[data-fo]", f).forEach(x => { S.filters[+x.dataset.fo].op = x.value; }); $$("[data-fv]", f).forEach(x => { S.filters[+x.dataset.fv].value = x.value.trim(); });
@@ -140,6 +158,8 @@ ${c[2] ? `<label>Dates (${esc(lab(c[2]))})<select name="preset">${[["all", "All 
       const fx = e.target.closest("[data-fx]"); if (fx) { readForm(el); S.filters.splice(+fx.dataset.fx, 1); draw(el); return; }
       if (e.target.closest("[data-sadd]")) { readForm(el); S.sorts.push({ field: "", direction: "asc" }); draw(el); return; }
       if (e.target.closest("[data-wrun]")) { readForm(el); if (!S.fields.length) { el.querySelector("[data-ws]").textContent = "Pick at least one column."; return; } run(el); return; }
+      const pdfb = e.target.closest("[data-wpdf]"); if (pdfb) { pdfb.disabled = true; const was = pdfb.textContent; pdfb.textContent = "Making the PDF…";
+        try { await savePdf(); } catch (err) { P.toast(err.message || "The PDF couldn't be made."); } pdfb.disabled = false; pdfb.textContent = was; return; }
       if (e.target.closest("[data-wcsv]")) { const slug = (S.name || "report").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "report";
         const cell = v => `"${String(v == null ? "" : typeof v === "object" ? JSON.stringify(v) : v).replace(/"/g, '""')}"`; // FIX: objects were written as [object Object]
         const blob = new Blob([[S.fields.map(cell).join(","), ...rows.map(r => S.fields.map(f => cell(value(r, f))).join(","))].join("\n")], { type: "text/csv" }), a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${slug}-${ymd(new Date())}.csv`; document.body.appendChild(a); a.click(); a.remove(); return; }

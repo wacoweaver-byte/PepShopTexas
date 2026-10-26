@@ -158,7 +158,7 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
     const rows = data || [], op = rows.filter(open); if (!rows.length) return;
     const linked = r => !!(r.product_id || r.product_key);
     const w = sheet(`<div class="osheet"><div class="oshead"><div><small class="muted">${esc(rows[0].vendor_name || rows[0].supplier_name || "No vendor")} · ordered ${P.fmtDate(rows[0].ordered_at)}</small><h2 class="serif">${esc(po)}</h2><span class="muted small">${rows[0].expected_arrival_date ? `Expected ${P.fmtDate(rows[0].expected_arrival_date)}` : ""}${rows[0].tracking_number ? ` · tracking ${esc(rows[0].tracking_number)}` : ""}</span></div></div>
-<div class="polines">${rows.map(r => `<label class="poline${open(r) ? "" : " done"}${linked(r) ? "" : " warn"}">${open(r) && linked(r) ? `<input type="checkbox" data-rl="${esc(r.id)}" checked>` : `<span class="pov"></span>`}<span><b>${esc(String(r.product_name || "").replace(/\s*[—-]\s*PSTP\d+\s*$/i, ""))}</b><small>${STATUS[String(r.status || "ordered").toLowerCase()] || r.status} · ${usd(r.kit_cost)}/kit · ${usd(r.total_cost)}${linked(r) ? "" : " · not set up in your products"}</small></span><em>×${Number(r.ordered_quantity || 0)}</em></label>`).join("")}</div>
+<div class="polines">${rows.map(r => `<label class="poline${open(r) ? "" : " done"}${linked(r) ? "" : " warn"}">${open(r) && linked(r) ? `<input type="checkbox" data-rl="${esc(r.id)}" checked>` : `<span class="pov"></span>`}<span><b>${esc(String(r.product_name || "").replace(/\s*[—-]\s*PSTP\d+\s*$/i, ""))}</b><small>${STATUS[String(r.status || "ordered").toLowerCase()] || r.status} · ${usd(r.kit_cost)}/kit · ${usd(r.total_cost)}${linked(r) ? "" : " · not linked to a product"}</small>${linked(r) || !open(r) ? "" : `<button type="button" class="btn ghost sm pomatch" data-pomatch="${esc(r.id)}">Match to a product</button>`}</span><em>×${Number(r.ordered_quantity || 0)}</em></label>`).join("")}</div>
 ${op.length ? `<div class="obar"><button class="btn primary wide" type="button" data-rc>Receive checked</button>
 <button class="btn ghost wide" type="button" data-ed>Edit this order</button></div>
 <details class="omore"><summary>Tracking number</summary><div class="pm2 inl"><input data-trkv value="${esc(rows.find(r => r.tracking_number)?.tracking_number || "")}" placeholder="Tracking number" aria-label="Tracking number"><button class="btn ghost" type="button" data-trk>Save</button></div></details>
@@ -170,6 +170,7 @@ ${op.length ? `<div class="obar"><button class="btn primary wide" type="button" 
     const fail = msg => { P.toast(msg); poOpen(po, then); };
     const moving = op.filter(r => ["ordered", "in_transit"].includes(String(r.status || "ordered").toLowerCase()));
     w.addEventListener("click", async e => {
+      const mt = e.target.closest("[data-pomatch]"); if (mt) { e.preventDefault(); matchLine(mt.dataset.pomatch, () => poOpen(po, then)); return; }
       if (e.target.closest("[data-rc]")) { // = receivePurchaseOrderLines
         const ids = $$("[data-rl]:checked", w).map(x => x.dataset.rl); if (!ids.length) { st.textContent = "Check the lines that arrived."; return; }
         const pick = op.filter(r => ids.includes(r.id)), vials = pick.reduce((n, r) => n + Number(r.ordered_quantity || 0), 0);
@@ -270,5 +271,31 @@ ${v ? `<label class="toggle"><input type="checkbox" name="act"${v.is_active !== 
     });
   }
 
-  window.PSTOps3 = { poSheet, poOpen, reorderPane, vendorsPane };
+  /* v5.10 (report #2): a purchase-order line that isn't linked to one of your products (a vendor-only item, or the product
+     was added after the order) can be matched here. Saves product_id/product_key on that line; the vendor's wording stays. */
+  async function matchLine(lineId, done) {
+    const [{ data: ln }, { data: inv }, { data: cat }] = await Promise.all([P.client().from("incoming_inventory").select("*").eq("id", lineId).maybeSingle(),
+      P.client().from("product_inventory").select("id,product_key,display_name,strength,is_active"), P.client().from("product_catalog").select("product_key,sort_name")]);
+    const alias = Object.fromEntries((cat || []).map(c => [c.product_key, c.sort_name || ""]));
+    if (!ln) { P.toast("That line isn't there any more."); return; }
+    const list = (inv || []).filter(x => x.product_key).sort(P.cmpProduct), name = String(ln.product_name || "").replace(/\s*[—-]\s*PSTP\d+\s*$/i, "");
+    // "HCG 10000 IU" vs PST-CG1 (also called HCG) 10000iu: compare the words and the numbers, including the product's other name
+    const words = s => String(s || "").toLowerCase().replace(/(\d)([a-z])/g, "$1 $2").replace(/([a-z])(\d)/g, "$1 $2").replace(/[^a-z0-9.]+/g, " ").trim().split(" ").filter(w => w.length > 1 || /\d/.test(w));
+    const want = new Set(words(name)), num = (String(name).match(/\d+(?:\.\d+)?/g) || []);
+    const score = x => { const w = new Set(words(`${x.display_name} ${alias[x.product_key] || ""}`)), sw = words(x.strength); return [...w].filter(t => want.has(t) && !/^\d/.test(t)).length * 2 + (num.some(n => sw.includes(n)) ? 1 : 0); };
+    const best = list.map(x => ({ x, s: score(x) })).filter(o => o.s >= 2).sort((a, b) => b.s - a.s || P.cmpProduct(a.x, b.x)).slice(0, 4).map(o => o.x);
+    const row = x => `<button type="button" class="porow" data-mk="${esc(x.id)}">${P.vial(x, 26)}<span><b>${esc(`${x.display_name} ${x.strength || ""}`.trim())}</b><small>${alias[x.product_key] && alias[x.product_key].toLowerCase() !== String(x.display_name).toLowerCase() ? `${esc(alias[x.product_key])} · ` : ""}${esc(x.product_key)}${x.is_active === false ? " · hidden" : ""}</small></span></button>`;
+    const w = sheet(`<div class="osheet"><h2 class="serif">Match to a product</h2><p class="muted small">On ${esc(ln.po_number || "this order")}: <b>${esc(name)}</b> ×${Number(ln.ordered_quantity || 0)}${ln.vendor_name ? ` from ${esc(ln.vendor_name)}` : ""}. Pick which of your products this is. It's stocked as that product when you receive it.</p>
+${best.length ? `<p class="kick" style="margin:10px 0 4px">Closest matches</p><div class="porows">${best.map(row).join("")}</div>` : ""}
+<input class="psearch" type="search" data-mq placeholder="Search your products" aria-label="Search your products"><div class="porows" data-ml>${list.map(row).join("")}</div>
+<p class="muted small">Not there? Add it under Products first, then come back and match it.</p><p class="status" data-ms role="status"></p></div>`, "Match to a product");
+    w.querySelector("[data-mq]").addEventListener("input", e => { const q = e.target.value.trim().toLowerCase(); $$("[data-ml] .porow", w).forEach(b => b.hidden = !!q && !b.textContent.toLowerCase().includes(q)); });
+    w.addEventListener("click", async e => { const b = e.target.closest("[data-mk]"); if (!b) return; const x = list.find(i => i.id === b.dataset.mk); if (!x) return;
+      b.disabled = true; w.querySelector("[data-ms]").textContent = "Saving…";
+      const { error } = await P.client().from("incoming_inventory").update({ product_id: x.id, product_key: x.product_key, updated_at: new Date().toISOString(), audit_note: `Matched to ${x.product_key} in the owner app` }).eq("id", ln.id);
+      if (error) { w.querySelector("[data-ms]").textContent = error.message; b.disabled = false; return; }
+      P.closeSheet(); P.toast(`Matched to ${x.display_name} ${x.strength || ""}`.trim()); done && done(); });
+  }
+
+  window.PSTOps3 = { poSheet, poOpen, reorderPane, vendorsPane, matchLine };
 })();
