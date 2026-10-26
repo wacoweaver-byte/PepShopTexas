@@ -337,37 +337,9 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
   }
 
   /* ---- Insights: one call to pst_insights (owner-only) ---- */
-  async function insights(days) {
-    const el = $("[data-ins]"); el.innerHTML = `<p class="muted small">Loading…</p>`;
-    const to = new Date(), from = new Date(); if (days === 365) from.setMonth(0, 1); else from.setDate(to.getDate() - days + 1);
-    const d = x => x.toISOString().slice(0, 10);
-    const { data, error } = await P.client().rpc("pst_insights", { p_from: d(from), p_to: d(to) });
-    if (error) { el.innerHTML = `<p class="notice err">Insights aren't set up yet (${esc(error.message)}).</p>`; return; }
-    const w = data.web, r = data.retail, st = data.stock, pct = (a, b) => (b ? Math.round(a / b * 100) : 0) + "%";
+  async function insights(days) { // v5.8: marketing dashboard lives in pst-owner-mkt.js
     const names = Object.fromEntries((prods.length ? prods : await P.products().catch(() => [])).map(p => [p.product_key, `${p.display_name} ${p.strength || ""}`.trim()]));
-    const bars = (rows, key, lab) => { const mx = Math.max(1, ...rows.map(x => +x[key] || 0)); return `<div class="ibars">${rows.map(x => `<div title="${esc(x.d)}: ${lab(x)}"><i style="height:${Math.round((+x[key] || 0) / mx * 100)}%"></i></div>`).join("")}</div>`; };
-    const list = (rows, label, val) => rows.length ? `<ol class="ilist">${rows.map(x => `<li><span>${label(x)}</span><b>${val(x)}</b></li>`).join("")}</ol>` : `<p class="muted small">Nothing yet.</p>`;
-    const f = w.funnel, fz = [["Visits", f.sessions], ["Viewed a product", f.viewed_product], ["Added to bag", f.added_to_bag], ["Started checkout", f.started_checkout], ["Placed order", f.placed_order]];
-    el.innerHTML = `<div class="ilive" data-ilive><span class="ldot"></span><div><b data-livenum>…</b><small>on the site right now</small></div><span class="muted small" data-livewhere></span></div><div class="oseg">${[[7, "7 days"], [30, "30 days"], [90, "90 days"], [365, "Year"]].map(([n, l]) => `<button type="button" class="${n === days ? "on" : ""}" data-range="${n}">${l}</button>`).join("")}</div>
-<div class="tiles itiles"><div class="tile"><small>Paid sales</small><b>${money(r.revenue_paid)}</b><span class="muted small">${r.paid_orders} paid · ${money(r.revenue_pending)} waiting</span></div>
-<div class="tile"><small>Orders</small><b>${r.orders}</b><span class="muted small">avg ${money(r.avg_order)} · ${r.cancelled} cancelled</span></div>
-<div class="tile"><small>Customers</small><b>${r.customers}</b><span class="muted small">${r.new_customers} new · ${r.repeat_customers} returning</span></div>
-<div class="tile"><small>Visitors</small><b>${w.visitors}</b><span class="muted small">${w.page_views} page views · ${w.app_sessions} app visits</span></div>
-<div class="tile"><small>Conversion</small><b>${pct(f.placed_order, f.sessions)}</b><span class="muted small">of visits placed an order</span></div></div>
-<div class="igrid">
-<section><h3 class="kick">Sales by day</h3>${bars(r.by_day, "paid", x => money(x.paid))}</section>
-<section><h3 class="kick">Visitors by day</h3>${bars(w.by_day, "visitors", x => x.visitors + " visitors")}</section>
-<section><h3 class="kick">Shopping funnel</h3><div class="funnel">${fz.map(([l, n]) => `<div><span>${l}</span><i style="width:${f.sessions ? Math.max(2, Math.round(n / f.sessions * 100)) : 0}%"></i><b>${n}</b></div>`).join("")}</div></section>
-<section><h3 class="kick">Top products · sales</h3>${list(r.top_products, x => esc(names[x.product_key] || `${x.name} ${x.strength || ""}`), x => `${money(x.revenue)} · ${x.units}`)}</section>
-<section><h3 class="kick">Most viewed</h3>${list(w.top_viewed, x => esc(names[x.product_key] || x.product_key), x => x.n)}</section>
-<section><h3 class="kick">Where visitors come from</h3>${list(w.sources, x => esc(x.src), x => x.n)}</section>
-<section><h3 class="kick">What people search for</h3>${list(w.searches, x => esc(x.term), x => x.n)}</section>
-<section><h3 class="kick">Orders</h3>${list([...Object.entries(r.payment_mix).map(([k, v]) => ({ k, v })), { k: "Local pickup", v: r.pickup }, { k: "Shipped", v: r.shipped }], x => esc(x.k), x => x.v)}
-<p class="muted small">Discounts ${money(r.discounts)} · store credit ${money(r.store_credit)} · ${r.backorder_units} vials backordered · ${r.auto_cancelled} auto-cancelled unpaid</p></section>
-<section><h3 class="kick">Devices</h3>${list(Object.entries(w.devices).map(([k, v]) => ({ k, v })), x => esc(x.k), x => x.v)}</section>
-<section><h3 class="kick">Running low</h3>${list(st.low, x => esc(`${x.display_name} ${x.strength || ""}`), x => `${x.current_inventory} left`)}<p class="muted small">${st.out} products out of stock</p></section>
-</div><p class="muted small" style="margin-top:12px">Site numbers are counted without cookies or third parties. Admin pages and your own owner app aren't counted.</p>`;
-    liveNow(names);
+    return PSTMkt.pane($("[data-ins]"), days, names, liveNow);
   }
 
   /* ---- who's on the site right now: anyone whose browser sent a page or product view in the last 5 minutes ---- */
