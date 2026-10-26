@@ -29,6 +29,23 @@ ${r.status === "review" && !pub ? `<p class="small muted">Open the preview, try 
 ${r.status === "review" && pub ? `<p class="small muted">Waiting for Jimmie to check the preview. You can publish without waiting.</p>` : ""}
 <div class="relbtns">${actions}</div></article>`;
   }
+  // v5.10: everything about a published update (Mike asked to tap a published update and see the details)
+  function details(r) {
+    if (!r) return;
+    const repo = "https://github.com/wacoweaver-byte/PepShopTexas", row = (k, v) => v ? `<div class="reldl"><dt>${k}</dt><dd>${v}</dd></div>` : "";
+    const w = P.sheet(`<div class="osheet"><small class="muted">${r.status === "published" ? `Published ${P.fmtDate(r.publish_at)}` : esc(r.status)}</small><h2 class="serif">v${esc(r.version)} · ${esc(r.title)}</h2>
+<dl class="reldls">${row("What changed", r.notes ? `<p class="relnotes">${esc(r.notes)}</p>` : "")}
+${row("Reports it fixed", (r.tickets || []).length ? r.tickets.map(n => `<a class="linkish" href="owner.html#help">#${n}</a>`).join(", ") : "")}
+${row("Reply sent on those reports", r.fix_note ? esc(r.fix_note) : "")}
+${row("How it was tested", r.tested ? esc(r.tested) : "")}
+${row("Database or server changes", r.db_changes ? esc(r.db_changes) : "")}
+${row("Checked by", r.review_by ? `${esc(who(r.review_by))}${r.review_at ? `, ${P.fmtDate(r.review_at)}` : ""}${r.review_note ? ` · “${esc(r.review_note)}”` : ""}` : "Not checked before publishing")}
+${row("Published by", r.publish_by ? esc(who(r.publish_by)) : "")}
+${row("Code", `${r.pr_number ? `<a class="linkish" href="${repo}/pull/${r.pr_number}" target="_blank" rel="noopener">Change #${r.pr_number}</a>` : ""}${r.commit_sha ? ` · <a class="linkish" href="${repo}/commit/${esc(r.commit_sha)}" target="_blank" rel="noopener">${esc(String(r.commit_sha).slice(0, 7))}</a>` : ""}`)}
+${r.error ? row("Last error", `<span class="badc">${esc(r.error)}</span>`) : ""}</dl>
+<p class="muted small">What's new in the app (More → What's new) has the short version of every update.</p></div>`, { label: `Update v${r.version}` });
+    w.classList.add("full");
+  }
   async function today(el, user) {
     me = user; if (!el) return; const list = await load(); if (!list) { el.innerHTML = ""; return; }
     const open = list.filter(r => OPEN.includes(r.status));
@@ -37,6 +54,7 @@ ${r.status === "review" && pub ? `<p class="small muted">Waiting for Jimmie to c
   }
   function bind(el, again) {
     el.onclick = async e => {
+      const rv = e.target.closest("[data-relview]"); if (rv) { details(rels.find(x => x.id === rv.dataset.relview)); return; }
       const ok = e.target.closest("[data-rok]"); if (ok) { ok.disabled = true; const { error } = await P.client().rpc("pst_review_release", { p_id: ok.dataset.rok, p_ok: true, p_note: null }); P.toast(error ? error.message : isPublisher(me) ? "Marked checked" : "Thanks! Mike will publish it."); again(); return; }
       const no = e.target.closest("[data-rno]"); if (no) { const c = no.closest(".relcard"); c.querySelector(".relbtns").outerHTML = `<div class="hmore"><textarea rows="2" data-rnote placeholder="What's off? Type it, or tap the 🎤 on your keyboard and talk"></textarea><div class="hask"><button type="button" class="btn primary sm" data-rnosend="${no.dataset.rno}">Send</button></div></div>`; c.querySelector("[data-rnote]").focus(); return; }
       const ns = e.target.closest("[data-rnosend]"); if (ns) { const v = ns.closest(".relcard").querySelector("[data-rnote]").value.trim(); if (!v) return; const { error } = await P.client().rpc("pst_review_release", { p_id: ns.dataset.rnosend, p_ok: false, p_note: v }); P.toast(error ? error.message : "Sent. We'll fix it before it goes live."); again(); return; }
@@ -51,7 +69,7 @@ ${r.status === "review" && pub ? `<p class="small muted">Waiting for Jimmie to c
     const open = list.filter(r => OPEN.includes(r.status)), done = list.filter(r => !OPEN.includes(r.status));
     el.innerHTML = `<p class="muted small">How fixes go live: we build it → ${isPublisher(me) ? "Jimmie" : "you"} check a preview and tap Looks good → Mike taps Publish → your app updates itself.</p>
 ${open.length ? open.map(card).join("") : `<p class="muted small">Nothing waiting right now.</p>`}
-${done.length ? `<h2 class="serif osec">Published</h2><div class="rtable">${done.map(r => `<div class="rrow2"><span></span><span><b>v${esc(r.version)} · ${esc(r.title)}</b><small>${r.status === "published" ? `Published ${P.fmtDate(r.publish_at)}${r.publish_by ? ` by ${esc(who(r.publish_by))}` : ""}` : esc(r.status)}${r.review_by ? ` · checked by ${esc(who(r.review_by))}` : ""}</small></span></div>`).join("")}</div>` : ""}`;
+${done.length ? `<h2 class="serif osec">Published</h2><p class="muted small">Tap one to see what changed.</p><div class="rtable">${done.map(r => `<button type="button" class="rrow2 relrow" data-relview="${r.id}"><span></span><span><b>v${esc(r.version)} · ${esc(r.title)}</b><small>${r.status === "published" ? `Published ${P.fmtDate(r.publish_at)}${r.publish_by ? ` by ${esc(who(r.publish_by))}` : ""}` : esc(r.status)}${r.review_by ? ` · checked by ${esc(who(r.review_by))}` : ""}${(r.tickets || []).length ? ` · fixed ${r.tickets.map(n => `#${n}`).join(", ")}` : ""}</small></span>${P.icon("next", 16)}</button>`).join("")}</div>` : ""}`;
     bind(el, () => pane(el, me));
   }
   window.PSTRelease = { today, pane, isPublisher };

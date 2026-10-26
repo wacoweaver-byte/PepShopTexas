@@ -37,11 +37,27 @@
   const URG = [["blocking", "Can't do my work"], ["annoying", "Annoying"], ["idea", "Idea / request"]];
   const SCREEN_NAMES = { today: "Today", orders: "Orders", products: "Products", stock: "Stock & purchase orders", reorder: "Reorder", customers: "Customers", more: "More" };
 
+  let filter = "open";
   async function helpPane(el, opts = {}) {
     el.innerHTML = `<p class="muted small">Loading…</p>`;
-    const { data, error } = await P.client().from("pst_support_tickets").select("id,ticket_no,created_at,created_by_email,screen,what,urgency,status,reply,replied_at,fixed_in,shot_count,confirmed,followups").order("created_at", { ascending: false }).limit(30);
+    const { data, error } = await P.client().from("pst_support_tickets").select("id,ticket_no,created_at,created_by_email,screen,what,expected,urgency,status,reply,replied_at,fixed_in,shot_count,confirmed,followups,view_key").order("created_at", { ascending: false }).limit(30);
     const last = [...SCREENS].reverse().find(s => !["help", "more"].includes(s)) || "today";
-    el.innerHTML = `<p class="muted small">Something not working, or an idea? Tell us here. Screenshots help a lot: take one the normal way (side button + volume up), then add it below. Your phone and app details are attached for you.</p>
+    const me = await P.getUser().catch(() => null), pub = !!window.PSTRelease?.isPublisher?.(me), who = e => /wacoweaver@gmail\.com/i.test(e || "") ? "Jimmie" : /mike\.weaver2013/i.test(e || "") ? "you" : String(e || "").split("@")[0];
+    const OPEN = t => !["fixed", "wont_fix"].includes(t.status) || (t.status === "fixed" && t.confirmed === false);
+    const shotUrl = (t, i) => `${P.CFG.url}/functions/v1/pst-support-shot?t=${t.id}&k=${t.view_key}&i=${i}`;
+    const card = t => { const s = STATUS[t.status] || [t.status, "pend"], k = stepOf(t.status); return `<div class="htk" data-tk="${t.id}"><div class="emhd"><b>#${t.ticket_no} · ${esc(String(t.what).split("\n")[0].slice(0, 70))}${t.what.length > 70 ? "…" : ""}</b><span class="opill ${s[1]}">${esc(s[0])}</span></div>
+<small class="muted">${P.fmtDate(t.created_at)} · ${esc(SCREEN_NAMES[t.screen] || t.screen || "")}${t.shot_count ? ` · ${t.shot_count} screenshot${t.shot_count === 1 ? "" : "s"}` : ""}${t.created_by_email ? ` · ${esc(t.created_by_email)}` : ""}</small>
+${t.status === "wont_fix" ? "" : `<ol class="hsteps">${STEPS.map((x, i) => `<li class="${i < k ? "done" : i === k ? "now" : ""}">${x}</li>`).join("")}</ol>`}
+${t.reply ? `<p class="hreply">${esc(t.reply)}${t.fixed_in ? ` <span class="muted small">(fixed in v${esc(t.fixed_in)})</span>` : ""}</p>` : ""}
+${(t.followups || []).map(f => `<p class="hfollow"><span class="muted small">${P.fmtDate(f.at)} · you added:</span> ${esc(f.text)}</p>`).join("")}
+${t.status === "fixed" && t.confirmed == null ? `<div class="hask"><span>Is it fixed for you?</span><button type="button" class="btn primary sm" data-hok="${t.id}">Yes, fixed</button><button type="button" class="btn ghost sm" data-hno="${t.id}">Still happening</button></div>` : ""}
+${t.status === "fixed" && t.confirmed ? `<p class="small okc">You confirmed it's fixed. Thanks!</p>` : ""}
+${t.status === "need_info" ? `<div class="hmore"><textarea rows="2" data-hinfo="${t.id}" placeholder="Answer here, or tap the 🎤 on your keyboard and talk"></textarea><div class="hask"><button type="button" class="btn primary sm" data-hsend="${t.id}">Send</button></div></div>` : ""}</div>`;};
+    // v5.10: Mike (publisher) sees every report first, with who sent it, the full text and the screenshots; his own form folds away
+    const pubCard = t => card(t).replace('<small class="muted">', `<p class="htwhat">${esc(t.what)}</p>${t.expected ? `<p class="small muted">Expected: ${esc(t.expected)}</p>` : ""}${t.shot_count ? `<div class="htshots">${Array.from({ length: t.shot_count }, (_, i) => `<a href="${shotUrl(t, i)}" target="_blank" rel="noopener"><img src="${shotUrl(t, i)}" alt="Screenshot ${i + 1}" loading="lazy"></a>`).join("")}</div>` : ""}<small class="muted">From ${esc(who(t.created_by_email))} · `).replace(/· you added:/g, `· ${esc(who(t.created_by_email))} added:`);
+    const rows = data || [], open = rows.filter(OPEN), show = filter === "all" ? rows : open;
+    const errHtml = error ? `<p class="notice err">${/relation|does not exist|schema cache/i.test(error.message) ? "Problem reports aren't switched on for the store yet. Mike can turn them on." : esc(error.message)}</p>` : "";
+    const form = `<p class="muted small">Something not working, or an idea? Tell us here. Screenshots help a lot: take one the normal way (side button + volume up), then add it below. Your phone and app details are attached for you.</p>
 <form class="osheet hform" data-hf><label>What happened? <span class="muted small">Type it, or tap the 🎤 on your keyboard and just talk.</span><textarea name="what" rows="4" maxlength="4000" required placeholder="e.g. I searched for Tirz on a new PO and nothing came up"></textarea></label>
 <label>What did you expect? <span class="muted small">(optional)</span><textarea name="expected" rows="2" maxlength="2000"></textarea></label>
 <label>Where?<select name="screen">${[...new Set([last, ...Object.keys(SCREEN_NAMES)])].map(s => `<option value="${esc(s)}"${s === last ? " selected" : ""}>${esc(SCREEN_NAMES[s] || s.replace(/^o=.*/, "An order").replace(/^\w/, c => c.toUpperCase()))}</option>`).join("")}<option value="other">Somewhere else</option></select></label>
@@ -49,21 +65,21 @@
 <p class="kick" style="margin:10px 0 4px">Screenshots <span class="muted small">(up to 4)</span></p><div class="hshots" data-hs></div>
 <label class="btn ghost wide adpick">+ Add screenshots<input type="file" accept="image/*" multiple hidden data-hfile></label>
 <details class="omore"><summary>What gets sent with it</summary><pre class="hdiag" data-hd>…</pre></details>
-<p class="status" data-hst role="status"></p><button class="btn primary wide" type="submit">Send report</button></form>
-${error ? `<p class="notice err">${/relation|does not exist|schema cache/i.test(error.message) ? "Problem reports aren't switched on for the store yet. Mike can turn them on." : esc(error.message)}</p>` : (data || []).length ? `<h2 class="serif osec">Your reports</h2><div class="rtable">${data.map(t => { const s = STATUS[t.status] || [t.status, "pend"], k = stepOf(t.status); return `<div class="htk" data-tk="${t.id}"><div class="emhd"><b>#${t.ticket_no} · ${esc(String(t.what).split("\n")[0].slice(0, 70))}${t.what.length > 70 ? "…" : ""}</b><span class="opill ${s[1]}">${esc(s[0])}</span></div>
-<small class="muted">${P.fmtDate(t.created_at)} · ${esc(SCREEN_NAMES[t.screen] || t.screen || "")}${t.shot_count ? ` · ${t.shot_count} screenshot${t.shot_count === 1 ? "" : "s"}` : ""}${t.created_by_email ? ` · ${esc(t.created_by_email)}` : ""}</small>
-${t.status === "wont_fix" ? "" : `<ol class="hsteps">${STEPS.map((x, i) => `<li class="${i < k ? "done" : i === k ? "now" : ""}">${x}</li>`).join("")}</ol>`}
-${t.reply ? `<p class="hreply">${esc(t.reply)}${t.fixed_in ? ` <span class="muted small">(fixed in v${esc(t.fixed_in)})</span>` : ""}</p>` : ""}
-${(t.followups || []).map(f => `<p class="hfollow"><span class="muted small">${P.fmtDate(f.at)} · you added:</span> ${esc(f.text)}</p>`).join("")}
-${t.status === "fixed" && t.confirmed == null ? `<div class="hask"><span>Is it fixed for you?</span><button type="button" class="btn primary sm" data-hok="${t.id}">Yes, fixed</button><button type="button" class="btn ghost sm" data-hno="${t.id}">Still happening</button></div>` : ""}
-${t.status === "fixed" && t.confirmed ? `<p class="small okc">You confirmed it's fixed. Thanks!</p>` : ""}
-${t.status === "need_info" ? `<div class="hmore"><textarea rows="2" data-hinfo="${t.id}" placeholder="Answer here, or tap the 🎤 on your keyboard and talk"></textarea><div class="hask"><button type="button" class="btn primary sm" data-hsend="${t.id}">Send</button></div></div>` : ""}</div>`;}).join("")}</div>` : ""}`;
+<p class="status" data-hst role="status"></p><button class="btn primary wide" type="submit">Send report</button></form>`;
+    if (pub) { const ot = document.querySelector("[data-otitle]"); if (ot && location.hash === "#help") ot.textContent = "Jimmie's reports"; }
+    el.innerHTML = pub ? `${errHtml}<div class="oseg two" data-hfilt><button type="button" class="${filter === "all" ? "" : "on"}" data-hfv="open">Open <i>${open.length}</i></button><button type="button" class="${filter === "all" ? "on" : ""}" data-hfv="all">All <i>${rows.length}</i></button></div>
+${show.length ? `<div class="rtable">${show.map(pubCard).join("")}</div>` : `<p class="muted small">${filter === "all" ? "No reports yet." : "Nothing open. Every report is handled."}</p>`}
+<p class="muted small">You get a phone alert and an email when Jimmie files or adds to a report. The hourly report watch picks them up and puts fixes in Updates for you to publish.</p>
+<details class="omore" style="margin-top:14px"><summary>Report a problem yourself</summary>${form}</details>`
+      : `${form}
+${errHtml || (rows.length ? `<h2 class="serif osec">Your reports</h2><div class="rtable">${rows.map(card).join("")}</div>` : "")}`;
     const f = el.querySelector("[data-hf]"), shots = [], st = f.querySelector("[data-hst]");
     const drawShots = () => { f.querySelector("[data-hs]").innerHTML = shots.map((d, i) => `<span class="hshot"><img src="${d}" alt="Screenshot ${i + 1}"><button type="button" class="sx" data-hx="${i}" aria-label="Remove screenshot">${P.icon("x", 14)}</button></span>`).join(""); };
     $$ = (sel, r = el) => [...r.querySelectorAll(sel)];
     const row = id => (data || []).find(x => x.id === id), follow = async (id, text, status) => { const t = row(id), fu = [...(t.followups || []), { at: new Date().toISOString(), text }];
       const { error: e } = await P.client().from("pst_support_tickets").update({ followups: fu, status, updated_at: new Date().toISOString(), ...(status === "reopened" ? { confirmed: false, confirmed_at: new Date().toISOString() } : {}) }).eq("id", id); if (e) { P.toast(e.message); return false; } return true; };
     el.onclick = async e => {
+      const fv = e.target.closest("[data-hfv]"); if (fv) { filter = fv.dataset.hfv; window.PSTHelp.helpPane(el); return; }
       const ok = e.target.closest("[data-hok]"); if (ok) { const { error: e2 } = await P.client().from("pst_support_tickets").update({ confirmed: true, confirmed_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", ok.dataset.hok); P.toast(e2 ? e2.message : "Great, marked fixed. Thanks!"); window.PSTHelp.helpPane(el); return; }
       const no = e.target.closest("[data-hno]"); if (no) { const box = no.closest(".hask"); box.outerHTML = `<div class="hmore"><textarea rows="2" data-hre="${no.dataset.hno}" placeholder="What's still happening? Type or tap the 🎤 on your keyboard"></textarea><div class="hask"><button type="button" class="btn primary sm" data-hreopen="${no.dataset.hno}">Send</button></div></div>`;
         el.querySelector(`[data-hre="${no.dataset.hno}"]`).focus(); return; }
@@ -98,7 +114,14 @@ ${t.status === "need_info" ? `<div class="hmore"><textarea rows="2" data-hinfo="
     n.addEventListener("click", e => { if (e.target.closest(".sx")) { e.preventDefault(); n.remove(); } });
     $("#pushnote")?.remove(); document.body.appendChild(n); requestAnimationFrame(() => n.classList.add("in")); setTimeout(() => { if (n.isConnected) { n.classList.remove("in"); setTimeout(() => n.remove(), 300); } }, 9000);
   }
+  // v5.10: for Mike (publisher): a Today card with the open reports, newest first; returns the count for the More badge
+  async function openFor(el) {
+    const { data } = await P.client().from("pst_support_tickets").select("id,ticket_no,created_at,created_by_email,what,status,confirmed").order("created_at", { ascending: false }).limit(50);
+    const open = (data || []).filter(t => !["fixed", "wont_fix"].includes(t.status) || (t.status === "fixed" && t.confirmed === false));
+    if (el) el.innerHTML = open.length ? `<a class="htoday" href="owner.html#help">${P.icon("chat", 18)}<span><b>${open.length} open report${open.length === 1 ? "" : "s"} from Jimmie</b><small>#${open[0].ticket_no}: ${esc(String(open[0].what || "").slice(0, 90))}${open.length > 1 ? ` · +${open.length - 1} more` : ""}</small></span>${P.icon("next", 16)}</a>` : "";
+    return open.length;
+  }
   const markSeen = () => { try { localStorage.setItem(SEEN, new Date().toISOString()); } catch { /* ignore */ } };
   const _hp = helpPane;
-  window.PSTHelp = { helpPane: async (el, o) => { await _hp(el, o); markSeen(); }, diag, notices };
+  window.PSTHelp = { helpPane: async (el, o) => { await _hp(el, o); markSeen(); }, diag, notices, openFor };
 })();
