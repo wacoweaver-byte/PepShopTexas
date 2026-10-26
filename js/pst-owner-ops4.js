@@ -135,12 +135,13 @@
   /* ================= WHAT'S NEW ================= */
   const L = (t, h) => ({ t, h });
   const RELEASES = [
+    { v: "5.1", d: "Oct 26, 2026", title: "Protocols, emails, light mode", items: [L("Green dot on products that have a protocol", "#products"), L("Protocols now set when running-low reminders go out", "#protos"), L("Emails & reminders: everything your shop sends, with previews", "#emails"), L("Purchase orders show up as expenses on their own", "#reports"), L("Light or dark look (bottom of More)", "#more"), L("Fixed: white boxes on iPhone when adding to a purchase order", "#stock")] },
     { v: "5.0", d: "Oct 26, 2026", title: "Reports, email blasts, products and more", items: [L("Reports: sales, profit, products, customers", "#reports"), L("Report writer: build your own lists and save them", "#writer"), L("Email blast: write, preview and send to subscribers", "#blast"), L("Shop pictures (the carousel)", "#ads"), L("Vendor price lists: upload, match, order", "#vprices"), L("Payment methods and their discounts", "#paymethods"), L("Full product details: cost, profit, notes, lab report link", "#products"), L("This What's new page", "#whatsnew")] },
     { v: "4.9", d: "Oct 25, 2026", title: "Purchase orders and promotions", items: [L("New purchase orders with vendor prices filled in", "#stock"), L("Receive some or all of a shipment, add tracking, edit", "#stock"), L("Reorder: what's selling and running out", "#reorder"), L("Vendors", "#vendors"), L("Discount codes", "#discounts"), L("Promotions", "#promos")] },
     { v: "4.8", d: "Oct 25, 2026", title: "Every order tool on your phone", items: [L("Edit items, reduce, add a free item, refund", "#orders"), L("Email tools with preview", "#orders"), L("Find anything from the search button", "#today"), L("Restock and bulk requests", "#requests"), L("Lab reports with QR links", "#coa")] },
     { v: "4.7", d: "Oct 25, 2026", title: "Updates itself", items: [L("Your app and your customers' apps update on their own", ""), L("Live visitor count on Insights", "#insights")] }
   ];
-  const NEXT = ["A week of real orders and purchase orders through the app", "Then the old computer admin pages come out of the menus (kept as a backup)"];
+  const NEXT = ["Running-low reminders by email, not just phone alerts", "An email address for invoices that turns them into expenses", "Then the old computer admin pages come out of the menus (kept as a backup)"];
   const SEEN = "pst-owner-seen";
   const unseen = () => { try { return localStorage.getItem(SEEN) !== RELEASES[0].v; } catch { return false; } };
   function whatsNew(el) {

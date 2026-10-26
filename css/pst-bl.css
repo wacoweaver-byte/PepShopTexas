@@ -610,3 +610,77 @@ label.poline{cursor:pointer}.poline input{width:20px;height:20px;margin:0}.polin
 .pmqr{width:120px;height:120px;object-fit:contain;background:#fff;border-radius:8px}
 .mlinks a+a{margin-left:16px}
 [data-rep] .tile b{font-size:clamp(1.15rem,5.2vw,1.6rem);white-space:nowrap;word-break:normal}
+/* v51: protocol dot */
+.pdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#3fbf6f;box-shadow:0 0 0 3px rgba(63,191,111,.18);margin-right:8px;vertical-align:middle;position:relative;top:-1px;flex:none}
+.pmleg{display:flex;align-items:center;gap:2px;flex-wrap:wrap}.pmleg a{margin-left:6px}.pmproto{margin:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+/* v51: buttons never fall back to the browser's white button look (iPhone Safari) */
+:where(button){background-color:transparent;border:0;color:inherit}
+.thbox{margin-top:12px}.thbox .oseg{margin-bottom:0}
+/* ==== v51 light theme (generated) ==== */
+html[data-theme=light]{color-scheme:light;--bg:#f6f3ec;--bg2:#efeadf;--card:#ffffff;--card2:#f3eee4;--line:#e2dccf;--line2:#cbbd98;--ink:#1b2333;--muted:#5f6675;--dim:#868b95;--gold:#9a7a2f;--gold2:#7a5c18;--ok:#2e8a57;--warn:#a56f00;--bad:#c0473d}
+html[data-theme=light] input,html[data-theme=light] select,html[data-theme=light] textarea{color-scheme:light}
+html[data-theme=light] .sheet,html[data-theme=light] .pocard,html[data-theme=light] .ocard,html[data-theme=light] .mcard,html[data-theme=light] .tile,html[data-theme=light] .rrow2,html[data-theme=light] .shrow,html[data-theme=light] .crow,html[data-theme=light] .dcard{box-shadow:0 1px 2px rgba(27,35,51,.06)}
+html[data-theme=light] .eframe{border-color:var(--line2)}
+html[data-theme=light]{--bg:#f6f3ec;--bg2:#efeadf;--card:#ffffff;--card2:#f3eee4;--line:#e2dccf;--ink:#1b2333;--muted:#5f6675}
+html[data-theme=light] input::placeholder,html[data-theme=light] textarea::placeholder{color:var(--dim,#7a7f88);-webkit-text-fill-color:var(--dim,#7a7f88)}
+html[data-theme=light] .annc{color:#3b4252}
+@media(min-width:900px){html[data-theme=light] .nav{color:#3b4252}}
+html[data-theme=light] .tabbar{background:rgba(246,243,236,.96)}
+html[data-theme=light] .tabbar a{color:#6b6f78}
+html[data-theme=light] .fcols nav{color:#3b4252}
+html[data-theme=light] .stk-out{color:#6b6f78}
+html[data-theme=light] .stk-inc{color:#2a5db0}
+html[data-theme=light] .hero{background:radial-gradient(ellipse at 50% 28%,#1a2742,#f6f3ec 66%)}
+html[data-theme=light] .marq div{color:#3b4252}
+html[data-theme=light] .edimg{background:radial-gradient(circle at 50% 60%,#ebe5d8,#f1ece2 70%)}
+html[data-theme=light] .focus a{background:linear-gradient(120deg,#fbf7ee,#f3eee4)}
+html[data-theme=light] .rewards{background:linear-gradient(135deg,#fbf9f4,#f1ece2)}
+html[data-theme=light] .lcard:hover{background:#f3eee4}
+html[data-theme=light] .toggle{color:#3b4252}
+html[data-theme=light] .toggle input{background:#d6cfc0}
+html[data-theme=light] .skel{background:linear-gradient(90deg,#ffffff,#ebe5d8,#ffffff)}
+html[data-theme=light] .spot{background:radial-gradient(circle at 50% 45%,#22304e,#f6f3ec 64%)}
+html[data-theme=light] .acc .in{color:#3b4252}
+html[data-theme=light] .buybar{background:rgba(246,243,236,.96)}
+html[data-theme=light] .cline .note{color:#2a5db0}
+html[data-theme=light] .remind button{color:#3b4252}
+html[data-theme=light] .signin{background:linear-gradient(135deg,#fbf9f4,#f1ece2)}
+html[data-theme=light] .addr{color:#3b4252}
+html[data-theme=light] .paycard ol{color:#3b4252}
+html[data-theme=light] .alertcta{background:linear-gradient(135deg,#fbf7ee,#f3eee4)}
+html[data-theme=light] .opill.ship{color:#2a5db0}
+html[data-theme=light] .tierbar{background:#e2dccf}
+html[data-theme=light] .form .chk{color:#3b4252}
+html[data-theme=light] .prose p,html[data-theme=light] .prose li{color:#3b4252}
+html[data-theme=light] .faq .in{color:#3b4252}
+html[data-theme=light] #gate{background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.97),rgba(255,255,255,.98))}
+html[data-theme=light] #toast{background:#1b2333}
+html[data-theme=light] .obanner{background:linear-gradient(135deg,#fbf9f4,#f1ece2)}
+html[data-theme=light] .myrow.due{background:linear-gradient(135deg,#fbf7ee,#ffffff)}
+html[data-theme=light] .rl.ship{color:#2a5db0}
+html[data-theme=light] .mgrid a{color:#3b4252}
+html[data-theme=light] .mfcard{background:radial-gradient(circle at 20% 50%,#ebe5d8,#f1ece2 70%)}
+html[data-theme=light] .drawer details a{color:#3b4252}
+html[data-theme=light] .shipbar{background:#e2dccf}
+html[data-theme=light] .ship span{color:#3b4252}
+html[data-theme=light] .crumbs span[aria-current]{color:#3b4252}
+html[data-theme=light] .news{background:linear-gradient(135deg,#fbf9f4,#f1ece2)}
+html[data-theme=light] .pays span{color:#3b4252}
+html[data-theme=light] .pmlive i{background:#c9c2b2}
+html[data-theme=light] .pmlive[aria-checked=true]{color:#2e8a57}
+html[data-theme=light] .featcard{background:linear-gradient(180deg,#f4efe6,#f3eee5)}
+html[data-theme=light] .featcard .fimg{background:radial-gradient(circle at 50% 45%,#24345a,#f6f3ec 70%)}
+html[data-theme=light] .ads.featrow a.featcard{background:linear-gradient(180deg,#f4efe6,#f3eee5)}
+html[data-theme=light] .iphone{background:linear-gradient(145deg,#d6cfc0,#0b0f18)}
+html[data-theme=light] .iscreen{background:radial-gradient(120% 70% at 30% 0%,#1f2c4a 0%,#efeadf 55%,#090d16 100%)}
+html[data-theme=light] .iclock{color:#1b2333}
+html[data-theme=light] .iicon figcaption{color:#1b2333}
+html[data-theme=light] .nsw i{background:#d6cfc0}
+html[data-theme=light] .nsw i::after{background:#1b2333}
+html[data-theme=light] .pcins{color:#3b4252}
+html[data-theme=light] .chip span,html[data-theme=light] button.chip{color:#3b4252}
+html[data-theme=light] .ocard .oh .or2 .opill.ship{color:#2a5db0}
+html[data-theme=light] .otabbar{background:#f6f3ec}
+html[data-theme=light] .rc.realized{color:#2e8a57}
+html[data-theme=light] .okc{color:#2e8a57}
+html[data-theme=light] .badc{color:#c0473d}

@@ -290,7 +290,7 @@
   }
   /* reorder reminders: {key: {d: days (0 = off), a: auto}} — auto learns from the customer's own reorder rhythm */
   function reminders() { const r = store.get(CFG.remindKey, {}), o = {}; for (const k in r) o[k] = typeof r[k] === "number" ? { d: r[k], a: false } : r[k]; return o; }
-  function setReminder(key, days, auto = false) { const r = reminders(); if (days === null) delete r[key]; else r[key] = { d: Number(days) || 0, a: !!auto && Number(days) > 0 }; store.set(CFG.remindKey, r); }
+  function setReminder(key, days, auto = false, perVial = false) { const r = reminders(); if (days === null) delete r[key]; else r[key] = { d: Number(days) || 0, a: !!auto && Number(days) > 0, pv: !!auto && !!perVial }; store.set(CFG.remindKey, r); }
 
   /* run-out estimates (no doses): own history -> chosen reminder -> learned product cycle -> Jimmie's default -> 28 days */
   let cyclesP = null;
@@ -299,9 +299,10 @@
     return cyclesP;
   }
   async function suggestDays(p) {
+    // v5.1: Jimmie's protocol (saved as days one vial lasts) sets the timing first; learned reorder rhythm is the fallback
+    if (Number(p.reorder_days_default) > 0) return { d: Number(p.reorder_days_default), basis: "default", perVial: true };
     const c = (await cycles())[p.product_key];
     if (c && Number(c.typical_days) > 0) return { d: Math.round(Number(c.typical_days)), basis: "typical", n: c.samples };
-    if (Number(p.reorder_days_default) > 0) return { d: Number(p.reorder_days_default), basis: "default" };
     return { d: 28, basis: "store" };
   }
   const DEAD = ["rejected", "cancelled", "canceled", "refunded", "failed"];
@@ -516,8 +517,8 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     const disc = round(codeDisc + payDisc);
     const total = round(sub + ship - disc);
     const short = priced.filter(i => i.q > qty(i.p)).map(i => `${i.p.display_name} ${i.p.strength || ""}`.trim() + `: ${qty(i.p)} ready now, ${i.q - qty(i.p)} on backorder`);
-    const rd = k => (rem[k] && rem[k].d > 0 ? rem[k] : null);
-    const remindLines = priced.filter(i => rd(i.p.product_key)).map(i => `${i.p.display_name} ${i.p.strength || ""}`.trim() + ` ${rd(i.p.product_key).a ? "auto, ~" : "in "}${Math.round(rd(i.p.product_key).d / 7)} wks`);
+    const rd = k => (rem[k] && rem[k].d > 0 ? rem[k] : null), rdays = i => { const r = rd(i.p.product_key); return r ? (r.a && r.pv ? Math.min(365, r.d * Math.max(1, i.q)) : r.d) : null; };
+    const remindLines = priced.filter(i => rd(i.p.product_key)).map(i => `${i.p.display_name} ${i.p.strength || ""}`.trim() + ` ${rd(i.p.product_key).a ? "auto, ~" : "in "}${Math.round(rdays(i) / 7)} wks`);
     const l1 = profile?.shipping_address_line1 || profile?.address1 || null, l2 = profile?.shipping_address_line2 || profile?.address2 || null;
     const city = profile?.shipping_city || profile?.city || null, st = profile?.shipping_state || profile?.state || null, zip = profile?.shipping_zip || profile?.zip || null;
     const addr = profile?.shipping_address || profile?.address || [l1, l2, city, st, zip].filter(Boolean).join(", ") || null;
@@ -535,7 +536,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     const items = priced.map(i => ({
       order_id: order.id, user_id: user.id, customer_id: user.id, product_id: i.p.id, product_key: i.p.product_key, product_name: i.p.display_name,
       product_strength: i.p.strength || "", product_category: i.p.category || "", quantity: i.q, unit_price: i.u, line_total: i.t,
-      reorder_reminder_days: rd(i.p.product_key)?.d || null, reorder_reminder_auto: !!rd(i.p.product_key)?.a, created_at: now, updated_at: now
+      reorder_reminder_days: rdays(i) || null, reorder_reminder_auto: !!rd(i.p.product_key)?.a, created_at: now, updated_at: now
     }));
     await insertMany("order_items", items);
     for (const c of rewardChoices) {

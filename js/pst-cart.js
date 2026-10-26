@@ -9,7 +9,7 @@
   /* new bag items default to an Auto reminder seeded from the product's typical reorder time */
   async function primeReminders() {
     const rem = P.reminders();
-    for (const r of rows) { if (!r.product) continue; suggest[r.key] = await P.suggestDays(r.product); if (!(r.key in rem)) P.setReminder(r.key, suggest[r.key].d, true); }
+    for (const r of rows) { if (!r.product) continue; suggest[r.key] = await P.suggestDays(r.product); if (!(r.key in rem)) P.setReminder(r.key, suggest[r.key].d, true, !!suggest[r.key].perVial); }
   }
   let bo = false, rows = [], user = null, profile = null, methods = [], credit = 0, frees = [], choices = [], busy = false;
   const host = () => $("[data-cart]");
@@ -27,7 +27,7 @@
   const blocked = () => rows.some(r => !r.product || P.qty(r.product) <= 0 || (!bo && P.qty(r.product) < r.quantity));
 
   function lineHtml(r) {
-    const p = r.product, rem = P.reminders()[r.key] || { d: 0, a: false }, sg = suggest[r.key] || { d: 28 };
+    const p = r.product, rem = P.reminders()[r.key] || { d: 0, a: false }, sg = suggest[r.key] || { d: 28 }, autoD = sg.perVial ? Math.min(365, sg.d * Math.max(1, r.quantity)) : sg.d;
     if (!p) return `<div class="cline"><div class="ci"></div><div><h3>Item no longer listed</h3><p class="warn">This product isn't in the catalog anymore.</p><div class="row"><button class="rm" type="button" data-rm="${esc(r.key)}">Remove</button></div></div><span></span></div>`;
     const n = P.qty(p), t = P.titleParts(p);
     const warn = n <= 0 ? `<p class="warn">Sold out${p.incoming_quantity ? " · restock on the way" : ""}. Remove it to check out.</p>` : r.quantity > n ? (bo ? `<p class="warn bo">${n} ready now · ${r.quantity - n} on backorder. Backordered vials go out as soon as they arrive.</p>` : `<p class="warn">Only ${n} available. Lower the quantity to check out.</p>`) : "";
@@ -36,7 +36,7 @@
 <div class="row"><div class="qty sm"><button type="button" data-cq="${esc(r.key)}" data-d="-1" aria-label="Fewer">−</button><span>${r.quantity}</span><button type="button" data-cq="${esc(r.key)}" data-d="1" aria-label="More"${!bo && r.quantity >= n ? " disabled" : ""}>+</button></div><button class="rm" type="button" data-rm="${esc(r.key)}">Remove</button></div></div>
 <b class="lt">${money(P.unitPrice(p) * r.quantity)}</b>
 <div class="remind"><span>${P.icon("bell", 14)} Running-low reminder</span><div class="chips" role="group" aria-label="Reorder reminder for ${esc(p.display_name)}">
-<button type="button" class="auto" data-rem="${esc(r.key)}" data-days="${sg.d}" data-auto="1" aria-pressed="${rem.a}" title="Starts at ${Math.round(sg.d / 7)} weeks${sg.basis === "typical" ? " (typical for this item)" : ""}, then learns from your reorders">Auto · ~${Math.round(sg.d / 7)} wks</button>
+<button type="button" class="auto" data-rem="${esc(r.key)}" data-days="${sg.d}" data-auto="1"${sg.perVial ? ' data-pv="1"' : ""} aria-pressed="${rem.a}" title="Starts at ${Math.max(1, Math.round(autoD / 7))} week${Math.max(1, Math.round(autoD / 7)) === 1 ? "" : "s"}${sg.perVial ? " (how long this many vials usually last)" : sg.basis === "typical" ? " (typical for this item)" : ""}, then learns from your reorders">Auto · ~${Math.max(1, Math.round(autoD / 7))} wks</button>
 ${P.REMIND.slice(1).map(([d, l]) => `<button type="button" data-rem="${esc(r.key)}" data-days="${d}" aria-pressed="${!rem.a && rem.d === d}">${l}</button>`).join("")}<button type="button" data-rem="${esc(r.key)}" data-days="0" aria-pressed="${!rem.d}">Off</button></div></div></div>`;
   }
 
@@ -149,7 +149,7 @@ ${r.backorder?.length ? `<p class="holdnote">${P.icon("box", 15)} ${r.backorder.
     const t = e.target;
     const cq = t.closest("[data-cq]"); if (cq) { const r = rows.find(x => x.key === cq.dataset.cq); if (r) { r.quantity = Math.max(0, r.quantity + Number(cq.dataset.d)); P.setQty(r.key, r.quantity); rows = rows.filter(x => x.quantity > 0); P.refreshCount(); refreshChoices(); } return; }
     const rm = t.closest("[data-rm]"); if (rm) { P.setQty(rm.dataset.rm, 0); P.setReminder(rm.dataset.rm, 0); rows = rows.filter(x => x.key !== rm.dataset.rm); refreshChoices(); return; }
-    const rem = t.closest("[data-rem]"); if (rem) { P.setReminder(rem.dataset.rem, Number(rem.dataset.days), !!rem.dataset.auto); rem.parentElement.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b === rem)); return; }
+    const rem = t.closest("[data-rem]"); if (rem) { P.setReminder(rem.dataset.rem, Number(rem.dataset.days), !!rem.dataset.auto, !!rem.dataset.pv); rem.parentElement.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b === rem)); return; }
     const am = t.closest("[data-addmore]"); if (am) { P.addToCart(am.dataset.addmore, 1); rows = await P.cartRows(); await primeReminders(); refreshChoices(); P.toast("Added to this order"); return; }
     const sd = t.closest("[data-sent]"); if (sd) { sd.disabled = true; sd.textContent = "Sending…"; const ok = await P.paidNotice(sd.dataset.sent); const m = P.store.get("pst_paid_sent", {}); m[sd.dataset.sent] = 1; P.store.set("pst_paid_sent", m); sd.textContent = "✓ Payment sent"; P.toast(ok ? "Thanks! Jimmie's been notified." : "Thanks! We'll match it to your order."); return; }
     const a = t.closest("[data-act3]"); if (a) {

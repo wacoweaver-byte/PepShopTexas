@@ -792,5 +792,5 @@ ${r.requirements ? `<p class="small"><b>Requirements:</b> ${esc(r.requirements)}
     };
   }
 
-  window.PSTOps = { init: c => { ctx = c; }, openOrder, stage, venmoMatches, customersPane, filterCustomers, openCustomer, creditFlow, addCustomerFlow, newOrderFlow, pickCustomer, lookup, requestsPane, coaPane, stockPane, receivePO, countFlow, confirmSheet, custName, isPickup };
+  window.PSTOps = { init: c => { ctx = c; }, openOrder, stage, venmoMatches, customersPane, filterCustomers, openCustomer, creditFlow, addCustomerFlow, newOrderFlow, pickCustomer, lookup, requestsPane, coaPane, stockPane, receivePO, countFlow, confirmSheet, LABEL, emailPreview: async (o, type) => { if (!ctx.items[o.id]) { const r = await P.client().from("order_items").select("*").eq("order_id", o.id); ctx.items[o.id] = r.data || []; } const j = await callEmail({ ...(await payload(o, type, {})), preview_only: true }); return j.preview || {}; }, custName, isPickup };
 })();

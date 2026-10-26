@@ -22,10 +22,10 @@
   /* ---- v38 app shell: bottom tabs like PepKeep (Today · Orders · Products · Customers · More) ---- */
   let view = "today", oq = "", pmLoaded = false, stockRows = [];
   const NAV = [["today", "home", "Today"], ["orders", "box", "Orders"], ["products", "flask", "Products"], ["customers", "users", "Customers"], ["more", "dots", "More"]];
-  const TITLES = { today: "Today", orders: "Orders", products: "Products", customers: "Customers", more: "More", insights: "Insights", protos: "My protocols", times: "Write-ups", requests: "Requests", coa: "Lab reports", vendors: "Vendors", discounts: "Discount codes", promos: "Promotions", blast: "Email blast", ads: "Shop pictures", whatsnew: "What's new", vprices: "Vendor price lists", reports: "Reports", writer: "Report writer", paymethods: "Payment methods" };
+  const TITLES = { today: "Today", orders: "Orders", products: "Products", customers: "Customers", more: "More", insights: "Insights", protos: "My protocols", times: "Write-ups", requests: "Requests", coa: "Lab reports", vendors: "Vendors", discounts: "Discount codes", promos: "Promotions", blast: "Email blast", ads: "Shop pictures", whatsnew: "What's new", vprices: "Vendor price lists", reports: "Reports", writer: "Report writer", paymethods: "Payment methods", emails: "Emails & reminders" };
   const MORE = [["reports", "chart", "Reports", "Sales, profit, expenses, stock moves"], ["writer", "doc", "Report writer", "Build any list, save it, download it"], ["insights", "chart", "Insights", "Customers and site traffic"], ["requests", "bell", "Requests", "Restock and bulk requests"], ["coa", "doc", "Lab reports", "Upload certificates, copy QR links"], ["stock", "box", "Stock & purchase orders", "Order from vendors, receive, reorder review"], ["vendors", "truck", "Vendors", "Who you buy from and lead times"], ["vprices", "doc", "Vendor price lists", "Upload a vendor's prices, match them"],
     ["discounts", "tag", "Discount codes", "Codes, limits, who can use them"], ["promos", "star", "Promotions", "Banners, free items, spend rewards"],
-    ["blast", "chat", "Email blast", "Write and send to subscribers"], ["paymethods", "lock", "Payment methods", "What shoppers can pay with, discounts"], ["ads", "shop", "Shop pictures", "The carousel on the shop"],
+    ["emails", "bell", "Emails & reminders", "Everything your shop sends, and when"], ["blast", "chat", "Email blast", "Write and send to subscribers"], ["paymethods", "lock", "Payment methods", "What shoppers can pay with, discounts"], ["ads", "shop", "Shop pictures", "The carousel on the shop"],
     ["protos", "lock", "My protocols", "Private reference, only you see it"], ["times", "doc", "Write-ups & reorder times", "Product pages and running-low reminders"]];
   const mcard = (k, i, t, s, href) => `<${href ? `a href="${href}"` : `button type="button" data-more="${k}"`} class="mcard"><span class="mic">${P.icon(i, 20)}</span><span><b>${t}</b><small>${s}</small></span>${P.icon("next", 18)}</${href ? "a" : "button"}>`;
 
@@ -45,9 +45,10 @@
 <div data-pm><p class="muted small">Loading…</p></div><div data-reorder hidden></div><div data-stock hidden><div class="pmtop"><p class="muted small" style="margin:0;flex:1">Purchase orders and the shelf</p><button class="btn primary sm" type="button" data-newpo>+ New PO</button></div><div data-po></div><h2 class="serif osec">On the shelf</h2><p class="muted small" data-ssum></p><div class="schips" role="tablist" data-schips></div><input class="psearch" type="search" data-ssearch placeholder="Search products" aria-label="Search stock"><div data-slist><p class="muted small">Loading…</p></div><p class="muted small">Tap a product to correct its count.</p></div></section>
 <section class="opane" data-pane="customers" hidden><div data-custs></div></section>
 <section class="opane" data-pane="more" hidden><div data-morehome><button type="button" class="wnbar" data-more="whatsnew">${P.icon("star", 18)}<span><b>What's new</b><small>v${PSTOps4.RELEASES[0].v} · ${PSTOps4.RELEASES[0].title}</small></span><i data-wndot${PSTOps4.unseen() ? "" : " hidden"}>New</i></button><div class="mcards">${MORE.map(m => mcard(...m)).join("")}${mcard("", "gear", "Full admin", "Everything else, on the computer", "admin.html")}${mcard("", "shop", "View the shop", "See it the way customers do", "index.html")}</div>
+<div class="nalbox thbox"><h2 class="serif">Look</h2><div class="oseg three" role="radiogroup" aria-label="App look" data-theme-pick>${[["dark", "Dark"], ["light", "Light"], ["auto", "Match phone"]].map(([k, l]) => `<button type="button" role="radio" data-th="${k}" aria-checked="${themePref() === k}" class="${themePref() === k ? "on" : ""}">${l}</button>`).join("")}</div></div>
 <p class="mlinks"><a href="install.html">Install guide</a><button type="button" class="linkish" data-signout>Sign out</button></p>
 <div class="nalbox" id="alerts"><h2 class="serif">Alerts on this device</h2><div data-nal><p class="muted small">Loading…</p></div></div></div>
-<div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="requests" data-reqs hidden></div><div data-sub="coa" data-coa hidden></div><div data-sub="vendors" data-vens hidden></div><div data-sub="blast" data-blast hidden></div><div data-sub="ads" data-ads hidden></div><div data-sub="whatsnew" data-wn hidden></div><div data-sub="vprices" data-vpr hidden></div><div data-sub="reports" data-rep hidden></div><div data-sub="writer" data-wri hidden></div><div data-sub="paymethods" data-pay hidden></div><div data-sub="discounts" data-discs hidden></div><div data-sub="promos" data-promos hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
+<div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="requests" data-reqs hidden></div><div data-sub="coa" data-coa hidden></div><div data-sub="vendors" data-vens hidden></div><div data-sub="blast" data-blast hidden></div><div data-sub="ads" data-ads hidden></div><div data-sub="whatsnew" data-wn hidden></div><div data-sub="vprices" data-vpr hidden></div><div data-sub="reports" data-rep hidden></div><div data-sub="writer" data-wri hidden></div><div data-sub="paymethods" data-pay hidden></div><div data-sub="emails" data-ems2 hidden></div><div data-sub="discounts" data-discs hidden></div><div data-sub="promos" data-promos hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
 <nav class="otabbar" aria-label="Owner app">${NAV.map(([k, i, l]) => `<button type="button" data-go="${k}" aria-current="${k === "today" ? "page" : "false"}">${P.icon(i, 22)}<span>${l}</span><i data-badge="${k}" hidden></i></button>`).join("")}</nav>`;
     setTimeout(wnDot, 0);
     PSTOps.init({ me, get orders() { return orders; }, get items() { return items; }, reload: load, lineExtra: (o, i) => lineDays(o, i) });
@@ -68,7 +69,7 @@
     if (h === "stock") { go("products"); sub("stock"); return; }
     if (h === "reorder") { go("products"); sub("reorder"); return; }
     if (h === "products") { go("products"); sub("catalog"); return; }
-    if (["insights", "protos", "times", "requests", "coa", "vendors", "discounts", "promos", "blast", "ads", "whatsnew", "vprices", "reports", "writer", "paymethods"].includes(h)) { go("more"); moreSub(h); return; }
+    if (["insights", "protos", "times", "requests", "coa", "vendors", "discounts", "promos", "blast", "ads", "whatsnew", "vprices", "reports", "writer", "paymethods", "emails"].includes(h)) { go("more"); moreSub(h); return; }
     go(NAV.some(n => n[0] === h) ? h : "today");
   }
   function go(v) {
@@ -80,6 +81,12 @@
     if (v === "more") moreHome();
     window.scrollTo(0, 0);
   }
+  const themePref = () => { try { return localStorage.getItem("pst-owner-theme") || "dark"; } catch { return "dark"; } };
+  function applyTheme(t) { try { localStorage.setItem("pst-owner-theme", t); } catch { /* private mode */ }
+    const l = t === "light" || (t === "auto" && matchMedia("(prefers-color-scheme: light)").matches); document.documentElement.setAttribute("data-theme", l ? "light" : "dark");
+    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = l ? "#f6f3ec" : "#0a101c";
+    $$("[data-th]").forEach(b => { const on = b.dataset.th === t; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); }); }
+  try { matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => { if (themePref() === "auto") applyTheme("auto"); }); } catch { /* old Safari */ }
   function wnDot() { const u = PSTOps4.unseen(); $$("[data-wndot]").forEach(x => x.hidden = !u); const b = $('[data-badge="more"]'); if (b) { b.hidden = !u; b.textContent = "•"; b.classList.toggle("dot", u); } }
   function moreHome() { $("[data-morehome]").hidden = false; $("[data-moresub]").hidden = true; $("[data-otitle]").textContent = "More"; P.notifyPanel($("[data-nal]"), "owner"); }
   function moreSub(k) {
@@ -89,7 +96,7 @@
     if (k === "insights") insights(30); if (k === "protos") protoPage(); if (k === "times") times();
     if (k === "requests") PSTOps.requestsPane($("[data-reqs]")); if (k === "coa") PSTOps.coaPane($("[data-coa]"));
     if (k === "vendors") PSTOps3.vendorsPane($("[data-vens]")); if (k === "discounts") PSTOps2.discountsPane($("[data-discs]")); if (k === "promos") PSTOps2.promotionsPane($("[data-promos]"));
-    if (k === "blast") PSTOps4.blastPane($("[data-blast]")); if (k === "ads") PSTOps4.adsPane($("[data-ads]")); if (k === "vprices") PSTOps5.vendorPricesPane($("[data-vpr]")); if (k === "reports") PSTOps6.reportsPane($("[data-rep]")); if (k === "writer") PSTOps7.writerPane($("[data-wri]")); if (k === "paymethods") PSTOps6.payMethodsPane($("[data-pay]")); if (k === "whatsnew") { PSTOps4.whatsNew($("[data-wn]")); wnDot(); }
+    if (k === "blast") PSTOps4.blastPane($("[data-blast]")); if (k === "ads") PSTOps4.adsPane($("[data-ads]")); if (k === "vprices") PSTOps5.vendorPricesPane($("[data-vpr]")); if (k === "reports") PSTOps6.reportsPane($("[data-rep]")); if (k === "writer") PSTOps7.writerPane($("[data-wri]")); if (k === "paymethods") PSTOps6.payMethodsPane($("[data-pay]")); if (k === "emails") PSTOps8.emailsPane($("[data-ems2]")); if (k === "whatsnew") { PSTOps4.whatsNew($("[data-wn]")); wnDot(); }
     window.scrollTo(0, 0);
   }
   function sub(k) {
@@ -191,12 +198,12 @@
   }
   /* Reorder times: what customers actually do, plus Jimmie's starting guess for new products */
   async function times() {
-    const el = $("[data-times]"); [cyc, prods] = await Promise.all([P.cycles(), P.products().catch(() => [])]);
+    const el = $("[data-times]"); [cyc, prods] = await Promise.all([P.cycles(), P.products().catch(() => []), loadProtos().catch(() => {})]);
     const gs = P.groups(prods);
-    el.innerHTML = `<p class="muted small">Write-ups show on each product page under Overview (plain facts work best; no health claims). Reorder days are the starting guess for running-low reminders until real reorders teach it.</p>
-<div class="times">${gs.map(g => `<details class="pgrp"><summary><b>${esc(g[0].display_name)}</b><span class="muted small">${g.map(p => esc(p.strength || "")).join(" · ")}${g.some(p => p.research_summary) ? " · ✓ write-up" : ""}</span></summary>
+    el.innerHTML = `<p class="muted small">Write-ups show on each product page under Overview (plain facts work best; no health claims). Reminder days = how long one vial lasts. Products with a protocol (green dot) are set from it automatically; for the rest, type the days here.</p>
+<div class="times">${gs.map(g => `<details class="pgrp"><summary><b>${protoDot(g[0])}${esc(g[0].display_name)}</b><span class="muted small">${g.map(p => esc(p.strength || "")).join(" · ")}${g.some(p => p.research_summary) ? " · ✓ write-up" : ""}</span></summary>
 <label class="tin" style="display:block;margin:8px 0"><span class="small muted">Product write-up</span><textarea data-summary="${esc(g[0].display_name)}" rows="4" maxlength="2000" placeholder="e.g. What it is, form, what's in a blend, storage. Research use only.">${esc(g.find(p => p.research_summary)?.research_summary || "")}</textarea></label>
-${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>${esc(p.strength || "")}</b><span class="muted small" style="display:block">${c ? `Learned: ~${Math.round(c.typical_days)} days (${c.samples} reorders)` : "Learned: not enough reorders yet"}</span></div><label class="tin"><input type="number" min="1" max="365" inputmode="numeric" placeholder="28" value="${Number(p.reorder_days_default) || ""}" data-default="${esc(p.product_key)}" aria-label="Typical days for ${esc(p.display_name)} ${esc(p.strength || "")}"><span>days</span></label></div>`; }).join("")}</details>`).join("")}</div>`;
+${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>${esc(p.strength || "")}</b><span class="muted small" style="display:block">${c ? `Learned: ~${Math.round(c.typical_days)} days (${c.samples} reorders)` : "Learned: not enough reorders yet"}</span></div><label class="tin"><input type="number" min="1" max="365" inputmode="numeric" placeholder="28" value="${Number(p.reorder_days_default) || ""}" data-default="${esc(p.product_key)}"${protoOn(p) ? ' title="Set by your protocol" readonly' : ""} aria-label="Typical days for ${esc(p.display_name)} ${esc(p.strength || "")}"><span>days</span></label></div>`; }).join("")}</details>`).join("")}</div>`;
   }
 
   /* ---- Products: add, edit and put live from the phone (same tables and fields as admin → Products) ---- */
@@ -205,6 +212,7 @@ ${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>$
   async function pmLoad() {
     const [c, i, r] = await Promise.all([P.client().from("product_catalog").select("*").order("display_name"), P.client().from("product_inventory").select("product_key,current_inventory,cost_per_unit,is_active"),
       P.client().from("product_availability_requests").select("product_key,customer_email,requested_quantity").eq("status", "pending").limit(2000)]);
+    await loadProtos().catch(() => {});
     if (c.error) throw c.error; pmRows = c.data || []; pmInv = Object.fromEntries((i.data || []).map(x => [x.product_key, x]));
     pmAsk = {}; (r.data || []).forEach(x => { const a = pmAsk[x.product_key] ||= { people: new Set(), vials: 0 }; a.people.add(String(x.customer_email || "").toLowerCase()); a.vials += Number(x.requested_quantity || 0); });
   }
@@ -212,8 +220,9 @@ ${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>$
     const el = $("[data-pm]");
     try { await pmLoad(); } catch (err) { el.innerHTML = `<p class="notice err">${esc(err.message)}</p>`; return; }
     el.innerHTML = `<div class="pmtop"><input class="psearch" type="search" data-pmsearch placeholder="Search products" aria-label="Search products"><button class="btn primary sm" type="button" data-pmnew>+ New product</button></div><p class="muted small pmbake"><button class="btn ghost sm" type="button" data-pmbake>Update bottle pictures</button> <span data-pmbakest>Makes finished bottle pictures so the shop loads faster. Run it after big changes.</span></p>
+<p class="muted small pmleg"><i class="pdot"></i> Protocol entered: anyone who buys it gets their running-low reminder on that timing. <a class="linkish" href="owner.html#protos">Protocols</a></p>
 <div class="pmlist">${pmRows.map(p => { const on = p.is_active !== false, n = Number(pmInv[p.product_key]?.current_inventory ?? p.current_inventory ?? 0);
-  return `<div class="pmrow" data-pmname="${esc(`${p.display_name} ${p.strength || ""} ${p.product_key}`.toLowerCase())}"><button type="button" class="pmmain" data-pmedit="${esc(p.product_key)}">${P.vial(p, 34)}<span><b>${esc(p.display_name)} ${esc(p.strength || "")}</b><small>${money(P.unitPrice(p))} · ${n} on hand${p.coming_soon && n <= 0 ? " · Coming soon" : ""} · ${esc(P.vialColorName(p))}</small>${pmAsk[p.product_key] ? `<em class="pmask">${pmAsk[p.product_key].people.size} ${pmAsk[p.product_key].people.size === 1 ? "person" : "people"} asked · ${pmAsk[p.product_key].vials} vial${pmAsk[p.product_key].vials === 1 ? "" : "s"}</em>` : ""}</span></button>
+  return `<div class="pmrow" data-pmname="${esc(`${p.display_name} ${p.strength || ""} ${p.product_key}`.toLowerCase())}"><button type="button" class="pmmain" data-pmedit="${esc(p.product_key)}">${P.vial(p, 34)}<span><b>${protoDot(p)}${esc(p.display_name)} ${esc(p.strength || "")}</b><small>${money(P.unitPrice(p))} · ${n} on hand${p.coming_soon && n <= 0 ? " · Coming soon" : ""} · ${esc(P.vialColorName(p))}</small>${pmAsk[p.product_key] ? `<em class="pmask">${pmAsk[p.product_key].people.size} ${pmAsk[p.product_key].people.size === 1 ? "person" : "people"} asked · ${pmAsk[p.product_key].vials} vial${pmAsk[p.product_key].vials === 1 ? "" : "s"}</em>` : ""}</span></button>
 <button type="button" class="pmlive" role="switch" aria-checked="${on}" data-pmlive="${esc(p.product_key)}" aria-label="Live on site"><i></i><span>${on ? "Live" : "Hidden"}</span></button></div>`; }).join("")}</div>`;
   }
   async function pmBakeAll(btn) {
@@ -250,6 +259,7 @@ ${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>$
 <label class="toggle"><input type="checkbox" name="is_active"${v.is_active !== false ? " checked" : ""}> Live on the site</label>
 <label class="toggle"><input type="checkbox" name="coming_soon"${(isNew || v.coming_soon) ? " checked" : ""}> Coming soon <span class="muted small">(not stocked yet: shoppers see "Coming soon" and can request it. Turns off by itself when stock arrives.)</span></label>
 ${!isNew && pmAsk[v.product_key] ? `<p class="pmask" style="margin:-4px 0 6px">${pmAsk[v.product_key].people.size} ${pmAsk[v.product_key].people.size === 1 ? "person has" : "people have"} asked for ${pmAsk[v.product_key].vials} vial${pmAsk[v.product_key].vials === 1 ? "" : "s"} · <a class="linkish" href="availability-requests.html">see requests</a></p>` : ""}
+${isNew ? "" : protoOn(v) ? `<p class="small pmproto"><i class="pdot"></i> Protocol entered · one vial lasts about <b>${lastsDays(protoFor(v), v.strength) || Number(v.reorder_days_default) || "?"} days</b>, so buyers get their running-low reminder then. <a class="linkish" href="owner.html#protos">Edit protocol</a></p>` : `<p class="small muted pmproto">No protocol yet, so reminders use ${Number(v.reorder_days_default) ? `${Number(v.reorder_days_default)} days` : "the store estimate"}. <a class="linkish" href="owner.html#protos">Add a protocol</a></p>`}
 <label>Feature on the home page<select name="home_feature_rank"><option value="">No</option>${[1, 2, 3, 4, 5, 6].map(n => `<option value="${n}"${Number(v.home_feature_rank) === n ? " selected" : ""}>Spot ${n}</option>`).join("")}</select></label>
 <div class="pm2"><label>Cost per vial<input name="cost" type="number" step="0.01" min="0" inputmode="decimal" value="${!isNew && Number(pmInv[v.product_key]?.cost_per_unit) > 0 ? Number(pmInv[v.product_key].cost_per_unit).toFixed(2) : ""}" placeholder="${isNew ? "optional" : "not set"}"></label><div class="pmmargin" data-pmmargin></div></div>
 <button type="button" class="linkish small" data-pmsug hidden></button>
@@ -381,6 +391,15 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
     return d >= 1 && d <= 365 ? d : null;
   }
   const protoDays = i => lastsDays(protos[i.product_name], i.product_strength, i.quantity);
+  // v5.1: green dot = a full protocol is saved for this product, so its reminders run on that timing
+  const protoFor = p => protos[p.display_name] || null, protoOn = p => { const x = protoFor(p); return !!(x && x.amount > 0 && x.uses_per_week > 0); };
+  const protoDot = p => protoOn(p) ? `<i class="pdot" title="Protocol entered" aria-label="Protocol entered"></i>` : "";
+  async function protoSync(name, row) { // writes "days one vial lasts" to each strength, which is what checkout uses for the reminder
+    const { data: list0 } = await P.client().from("product_catalog").select("product_key,display_name,strength,reorder_days_default").eq("display_name", name); const list = list0 || []; let n = 0;
+    for (const x of list) { const d = lastsDays(row, x.strength); if (!d || Number(x.reorder_days_default) === d) continue;
+      const { error } = await P.client().from("product_catalog").update({ reorder_days_default: d }).eq("product_key", x.product_key); if (!error) { n++; [...pmRows, ...(prods || [])].filter(y => y.product_key === x.product_key).forEach(y => { y.reorder_days_default = d; }); } }
+    return n;
+  }
   function lineDays(o, i) {
     if (dead(o)) return "";
     const d = protoDays(i), cur = Number(i.reorder_reminder_days) || "";
@@ -402,10 +421,13 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
   async function protoPage() {
     const el = $("[data-protos]"); prods = await P.products().catch(() => []); await loadProtos();
     const gs = P.groups(prods);
-    el.innerHTML = `<p class="muted small">Your reference while you talk with a customer, and the numbers behind "Standard protocol" on an order. Only you can see this page. Orders save how many days the vials last, never what's written here.</p>
+    const stale = gs.filter(g => protoOn(g[0]) && g.some(x => { const d = lastsDays(protos[g[0].display_name], x.strength); return d && Number(x.reorder_days_default) !== d; }));
+    el.innerHTML = `<p class="muted small">Your protocol sets when the running-low reminder goes out to anyone who buys that product (how long one vial lasts × how many they bought). Only you can see what's written here; customers only ever see the reminder timing.</p>
+<p class="muted small pmleg"><i class="pdot"></i> Protocol entered and driving reminders</p>
+${stale.length ? `<div class="notice">${stale.length} protocol${stale.length === 1 ? " isn't" : "s aren't"} setting reminder timing yet. <button class="btn primary sm" type="button" data-psync>Apply now</button></div>` : ""}
 <input class="psearch" type="search" data-psearch placeholder="Search a product" aria-label="Search a product">
 <div class="times">${gs.map(g => { const name = g[0].display_name, p = protos[name] || {};
-  return `<details class="pgrp" data-proto="${esc(name)}" data-name="${esc(name.toLowerCase())}"><summary><b>${esc(name)}</b><span class="muted small">${g.map(x => `${esc(x.strength || "")} <span class="${P.qty(x) > 0 ? "" : "bad"}">(${P.qty(x)} on hand)</span>`).join(" · ")}${p.amount ? " · ✓ protocol" : ""}</span></summary>
+  return `<details class="pgrp" data-proto="${esc(name)}" data-name="${esc(name.toLowerCase())}"><summary><b>${protoDot(g[0])}${esc(name)}</b><span class="muted small">${g.map(x => `${esc(x.strength || "")} <span class="${P.qty(x) > 0 ? "" : "bad"}">(${P.qty(x)} on hand)</span>`).join(" · ")}${protoOn(g[0]) ? " · reminders use this" : p.amount ? " · needs times per week" : ""}</span></summary>
 <div class="pform"><label><span class="small muted">Amount per use</span><input type="number" step="any" min="0" data-pf="amount" value="${p.amount ?? ""}"></label>
 <label><span class="small muted">Unit</span><select data-pf="amount_unit">${["mg", "mcg", "iu"].map(u => `<option${(p.amount_unit || "mg") === u ? " selected" : ""}>${u}</option>`).join("")}</select></label>
 <label><span class="small muted">Times per week</span><input type="number" step="any" min="0" max="28" data-pf="uses_per_week" value="${p.uses_per_week ?? ""}"></label>
@@ -420,9 +442,9 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
     const row = { display_name: name, amount: num("amount"), amount_unit: v("amount_unit") || "mg", uses_per_week: num("uses_per_week"), cycle_weeks: num("cycle_weeks"), notes: v("notes") || null, updated_at: new Date().toISOString(), updated_by: me?.email || null };
     const { error } = await P.client().from("pst_protocols").upsert(row, { onConflict: "display_name" });
     if (error) { P.toast("Couldn't save: " + error.message); return; }
-    protos[name] = row; const g = P.groups(prods).find(x => x[0].display_name === name) || [];
+    protos[name] = row; const synced = await protoSync(name, row); const g = P.groups(prods).find(x => x[0].display_name === name) || [];
     box.querySelector("[data-plast]").innerHTML = g.map(x => { const d = lastsDays(row, x.strength); return `${esc(x.strength || "")}: ${d ? `one vial lasts about <b>${d} days</b>` : row.amount ? "set days by hand (blend or different unit)" : "fill in the protocol to calculate"}`; }).join("<br>");
-    P.toast("Protocol saved"); draw();
+    P.toast(synced ? `Protocol saved · reminders now follow it` : "Protocol saved"); draw();
   }
 
   async function alertsCard() {
@@ -471,6 +493,8 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
     if (t.closest("[data-signout]")) { await P.client().auth.signOut(); location.href = "login.html?redirect=owner.html"; return; }
     const tx = t.closest("[data-texts]"); if (tx) { texts(orders.find(o => String(o.id) === tx.dataset.texts)); return; }
     const sp = t.closest("[data-std]"); if (sp) { const i = Object.values(items).flat().find(x => String(x.id) === sp.dataset.std); const d = i && protoDays(i); if (d) await setDays(i.id, d, "protocol"); return; }
+    if (t.closest("[data-psync]")) { let n = 0; for (const name in protos) if (protoOn({ display_name: name })) n += await protoSync(name, protos[name]); P.toast(`Reminder timing set on ${n} product${n === 1 ? "" : "s"}`); protoPage(); return; }
+    const th = t.closest("[data-th]"); if (th) { applyTheme(th.dataset.th); return; }
     const pe = t.closest("[data-pmedit]"); if (pe) { pmEdit(pe.dataset.pmedit); return; }
     const pn = t.closest("[data-pmnew]"); if (pn) { pmEdit(null); return; }
     const pb = t.closest("[data-pmbake]"); if (pb) { pmBakeAll(pb); return; }
