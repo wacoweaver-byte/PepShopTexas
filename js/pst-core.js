@@ -992,7 +992,11 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   document.addEventListener("visibilitychange", () => { if (!document.hidden && $("[data-bell]:not([hidden])")) refreshBell(); });
   document.addEventListener("DOMContentLoaded", async () => { if (await appLaunch()) return; mountChrome(); appBar(); registerSW(); track("page_view"); if (VIAL_ON) vialAssetsP().catch(() => {}); }); // v3.2: no visit pop-up; 18+ is confirmed at sign-up (his rule)
 
-  window.PST = { PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
+  // v5.8: the exact words a customer agrees to when they turn on promo texts (saved with their opt-in)
+  const SMS_CONSENT = "Text me deals and restocks from Pep Shop Texas at this number. Up to 4 texts a month. Msg & data rates may apply. Reply STOP to cancel, HELP for help. Consent isn't required to buy.";
+  const usPhone = v => { const d = String(v || "").replace(/\D/g, ""); return /^[2-9]\d{9}$/.test(d) ? d : /^1[2-9]\d{9}$/.test(d) ? d.slice(1) : ""; };
+  const fmtPhone = v => { const d = usPhone(v); return d ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : ""; };
+  window.PST = { SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, handedOff, stageOf, vialLiquid, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
     photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,
