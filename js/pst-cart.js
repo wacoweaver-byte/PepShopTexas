@@ -3,7 +3,7 @@
   "use strict";
   const P = window.PST, { $, esc, money, round } = P;
   const ss = { get: (k, d) => { try { return JSON.parse(sessionStorage.getItem(k)) ?? d; } catch { return d; } }, set: (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch {} } };
-  let delivery = P.store.get("pst_delivery", "pickup"), discount = ss.get("pst_discount", null), applyCredit = false, pay = ss.get("pst_pay", ""), notes = "";
+  let delivery = P.store.get("pst_delivery", "pickup"), discount = ss.get("pst_discount", null), applyCredit = false, pay = ss.get("pst_pay", ""), notes = "", smsOn = false, smsPhone = "", smsCustom = false;
   const picks = {}, suggest = {};
   let allP = [];
   /* new bag items default to an Auto reminder seeded from the product's typical reorder time */
@@ -69,6 +69,7 @@ ${credit > 0 ? `<label class="toggle" style="margin-top:10px"><input type="check
 <p class="muted small" style="margin:10px 0 0">${pay && venmo && pay === venmo.label ? "After you place the order, Venmo opens with the amount and your order number filled in." : "Payment instructions are emailed to you right after you place the order."}</p></div>
 <div class="box">${sum}
 <label class="form" style="display:block"><span class="sr">Order notes</span><textarea data-notes placeholder="Notes for Pep Shop Texas (optional)" style="width:100%;background:var(--bg);border:1px solid var(--line2);padding:10px;min-height:60px;font-size:15px;border-radius:4px">${esc(notes)}</textarea></label>
+${smsBox()}
 <button class="btn primary wide" type="button" data-place ${!live.length || blocked() ? "disabled" : ""} style="margin-top:12px">${blocked() ? "Update your bag to continue" : `Place order · ${money(t.due)}`}</button>
 <p class="status" data-placestat role="status"></p><p class="muted small" style="text-align:center;margin:4px 0 0">For research use only. Nothing ships until payment is confirmed.</p></div>`;
   }
@@ -93,6 +94,13 @@ ${credit > 0 ? `<label class="toggle" style="margin-top:10px"><input type="check
     if (!gs.length) return "";
     return `<section class="addmore" aria-label="Add to this order"><h3 class="kick">Add to this order</h3><div class="row">${gs.map(g => { const p = P.gBest(g); return `<div class="amc">${P.vial(p, 40)}<b>${esc(P.titleParts(p).main)}</b><span>${g.length > 1 ? "from " : ""}${money(P.gMin(g))}</span>${g.length > 1 ? `<a class="btn ghost sm" href="${P.productUrl(p)}">Choose</a>` : `<button class="btn ghost sm" type="button" data-addmore="${esc(p.product_key)}">+ Add</button>`}</div>`; }).join("")}</div></section>`;
   }
+  // v5.8: optional promo-text opt-in at checkout (never pre-checked, never required). Hidden once they've said yes.
+  function smsBox() {
+    if (!user || !profile || profile.sms_opt_in === true) return "";
+    const has = P.usPhone(profile.phone);
+    return `<div class="smsopt"><label class="chk"><input type="checkbox" data-sms ${smsOn ? "checked" : ""}><span>${esc(P.SMS_CONSENT)} <a href="privacy.html#texts" target="_blank" rel="noopener">Privacy</a></span></label>
+${smsOn ? (has && !smsCustom ? `<p class="muted small">Texts go to ${esc(P.fmtPhone(profile.phone))}. <button type="button" class="linkish" data-smsedit>Use a different number</button></p>` : `<input data-smsph type="tel" inputmode="tel" autocomplete="tel" placeholder="Mobile number" value="${esc(smsPhone)}" aria-label="Mobile number for texts">`) : ""}</div>`;
+  }
   const redrawSide = () => { const s = $("[data-side]"); if (s) s.innerHTML = sideHtml(); };
 
   async function load() {
@@ -116,9 +124,12 @@ ${credit > 0 ? `<label class="toggle" style="margin-top:10px"><input type="check
     const stat = $("[data-placestat]"); btn.disabled = true; btn.textContent = "Placing order…"; stat.textContent = ""; stat.className = "status";
     try {
       if (delivery === "ship" && !(profile?.shipping_address || profile?.address1 || profile?.address)) throw new Error("Add a shipping address in your account, or choose local pickup.");
+      const smsTo = smsOn ? (P.usPhone(profile?.phone) && !smsCustom ? P.usPhone(profile.phone) : P.usPhone(smsPhone)) : "";
+      if (smsOn && !smsTo) throw new Error("Enter a 10-digit mobile number for texts, or uncheck the text box.");
       const rewardChoices = [...document.querySelectorAll("[data-choice]")].map(s => ({ promotionId: s.dataset.choice, productKey: s.value }));
       const res = await P.submitOrder({ paymentLabel: pay, payMethod: methods.find(m => m.label === pay) || null, delivery, discount, applyCredit, rewardChoices, notes: notes.trim() });
       ss.set("pst_discount", null); P.store.set("pst_delivery", delivery);
+      if (smsTo) P.client().rpc("pst_sms_consent", { p_on: true, p_phone: smsTo, p_source: "checkout", p_text: P.SMS_CONSENT }).then(r => { if (!r.error && profile) profile.sms_opt_in = true; });
       placed(res);
     } catch (err) {
       stat.textContent = err.message || "That didn't go through. Try again."; stat.className = "status bad";
@@ -157,6 +168,7 @@ ${r.backorder?.length ? `<p class="holdnote">${P.icon("box", 15)} ${r.backorder.
       if (a.dataset.act3 === "push") { try { if (await P.enablePush("customer")) { a.closest(".alertcta").innerHTML = `${P.icon("check", 26)}<b>Order alerts are on</b><span>We'll ping this device as your order moves.</span>`; } } catch (err) { P.toast(err.message); } }
       return;
     }
+    if (t.closest("[data-smsedit]")) { smsCustom = true; redrawSide(); $("[data-smsph]")?.focus(); return; }
     const pl = t.closest("[data-place]"); if (pl) place(pl);
   });
   async function refreshChoices() { if (user) { [frees, choices] = await Promise.all([P.freeVials(rows).catch(() => []), P.choiceRewards(rows).catch(() => [])]); } draw(); }
@@ -167,8 +179,9 @@ ${r.backorder?.length ? `<p class="holdnote">${P.icon("box", 15)} ${r.backorder.
     if (t.name === "pm") { pay = t.value; ss.set("pst_pay", pay); redrawSide(); }
     if (t.matches("[data-credit]")) { applyCredit = t.checked; redrawSide(); }
     if (t.matches("[data-choice]")) picks[t.dataset.choice] = t.value;
+    if (t.matches("[data-sms]")) { smsOn = t.checked; redrawSide(); if (smsOn) $("[data-smsph]")?.focus(); }
   });
-  document.addEventListener("input", e => { if (e.target.matches("[data-notes]")) notes = e.target.value; });
+  document.addEventListener("input", e => { if (e.target.matches("[data-notes]")) notes = e.target.value; if (e.target.matches("[data-smsph]")) smsPhone = e.target.value; });
   document.addEventListener("submit", async e => {
     if (!e.target.matches("[data-codeform]")) return; e.preventDefault();
     const stat = $("[data-codestat]"), b = e.target.querySelector("button"); b.disabled = true; stat.textContent = "Checking…"; stat.className = "status";

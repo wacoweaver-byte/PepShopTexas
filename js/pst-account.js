@@ -114,6 +114,7 @@ ${due.length ? due.map(d => `<div class="dueitem"><div><b>${esc(d.x.product_name
 <label>Street<input name="billing_address" value="${v("billing_address")}" autocomplete="billing street-address"></label><div class="g3"><label>City<input name="billing_city" value="${v("billing_city")}"></label><label>State<input name="billing_state" value="${v("billing_state")}"></label><label>ZIP<input name="billing_zip" value="${v("billing_zip")}" inputmode="numeric"></label></div></div></fieldset>
 <label>Order updates by<select name="communication_preference"><option value="email"${pref === "email" ? " selected" : ""}>Email</option><option value="text"${pref === "text" ? " selected" : ""}>Text</option><option value="both"${pref === "both" ? " selected" : ""}>Email and text</option></select></label>
 <label class="chk"><input type="checkbox" name="marketing_opt_in" ${mk ? "checked" : ""}> Email me restocks, promotions and updates. Unsubscribe any time.</label>
+<label class="chk"><input type="checkbox" name="sms_opt_in" ${profile?.sms_opt_in === true ? "checked" : ""}> <span>${esc(P.SMS_CONSENT)} <a href="privacy.html#texts">Privacy</a></span></label>
 <button class="btn primary">Save profile</button><p class="notice" data-pstat hidden></p></form>`;
     const same = $("[data-same]"), bill = $("[data-bill]"); const sync = () => bill.hidden = same.checked; same.addEventListener("change", sync); sync();
     $("[data-form=profile]").addEventListener("submit", saveProfile);
@@ -125,6 +126,7 @@ ${due.length ? due.map(d => `<div class="dueitem"><div><b>${esc(d.x.product_name
       shipping_address: g("shipping_address"), shipping_city: g("shipping_city"), shipping_state: g("shipping_state"), shipping_zip: g("shipping_zip"),
       billing_address: same ? g("shipping_address") : g("billing_address"), billing_city: same ? g("shipping_city") : g("billing_city"), billing_state: same ? g("shipping_state") : g("billing_state"), billing_zip: same ? g("shipping_zip") : g("billing_zip"),
       account_status: "active" };
+    if (f.elements.sms_opt_in?.checked && !P.usPhone(g("phone"))) { notice(st, "Add a 10-digit US mobile number to get texts, or uncheck the text box.", "err"); f.elements.phone.focus(); return; }
     b.disabled = true; b.textContent = "Saving…";
     try {
       let r = await P.client().from("customer_profiles").update(payload).eq("user_id", user.id).select("*").maybeSingle();
@@ -133,6 +135,8 @@ ${due.length ? due.map(d => `<div class="dueitem"><div><b>${esc(d.x.product_name
       profile = r.data || { ...profile, ...payload };
       const wasOpt = profile?.marketing_opt_in === true || String(profile?.marketing_opt_in) === "true";
       if (opt !== wasOpt) { const m = { marketing_opt_in: opt, marketing_opt_out: !opt, marketing_source: opt ? "account_preferences_opt_in" : "account_preferences_opt_out", ...(opt ? { marketing_opt_in_at: now, marketing_opt_out_at: null } : { marketing_opt_out_at: now }) }; const r2 = await P.client().from("customer_profiles").update(m).eq("user_id", user.id).select("*").maybeSingle(); if (!r2.error && r2.data) profile = r2.data; }
+      const smsOn = !!f.elements.sms_opt_in?.checked, smsWas = profile?.sms_opt_in === true, ph = P.usPhone(g("phone"));
+      if (smsOn !== smsWas || (smsOn && ph && P.usPhone(profile?.sms_phone) !== ph)) { const r4 = await P.client().rpc("pst_sms_consent", { p_on: smsOn, p_phone: ph || null, p_source: "account", p_text: smsOn ? P.SMS_CONSENT : null }); if (r4.error) throw r4.error; profile = { ...profile, sms_opt_in: smsOn, sms_phone: smsOn ? "+1" + ph : profile?.sms_phone }; }
       const cp = g("communication_preference"); if (cp && cp !== profile?.communication_preference) { const r3 = await P.client().from("customer_profiles").update({ communication_preference: cp }).eq("user_id", user.id).select("*").maybeSingle(); if (!r3.error && r3.data) profile = r3.data; }
       notice(st, "Profile saved.", "ok");
     } catch (err) { notice(st, "Couldn't save: " + (err.message || err), "err"); }

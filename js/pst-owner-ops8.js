@@ -21,7 +21,9 @@
       { k: "order_cancelled", t: "Order cancelled", when: "You cancel an order. You see it before it sends.", ch: "Email + alert", prev: true },
       { k: "order_rejected", t: "Order rejected", when: "You reject an order. You see it before it sends.", ch: "Email", prev: true }] },
     { g: "Marketing", items: [
-      { k: "blast", t: "Email blast", when: "Only when you write and send one. Only to customers who said yes to emails, each with an unsubscribe link.", ch: "Email", link: "#blast" }] }
+      { k: "blast", t: "Email blast", when: "Only when you write and send one. Only to customers who said yes to emails, each with an unsubscribe link.", ch: "Email", link: "#blast" },
+      { k: "texts", t: "Text blast", when: "Only when you write and send one. Only to customers who checked \"text me deals\", at most 4 a month each, 9am to 8pm Central. Replying STOP turns them off.", ch: "Text", link: "#texts" },
+      { k: "emailpromos", t: "Promos in emails", when: "Partner and sale boxes at the bottom of the order emails above (thanks, paid, packed, shipped, delivered). PepKeep is on to start.", ch: "In emails", link: "#emailpromos" }] }
   ];
   async function emailsPane(el) {
     el.innerHTML = `<p class="muted small">Loading…</p>`;
