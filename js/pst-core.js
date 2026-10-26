@@ -731,14 +731,19 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     const sw = navigator.serviceWorker, hadController = !!sw.controller;
     let pending = false, last = 0;
     const busy = () => /input|textarea|select/i.test(document.activeElement?.tagName || "") || !!document.querySelector("#sheet form");
-    const reload = () => { if (document.hidden || !busy()) { try { sessionStorage.setItem("pst_updated", "1"); } catch {} location.reload(); } else pending = true; };
+    const reload = () => { if (document.hidden || !busy()) { try { sessionStorage.setItem("pst_updated", "1"); } catch {} location.reload(); } else { pending = true; updateBar(); } };
+    // v5.3: if they're mid-form when an update lands, offer it instead of waiting silently
+    const updateBar = () => { if ($("#updbar")) return; const b = document.createElement("div"); b.id = "updbar"; b.setAttribute("role", "status");
+      b.innerHTML = `<span>${icon("check", 16)} A new version is ready</span><button type="button" class="btn primary sm" data-upd>Update</button><button type="button" class="sx" data-updx aria-label="Later">${icon("x", 14)}</button>`;
+      b.addEventListener("click", e => { if (e.target.closest("[data-upd]")) { pending = false; try { sessionStorage.setItem("pst_updated", "1"); } catch {} location.reload(); } if (e.target.closest("[data-updx]")) b.remove(); });
+      document.body.appendChild(b); };
     sw.addEventListener("controllerchange", () => { if (hadController) reload(); });
     sw.register("sw.js", { updateViaCache: "none" }).then(reg => {
       const check = () => { if (Date.now() - last > 60000) { last = Date.now(); reg.update().catch(() => {}); } };
       document.addEventListener("visibilitychange", () => { if (!document.hidden) { if (pending) { pending = false; reload(); return; } check(); } });
       window.addEventListener("focus", check); setInterval(() => { if (!document.hidden) check(); }, 30 * 60000);
     }).catch(() => {});
-    try { if (sessionStorage.getItem("pst_updated")) { sessionStorage.removeItem("pst_updated"); setTimeout(() => toast("Updated to the latest version"), 600); } } catch {}
+    try { if (sessionStorage.getItem("pst_updated")) { sessionStorage.removeItem("pst_updated"); window.PST_JUST_UPDATED = true; if (!document.body.classList.contains("oapp") && !/owner\.html/.test(location.pathname)) setTimeout(() => toast("Pep Shop Texas just updated to the latest version"), 600); } } catch {}
   }
   const canPrompt = () => !!deferredInstall;
   async function promptInstall() {

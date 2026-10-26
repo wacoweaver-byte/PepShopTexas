@@ -50,7 +50,7 @@
 <div class="nalbox" id="alerts"><h2 class="serif">Alerts on this device</h2><div data-nal><p class="muted small">Loading…</p></div></div></div>
 <div data-moresub hidden><button class="oback" type="button" data-moreback>${P.icon("back", 18)} More</button><div data-sub="insights" data-ins hidden></div><div data-sub="requests" data-reqs hidden></div><div data-sub="coa" data-coa hidden></div><div data-sub="vendors" data-vens hidden></div><div data-sub="blast" data-blast hidden></div><div data-sub="ads" data-ads hidden></div><div data-sub="whatsnew" data-wn hidden></div><div data-sub="vprices" data-vpr hidden></div><div data-sub="reports" data-rep hidden></div><div data-sub="writer" data-wri hidden></div><div data-sub="paymethods" data-pay hidden></div><div data-sub="emails" data-ems2 hidden></div><div data-sub="discounts" data-discs hidden></div><div data-sub="promos" data-promos hidden></div><div data-sub="protos" data-protos hidden></div><div data-sub="times" data-times hidden></div></div></section>
 <nav class="otabbar" aria-label="Owner app">${NAV.map(([k, i, l]) => `<button type="button" data-go="${k}" aria-current="${k === "today" ? "page" : "false"}">${P.icon(i, 22)}<span>${l}</span><i data-badge="${k}" hidden></i></button>`).join("")}</nav>`;
-    setTimeout(wnDot, 0);
+    setTimeout(wnDot, 0); setTimeout(updNote, 400);
     PSTOps.init({ me, get orders() { return orders; }, get items() { return items; }, reload: load, lineExtra: (o, i) => lineDays(o, i) });
     document.addEventListener("click", onClick);
     document.addEventListener("input", onInput);
@@ -87,6 +87,16 @@
     const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = l ? "#f6f3ec" : "#0a101c";
     $$("[data-th]").forEach(b => { const on = b.dataset.th === t; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); }); }
   try { matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => { if (themePref() === "auto") applyTheme("auto"); }); } catch { /* old Safari */ }
+  // v5.3: tell him when the app updated, with the headline of what's new
+  function updNote() {
+    const R = window.PSTOps4?.RELEASES?.[0]; if (!R) return; let prev = null; try { prev = localStorage.getItem("pst-owner-ver"); localStorage.setItem("pst-owner-ver", R.v); } catch { /* private mode */ }
+    if (prev === R.v) { if (window.PST_JUST_UPDATED) P.toast("App updated"); return; }
+    const n = window.PSTVibe ? PSTVibe.nameOf(me) : "", d = document.createElement("div"); d.id = "updnote"; d.setAttribute("role", "status");
+    d.innerHTML = `<div class="updin">${P.icon("star", 20)}<div><b>Updated to v${esc(R.v)}${n ? `, ${esc(n)}` : ""}!</b><small>${esc(R.title)}${R.items?.[0] ? ` · ${esc(R.items[0].t)}` : ""}</small></div><button type="button" class="sx" data-updnx aria-label="Dismiss">${P.icon("x", 16)}</button></div>
+<div class="updbtns"><a class="btn primary sm" href="owner.html#whatsnew" data-updgo>See what's new</a><button type="button" class="btn ghost sm" data-updnx>Got it</button></div>`;
+    d.addEventListener("click", e => { if (e.target.closest("[data-updnx],[data-updgo]")) { d.classList.remove("in"); setTimeout(() => d.remove(), 250); } });
+    document.body.appendChild(d); requestAnimationFrame(() => d.classList.add("in")); setTimeout(() => { if (d.isConnected) { d.classList.remove("in"); setTimeout(() => d.remove(), 250); } }, 12000);
+  }
   function wnDot() { const u = PSTOps4.unseen(); $$("[data-wndot]").forEach(x => x.hidden = !u); const b = $('[data-badge="more"]'); if (b) { b.hidden = !u; b.textContent = "•"; b.classList.toggle("dot", u); } }
   function moreHome() { $("[data-morehome]").hidden = false; $("[data-moresub]").hidden = true; $("[data-otitle]").textContent = "More"; P.notifyPanel($("[data-nal]"), "owner"); }
   function moreSub(k) {
