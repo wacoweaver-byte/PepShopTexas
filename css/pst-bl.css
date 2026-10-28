@@ -881,3 +881,11 @@ html[data-theme=light] .flipbar{background:#0a101c}
 .pwalt>summary::after{content:" ›"}.pwalt[open]>summary{color:var(--ink);margin-bottom:10px}.pwalt[open]>summary::after{content:""}
 .setpw{text-align:left}.setpw>summary{text-align:left}
 .authcard .notice a{color:inherit;text-decoration:underline}
+
+/* COA badge shimmer: a soft light sweeps across every few seconds (off for people who turn off motion) */
+.coapeek{overflow:hidden;isolation:isolate}
+.coapeek::after{content:"";position:absolute;inset:-2px;z-index:-1;pointer-events:none;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.08) 40%,rgba(255,255,255,.55) 50%,rgba(255,255,255,.08) 60%,transparent 70%);transform:translateX(-130%);animation:coashine 3.8s ease-in-out 1.2s infinite}
+.coapeek>*{position:relative;z-index:1}
+@keyframes coashine{0%{transform:translateX(-130%)}38%,100%{transform:translateX(130%)}}
+.coapeek:hover::after,.coapeek:focus-visible::after{animation:none;opacity:0}
+@media(prefers-reduced-motion:reduce){.coapeek::after{animation:none;display:none}}
