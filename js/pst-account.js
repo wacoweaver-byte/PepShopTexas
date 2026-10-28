@@ -190,9 +190,9 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
     if (P.params.get("password") === "reset") { pwalt.open = true; notice($("[data-msg]"), "Password updated. Sign in with your new password.", "ok"); }
     if (P.params.get("app") === "1" || P.isStandalone()) { // first launch of the Home Screen app: sign in once, stay signed in
       const card = $(".authcard"); card.classList.add("appwelcome");
-      card.querySelector(".kick").textContent = "Welcome to the app";
-      card.querySelector("h1").textContent = "Sign in once";
-      card.querySelector("h1").insertAdjacentHTML("afterend", `<p class="muted" style="margin:-4px 0 18px">You'll stay signed in on this phone.</p>`);
+      card.querySelector("[data-akick]").textContent = "Welcome to the app";
+      card.querySelector("[data-ah1]").textContent = "Sign in once";
+      card.querySelector("[data-asub]").textContent = "You'll stay signed in on this phone. Enter your email and we'll send you a code.";
       card.insertAdjacentHTML("beforeend", `<button type="button" class="linkish small appguest" data-guest>Browse without signing in</button>`);
       card.querySelector("[data-guest]").addEventListener("click", () => { sessionStorage.setItem("pst_app_guest", "1"); location.replace(to === "account.html" ? "catalog.html" : to); });
     }
@@ -202,12 +202,18 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
     if (pre) { cf.email.value = pre; pf.email.value = pre; }
     cf.email.addEventListener("input", () => { if (!pf.email.value || pf.email.dataset.sync) { pf.email.value = cf.email.value; pf.email.dataset.sync = "1"; } });
     let email = "";
+    const h1 = $("[data-ah1]"), sub = $("[data-asub]"), more = $("[data-amore]"), first = { h1: h1.textContent, sub: sub.textContent };
+    const step = n => { // 1 = enter email, 2 = enter the code (one thing to do at a time)
+      cf.hidden = n !== 1; vf.hidden = n !== 2; more.hidden = n !== 1;
+      if (n === 2) { h1.textContent = "Check your email"; sub.innerHTML = `We sent a 6-digit code to <b>${esc(email)}</b>Type it below to sign in.`; }
+      else { h1.textContent = first.h1; sub.textContent = first.sub; }
+    };
     const send = async (btn) => {
       const lbl = btn.textContent; btn.disabled = true; btn.textContent = "Sending…"; notice(cmsg, ""); notice(vmsg, "");
       try {
         const { error: oe } = await P.client().auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: base() + to } });
         const d = !oe ? { ok: true } : { ok: false, reason: /signup|not allowed|not found|no user/i.test(oe.message) ? "no_account" : /rate|seconds|too many/i.test(oe.message) || oe.status === 429 ? "too_many" : /invalid.*email|email.*invalid/i.test(oe.message) ? "bad_email" : "error" };
-        if (d.ok) { remember(email); cf.hidden = true; vf.hidden = false; $("[data-codeto]").textContent = email; vf.code.value = ""; setTimeout(() => vf.code.focus(), 50); if (btn.dataset.resend !== undefined) notice(vmsg, "New code sent. Use the newest one.", "ok"); return; }
+        if (d.ok) { remember(email); step(2); vf.code.value = ""; setTimeout(() => vf.code.focus(), 50); if (btn.dataset.resend !== undefined) notice(vmsg, "New code sent. Use the newest one.", "ok"); return; }
         const m = d.reason === "no_account" ? `No account uses <b>${esc(email)}</b>. Check the spelling, or <a href="register.html?email=${encodeURIComponent(email)}">create an account</a>.`
           : d.reason === "too_many" ? "A code was just sent. Use the newest one in your email, or wait a minute and try again."
           : d.reason === "bad_email" ? "That doesn't look like an email address." : "Couldn't send the code. Try again, or sign in with your password below.";
@@ -217,7 +223,7 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
     };
     cf.addEventListener("submit", e => { e.preventDefault(); email = cf.email.value.trim().toLowerCase(); send(cf.querySelector("button[type=submit]")); });
     vf.querySelector("[data-resend]").addEventListener("click", e => send(e.currentTarget));
-    vf.querySelector("[data-other]").addEventListener("click", () => { vf.hidden = true; cf.hidden = false; notice(cmsg, ""); cf.email.focus(); cf.email.select(); });
+    vf.querySelector("[data-other]").addEventListener("click", () => { step(1); notice(cmsg, ""); notice(vmsg, ""); cf.email.focus(); cf.email.select(); });
     let busy = false;
     const verify = async () => {
       const code = vf.code.value.replace(/\D/g, ""); if (code.length < 6 || busy) return; busy = true;

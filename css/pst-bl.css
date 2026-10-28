@@ -899,3 +899,19 @@ html[data-theme=light] .flipbar{background:#0a101c}
 .flipfloat.dragging{box-shadow:0 14px 34px rgba(0,0,0,.6);transform:scale(1.04)}.flipfloat.dragging .flipgrip{cursor:grabbing;color:var(--gold)}
 @media(min-width:900px){.flipfloat{bottom:24px;right:24px}}
 @media print{.flipfloat{display:none!important}}
+
+/* sign-in v2: one step at a time, clear hierarchy */
+.authcard [hidden]{display:none!important}
+.authcard .kick{display:block;margin-bottom:6px}.authcard h1{margin:0 0 6px}
+.authsub{margin:0 0 20px;color:var(--muted);font-size:15px;line-height:1.5}.authsub b{display:block;margin:2px 0;color:var(--ink);overflow-wrap:anywhere}
+.authstep{gap:14px}.authstep .btn{margin-top:2px}
+.authcard .codein{font-size:30px!important;letter-spacing:.45em;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;padding:14px 8px 14px calc(8px + .45em)!important}
+.authcard .codein::placeholder{letter-spacing:.3em;opacity:.35}
+.authcard .codealt{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 0;color:var(--muted)}.authcard .codealt .linkish{font-size:14px}
+.authhelp{margin:0;text-align:center;color:var(--muted);font-size:13px}
+.ordiv{display:flex;align-items:center;gap:12px;margin:22px 0 4px;color:var(--muted);font-size:12px;letter-spacing:.14em;text-transform:uppercase}.ordiv::before,.ordiv::after{content:"";flex:1;height:1px;background:var(--line)}
+.authmore .pwalt{margin-top:6px;border-top:0;padding-top:0}
+.authmore .pwalt>summary{display:block;text-align:center;padding:12px;border:1px solid var(--line2);border-radius:6px;color:var(--ink);font-size:14px}.authmore .pwalt>summary::after{content:""}
+.authmore .pwalt[open]>summary{margin-bottom:14px;border-color:var(--gold)}
+.authnew{margin:18px 0 0;text-align:center;color:var(--muted);font-size:14px}.authnew a{color:var(--gold);font-weight:600}
+.authcard .codehint,.authcard .codeto{display:none}

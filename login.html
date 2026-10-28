@@ -17,24 +17,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://ucejjztsbmrogiteivxl.supabase.co" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/pst-bl.css?v=519">
+<link rel="stylesheet" href="css/pst-bl.css?v=520">
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="js/pst-core.js?v=518"></script>
-<script defer src="js/pst-account.js?v=516"></script>
+<script defer src="js/pst-account.js?v=520"></script>
 </head>
 <body data-page="login">
 <main id="main">
 <section class="wrap pad"><div class="authcard">
-<span class="kick">Welcome back</span><h1 class="serif">Sign in</h1>
-<form class="form" data-form="code"><label>Email<input name="email" type="email" autocomplete="email" required inputmode="email" autocapitalize="none" spellcheck="false"></label>
-<button class="btn primary wide" type="submit">Email me a sign-in code</button><p class="muted small codehint">No password needed. We'll email you a 6-digit code.</p><p class="notice" data-cmsg hidden role="status"></p></form>
-<form class="form" data-form="verify" hidden><p class="codeto">We sent a code to <b data-codeto></b></p><label>6-digit code<input name="code" class="codein" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="8" required></label>
-<button class="btn primary wide" type="submit">Sign in</button><p class="notice" data-vmsg hidden role="status"></p><p class="codealt"><button type="button" class="linkish" data-resend>Send a new code</button><button type="button" class="linkish" data-other>Use a different email</button></p><p class="muted small">Can't find it? Check spam or promotions.</p></form>
-<details class="pwalt" data-pwalt><summary>Sign in with my password instead</summary>
+<span class="kick" data-akick>Welcome back</span><h1 class="serif" data-ah1>Sign in</h1><p class="authsub" data-asub>Enter your email and we'll send you a sign-in code. No password needed.</p>
+<form class="form authstep" data-form="code"><label>Email<input name="email" type="email" autocomplete="email" required inputmode="email" autocapitalize="none" spellcheck="false" placeholder="you@example.com"></label>
+<button class="btn primary wide" type="submit">Email me a sign-in code</button><p class="notice" data-cmsg hidden role="status"></p></form>
+<form class="form authstep" data-form="verify" hidden><label>Sign-in code<input name="code" class="codein" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="8" required placeholder="••••••" aria-describedby="codehelp"></label>
+<button class="btn primary wide" type="submit">Sign in</button><p class="notice" data-vmsg hidden role="status"></p>
+<p class="codealt"><button type="button" class="linkish" data-resend>Send a new code</button><span aria-hidden="true">·</span><button type="button" class="linkish" data-other>Use a different email</button></p><p class="authhelp" id="codehelp">Not in your inbox? Check spam or promotions.</p></form>
+<div class="authmore" data-amore><div class="ordiv"><span>or</span></div>
+<details class="pwalt" data-pwalt><summary>Sign in with my password</summary>
 <form class="form" data-form="login"><label>Email<input name="email" type="email" autocomplete="username" required inputmode="email" autocapitalize="none"></label>
 <label class="pw">Password<input id="lpw" name="password" type="password" autocomplete="current-password" required><button type="button" data-pw="lpw" aria-label="Show password">Show</button></label>
-<button class="btn ghost wide" type="submit">Sign in</button><p class="notice" data-msg hidden role="status"></p></form></details>
-<div class="alt"><a href="register.html" data-keep-redirect>Create an account</a></div>
+<button class="btn ghost wide" type="submit">Sign in</button><p class="notice" data-msg hidden role="status"></p><p class="authhelp"><a class="linkish" href="forgot-password.html">Forgot your password?</a></p></form></details>
+<p class="authnew">New here? <a href="register.html" data-keep-redirect>Create an account</a></p></div>
 </div></section>
 </main>
 </body>
