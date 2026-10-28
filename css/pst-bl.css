@@ -915,3 +915,7 @@ html[data-theme=light] .flipbar{background:#0a101c}
 .authmore .pwalt[open]>summary{margin-bottom:14px;border-color:var(--gold)}
 .authnew{margin:18px 0 0;text-align:center;color:var(--muted);font-size:14px}.authnew a{color:var(--gold);font-weight:600}
 .authcard .codehint,.authcard .codeto{display:none}
+
+/* phones: the header has room for one icon each side, so the alert count moves to the Account tab (computers keep the header bell) */
+@media(max-width:899px){.hd .mobr .bell{display:none!important}}
+.tabbar a{position:relative}.tabbar .tabbell{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--gold);color:#17120a;font:800 10.5px/18px var(--fb,inherit);font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--bg)}.tabbar .tabbell[hidden]{display:none}

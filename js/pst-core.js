@@ -636,7 +636,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
 </aside></div>`;
   }
   function tabbar(page) {
-    const t = (h, k, ic, label) => `<a href="${h}" class="${page === k ? "on" : ""}"${page === k ? ' aria-current="page"' : ""}>${icon(ic)}<span>${label}</span>${k === "cart" ? '<i data-cart-count hidden>0</i>' : ""}</a>`;
+    const t = (h, k, ic, label) => `<a href="${h}" class="${page === k ? "on" : ""}"${page === k ? ' aria-current="page"' : ""}>${icon(ic)}<span>${label}</span>${k === "cart" ? '<i data-cart-count hidden>0</i>' : ""}${k === "account" ? '<i class="tabbell" data-tabbell hidden>0</i>' : ""}</a>`;
     return `<nav class="tabbar" aria-label="App">${t("index.html", "home", "home", "Home")}${t("catalog.html", "catalog", "shop", "Shop")}${t("cart.html", "cart", "bag", "Bag")}${t("account.html", "account", "user", "Account")}</nav>`;
   }
   function footer() {
@@ -659,11 +659,13 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     const page = document.body.dataset.page || "";
     if (document.body.dataset.chrome === "none") return;
     document.body.insertAdjacentHTML("afterbegin", header(page));
+    try { if (localStorage.getItem("pst-is-owner") === "1") mountFlip("shop"); } catch {}
     document.body.insertAdjacentHTML("beforeend", footer() + tabbar(page));
     refreshCount(); refreshSaved();
     getUser().then(async u => {
       const a = $("[data-acct]"); if (!a) return;
-      if (u) { const p = await getProfile(u); a.textContent = `Hi, ${firstName(p, u)}`; refreshBell(); appAlertsNudge();
+      if (!u) { try { localStorage.removeItem("pst-is-owner"); } catch {} document.querySelector(".flipfloat")?.remove(); }
+      if (u) { isAdmin(u).then(ok => { try { ok ? localStorage.setItem("pst-is-owner", "1") : localStorage.removeItem("pst-is-owner"); } catch {} if (!ok) document.querySelector(".flipfloat")?.remove(); }, () => {}); const p = await getProfile(u); a.textContent = `Hi, ${firstName(p, u)}`; refreshBell(); appAlertsNudge();
         if (await isAdmin(u)) { // same as his old header: staff see an Admin link (plus the order inbox)
           a.insertAdjacentHTML("beforebegin", `<details class="ownmenu" data-adminlink><summary>Owner</summary><div><a href="owner.html">Owner app</a><a href="admin.html">Admin dashboard</a></div></details>`);
           // owner-only bar with the Shop | Owner switch (phones too), and remember this page so the owner app's "Shop" comes back here
@@ -871,6 +873,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
   }
   async function refreshBell() {
     const rows = await inboxRows(40).catch(() => []), n = rows.filter(r => !r.read_at).length;
+    $$("[data-tabbell]").forEach(t => { t.textContent = n > 9 ? "9+" : n; t.hidden = !n; const a = t.closest("a"); if (a) { a.href = n ? "account.html#alerts" : "account.html"; a.setAttribute("aria-label", n ? `Account, ${n} new notification${n === 1 ? "" : "s"}` : "Account"); } }); // phones: the alert count rides on the Account tab
     $$("[data-bell]").forEach(b => { b.hidden = false; const i = b.querySelector("i"); if (i) { i.textContent = n > 9 ? "9+" : n; i.hidden = !n; } b.setAttribute("aria-label", n ? `Notifications, ${n} new` : "Notifications"); });
     return rows;
   }
