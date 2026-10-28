@@ -68,9 +68,24 @@
 
   /* ---------- products (same query + incoming status as app.js) ---------- */
   let productsP = null;
+  // Saved copy of the product list: pages draw products instantly from it while a fresh copy loads for next time.
+  // The bag/checkout always use the fresh list, and a saved copy older than 12 hours is ignored.
+  const PCACHE = "pst-products-cache", PMAX = 12 * 3600e3;
+  try { if (/(owner|admin)[^/]*\.html$/.test(location.pathname)) localStorage.removeItem(PCACHE); } catch {} // opening the owner app or admin always forces a fresh list next time
   function products() {
     if (productsP) return productsP;
-    productsP = (async () => {
+    const page = document.body?.dataset.page || "", ownerSide = ["owner", "admin"].includes(page) || !!document.body?.classList.contains("oapp");
+    const fresh = fetchProducts();
+    if (ownerSide) { try { localStorage.removeItem(PCACHE); } catch {} } // owner app: always fresh, and the next shop page reloads it, so edits show right away
+    else fresh.then(rows => { try { localStorage.setItem(PCACHE, JSON.stringify({ t: Date.now(), rows })); } catch {} }, () => {});
+    let saved = null;
+    try { const c = JSON.parse(localStorage.getItem(PCACHE) || "null"); if (c && Array.isArray(c.rows) && c.rows.length && Date.now() - c.t < PMAX) saved = c.rows; } catch {}
+    productsP = saved && !ownerSide && !["cart", "checkout"].includes(page) ? Promise.resolve(saved) : fresh;
+    productsP.catch(() => { productsP = null; });
+    return productsP;
+  }
+  function fetchProducts() {
+    return (async () => {
       const q = f => client().from("product_catalog").select(f).eq("is_active", true).order("display_name", { ascending: true });
       // ask for every column; if his table doesn't have one yet (before install day), drop just that one and retry
       let cols = CFG.fields.split(","), data, error;
@@ -89,8 +104,6 @@
       } catch {}
       return rows.sort(cmpProduct);
     })();
-    productsP.catch(() => { productsP = null; });
-    return productsP;
   }
   const txt = (a, b) => String(a || "").localeCompare(String(b || ""), undefined, { numeric: true, sensitivity: "base" });
   const doseVal = v => { const m = String(v || "").match(/\d+(?:\.\d+)?/g); return m ? m.reduce((s, x) => s + Number(x), 0) : Infinity; };

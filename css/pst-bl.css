@@ -922,7 +922,7 @@ html[data-theme=light] .flipbar{background:#0a101c}
 
 /* signed-in home from the first frame (see the pre-paint script in index.html) */
 html.signed-in [data-shelf][hidden]{display:block}
-html.signed-in [data-shelf]:empty{min-height:300px;margin:24px auto 0;max-width:1200px;padding:0 18px;background:linear-gradient(var(--line),var(--line)) 18px 28px/40% 22px no-repeat,linear-gradient(var(--line),var(--line)) 18px 76px/calc(100% - 36px) 80px no-repeat,linear-gradient(var(--line),var(--line)) 18px 168px/calc(100% - 36px) 80px no-repeat;opacity:.55}
+html.signed-in [data-shelf]:empty{min-height:150px}
 html.signed-in.is-app .hero,html.signed-in.is-app .marq{display:none}
 
 /* signed-in home with no orders yet: one tidy card instead of an empty "My products" block; the cropped hero vials step aside in the app */

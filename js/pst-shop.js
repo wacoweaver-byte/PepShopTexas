@@ -54,18 +54,22 @@
   }
   async function shelf() {
     const el = $("[data-shelf]"); if (!el) return;
-    const user = await P.getUser(); if (!user) { document.documentElement.classList.remove("signed-in"); return; } // saved sign-in had expired: show the normal home
+    const user = await P.getUser(); if (!user) { document.documentElement.classList.remove("signed-in"); try { localStorage.removeItem("pst-shelf-cache"); } catch {} el.innerHTML = ""; el.hidden = true; return; } // saved sign-in had expired: show the normal home
+    const cached = el.dataset.cached && el.dataset.cached === user.id && el.innerHTML.trim();
     if (P.isStandalone()) document.body.classList.add("app-home");
-    el.hidden = false; el.innerHTML = `<div class="wrap shelf"><div class="skel" style="height:22px;width:40%"></div><div class="skel" style="height:80px;margin-top:16px"></div><div class="skel" style="height:80px;margin-top:10px"></div></div>`;
+    el.hidden = false; if (!cached) el.innerHTML = ""; // no grey loading boxes: a saved copy (or nothing) shows until the fresh one is ready
     const [prof, hist] = await Promise.all([P.getProfile(user), P.myHistory(user)]);
     const mine = (await P.myProducts(hist)).filter(m => (Date.now() - new Date(m.last.at)) / 864e5 < 400).slice(0, 12);
     const active = hist.orders.filter(o => !P.isDone(o)).slice(0, 2);
     const due = mine.filter(m => !m.inProgress && m.left <= 7 && m.p && P.qty(m.p) > 0);
-    el.innerHTML = `<div class="wrap shelf"><div class="shead"><div><span class="kick">Welcome back</span><h1 class="serif" style="font-size:2.3rem;margin:0">Hi, ${esc(P.firstName(prof, user))}</h1></div><a class="lnk" href="account.html">Account →</a></div>
+    const html = `<div class="wrap shelf"><div class="shead"><div><span class="kick">Welcome back</span><h1 class="serif" style="font-size:2.3rem;margin:0">Hi, ${esc(P.firstName(prof, user))}</h1></div><a class="lnk" href="account.html">Account →</a></div>
 ${active.map(o => orderBanner(o, hist.items)).join("")}
 ${mine.length ? `<div class="shead" style="margin-top:22px"><h2 class="serif" style="font-size:1.8rem;margin:0">My products</h2>${due.length > 1 ? `<button class="btn primary sm" type="button" data-reorder-due>Reorder all ${due.length} running low</button>` : ""}</div>
 <div class="mylist">${mine.map(productRow).join("")}</div><p class="muted small" style="margin-top:8px">Run-out dates are estimates from your order history. Tap Reorder to drop it in your bag; you can add more before checking out.</p>`
         : active.length ? "" : `<a class="shelfempty" href="catalog.html"><span class="se-ic">${P.icon("bag", 22)}</span><span class="se-tx"><b>No orders yet</b><span>Order once and your products show up here for one-tap reorder.</span></span><span class="btn primary sm se-go">Shop the collection</span></a>`}</div>`;
+    let prev = null; try { prev = JSON.parse(localStorage.getItem("pst-shelf-cache") || "null")?.html || null; } catch {}
+    if (!cached || prev !== html) el.innerHTML = html; // only redraw if something changed since last visit
+    try { localStorage.setItem("pst-shelf-cache", JSON.stringify({ uid: user.id, html })); } catch {}
     el.addEventListener("click", async e => {
       const mq = e.target.closest("[data-mq]"); if (mq) { const row = mq.closest(".myrow"), v = row.querySelector("[data-mqv]"); v.textContent = Math.max(1, Math.min(Number(row.dataset.max) || 1, Number(v.textContent) + Number(mq.dataset.mq))); return; }
       const ro = e.target.closest("[data-reorder]"); if (ro) { const row = ro.closest(".myrow"); P.addToCart(ro.dataset.reorder, Number(row.querySelector("[data-mqv]").textContent) || 1); location.href = "cart.html?from=mine"; return; }

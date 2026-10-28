@@ -177,7 +177,7 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
     const ag = t.closest("[data-again]"); if (ag) { const all = await P.products(); const p = all.find(q => q.product_key === ag.dataset.again || q.id === ag.dataset.pid); if (p && P.qty(p) > 0) { P.addAndShow(p.product_key, Math.max(1, Math.min(Number(ag.dataset.q || 1), P.qty(p)))); ag.innerHTML = `${P.icon("check", 14)} Added`; setTimeout(() => { ag.innerHTML = `${P.icon("plus", 14)} Add to bag`; }, 2200); } else if (p) P.openAvailability(p); else P.toast("That item isn't listed right now."); return; }
     const sd = t.closest("[data-sent]"); if (sd) { sd.disabled = true; sd.textContent = "Sending…"; const ok = await P.paidNotice(sd.dataset.sent); const m = P.store.get("pst_paid_sent", {}); m[sd.dataset.sent] = 1; P.store.set("pst_paid_sent", m); sd.textContent = "✓ Payment sent"; P.toast(ok ? "Thanks! Jimmie's been notified." : "Thanks! We'll match it to your order."); return; }
     const pu = t.closest("[data-push]"); if (pu) { try { if (pu.dataset.push === "on") await P.enablePush("customer"); else await P.disablePush(); showTab("alerts"); } catch (err) { P.toast(err.message); } return; }
-    if (t.closest("[data-signout]")) { await P.client().auth.signOut(); location.href = "index.html"; }
+    if (t.closest("[data-signout]")) { (localStorage.removeItem("pst-shelf-cache"), await P.client().auth.signOut()); location.href = "index.html"; }
   }
 
   /* ---------------- SIGN IN: email code first (no password to remember), password as the backup ---------------- */
@@ -294,7 +294,7 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
       if (pw.length < 10) return notice(msg, "Use at least 10 characters.", "err");
       if (pw !== f.confirm.value) return notice(msg, "Those passwords don't match.", "err");
       b.disabled = true; b.textContent = "Saving…";
-      try { const { error } = await P.client().auth.updateUser({ password: pw }); if (error) throw error; await P.client().auth.signOut(); location.href = "login.html?password=reset"; }
+      try { const { error } = await P.client().auth.updateUser({ password: pw }); if (error) throw error; (localStorage.removeItem("pst-shelf-cache"), await P.client().auth.signOut()); location.href = "login.html?password=reset"; }
       catch (err) { notice(msg, "Couldn't update the password: " + (err.message || err), "err"); b.disabled = false; b.textContent = "Save new password"; }
     });
   }
