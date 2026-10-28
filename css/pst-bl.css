@@ -802,6 +802,8 @@ html,body,body.noscroll{background:#fff!important;overflow:visible!important;hei
 #poprint .pph img{width:46px;height:46px;border-radius:50%}
 #poprint .pph b{display:block;font-size:17px;letter-spacing:.04em}
 #poprint .pph span{color:#666;font-size:11px}
+#poprint .pph address{font-style:normal;color:#333;font-size:11px;line-height:1.4;margin-top:6px}
+#poprint .pph>div:first-child{align-items:flex-start}#poprint .pph img{width:64px;height:64px}
 #poprint .ppt{text-align:right}
 #poprint .ppt h1{margin:0;font-size:20px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:#8a6b22}
 #poprint .ppt b{font-size:14px}

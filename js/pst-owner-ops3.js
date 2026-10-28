@@ -174,8 +174,12 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
     return out;
   }
   /* ================= Printable purchase order (Print or save as PDF) ================= */
-  function poPrint(po, rows, skus = {}) {
-    const f = rows[0] || {}, live = rows.filter(r => String(r.status || "").toLowerCase() !== "cancelled");
+  // v529 (reports #9/#12): every PO shows the logo and Jimmie's name, address, phone and email; cancelled lines are left off.
+  const PO_FROM = ["Jimmie Weaver", "2313 Starr Dr.", "Waco, TX 76710 USA", "254-498-7249", "wacoweaver@gmail.com"];
+  let poLogo = ""; // the emblem as a data URL, loaded when a PO opens, so the printed sheet never waits on the network
+  const poLogoLoad = () => { if (poLogo) return; fetch("img/pst-emblem-192.webp").then(r => r.ok ? r.blob() : Promise.reject()).then(b => new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = no; fr.readAsDataURL(b); })).then(u => { poLogo = String(u); }).catch(() => {}); };
+  function poPrint(po, allRows, skus = {}) {
+    const rows = allRows.filter(r => String(r.status || "").toLowerCase() !== "cancelled"), f = rows[0] || allRows[0] || {}, live = rows;
     const nm = r => String(r.product_name || "Product").replace(/\s*[—-]\s*PSTP\d+\s*$/i, "");
     const kitsOf = r => Number(r.ordered_quantity || 0) / Number(r.kit_vial_count || KIT || 10);
     const amt = r => kitsOf(r) * Number(r.kit_cost || 0);
@@ -185,7 +189,7 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
     const st = r => STATUS[String(r.status || "ordered").toLowerCase()] || r.status || "";
     document.getElementById("poprint")?.remove();
     const d = document.createElement("div"); d.id = "poprint";
-    d.innerHTML = `<div class="ppw"><header class="pph"><div><img src="img/pst-emblem-384.webp" alt="" onerror="this.remove()"><div><b>Pep Shop Texas</b><span>pepshoptexas.com</span></div></div><div class="ppt"><h1>Purchase order</h1><b>${esc(po)}</b></div></header>
+    d.innerHTML = `<div class="ppw"><header class="pph"><div><img src="${poLogo || "img/pst-emblem-384.webp"}" alt="" onerror="this.remove()"><div><b>Pep Shop Texas</b><span>pepshoptexas.com</span><address>${PO_FROM.map(esc).join("<br>")}</address></div></div><div class="ppt"><h1>Purchase order</h1><b>${esc(po)}</b></div></header>
 <section class="ppm"><div><small>Vendor</small><b>${esc(f.vendor_name || f.supplier_name || "Not set")}</b></div><div><small>Ordered</small><b>${P.fmtDate(f.ordered_at)}</b></div>${f.expected_arrival_date ? `<div><small>Expected</small><b>${P.fmtDate(f.expected_arrival_date)}</b></div>` : ""}${f.tracking_number ? `<div><small>Tracking</small><b>${esc(f.tracking_number)}</b></div>` : ""}</section>
 <table class="ppl"><thead><tr><th>Vendor SKU</th><th>Item</th><th>Vials</th><th>Kits</th><th>Kit price</th><th>Amount</th></tr></thead><tbody>${rows.map(r => { const cx = String(r.status || "").toLowerCase() === "cancelled"; return `<tr${cx ? ' class="cx"' : ""}><td class="sku">${esc(skus[r.id] || "—")}</td><td><b>${esc(nm(r))}</b>${cx ? "<small>Cancelled</small>" : String(r.status || "").toLowerCase() === "received" ? "<small>Received</small>" : ""}</td><td>${Number(r.ordered_quantity || 0)}</td><td>${kfmt(kitsOf(r))}</td><td>${usd(r.kit_cost)}</td><td>${cx ? "—" : usd(amt(r))}</td></tr>`; }).join("")}</tbody></table>
 <table class="ppx"><tr><td>Subtotal (${vials} vials)</td><td>${usd(sub)}</td></tr>${ship > 0.004 ? `<tr><td>Shipping &amp; fees</td><td>${usd(ship)}</td></tr>` : ""}${disc > 0.004 ? `<tr><td>Discount</td><td>−${usd(disc)}</td></tr>` : ""}<tr class="g"><td>Total</td><td>${usd(tot)}</td></tr></table>
@@ -204,6 +208,7 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
     const { data } = await P.client().from("incoming_inventory").select("*").ilike("po_number", po).order("created_at").order("product_name");
     const rows = data || [], op = rows.filter(open); if (!rows.length) return;
     const linked = r => !!(r.product_id || r.product_key);
+    poLogoLoad();
     let skus = {}; const skuP = poSkus(rows).then(m => { skus = m; Object.entries(m).forEach(([id, v]) => { const el = document.querySelector(`[data-posku="${CSS.escape(id)}"]`); if (el) el.textContent = `SKU ${v} · `; }); }).catch(() => {});
     const w = sheet(`<div class="osheet"><div class="oshead"><div><small class="muted">${esc(rows[0].vendor_name || rows[0].supplier_name || "No vendor")} · ordered ${P.fmtDate(rows[0].ordered_at)}</small><h2 class="serif">${esc(po)}</h2><span class="muted small">${rows[0].expected_arrival_date ? `Expected ${P.fmtDate(rows[0].expected_arrival_date)}` : ""}${rows[0].tracking_number ? ` · tracking ${esc(rows[0].tracking_number)}` : ""}</span></div></div>
 <div class="polines">${rows.map(r => `<label class="poline${open(r) ? "" : " done"}${linked(r) ? "" : " warn"}">${open(r) && linked(r) ? `<input type="checkbox" data-rl="${esc(r.id)}" checked>` : `<span class="pov"></span>`}<span><b>${esc(String(r.product_name || "").replace(/\s*[—-]\s*PSTP\d+\s*$/i, ""))}</b><small><i data-posku="${esc(r.id)}"></i>${STATUS[String(r.status || "ordered").toLowerCase()] || r.status} · ${usd(r.kit_cost)}/kit · ${usd(r.total_cost)}${linked(r) ? "" : " · not linked to a product"}</small>${linked(r) || !open(r) ? "" : `<button type="button" class="btn ghost sm pomatch" data-pomatch="${esc(r.id)}">Match to a product</button>`}</span><em>×${Number(r.ordered_quantity || 0)}</em></label>`).join("")}</div>
