@@ -152,6 +152,30 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
     draw(); search();
   }
 
+  /* ================= Printable purchase order (Print or save as PDF) ================= */
+  function poPrint(po, rows) {
+    const f = rows[0] || {}, live = rows.filter(r => String(r.status || "").toLowerCase() !== "cancelled");
+    const nm = r => String(r.product_name || "Product").replace(/\s*[—-]\s*PSTP\d+\s*$/i, "");
+    const kitsOf = r => Number(r.ordered_quantity || 0) / Number(r.kit_vial_count || KIT || 10);
+    const amt = r => kitsOf(r) * Number(r.kit_cost || 0);
+    const sub = live.reduce((n, r) => n + amt(r), 0), ship = live.reduce((n, r) => n + Number(r.shipping_cost || 0), 0), tot = live.reduce((n, r) => n + Number(r.total_cost || 0), 0);
+    const disc = Math.max(0, Math.round((sub + ship - tot) * 100) / 100), vials = live.reduce((n, r) => n + Number(r.ordered_quantity || 0), 0);
+    const kfmt = k => (Math.round(k * 100) / 100).toString();
+    const st = r => STATUS[String(r.status || "ordered").toLowerCase()] || r.status || "";
+    document.getElementById("poprint")?.remove();
+    const d = document.createElement("div"); d.id = "poprint";
+    d.innerHTML = `<div class="ppw"><header class="pph"><div><img src="img/pst-emblem-384.webp" alt="" onerror="this.remove()"><div><b>Pep Shop Texas</b><span>pepshoptexas.com</span></div></div><div class="ppt"><h1>Purchase order</h1><b>${esc(po)}</b></div></header>
+<section class="ppm"><div><small>Vendor</small><b>${esc(f.vendor_name || f.supplier_name || "Not set")}</b></div><div><small>Ordered</small><b>${P.fmtDate(f.ordered_at)}</b></div>${f.expected_arrival_date ? `<div><small>Expected</small><b>${P.fmtDate(f.expected_arrival_date)}</b></div>` : ""}${f.tracking_number ? `<div><small>Tracking</small><b>${esc(f.tracking_number)}</b></div>` : ""}</section>
+<table class="ppl"><thead><tr><th>Item</th><th>Vials</th><th>Kits</th><th>Kit price</th><th>Amount</th></tr></thead><tbody>${rows.map(r => { const cx = String(r.status || "").toLowerCase() === "cancelled"; return `<tr${cx ? ' class="cx"' : ""}><td><b>${esc(nm(r))}</b>${cx ? "<small>Cancelled</small>" : String(r.status || "").toLowerCase() === "received" ? "<small>Received</small>" : ""}</td><td>${Number(r.ordered_quantity || 0)}</td><td>${kfmt(kitsOf(r))}</td><td>${usd(r.kit_cost)}</td><td>${cx ? "—" : usd(amt(r))}</td></tr>`; }).join("")}</tbody></table>
+<table class="ppx"><tr><td>Subtotal (${vials} vials)</td><td>${usd(sub)}</td></tr>${ship > 0.004 ? `<tr><td>Shipping &amp; fees</td><td>${usd(ship)}</td></tr>` : ""}${disc > 0.004 ? `<tr><td>Discount</td><td>−${usd(disc)}</td></tr>` : ""}<tr class="g"><td>Total</td><td>${usd(tot)}</td></tr></table>
+<footer class="ppf">Kits are 10 vials each. Printed ${new Date().toLocaleDateString()}.</footer></div>`;
+    document.body.appendChild(d);
+    const done = () => { d.remove(); window.removeEventListener("afterprint", done); };
+    window.addEventListener("afterprint", done);
+    const prevTitle = document.title; document.title = `${po} · Pep Shop Texas`;
+    setTimeout(() => { window.print(); document.title = prevTitle; }, 60);
+  }
+
   /* ================= ONE PO: receive all / some, tracking, status, edit, cancel a line ================= */
   async function poOpen(po, then) {
     const { data } = await P.client().from("incoming_inventory").select("*").ilike("po_number", po).order("created_at").order("product_name");
@@ -159,6 +183,7 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
     const linked = r => !!(r.product_id || r.product_key);
     const w = sheet(`<div class="osheet"><div class="oshead"><div><small class="muted">${esc(rows[0].vendor_name || rows[0].supplier_name || "No vendor")} · ordered ${P.fmtDate(rows[0].ordered_at)}</small><h2 class="serif">${esc(po)}</h2><span class="muted small">${rows[0].expected_arrival_date ? `Expected ${P.fmtDate(rows[0].expected_arrival_date)}` : ""}${rows[0].tracking_number ? ` · tracking ${esc(rows[0].tracking_number)}` : ""}</span></div></div>
 <div class="polines">${rows.map(r => `<label class="poline${open(r) ? "" : " done"}${linked(r) ? "" : " warn"}">${open(r) && linked(r) ? `<input type="checkbox" data-rl="${esc(r.id)}" checked>` : `<span class="pov"></span>`}<span><b>${esc(String(r.product_name || "").replace(/\s*[—-]\s*PSTP\d+\s*$/i, ""))}</b><small>${STATUS[String(r.status || "ordered").toLowerCase()] || r.status} · ${usd(r.kit_cost)}/kit · ${usd(r.total_cost)}${linked(r) ? "" : " · not linked to a product"}</small>${linked(r) || !open(r) ? "" : `<button type="button" class="btn ghost sm pomatch" data-pomatch="${esc(r.id)}">Match to a product</button>`}</span><em>×${Number(r.ordered_quantity || 0)}</em></label>`).join("")}</div>
+<button class="btn ghost wide poprintb" type="button" data-poprint>Print or save as PDF</button>
 ${op.length ? `<div class="obar"><button class="btn primary wide" type="button" data-rc>Receive checked</button>
 <button class="btn ghost wide" type="button" data-ed>Edit this order</button></div>
 <details class="omore"><summary>Tracking number</summary><div class="pm2 inl"><input data-trkv value="${esc(rows.find(r => r.tracking_number)?.tracking_number || "")}" placeholder="Tracking number" aria-label="Tracking number"><button class="btn ghost" type="button" data-trk>Save</button></div></details>
@@ -191,6 +216,7 @@ ${op.length ? `<div class="obar"><button class="btn primary wide" type="button" 
         if (error || (d || []).length !== moving.length) { st.textContent = error?.message || `Status updated ${(d || []).length} of ${moving.length} lines.`; return; }
         P.toast(`${po}: ${STATUS[to]}`); reload(); return;
       }
+      if (e.target.closest("[data-poprint]")) { poPrint(po, rows); return; }
       if (e.target.closest("[data-ed]")) { P.closeSheet(); poSheet({ edit: { po, rows }, then }); return; }
       const cx = e.target.closest("[data-cx]"); if (cx) { // = updateIncomingStatus(id, "cancelled")
         const r = rows.find(x => x.id === cx.dataset.cx);
@@ -297,5 +323,5 @@ ${best.length ? `<p class="kick" style="margin:10px 0 4px">Closest matches</p><d
       P.closeSheet(); P.toast(`Matched to ${x.display_name} ${x.strength || ""}`.trim()); done && done(); });
   }
 
-  window.PSTOps3 = { poSheet, poOpen, reorderPane, vendorsPane, matchLine };
+  window.PSTOps3 = { poSheet, poOpen, poPrint, reorderPane, vendorsPane, matchLine };
 })();

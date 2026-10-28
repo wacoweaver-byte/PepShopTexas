@@ -778,3 +778,44 @@ html[data-theme=light] .badc{color:#c0473d}
 @media(min-width:900px){.hd .wrap.hrow{max-width:1440px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.hrow>.nav.l{min-width:0;padding-right:28px}.hrow>.nav.r{min-width:0;padding-left:28px}}
 @media(min-width:900px) and (max-width:1279px){.hd .hbtn[data-act=search] span{display:none}.hrow>.nav.l,.hrow>.nav.r{gap:14px}.hrow>.nav.l{padding-right:18px}.hrow>.nav.r{padding-left:18px}}
 @media(min-width:900px) and (max-width:1099px){.hd .nav.l a[href^="rewards"]{display:none}}
+/* v5.12: live deals get real space (home card under the hero, note on product pages) */
+.deals{display:grid;gap:12px;margin-top:22px}
+@media(min-width:800px){.deals{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}}
+.dealc{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;padding:16px 18px;border:1px solid rgba(201,164,92,.55);background:linear-gradient(135deg,rgba(201,164,92,.14),rgba(201,164,92,.03) 60%),var(--card);color:inherit;text-decoration:none;transition:border-color .2s,transform .2s}
+.dealc:hover{border-color:var(--gold);transform:translateY(-2px)}
+.dealimg{position:relative;display:grid;place-items:center;width:64px}.dealimg i{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);font-style:normal;font-size:10px;font-weight:800;letter-spacing:.12em;background:var(--gold);color:#111;padding:2px 7px;border-radius:999px}
+.dealic{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:rgba(201,164,92,.16);color:var(--gold)}
+.dealtx{display:flex;flex-direction:column;gap:3px;min-width:0}.dealtx .kick{margin:0}.dealtx b.serif{font-size:1.35rem;line-height:1.15}.dealtx .muted{font-size:13.5px}.dealtx .lnk{font-size:12px;margin-top:3px}
+.pdeal{display:flex;gap:10px;align-items:flex-start;margin:12px 0 4px;padding:10px 12px;border:1px dashed rgba(201,164,92,.6);background:rgba(201,164,92,.07);font-size:13.5px;line-height:1.45}.pdeal svg{flex:none;color:var(--gold);margin-top:2px}.pdeal small{color:var(--muted)}
+html[data-theme=light] .dealc{background:linear-gradient(135deg,rgba(154,122,47,.12),rgba(154,122,47,.02) 60%),#fff}
+/* v513 printable purchase order */
+.osheet .poprintb{margin-top:2px}
+#poprint{display:none}
+@media print{
+@page{size:letter;margin:14mm}
+body>*:not(#poprint){display:none!important}
+html,body{background:#fff!important;overflow:visible!important;height:auto!important}
+#poprint{display:block!important;color:#111;font:12px/1.45 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#poprint .pph{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #B08D3C;padding-bottom:12px;margin-bottom:16px}
+#poprint .pph>div:first-child{display:flex;gap:10px;align-items:center}
+#poprint .pph img{width:46px;height:46px;border-radius:50%}
+#poprint .pph b{display:block;font-size:17px;letter-spacing:.04em}
+#poprint .pph span{color:#666;font-size:11px}
+#poprint .ppt{text-align:right}
+#poprint .ppt h1{margin:0;font-size:20px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:#8a6b22}
+#poprint .ppt b{font-size:14px}
+#poprint .ppm{display:flex;flex-wrap:wrap;gap:8px 28px;margin-bottom:16px}
+#poprint .ppm small{display:block;color:#777;font-size:10px;text-transform:uppercase;letter-spacing:.1em}
+#poprint .ppm b{font-size:13px}
+#poprint table{width:100%;border-collapse:collapse}
+#poprint .ppl th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#555;border-bottom:1px solid #999;padding:6px 6px}
+#poprint .ppl td{border-bottom:1px solid #ddd;padding:7px 6px;vertical-align:top}
+#poprint .ppl th:not(:first-child),#poprint .ppl td:not(:first-child){text-align:right;white-space:nowrap}
+#poprint .ppl td small{display:block;color:#777;font-size:10px}
+#poprint .ppl tr.cx td{color:#999;text-decoration:line-through}#poprint .ppl tr.cx small{text-decoration:none}
+#poprint .ppl tr{break-inside:avoid}
+#poprint .ppx{width:auto;margin:12px 0 0 auto;min-width:240px}
+#poprint .ppx td{padding:4px 6px}#poprint .ppx td:last-child{text-align:right}
+#poprint .ppx tr.g td{border-top:2px solid #111;font-weight:700;font-size:14px;padding-top:7px}
+#poprint .ppf{margin-top:28px;color:#888;font-size:10px;border-top:1px solid #ddd;padding-top:8px}
+}

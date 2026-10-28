@@ -437,6 +437,20 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     } catch {}
     return [{ id: "venmo", label: "Venmo", pct: 0 }];
   }
+  // v5.12: every live promotion this shopper can see (the top bar shows only the first; the home page lists them all)
+  async function activePromotions(user) {
+    const { data, error } = await client().from("site_promotions").select("id,title,body,badge,button_text,button_link,starts_at,ends_at,sort_order,audience,promotion_type,reward_product_key,minimum_paid_quantity,reward_quantity").eq("is_active", true).order("sort_order", { ascending: true, nullsFirst: false });
+    if (error) return [];
+    const now = Date.now(), out = [];
+    for (const p of data || []) {
+      if ((p.starts_at && Date.parse(p.starts_at) > now) || (p.ends_at && Date.parse(p.ends_at) < now)) continue;
+      const href = String(p.button_link || "").toLowerCase(), acct = href.includes("register.html") || /create account/i.test(p.button_text || "") || /welcome/i.test(p.title || "");
+      if (user && acct) continue;
+      if (p.audience === "selected_customers") { const r = await client().rpc("pst_promotion_visible_to_current_customer", { p_id: p.id }); if (r.error || !r.data) continue; }
+      out.push(p);
+    }
+    return out;
+  }
   async function activePromotion(user) {
     const { data, error } = await client().from("site_promotions").select("id,title,body,badge,button_text,button_link,is_active,starts_at,ends_at,sort_order,accent_color,audience,promotion_type").eq("is_active", true).order("sort_order", { ascending: true, nullsFirst: false });
     if (error) return null;
@@ -996,7 +1010,7 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   const SMS_CONSENT = "Text me deals and restocks from Pep Shop Texas at this number. Up to 4 texts a month. Msg & data rates may apply. Reply STOP to cancel, HELP for help. Consent isn't required to buy.";
   const usPhone = v => { const d = String(v || "").replace(/\D/g, ""); return /^[2-9]\d{9}$/.test(d) ? d : /^1[2-9]\d{9}$/.test(d) ? d.slice(1) : ""; };
   const fmtPhone = v => { const d = usPhone(v); return d ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : ""; };
-  window.PST = { SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
+  window.PST = { activePromotions, SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, handedOff, stageOf, vialLiquid, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
     photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,
