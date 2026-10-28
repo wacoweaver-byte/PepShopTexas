@@ -11,7 +11,7 @@
     const rem = P.reminders();
     for (const r of rows) { if (!r.product) continue; suggest[r.key] = await P.suggestDays(r.product); if (!(r.key in rem)) P.setReminder(r.key, suggest[r.key].d, true, !!suggest[r.key].perVial); }
   }
-  let bo = false, rows = [], user = null, profile = null, methods = [], credit = 0, frees = [], choices = [], busy = false;
+  let bo = false, rows = [], user = null, profile = null, methods = [], credit = 0, frees = [], choices = [], gifts = [], busy = false;
   const host = () => $("[data-cart]");
 
   function totals() {
@@ -43,6 +43,7 @@ ${P.REMIND.slice(1).map(([d, l]) => `<button type="button" data-rem="${esc(r.key
   function sideHtml() {
     const t = totals(), live = rows.filter(r => r.product);
     const sum = `<div class="sum"><div class="r"><span>Subtotal</span><b>${money(t.sub)}</b></div>
+${gifts.map(g => `<div class="r disc"><span>Free gift · ${esc(P.titleParts(g.p).main)} ${esc(g.p.strength || "")} ×${g.qty}</span><b>FREE</b></div>`).join("")}
 ${t.disc ? `<div class="r disc"><span>Code ${esc(discount?.code || "")}</span><b>−${money(t.disc)}</b></div>` : ""}
 ${t.pd ? `<div class="r disc"><span>${esc(P.payLabel(t.pm))} savings · ${t.pm.pct}%</span><b>−${money(t.pd)}</b></div>` : ""}
 <div class="r"><span>${delivery === "pickup" ? "Local pickup" : "Shipping"}</span><b>${t.ship ? money(t.ship) : "Free"}</b></div>
@@ -59,7 +60,7 @@ ${delivery === "ship" && live.length ? `<div class="ship"><div class="shipbar"><
 <label><input type="radio" name="dl" value="pickup" ${delivery === "pickup" ? "checked" : ""}><span><b>Local pickup</b><small>Free. We'll text you when it's ready.</small></span></label>
 <label><input type="radio" name="dl" value="ship" ${delivery === "ship" ? "checked" : ""}><span><b>Ship it</b><small>${money(P.CFG.shipRate)} flat, free over ${money(P.CFG.freeShip)}. USPS Priority, about 4 days.</small></span></label></div>
 ${delivery === "ship" ? `<p class="addr" style="margin:10px 0 0">${addr ? `Ships to: ${esc(addr)} · <a href="account.html#profile">Change</a>` : `<span style="color:var(--bad)">No shipping address on your account yet.</span> <a href="account.html#profile">Add one</a>`}</p>` : ""}</div>
-${frees.length || choices.length ? `<div class="box"><h3>Your rewards</h3>${frees.map(f => `<div class="reward"><b>${esc(f.name)} · FREE</b><br><span class="muted small">${esc(f.title || "Promotion")} · qty ${f.qty}. Awarded when payment is confirmed, while supplies last.</span></div>`).join("")}
+${(frees.length && !gifts.length) || choices.length ? `<div class="box"><h3>Your rewards</h3>${(gifts.length ? [] : frees).map(f => `<div class="reward"><b>${esc(f.name)} · FREE</b><br><span class="muted small">${esc(f.title || "Promotion")} · qty ${f.qty}. Awarded when payment is confirmed, while supplies last.</span></div>`).join("")}
 ${choices.map(c => `<div class="reward"><b>${esc(c.title)}</b><br><span class="muted small">Pick ${c.qty} free vial${c.qty > 1 ? "s" : ""}.</span>${c.options.length ? `<select data-choice="${esc(c.id)}" aria-label="${esc(c.title)}"><option value="">Choose your free vial</option>${c.options.map(o => `<option value="${esc(o.product_key)}"${picks[c.id] === o.product_key ? " selected" : ""}>${esc([o.display_name, o.strength].filter(Boolean).join(" · "))}</option>`).join("")}</select>` : `<p class="muted small">All eligible rewards are out right now.</p>`}</div>`).join("")}</div>` : ""}
 <div class="box"><h3>Discount${credit > 0 ? " &amp; credit" : ""}</h3>
 ${discount ? `<div class="promo"><input value="${esc(discount.code)}" readonly aria-label="Applied code"><button class="btn ghost sm" type="button" data-act3="rmcode">Remove</button></div><p class="status good">${esc(discount.code)} applied.</p>`
@@ -83,7 +84,11 @@ ${smsBox()}
     let notice = sessionStorage.getItem("pst_reorder_notice_v1"); if (notice) sessionStorage.removeItem("pst_reorder_notice_v1");
     if (!notice && P.params.get("from") === "mine" && !draw.once) notice = "Added from My products. Change the quantity or add anything else below.";
     draw.once = true;
-    el.innerHTML = `${notice ? `<p class="notice ok" style="margin-bottom:14px">${esc(notice)}</p>` : ""}<div class="cartgrid"><div><div data-lines>${rows.map(lineHtml).join("")}</div>
+    gifts = await P.giftLines(rows, user).catch(() => []);
+    const giftHtml = gifts.map(g => { const t = P.titleParts(g.p), val = P.unitPrice(g.p) * g.qty; return `<div class="cline gift" aria-label="Free gift: ${esc(t.main)} ${esc(g.p.strength || "")}, quantity ${g.qty}"><span class="ci">${P.vial(g.p, 40)}<i class="giftb">FREE</i></span>
+<div><h3>${esc(t.main)} <span class="gifttag">${P.icon("tag", 13)} Free gift</span></h3><span class="meta">${esc(g.p.strength || "")} · qty ${g.qty} · added automatically</span><p class="muted small giftwhy">${esc(g.title)}${g.body ? ` ${esc(g.body)}` : ""}</p></div>
+<b class="lt"><s>${money(val)}</s> $0.00</b></div>`; }).join("");
+    el.innerHTML = `${notice ? `<p class="notice ok" style="margin-bottom:14px">${esc(notice)}</p>` : ""}<div class="cartgrid"><div><div data-lines>${rows.map(lineHtml).join("")}${giftHtml}</div>
 <p class="muted small" style="margin-top:12px">${P.icon("bell", 14)} One alert when a vial is likely running low. Auto starts with a typical time and learns from how often you reorder. No dosing info is ever asked.</p>${addMore()}</div><aside class="side" data-side>${sideHtml()}</aside></div>`;
   }
   /* "add to this order" strip: in-stock items not already in the bag, closest research focus first */

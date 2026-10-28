@@ -418,6 +418,17 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     const { data: inv } = await client().from("product_inventory").select("product_key,display_name,strength,current_inventory").in("product_key", q.map(p => p.reward_product_key));
     return q.map(p => { const r = (inv || []).find(i => i.product_key === p.reward_product_key); return r && Number(r.current_inventory || 0) >= Number(p.reward_quantity || 1) ? { title: p.title, name: [r.display_name, r.strength].filter(Boolean).join(" · "), qty: Number(p.reward_quantity || 1) } : null; }).filter(Boolean);
   }
+  /* "Buy any peptide, get X free": the free vial shows as a real $0 line in the bag for everyone (signed in or not).
+     It is display only. The order still gets the free vial the same way as before (added when payment is confirmed). */
+  let giftP = null, giftT = 0;
+  async function giftLines(rows, user) {
+    const bought = countsForRewards(rows); if (!bought) return [];
+    if (!giftP || Date.now() - giftT > 60000) { giftT = Date.now(); giftP = activePromotions(user).catch(() => []); }
+    const promos = (await giftP).filter(p => p.promotion_type === "free_product" && (p.reward_mode || "fixed") === "fixed" && p.reward_product_key && bought >= Number(p.minimum_paid_quantity || 1));
+    if (!promos.length) return [];
+    const all = await products().catch(() => []);
+    return promos.map(p => { const r = all.find(x => x.product_key === p.reward_product_key), q = Number(p.reward_quantity || 1); return r && qty(r) >= q ? { p: r, qty: q, title: p.title, body: p.body || "" } : null; }).filter(Boolean);
+  }
   async function choiceRewards(rows) {
     const bought = countsForRewards(rows); if (!bought) return [];
     const { data: promos, error } = await client().from("site_promotions").select("id,title,minimum_paid_quantity,reward_quantity,starts_at,ends_at,audience").eq("is_active", true).eq("promotion_type", "free_product").eq("reward_mode", "customer_choice");
@@ -452,7 +463,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
   }
   // v5.12: every live promotion this shopper can see (the top bar shows only the first; the home page lists them all)
   async function activePromotions(user) {
-    const { data, error } = await client().from("site_promotions").select("id,title,body,badge,button_text,button_link,starts_at,ends_at,sort_order,audience,promotion_type,reward_product_key,minimum_paid_quantity,reward_quantity").eq("is_active", true).order("sort_order", { ascending: true, nullsFirst: false });
+    const { data, error } = await client().from("site_promotions").select("id,title,body,badge,button_text,button_link,starts_at,ends_at,sort_order,audience,promotion_type,reward_product_key,minimum_paid_quantity,reward_quantity,reward_mode").eq("is_active", true).order("sort_order", { ascending: true, nullsFirst: false });
     if (error) return [];
     const now = Date.now(), out = [];
     for (const p of data || []) {
@@ -1060,7 +1071,7 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   const SMS_CONSENT = "Text me deals and restocks from Pep Shop Texas at this number. Up to 4 texts a month. Msg & data rates may apply. Reply STOP to cancel, HELP for help. Consent isn't required to buy.";
   const usPhone = v => { const d = String(v || "").replace(/\D/g, ""); return /^[2-9]\d{9}$/.test(d) ? d : /^1[2-9]\d{9}$/.test(d) ? d.slice(1) : ""; };
   const fmtPhone = v => { const d = usPhone(v); return d ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : ""; };
-  window.PST = { flipper, mountFlip, activePromotions, SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
+  window.PST = { giftLines, flipper, mountFlip, activePromotions, SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, handedOff, stageOf, vialLiquid, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
     photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,

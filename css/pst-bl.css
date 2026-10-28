@@ -934,3 +934,11 @@ html.signed-in.is-app .hero,html.signed-in.is-app .marq{display:none}
 @media(max-width:620px){.shelfempty{flex-wrap:wrap;gap:12px 14px;margin-top:14px}.shelfempty .se-go{width:100%;justify-content:center}}
 body.app-home .vialshot,html.signed-in.is-app .vialshot{display:none}
 body.app-home .shelf{padding-bottom:4px}
+/* v527 free gift line in the bag ("buy any peptide, get GHK-Cu free") */
+.cline.gift{border:1px dashed var(--gold);border-radius:10px;background:rgba(201,162,77,.07);padding:12px}
+.cline.gift .ci{position:relative}
+.cline.gift .giftb{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);background:var(--gold);color:#0a101c;font:800 9.5px/1 var(--fb,inherit);font-style:normal;letter-spacing:.08em;padding:3px 6px;border-radius:4px}
+.cline.gift h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gifttag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-family:var(--fb,inherit)}
+.cline.gift .giftwhy{margin:4px 0 0}
+.cline.gift .lt{white-space:nowrap}.cline.gift .lt s{color:var(--muted);font-weight:400;margin-right:4px}
