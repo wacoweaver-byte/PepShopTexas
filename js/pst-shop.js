@@ -54,7 +54,7 @@
   }
   async function shelf() {
     const el = $("[data-shelf]"); if (!el) return;
-    const user = await P.getUser(); if (!user) return;
+    const user = await P.getUser(); if (!user) { document.documentElement.classList.remove("signed-in"); return; } // saved sign-in had expired: show the normal home
     if (P.isStandalone()) document.body.classList.add("app-home");
     el.hidden = false; el.innerHTML = `<div class="wrap shelf"><div class="skel" style="height:22px;width:40%"></div><div class="skel" style="height:80px;margin-top:16px"></div><div class="skel" style="height:80px;margin-top:10px"></div></div>`;
     const [prof, hist] = await Promise.all([P.getProfile(user), P.myHistory(user)]);

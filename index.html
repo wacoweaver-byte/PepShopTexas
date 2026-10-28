@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><script>/* signed-in home from the first frame: read the saved sign-in before paint, so the signed-out hero never flashes */(function(){try{var d=document.documentElement,s=false;for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.+-auth-token$/.test(k)){var v=JSON.parse(localStorage.getItem(k)||"null");if(v&&(v.refresh_token||(v.currentSession&&v.currentSession.refresh_token)))s=true;}}if(s)d.classList.add("signed-in");if((window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone)d.classList.add("is-app");}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pep Shop Texas | Lab-verified research peptides</title>
 <meta name="description" content="Texas-owned research peptide shop. Small batch, third-party lab reports, free local pickup and one-tap Venmo checkout.">
@@ -17,10 +17,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://ucejjztsbmrogiteivxl.supabase.co" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/pst-bl.css?v=521"><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "name": "Pep Shop Texas", "url": "https://www.pepshoptexas.com/", "logo": "https://www.pepshoptexas.com/icons/icon-512.png", "email": "support@pepshoptexas.com"}, {"@type": "WebSite", "name": "Pep Shop Texas", "url": "https://www.pepshoptexas.com/", "potentialAction": {"@type": "SearchAction", "target": "https://www.pepshoptexas.com/catalog.html?search={q}", "query-input": "required name=q"}}]}</script>
+<link rel="stylesheet" href="css/pst-bl.css?v=523"><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "name": "Pep Shop Texas", "url": "https://www.pepshoptexas.com/", "logo": "https://www.pepshoptexas.com/icons/icon-512.png", "email": "support@pepshoptexas.com"}, {"@type": "WebSite", "name": "Pep Shop Texas", "url": "https://www.pepshoptexas.com/", "potentialAction": {"@type": "SearchAction", "target": "https://www.pepshoptexas.com/catalog.html?search={q}", "query-input": "required name=q"}}]}</script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="js/pst-core.js?v=522"></script>
-<script defer src="js/pst-shop.js?v=516"></script>
+<script defer src="js/pst-shop.js?v=523"></script>
 </head>
 <body data-page="home">
 <main id="main">
