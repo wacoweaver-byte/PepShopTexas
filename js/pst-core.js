@@ -668,7 +668,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
           a.insertAdjacentHTML("beforebegin", `<details class="ownmenu" data-adminlink><summary>Owner</summary><div><a href="owner.html">Owner app</a><a href="admin.html">Admin dashboard</a></div></details>`);
           // owner-only bar with the Shop | Owner switch (phones too), and remember this page so the owner app's "Shop" comes back here
           try { sessionStorage.setItem("pst-last-shop", (location.pathname.split("/").pop() || "index.html") + location.search); } catch {}
-          if (!$(".flipbar")) document.body.insertAdjacentHTML("afterbegin", `<div class="flipbar" role="region" aria-label="Store owner"><span>You're viewing the shop</span>${flipper("shop")}</div>`);
+          mountFlip("shop");
           document.addEventListener("click", e => { const d = document.querySelector(".ownmenu[open]"); if (d && !d.contains(e.target)) d.open = false; });
           $("#drawer nav")?.insertAdjacentHTML("afterbegin", `<details open><summary>Store owner</summary><a href="owner.html">Owner app (phone)</a><a href="admin.html">Admin dashboard</a></details>`);
         } }
@@ -682,6 +682,30 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
   function flipper(on) {
     let back = "index.html"; try { back = sessionStorage.getItem("pst-last-shop") || back; } catch {}
     return `<nav class="flip" aria-label="Switch between the shop and the owner app"><a href="${esc(back)}"${on === "shop" ? ' aria-current="page" class="on"' : ""}>Shop</a><a href="owner.html"${on === "owner" ? ' aria-current="page" class="on"' : ""}>Owner</a></nav>`;
+  }
+  /* Floating, movable switch: drag the grip to put it anywhere; each device remembers its own spot (screens differ) */
+  const FLIPKEY = "pst-flip-pos";
+  function mountFlip(on) {
+    if (document.querySelector(".flipfloat")) return;
+    const el = document.createElement("div"); el.className = "flipfloat"; el.setAttribute("role", "region"); el.setAttribute("aria-label", "Store owner: switch between the shop and the owner app");
+    el.innerHTML = `<button type="button" class="flipgrip" aria-label="Move this switch. Drag it, or use the arrow keys" title="Drag to move"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><g fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></g></svg></button>${flipper(on)}`;
+    document.body.appendChild(el);
+    let probe = null; // measures the iPhone camera / home-bar areas so the switch can never sit under them
+    const safe = () => { if (!probe) { probe = document.createElement("div"); probe.style.cssText = "position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)"; document.body.appendChild(probe); }
+      const cs = getComputedStyle(probe); return { t: parseFloat(cs.paddingTop) || 0, b: parseFloat(cs.paddingBottom) || 0 }; };
+    const clamp = (x, y) => { const m = 8, sa = safe(), w = el.offsetWidth, h = el.offsetHeight; return [Math.min(Math.max(m, x), innerWidth - w - m), Math.min(Math.max(m + sa.t, y), innerHeight - h - m - sa.b)]; };
+    const put = (x, y) => { [x, y] = clamp(x, y); el.style.left = x + "px"; el.style.top = y + "px"; el.style.right = "auto"; el.style.bottom = "auto"; return [x, y]; };
+    const load = () => { try { const v = JSON.parse(localStorage.getItem(FLIPKEY) || "null"); if (v && isFinite(v.x) && isFinite(v.y)) { put(v.x * innerWidth, v.y * innerHeight); return true; } } catch {} return false; };
+    const save = () => { const r = el.getBoundingClientRect(); try { localStorage.setItem(FLIPKEY, JSON.stringify({ x: r.left / innerWidth, y: r.top / innerHeight })); } catch {} };
+    requestAnimationFrame(() => { if (!load()) { /* default: low on the right, clear of the iPhone camera and the tab bar */ const r = el.getBoundingClientRect(); put(r.left, r.top); } el.classList.add("ready"); });
+    addEventListener("resize", () => { const r = el.getBoundingClientRect(); put(r.left, r.top); });
+    const g = el.querySelector(".flipgrip"); let d = null;
+    g.addEventListener("pointerdown", e => { if (e.button > 0) return; e.preventDefault(); const r = el.getBoundingClientRect(); d = { id: e.pointerId, dx: e.clientX - r.left, dy: e.clientY - r.top }; g.setPointerCapture(e.pointerId); el.classList.add("dragging"); });
+    g.addEventListener("pointermove", e => { if (!d || e.pointerId !== d.id) return; e.preventDefault(); put(e.clientX - d.dx, e.clientY - d.dy); });
+    const end = e => { if (!d || (e && e.pointerId !== d.id)) return; d = null; el.classList.remove("dragging"); save(); };
+    g.addEventListener("pointerup", end); g.addEventListener("pointercancel", end);
+    g.addEventListener("keydown", e => { const k = { ArrowLeft: [-16, 0], ArrowRight: [16, 0], ArrowUp: [0, -16], ArrowDown: [0, 16] }[e.key]; if (!k) return; e.preventDefault(); const r = el.getBoundingClientRect(); put(r.left + k[0], r.top + k[1]); save(); });
+    g.addEventListener("dblclick", () => { try { localStorage.removeItem(FLIPKEY); } catch {} el.removeAttribute("style"); requestAnimationFrame(() => { const r = el.getBoundingClientRect(); put(r.left, r.top); }); });
   }
   /* ---------- UI helpers ---------- */
   function toast(msg, link) {
@@ -1018,7 +1042,7 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   const SMS_CONSENT = "Text me deals and restocks from Pep Shop Texas at this number. Up to 4 texts a month. Msg & data rates may apply. Reply STOP to cancel, HELP for help. Consent isn't required to buy.";
   const usPhone = v => { const d = String(v || "").replace(/\D/g, ""); return /^[2-9]\d{9}$/.test(d) ? d : /^1[2-9]\d{9}$/.test(d) ? d.slice(1) : ""; };
   const fmtPhone = v => { const d = usPhone(v); return d ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : ""; };
-  window.PST = { flipper, activePromotions, SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
+  window.PST = { flipper, mountFlip, activePromotions, SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, handedOff, stageOf, vialLiquid, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
     photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,

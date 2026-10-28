@@ -889,3 +889,12 @@ html[data-theme=light] .flipbar{background:#0a101c}
 @keyframes coashine{0%{transform:translateX(-130%)}38%,100%{transform:translateX(130%)}}
 .coapeek:hover::after,.coapeek:focus-visible::after{animation:none;opacity:0}
 @media(prefers-reduced-motion:reduce){.coapeek::after{animation:none;display:none}}
+/* v518 the Shop | Owner switch floats and can be dragged anywhere (it used to be a bar under the iPhone camera) */
+.flipfloat{position:fixed;right:12px;bottom:calc(190px + env(safe-area-inset-bottom,0px));z-index:8500;display:flex;align-items:center;gap:2px;padding:3px 4px 3px 2px;border-radius:999px;background:rgba(5,8,15,.92);border:1px solid var(--gold);box-shadow:0 8px 24px rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;transition:opacity .15s}
+.flipfloat.ready{opacity:1}
+.flipfloat .flip{border:0;background:transparent;padding:0}
+.flipgrip{width:26px;height:30px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);cursor:grab;touch-action:none;padding:0;border-radius:999px}
+.flipgrip:hover,.flipgrip:focus-visible{color:var(--gold);outline:none}
+.flipfloat.dragging{box-shadow:0 14px 34px rgba(0,0,0,.6);transform:scale(1.04)}.flipfloat.dragging .flipgrip{cursor:grabbing;color:var(--gold)}
+@media(min-width:900px){.flipfloat{bottom:24px;right:24px}}
+@media print{.flipfloat{display:none!important}}
