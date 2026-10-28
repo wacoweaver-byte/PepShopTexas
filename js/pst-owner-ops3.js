@@ -63,10 +63,10 @@
   async function poSheet(opt = {}) { // opt: { lines:[{key,qty}], edit:{po, rows} , then }
     await loadBase();
     const editing = opt.edit || null, first = editing?.rows?.[0] || null;
-    let vendorId = first?.vendor_id || "", vp = await vendorPrices(vendorId);
+    let vendorId = first?.vendor_id || opt.vendorId || "", vp = await vendorPrices(vendorId); // Compare suppliers opens a PO pre-set to the chosen supplier
     const lines = [];
     if (editing) editing.rows.filter(open).forEach(r => lines.push({ originalRowId: r.id, original: r, productId: r.product_id || null, productKey: r.product_key || null, productName: r.product_name, vendorOnly: !r.product_id && !r.product_key, qty: Number(r.ordered_quantity || 0), kitCost: Number(r.kit_cost ?? 0) }));
-    (opt.lines || []).forEach(l => { const it = items.find(i => i.product_key === l.key); if (it) lines.push({ productId: it.id, productKey: it.product_key, productName: label(it), qty: Math.max(KIT, Math.ceil(Number(l.qty || KIT) / KIT) * KIT), kitCost: 0 }); });
+    (opt.lines || []).forEach(l => { const it = items.find(i => i.product_key === l.key); if (it) lines.push({ productId: it.id, productKey: it.product_key, productName: label(it), qty: Math.max(KIT, Math.ceil(Number(l.qty || KIT) / KIT) * KIT), kitCost: Number(l.kitCost || 0) }); });
     const disc0 = editing ? editing.rows.filter(open).reduce((s, r) => { const pc = Number(r.kit_cost || 0) > 0 ? Number(r.ordered_quantity || 0) / KIT * Number(r.kit_cost) : Number(r.ordered_quantity || 0) * Number(r.cost_per_unit || 0); return s + Math.max(0, pc + Number(r.shipping_cost || 0) - Number(r.total_cost || 0)); }, 0) : 0;
     const ship0 = editing ? editing.rows.filter(open).reduce((s, r) => s + Number(r.shipping_cost || 0), 0) : 0;
     const d0 = first?.ordered_at ? (d => { const z = n => String(n).padStart(2, "0"); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`; })(new Date(first.ordered_at)) : todayYmd();
