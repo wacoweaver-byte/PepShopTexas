@@ -63,9 +63,9 @@
     const due = mine.filter(m => !m.inProgress && m.left <= 7 && m.p && P.qty(m.p) > 0);
     el.innerHTML = `<div class="wrap shelf"><div class="shead"><div><span class="kick">Welcome back</span><h1 class="serif" style="font-size:2.3rem;margin:0">Hi, ${esc(P.firstName(prof, user))}</h1></div><a class="lnk" href="account.html">Account →</a></div>
 ${active.map(o => orderBanner(o, hist.items)).join("")}
-<div class="shead" style="margin-top:22px"><h2 class="serif" style="font-size:1.8rem;margin:0">My products</h2>${due.length > 1 ? `<button class="btn primary sm" type="button" data-reorder-due>Reorder all ${due.length} running low</button>` : ""}</div>
-${mine.length ? `<div class="mylist">${mine.map(productRow).join("")}</div><p class="muted small" style="margin-top:8px">Run-out dates are estimates from your order history. Tap Reorder to drop it in your bag; you can add more before checking out.</p>`
-        : `<div class="empty" style="padding:26px 10px">${P.icon("box", 28)}<p>Your products show up here after your first order, with one-tap reorder.</p><a class="btn primary" href="catalog.html">Browse the collection</a></div>`}</div>`;
+${mine.length ? `<div class="shead" style="margin-top:22px"><h2 class="serif" style="font-size:1.8rem;margin:0">My products</h2>${due.length > 1 ? `<button class="btn primary sm" type="button" data-reorder-due>Reorder all ${due.length} running low</button>` : ""}</div>
+<div class="mylist">${mine.map(productRow).join("")}</div><p class="muted small" style="margin-top:8px">Run-out dates are estimates from your order history. Tap Reorder to drop it in your bag; you can add more before checking out.</p>`
+        : active.length ? "" : `<a class="shelfempty" href="catalog.html"><span class="se-ic">${P.icon("bag", 22)}</span><span class="se-tx"><b>No orders yet</b><span>Order once and your products show up here for one-tap reorder.</span></span><span class="btn primary sm se-go">Shop the collection</span></a>`}</div>`;
     el.addEventListener("click", async e => {
       const mq = e.target.closest("[data-mq]"); if (mq) { const row = mq.closest(".myrow"), v = row.querySelector("[data-mqv]"); v.textContent = Math.max(1, Math.min(Number(row.dataset.max) || 1, Number(v.textContent) + Number(mq.dataset.mq))); return; }
       const ro = e.target.closest("[data-reorder]"); if (ro) { const row = ro.closest(".myrow"); P.addToCart(ro.dataset.reorder, Number(row.querySelector("[data-mqv]").textContent) || 1); location.href = "cart.html?from=mine"; return; }
