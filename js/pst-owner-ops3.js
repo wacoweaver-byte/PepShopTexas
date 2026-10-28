@@ -170,10 +170,11 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
 <table class="ppx"><tr><td>Subtotal (${vials} vials)</td><td>${usd(sub)}</td></tr>${ship > 0.004 ? `<tr><td>Shipping &amp; fees</td><td>${usd(ship)}</td></tr>` : ""}${disc > 0.004 ? `<tr><td>Discount</td><td>−${usd(disc)}</td></tr>` : ""}<tr class="g"><td>Total</td><td>${usd(tot)}</td></tr></table>
 <footer class="ppf">Kits are 10 vials each. Printed ${new Date().toLocaleDateString()}.</footer></div>`;
     document.body.appendChild(d);
-    const done = () => { d.remove(); window.removeEventListener("afterprint", done); };
+    const prevTitle = document.title; document.title = `${po} · Pep Shop Texas`; // the PDF's file name
+    const done = () => { d.remove(); document.title = prevTitle; window.removeEventListener("afterprint", done); };
     window.addEventListener("afterprint", done);
-    const prevTitle = document.title; document.title = `${po} · Pep Shop Texas`;
-    setTimeout(() => { window.print(); document.title = prevTitle; }, 60);
+    void d.offsetHeight; // lay the sheet out now, then print in the same tap: Safari blocks print() that runs after a delay
+    window.print();
   }
 
   /* ================= ONE PO: receive all / some, tracking, status, edit, cancel a line ================= */
