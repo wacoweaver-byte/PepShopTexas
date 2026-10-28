@@ -809,7 +809,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     const busy = () => /input|textarea|select/i.test(document.activeElement?.tagName || "") || !!document.querySelector("#sheet form");
     // v5.21: never reload in front of him. A new version takes over quietly: it is used from the next page he opens,
     // or applied while the app is in the background. Nothing flashes on screen.
-    const reload = () => { try { sessionStorage.setItem("pst_updated", "1"); } catch {} if (document.hidden) location.reload(); else pending = true; };
+    const reload = () => { try { sessionStorage.setItem("pst_updated", "1"); } catch {} if (document.hidden && !window.__holdReload) location.reload(); else pending = true; };
     // v5.3: if they're mid-form when an update lands, offer it instead of waiting silently
     const updateBar = () => { if ($("#updbar")) return; const b = document.createElement("div"); b.id = "updbar"; b.setAttribute("role", "status");
       b.innerHTML = `<span>${icon("check", 16)} A new version is ready</span><button type="button" class="btn primary sm" data-upd>Update</button><button type="button" class="sx" data-updx aria-label="Later">${icon("x", 14)}</button>`;
@@ -818,7 +818,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     sw.addEventListener("controllerchange", () => { if (hadController) reload(); });
     sw.register("sw.js", { updateViaCache: "none" }).then(reg => {
       const check = () => { if (Date.now() - last > 60000) { last = Date.now(); reg.update().catch(() => {}); } };
-      document.addEventListener("visibilitychange", () => { if (document.hidden) { if (pending) { pending = false; location.reload(); } return; } check(); });
+      document.addEventListener("visibilitychange", () => { if (document.hidden) { if (pending && !window.__holdReload) { pending = false; location.reload(); } return; } check(); });
       window.addEventListener("focus", check); setInterval(() => { if (!document.hidden) check(); }, 5 * 60000); // v5.7: an open app picks up updates within ~5 min
     }).catch(() => {});
     try { if (sessionStorage.getItem("pst_updated")) { sessionStorage.removeItem("pst_updated"); window.PST_JUST_UPDATED = true; if (!document.body.classList.contains("oapp") && !/owner\.html/.test(location.pathname)) setTimeout(() => toast("Pep Shop Texas just updated to the latest version"), 600); } } catch {}

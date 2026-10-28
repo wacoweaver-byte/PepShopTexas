@@ -568,7 +568,7 @@ body.oapp{min-height:100dvh}
 .dpcode{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--gold2)}
 .audbox{border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0;display:grid;gap:8px}
 .austools{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.austools span{flex:1}
-.aulist{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;-webkit-overflow-scrolling:touch}
+.aulist{border:1px solid var(--line);border-radius:8px;margin-top:6px;-webkit-overflow-scrolling:touch}
 .aurow{display:grid!important;grid-template-columns:22px 1fr;gap:10px;align-items:center;padding:9px 10px;border-bottom:1px solid var(--line);cursor:pointer}.aurow:last-child{border-bottom:0}
 .aurow input{width:18px;height:18px;margin:0}.aurow b{display:block;font-size:14px;font-weight:600;color:var(--ink)}.aurow small{display:block;font-size:12px;color:var(--muted)}.aurow[hidden]{display:none!important}
 .pm3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pm3 input[type=color]{width:100%;height:40px;padding:2px;border:1px solid var(--line2);background:none}
@@ -942,3 +942,10 @@ body.app-home .shelf{padding-bottom:4px}
 .gifttag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-family:var(--fb,inherit)}
 .cline.gift .giftwhy{margin:4px 0 0}
 .cline.gift .lt{white-space:nowrap}.cline.gift .lt s{color:var(--muted);font-weight:400;margin-right:4px}
+
+/* discount code sheet: one Save, pinned to the bottom of the sheet; list scrolls with the page, not in a box */
+.osave{position:sticky;bottom:calc(-24px - var(--safe,0px));margin:6px -20px calc(-24px - var(--safe,0px));padding:10px 20px calc(14px + var(--safe,0px));background:var(--card);border-top:1px solid var(--line);display:grid;gap:6px;z-index:2;box-shadow:0 -10px 18px -12px rgba(0,0,0,.5)}
+.osave .status:empty{display:none}.aunote{margin:0}
+@media(min-width:700px){.osave{bottom:-26px;margin-bottom:-26px;padding-bottom:16px}}
+/* the Shop|Owner switch steps aside while a sheet is open, so it never covers a Close button */
+body.noscroll .flipfloat{opacity:0;pointer-events:none}
