@@ -773,3 +773,8 @@ html[data-theme=light] .otabbar{background:#f6f3ec}
 html[data-theme=light] .rc.realized{color:#2e8a57}
 html[data-theme=light] .okc{color:#2e8a57}
 html[data-theme=light] .badc{color:#c0473d}
+/* v5.12: header breathing room. The right-hand links (Search, Owner, Hi, alerts, Bag) no longer run into the logo:
+   wider header on big screens, equal columns either side of the logo, and a guaranteed gap. */
+@media(min-width:900px){.hd .wrap.hrow{max-width:1440px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.hrow>.nav.l{min-width:0;padding-right:28px}.hrow>.nav.r{min-width:0;padding-left:28px}}
+@media(min-width:900px) and (max-width:1279px){.hd .hbtn[data-act=search] span{display:none}.hrow>.nav.l,.hrow>.nav.r{gap:14px}.hrow>.nav.l{padding-right:18px}.hrow>.nav.r{padding-left:18px}}
+@media(min-width:900px) and (max-width:1099px){.hd .nav.l a[href^="rewards"]{display:none}}
