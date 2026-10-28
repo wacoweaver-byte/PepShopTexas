@@ -148,8 +148,11 @@ ${due.length ? due.map(d => `<div class="dueitem"><div><b>${esc(d.x.product_name
 <div class="setrow"><div><b>Pep Shop Texas app</b><span>${P.isStandalone() ? "You're using the app. It opens on the shop and keeps you signed in." : "Add it to your Home Screen. It opens signed in, right on the shop."}</span></div>${P.isStandalone() ? "" : `<a class="btn ghost sm" href="install.html">Get the app</a>`}</div>
 ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (orders, payments, products, customers, alerts) and the full admin dashboard. Add the owner app to your Home Screen from its page.</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn primary sm" href="owner.html">Owner app</a><a class="btn ghost sm" href="admin.html">Admin</a></div></div>` : ""}
 <div class="setrow"><div><b>Signed in as</b><span>${esc(user.email)}</span></div><button class="btn ghost sm" type="button" data-signout>Sign out</button></div>
-<p class="muted small" style="margin-top:14px"><a class="linkish" href="forgot-password.html">Change password</a></p>`;
+<details class="pwalt setpw" style="margin-top:14px"><summary>Set a new password</summary><form class="form" data-form="setpw"><p class="muted small">Optional. You can always sign in with an email code instead.</p><label class="pw">New password<input id="spw" name="password" type="password" autocomplete="new-password" minlength="10" required><button type="button" data-pw="spw" aria-label="Show password">Show</button></label><button class="btn ghost wide" type="submit">Save password</button><p class="notice" data-spmsg hidden role="status"></p></form></details>`;
     P.notifyPanel($("[data-npanel]", el), "customer");
+    const sp = $("[data-form=setpw]", el); if (sp) { pwToggles(sp); sp.addEventListener("submit", async e => { e.preventDefault(); const m = $("[data-spmsg]", sp), b = sp.querySelector("button[type=submit]"); if (sp.password.value.length < 10) return notice(m, "Use at least 10 characters.", "err"); b.disabled = true; b.textContent = "Saving…";
+      const { error } = await P.client().auth.updateUser({ password: sp.password.value }); b.disabled = false; b.textContent = "Save password";
+      if (error) notice(m, "Couldn't save: " + error.message, "err"); else { sp.reset(); notice(m, "Password saved. You can use it or an email code.", "ok"); } }); }
   }
   async function reorder(ids, stat) {
     const want = ids.flatMap(id => items[id] || []);
@@ -177,26 +180,68 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
     if (t.closest("[data-signout]")) { await P.client().auth.signOut(); location.href = "index.html"; }
   }
 
-  /* ---------------- SIGN IN ---------------- */
+  /* ---------------- SIGN IN: email code first (no password to remember), password as the backup ---------------- */
+  const LAST = "ppu-last-email";
+  const remember = e => { try { localStorage.setItem(LAST, String(e || "").trim().toLowerCase()); } catch {} };
+  const lastEmail = () => { try { return localStorage.getItem(LAST) || ""; } catch { return ""; } };
   function login() {
-    const f = $("[data-form=login]"), msg = $("[data-msg]"), to = safeRedirect(P.params.get("redirect"), "account.html");
-    if (P.params.get("password") === "reset") notice(msg, "Password updated. Sign in with your new password.", "ok");
+    const to = safeRedirect(P.params.get("redirect"), "account.html");
+    const cf = $("[data-form=code]"), vf = $("[data-form=verify]"), cmsg = $("[data-cmsg]"), vmsg = $("[data-vmsg]"), pwalt = $("[data-pwalt]"), pf = $("[data-form=login]");
+    if (P.params.get("password") === "reset") { pwalt.open = true; notice($("[data-msg]"), "Password updated. Sign in with your new password.", "ok"); }
     if (P.params.get("app") === "1" || P.isStandalone()) { // first launch of the Home Screen app: sign in once, stay signed in
       const card = $(".authcard"); card.classList.add("appwelcome");
       card.querySelector(".kick").textContent = "Welcome to the app";
       card.querySelector("h1").textContent = "Sign in once";
-      card.querySelector("h1").insertAdjacentHTML("afterend", `<p class="muted" style="margin:-4px 0 18px">You'll stay signed in on this phone. Your saved password can fill this in with one tap.</p>`);
+      card.querySelector("h1").insertAdjacentHTML("afterend", `<p class="muted" style="margin:-4px 0 18px">You'll stay signed in on this phone.</p>`);
       card.insertAdjacentHTML("beforeend", `<button type="button" class="linkish small appguest" data-guest>Browse without signing in</button>`);
       card.querySelector("[data-guest]").addEventListener("click", () => { sessionStorage.setItem("pst_app_guest", "1"); location.replace(to === "account.html" ? "catalog.html" : to); });
     }
     $$("a[data-keep-redirect]").forEach(a => { if (P.params.get("redirect")) a.href += (a.href.includes("?") ? "&" : "?") + "redirect=" + encodeURIComponent(P.params.get("redirect")); });
-    pwToggles(f);
     P.getUser().then(u => { if (u && !P.params.get("switch")) location.replace(to); });
+    const pre = (P.params.get("email") || lastEmail()).trim();
+    if (pre) { cf.email.value = pre; pf.email.value = pre; }
+    cf.email.addEventListener("input", () => { if (!pf.email.value || pf.email.dataset.sync) { pf.email.value = cf.email.value; pf.email.dataset.sync = "1"; } });
+    let email = "";
+    const send = async (btn) => {
+      const lbl = btn.textContent; btn.disabled = true; btn.textContent = "Sending…"; notice(cmsg, ""); notice(vmsg, "");
+      try {
+        const { error: oe } = await P.client().auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: base() + to } });
+        const d = !oe ? { ok: true } : { ok: false, reason: /signup|not allowed|not found|no user/i.test(oe.message) ? "no_account" : /rate|seconds|too many/i.test(oe.message) || oe.status === 429 ? "too_many" : /invalid.*email|email.*invalid/i.test(oe.message) ? "bad_email" : "error" };
+        if (d.ok) { remember(email); cf.hidden = true; vf.hidden = false; $("[data-codeto]").textContent = email; vf.code.value = ""; setTimeout(() => vf.code.focus(), 50); if (btn.dataset.resend !== undefined) notice(vmsg, "New code sent. Use the newest one.", "ok"); return; }
+        const m = d.reason === "no_account" ? `No account uses <b>${esc(email)}</b>. Check the spelling, or <a href="register.html?email=${encodeURIComponent(email)}">create an account</a>.`
+          : d.reason === "too_many" ? "A code was just sent. Use the newest one in your email, or wait a minute and try again."
+          : d.reason === "bad_email" ? "That doesn't look like an email address." : "Couldn't send the code. Try again, or sign in with your password below.";
+        const box = vf.hidden ? cmsg : vmsg; notice(box, "", "err"); box.hidden = false; box.innerHTML = m; box.className = "notice err";
+      } catch { notice(vf.hidden ? cmsg : vmsg, "Couldn't reach the shop. Check your connection and try again.", "err"); }
+      finally { btn.disabled = false; btn.textContent = lbl; }
+    };
+    cf.addEventListener("submit", e => { e.preventDefault(); email = cf.email.value.trim().toLowerCase(); send(cf.querySelector("button[type=submit]")); });
+    vf.querySelector("[data-resend]").addEventListener("click", e => send(e.currentTarget));
+    vf.querySelector("[data-other]").addEventListener("click", () => { vf.hidden = true; cf.hidden = false; notice(cmsg, ""); cf.email.focus(); cf.email.select(); });
+    let busy = false;
+    const verify = async () => {
+      const code = vf.code.value.replace(/\D/g, ""); if (code.length < 6 || busy) return; busy = true;
+      const b = vf.querySelector("button[type=submit]"); b.disabled = true; b.textContent = "Signing in…"; notice(vmsg, "");
+      let { error } = await P.client().auth.verifyOtp({ email, token: code, type: "email" });
+      if (error) ({ error } = await P.client().auth.verifyOtp({ email, token: code, type: "magiclink" }));
+      if (!error) { remember(email); location.href = to; return; }
+      busy = false; b.disabled = false; b.textContent = "Sign in";
+      notice(vmsg, /expired|invalid/i.test(error.message) ? "That code didn't work. It may be mistyped or expired. Check the newest email, or send a new code." : error.message, "err");
+    };
+    let vt = 0; // sign in once the code is typed or pasted (6 or 8 digits, depending on the project)
+    vf.code.addEventListener("input", () => { vf.code.value = vf.code.value.replace(/\D/g, "").slice(0, 8); clearTimeout(vt); const n = vf.code.value.length; if (n === 8) verify(); else if (n === 6) vt = setTimeout(verify, 700); });
+    vf.addEventListener("submit", e => { e.preventDefault(); verify(); });
+    loginPw(to);
+  }
+  /* ---------------- SIGN IN ---------------- */
+  function loginPw(to) {
+    const f = $("[data-form=login]"), msg = $("[data-msg]");
+    pwToggles(f);
     f.addEventListener("submit", async e => {
       e.preventDefault(); const b = f.querySelector("button[type=submit]"); b.disabled = true; b.textContent = "Signing in…"; notice(msg, "");
       const { error } = await P.client().auth.signInWithPassword({ email: f.email.value.trim(), password: f.password.value });
       if (error) { notice(msg, /invalid/i.test(error.message) ? "That email and password don't match. Try again or reset your password." : error.message, "err"); b.disabled = false; b.textContent = "Sign in"; return; }
-      location.href = to;
+      remember(f.email.value); location.href = to;
     });
   }
   /* ---------------- REGISTER (same sign-up data + welcome email as before) ---------------- */
@@ -223,7 +268,8 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
   }
   /* ---------------- PASSWORD ---------------- */
   function forgot() {
-    const f = $("[data-form=forgot]"), msg = $("[data-msg]");
+    const f = $("[data-form=forgot]"), msg = $("[data-msg]"), cl = $("[data-codelink]");
+    if (cl && lastEmail()) cl.href = "login.html?email=" + encodeURIComponent(lastEmail());
     f.addEventListener("submit", async e => {
       e.preventDefault(); const b = f.querySelector("button"); b.disabled = true; b.textContent = "Sending…";
       try { const { error } = await P.client().auth.resetPasswordForEmail(f.email.value.trim(), { redirectTo: base() + "reset-password.html" }); if (error) throw error; notice(msg, "If that email has an account, a reset link is on its way. Check your inbox and spam folder.", "ok"); f.reset(); }

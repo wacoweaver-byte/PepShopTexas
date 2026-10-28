@@ -794,7 +794,8 @@ html[data-theme=light] .dealc{background:linear-gradient(135deg,rgba(154,122,47,
 @media print{
 @page{size:letter;margin:14mm}
 body>*:not(#poprint){display:none!important}
-html,body{background:#fff!important;overflow:visible!important;height:auto!important}
+html,body,body.noscroll{background:#fff!important;overflow:visible!important;height:auto!important;position:static!important;top:auto!important;transform:none!important;min-height:0!important}
+#poprint{position:static!important;margin:0!important}
 #poprint{display:block!important;color:#111;font:12px/1.45 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 #poprint .pph{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #B08D3C;padding-bottom:12px;margin-bottom:16px}
 #poprint .pph>div:first-child{display:flex;gap:10px;align-items:center}
@@ -837,3 +838,46 @@ html,body{background:#fff!important;overflow:visible!important;height:auto!impor
 .mrow.dragging{z-index:5}.mrow.dragging .mgrip{cursor:grabbing;color:var(--gold);border-color:var(--gold);border-style:solid}
 .mrow.dragging .mcard{box-shadow:0 14px 34px rgba(0,0,0,.45);border-color:var(--gold);transform:scale(1.02)}
 .mresetp{text-align:center;margin:10px 0 0}
+/* v516 COA peek: badge on the vial, hover preview (computer), full-screen sheet (phone) */
+.spot>.vstick{position:relative;display:grid;place-items:center}
+.coapeek{position:absolute;right:-92px;top:46%;display:flex;align-items:center;gap:8px;padding:8px 12px 8px 10px;border-radius:999px;border:1px solid var(--gold);background:rgba(10,16,28,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:var(--gold2,var(--gold));text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.35);cursor:help;z-index:3}
+.coapeek span{display:grid;line-height:1.05}.coapeek b{font-size:13px;letter-spacing:.12em}.coapeek small{font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+.coapeek:hover,.coapeek:focus-visible{background:var(--gold);color:#0a101c;outline:none}.coapeek:hover small,.coapeek:focus-visible small{color:#0a101c}
+@media(max-width:899px){.coapeek{padding:8px 11px;right:-58px;top:60%}.coapeek small{display:none}}
+@media(max-width:380px){.coapeek{right:-44px}}
+@media(min-width:900px){.spot>.vstick{position:sticky;top:140px;margin-top:70px}.spot>.vstick>.zoomb,.spot>.vstick>svg.vial{position:static;margin-top:0}.coapeek{right:-118px;bottom:auto;top:44%}}
+@media(min-width:900px) and (max-width:1100px){.coapeek{right:-70px}}
+.coapop{position:fixed;z-index:9000;display:flex;flex-direction:column;background:#fff;border:1px solid var(--gold);border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.55);overflow:hidden;opacity:0;visibility:hidden;transform:translateY(6px) scale(.985);transition:opacity .14s,transform .14s,visibility 0s .14s}
+.coapop.on{opacity:1;visibility:visible;transform:none;transition:opacity .14s,transform .14s}
+.coapop header,.coasheet header{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#0a101c;color:#fff;border-bottom:1px solid var(--gold)}
+.coapop header b,.coasheet header b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coapop header a,.coasheet header a{color:var(--gold2,var(--gold));font-size:13px;text-decoration:none;white-space:nowrap}
+.coaview{flex:1;min-height:0;background:#525659;display:flex;overflow:auto}.coapages{flex:1;display:grid;gap:8px;align-content:start;justify-items:center;padding:8px}.coapages canvas{display:block;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}.coaload,.coaerr{color:#fff;margin:auto;padding:30px;text-align:center}.coaerr a{color:var(--gold2,var(--gold))}.coaview iframe{flex:1;width:100%;height:100%;border:0;background:#fff}.coaview img{display:block;margin:auto;max-width:100%;height:auto;background:#fff}
+.coasheet{position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;background:#0a101c;padding-top:env(safe-area-inset-top)}
+.coasheet header{padding:12px 14px}.coasheet header button{border:1px solid var(--gold);background:var(--gold);color:#0a101c;font-weight:700;border-radius:999px;padding:9px 18px;font-size:15px}
+.coasheet .coaview{-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
+html.coalock,html.coalock body{overflow:hidden}
+/* v516 Shop | Owner switch (owner only) */
+.flip{display:inline-flex;border:1px solid var(--gold);border-radius:999px;padding:2px;background:rgba(0,0,0,.25);flex:none}
+.flip a{padding:5px 13px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2,var(--gold));text-decoration:none;line-height:1.3}
+.flip a.on{background:var(--gold);color:#0a101c}.flip a:not(.on):hover{background:rgba(201,162,77,.16)}
+.flipbar{display:flex;align-items:center;justify-content:center;gap:12px;padding:6px 14px;background:#05080f;border-bottom:1px solid rgba(201,162,77,.35);font-size:12.5px;color:var(--muted)}
+.flipbar>span{letter-spacing:.04em}
+@media(max-width:420px){.flipbar>span{display:none}}
+
+
+html[data-theme=light] .flipbar{background:#0a101c}
+.oapp>.flipbar,[data-oroot]>.flipbar{margin:0 -18px;padding-top:calc(6px + env(safe-area-inset-top,0px))}.oapp>.flipbar+.ohd{padding-top:10px}
+
+/* v516 sign in with an email code (from Patriot) */
+.authcard .codehint{margin:-2px 0 0;text-align:center}
+.authcard .codeto{margin:0;color:var(--muted)}.authcard .codeto b{color:var(--ink);word-break:break-all}
+.authcard .codein{font-size:28px!important;letter-spacing:.4em;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;padding:14px 10px!important}
+.authcard .codealt{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0}
+.authcard .codealt .linkish{font-size:14px}
+.pwalt{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+.pwalt>summary{cursor:pointer;color:var(--muted);font-size:14px;list-style:none;text-align:center;padding:6px 0}
+.pwalt>summary::-webkit-details-marker{display:none}
+.pwalt>summary::after{content:" ›"}.pwalt[open]>summary{color:var(--ink);margin-bottom:10px}.pwalt[open]>summary::after{content:""}
+.setpw{text-align:left}.setpw>summary{text-align:left}
+.authcard .notice a{color:inherit;text-decoration:underline}

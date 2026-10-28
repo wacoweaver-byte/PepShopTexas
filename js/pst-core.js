@@ -666,6 +666,9 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
       if (u) { const p = await getProfile(u); a.textContent = `Hi, ${firstName(p, u)}`; refreshBell(); appAlertsNudge();
         if (await isAdmin(u)) { // same as his old header: staff see an Admin link (plus the order inbox)
           a.insertAdjacentHTML("beforebegin", `<details class="ownmenu" data-adminlink><summary>Owner</summary><div><a href="owner.html">Owner app</a><a href="admin.html">Admin dashboard</a></div></details>`);
+          // owner-only bar with the Shop | Owner switch (phones too), and remember this page so the owner app's "Shop" comes back here
+          try { sessionStorage.setItem("pst-last-shop", (location.pathname.split("/").pop() || "index.html") + location.search); } catch {}
+          if (!$(".flipbar")) document.body.insertAdjacentHTML("afterbegin", `<div class="flipbar" role="region" aria-label="Store owner"><span>You're viewing the shop</span>${flipper("shop")}</div>`);
           document.addEventListener("click", e => { const d = document.querySelector(".ownmenu[open]"); if (d && !d.contains(e.target)) d.open = false; });
           $("#drawer nav")?.insertAdjacentHTML("afterbegin", `<details open><summary>Store owner</summary><a href="owner.html">Owner app (phone)</a><a href="admin.html">Admin dashboard</a></details>`);
         } }
@@ -675,6 +678,11 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     });
   }
 
+  /* ---------- Shop | Owner switch (store owner only) ---------- */
+  function flipper(on) {
+    let back = "index.html"; try { back = sessionStorage.getItem("pst-last-shop") || back; } catch {}
+    return `<nav class="flip" aria-label="Switch between the shop and the owner app"><a href="${esc(back)}"${on === "shop" ? ' aria-current="page" class="on"' : ""}>Shop</a><a href="owner.html"${on === "owner" ? ' aria-current="page" class="on"' : ""}>Owner</a></nav>`;
+  }
   /* ---------- UI helpers ---------- */
   function toast(msg, link) {
     let el = $("#toast"); if (!el) { el = document.createElement("div"); el.id = "toast"; el.setAttribute("role", "status"); el.setAttribute("aria-live", "polite"); document.body.appendChild(el); }
@@ -1010,7 +1018,7 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   const SMS_CONSENT = "Text me deals and restocks from Pep Shop Texas at this number. Up to 4 texts a month. Msg & data rates may apply. Reply STOP to cancel, HELP for help. Consent isn't required to buy.";
   const usPhone = v => { const d = String(v || "").replace(/\D/g, ""); return /^[2-9]\d{9}$/.test(d) ? d : /^1[2-9]\d{9}$/.test(d) ? d.slice(1) : ""; };
   const fmtPhone = v => { const d = usPhone(v); return d ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : ""; };
-  window.PST = { activePromotions, SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
+  window.PST = { flipper, activePromotions, SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, handedOff, stageOf, vialLiquid, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
     photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,

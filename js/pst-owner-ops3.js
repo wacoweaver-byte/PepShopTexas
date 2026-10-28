@@ -171,8 +171,9 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
 <footer class="ppf">Kits are 10 vials each. Printed ${new Date().toLocaleDateString()}.</footer></div>`;
     document.body.appendChild(d);
     const prevTitle = document.title; document.title = `${po} · Pep Shop Texas`; // the PDF's file name
-    const done = () => { d.remove(); document.title = prevTitle; window.removeEventListener("afterprint", done); };
-    window.addEventListener("afterprint", done);
+    // keep the printable sheet in the page (it's hidden on screen) until the next print: iPhone builds its preview after print() returns
+    const restore = () => { document.title = prevTitle; window.removeEventListener("focus", restore); };
+    window.addEventListener("focus", restore); setTimeout(restore, 4000);
     void d.offsetHeight; // lay the sheet out now, then print in the same tap: Safari blocks print() that runs after a delay
     window.print();
   }
