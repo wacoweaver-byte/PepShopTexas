@@ -135,7 +135,7 @@
   /* ================= WHAT'S NEW ================= */
   const L = (t, h) => ({ t, h });
   const RELEASES = [
-    { v: "5.14", d: "Oct 28, 2026", title: "Purchase orders look official", items: [L("Every printed or saved PO shows your logo, name, address, phone and email, and leaves cancelled lines off (report #12)", "#stock")] },
+    { v: "5.14", d: "Oct 28, 2026", title: "Purchase orders look official", items: [L("Every printed or saved PO shows your logo, name, address, phone and email, and leaves cancelled lines off (report #12)", "#stock"), L("Notifications: the Settings link no longer sits under the close X", "")] },
     { v: "5.13", d: "Oct 27, 2026", title: "Compare suppliers, arrange More", items: [L("Every product with each supplier's 10-vial kit price side by side, the cheapest one marked, and your margin", "#compare"), L("Tick products, pick a supplier, set kits, and tap PO to open a purchase order already filled in, one per supplier", "#compare"), L("Also under Stock: Compare prices", "#stock"), L("Arrange More your way: drag the handle on any card to move it. Your order follows you to the computer", "#more")] },
     { v: "5.12", d: "Oct 27, 2026", title: "Fixes from your reports", items: [L("Print or save a purchase order as a PDF (report #9)", "#stock"), L("Live deals now show on the home page and every product page (report #8)", ""), L("Fresh share images with current product names (report #7)", "")] },
     { v: "5.11", d: "Oct 26, 2026", title: "Menu bar stays put", items: [L("The bottom menu bar stays on the bottom of the screen when you scroll after typing (report #6)", ""), L("While you type, the menu bar steps out of the way and comes back when the keyboard closes", "")] },

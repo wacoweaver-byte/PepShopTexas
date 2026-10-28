@@ -396,7 +396,7 @@ img.vimg{object-fit:contain;filter:drop-shadow(0 18px 22px rgba(0,0,0,.45))}
 /* bell + inbox */
 .bell{position:relative}.bell i{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--gold);color:#17120a;font:800 10px/17px var(--fb);font-style:normal;text-align:center}
 .mobr{align-items:center}.bell[hidden]{display:none!important}
-.ninbox .nhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-right:40px}
+.ninbox .nhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-right:64px}
 .nlist{display:grid;margin-top:8px}
 .nrow{display:grid;grid-template-columns:36px 1fr auto;gap:12px;align-items:start;padding:14px 4px;border-bottom:1px solid var(--line)}
 .nrow .nic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--card2);color:var(--gold)}
