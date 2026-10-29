@@ -11,6 +11,7 @@
     adminEmails: ["wacoweaver@gmail.com"], // order alert emails (same as app.js)
     shipRate: 12.00, freeShip: 250.00,     // same as app.js
     emailFn: "send-order-email",
+    pepkeep: false, // checkout "Send this order to my PepKeep" box: switch on once pepkeep.io can receive shop orders (add ?pk=1 to cart.html to preview)
     pushFn: "pst-push",
     minAge: 18,                            // matches his current sign-up rule (change to 21 here if he wants)
     cartKey: "pst_cart_v1", remindKey: "pst_remind_v1", gateKey: "pst_gate_v1",
@@ -543,7 +544,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     return {
       type: "order_received", originalType: "order_received", to: ctx.customerEmail,
       customerName: ctx.customerName, customerEmail: ctx.customerEmail, customerNumber: ctx.customerNumber || "",
-      orderNumber: order.order_number || order.id, orderDate: order.created_at,
+      orderNumber: order.order_number || order.id, orderDate: order.created_at, send_pepkeep: !!order.send_pepkeep,
       subtotal: ctx.subtotal, discount: ctx.discount ?? order.discount ?? order.discount_amount ?? 0, shipping: ctx.shipping, tax: 0, total: ctx.total,
       subject: `Pep Shop Texas Order Received${order.order_number ? ` #${order.order_number}` : ""}`,
       statusNote: "Your order has been received and is being reviewed.",
@@ -553,7 +554,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
       ...over
     };
   }
-  async function submitOrder({ paymentLabel, payMethod = null, delivery, discount, applyCredit, rewardChoices = [], notes = "" }) {
+  async function submitOrder({ paymentLabel, payMethod = null, delivery, discount, applyCredit, rewardChoices = [], notes = "", sendPepkeep = false }) {
     const { data: ud } = await client().auth.getUser(); const user = ud?.user;
     if (!user) { location.href = `login.html?redirect=cart.html`; throw new Error("Please sign in to place your order."); }
     const profile = await getProfile(user);
@@ -587,7 +588,8 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
       payment_instructions_snapshot: null, payment_qr_image: null,
       customer_notes: [`Delivery method: ${delivery === "pickup" ? "Local Pickup" : "Shipping"}`, remindLines.length ? `Reorder reminder: ${remindLines.join("; ")}` : "", payDisc ? `Payment discount: ${payMethod.label} ${payMethod.pct}% (−$${payDisc.toFixed(2)})` : "", short.length ? `Backorder: ${short.join("; ")}` : "", notes].filter(Boolean).join("\n"),
       subtotal: sub, discount: disc, subtotal_before_discount: sub, discount_amount: disc, discount_code_amount: codeDisc, discount_percent: payDisc ? payMethod.pct : undefined, store_credit_applied: 0,
-      shipping: ship, tax: 0, tax_rate: 0, tax_region: "", tax_jurisdiction: "", total, source: "website_inquiry", created_at: now, updated_at: now
+      shipping: ship, tax: 0, tax_rate: 0, tax_region: "", tax_jurisdiction: "", total, source: "website_inquiry", created_at: now, updated_at: now,
+      ...(sendPepkeep ? { send_pepkeep: true, send_pepkeep_at: now } : {}) // dropped automatically until the column exists
     });
     const items = priced.map(i => ({
       order_id: order.id, user_id: user.id, customer_id: user.id, product_id: i.p.id, product_key: i.p.product_key, product_name: i.p.display_name,

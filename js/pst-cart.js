@@ -3,7 +3,7 @@
   "use strict";
   const P = window.PST, { $, esc, money, round } = P;
   const ss = { get: (k, d) => { try { return JSON.parse(sessionStorage.getItem(k)) ?? d; } catch { return d; } }, set: (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch {} } };
-  let delivery = P.store.get("pst_delivery", "pickup"), discount = ss.get("pst_discount", null), applyCredit = false, pay = ss.get("pst_pay", ""), notes = "", smsOn = false, smsPhone = "", smsCustom = false;
+  let delivery = P.store.get("pst_delivery", "pickup"), discount = ss.get("pst_discount", null), applyCredit = false, pay = ss.get("pst_pay", ""), notes = "", pkOn = false, smsOn = false, smsPhone = "", smsCustom = false;
   const picks = {}, suggest = {};
   let allP = [];
   /* new bag items default to an Auto reminder seeded from the product's typical reorder time */
@@ -71,6 +71,7 @@ ${credit > 0 ? `<label class="toggle" style="margin-top:10px"><input type="check
 <div class="box">${sum}
 <label class="form" style="display:block"><span class="sr">Order notes</span><textarea data-notes placeholder="Notes for Pep Shop Texas (optional)" style="width:100%;background:var(--bg);border:1px solid var(--line2);padding:10px;min-height:60px;font-size:15px;border-radius:4px">${esc(notes)}</textarea></label>
 ${smsBox()}
+${pkBox()}
 <button class="btn primary wide" type="button" data-place ${!live.length || blocked() ? "disabled" : ""} style="margin-top:12px">${blocked() ? "Update your bag to continue" : `Place order · ${money(t.due)}`}</button>
 <p class="status" data-placestat role="status"></p><p class="muted small" style="text-align:center;margin:4px 0 0">For research use only. Nothing ships until payment is confirmed.</p></div>`;
   }
@@ -100,6 +101,12 @@ ${smsBox()}
     return `<section class="addmore" aria-label="Add to this order"><h3 class="kick">Add to this order</h3><div class="row">${gs.map(g => { const p = P.gBest(g); return `<div class="amc">${P.vial(p, 40)}<b>${esc(P.titleParts(p).main)}</b><span>${g.length > 1 ? "from " : ""}${money(P.gMin(g))}</span>${g.length > 1 ? `<a class="btn ghost sm" href="${P.productUrl(p)}">Choose</a>` : `<button class="btn ghost sm" type="button" data-addmore="${esc(p.product_key)}">+ Add</button>`}</div>`; }).join("")}</div></section>`;
   }
   // v5.8: optional promo-text opt-in at checkout (never pre-checked, never required). Hidden once they've said yes.
+  // PepKeep hand-off (opt-in, off by default). Only products, strengths, quantities and prices are shared.
+  function pkBox() {
+    if (!P.CFG.pepkeep && !/[?&]pk=1/.test(location.search)) return ""; // stays hidden until PepKeep is ready to receive orders
+    return `<div class="pkopt"><label class="chk"><input type="checkbox" data-pk ${pkOn ? "checked" : ""}><span>Send this order to my <b>PepKeep</b> (dose reminders, vial countdown, cost per shot)</span></label>
+<details class="pkwhat"><summary>What's this?</summary><p>PepKeep (pepkeep.io) is a separate app that tracks your doses and vials. Tick this and we send PepKeep the products on this order (names, strengths, quantities and prices) so they show up in your tracker. We never send your address, phone or payment details. Sign in to PepKeep with this same email and the order is waiting for you. Don't have PepKeep yet? It waits there for 90 days, then it's deleted.</p></details></div>`;
+  }
   function smsBox() {
     if (!user || !profile || profile.sms_opt_in === true) return "";
     const has = P.usPhone(profile.phone);
@@ -132,7 +139,7 @@ ${smsOn ? (has && !smsCustom ? `<p class="muted small">Texts go to ${esc(P.fmtPh
       const smsTo = smsOn ? (P.usPhone(profile?.phone) && !smsCustom ? P.usPhone(profile.phone) : P.usPhone(smsPhone)) : "";
       if (smsOn && !smsTo) throw new Error("Enter a 10-digit mobile number for texts, or uncheck the text box.");
       const rewardChoices = [...document.querySelectorAll("[data-choice]")].map(s => ({ promotionId: s.dataset.choice, productKey: s.value }));
-      const res = await P.submitOrder({ paymentLabel: pay, payMethod: methods.find(m => m.label === pay) || null, delivery, discount, applyCredit, rewardChoices, notes: notes.trim() });
+      const res = await P.submitOrder({ paymentLabel: pay, payMethod: methods.find(m => m.label === pay) || null, delivery, discount, applyCredit, rewardChoices, notes: notes.trim(), sendPepkeep: pkOn });
       ss.set("pst_discount", null); P.store.set("pst_delivery", delivery);
       if (smsTo) P.client().rpc("pst_sms_consent", { p_on: true, p_phone: smsTo, p_source: "checkout", p_text: P.SMS_CONSENT }).then(r => { if (!r.error && profile) profile.sms_opt_in = true; });
       placed(res);
@@ -184,6 +191,7 @@ ${r.backorder?.length ? `<p class="holdnote">${P.icon("box", 15)} ${r.backorder.
     if (t.name === "pm") { pay = t.value; ss.set("pst_pay", pay); redrawSide(); }
     if (t.matches("[data-credit]")) { applyCredit = t.checked; redrawSide(); }
     if (t.matches("[data-choice]")) picks[t.dataset.choice] = t.value;
+    if (t.matches("[data-pk]")) { pkOn = t.checked; return; }
     if (t.matches("[data-sms]")) { smsOn = t.checked; redrawSide(); if (smsOn) $("[data-smsph]")?.focus(); }
   });
   document.addEventListener("input", e => { if (e.target.matches("[data-notes]")) notes = e.target.value; if (e.target.matches("[data-smsph]")) smsPhone = e.target.value; });

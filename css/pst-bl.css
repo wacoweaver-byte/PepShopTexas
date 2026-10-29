@@ -951,3 +951,10 @@ body.app-home .shelf{padding-bottom:4px}
 @media(min-width:700px){.osave{bottom:-26px;margin-bottom:-26px;padding-bottom:16px}}
 /* the Shop|Owner switch steps aside while a sheet is open, so it never covers a Close button */
 body.noscroll .flipfloat{opacity:0;pointer-events:none}
+
+/* PepKeep opt-in at checkout */
+.pkopt{margin:10px 0 0;padding:12px;border:1px solid var(--line2);border-radius:8px;background:var(--bg)}
+.pkopt .chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4;color:var(--ink)}.pkopt .chk input{margin-top:2px;width:18px;height:18px;flex:none}
+.pkwhat{margin:8px 0 0 28px;font-size:13px;color:var(--muted)}.pkwhat summary{cursor:pointer;color:var(--gold,#c9a24d);font-weight:600}.pkwhat p{margin:6px 0 0;line-height:1.5}
+.pkchip{display:inline-block;padding:3px 9px;border-radius:999px;background:rgba(201,162,77,.15);color:var(--gold,#c9a24d);font-size:12px;font-weight:700;white-space:nowrap}
+.pknote{margin:10px 0 0;font-size:13px;line-height:1.45;color:var(--muted)}
