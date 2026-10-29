@@ -105,7 +105,7 @@ ${pkBox()}
   function pkBox() {
     if (!P.CFG.pepkeep && !/[?&]pk=1/.test(location.search)) return ""; // stays hidden until PepKeep is ready to receive orders
     return `<div class="pkopt"><label class="chk"><input type="checkbox" data-pk ${pkOn ? "checked" : ""}><span>Send this order to my <b>PepKeep</b> (dose reminders, vial countdown, cost per shot)</span></label>
-<details class="pkwhat"><summary>What's this?</summary><p>PepKeep (pepkeep.io) is a separate app that tracks your doses and vials. Tick this and we send PepKeep the products on this order (names, strengths, quantities and prices) so they show up in your tracker. We never send your address, phone or payment details. Sign in to PepKeep with this same email and the order is waiting for you. Don't have PepKeep yet? It waits there for 90 days, then it's deleted.</p></details></div>`;
+<details class="pkwhat"><summary>What's this?</summary><p>PepKeep (pepkeep.io) is a separate app that tracks your doses and vials. Tick this and we send PepKeep the products on this order (names, strengths, quantities and prices). Your vials are waiting in PepKeep, ready to put on your calendar. Then run your whole tracker hands-free: say &ldquo;Siri, PepKeep&rdquo; to log a dose, see what&rsquo;s due or add a vial. We never send your address, phone or payment details. Don&rsquo;t have PepKeep yet? We&rsquo;ll email you: sign up with this same address and your order is waiting, with <b>30 days free</b> as a Pep Shop Texas customer. Unclaimed orders are deleted after 90 days.</p></details></div>`;
   }
   function smsBox() {
     if (!user || !profile || profile.sms_opt_in === true) return "";
