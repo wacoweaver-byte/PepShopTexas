@@ -951,3 +951,14 @@ body.app-home .shelf{padding-bottom:4px}
 @media(min-width:700px){.osave{bottom:-26px;margin-bottom:-26px;padding-bottom:16px}}
 /* the Shop|Owner switch steps aside while a sheet is open, so it never covers a Close button */
 body.noscroll .flipfloat{opacity:0;pointer-events:none}
+
+/* Signed-in home: My products as a fold-away section */
+.myacc{margin-top:22px;border:1px solid var(--line2);border-radius:10px;background:var(--card)}
+.myacc>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.myacc>summary::-webkit-details-marker{display:none}
+.myacc-t{display:grid;gap:2px}.myacc-t b{font-size:1.5rem;font-weight:500;color:var(--ink);line-height:1.15}.myacc-t small{font-size:13px;color:var(--muted)}
+.myacc-low{color:var(--gold,#c9a24d);font-weight:600}
+.myacc-c{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:1px solid var(--line2);color:var(--ink);transition:transform .2s}
+.myacc[open] .myacc-c{transform:rotate(90deg)}
+.myacc-b{padding:0 16px 14px}.myacc-b>.btn{margin-bottom:6px}
+@media (prefers-reduced-motion:reduce){.myacc-c{transition:none}}

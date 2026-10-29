@@ -64,11 +64,14 @@
     const due = mine.filter(m => !m.inProgress && m.left <= 7 && m.p && P.qty(m.p) > 0);
     const html = `<div class="wrap shelf"><div class="shead"><div><span class="kick">Welcome back</span><h1 class="serif" style="font-size:2.3rem;margin:0">Hi, ${esc(P.firstName(prof, user))}</h1></div><a class="lnk" href="account.html">Account →</a></div>
 ${active.map(o => orderBanner(o, hist.items)).join("")}
-${mine.length ? `<div class="shead" style="margin-top:22px"><h2 class="serif" style="font-size:1.8rem;margin:0">My products</h2>${due.length > 1 ? `<button class="btn primary sm" type="button" data-reorder-due>Reorder all ${due.length} running low</button>` : ""}</div>
-<div class="mylist">${mine.map(productRow).join("")}</div><p class="muted small" style="margin-top:8px">Run-out dates are estimates from your order history. Tap Reorder to drop it in your bag; you can add more before checking out.</p>`
+${mine.length ? `<details class="myacc" data-myacc><summary><span class="myacc-t"><b class="serif">My products</b><small>${mine.length} product${mine.length === 1 ? "" : "s"}${due.length ? ` · <span class="myacc-low">${due.length} running low</span>` : ""}</small></span><span class="myacc-c" aria-hidden="true">${P.icon("next", 18)}</span></summary>
+<div class="myacc-b">${due.length > 1 ? `<button class="btn primary sm" type="button" data-reorder-due>Reorder all ${due.length} running low</button>` : ""}<div class="mylist">${mine.map(productRow).join("")}</div><p class="muted small" style="margin-top:8px">Run-out dates are estimates from your order history. Tap Reorder to drop it in your bag; you can add more before checking out.</p></div></details>`
         : active.length ? "" : `<a class="shelfempty" href="catalog.html"><span class="se-ic">${P.icon("bag", 22)}</span><span class="se-tx"><b>No orders yet</b><span>Order once and your products show up here for one-tap reorder.</span></span><span class="btn primary sm se-go">Shop the collection</span></a>`}</div>`;
     let prev = null; try { prev = JSON.parse(localStorage.getItem("pst-shelf-cache") || "null")?.html || null; } catch {}
     if (!cached || prev !== html) el.innerHTML = html; // only redraw if something changed since last visit
+    // My products folds away (closed by default) so the featured products below show; the choice is remembered on this device
+    const acc = el.querySelector("[data-myacc]");
+    if (acc) { try { acc.open = localStorage.getItem("pst-myopen") === "1"; } catch {} acc.addEventListener("toggle", () => { try { localStorage.setItem("pst-myopen", acc.open ? "1" : "0"); } catch {} }); }
     try { localStorage.setItem("pst-shelf-cache", JSON.stringify({ uid: user.id, html })); } catch {}
     el.addEventListener("click", async e => {
       const mq = e.target.closest("[data-mq]"); if (mq) { const row = mq.closest(".myrow"), v = row.querySelector("[data-mqv]"); v.textContent = Math.max(1, Math.min(Number(row.dataset.max) || 1, Number(v.textContent) + Number(mq.dataset.mq))); return; }
