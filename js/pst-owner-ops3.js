@@ -76,9 +76,10 @@
 <div class="pm2"><label>Order date<input name="date" type="date" value="${d0}"></label><label>Status<select name="status">${["ordered", "in_transit", "issue_shorted"].map(s => `<option value="${s}"${s === st0 ? " selected" : ""}>${STATUS[s]}</option>`).join("")}</select></label></div>
 ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tracking_number || "")}"></label>` : ""}
 <p class="kick" style="margin:8px 0 0">Products</p><div data-polines></div>
-<div class="csearch nopick">${P.icon("search", 18)}<input type="search" data-poq placeholder="Search: tirz, TR10, BPC…" autocomplete="off" aria-label="Search products to add"></div><div class="sres" data-por></div>
 <div class="pm2"><label>Shipping &amp; fees ($)<input name="ship" type="number" min="0" step="0.01" inputmode="decimal" value="${ship0 ? ship0.toFixed(2) : ""}"></label><label>Discount ($)<input name="disc" type="number" min="0" step="0.01" inputmode="decimal" value="${disc0 > 0.004 ? disc0.toFixed(2) : ""}"></label></div>
-<div class="ntot" data-potot></div><p class="status" data-pos role="status"></p><button class="btn primary wide" type="submit">${editing ? "Save changes" : "Save purchase order"}</button></form>`, editing ? "Edit purchase order" : "New purchase order");
+<div class="ntot" data-potot></div><p class="status" data-pos role="status"></p><button class="btn primary wide" type="submit">${editing ? "Save changes" : "Save purchase order"}</button>
+<p class="kick" style="margin:14px 0 0">Add products</p>
+<div class="csearch nopick">${P.icon("search", 18)}<input type="search" data-poq placeholder="Search: tirz, TR10, BPC…" autocomplete="off" aria-label="Search products to add"></div><div class="sres" data-por></div></form>`, editing ? "Edit purchase order" : "New purchase order");
     const f = w.querySelector("form"), q = f.querySelector("[data-poq]"), res = f.querySelector("[data-por]");
     const vendor = () => vendors.find(v => v.id === f.vendor.value) || null;
     const kitCostOf = l => { const c = Number(l.kitCost || 0); if (c > 0) return c; if (l.vendorOnly) return 0; return autoKitCost(items.find(i => i.id === l.productId) || items.find(i => i.product_key === l.productKey), vp, !!vendor()); };
