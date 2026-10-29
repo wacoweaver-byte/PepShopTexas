@@ -36,6 +36,7 @@
       .sort((a, b) => label(a).localeCompare(label(b), undefined, { numeric: true }));
     vendors = ven.data || [];
   }
+  const vsort = r => r.i ? label(r.i) : `${r.x.product_name} ${r.x.strength || ""}`;
   function label(i) { // = his incomingProductLabel
     const c = catBy[nk(i.product_key)] || {}, display = String(c.display_name || i.display_name || i.product_key || "Product").trim(), strength = String(c.strength || i.strength || "").trim();
     return strength && !display.toLowerCase().includes(strength.toLowerCase()) ? `${display} — ${strength}` : display;
@@ -99,7 +100,7 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
       return `<button type="button" class="porow${on ? " on" : ""}" data-poadd="${esc(i.id)}">${thumb(i)}<span><b>${esc(label(i))}</b><small>${x ? `${esc(x.vendor_item_number || "")} · ${esc(`${x.product_name} ${x.strength || ""}`.trim())} · ` : v ? "not on this vendor's list · " : ""}${Number(i.current_inventory || 0)} on hand</small></span><em>${on ? "added" : kc > 0 ? usd(kc) + "/kit" : "no price"}</em></button>`; };
     const rowVo = x => `<button type="button" class="porow vo" data-povo="${esc(x.id)}"><span class="pov"></span><span><b>${esc(`${x.product_name} ${x.strength || ""}`.trim())}</b><small>${esc(x.vendor_item_number || "")} · not set up in your products yet</small></span><em>${usd(x.kit_cost)}/kit</em></button>`;
     const search = () => { const s = q.value.trim().toLowerCase(), v = vendor(), byKey = Object.fromEntries(items.map(i => [i.product_key, i]));
-      const vrows = vp.catalog.map(x => ({ x, i: x.product_key ? byKey[x.product_key] : null })).sort((a, c) => `${a.x.product_name} ${a.x.strength}`.localeCompare(`${c.x.product_name} ${c.x.strength}`, undefined, { numeric: true, sensitivity: "base" }));
+      const vrows = vp.catalog.map(x => ({ x, i: x.product_key ? byKey[x.product_key] : null })).sort((a, c) => vsort(a).localeCompare(vsort(c), undefined, { numeric: true, sensitivity: "base" })); // matched items sort by his product name (BAC Water matched to PST Recon sorts under P)
       const hayV = r => `${r.x.product_name} ${r.x.strength} ${r.x.vendor_item_number} ${r.i ? `${label(r.i)} ${r.i.product_key} ${alias(label(r.i))}` : ""}`.toLowerCase();
       if (!s) { res.innerHTML = v && vrows.length ? `<p class="kick sreshd">${esc(v.company_name)}'s price list · ${vrows.length} item${vrows.length === 1 ? "" : "s"} · tap to add</p>${vrows.map(r => r.i ? rowInv(r.i, r.x) : rowVo(r.x)).join("")}` : v ? `<p class="muted small">${esc(v.company_name)} has no price list yet. Search your products, or upload one under More → Vendor price lists.</p>` : ""; return; }
       const words = s.split(/\s+/).filter(Boolean), hit = h => words.every(w => h.includes(w));
