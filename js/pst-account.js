@@ -203,9 +203,12 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
     cf.email.addEventListener("input", () => { if (!pf.email.value || pf.email.dataset.sync) { pf.email.value = cf.email.value; pf.email.dataset.sync = "1"; } });
     let email = "";
     const h1 = $("[data-ah1]"), sub = $("[data-asub]"), more = $("[data-amore]"), first = { h1: h1.textContent, sub: sub.textContent };
+    const WAIT = "pst-code-wait", wait = v => { try { v ? localStorage.setItem(WAIT, JSON.stringify(v)) : localStorage.removeItem(WAIT); } catch {} };
     const step = n => { // 1 = enter email, 2 = enter the code (one thing to do at a time)
       cf.hidden = n !== 1; vf.hidden = n !== 2; more.hidden = n !== 1;
-      if (n === 2) { h1.textContent = "Check your email"; sub.innerHTML = `We sent a 6-digit code to <b>${esc(email)}</b>Type it below to sign in.`; }
+      window.__holdReload = n === 2; // never swap in a new site version while someone is waiting on a code
+      if (n === 2) wait({ email, t: Date.now() }); else wait(null);
+      if (n === 2) { h1.textContent = "Check your email"; sub.innerHTML = `We sent a 6-digit code to <b>${esc(email)}</b>Type it below, or open the email and tap the gold <span style="font-weight:700;color:var(--ink)">Sign me in</span> button. You can leave this page to check your email. It'll still be here when you come back.`; }
       else { h1.textContent = first.h1; sub.textContent = first.sub; }
     };
     const send = async (btn) => {
@@ -222,6 +225,8 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
       finally { btn.disabled = false; btn.textContent = lbl; }
     };
     cf.addEventListener("submit", e => { e.preventDefault(); email = cf.email.value.trim().toLowerCase(); send(cf.querySelector("button[type=submit]")); });
+    try { const w = JSON.parse(localStorage.getItem(WAIT) || "null"), pe = (P.params.get("email") || "").trim().toLowerCase();
+      if (w && w.email && Date.now() - w.t < 20 * 60000 && (!pe || pe === w.email)) { email = w.email; cf.email.value = email; step(2); } else if (w) wait(null); } catch {}
     vf.querySelector("[data-resend]").addEventListener("click", e => send(e.currentTarget));
     vf.querySelector("[data-other]").addEventListener("click", () => { step(1); notice(cmsg, ""); notice(vmsg, ""); cf.email.focus(); cf.email.select(); });
     let busy = false;
@@ -230,7 +235,7 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
       const b = vf.querySelector("button[type=submit]"); b.disabled = true; b.textContent = "Signing in…"; notice(vmsg, "");
       let { error } = await P.client().auth.verifyOtp({ email, token: code, type: "email" });
       if (error) ({ error } = await P.client().auth.verifyOtp({ email, token: code, type: "magiclink" }));
-      if (!error) { remember(email); location.href = to; return; }
+      if (!error) { remember(email); wait(null); location.href = to; return; }
       busy = false; b.disabled = false; b.textContent = "Sign in";
       notice(vmsg, /expired|invalid/i.test(error.message) ? "That code didn't work. It may be mistyped or expired. Check the newest email, or send a new code." : error.message, "err");
     };

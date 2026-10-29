@@ -51,7 +51,7 @@ ${r ? "" : `<label>Code<input name="code" required autocapitalize="characters" a
 <label>Home page banner text<input name="ht" value="${esc(v.hero_banner_text || "")}"></label><label class="toggle"><input type="checkbox" name="hb"${v.hero_banner_active ? " checked" : ""}> Show on the home page</label>
 <div class="pm2"><label>Promotion starts<input name="ps" type="date" value="${ymdLocal(v.promotion_starts_at)}"></label><label>Promotion ends<input name="pe" type="date" value="${ymdLocal(v.promotion_ends_at)}"></label></div></details>
 <div data-aud></div>
-<p class="status" data-dst role="status"></p><button class="btn primary wide" type="submit">${r ? "Save changes" : "Create code"}</button></form>`, "Discount code");
+<div class="osave"><p class="status" data-dst role="status"></p><button class="btn primary wide" type="submit">${r ? "Save changes" : "Create code"}</button></div></form>`, "Discount code");
     const f = w.querySelector("form");
     const prev = () => { const c = (r ? r.code : (f.code.value || "CODE")).trim().toUpperCase(), p = Number(f.pct.value || 0), a = Number(f.amt.value || 0);
       w.querySelector("[data-dprev]").innerHTML = `<b>${esc(f.pt.value || "Promotion title")}</b><small>${esc(f.pd.value || "Promotion description")}</small><span class="dpcode">${esc(c)} · ${p ? p + "% off" : a ? money(a) + " off" : "amount not set"}</span>${f.ht.value ? `<em>${esc(f.ht.value)}</em>` : ""}`; };
@@ -63,14 +63,18 @@ ${r ? "" : `<label>Code<input name="code" required autocapitalize="characters" a
       if (percentOff <= 0 && amountOff <= 0) { st.textContent = "Enter a percent off or a dollar amount off."; return; }
       if (percentOff > 100) { st.textContent = "Percent off can't be more than 100%."; return; }
       if (!r && codes.some(x => String(x.code).toUpperCase() === code)) { st.textContent = `${code} already exists. Open it from the list to edit it.`; return; }
+      const audBox = w.querySelector("[data-aud]"), au = audBox._get ? audBox._get() : null;
+      if (au && au.aud === "selected" && !au.ids.length) { st.textContent = "Pick at least one customer under Who can use it, or choose Everyone."; audBox.scrollIntoView({ block: "center", behavior: "smooth" }); return; }
       const existing = codes.find(x => String(x.code || "").toUpperCase() === code);
-      const payload = { code, discount_type: dt, percent_off: percentOff || 0, amount_off: amountOff || 0, assigned_email: null, audience: existing?.audience || "all", one_time_use: dt === "one_time",
+      const payload = { code, discount_type: dt, percent_off: percentOff || 0, amount_off: amountOff || 0, assigned_email: null, audience: au ? au.aud : existing?.audience || "all", one_time_use: dt === "one_time",
         max_uses: maxUsesRaw || (dt === "one_time" ? 1 : null), active: f.act.checked, expires_at: f.exp.value ? new Date(f.exp.value + "T23:59:59").toISOString() : null,
         promotion_title: f.pt.value.trim() || null, promotion_description: f.pd.value.trim() || null, hero_banner_text: f.ht.value.trim() || null, hero_banner_active: f.hb.checked,
         promotion_starts_at: f.ps.value ? new Date(f.ps.value + "T00:00:00").toISOString() : null, promotion_ends_at: f.pe.value ? new Date(f.pe.value + "T23:59:59").toISOString() : null, created_by: me()?.email || null };
       b.disabled = true;
       const { error } = await P.client().from("discount_codes").upsert(payload, { onConflict: "code" });
       if (error) { st.textContent = error.message; b.disabled = false; return; }
+      if (au && au.dirty()) { const { error: e2 } = await P.client().rpc("admin_set_discount_customer_assignments", { p_discount_id: r.id, p_audience: au.aud, p_customer_ids: au.ids });
+        if (e2) { st.textContent = "The code saved, but Who can use it didn't: " + e2.message; b.disabled = false; return; } r.audience = au.aud; }
       P.closeSheet(); P.toast(`${code} saved`); then && then();
     });
   }
@@ -79,23 +83,18 @@ ${r ? "" : `<label>Code<input name="code" required autocapitalize="characters" a
     let aud = r.audience === "selected" ? "selected" : "all";
     box.innerHTML = `<div class="audbox"><p class="kick" style="margin:0 0 6px">Who can use it</p><div class="oseg two"><button type="button" data-au="all">Everyone</button><button type="button" data-au="selected">Selected customers</button></div>
 <div data-aulist hidden><input class="psearch" type="search" data-auq placeholder="Search customers" aria-label="Search customers"><div class="austools"><span class="muted small" data-aun></span><button type="button" class="linkish" data-auv>Select shown</button><button type="button" class="linkish" data-auc>Clear</button></div>
-<div class="aulist">${list.map(c => `<label class="aurow" data-aus="${esc(`${c.name} ${c.customer_number || ""} ${c.email || ""}`.toLowerCase())}"><input type="checkbox" value="${esc(String(c.user_id || ""))}"${chosen.has(String(c.user_id)) ? " checked" : ""}><span><b>${esc(c.name)}</b><small>${c.customer_number ? "PST-C" + esc(c.customer_number) : "No customer number"} · ${esc(c.email || "")}</small></span></label>`).join("")}</div></div>
-<p class="status" data-aust></p><button class="btn ghost wide" type="button" data-ausave>Save who can use it</button></div>`;
+<div class="aulist">${[...list].sort((x, y) => chosen.has(String(y.user_id)) - chosen.has(String(x.user_id))).map(c => `<label class="aurow" data-aus="${esc(`${c.name} ${c.customer_number || ""} ${c.email || ""}`.toLowerCase())}"><input type="checkbox" value="${esc(String(c.user_id || ""))}"${chosen.has(String(c.user_id)) ? " checked" : ""}><span><b>${esc(c.name)}</b><small>${c.customer_number ? "PST-C" + esc(c.customer_number) : "No customer number"} · ${esc(c.email || "")}</small></span></label>`).join("")}</div></div>
+<p class="muted small aunote">Saved with <b>Save changes</b> below.</p></div>`;
     const draw = () => { $$("[data-au]", box).forEach(b => b.classList.toggle("on", b.dataset.au === aud)); box.querySelector("[data-aulist]").hidden = aud !== "selected"; const n = $$(".aurow input:checked", box).length; box.querySelector("[data-aun]").textContent = `${n} customer${n === 1 ? "" : "s"} selected`; };
     box.addEventListener("click", async e => {
       const a = e.target.closest("[data-au]"); if (a) { aud = a.dataset.au; draw(); return; }
       if (e.target.closest("[data-auv]")) { $$(".aurow:not([hidden]) input", box).forEach(i => i.checked = true); draw(); return; }
       if (e.target.closest("[data-auc]")) { $$(".aurow input", box).forEach(i => i.checked = false); draw(); return; }
-      const s = e.target.closest("[data-ausave]"); if (!s) return;
-      const ids = $$(".aurow input:checked", box).map(i => i.value).filter(Boolean), st = box.querySelector("[data-aust]");
-      if (aud === "selected" && !ids.length) { st.textContent = "Pick at least one customer, or choose Everyone."; return; }
-      s.disabled = true;
-      const { error } = await P.client().rpc("admin_set_discount_customer_assignments", { p_discount_id: r.id, p_audience: aud, p_customer_ids: ids });
-      s.disabled = false; if (error) { st.textContent = error.message; return; }
-      r.audience = aud; await loadCodes(); st.textContent = "Saved."; P.toast("Who can use it: saved");
     });
     box.addEventListener("change", draw);
     box.addEventListener("input", e => { if (!e.target.matches("[data-auq]")) return; const q = e.target.value.trim().toLowerCase(); $$(".aurow", box).forEach(x => x.hidden = !!q && !x.dataset.aus.includes(q)); });
+    const start = () => `${aud}|${[...chosen].sort()}`, now = () => `${aud}|${$$(".aurow input:checked", box).map(i => i.value).filter(Boolean).sort()}`, first = start();
+    box._get = () => ({ aud, ids: $$(".aurow input:checked", box).map(i => i.value).filter(Boolean), dirty: () => now() !== first });
     draw();
   }
 
