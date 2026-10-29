@@ -763,20 +763,27 @@ ${r.requirements ? `<p class="small"><b>Requirements:</b> ${esc(r.requirements)}
   const coaLink = (lot, name, strength) => { const u = new URL("coa.html", location.href); u.searchParams.set("lot", lot); u.searchParams.set("peptide", name); u.searchParams.set("strength", strength); return u.href; };
   async function coaPane(el) {
     el.innerHTML = `<p class="muted small">Loading…</p>`;
-    const { data, error } = await P.client().from("coa_records").select("*").order("peptide_name", { ascending: true }).order("strength", { ascending: true }).order("lot_number", { ascending: true });
+    const [{ data, error }, cat] = await Promise.all([P.client().from("coa_records").select("*").order("peptide_name", { ascending: true }).order("strength", { ascending: true }).order("lot_number", { ascending: true }),
+      P.client().from("product_catalog").select("product_key,display_name,sort_name,strength").order("sort_name")]);
     if (error) { el.innerHTML = `<p class="notice err">${esc(error.message)}</p>`; return; }
+    // Pick the product the report belongs to. Its name + strength are saved exactly as the product has them, so the site
+    // (v528 matching in pst-core.js) always finds it. Same normalising as there:
+    const AL = { pstcg1: "hcg", pst2tr: "tirzepatide", pst3rt: "retatrutide" }, ck = s => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""), cn = n => { const k = ck(String(n || "").split("(")[0]); return AL[k] || k; };
+    const prods = (cat.data || []).filter(p => !/vial kit/i.test(p.strength || "")), plab = p => `${p.display_name || p.product_key} ${p.strength || ""}`.trim();
+    const byKey = Object.fromEntries((cat.data || []).map(p => [p.product_key, p])), onSite = new Set((cat.data || []).map(p => cn(p.display_name) + "|" + ck(p.strength)));
     el.innerHTML = `<form class="osheet coaform" data-coaf><h3 class="kick">Add a lab report</h3>
-<div class="pm2"><label>Peptide<input name="nm" required placeholder="Retatrutide"></label><label>Strength<input name="sg" required placeholder="60 mg"></label></div>
+<label>Product<select name="pk" required><option value="">Choose the product this report is for</option>${prods.map(p => `<option value="${esc(p.product_key)}">${esc(plab(p))}</option>`).join("")}</select></label>
 <label>Lot number<input name="lot" required placeholder="JPS20260905" autocapitalize="characters"></label>
 <label>PDF (under 10 MB)<input name="pdf" type="file" accept="application/pdf,.pdf" required></label>
 <p class="status" data-coas></p><button class="btn primary wide" type="submit">Upload and publish</button></form>
 <h3 class="kick" style="margin-top:18px">Published (${(data || []).length})</h3>
-<div class="clist">${(data || []).map(r => `<div class="coarow"><div><b>${esc(r.peptide_name)} · ${esc(r.strength)}</b><small class="muted">Lot ${esc(r.lot_number)}</small></div><div class="coaacts"><a class="btn ghost sm" target="_blank" rel="noopener" href="${esc(P.client().storage.from("coa-pdfs").getPublicUrl(r.storage_path).data.publicUrl)}">View</a><button class="btn ghost sm" type="button" data-coaq="${esc(coaLink(r.lot_number, r.peptide_name, r.strength))}">QR link</button><button class="btn ghost sm" type="button" data-coax="${esc(r.id)}" data-coap="${esc(r.storage_path)}" data-coal="${esc(r.lot_number)}">Remove</button></div></div>`).join("") || `<p class="muted small">No certificates uploaded yet.</p>`}</div>`;
+<div class="clist">${(data || []).map(r => `<div class="coarow"><div><b>${esc(r.peptide_name)} · ${esc(r.strength)}</b><small class="muted">Lot ${esc(r.lot_number)}${onSite.has(cn(r.peptide_name) + "|" + ck(r.strength)) ? " · on the product page" : " · not matched to a product"}</small></div><div class="coaacts"><a class="btn ghost sm" target="_blank" rel="noopener" href="${esc(P.client().storage.from("coa-pdfs").getPublicUrl(r.storage_path).data.publicUrl)}">View</a><button class="btn ghost sm" type="button" data-coaq="${esc(coaLink(r.lot_number, r.peptide_name, r.strength))}">QR link</button><button class="btn ghost sm" type="button" data-coax="${esc(r.id)}" data-coap="${esc(r.storage_path)}" data-coal="${esc(r.lot_number)}">Remove</button></div></div>`).join("") || `<p class="muted small">No certificates uploaded yet.</p>`}</div>`;
     const f = el.querySelector("[data-coaf]");
     f.addEventListener("submit", async e => { e.preventDefault(); const st = f.querySelector("[data-coas]"), b = f.querySelector("[type=submit]");
       const file = f.pdf.files[0]; if (!file || file.type !== "application/pdf" || file.size > 10485760) { st.textContent = "Choose a PDF under 10 MB."; return; }
       b.disabled = true; st.textContent = "Uploading…";
-      const lot = f.lot.value.trim(), name = f.nm.value.trim(), strength = f.sg.value.trim(), path = crypto.randomUUID() + ".pdf";
+      const pr = byKey[f.pk.value]; if (!pr) { st.textContent = "Choose the product this report is for."; b.disabled = false; return; }
+      const lot = f.lot.value.trim(), name = pr.display_name || pr.product_key, strength = pr.strength || "", path = crypto.randomUUID() + ".pdf";
       let { error } = await P.client().storage.from("coa-pdfs").upload(path, file, { contentType: "application/pdf", upsert: false });
       if (!error) { const r = await P.client().from("coa_records").insert({ peptide_name: name, strength, lot_number: lot, storage_path: path, is_published: true }); if (r.error) { await P.client().storage.from("coa-pdfs").remove([path]); error = r.error; } }
       if (error) { st.textContent = "Upload failed: " + error.message; b.disabled = false; return; }
