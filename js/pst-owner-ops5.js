@@ -1,5 +1,6 @@
 /* Pep Shop Texas · owner app stage 3 (v5.0), part 2: vendor price lists (= vendor-prices.html).
    v5.15: Replace a vendor's list (default) or only add/update, Clear the list, Remove one item, and PDF price lists.
+   The uploaded file itself is kept as that vendor's price-list file (one per vendor, private bucket vendor-price-lists).
    Same matching rules (product key → saved SKU+strength → name+strength with his aliases) and the same
    RPCs: pst_admin_import_vendor_catalog (all rows, matched or not) and pst_admin_order_vendor_only_item. */
 (function () {
@@ -75,14 +76,35 @@
   return out;
 }
 
-  if (!document.getElementById("vpmode-css")) { const c = document.createElement("style"); c.id = "vpmode-css"; c.textContent = ".vpmode{border:1px solid var(--line,#d9dee5);border-radius:12px;padding:6px 12px;margin:10px 0;display:grid;gap:2px}.vpmode label{display:grid;grid-template-columns:22px 1fr;align-items:start;gap:0 6px;padding:8px 0;margin:0;font-weight:400}.vpmode label+label{border-top:1px solid var(--line,#d9dee5)}.vpmode input{margin:3px 0 0}.vpmode small{grid-column:2;color:var(--muted,#6b7785);font-size:13px}"; document.head.appendChild(c); }
+  if (!document.getElementById("vpmode-css")) { const c = document.createElement("style"); c.id = "vpmode-css"; c.textContent = ".vpmode{border:1px solid var(--line,#d9dee5);border-radius:12px;padding:6px 12px;margin:10px 0;display:grid;gap:2px}.vpmode label{display:grid;grid-template-columns:22px 1fr;align-items:start;gap:0 6px;padding:8px 0;margin:0;font-weight:400}.vpmode label+label{border-top:1px solid var(--line,#d9dee5)}.vpmode input{margin:3px 0 0}.vpmode small{grid-column:2;color:var(--muted,#6b7785);font-size:13px}.vpfile{display:grid;grid-template-columns:28px 1fr;gap:4px 8px;align-items:start;border:1px solid var(--line,#d9dee5);border-radius:12px;padding:12px;margin:10px 0}.vpfile>span:first-child{font-size:20px;line-height:1.2}.vpfile b{display:block;overflow-wrap:anywhere}.vpfile small{display:block;color:var(--muted,#6b7785);font-size:13px}"; document.head.appendChild(c); }
   const rowKey = (sku, strength) => `${sku ?? ""}|${strength ?? ""}`; // = the server's replace check
-  let products = [], vendors = [], saved = [], vendorId = "", staged = [], mode = "replace", stagedFrom = "";
+  let products = [], vendors = [], saved = [], vendorId = "", staged = [], mode = "replace", stagedFrom = "", stagedFile = null, fileRec = null;
+  const FB = "vendor-price-lists";
   const plabel = p => `${p.display_name || p.product_key}${p.strength ? ` ${p.strength}` : ""}`;
   async function loadSaved() {
     const { data, error } = await P.client().from("pst_vendor_catalog_items").select("id,product_key,product_name,strength,vendor_item_number,kit_cost").eq("vendor_id", vendorId).order("product_name");
     if (error) throw error; saved = data || [];
   }
+  async function loadFile() {
+    const { data, error } = await P.client().from("pst_vendor_price_files").select("id,file_name,storage_path,size_bytes,item_count,uploaded_at").eq("vendor_id", vendorId);
+    fileRec = error ? null : (data || [])[0] || null; // table missing (SQL not run yet) = no file
+  }
+  // Keep the uploaded file as this vendor's price-list file; the old one is replaced. Returns "" or a problem.
+  async function keepFile(file, count) {
+    const safe = file.name.replace(/[^\w.\-]+/g, "-").slice(-80), path = `${vendorId}/${Date.now()}-${safe}`;
+    const up = await P.client().storage.from(FB).upload(path, file, { contentType: file.type || "application/octet-stream", upsert: false });
+    if (up.error) return up.error.message;
+    const old = fileRec?.storage_path;
+    const row = { vendor_id: vendorId, file_name: file.name, storage_path: path, content_type: file.type || null, size_bytes: file.size, item_count: count, uploaded_at: new Date().toISOString() };
+    const r = await P.client().from("pst_vendor_price_files").upsert(row, { onConflict: "vendor_id" });
+    if (r.error) { await P.client().storage.from(FB).remove([path]); return r.error.message; }
+    if (old && old !== path) await P.client().storage.from(FB).remove([old]);
+    return "";
+  }
+  const fileCard = vn => fileRec
+    ? `<div class="vpfile"><span aria-hidden="true">📄</span><span><b>${esc(fileRec.file_name)}</b><small>${esc(vn)}'s price list · ${new Date(fileRec.uploaded_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}${fileRec.item_count != null ? ` · ${fileRec.item_count} items` : ""}</small>
+<span class="vpact"><button type="button" class="linkish" data-vpview>View</button> · <button type="button" class="linkish" data-vpfdel>Remove file</button></span></span></div>`
+    : `<p class="muted small">No price list file saved for ${esc(vn)} yet. The file you upload is kept here.</p>`;
   async function vendorPricesPane(el) {
     el.innerHTML = `<p class="muted small">Loading…</p>`;
     const [v, p] = await Promise.all([P.client().from("vendors").select("id,company_name,pst_vendor_id,is_active").order("company_name"), P.client().from("product_catalog").select("product_key,display_name,sort_name,strength").order("sort_name")]);
@@ -98,9 +120,9 @@
     const showSaved = async () => {
       if (!vendorId) { body.innerHTML = `<p class="muted small">Add a vendor first under More → Vendors.</p>`; return; }
       body.innerHTML = `<p class="muted small">Loading…</p>`;
-      try { await loadSaved(); } catch (e) { body.innerHTML = `<p class="notice err">${esc(e.message)}</p>`; return; }
+      try { await Promise.all([loadSaved(), loadFile()]); } catch (e) { body.innerHTML = `<p class="notice err">${esc(e.message)}</p>`; return; }
       const m = saved.filter(r => r.product_key).length, byKey = Object.fromEntries(products.map(x => [x.product_key, x]));
-      body.innerHTML = `<input class="psearch" type="search" data-vpq placeholder="Search this vendor's list" aria-label="Search vendor list"><p class="muted small">${saved.length} item${saved.length === 1 ? "" : "s"} · ${m} matched to your products · ${saved.length - m} not${saved.length ? ` · <button type="button" class="linkish" data-vpclear>Clear this list</button>` : ""}</p>
+      body.innerHTML = `${fileCard(vendors.find(x => x.id === vendorId)?.company_name || "This vendor")}<input class="psearch" type="search" data-vpq placeholder="Search this vendor's list" aria-label="Search vendor list"><p class="muted small">${saved.length} item${saved.length === 1 ? "" : "s"} · ${m} matched to your products · ${saved.length - m} not${saved.length ? ` · <button type="button" class="linkish" data-vpclear>Clear this list</button>` : ""}</p>
 <div class="shelf">${saved.map(r => `<div class="shrow vprow${r.product_key ? "" : " low"}" data-vpk="${esc(`${r.product_name} ${r.strength} ${r.vendor_item_number} ${r.product_key || ""}`.toLowerCase())}"><span></span><span><b>${esc(r.product_name)} ${esc(r.strength || "")}</b><small>${esc(r.vendor_item_number || "no SKU")} · ${r.product_key ? `→ ${esc(byKey[r.product_key] ? plabel(byKey[r.product_key]) : r.product_key)}` : "not one of your products"}</small>
 <span class="vpact"><button type="button" class="linkish" data-vpe="${r.id}">Change price</button>${r.product_key ? "" : ` · <button type="button" class="linkish" data-vpo="${r.id}">Order it</button>`} · <button type="button" class="linkish" data-vpdel="${r.id}">Remove</button></span></span><em>${usd(r.kit_cost)}</em></div>`).join("") || `<p class="muted small">No price list for this vendor yet.</p>`}</div>`;
     };
@@ -117,7 +139,7 @@ ${saved.length ? `<fieldset class="vpmode"><label><input type="radio" name="vpmo
 <div class="rrbar"><button class="btn primary wide" type="button" data-vpsave>${saved.length && mode === "replace" ? "Replace with" : "Save"} ${staged.length} rows${saved.length && mode === "replace" ? "" : ` to ${vn}`}</button><button class="btn ghost wide" type="button" data-vpcancel style="margin-top:8px">Cancel</button></div>`;
     };
     el.onchange = async e => {
-      if (e.target.matches("[data-vpv]")) { vendorId = e.target.value; staged = []; st.textContent = ""; showSaved(); return; } // his bug: kept the old review
+      if (e.target.matches("[data-vpv]")) { vendorId = e.target.value; staged = []; stagedFile = null; st.textContent = ""; showSaved(); return; } // his bug: kept the old review
       if (e.target.name === "vpmode") { mode = e.target.value; review(); return; }
       if (e.target.matches("[data-vpm]")) { const r = staged[+e.target.dataset.vpm]; r.key = e.target.value || null; review(); return; }
       if (e.target.matches("[data-vpf]")) {
@@ -127,7 +149,7 @@ ${saved.length ? `<fieldset class="vpmode"><label><input type="radio" name="vpmo
           let rows;
           if (isPdf) {
             rows = await pdfRows(file, loadPdfJs);
-            if (!rows.length) throw new Error("Couldn't find prices in that PDF. If it's a scan or a picture, ask the vendor for the Excel or CSV list, or a PDF made from it.");
+            if (!rows.length) { stagedFile = file; st.innerHTML = `Couldn't read prices from that PDF (it may be a scan or a picture). <button type="button" class="linkish" data-vpkeep>Keep it as ${esc(vendors.find(x => x.id === vendorId)?.company_name || "this vendor")}'s price list file</button> and type prices with Change price, or ask the vendor for the Excel/CSV list.`; return; }
           } else {
             const X = await loadXLSX(), wb = /\.csv$/i.test(file.name) ? X.read(await file.text(), { type: "string" }) : X.read(new Uint8Array(await file.arrayBuffer()), { type: "array", sheetRows: 5001 });
             rows = X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" });
@@ -143,7 +165,7 @@ ${saved.length ? `<fieldset class="vpmode"><label><input type="radio" name="vpmo
           const seen = new Set(); staged.forEach(r => { if (r.key) { if (seen.has(r.key)) r.key = null; else seen.add(r.key); } });
           if (!staged.length) throw new Error("No product rows found. The sheet needs a Product Name (or SKU) column and a Kit Cost column.");
           if (staged.length > 1000) throw new Error(`That list has ${staged.length} items; the most in one upload is 1,000.`);
-          stagedFrom = file.name; mode = "replace"; st.textContent = ""; review();
+          stagedFrom = file.name; stagedFile = file; mode = "replace"; st.textContent = ""; review();
         } catch (err) { st.textContent = err.message || String(err); }
       }
     };
@@ -152,7 +174,7 @@ ${saved.length ? `<fieldset class="vpmode"><label><input type="radio" name="vpmo
       if (e.target.matches("[data-vpq]")) { const q = e.target.value.trim().toLowerCase(); $$("[data-vpk]", el).forEach(x => x.hidden = !!q && !x.dataset.vpk.includes(q)); }
     };
     el.onclick = async e => {
-      if (e.target.closest("[data-vpcancel]")) { staged = []; showSaved(); return; }
+      if (e.target.closest("[data-vpcancel]")) { staged = []; stagedFile = null; showSaved(); return; }
       if (e.target.closest("[data-vpsave]")) { // = save(), with his checks plus: a blank cost is an error, not $0
         staged.forEach(r => { r.bad = !r.name ? "needs a product name" : r.costStr === "" || !Number.isFinite(r.cost) || r.cost < 0 ? "needs a kit cost" : ""; });
         const bad = staged.filter(r => r.bad); if (bad.length) { review(); st.textContent = `${bad.length} row${bad.length === 1 ? "" : "s"} need fixing (first: row ${bad[0].row}).`; return; }
@@ -166,7 +188,20 @@ ${saved.length ? `<fieldset class="vpmode"><label><input type="radio" name="vpmo
         const p_rows = staged.map(r => ({ product_name: r.name, strength: r.strength, vendor_item_number: r.sku, kit_cost: r.cost, product_key: r.key || null }));
         const { data, error } = await P.client().rpc(repl ? "pst_admin_replace_vendor_catalog" : "pst_admin_import_vendor_catalog", { p_vendor_id: vendorId, p_rows });
         if (error) { review(); st.textContent = "Not saved: " + error.message; return; }
-        staged = []; P.toast(repl ? `${vn}: ${data.saved} prices saved${data.removed ? `, ${data.removed} old removed` : ""}` : `${data} prices saved for ${vn}`); st.textContent = ""; showSaved(); return;
+        const n = repl ? data.saved : data, fp = stagedFile ? await keepFile(stagedFile, n) : "";
+        staged = []; stagedFile = null; P.toast((repl ? `${vn}: ${n} prices saved${data.removed ? `, ${data.removed} old removed` : ""}` : `${n} prices saved for ${vn}`) + (fp ? " (the file itself wasn't kept)" : ", file kept")); st.textContent = fp ? "Prices saved, but the file wasn't kept: " + fp : ""; showSaved(); return;
+      }
+      if (e.target.closest("[data-vpkeep]")) { const vn = vendors.find(x => x.id === vendorId)?.company_name || "this vendor"; await loadFile();
+        const fp = await keepFile(stagedFile, null); stagedFile = null; st.textContent = fp ? "File not kept: " + fp : ""; if (!fp) P.toast(`Kept as ${vn}'s price list file`); showSaved(); return;
+      }
+      if (e.target.closest("[data-vpview]")) { const w = window.open("", "_blank"); // open first so phones don't block it
+        const { data, error } = await P.client().storage.from(FB).createSignedUrl(fileRec.storage_path, 300);
+        if (error) { w?.close(); st.textContent = error.message; return; } if (w) w.location.href = data.signedUrl; else location.href = data.signedUrl; return;
+      }
+      if (e.target.closest("[data-vpfdel]")) { const vn = vendors.find(x => x.id === vendorId)?.company_name || "this vendor";
+        if (!(await window.PSTOps.confirmSheet(`Remove ${vn}'s price list file?`, "Only the file is removed. The prices saved from it stay.", "Remove file"))) return;
+        const r = await P.client().from("pst_vendor_price_files").delete().eq("vendor_id", vendorId); if (r.error) { st.textContent = r.error.message; return; }
+        await P.client().storage.from(FB).remove([fileRec.storage_path]); P.toast("File removed"); showSaved(); return;
       }
       if (e.target.closest("[data-vpclear]")) {
         const vn = vendors.find(x => x.id === vendorId)?.company_name || "this vendor";
