@@ -158,7 +158,7 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
   async function poSkus(rows) {
     const vids = [...new Set(rows.map(r => r.vendor_id).filter(Boolean))], cat = [];
     if (vids.length) {
-      const [a, b] = await Promise.all([P.client().from("pst_vendor_catalog_items").select("vendor_id,product_key,product_name,strength,vendor_item_number").in("vendor_id", vids),
+      const [a, b] = await Promise.all([(async () => { const out = []; for (let i = 0; i < 50000; i += 1000) { const r = await P.client().from("pst_vendor_catalog_items").select("vendor_id,product_key,product_name,strength,vendor_item_number").in("vendor_id", vids).order("id").range(i, i + 999); if (r.error) return r; out.push(...(r.data || [])); if ((r.data || []).length < 1000) break; } return { data: out, error: null }; })(),
         P.client().from("pst_vendor_prices").select("vendor_id,product_key,vendor_item_number").in("vendor_id", vids)]);
       cat.push(...(a.data || []), ...(b.data || []));
     }

@@ -9,12 +9,15 @@
   const margin = (price, kitCost) => price > 0 ? (price - kitCost / 10) / price : 0;
   const label = p => `${p.display_name}${p.strength ? ` ${p.strength}` : ""}`;
 
+  // The database hands back at most 1,000 rows per request, so read every price-list row page by page
+  // (with more than 1,000 rows, suppliers near the end, like Catherine, were cut off).
+  async function allRows(make) { const out = []; for (let i = 0; i < 50000; i += 1000) { const r = await make().range(i, i + 999); if (r.error) return r; out.push(...(r.data || [])); if ((r.data || []).length < 1000) break; } return { data: out, error: null }; }
   async function load() {
     const c = P.client();
     const [pr, vr, ir] = await Promise.all([
       c.from("product_catalog").select("product_key,display_name,strength,price,sale_enabled,sale_price,category,current_inventory,low_stock_threshold,is_active").order("display_name"),
       c.from("vendors").select("id,company_name,is_active"),
-      c.from("pst_vendor_catalog_items").select("vendor_id,vendor_item_number,product_name,strength,kit_cost,product_key")
+      allRows(() => c.from("pst_vendor_catalog_items").select("vendor_id,vendor_item_number,product_name,strength,kit_cost,product_key").order("id"))
     ]);
     const err = pr.error || vr.error || ir.error; if (err) throw err;
     prods = (pr.data || []).filter(p => p.is_active !== false && !/10-vial/i.test(p.strength || "")).sort(P.cmpProduct);
