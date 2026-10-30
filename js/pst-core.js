@@ -575,7 +575,8 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
     const short = priced.filter(i => i.q > qty(i.p)).map(i => `${i.p.display_name} ${i.p.strength || ""}`.trim() + `: ${qty(i.p)} ready now, ${i.q - qty(i.p)} on backorder`);
     const rd = k => (rem[k] && rem[k].d > 0 ? rem[k] : null), rdays = i => { const r = rd(i.p.product_key); return r ? (r.a && r.pv ? Math.min(365, r.d * Math.max(1, i.q)) : r.d) : null; };
     const remindLines = priced.filter(i => rd(i.p.product_key)).map(i => `${i.p.display_name} ${i.p.strength || ""}`.trim() + ` ${rd(i.p.product_key).a ? "auto, ~" : "in "}${Math.round(rdays(i) / 7)} wks`);
-    const l1 = profile?.shipping_address_line1 || profile?.address1 || null, l2 = profile?.shipping_address_line2 || profile?.address2 || null;
+    const l1 = profile?.shipping_address_line1 || profile?.address1 || (String(profile?.shipping_address || "").trim() || null), // profiles keep the street in shipping_address
+      l2 = profile?.shipping_address_line2 || profile?.address2 || null;
     const city = profile?.shipping_city || profile?.city || null, st = profile?.shipping_state || profile?.state || null, zip = profile?.shipping_zip || profile?.zip || null;
     const addr = profile?.shipping_address || profile?.address || [l1, l2, city, st, zip].filter(Boolean).join(", ") || null;
     const phone = profile?.phone || "";
