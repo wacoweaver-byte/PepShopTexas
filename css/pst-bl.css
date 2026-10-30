@@ -984,3 +984,6 @@ body.noscroll .flipfloat{opacity:0;pointer-events:none}
 .omrow{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line)}.omrow:last-of-type{border-bottom:0}
 .omrow b{display:block;font-size:14px;color:var(--ink)}.omrow small{display:block;font-size:12px;color:var(--muted)}
 .omic{font-weight:800;line-height:1.4}.omrow.ok .omic{color:#2f9e5b}.omrow.bad .omic{color:#d9534f}
+
+/* Restock requests: email log under each person */
+.rqlog{display:grid;gap:2px;margin-top:4px;font-size:12px;color:var(--muted)}.rqlog .ok{color:#2f9e5b}.rqlog .bad{color:#d9534f;font-weight:600}
