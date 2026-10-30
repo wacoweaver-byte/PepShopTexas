@@ -984,3 +984,8 @@ body.noscroll .flipfloat{opacity:0;pointer-events:none}
 .omrow{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line)}.omrow:last-of-type{border-bottom:0}
 .omrow b{display:block;font-size:14px;color:var(--ink)}.omrow small{display:block;font-size:12px;color:var(--muted)}
 .omic{font-weight:800;line-height:1.4}.omrow.ok .omic{color:#2f9e5b}.omrow.bad .omic{color:#d9534f}
+
+/* v540: restock requests show the emails that went out, with a printable copy */
+.rqmail{all:unset;cursor:pointer;display:block;margin-top:4px;font-size:12px;color:var(--gold2);text-decoration:underline dotted;text-underline-offset:3px;line-height:1.45}.rqmail.none{cursor:default;color:var(--dim);text-decoration:none}
+.rqframe{display:block;width:100%;min-height:420px;border:1px solid var(--line);border-radius:8px;background:#eceae4;margin:12px 0}
+#poprint .rqrec{display:flex;flex-direction:column;gap:2px;border-bottom:2px solid #B08D3C;padding-bottom:10px;margin-bottom:12px;font-size:12px}#poprint .rqrec b{font-size:14px}

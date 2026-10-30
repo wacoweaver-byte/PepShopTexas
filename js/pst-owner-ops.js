@@ -700,6 +700,44 @@ ${ps.length ? `<h3 class="kick">Products</h3>${ps.map(p => `<a class="crow" href
   }
 
   /* ================= REQUESTS: availability (= availability-requests.html) and bulk (= bulk-requests.html) ================= */
+  // Copies of the two restock emails, rebuilt from the same template the server uses
+  // (pst-availability-confirmation / pst-availability-notifications v2), so Jimmie can show a caller what was sent and when.
+  const AV = (() => {
+    const SITE="https://www.pepshoptexas.com",NAVY="#0a101c",GOLD="#a8822f",GOLD_LIGHT="#d9bb78",GOLD_BTN="#c9a45c",GOLD_SOFT="#e6d7b3",INK="#1c2230",MUTED="#6b6f78",LINE="#ece4d3",SOFT="#fbf7ee",CARD="#fffdf8",PAGE="#eceae4",BF="Helvetica,Arial,sans-serif",HF="Georgia,'Times New Roman',serif";
+    const btn=(label,url,primary=true)=>`<a href="${esc(url)}" style="display:inline-block;margin:0 8px 10px 0;padding:14px 22px;border-radius:3px;font-family:${BF};font-size:12px;font-weight:700;letter-spacing:.08em;white-space:nowrap;text-transform:uppercase;text-decoration:none;${primary?`background:${GOLD_BTN};color:#17120a;border:1px solid ${GOLD_BTN}`:`background:transparent;color:${NAVY};border:1px solid ${NAVY}`}">${esc(label)}</a>`;
+    const shell=(o)=>`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${esc(o.title)}</title></head><body style="margin:0;padding:0;background:${PAGE}"><div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(o.pre)}</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${PAGE}"><tr><td align="center" style="padding:24px 12px"><table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;border-collapse:collapse"><tr><td align="center" style="background:${NAVY};padding:30px 24px 24px;border-radius:6px 6px 0 0"><a href="${SITE}" style="text-decoration:none"><img src="${SITE}/email/pst-emblem-email.png" width="72" height="72" alt="Pep Shop Texas" style="display:block;margin:0 auto 12px;width:72px;height:72px;border:0"></a><div style="font-family:${HF};font-size:22px;letter-spacing:.32em;color:#f3ede1">PEP SHOP <span style="color:${GOLD_LIGHT}">TEXAS</span></div><div style="width:56px;height:1px;background:${GOLD_LIGHT};margin:14px auto 0;line-height:1px;font-size:1px">&nbsp;</div>${o.admin?`<div style="margin-top:12px;font-family:${BF};font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:${GOLD_LIGHT}">Owner alert</div>`:""}</td></tr><tr><td style="background:${CARD};padding:34px 30px 30px;border-left:1px solid ${LINE};border-right:1px solid ${LINE};font-family:${BF};color:${INK}"><p style="margin:0 0 10px;color:${GOLD};font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase">${esc(o.kicker)}</p><h1 style="margin:0 0 14px;font-family:${HF};font-size:32px;line-height:1.15;font-weight:500;color:${NAVY}">${esc(o.title)}</h1>${o.body}</td></tr><tr><td style="background:${NAVY};padding:24px 30px 26px;border-radius:0 0 6px 6px;font-family:${BF}"><p style="margin:0 0 6px;color:#f3ede1;font-size:13px;letter-spacing:.18em;text-transform:uppercase">Pep Shop Texas</p><p style="margin:0 0 12px;color:${GOLD_LIGHT};font-size:12px">Premium Purity &nbsp;|&nbsp; Proven Quality &nbsp;|&nbsp; Responsibly Sourced</p><p style="margin:0 0 12px;color:#a8adb7;font-size:12px">For research use only. Not for human or veterinary use.</p><p style="margin:0;color:#a8adb7;font-size:12px;line-height:1.7"><a href="${SITE}" style="color:#f3ede1;text-decoration:none">pepshoptexas.com</a> &nbsp;·&nbsp; Questions? Reply to this email or write <a href="mailto:support@pepshoptexas.com" style="color:#f3ede1;text-decoration:none">support@pepshoptexas.com</a></p></td></tr></table></td></tr></table></body></html>`;
+    const p=(t)=>`<p style="font-size:16px;line-height:1.65;margin:0 0 16px;color:${INK}">${t}</p>`;
+    const productCard=(name,strength,extra="")=>`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 20px;border:1px solid ${GOLD_SOFT};background:${SOFT}"><tr><td style="padding:16px 18px"><div style="font-family:${HF};font-size:22px;color:${NAVY}">${esc(name)}</div>${strength?`<div style="margin-top:2px;color:${MUTED};font-size:14px">${esc(strength)}</div>`:""}${extra}</td></tr></table>`;
+    const small=(t)=>`<p style="margin:18px 0 0;color:${MUTED};font-size:13px;line-height:1.6">${t}</p>`;
+    return (kind, r) => {
+      const name = String(r.product_name || "Research product"), strength = String(r.product_strength || "");
+      if (kind === "conf") return { subject: "You're on the list: " + name + " " + strength, html: shell({ pre: "We'll email you when " + name + " is back.", kicker: "Restock alert", title: "You're on the list", body: p("Thanks for your request. We'll email you as soon as this item is back in stock:") + productCard(name, strength) + `<p style="margin:4px 0 0">${btn("Browse the shop", SITE + "/catalog.html", false)}</p>` + small("This request doesn't reserve stock or create an order.") }) };
+      const url = r.product_key ? SITE + "/product.html?key=" + encodeURIComponent(r.product_key) : SITE + "/catalog.html?search=" + encodeURIComponent(name);
+      return { subject: "Back in stock: " + name + (strength ? " " + strength : ""), html: shell({ pre: name + " " + strength + " is back in stock at Pep Shop Texas.", kicker: "Back in stock", title: "It's back", body: p("Good news. The item you asked about is available again.") + productCard(name, strength) + `<p style="margin:4px 0 0">${btn("Shop it now", url)}</p>` + small("Stock moves quickly and isn't held. This email doesn't reserve anything or create an order.") }) };
+    };
+  })();
+  const sentAt = t => new Date(t).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+  const mailLines = r => [r.confirmation_sent_at ? `<button type="button" class="rqmail" data-rqmail="${esc(r.id)}|conf">✉ Confirmation sent ${esc(sentAt(r.confirmation_sent_at))} · View</button>` : "",
+    r.notified_at ? `<button type="button" class="rqmail" data-rqmail="${esc(r.id)}|back">✉ Back-in-stock email sent ${esc(sentAt(r.notified_at))} · View</button>` : r.status === "notified" ? `<span class="rqmail none">Marked notified by hand · no email sent</span>` : ""].join("");
+  function emailSheet(r, kind) {
+    const { subject, html } = AV(kind, r), at = kind === "conf" ? r.confirmation_sent_at : r.notified_at;
+    const w = P.sheet(`<div class="osheet"><h2 class="serif">${kind === "conf" ? "Confirmation email" : "Back-in-stock email"}</h2>
+<div class="oitems"><div><span class="muted">To</span><b>${esc(r.customer_email)}</b></div><div><span class="muted">Sent</span><b>${esc(sentAt(at))}</b></div><div><span class="muted">Subject</span><span>${esc(subject)}</span></div></div>
+<iframe class="rqframe" title="Email" sandbox="allow-same-origin"></iframe>
+<button class="btn primary wide" type="button" data-rqpdf>Print or save as PDF</button><p class="muted small" style="margin-top:8px">A copy rebuilt from the same template the shop sends, with the date and time it went out.</p></div>`, { label: "Sent email" });
+    w.classList.add("full");
+    const fr = w.querySelector(".rqframe"); fr.srcdoc = html; fr.onload = () => { try { fr.style.height = fr.contentDocument.documentElement.scrollHeight + "px"; } catch {} };
+    w.querySelector("[data-rqpdf]").addEventListener("click", () => {
+      document.getElementById("poprint")?.remove();
+      const d = document.createElement("div"); d.id = "poprint";
+      const body = new DOMParser().parseFromString(html, "text/html").body.innerHTML;
+      d.innerHTML = `<div class="rqrec"><b>Pep Shop Texas · email record</b><span>To: ${esc(r.customer_email)}</span><span>Sent: ${esc(sentAt(at))}</span><span>Subject: ${esc(subject)}</span></div>${body}`;
+      document.body.appendChild(d);
+      const prev = document.title; document.title = `${kind === "conf" ? "Restock confirmation" : "Back in stock"} · ${r.customer_email} · ${new Date(at).toISOString().slice(0, 10)}`;
+      const restore = () => { document.title = prev; window.removeEventListener("focus", restore); }; window.addEventListener("focus", restore); setTimeout(restore, 4000);
+      void d.offsetHeight; window.print();
+    });
+  }
   async function requestsPane(el, sub = "avail") {
     el.innerHTML = `<div class="oseg two"><button type="button" class="${sub === "avail" ? "on" : ""}" data-rq="avail">Restock requests</button><button type="button" class="${sub === "bulk" ? "on" : ""}" data-rq="bulk">Bulk requests</button></div><div data-rqbody><p class="muted small">Loading…</p></div>`;
     el.onclick = async e => {
@@ -707,19 +745,21 @@ ${ps.length ? `<h3 class="kick">Products</h3>${ps.map(p => `<a class="crow" href
       const g = e.target.closest("[data-rqst]"); if (g) return; // select handled on change
       const nb = e.target.closest("[data-rqnew]"); if (nb) { addRestockFlow(() => requestsPane(el, "avail")); return; }
       const bo = e.target.closest("[data-bulk]"); if (bo) { bulkDetail(+bo.dataset.bulk, () => requestsPane(el, "bulk")); return; }
-      const bf = e.target.closest("[data-bf]"); if (bf) { el._bf = bf.dataset.bf; requestsPane(el, "bulk"); }
+      const bf = e.target.closest("[data-bf]"); if (bf) { el._bf = bf.dataset.bf; requestsPane(el, "bulk"); return; }
+      const ml = e.target.closest("[data-rqmail]"); if (ml) { const [id, kind] = ml.dataset.rqmail.split("|"), r = (el._rq || []).find(x => x.id === id); if (r) emailSheet(r, kind); }
     };
     el.onchange = async e => { const s = e.target.closest("[data-rqst]"); if (!s) return; const { error } = await P.client().from("product_availability_requests").update({ status: s.value }).eq("id", s.dataset.rqst); P.toast(error ? error.message : "Saved: " + s.value); };
     const body = el.querySelector("[data-rqbody]");
     if (sub === "avail") {
       const { data, error } = await P.client().from("product_availability_requests").select("*").order("created_at", { ascending: false }).limit(1000);
       if (error) { body.innerHTML = `<p class="notice err">${esc(error.message)}</p>`; return; }
+      el._rq = data || [];
       const open = (data || []).filter(r => r.status === "pending"), by = {};
       (data || []).forEach(r => { (by[r.product_key || r.product_name] ||= []).push(r); });
       const groups = Object.values(by).sort((a, b) => b.filter(r => r.status === "pending").length - a.filter(r => r.status === "pending").length || String(a[0].product_name).localeCompare(b[0].product_name));
       body.innerHTML = `<div class="pmtop"><p class="muted small" style="margin:0;flex:1">${open.length} waiting · ${new Set(open.map(r => String(r.customer_email).toLowerCase())).size} people · ${open.reduce((n, r) => n + Number(r.requested_quantity || 0), 0)} vials</p><button class="btn primary sm" type="button" data-rqnew>+ Add</button></div>
 ${groups.map(g => { const w = g.filter(r => r.status === "pending"); return `<details class="rqgrp"${w.length ? " open" : ""}><summary><b>${esc(g[0].product_name)} ${esc(g[0].product_strength || "")}</b><span class="muted small">${w.length ? `${w.length} waiting · ${w.reduce((n, r) => n + Number(r.requested_quantity || 0), 0)} vials` : "nobody waiting"}</span></summary>
-${g.map(r => `<div class="rqrow"><div><b>${esc(r.customer_name || r.customer_email)}</b><small><a href="mailto:${esc(r.customer_email)}">${esc(r.customer_email)}</a> · ×${r.requested_quantity} · ${P.fmtDate(r.created_at)}${r.notify_when_available ? " · wants a restock email" : ""}</small></div><select data-rqst="${esc(r.id)}" aria-label="Status">${["pending", "notified", "closed"].map(s => `<option${r.status === s ? " selected" : ""}>${s}</option>`).join("")}</select></div>`).join("")}</details>`; }).join("") || `<p class="muted small">No requests yet.</p>`}`;
+${g.map(r => `<div class="rqrow"><div><b>${esc(r.customer_name || r.customer_email)}</b><small><a href="mailto:${esc(r.customer_email)}">${esc(r.customer_email)}</a> · ×${r.requested_quantity} · ${P.fmtDate(r.created_at)}${r.notify_when_available ? " · wants a restock email" : ""}</small>${mailLines(r)}</div><select data-rqst="${esc(r.id)}" aria-label="Status">${["pending", "notified", "closed"].map(s => `<option${r.status === s ? " selected" : ""}>${s}</option>`).join("")}</select></div>`).join("")}</details>`; }).join("") || `<p class="muted small">No requests yet.</p>`}`;
     } else {
       const { data, error } = await P.client().from("bulk_requests").select("*").order("created_at", { ascending: false });
       if (error) { body.innerHTML = `<p class="notice err">${esc(error.message)}</p>`; return; }
