@@ -147,6 +147,8 @@
     if (!ctx.items[o.id]) { const r = await P.client().from("order_items").select("*").eq("order_id", o.id); ctx.items[o.id] = r.data || []; }
     const its = ctx.items[o.id] || [], st = stage(o), pk = isPickup(o), ph = phoneOf(o);
     const [hist, match] = await Promise.all([shipHistory(o).catch(() => []), P.client().from("pst_payment_matches").select("*").eq("order_id", o.id).is("confirmed_at", null).in("status", ["matched", "amount_mismatch", "guessed"]).order("id", { ascending: false }).limit(1).then(r => r.data?.[0], () => null)]);
+    // every email the app sent (or failed to send) for this order, newest first, so the owner can confirm it went out
+    const mails = await P.client().from("order_audit_log").select("action_type,old_value,new_value,created_at").eq("order_id", o.id).in("action_type", ["email_sent", "email_failed"]).order("created_at", { ascending: false }).limit(30).then(r => r.data || [], () => []);
     const shipped = shippedMap(hist), left = its.reduce((n, i) => n + Math.max(0, Number(i.quantity || 1) - (shipped.get(String(i.id)) || 0)), 0);
     const btn = (a, label, cls = "ghost") => `<button class="btn ${cls} wide" type="button" data-oa="${a}">${label}</button>`;
     const next = st.k === "unpaid" ? btn("paid", `${P.icon("check", 16)} Mark paid`, "primary") + btn("remind", "Email a payment reminder")
@@ -164,6 +166,10 @@ ${o.tracking_number ? `<p class="small">${P.icon("truck", 14)} ${esc(o.tracking_
 <p class="small muted">${esc(custEmail(o))}${ph ? ` · ${esc(o.customer_phone || o.shipping_phone)}` : ""}</p>
 ${shipTo(o)}<div class="ocontact">${ph ? `<button class="btn ghost sm" type="button" data-texts="${o.id}">${P.icon("chat", 15)} Text</button><a class="btn ghost sm" href="tel:${ph}">Call</a>` : ""}${custEmail(o) ? `<a class="btn ghost sm" href="mailto:${esc(custEmail(o))}?subject=${encodeURIComponent("Your Pep Shop Texas order " + (o.order_number || ""))}">Email</a>` : ""}<button class="btn ghost sm" type="button" data-copy="${esc(o.order_number || o.id)}">Copy #</button></div>
 <div class="obar">${next}</div>
+<details class="omore omail"${mails.some(x => x.action_type === "email_failed") ? " open" : ""}><summary>Emails to the customer${mails.length ? ` (${mails.filter(x => x.action_type === "email_sent").length} sent${mails.some(x => x.action_type === "email_failed") ? `, ${mails.filter(x => x.action_type === "email_failed").length} failed` : ""})` : ""}</summary>
+${mails.length ? mails.map(x => { const ok = x.action_type === "email_sent", to = String(x.new_value || "").split("|")[1]?.trim() || "", why = String(x.new_value || "").split("|").slice(2).join("|").trim();
+  return `<div class="omrow ${ok ? "ok" : "bad"}"><span class="omic" aria-hidden="true">${ok ? "✓" : "✕"}</span><span><b>${esc(x.old_value || "Email")}</b><small>${ok ? "Sent" : "Failed"}${to ? ` to ${esc(to)}` : ""} · ${esc(new Date(x.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }))}${!ok && why ? ` · ${esc(why)}` : ""}</small></span></div>`; }).join("") : `<p class="muted small">No emails sent from the owner app for this order yet.</p>`}
+<p class="muted small" style="margin-top:8px">The order-received email goes out by itself when the customer checks out.</p></details>
 <details class="omore"><summary>More actions</summary>
 ${st.k !== "dead" && !isLocked(o) ? btn("edit", "Edit items") : ""}${st.k !== "dead" && isLocked(o) && left > 0 ? btn("reduce", "Remove unshipped items") : ""}${st.k !== "dead" ? btn("comp", "+ Free item ($0)") : ""}
 ${st.k === "unpaid" && o.payment_deadline_at ? btn("extend", "Give 24 more hours to pay") : ""}${btn("emails", "Email the customer…")}
