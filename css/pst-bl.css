@@ -969,3 +969,14 @@ body.noscroll .flipfloat{opacity:0;pointer-events:none}
 .oshipacts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 
 .onord{color:var(--ink);font-weight:700}
+
+/* v538: "Estimated by PepKeep" under run-out dates + its note */
+.myrow{position:relative}
+.pkby{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--dim);margin-top:3px;width:max-content;max-width:100%;border-bottom:1px dotted currentColor;line-height:1.5;-webkit-tap-highlight-color:transparent}
+.pkby img{width:13px;height:13px;border-radius:3px;display:block}.pkby:hover,.pkby:focus-visible{color:var(--muted)}.pkby:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pkpop{position:absolute;z-index:30;width:min(290px,calc(100% - 16px));background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:14px 14px 12px;box-shadow:0 18px 40px rgba(0,0,0,.45);font-size:13px;line-height:1.45;color:var(--muted)}
+.pkpop:before{content:"";position:absolute;top:-7px;left:var(--ar,26px);width:12px;height:12px;background:var(--card2);border-left:1px solid var(--line2);border-top:1px solid var(--line2);transform:rotate(45deg)}
+.pkpop .h{display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:700;font-size:14px;margin-bottom:6px}.pkpop .h img{width:22px;height:22px;border-radius:5px}
+.pkpop p{margin:0 0 8px}.pkpop .acts{display:flex;gap:8px;align-items:center;margin-top:10px}
+.pkpop .go{display:inline-block;background:#CE1126;color:#fff;font-weight:700;font-size:12.5px;padding:8px 12px;border-radius:7px;text-decoration:none}
+.pkpop .x{all:unset;cursor:pointer;font-size:12.5px;color:var(--dim);margin-left:auto;padding:6px 2px}

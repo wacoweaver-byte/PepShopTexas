@@ -49,8 +49,21 @@
       : n <= 0 ? `<button class="btn ghost sm" type="button" data-avail="${esc(p.product_key)}">${p.incoming_quantity ? "On order · notify me" : "Notify me"}</button>`
       : `<div class="qty sm"><button type="button" data-mq="-1" aria-label="Fewer">−</button><span data-mqv>${Math.min(m.qty, n)}</span><button type="button" data-mq="1" aria-label="More">+</button></div><button class="btn primary sm" type="button" data-reorder="${esc(p.product_key)}">Reorder</button>`;
     return `<div class="myrow${m.left <= 7 && !m.inProgress ? " due" : ""}" data-key="${esc(m.key)}" data-max="${n}">${p ? `<a href="${P.productUrl(p)}" class="mi" aria-hidden="true" tabindex="-1">${P.vial(p, 40)}</a>` : `<span class="mi"></span>`}
-<div class="mt"><a href="${p ? P.productUrl(p) : "#"}"><b>${esc(t.main)} <span class="muted">${esc(m.strength || p?.strength || "")}</span></b></a><span class="muted small">Last ordered ${P.fmtDate(m.last.at)} · ${m.qty} vial${m.qty > 1 ? "s" : ""}</span>${when}<span class="why">${why}</span></div>
+<div class="mt"><a href="${p ? P.productUrl(p) : "#"}"><b>${esc(t.main)} <span class="muted">${esc(m.strength || p?.strength || "")}</span></b></a><span class="muted small">Last ordered ${P.fmtDate(m.last.at)} · ${m.qty} vial${m.qty > 1 ? "s" : ""}</span>${when}<button class="pkby" type="button" data-pkby title="Run-out date ${esc(why)}"><img src="img/pepkeep-icon-64.png" alt="" width="13" height="13"><span>Estimated by PepKeep</span></button></div>
 <div class="ma">${act}</div></div>`;
+  }
+  // "Estimated by PepKeep" under each run-out date: a small note with the partner link (30 days free via ?via=pepshoptexas)
+  function pkNote(btn) {
+    const was = document.querySelector(".pkpop"), row = btn.closest(".myrow"); was?.remove(); if (was && was.parentNode === null && was.dataset.for === row.dataset.key) return;
+    const d = document.createElement("div"); d.className = "pkpop"; d.dataset.for = row.dataset.key; d.setAttribute("role", "dialog"); d.setAttribute("aria-label", "Run-out dates by PepKeep");
+    d.style.left = Math.max(0, btn.offsetLeft - 12) + "px"; d.style.top = (btn.offsetTop + btn.offsetHeight + 10) + "px";
+    d.innerHTML = `<div class="h"><img src="img/pepkeep-icon-64.png" alt="" width="22" height="22">Run-out dates by PepKeep</div><p>PepKeep gives you reminders for dosage, cost and schedule, and estimates run-out dates. Use Siri to add a new vial, log a dose or change your protocol entirely.</p><p>Pep Shop customers get PepKeep free for 30 days.</p><div class="acts"><a class="go" href="https://pepkeep.io/?via=pepshoptexas" target="_blank" rel="noopener">Try PepKeep free</a><button class="x" type="button" data-pkx>Got it</button></div>`;
+    row.appendChild(d); P.track?.("pepkeep_note");
+    const L = Math.max(8, Math.min(btn.offsetLeft - 12, row.clientWidth - d.offsetWidth - 8)); d.style.left = L + "px"; d.style.setProperty("--ar", Math.max(14, btn.offsetLeft + 14 - L) + "px"); // keep it inside the card, arrow under the icon
+    const off = e => { if (!d.contains(e.target) && !e.target.closest("[data-pkby]")) { d.remove(); document.removeEventListener("click", off, true); document.removeEventListener("keydown", esc2, true); } };
+    const esc2 = e => { if (e.key === "Escape") { d.remove(); btn.focus(); document.removeEventListener("click", off, true); document.removeEventListener("keydown", esc2, true); } };
+    setTimeout(() => { document.addEventListener("click", off, true); document.addEventListener("keydown", esc2, true); });
+    d.querySelector(".go").focus({ preventScroll: true });
   }
   async function shelf() {
     const el = $("[data-shelf]"); if (!el) return;
@@ -65,7 +78,7 @@
     const html = `<div class="wrap shelf"><div class="shead"><div><span class="kick">Welcome back</span><h1 class="serif" style="font-size:2.3rem;margin:0">Hi, ${esc(P.firstName(prof, user))}</h1></div><a class="lnk" href="account.html">Account →</a></div>
 ${active.map(o => orderBanner(o, hist.items)).join("")}
 ${mine.length ? `<details class="myacc" data-myacc><summary><span class="myacc-t"><b class="serif">My products</b><small>${mine.length} product${mine.length === 1 ? "" : "s"}${due.length ? ` · <span class="myacc-low">${due.length} running low</span>` : ""}</small></span><span class="myacc-c" aria-hidden="true">${P.icon("next", 18)}</span></summary>
-<div class="myacc-b">${due.length > 1 ? `<button class="btn primary sm" type="button" data-reorder-due>Reorder all ${due.length} running low</button>` : ""}<div class="mylist">${mine.map(productRow).join("")}</div><p class="muted small" style="margin-top:8px">Run-out dates are estimates from your order history. Tap Reorder to drop it in your bag; you can add more before checking out.</p></div></details>`
+<div class="myacc-b">${due.length > 1 ? `<button class="btn primary sm" type="button" data-reorder-due>Reorder all ${due.length} running low</button>` : ""}<div class="mylist">${mine.map(productRow).join("")}</div><p class="muted small" style="margin-top:8px">Run-out dates are estimates by PepKeep from your order history. Tap Reorder to drop it in your bag; you can add more before checking out.</p></div></details>`
         : active.length ? "" : `<a class="shelfempty" href="catalog.html"><span class="se-ic">${P.icon("bag", 22)}</span><span class="se-tx"><b>No orders yet</b><span>Order once and your products show up here for one-tap reorder.</span></span><span class="btn primary sm se-go">Shop the collection</span></a>`}</div>`;
     let prev = null; try { prev = JSON.parse(localStorage.getItem("pst-shelf-cache") || "null")?.html || null; } catch {}
     if (!cached || prev !== html) el.innerHTML = html; // only redraw if something changed since last visit
@@ -77,6 +90,8 @@ ${mine.length ? `<details class="myacc" data-myacc><summary><span class="myacc-t
       const mq = e.target.closest("[data-mq]"); if (mq) { const row = mq.closest(".myrow"), v = row.querySelector("[data-mqv]"); v.textContent = Math.max(1, Math.min(Number(row.dataset.max) || 1, Number(v.textContent) + Number(mq.dataset.mq))); return; }
       const ro = e.target.closest("[data-reorder]"); if (ro) { const row = ro.closest(".myrow"); P.addToCart(ro.dataset.reorder, Number(row.querySelector("[data-mqv]").textContent) || 1); location.href = "cart.html?from=mine"; return; }
       if (e.target.closest("[data-reorder-due]")) { due.forEach(m => P.addToCart(m.p.product_key, Math.min(m.qty, P.qty(m.p)))); location.href = "cart.html?from=mine"; return; }
+      const pk = e.target.closest("[data-pkby]"); if (pk) { pkNote(pk); return; }
+      if (e.target.closest("[data-pkx]")) { el.querySelector(".pkpop")?.remove(); return; }
       const sd = e.target.closest("[data-sent]"); if (sd) { sd.disabled = true; sd.textContent = "Sending…"; const ok = await P.paidNotice(sd.dataset.sent); const m = sent(); m[sd.dataset.sent] = 1; P.store.set("pst_paid_sent", m); sd.textContent = "✓ Payment sent"; P.toast(ok ? "Thanks! Jimmie's been notified." : "Thanks! We'll match it to your order."); return; }
     });
     bindCards(el);
