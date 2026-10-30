@@ -746,18 +746,28 @@ ${ps.length ? `<h3 class="kick">Products</h3>${ps.map(p => `<a class="crow" href
       const nb = e.target.closest("[data-rqnew]"); if (nb) { addRestockFlow(() => requestsPane(el, "avail")); return; }
       const bo = e.target.closest("[data-bulk]"); if (bo) { bulkDetail(+bo.dataset.bulk, () => requestsPane(el, "bulk")); return; }
       const bf = e.target.closest("[data-bf]"); if (bf) { el._bf = bf.dataset.bf; requestsPane(el, "bulk"); return; }
+      const cf = e.target.closest("[data-rqconfall]"); if (cf) { // send the missing "you're on the list" emails with the owner's session
+        const ids = el._noConf || []; cf.disabled = true; let ok = 0; const { data: s } = await P.client().auth.getSession();
+        for (const id of ids) { const r = await fetch(`${P.CFG.url}/functions/v1/pst-availability-confirmation`, { method: "POST", headers: { Authorization: "Bearer " + s?.session?.access_token, apikey: P.CFG.key, "Content-Type": "application/json" }, body: JSON.stringify({ request_id: id }) }).catch(() => null); const j = r ? await r.json().catch(() => ({})) : {}; if (r && r.ok && j.sent) ok++; }
+        P.toast(ok === ids.length ? `Sent ${ok} confirmation${ok === 1 ? "" : "s"}` : `Sent ${ok} of ${ids.length}. Try again in a minute.`); requestsPane(el, "avail"); return; }
       const ml = e.target.closest("[data-rqmail]"); if (ml) { const [id, kind] = ml.dataset.rqmail.split("|"), r = (el._rq || []).find(x => x.id === id); if (r) emailSheet(r, kind); }
     };
     el.onchange = async e => { const s = e.target.closest("[data-rqst]"); if (!s) return; const { error } = await P.client().from("product_availability_requests").update({ status: s.value }).eq("id", s.dataset.rqst); P.toast(error ? error.message : "Saved: " + s.value); };
     const body = el.querySelector("[data-rqbody]");
     if (sub === "avail") {
-      const { data, error } = await P.client().from("product_availability_requests").select("*").order("created_at", { ascending: false }).limit(1000);
+      const [{ data, error }, inv] = await Promise.all([P.client().from("product_availability_requests").select("*").order("created_at", { ascending: false }).limit(1000), P.client().from("product_inventory").select("product_key,current_inventory")]);
       if (error) { body.innerHTML = `<p class="notice err">${esc(error.message)}</p>`; return; }
       el._rq = data || [];
+      // who should have heard from the shop but hasn't: back in stock with nobody told, and requests with no "we got your request" email
+      const stock = Object.fromEntries((inv.data || []).map(x => [x.product_key, Number(x.current_inventory || 0)]));
+      const owedAll = (data || []).filter(r => r.notify_when_available && r.status === "pending" && !r.notified_at && (stock[r.product_key] || 0) > 0);
+      const noConf = (data || []).filter(r => r.status === "pending" && !r.confirmation_sent_at && r.customer_email); el._noConf = noConf.map(r => r.id);
       const open = (data || []).filter(r => r.status === "pending"), by = {};
       (data || []).forEach(r => { (by[r.product_key || r.product_name] ||= []).push(r); });
       const groups = Object.values(by).sort((a, b) => b.filter(r => r.status === "pending").length - a.filter(r => r.status === "pending").length || String(a[0].product_name).localeCompare(b[0].product_name));
       body.innerHTML = `<div class="pmtop"><p class="muted small" style="margin:0;flex:1">${open.length} waiting · ${new Set(open.map(r => String(r.customer_email).toLowerCase())).size} people · ${open.reduce((n, r) => n + Number(r.requested_quantity || 0), 0)} vials</p><button class="btn primary sm" type="button" data-rqnew>+ Add</button></div>
+${owedAll.length ? `<div class="notice err">${owedAll.length} ${owedAll.length === 1 ? "person is" : "people are"} waiting on a product that's in stock now and ${owedAll.length === 1 ? "hasn't" : "haven't"} had the back-in-stock email yet: ${esc([...new Set(owedAll.map(r => `${r.product_name} ${r.product_strength || ""}`.trim()))].join(", "))}.</div>` : ""}
+${noConf.length ? `<div class="notice">${noConf.length} request${noConf.length === 1 ? " hasn't" : "s haven't"} had the "you're on the list" confirmation email. <button class="btn primary sm" type="button" data-rqconfall>Send ${noConf.length === 1 ? "it" : `all ${noConf.length}`}</button></div>` : ""}
 ${groups.map(g => { const w = g.filter(r => r.status === "pending"); return `<details class="rqgrp"${w.length ? " open" : ""}><summary><b>${esc(g[0].product_name)} ${esc(g[0].product_strength || "")}</b><span class="muted small">${w.length ? `${w.length} waiting · ${w.reduce((n, r) => n + Number(r.requested_quantity || 0), 0)} vials` : "nobody waiting"}</span></summary>
 ${g.map(r => `<div class="rqrow"><div><b>${esc(r.customer_name || r.customer_email)}</b><small><a href="mailto:${esc(r.customer_email)}">${esc(r.customer_email)}</a> · ×${r.requested_quantity} · ${P.fmtDate(r.created_at)}${r.notify_when_available ? " · wants a restock email" : ""}</small>${mailLines(r)}</div><select data-rqst="${esc(r.id)}" aria-label="Status">${["pending", "notified", "closed"].map(s => `<option${r.status === s ? " selected" : ""}>${s}</option>`).join("")}</select></div>`).join("")}</details>`; }).join("") || `<p class="muted small">No requests yet.</p>`}`;
     } else {

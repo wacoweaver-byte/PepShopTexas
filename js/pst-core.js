@@ -615,8 +615,14 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
   }
   const venmoLink = (amount, note) => `https://venmo.com/${CFG.venmo}?txn=pay&amount=${Number(amount).toFixed(2)}&note=${encodeURIComponent(note)}`;
   async function submitAvailability(p, f) {
-    const { error } = await client().rpc("pst_submit_availability_request", { p_product_key: p.product_key, p_quantity: Number(f.quantity), p_name: f.name, p_email: f.email, p_notify: !!f.notify });
+    const { data, error } = await client().rpc("pst_submit_availability_request", { p_product_key: p.product_key, p_quantity: Number(f.quantity), p_name: f.name, p_email: f.email, p_notify: !!f.notify });
     if (error) throw error;
+    // "You're on the list" email: the confirmation function needs a signed-in session. Guests' requests show in the owner app
+    // under Requests with a Send button instead. Never blocks the request itself.
+    try { const id = typeof data === "string" ? data : data?.id || (Array.isArray(data) ? data[0]?.id : null);
+      const { data: s } = await client().auth.getSession();
+      if (id && s?.session?.access_token) fetch(`${CFG.url}/functions/v1/pst-availability-confirmation`, { method: "POST", headers: { Authorization: "Bearer " + s.session.access_token, apikey: CFG.key, "Content-Type": "application/json" }, body: JSON.stringify({ request_id: id }) }).catch(() => {});
+    } catch {}
   }
 
   /* ---------- layout chrome ---------- */
