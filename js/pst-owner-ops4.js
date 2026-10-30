@@ -135,6 +135,7 @@
   /* ================= WHAT'S NEW ================= */
   const L = (t, h) => ({ t, h });
   const RELEASES = [
+    { v: "5.17", d: "Oct 29, 2026", title: "Restock requests go by item #", items: [L("Each restock request shows its item #, and today's product name. If you renamed it since, you also see what the customer asked for", "#requests")] },
     { v: "5.16", d: "Oct 29, 2026", title: "Restock emails on record", items: [L("Restock requests show when the confirmation and back-in-stock emails went out", "#requests"), L("Tap View to see the email, then Print or save as PDF if a customer calls", "#requests")] },
     { v: "5.15", d: "Oct 29, 2026", title: "Vendor price lists: replace, clear, PDF", items: [L("Uploading a newer list replaces the vendor's old one, so nothing doubles up (or pick Only add and update)", "#vprices"), L("Clear a vendor's whole list, or Remove one item", "#vprices"), L("Upload the vendor's PDF price list, not just Excel or CSV", "#vprices"), L("The file you upload is kept with that vendor (one per vendor): View it any time", "#vprices")] },
     { v: "5.14", d: "Oct 28, 2026", title: "Purchase orders look official", items: [L("Every printed or saved PO shows your logo, name, address, phone and email, and leaves cancelled lines off (report #12)", "#stock"), L("Notifications: the Settings link no longer sits under the close X", "")] },
