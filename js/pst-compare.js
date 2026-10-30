@@ -12,6 +12,13 @@
   // The database hands back at most 1,000 rows per request, so read every price-list row page by page
   // (with more than 1,000 rows, suppliers near the end, like Catherine, were cut off).
   async function allRows(make) { const out = []; for (let i = 0; i < 50000; i += 1000) { const r = await make().range(i, i + 999); if (r.error) return r; out.push(...(r.data || [])); if ((r.data || []).length < 1000) break; } return { data: out, error: null }; }
+  let onOrd = {};
+  async function onOrderMap(c) { // open purchase-order lines (not received or cancelled), per product: units still coming + PO numbers
+    const m = {}; for (let i = 0; i < 20000; i += 1000) { const r = await c.from("incoming_inventory").select("id,product_key,ordered_quantity,received_quantity,status,po_number").order("id").range(i, i + 999); if (r.error || !r.data) break;
+      for (const x of r.data) { if (!x.product_key || ["received", "cancelled"].includes(String(x.status || "ordered").toLowerCase())) continue; const left = Math.max(0, Number(x.ordered_quantity || 0) - Number(x.received_quantity || 0)); if (!left) continue;
+        const e = m[x.product_key] ||= { qty: 0, pos: [] }; e.qty += left; if (x.po_number && !e.pos.includes(x.po_number)) e.pos.push(x.po_number); }
+      if (r.data.length < 1000) break; }
+    return m; }
   async function load() {
     const c = P.client();
     const [pr, vr, ir] = await Promise.all([
@@ -20,6 +27,7 @@
       allRows(() => c.from("pst_vendor_catalog_items").select("vendor_id,vendor_item_number,product_name,strength,kit_cost,product_key").order("id"))
     ]);
     const err = pr.error || vr.error || ir.error; if (err) throw err;
+    try { onOrd = await onOrderMap(c); } catch { onOrd = {}; }
     prods = (pr.data || []).filter(p => p.is_active !== false && !/10-vial/i.test(p.strength || "")).sort(P.cmpProduct);
     vend = Object.fromEntries((vr.data || []).map(v => [v.id, v]));
     offers = {}; unlinked = 0; zero = 0;
@@ -45,10 +53,10 @@
   }
   function card(p) {
     const os = offers[p.product_key] || [], price = shopPrice(p), sel = pick[p.product_key];
-    if (!os.length) return `<article class="cmpc none"><header><b>${esc(label(p))}</b><span class="muted small">${usd(price)} a vial · ${Number(p.current_inventory || 0)} on hand</span></header><p class="muted small">No supplier lists this size yet. Add it to a supplier's price list under More → Vendor price lists.</p></article>`;
+    if (!os.length) return `<article class="cmpc none"><header><b>${esc(label(p))}</b><span class="muted small">${usd(price)} a vial · ${Number(p.current_inventory || 0)} on hand${(onOrd[p.product_key]) ? ` · <b class="onord">${(onOrd[p.product_key]).qty} on order${(onOrd[p.product_key]).pos.length ? ` (${(onOrd[p.product_key]).pos.slice(0, 2).map(esc).join(", ")}${(onOrd[p.product_key]).pos.length > 2 ? "…" : ""})` : ""}</b>` : ""}</span></header><p class="muted small">No supplier lists this size yet. Add it to a supplier's price list under More → Vendor price lists.</p></article>`;
     const best = os[0];
     return `<article class="cmpc${sel ? " on" : ""}" data-ck="${esc(p.product_key)}">
-<header><label class="cmpchk"><input type="checkbox" data-cmpsel ${sel ? "checked" : ""} aria-label="Add ${esc(label(p))} to a purchase order"><span><b>${esc(label(p))}</b><span class="muted small">Sells ${usd(price)} a vial · ${Number(p.current_inventory || 0)} on hand${low(p) ? ` · <em class="lowtag">Low</em>` : ""}</span></span></label></header>
+<header><label class="cmpchk"><input type="checkbox" data-cmpsel ${sel ? "checked" : ""} aria-label="Add ${esc(label(p))} to a purchase order"><span><b>${esc(label(p))}</b><span class="muted small">Sells ${usd(price)} a vial · ${Number(p.current_inventory || 0)} on hand${(onOrd[p.product_key]) ? ` · <b class="onord">${(onOrd[p.product_key]).qty} on order${(onOrd[p.product_key]).pos.length ? ` (${(onOrd[p.product_key]).pos.slice(0, 2).map(esc).join(", ")}${(onOrd[p.product_key]).pos.length > 2 ? "…" : ""})` : ""}</b>` : ""}${low(p) ? ` · <em class="lowtag">Low</em>` : ""}</span></span></label></header>
 <div class="cmprows" role="radiogroup" aria-label="Supplier for ${esc(label(p))}">${os.map((o, i) => { const m = margin(price, o.kit_cost), chosen = sel ? sel.vendorId === o.vendor_id : i === 0, diff = o.kit_cost - best.kit_cost;
   return `<button type="button" role="radio" aria-checked="${chosen}" class="cmpr${chosen ? " chosen" : ""}${i === 0 ? " best" : ""}" data-cmpv="${o.vendor_id}">
 <span class="cv"><b>${esc(vend[o.vendor_id]?.company_name || "Supplier")}</b><small>${esc(o.vendor_item_number || "")}${i === 0 ? ` · <i>Cheapest</i>` : diff > 0 ? ` · +${usd(diff)}` : ""}</small></span>

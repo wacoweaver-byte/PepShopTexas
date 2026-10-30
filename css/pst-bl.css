@@ -967,3 +967,5 @@ body.noscroll .flipfloat{opacity:0;pointer-events:none}
 .oship{margin:14px 0 4px;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;background:var(--bg)}
 .oship address{font-style:normal;font-size:16px;line-height:1.45;color:var(--ink);margin:4px 0 0}
 .oshipacts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+.onord{color:var(--ink);font-weight:700}

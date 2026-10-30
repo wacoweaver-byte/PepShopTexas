@@ -28,6 +28,13 @@
 
   /* ---- shared data ---- */
   let items = [], catBy = {}, vendors = [];
+  let onOrd = {};
+  async function onOrderMap(c) { // open purchase-order lines (not received or cancelled), per product: units still coming + PO numbers
+    const m = {}; for (let i = 0; i < 20000; i += 1000) { const r = await c.from("incoming_inventory").select("id,product_key,ordered_quantity,received_quantity,status,po_number").order("id").range(i, i + 999); if (r.error || !r.data) break;
+      for (const x of r.data) { if (!x.product_key || ["received", "cancelled"].includes(String(x.status || "ordered").toLowerCase())) continue; const left = Math.max(0, Number(x.ordered_quantity || 0) - Number(x.received_quantity || 0)); if (!left) continue;
+        const e = m[x.product_key] ||= { qty: 0, pos: [] }; e.qty += left; if (x.po_number && !e.pos.includes(x.po_number)) e.pos.push(x.po_number); }
+      if (r.data.length < 1000) break; }
+    return m; }
   async function loadBase() {
     const [inv, cat, ven] = await Promise.all([P.client().from("product_inventory").select("*"), P.client().from("product_catalog").select("*"), P.client().from("vendors").select("*").order("company_name", { ascending: true })]);
     catBy = Object.fromEntries((cat.data || []).map(c => [nk(c.product_key), c]));
@@ -35,6 +42,7 @@
     items = (inv.data || []).filter(i => { const k = nk(i.product_key || i.id); if (seen.has(k) || SKIP.includes(i.product_key)) return false; seen.add(k); return true; })
       .sort((a, b) => label(a).localeCompare(label(b), undefined, { numeric: true }));
     vendors = ven.data || [];
+    try { onOrd = await onOrderMap(P.client()); } catch { onOrd = {}; }
   }
   const vsort = r => r.i ? label(r.i) : `${r.x.product_name} ${r.x.strength || ""}`;
   function label(i) { // = his incomingProductLabel
@@ -97,7 +105,7 @@ ${editing ? `<label>Tracking number<input name="tracking" value="${esc(first?.tr
     const thumb = i => { const c = i && catBy[nk(i.product_key)]; return c ? P.vial(c, 26) : `<span class="pov"></span>`; };
     const added = key => lines.some(l => l.productKey && l.productKey === key);
     const rowInv = (i, x) => { const kc = x ? Number(x.kit_cost) : autoKitCost(i, vp, !!vendor()), v = vendor(), on = added(i.product_key);
-      return `<button type="button" class="porow${on ? " on" : ""}" data-poadd="${esc(i.id)}">${thumb(i)}<span><b>${esc(label(i))}</b><small>${x ? `${esc(x.vendor_item_number || "")} · ${esc(`${x.product_name} ${x.strength || ""}`.trim())} · ` : v ? "not on this vendor's list · " : ""}${Number(i.current_inventory || 0)} on hand</small></span><em>${on ? "added" : kc > 0 ? usd(kc) + "/kit" : "no price"}</em></button>`; };
+      return `<button type="button" class="porow${on ? " on" : ""}" data-poadd="${esc(i.id)}">${thumb(i)}<span><b>${esc(label(i))}</b><small>${x ? `${esc(x.vendor_item_number || "")} · ${esc(`${x.product_name} ${x.strength || ""}`.trim())} · ` : v ? "not on this vendor's list · " : ""}${Number(i.current_inventory || 0)} on hand${(onOrd[i.product_key]) ? ` · <b class="onord">${(onOrd[i.product_key]).qty} on order${(onOrd[i.product_key]).pos.length ? ` (${(onOrd[i.product_key]).pos.slice(0, 2).map(esc).join(", ")}${(onOrd[i.product_key]).pos.length > 2 ? "…" : ""})` : ""}</b>` : ""}</small></span><em>${on ? "added" : kc > 0 ? usd(kc) + "/kit" : "no price"}</em></button>`; };
     const rowVo = x => `<button type="button" class="porow vo" data-povo="${esc(x.id)}"><span class="pov"></span><span><b>${esc(`${x.product_name} ${x.strength || ""}`.trim())}</b><small>${esc(x.vendor_item_number || "")} · not set up in your products yet</small></span><em>${usd(x.kit_cost)}/kit</em></button>`;
     const search = () => { const s = q.value.trim().toLowerCase(), v = vendor(), byKey = Object.fromEntries(items.map(i => [i.product_key, i]));
       const vrows = vp.catalog.map(x => ({ x, i: x.product_key ? byKey[x.product_key] : null })).sort((a, c) => vsort(a).localeCompare(vsort(c), undefined, { numeric: true, sensitivity: "base" })); // matched items sort by his product name (BAC Water matched to PST Recon sorts under P)
