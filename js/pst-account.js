@@ -320,7 +320,7 @@ ${admin ? `<div class="setrow"><div><b>Store owner</b><span>The owner app (order
   async function testing() {
     const el = $("[data-coas]"); if (!el) return;
     try {
-      const all = await P.products(), w = all.filter(p => P.coaHref(p));
+      const hide = new Set(window.PST_NOINDEX || []), all = await P.products(), w = all.filter(p => P.coaHref(p) && !hide.has(p.product_key)); // v555: rule-2 products stay off this indexed page (their reports still open from their own product page)
       el.innerHTML = w.length ? w.map(p => `<a class="coac" href="${esc(P.coaHref(p))}" target="_blank" rel="noopener">${P.vial(p, 34)}<div><b>${esc(p.display_name)} ${esc(p.strength || "")}</b><span>${esc(p.coa_label || "Certificate of analysis")} · PDF</span></div></a>`).join("") : `<p class="muted">Reports are being uploaded.</p>`;
       const n = $("[data-coacount]"); if (n) n.textContent = w.length;
     } catch { el.innerHTML = `<p class="muted">Couldn't load reports right now.</p>`; }
