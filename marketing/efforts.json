@@ -40,11 +40,16 @@
       "date": "2026-10-31",
       "title": "Testing page: Gold Standard added, how to verify a COA",
       "detail": "New Gold Standard card, 4 steps to check a certificate with the lab, and a title aimed at 'third party tested peptides' searches."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "Testing page no longer lists GLP-1 and Rx-type products",
+      "detail": "Per Mike: their lab reports stay on their own (hidden-from-Google) product pages, off the public testing page."
     }
   ],
   "next": [
-    "Needs Mike: set up Google Search Console (10 minutes) so we can submit the sitemap and see Google searches",
-    "Needs Mike: the testing page's report list shows PST-2TR, PST-3RT, PST-CG1, PT-141 and Tesamorelin reports. Ask Jimmie: hide them there (keeps them out of search) or keep?",
+    "Needs Mike: Google Search Console in progress: send Claude the verification file name, then submit sitemap.xml",
+    "Needs Mike: the catalog and home page still show those products, and Google reads both. Hide them there too?",
     "Needs Mike: is AFI still one of Jimmie's labs? If not, I'll take it off the testing page",
     "Lab report pages: one per certificate, linked from each product",
     "Listings: directories and tester sites where the big shops appear (Mike submits, Claude preps)"
