@@ -14,7 +14,7 @@
     pushFn: "pst-push",
     minAge: 18,                            // matches his current sign-up rule (change to 21 here if he wants)
     cartKey: "pst_cart_v1", remindKey: "pst_remind_v1", gateKey: "pst_gate_v1",
-    fields: "id,product_key,display_name,strength,category,research_focus,series,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label,coa_url,coa_label,label_color,label_line_1,reorder_days_default,research_summary,home_feature_rank,coming_soon,bottle_url,bottle_sig"
+    fields: "id,product_key,display_name,strength,category,research_focus,series,price,current_inventory,low_stock_threshold,limited_stock_threshold,is_active,featured,blend_stack,sort_name,created_at,updated_at,hot_peptide,sale_enabled,sale_price,sale_label,coa_url,coa_label,label_color,label_line_1,reorder_days_default,research_summary,home_feature_rank,coming_soon,bottle_url,bottle_sig,vial_type,vial_fill,vial_color"
   };
   const FOCUS = { performance: "Performance", recovery: "Recovery", longevity: "Longevity" };
   const COLORS = { Blue: "#1d4ea3", Orange: "#e2661b", Red: "#c3262c", Purple: "#6b3fb4", Black: "#1d1d1f", Green: "#2c7a4b" };
@@ -173,7 +173,15 @@
   // Mike's rules (Oct 2026): what the liquid below the label looks like. Everything else shows the white powder cake.
   const LIQUID = [[/^b-?12\b/i, "#a3122a"], [/ghk-?cu|^glow\b|^klow\b/i, "#1f5fc4"], [/5-?amino/i, "#f1b67c"]];
   const vialLiquid = p => (LIQUID.find(([re]) => re.test(String(p.display_name || ""))) || [])[1] || "";
-  const vialSig = p => [p.product_key, vialName(p), vialStrength(p), vialHex(p), vialLiquid(p)].join("|");
+  // v544 (Jimmie's report #15): he can pick the vial itself on a product: glass and size, powder or liquid, and the fill color.
+  // Left on Auto, a product keeps exactly the picture it had (the rules above), so old bottles stay valid.
+  const VIAL_TYPES = { "clear-3": ["Clear glass 3ml", .78, 0], "clear-5": ["Clear glass 5ml", .88, 0], "clear-10": ["Clear glass 10ml", 1, 0], "amber-10": ["Amber glass 10ml", 1, 1] };
+  const VIAL_FILLS = { powder: "Powder (lyophilized)", liquid: "Liquid" };
+  const VIAL_COLORS = { white: ["White / clear", ""], blue: ["Blue", "#1f5fc4"], orange: ["Orange", "#f1b67c"], red: ["Red", "#a3122a"] };
+  const vialCustom = p => !!(VIAL_TYPES[p.vial_type] || VIAL_FILLS[p.vial_fill] || VIAL_COLORS[p.vial_color]);
+  const vialSpec = p => { const t = VIAL_TYPES[p.vial_type] || VIAL_TYPES["clear-10"], liq = vialLiquid(p);
+    return { type: VIAL_TYPES[p.vial_type] ? p.vial_type : "clear-10", scale: t[1], amber: !!t[2], fill: VIAL_FILLS[p.vial_fill] ? p.vial_fill : (liq ? "liquid" : "powder"), tint: VIAL_COLORS[p.vial_color] ? VIAL_COLORS[p.vial_color][1] : liq }; };
+  const vialSig = p => [p.product_key, vialName(p), vialStrength(p), vialHex(p), vialLiquid(p)].join("|") + (vialCustom(p) ? (s => `|${s.type}|${s.fill}|${s.tint}`)(vialSpec(p)) : "");
   const vialCache = new Map(); let vialAssets = null; const vialByKey = new Map();
   const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
   function vialAssetsP() {
@@ -188,8 +196,32 @@
     const bandC = mk(), bg = bandC.getContext("2d"); bg.fillStyle = col; bg.fillRect(0, 0, W, H);
     bg.globalCompositeOperation = "hard-light"; bg.drawImage(shade, 0, 0, W, H); bg.globalCompositeOperation = "destination-in"; bg.drawImage(shade, 0, 0, W, H);
     g.drawImage(bandC, 0, 0);
+    const custom = vialCustom(p), sp = vialSpec(p), [LX, LY, LW, LH] = m.label.map(v => v * S), yB = LY + LH;
+    // v544: amber glass: tint the neck and the glass below the label (not the cap or the label), keeping the photo's light
+    if (custom && sp.amber) {
+      const amC = mk(), am = amC.getContext("2d"); am.drawImage(base, 0, 0, W, H); am.globalCompositeOperation = "multiply"; am.fillStyle = "#b8691f"; am.fillRect(0, 0, W, H);
+      am.globalCompositeOperation = "destination-in"; am.drawImage(base, 0, 0, W, H);
+      g.save(); g.beginPath(); g.rect(0, 135 * S, W, LY - 135 * S); g.rect(0, yB, W, H - yB); g.clip(); g.globalAlpha = .82; g.drawImage(amC, 0, 0); g.restore();
+    }
+    if (custom) {
+      const glass = mk(), gl = glass.getContext("2d");
+      if (sp.fill === "liquid") {
+        // liquid: smooth out the powder texture, fill with the color (clear liquid stays glass-clear), bright line at the top
+        gl.filter = `blur(${4 * S}px)`; gl.drawImage(base, 0, 0, W, H); gl.filter = "none";
+        gl.globalCompositeOperation = "multiply"; const gr = gl.createLinearGradient(0, yB, 0, H); const c0 = sp.tint || "#dfe9f2";
+        gr.addColorStop(0, c0); gr.addColorStop(1, sp.tint ? c0 : "#c9d6e2"); gl.fillStyle = gr; gl.fillRect(0, yB, W, H - yB);
+        gl.globalCompositeOperation = "destination-in"; gl.drawImage(base, 0, 0, W, H);
+        g.save(); g.beginPath(); g.rect(0, yB, W, H - yB); g.clip(); g.globalAlpha = sp.tint ? .92 : .7; g.drawImage(glass, 0, 0); g.restore();
+        g.save(); g.globalAlpha = .55; g.fillStyle = "#ffffff"; g.fillRect(32 * S, yB + 2 * S, 236 * S, 2 * S); g.restore();
+      } else if (sp.tint) {
+        // colored powder: tint the cake, keeping its texture
+        gl.drawImage(base, 0, 0, W, H); gl.globalCompositeOperation = "multiply"; gl.fillStyle = sp.tint; gl.fillRect(0, 0, W, H);
+        gl.globalCompositeOperation = "destination-in"; gl.drawImage(base, 0, 0, W, H);
+        g.save(); g.beginPath(); g.rect(0, yB, W, H - yB); g.clip(); g.globalAlpha = .9; g.drawImage(glass, 0, 0); g.restore();
+      }
+    }
     // liquid below the label: tint the glass bottom, keeping the photo's light and shadow
-    const liq = vialLiquid(p);
+    const liq = custom ? "" : vialLiquid(p);
     if (liq) {
       const y0 = (m.label[1] + m.label[3]) * S, liqC = mk(), lq = liqC.getContext("2d");
       lq.drawImage(base, 0, 0, W, H); lq.globalCompositeOperation = "multiply"; lq.fillStyle = liq; lq.fillRect(0, 0, W, H);
@@ -210,6 +242,8 @@
     // wrap the artwork around the bottle (cylinder) column by column
     const [lx, ly, lw, lh] = m.label.map(X), cx = lx + lw / 2, half = lw / 2, ang = m.warpDeg * Math.PI / 180, rad = half / Math.sin(ang);
     for (let x = 0; x < lw; x++) { const xs = x - half, src = rad * Math.asin(Math.max(-1, Math.min(1, xs / rad))) * (half / (rad * ang)) + cx; g.drawImage(art, src, ly, 1, lh, lx + x, ly, 1, lh); }
+    // v544: smaller vials draw smaller in the same frame, standing on the same line, so 3ml and 10ml look different side by side
+    if (custom && sp.scale < 1) { const o2 = mk(), g2 = o2.getContext("2d"), w2 = W * sp.scale, h2 = H * sp.scale; g2.drawImage(out, (W - w2) / 2, H - h2, w2, h2); return o2; }
     return out;
   }
   // draw only as many pixels as the spot needs (thumbnails are ~10x cheaper), remember results across visits
@@ -1100,6 +1134,6 @@ ${rows.length ? `<div class="mbl">${rows.map(r => `<div class="mbr${r.key === ad
   window.PST = { giftLines, flipper, mountFlip, activePromotions, SMS_CONSENT, usPhone, fmtPhone, PREVIEW, lockScroll, CFG, FOCUS, REMIND, $, $$, esc, money, round, params, store, fmtDate, isStandalone, isIOS, client, getUser, getProfile, isAdmin, customerName, firstName,
     products, groups, cycles, suggestDays, myHistory, myProducts, isDone, handedOff, stageOf, vialLiquid, paidNotice, gIn, gBest, gMin, unitPrice, onSale, qty, stock, focuses, isBlend, titleParts, productUrl, coaHref, vial, cmpProduct,
     readCart, writeCart, addToCart, setQty, count, refreshCount, cartRows, reminders, setReminder,
-    photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,
+    photo: () => VIAL_ON, vialStudio, bakeBottle, vialSig, vialColorName, LABEL_COLORS, VIAL_TYPES, VIAL_FILLS, VIAL_COLORS, vialSpec, vialCustom, track, validateDiscount, discountAmount, payDiscount, payLabel, backordersOn, creditBalance, freeVials, choiceRewards, paymentMethods, payCard, submitOrder, venmoLink, openAvailability,
     icon, toast, sheet, closeSheet, saved, isSaved, toggleSaved, heart, recordRecent, recent, badges, gkey, miniBag, addAndShow, openSearch, install, canPrompt, promptInstall, pushSupported, pushState, enablePush, disablePush, getPrefs, setPref, testPush, openInbox, refreshBell, notifyPanel, PREFS, emailPayload, postEmail };
 })();

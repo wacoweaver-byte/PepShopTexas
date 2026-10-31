@@ -276,6 +276,11 @@ ${g.map(p => { const c = cyc[p.product_key]; return `<div class="trow"><div><b>$
 <div class="pm2"><label>Strength<input name="strength" maxlength="30" value="${esc(v.strength || "")}" placeholder="10mg"></label><label>Price<input name="price" type="number" step="0.01" min="0" inputmode="decimal" value="${Number(v.price || 0).toFixed(2)}"></label></div>
 <div class="pm2"><label>Category<select name="category">${[...new Set([...PM_CATS, v.category].filter(Boolean))].map(c => `<option${c === v.category ? " selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
 <label>Label color<select name="label_color"><option value="" data-pmauto>Auto (${esc(P.vialColorName({ ...v, label_color: "" }))})</option>${colors.map(c => `<option${String(v.label_color || "").toLowerCase() === c.toLowerCase() ? " selected" : ""}>${c}</option>`).join("")}</select></label></div>
+${P.VIAL_TYPES ? (() => { const sp = P.vialSpec({ ...v, vial_type: "", vial_fill: "", vial_color: "" }), opt = (o, cur, auto) => `<option value="">${esc(auto)}</option>${Object.entries(o).map(([k, x]) => `<option value="${k}"${cur === k ? " selected" : ""}>${esc(Array.isArray(x) ? x[0] : x)}</option>`).join("")}`; // v544: Jimmie's report #15
+  return `<p class="kick" style="margin:8px 0 4px">Vial picture <span class="muted small" style="letter-spacing:0;text-transform:none">· Auto keeps today's picture</span></p><div class="pm3">
+<label>Vial<select name="vial_type">${opt(P.VIAL_TYPES, v.vial_type, "Auto (clear 10ml)")}</select></label>
+<label>Fill<select name="vial_fill">${opt(P.VIAL_FILLS, v.vial_fill, `Auto (${sp.fill})`)}</select></label>
+<label>Color<select name="vial_color">${opt(P.VIAL_COLORS, v.vial_color, `Auto (${sp.tint ? ((Object.values(P.VIAL_COLORS).find(x => x[1] === sp.tint) || ["custom"])[0]).toLowerCase() : "white"})`)}</select></label></div>`; })() : ""}
 <div class="pm2"><label class="toggle"><input type="checkbox" name="sale_enabled"${v.sale_enabled ? " checked" : ""}> On sale</label><label>Sale price<input name="sale_price" type="number" step="0.01" min="0" inputmode="decimal" value="${v.sale_price ?? ""}"></label></div>
 <label class="toggle"><input type="checkbox" name="is_active"${v.is_active !== false ? " checked" : ""}> Live on the site</label>
 <label class="toggle"><input type="checkbox" name="coming_soon"${(isNew || v.coming_soon) ? " checked" : ""}> Coming soon <span class="muted small">(not stocked yet: shoppers see "Coming soon" and can request it. Turns off by itself when stock arrives.)</span></label>
@@ -294,7 +299,7 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
 <button class="btn primary wide" type="submit">${isNew ? "Create product" : "Save changes"}</button><p class="status" data-pmstat role="status"></p></form>`, { label: isNew ? "New product" : "Edit product" });
     const f = w.querySelector("form"), prev = w.querySelector("[data-pmprev]");
     if (window.PSTGSA) PSTGSA.ownerField(f.coa_url, () => `${f.display_name.value.trim()} ${f.strength.value.trim()}`.trim()); // v543: live Gold Standard check
-    const cur = () => ({ ...v, product_key: v.product_key, display_name: f.display_name.value.trim() || "NEW PRODUCT", label_line_1: f.label_line_1.value.trim() || null, strength: f.strength.value.trim(), label_color: f.label_color.value, category: f.category.value });
+    const cur = () => ({ ...v, product_key: v.product_key, display_name: f.display_name.value.trim() || "NEW PRODUCT", label_line_1: f.label_line_1.value.trim() || null, strength: f.strength.value.trim(), label_color: f.label_color.value, category: f.category.value, ...(f.vial_type ? { vial_type: f.vial_type.value || null, vial_fill: f.vial_fill.value || null, vial_color: f.vial_color.value || null } : {}) });
     const drawPrev = () => { const c = cur(); c.product_key = "__prev_" + (v.product_key || "new"); prev.innerHTML = P.vial(c, 130);
       const a = f.querySelector("[data-pmauto]"); if (a) a.textContent = `Auto (${P.vialColorName({ ...c, label_color: "" })})`;
       f.label_line_1.placeholder = String(f.display_name.value.trim() || "Same as name").replace(/\s*\(.*\)\s*/, "").toUpperCase(); };
@@ -308,7 +313,10 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
       const now = new Date().toISOString(), name = f.display_name.value.trim(), strength = f.strength.value.trim() || null, category = f.category.value, price = Math.max(0, Number(f.price.value) || 0), live = f.is_active.checked;
       const fields = { display_name: name, label_line_1: f.label_line_1.value.trim().toUpperCase() || null, strength, category, price, label_color: f.label_color.value || null, is_active: live, blend_stack: category === "Multi-Peptide Product",
         coming_soon: f.coming_soon.checked, sale_enabled: f.sale_enabled.checked, sale_price: f.sale_enabled.checked && Number(f.sale_price.value) > 0 ? Number(f.sale_price.value) : null, home_feature_rank: f.home_feature_rank.value ? Number(f.home_feature_rank.value) : null, updated_at: now,
-        sort_name: f.sort_name.value.trim() || name, sale_label: f.sale_label.value.trim() || null, research_focus: $$("input[name=rf]:checked", f).map(x => x.value), coa_url: (window.PSTGSA ? PSTGSA.normalize(f.coa_url.value) : f.coa_url.value.trim()) || null, coa_label: f.coa_label.value.trim() || "View COA", admin_only: f.admin_only.value.trim() || null };
+        sort_name: f.sort_name.value.trim() || name, sale_label: f.sale_label.value.trim() || null, research_focus: $$("input[name=rf]:checked", f).map(x => x.value), coa_url: (window.PSTGSA ? PSTGSA.normalize(f.coa_url.value) : f.coa_url.value.trim()) || null, coa_label: f.coa_label.value.trim() || "View COA", admin_only: f.admin_only.value.trim() || null,
+        ...(f.vial_type ? { vial_type: f.vial_type.value || null, vial_fill: f.vial_fill.value || null, vial_color: f.vial_color.value || null } : {}) };
+      // v544: before the server update adds the vial columns, save everything else and say so
+      const noVial = er => er && /vial_(type|fill|color)/.test(er.message || "") ? (delete fields.vial_type, delete fields.vial_fill, delete fields.vial_color, P.toast("Saved, but the vial picture choices need the store update first."), true) : false;
       if (f.sale_enabled.checked && !(Number(f.sale_price.value) > 0)) { st.textContent = "Add the sale price, or turn the sale off."; st.className = "status bad"; btn.disabled = false; return; }
       if (f.sale_enabled.checked && Number(f.sale_price.value) >= price) { st.textContent = "The sale price should be lower than the regular price."; st.className = "status bad"; btn.disabled = false; return; }
       if (live && !f.coming_soon.checked && !(price > 0)) { st.textContent = "Set a price before putting it live."; st.className = "status bad"; btn.disabled = false; return; }
@@ -317,6 +325,7 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
           const k = pmNextKey();
           const ins = () => P.client().from("product_catalog").insert({ product_key: k, current_inventory: 0, featured: false, hot_peptide: false, sale_label: null, created_at: now, ...fields }).select("product_key,label_color").single();
           let r1 = await ins(); if (r1.error && /coming_soon/.test(r1.error.message)) { delete fields.coming_soon; r1 = await ins(); } // before the v9 server update
+          if (noVial(r1.error)) r1 = await ins();
           if (r1.error) throw r1.error;
           const cost = Number(f.cost?.value || 0);
           const r2 = await P.client().from("product_inventory").upsert({ product_key: k, display_name: name, category, strength, price, current_inventory: 0, low_stock_threshold: 5, limited_stock_threshold: 10, is_active: live, featured: false, blend_stack: fields.blend_stack, coa_url: fields.coa_url, coa_label: fields.coa_label, cost_per_unit: cost > 0 ? cost : null, updated_at: now }, { onConflict: "product_key" });
@@ -325,6 +334,7 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
         } else {
           let r1 = await P.client().from("product_catalog").update(fields).eq("product_key", v.product_key);
           if (r1.error && /coming_soon/.test(r1.error.message)) { delete fields.coming_soon; r1 = await P.client().from("product_catalog").update(fields).eq("product_key", v.product_key); }
+          if (noVial(r1.error)) r1 = await P.client().from("product_catalog").update(fields).eq("product_key", v.product_key);
           if (r1.error) throw r1.error;
           const c0 = Number(pmInv[v.product_key]?.cost_per_unit || 0), c1 = Number(f.cost.value || 0), invUp = { display_name: name, category, strength, price, is_active: live, blend_stack: fields.blend_stack, coa_url: fields.coa_url, coa_label: fields.coa_label, updated_at: now };
           if (f.cost.value !== "" && c1 > 0 && Math.abs(c1 - c0) > 0.004) invUp.cost_per_unit = c1; // only when he changes it (his page could overwrite or wipe it)
