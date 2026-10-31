@@ -55,16 +55,33 @@ function delta(now: number, before: number) {
   const d = (now - before) / before, up = d >= 0;
   return `<span style="display:inline-block;padding:2px 6px;border-radius:999px;background:${up ? C.upBg : C.downBg};color:${up ? C.up : C.down};font:700 11px/1.3 ${F}">${up ? "▲" : "▼"} ${Math.abs(d * 100).toFixed(0)}%</span>`;
 }
-function tiles(list: [string, string, string][]) { // [label, value, delta]
-  const cells = list.map(([l, v, d]) => `<td width="${Math.floor(100 / list.length)}%" valign="top" style="padding:4px"><div style="background:${C.soft};border:1px solid ${C.line};border-radius:10px;padding:12px 10px">
-<div style="font:700 10px/1.2 ${F};letter-spacing:.1em;text-transform:uppercase;color:${C.muted}">${esc(l)}</div><div style="font:700 21px/1.25 ${F};color:${C.ink};margin:4px 0 3px">${v}</div>${d || "&nbsp;"}</div></td>`).join("");
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:6px -4px 4px"><tr>${cells}</tr></table>`;
+function tiles(list: [string, string, string][]) { // [label, value, delta]: equal-height boxes, flush with the text edges
+  const n = list.length, gap = 2, w = (100 - gap * (n - 1)) / n;
+  const box = ([l, v, d]: [string, string, string]) => `<td width="${w}%" valign="top" bgcolor="${C.soft}" style="width:${w}%;background:${C.soft};border:1px solid ${C.line};border-radius:10px;padding:12px 10px 11px;vertical-align:top">
+<div style="font:700 10px/1.2 ${F};letter-spacing:.1em;text-transform:uppercase;color:${C.muted};white-space:nowrap">${esc(l)}</div><div style="font:700 21px/1.25 ${F};color:${C.ink};margin:5px 0 4px;white-space:nowrap">${v}</div><div style="height:18px;line-height:18px">${d || "&nbsp;"}</div></td>`;
+  const cells = list.map(box).join(`<td width="${gap}%" style="width:${gap}%;font-size:0;line-height:0">&nbsp;</td>`);
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:separate;table-layout:fixed;margin:8px 0 6px"><tr>${cells}</tr></table>`;
+}
+// week-over-week traffic: one row per week, visitors as a gold bar (email-safe: plain table cells, no images or scripts)
+function trafficChart(weeks: { label: string; visitors: number; views: number }[]) {
+  const max = Math.max(1, ...weeks.map(w => w.visitors));
+  const rows = weeks.map((w, i) => { const pctW = Math.max(w.visitors ? 2 : 0, Math.round(w.visitors / max * 100)), last = i === weeks.length - 1;
+    return `<tr><td width="92" style="width:92px;padding:6px 8px 6px 0;font:${last ? 700 : 400} 12.5px/1.2 ${F};color:${last ? C.ink : C.muted};white-space:nowrap">${esc(w.label)}</td>
+<td style="padding:6px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;table-layout:fixed"><tr>${pctW ? `<td width="${pctW}%" height="14" bgcolor="${last ? C.goldBtn : C.goldLight}" style="width:${pctW}%;height:14px;background:${last ? C.goldBtn : C.goldLight};border-radius:3px;font-size:0;line-height:0">&nbsp;</td>` : ""}${pctW < 100 ? `<td style="font-size:0;line-height:0">&nbsp;</td>` : ""}</tr></table></td>
+<td width="64" align="right" style="width:64px;padding:6px 0 6px 10px;font:${last ? 700 : 400} 13px/1.2 ${F};color:${C.ink};white-space:nowrap">${num(w.visitors)}</td>
+<td width="80" align="right" style="width:80px;padding:6px 0 6px 10px;font:13px/1.2 ${F};color:${C.muted};white-space:nowrap">${num(w.views)}</td></tr>`; }).join("");
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;margin:4px 0 2px">
+<tr><td width="92" style="width:92px;padding:0 8px 6px 0;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Week</td><td style="padding:0 0 6px;border-bottom:2px solid ${C.line}">&nbsp;</td><td width="64" align="right" style="width:64px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Visitors</td><td width="80" align="right" style="width:80px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Page views</td></tr>${rows}</table>`;
 }
 function table(head: string[], rows: (string | number)[][], align: ("l" | "r")[] = []) {
   if (!rows.length) return p("Nothing this week.", true);
-  const th = head.map((h, i) => `<th align="${align[i] === "r" ? "right" : "left"}" style="padding:6px 8px;border-bottom:2px solid ${C.line};font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted}">${esc(h)}</th>`).join("");
-  const tr = rows.map((r, n) => `<tr>${r.map((c, i) => `<td align="${align[i] === "r" ? "right" : "left"}" style="padding:7px 8px;border-bottom:1px solid ${C.line};font:13.5px/1.35 ${F};color:${C.ink};${n % 2 ? `background:#fcfbf7;` : ""}">${c}</td>`).join("")}</tr>`).join("");
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:4px 0 8px">${th ? `<tr>${th}</tr>` : ""}${tr}</table>`;
+  // flush with the text: first column starts at the left edge, number columns are fixed width and end at the right edge
+  const last = head.length - 1, pad = (i: number) => i === 0 ? "0 8px 0 0" : i === last ? "0 0 0 8px" : "0 8px";
+  const wide = (i: number) => i === 0 ? "" : ` width="86" style="width:86px;`;
+  const cell = (i: number, base: string) => i === 0 ? ` style="${base}"` : `${wide(i)}${base}"`;
+  const th = head.map((h, i) => `<th align="${align[i] === "r" ? "right" : "left"}"${cell(i, `padding:${pad(i)};padding-bottom:6px;border-bottom:2px solid ${C.line};font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};white-space:nowrap`)}>${esc(h)}</th>`).join("");
+  const tr = rows.map(r => `<tr>${r.map((c, i) => `<td align="${align[i] === "r" ? "right" : "left"}"${cell(i, `padding:${pad(i)};padding-top:8px;padding-bottom:8px;border-bottom:1px solid ${C.line};font:13.5px/1.35 ${F};color:${C.ink};${i ? "white-space:nowrap;" : ""}`)}>${c}</td>`).join("")}</tr>`).join("");
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;margin:4px 0 8px">${th ? `<tr>${th}</tr>` : ""}${tr}</table>`;
 }
 const bullets = (items: string[]) => items.length ? `<ul style="margin:4px 0 10px;padding-left:20px">${items.map(i => `<li style="margin:0 0 6px;font:14px/1.5 ${F};color:${C.ink}">${i}</li>`).join("")}</ul>` : p("Nothing logged this week.", true);
 
@@ -88,7 +105,7 @@ async function build(end = new Date()) {
   const [orders, items, events, products, reqs, efforts, ops4] = await Promise.all([
     allRows("orders", "id,created_at,status,payment_status,total,subtotal,discount_amount,shipping,payment_method,customer_email,shipping_email,customer_id,user_id,shipping_city,shipping_state,tracking_number"),
     allRows("order_items", "order_id,product_key,product_name,product_strength,quantity,line_total,created_at", prev.toISOString()),
-    allRows("pst_web_events", "at,visitor,session,event,path,product_key,term,ref_host,utm_source,device", prev.toISOString(), "at"),
+    allRows("pst_web_events", "at,visitor,session,event,path,product_key,term,ref_host,utm_source,device", new Date(end.getTime() - 56 * 864e5).toISOString(), "at"),
     db.from("product_catalog").select("product_key,display_name,strength").then(r => r.data || []),
     db.from("product_availability_requests").select("product_key,product_name,product_strength,requested_quantity,created_at").gte("created_at", start.toISOString()).then(r => r.data || [], () => []),
     fetch(`${REPO_RAW}/marketing/efforts.json?cb=${Date.now()}`).then(r => r.ok ? r.json() : { entries: [] }).catch(() => ({ entries: [] })),
@@ -109,6 +126,12 @@ async function build(end = new Date()) {
       pv: cnt("page_view").length, prodViews: cnt("product_view"), adds: cnt("add_to_bag"), checkouts: cnt("checkout_start"), placed: cnt("order_placed"), searches: cnt("search"), signups: cnt("signup").length };
   };
   const W = wk(start, end), P = wk(prev, start);
+  // the last 8 weeks (only weeks since tracking began on Oct 25, 2026)
+  const firstEv = events.length ? new Date(events[0].at).getTime() : end.getTime();
+  const weeks: { label: string; visitors: number; views: number }[] = [];
+  for (let i = 7; i >= 0; i--) { const a = new Date(end.getTime() - (i + 1) * 7 * 864e5), b = new Date(end.getTime() - i * 7 * 864e5); if (b.getTime() <= firstEv) continue;
+    const ev = events.filter(e => { const t = new Date(e.at); return t >= a && t < b; });
+    weeks.push({ label: `${day(a)} – ${day(new Date(b.getTime() - 1))}`, visitors: new Set(ev.map(e => e.visitor)).size, views: ev.filter(e => e.event === "page_view").length }); }
   const aov = W.paid.length ? W.revenue / W.paid.length : 0, aovP = P.paid.length ? P.revenue / P.paid.length : 0;
   const conv = W.visitors ? W.paid.length / W.visitors : 0, convP = P.visitors ? P.paid.length / P.visitors : 0;
 
@@ -125,10 +148,13 @@ async function build(end = new Date()) {
 
   // tops
   const tally = <T,>(arr: T[], key: (t: T) => string) => { const m = new Map<string, number>(); arr.forEach(x => { const k = key(x); if (k) m.set(k, (m.get(k) || 0) + 1); }); return [...m.entries()].sort((a, b) => b[1] - a[1]); };
-  const firstOf = new Map<string, any>(); W.ev.filter(e => e.event === "page_view").forEach(e => { if (!firstOf.has(e.session)) firstOf.set(e.session, e); });
-  const sources = tally([...firstOf.values()], e => e.utm_source ? `${e.utm_source} (campaign link)` : host(e.ref_host)).slice(0, 6);
-  const searches = tally(W.searches, e => String(e.term || "").trim().toLowerCase()).slice(0, 10);
-  const viewed = tally(W.prodViews, e => e.product_key).slice(0, 10);
+  // week over week is the standard: every list shows this week next to last week
+  const starts = (X: any) => { const m = new Map<string, any>(); X.ev.filter((e: any) => e.event === "page_view").forEach((e: any) => { if (!m.has(e.session)) m.set(e.session, e); }); return [...m.values()]; };
+  const srcKey = (e: any) => e.utm_source ? `${e.utm_source} (campaign link)` : host(e.ref_host);
+  const termKey = (e: any) => String(e.term || "").trim().toLowerCase();
+  const sources = tally(starts(W), srcKey).slice(0, 6), srcP = new Map(tally(starts(P), srcKey));
+  const searches = tally(W.searches, termKey).slice(0, 10), srchP = new Map(tally(P.searches, termKey));
+  const viewed = tally(W.prodViews, e => e.product_key).slice(0, 10), viewP = new Map(tally(P.prodViews, e => e.product_key));
   const addsBy = new Map(tally(W.adds, e => e.product_key));
   const devices = tally(W.ev.filter(e => e.event === "page_view"), e => e.device || "unknown");
   const sold = new Map<string, { units: number; rev: number; name: string }>();
@@ -143,23 +169,24 @@ async function build(end = new Date()) {
   const range = `${day(start)} – ${day(new Date(end.getTime() - 1))}`;
   const inner = `${kick(`Weekly report · ${range}`)}
 <div style="font:600 26px/1.2 ${SERIF};color:${C.ink};margin:0 0 6px">${W.paid.length ? `${usd(W.revenue)} from ${W.paid.length} paid order${W.paid.length === 1 ? "" : "s"}` : "No paid orders this week"}</div>
-${p(`${num(W.visitors)} people visited the shop${W.searches.length ? ` and searched ${num(W.searches.length)} times` : ""}. Compared with the week before:`, true)}
+${p(`${num(W.visitors)} people visited the shop${W.searches.length ? ` and searched ${num(W.searches.length)} times` : ""}. Every number in this report is compared with the week before.`, true)}
 ${tiles([["Revenue", usd(W.revenue), delta(W.revenue, P.revenue)], ["Paid orders", num(W.paid.length), delta(W.paid.length, P.paid.length)], ["Visitors", num(W.visitors), delta(W.visitors, P.visitors)], ["Buy rate", pct(conv), delta(conv, convP)]])}
 
 ${h2("Part 1 · Marketing")}
 ${h3("What we did this week")}${bullets(effs.map((e: any) => `<b>${esc(e.title)}</b>${e.detail ? ` · ${esc(e.detail)}` : ""}`))}
 ${h3("Shop updates")}${rel.length ? `${bullets(rel.slice(0, 6).map(r => `<b>${esc(r.title)}</b>${r.items[0] ? ` · ${esc(r.items[0].length > 110 ? r.items[0].slice(0, 107) + "…" : r.items[0])}` : ""}`))}${rel.length > 6 ? p(`And ${rel.length - 6} more. Full notes: owner app → More → What's new.`, true) : ""}` : p("No app or site releases this week.", true)}
-${h3("Visitors")}${tiles([["Visitors", num(W.visitors), delta(W.visitors, P.visitors)], ["Visits", num(W.sessions), delta(W.sessions, P.sessions)], ["Pages viewed", num(W.pv), delta(W.pv, P.pv)], ["Sign-ups", num(W.signups), delta(W.signups, P.signups)]])}
-${h3("Where visits came from")}${table(["Source", "Visits"], sources.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
+${h3("Traffic, week over week")}${trafficChart(weeks)}${weeks.length < 3 ? p("Tracking started Oct 25, 2026, so the chart fills in week by week.", true) : ""}
+${tiles([["Visits", num(W.sessions), delta(W.sessions, P.sessions)], ["Page views", num(W.pv), delta(W.pv, P.pv)], ["Sign-ups", num(W.signups), delta(W.signups, P.signups)]])}
+${h3("Where visits came from")}${table(["Source", "This week", "Last week"], sources.map(([k, v]) => [esc(k), num(v), num(srcP.get(k) || 0)]), ["l", "r", "r"])}
 ${devices.length ? p(`Devices: ${devices.map(([k, v]) => `${esc(k)} ${pct(v / Math.max(1, W.pv))}`).join(" · ")}`, true) : ""}
 ${h3("From looking to buying")}${table(["Step", "This week", "Last week"], [["Viewed a product", num(new Set(W.prodViews.map(e => e.session)).size), num(new Set(P.prodViews.map(e => e.session)).size)], ["Added to bag", num(new Set(W.adds.map(e => e.session)).size), num(new Set(P.adds.map(e => e.session)).size)], ["Started checkout", num(new Set(W.checkouts.map(e => e.session)).size), num(new Set(P.checkouts.map(e => e.session)).size)], ["Placed an order", num(W.os.length), num(P.os.length)], ["Paid", num(W.paid.length), num(P.paid.length)]], ["l", "r", "r"])}
 ${p("Counted in visits, so one person looking at five products counts once.", true)}
-${h3("Top searches on the site")}${table(["Searched for", "Times"], searches.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
-${h3("Most viewed products")}${table(["Product", "Views", "Added to bag"], viewed.map(([k, v]) => [esc(pname[k] || k), num(v), num(addsBy.get(k) || 0)]), ["l", "r", "r"])}
+${h3("Top searches on the site")}${table(["Searched for", "This week", "Last week"], searches.map(([k, v]) => [esc(k), num(v), num(srchP.get(k) || 0)]), ["l", "r", "r"])}
+${h3("Most viewed products")}${table(["Product", "Views", "Last week", "Added to bag"], viewed.map(([k, v]) => [esc(pname[k] || k), num(v), num(viewP.get(k) || 0), num(addsBy.get(k) || 0)]), ["l", "r", "r", "r"])}
 ${nextUp.length ? `${h3("Next week")}${bullets(nextUp.map(esc))}` : ""}
 
 ${h2("Part 2 · Sales sheet")}
-${tiles([["Revenue", usd(W.revenue), delta(W.revenue, P.revenue)], ["Avg order", usd(aov), delta(aov, aovP)], ["Vials sold", num(W.units), delta(W.units, P.units)], ["Customers", num(W.buyers), delta(W.buyers, P.buyers)]])}
+${tiles([["Avg order", usd(aov), delta(aov, aovP)], ["Vials sold", num(W.units), delta(W.units, P.units)], ["Customers", num(W.buyers), delta(W.buyers, P.buyers)]])}
 ${p(`${num(W.newC)} new customer${W.newC === 1 ? "" : "s"} and ${num(W.buyers - W.newC)} returning.${W.discounts ? ` Discounts given: ${usd(W.discounts)}.` : ""}`)}
 ${h3("Products sold")}${table(["Product", "Vials", "Revenue"], soldRows.map(s => [esc(s.name), num(s.units), s.rev > 0 ? usd(s.rev) : "Free"]), ["l", "r", "r"])}
 ${h3("How they paid")}${table(["Method", "Orders"], pays.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
