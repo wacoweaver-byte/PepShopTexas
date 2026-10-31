@@ -203,7 +203,7 @@ async function action(req: Request, body: any) {
     try {
       const r = unwrap(await gsa("/orders", { method: "POST", idemKey: k, body: JSON.stringify(req2) }));
       const o = r.order || r, pay = r.payment || {}, ref = String(o.reference || o.publicReference || o.id || "");
-      await db.from("pst_gsa_orders").upsert({ reference: ref, quote_id: body.quoteId, items, tests: body.tests || [], total_cents: o.amount?.total ?? o.amountCents ?? o.totalCents ?? null, payment_url: pay.hostedUrl || null, status: o.status || "placed", created_by: u.id, updated_at: now() }, { onConflict: "reference" });
+      await db.from("pst_gsa_orders").upsert({ reference: ref, quote_id: body.quoteId, items, tests: body.tests || [], total_cents: (typeof o.amount === "number" ? o.amount : o.amount?.cents ?? o.amount?.total?.cents ?? o.amount?.total) ?? o.totalCents ?? null, payment_url: pay.hostedUrl || null, status: o.status || "placed", created_by: u.id, updated_at: now() }, { onConflict: "reference" });
       return out({ ok: true, reference: ref, paymentUrl: pay.hostedUrl || null, shipping: r.shipping || null, nextAction: r.nextAction || r.shipping?.nextAction || null });
     } catch (e) { const g = e as GsaError; return out({ error: g.message, code: g.code, details: g.details }, g.status || 500); }
   }

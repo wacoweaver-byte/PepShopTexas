@@ -117,9 +117,11 @@ ${need.length ? `<h2 class="serif osec">Needs you <span class="muted small">(${n
       try {
         plan = [];
         for (const b of batches(picks)) { const r = await api("quote", { compoundNames: b.map(x => x.compound), testIds, turnaround: q("[data-gspeed]").value }); plan.push({ items: b, testIds, ...r }); }
+        // Gold Standard money is { currency, cents } (checked Oct 31, 2026); plain numbers still work
+        const cts = v => v == null ? null : typeof v === "number" ? v : v.cents ?? v.amount?.cents ?? null;
         const money = r => { const qt = r.quote || {}, sh = r.shipping || {}, sel = sh.selected || sh.recommended || (sh.options || [])[0] || {};
-          const testing = sh.testing?.amount ?? sh.testing ?? qt.totalCents ?? qt.amount?.total ?? qt.total ?? null, ship = sel.amount ?? null, total = sh.orderTotal?.amount ?? sh.orderTotal ?? (testing != null && ship != null ? testing + ship : null);
-          return { testing, ship, total, token: sel.quoteToken || "", carrier: [sel.carrier, sel.service].filter(Boolean).join(" ") }; };
+          const testing = cts(sh.testing) ?? cts(qt.amount), ship = cts(sel.amount), total = cts(sh.orderTotal) ?? (testing != null && ship != null ? testing + ship : null);
+          return { testing, ship, total, token: sel.quoteToken || "", carrier: sel.service || sel.carrierName || sel.carrier || "" }; };
         plan.forEach(r => Object.assign(r, money(r)));
         const grand = plan.reduce((t, r) => t + (Number(r.total) || 0), 0);
         q("[data-gquote]").innerHTML = `<div class="notice" style="margin-top:10px">${plan.map((r, i) => `<p style="margin:0 0 6px"><b>${plan.length > 1 ? `Order ${i + 1}: ` : ""}${esc(r.items.map(x => pname(byKey[x.product_key])).join(", "))}</b><br><small>Testing ${r.testing != null ? usd(r.testing) : "—"} · Shipping label ${r.ship != null ? `${usd(r.ship)}${r.carrier ? ` (${esc(r.carrier)})` : ""}` : esc(r.shippingError || "priced at checkout")}${r.total != null ? ` · <b>${usd(r.total)}</b>` : ""}</small></p>`).join("")}
