@@ -68,10 +68,10 @@ function trafficChart(weeks: { label: string; visitors: number; views: number }[
   const rows = weeks.map((w, i) => { const pctW = Math.max(w.visitors ? 2 : 0, Math.round(w.visitors / max * 100)), last = i === weeks.length - 1;
     return `<tr><td width="92" style="width:92px;padding:6px 8px 6px 0;font:${last ? 700 : 400} 12.5px/1.2 ${F};color:${last ? C.ink : C.muted};white-space:nowrap">${esc(w.label)}</td>
 <td style="padding:6px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;table-layout:fixed"><tr>${pctW ? `<td width="${pctW}%" height="14" bgcolor="${last ? C.goldBtn : C.goldLight}" style="width:${pctW}%;height:14px;background:${last ? C.goldBtn : C.goldLight};border-radius:3px;font-size:0;line-height:0">&nbsp;</td>` : ""}${pctW < 100 ? `<td style="font-size:0;line-height:0">&nbsp;</td>` : ""}</tr></table></td>
-<td width="64" align="right" style="width:64px;padding:6px 0 6px 10px;font:${last ? 700 : 400} 13px/1.2 ${F};color:${C.ink};white-space:nowrap">${num(w.visitors)}</td>
-<td width="80" align="right" style="width:80px;padding:6px 0 6px 10px;font:13px/1.2 ${F};color:${C.muted};white-space:nowrap">${num(w.views)}</td></tr>`; }).join("");
+<td width="86" align="right" style="width:86px;padding:6px 0 6px 10px;font:${last ? 700 : 400} 13px/1.2 ${F};color:${C.ink};white-space:nowrap">${num(w.visitors)}</td>
+<td width="86" align="right" style="width:86px;padding:6px 0 6px 10px;font:13px/1.2 ${F};color:${C.muted};white-space:nowrap">${num(w.views)}</td></tr>`; }).join("");
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;margin:4px 0 2px">
-<tr><td width="92" style="width:92px;padding:0 8px 6px 0;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Week</td><td style="padding:0 0 6px;border-bottom:2px solid ${C.line}">&nbsp;</td><td width="64" align="right" style="width:64px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Visitors</td><td width="80" align="right" style="width:80px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Page views</td></tr>${rows}</table>`;
+<tr><td width="92" style="width:92px;padding:0 8px 6px 0;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Week</td><td style="padding:0 0 6px;border-bottom:2px solid ${C.line}">&nbsp;</td><td width="86" align="right" style="width:86px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Visitors</td><td width="86" align="right" style="width:86px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Page views</td></tr>${rows}</table>`;
 }
 function table(head: string[], rows: (string | number)[][], align: ("l" | "r")[] = []) {
   if (!rows.length) return p("Nothing this week.", true);
@@ -121,7 +121,7 @@ async function build(end = new Date()) {
     const firstPaid = new Map<string, number>(); for (const o of orders.filter(PAID)) { const k = who(o), t = new Date(o.created_at).getTime(); if (!firstPaid.has(k) || t < firstPaid.get(k)!) firstPaid.set(k, t); }
     const buyers = new Set(paid.map(who)); let newC = 0; buyers.forEach(k => { const t = firstPaid.get(k)!; if (t >= a.getTime() && t < b.getTime()) newC++; });
     const visitors = new Set(ev.map(e => e.visitor)).size, sessions = new Set(ev.map(e => e.session)).size;
-    return { os, paid, its, ev, revenue: paid.reduce((s, o) => s + Number(o.total || 0), 0), units: its.reduce((s, i) => s + Number(i.quantity || 0), 0),
+    return { os, paid, its, ev, revenue: paid.reduce((s, o) => s + Number(o.total || 0), 0), units: its.filter(i => Number(i.line_total || 0) > 0).reduce((s, i) => s + Number(i.quantity || 0), 0), free: its.filter(i => !(Number(i.line_total || 0) > 0)).reduce((s, i) => s + Number(i.quantity || 0), 0),
       discounts: paid.reduce((s, o) => s + Number(o.discount_amount || 0), 0), buyers: buyers.size, newC, visitors, sessions,
       pv: cnt("page_view").length, prodViews: cnt("product_view"), adds: cnt("add_to_bag"), checkouts: cnt("checkout_start"), placed: cnt("order_placed"), searches: cnt("search"), signups: cnt("signup").length };
   };
@@ -157,9 +157,10 @@ async function build(end = new Date()) {
   const viewed = tally(W.prodViews, e => e.product_key).slice(0, 10), viewP = new Map(tally(P.prodViews, e => e.product_key));
   const addsBy = new Map(tally(W.adds, e => e.product_key));
   const devices = tally(W.ev.filter(e => e.event === "page_view"), e => e.device || "unknown");
-  const sold = new Map<string, { units: number; rev: number; name: string }>();
-  W.its.forEach(i => { const k = i.product_key || i.product_name; const s = sold.get(k) || { units: 0, rev: 0, name: pname[i.product_key] || `${i.product_name}${i.product_strength ? ` ${i.product_strength}` : ""}` }; s.units += Number(i.quantity || 0); s.rev += Number(i.line_total || 0); sold.set(k, s); });
-  const soldRows = [...sold.values()].sort((a, b) => b.rev - a.rev);
+  const sold = new Map<string, { key: string; units: number; rev: number; name: string }>();
+  W.its.forEach(i => { const k = i.product_key || i.product_name; const s = sold.get(k) || { key: k, units: 0, rev: 0, name: pname[i.product_key] || `${i.product_name}${i.product_strength ? ` ${i.product_strength}` : ""}` }; s.units += Number(i.quantity || 0); s.rev += Number(i.line_total || 0); sold.set(k, s); });
+  const soldRows = [...sold.values()].sort((a, b) => b.rev - a.rev || b.units - a.units);
+  const soldP = new Map<string, number>(); P.its.forEach(i => { const k = i.product_key || i.product_name; soldP.set(k, (soldP.get(k) || 0) + Number(i.quantity || 0)); });
   const pays = tally(W.paid, o => o.payment_method || "Other");
   const unpaid = W.os.filter(o => o.payment_status === "pending" && !["cancelled", "rejected"].includes(o.status));
   const lost = W.os.filter(o => ["cancelled", "rejected"].includes(o.status)), refunded = W.os.filter(o => o.status === "refunded");
@@ -186,9 +187,9 @@ ${h3("Most viewed products")}${table(["Product", "Views", "Last week", "Added to
 ${nextUp.length ? `${h3("Next week")}${bullets(nextUp.map(esc))}` : ""}
 
 ${h2("Part 2 · Sales sheet")}
-${tiles([["Avg order", usd(aov), delta(aov, aovP)], ["Vials sold", num(W.units), delta(W.units, P.units)], ["Customers", num(W.buyers), delta(W.buyers, P.buyers)]])}
+${tiles([["Avg order", usd(aov), delta(aov, aovP)], ["Paid vials", num(W.units), delta(W.units, P.units)], ["Customers", num(W.buyers), delta(W.buyers, P.buyers)]])}
 ${p(`${num(W.newC)} new customer${W.newC === 1 ? "" : "s"} and ${num(W.buyers - W.newC)} returning.${W.discounts ? ` Discounts given: ${usd(W.discounts)}.` : ""}`)}
-${h3("Products sold")}${table(["Product", "Vials", "Revenue"], soldRows.map(s => [esc(s.name), num(s.units), s.rev > 0 ? usd(s.rev) : "Free"]), ["l", "r", "r"])}
+${h3("Products sold")}${table(["Product", "Vials", "Last week", "Revenue"], soldRows.map(s => [esc(s.name), num(s.units), num(soldP.get(s.key) || 0), s.rev > 0 ? usd(s.rev) : "Free"]), ["l", "r", "r", "r"])}
 ${h3("How they paid")}${table(["Method", "Orders"], pays.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
 ${h3("Needs a look")}${table(["", "Orders", "Amount"], [["Waiting on payment", num(unpaid.length), usd(unpaid.reduce((s, o) => s + Number(o.total || 0), 0))], ["Cancelled or rejected", num(lost.length), usd(lost.reduce((s, o) => s + Number(o.total || 0), 0))], ["Refunded", num(refunded.length), usd(refunded.reduce((s, o) => s + Number(o.total || 0), 0))]], ["l", "r", "r"])}
 ${h3("Restock requests")}${table(["Product", "Requests"], reqTally.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
