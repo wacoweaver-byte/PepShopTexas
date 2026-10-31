@@ -8,7 +8,7 @@
 (() => {
   const P = window.PST, esc = P.esc;
   const usd = c => (Number(c || 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
-  const ALIAS = { pstcg1: "hCG", pst2tr: "Tirzepatide", pst3rt: "Retatrutide" };
+  const ALIAS = { pstcg1: "hCG", pst2tr: "Tirzepatide", pst3rt: "Retatrutide", fst344: "Follistatin 344", thymosinalpha1: "Thymosin α1", wolverine: "BPC-157 / TB-500 blend" }; // his names → Gold Standard's
   const compoundOf = p => { const n = String(p.display_name || "").split("(")[0].trim(); return ALIAS[n.toLowerCase().replace(/[^a-z0-9]/g, "")] || n; };
   const pname = p => p ? `${p.display_name}${p.strength ? ` ${p.strength}` : ""}` : "";
   let el = null, prods = [], byKey = {};
@@ -74,8 +74,17 @@ ${need.length ? `<h2 class="serif osec">Needs you <span class="muted small">(${n
   }
 
   /* ---------- v546: order a test ---------- */
-  const catItems = j => { const a = j?.data?.items || j?.items || j?.data?.tests || j?.tests || (Array.isArray(j?.data) ? j.data : null) || j?.catalog || (Array.isArray(j) ? j : []);
-    return a.filter(x => x && !x.scopeTestIds && !/bundle|package/i.test(String(x.type || x.kind || ""))).map(x => ({ id: String(x.id ?? x.testId ?? x.slug ?? ""), name: String(x.name ?? x.title ?? x.label ?? x.id ?? ""), cents: x.priceCents ?? x.price_cents ?? x.basePriceCents ?? null, desc: String(x.description ?? x.summary ?? "") })).filter(x => x.id); };
+  // Gold Standard's catalog: one list of { kind: category | compound | test | bundle | sample_requirement } (checked Oct 31, 2026)
+  const catParse = j => { const a = j?.data?.items || j?.items || [];
+    const tests = a.filter(x => x.kind === "test" && (x.categoryIds || ["peptides"]).includes("peptides") && (x.selectionMode || "toggle") === "toggle")
+      .map(x => ({ id: String(x.id), name: String(x.name || x.label || x.id), cents: Number(x.priceCents || 0), included: !!x.included, extraVial: !!x.extraVialRequired, desc: String(x.description || "") }));
+    const compounds = a.filter(x => x.kind === "compound").map(x => ({ name: String(x.name || x.id), cents: Number(x.basePriceCents || 0), family: x.family || "" }));
+    return { tests, compounds }; };
+  // best guess of Gold Standard's compound name for one of his products (he can change it)
+  const nz = s => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const guessCompound = (p, list) => { const base = nz(compoundOf(p)), full = nz(p.display_name); if (!base) return "";
+    const hit = list.find(c => nz(c.name) === base) || list.find(c => nz(c.name.split("(")[0]) === base) || list.find(c => nz(c.name).startsWith(base) && /blend/i.test(c.name)) || list.find(c => nz(c.name).startsWith(base)) || list.find(c => full.includes(nz(c.name)) && nz(c.name).length > 3);
+    return hit ? hit.name : ""; };
   // a quote takes each compound once, so two strengths of one peptide go in separate orders
   const batches = picks => { const out = []; for (const p of picks) { let b = out.find(x => !x.some(y => y.compound.toLowerCase() === p.compound.toLowerCase())); if (!b) out.push(b = []); b.push(p); } return out; };
 
@@ -83,21 +92,25 @@ ${need.length ? `<h2 class="serif osec">Needs you <span class="muted small">(${n
     const live = [...prods].filter(p => p.is_active !== false).sort((a, b) => pname(a).localeCompare(pname(b)));
     const w = P.sheet(`<div class="osheet gord"><h2 class="serif">Order a test</h2>
 <p class="kick" style="margin:6px 0 4px">1 · Products</p><input type="search" placeholder="Search products" data-gq style="width:100%;margin-bottom:6px">
-<div data-gprods style="max-height:260px;overflow:auto;border:1px solid var(--line);padding:4px 8px">${live.map(p => `<label class="gpr" data-n="${esc(pname(p).toLowerCase())} ${esc(p.product_key.toLowerCase())}" style="display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)"><input type="checkbox" value="${esc(p.product_key)}"><span style="flex:1">${esc(pname(p))} <small class="muted">${esc(p.product_key)}</small></span><input class="glot" data-lot="${esc(p.product_key)}" placeholder="Vendor lot (optional)" hidden style="width:44%"></label>`).join("")}</div>
+<div data-gprods style="max-height:260px;overflow:auto;border:1px solid var(--line);padding:4px 8px">${live.map(p => `<label class="gpr" data-n="${esc(pname(p).toLowerCase())} ${esc(p.product_key.toLowerCase())}" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)"><input type="checkbox" value="${esc(p.product_key)}"><span style="flex:1">${esc(pname(p))} <small class="muted">${esc(p.product_key)}</small></span><span class="glot" data-row="${esc(p.product_key)}" hidden style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px"><select data-cmp="${esc(p.product_key)}" aria-label="Gold Standard compound"></select><input data-lot="${esc(p.product_key)}" placeholder="Vendor lot (optional)"></span></label>`).join("")}</div>
 <p class="kick" style="margin:12px 0 4px">2 · Tests</p><div data-gtests><p class="muted small">Loading Gold Standard's tests…</p></div>
 <label style="margin-top:8px">Speed<select data-gspeed><option value="standard">Standard</option><option value="expedited">Expedited</option><option value="priority">Priority</option></select></label>
 <button class="btn primary wide" type="button" data-gprice style="margin-top:10px">Get the price</button><div data-gquote></div><p class="status" data-gost role="status"></p></div>`, { label: "Order a test" });
     const q = s => w.querySelector(s), st = q("[data-gost]");
     q("[data-gq]").addEventListener("input", e => { const v = e.target.value.toLowerCase(); w.querySelectorAll(".gpr").forEach(r => r.hidden = v && !r.dataset.n.includes(v)); });
-    q("[data-gprods]").addEventListener("change", e => { const c = e.target.closest("input[type=checkbox]"); if (c) c.closest("label").querySelector(".glot").hidden = !c.checked; });
-    try { const tests = catItems(await api("catalog"));
-      q("[data-gtests]").innerHTML = tests.length ? `<div class="chips">${tests.map(t => `<label class="chip" title="${esc(t.desc)}"><input type="checkbox" value="${esc(t.id)}"${/purity|identity/i.test(t.name) ? " checked" : ""}><span>${esc(t.name)}${t.cents != null ? ` · ${usd(t.cents)}` : ""}</span></label>`).join("")}</div><p class="muted small">Prices are per sample. The quote below is the real price.</p>` : `<p class="notice err">Couldn't read Gold Standard's test list. Order on their site for now and put the item # in the lot.</p>`;
+    let cat = { tests: [], compounds: [] };
+    const cmpOpts = (p) => { const g = guessCompound(p, cat.compounds); return `<option value="">Gold Standard name…</option>${cat.compounds.map(c => `<option${c.name === g ? " selected" : ""}>${esc(c.name)}</option>`).join("")}`; };
+    q("[data-gprods]").addEventListener("change", e => { const c = e.target.closest("input[type=checkbox]"); if (!c) return; const row = c.closest("label").querySelector(".glot"); row.hidden = !c.checked;
+      const sel = row.querySelector("select"); if (c.checked && !sel.options.length) sel.innerHTML = cmpOpts(byKey[c.value]); });
+    try { cat = catParse(await api("catalog"));
+      q("[data-gtests]").innerHTML = cat.tests.length ? `<div class="chips">${cat.tests.map(t => `<label class="chip" title="${esc(t.desc)}"><input type="checkbox" value="${esc(t.id)}"${t.included ? " checked disabled" : ""}><span>${esc(t.name)} · ${t.included ? "included" : `+${usd(t.cents)}`}${t.extraVial ? " · needs an extra vial" : ""}</span></label>`).join("")}</div><p class="muted small">Each sample starts at the peptide's base price with the included test. Prices are per sample; the quote below is the real price.</p>` : `<p class="notice err">Couldn't read Gold Standard's test list. Order on their site for now and put the item # in the lot.</p>`;
     } catch (er) { q("[data-gtests]").innerHTML = `<p class="notice err">${esc(er.message)}</p>`; }
 
     let plan = [];
     q("[data-gprice]").addEventListener("click", async () => {
-      const picks = [...w.querySelectorAll("[data-gprods] input[type=checkbox]:checked")].map(c => { const p = byKey[c.value], vl = w.querySelector(`[data-lot="${CSS.escape(c.value)}"]`).value.trim(); return { product_key: c.value, compound: compoundOf(p), lot: `${c.value}${vl ? ` · ${vl}` : ""}` }; });
+      const picks = [...w.querySelectorAll("[data-gprods] input[type=checkbox]:checked")].map(c => { const k = CSS.escape(c.value), vl = w.querySelector(`[data-lot="${k}"]`).value.trim(); return { product_key: c.value, compound: w.querySelector(`[data-cmp="${k}"]`).value, lot: `${c.value}${vl ? ` · ${vl}` : ""}` }; });
       const testIds = [...w.querySelectorAll("[data-gtests] input:checked")].map(c => c.value);
+      const nameless = picks.filter(x => !x.compound); if (nameless.length) { st.textContent = `Pick Gold Standard's name for ${nameless.map(x => pname(byKey[x.product_key])).join(", ")}.`; st.className = "status bad"; return; }
       if (!picks.length) { st.textContent = "Pick at least one product."; st.className = "status bad"; return; }
       if (!testIds.length) { st.textContent = "Pick at least one test."; st.className = "status bad"; return; }
       st.textContent = "Getting the price…"; st.className = "status"; q("[data-gquote]").innerHTML = "";
