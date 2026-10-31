@@ -45,10 +45,15 @@
       "date": "2026-10-31",
       "title": "Testing page no longer lists GLP-1 and Rx-type products",
       "detail": "Per Mike: their lab reports stay on their own (hidden-from-Google) product pages, off the public testing page."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "Google Search Console verification file added",
+      "detail": "Mike started Search Console; the verification file is live so he can verify and submit the sitemap."
     }
   ],
   "next": [
-    "Needs Mike: Google Search Console in progress: send Claude the verification file name, then submit sitemap.xml",
+    "Needs Mike: in Search Console, click Verify, then Sitemaps > submit sitemap.xml",
     "Needs Mike: the catalog and home page still show those products, and Google reads both. Hide them there too?",
     "Needs Mike: is AFI still one of Jimmie's labs? If not, I'll take it off the testing page",
     "Lab report pages: one per certificate, linked from each product",
