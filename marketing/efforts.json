@@ -50,10 +50,15 @@
       "date": "2026-10-31",
       "title": "Google Search Console verification file added",
       "detail": "Mike started Search Console; the verification file is live so he can verify and submit the sitemap."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "Google Search Console live, sitemap submitted",
+      "detail": "Mike verified pepshoptexas.com and submitted the sitemap. Search data should start showing in 2–3 days."
     }
   ],
   "next": [
-    "Needs Mike: in Search Console, click Verify, then Sitemaps > submit sitemap.xml",
+    "Needs Mike (optional, 3 min): Bing Webmaster Tools > Import from Google Search Console",
     "Needs Mike: the catalog and home page still show those products, and Google reads both. Hide them there too?",
     "Needs Mike: is AFI still one of Jimmie's labs? If not, I'll take it off the testing page",
     "Lab report pages: one per certificate, linked from each product",
