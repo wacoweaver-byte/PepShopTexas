@@ -1,15 +1,37 @@
 {
   "about": "Marketing and growth log for Pep Shop Texas. Claude adds what was done each week; the Thursday report (pst-weekly) reads entries dated within the week and the 'next' list.",
   "entries": [
-    { "date": "2026-10-30", "title": "Gold Standard lab reports live on product pages", "detail": "A 'Verified by Gold Standard' box with every test result, read live from the lab. Trust is the #1 reason buyers pick a peptide shop." },
-    { "date": "2026-10-31", "title": "Gold Standard lab connected in the owner app", "detail": "Order tests from the app; certificates attach to the right product by item #." },
-    { "date": "2026-10-31", "title": "Vial picture options (Jimmie's report #15)", "detail": "Clear 3/5/10ml or amber 10ml, powder or liquid, four fill colors." },
-    { "date": "2026-10-31", "title": "SEO audit of pepshoptexas.com", "detail": "Found product pages Google can't index (they all point to one page), no product data for search results, a stale sitemap, and no content pages. Fixes start next week." }
+    {
+      "date": "2026-10-30",
+      "title": "Gold Standard lab reports live on product pages",
+      "detail": "A 'Verified by Gold Standard' box with every test result, read live from the lab. Trust is the #1 reason buyers pick a peptide shop."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "Gold Standard lab connected in the owner app",
+      "detail": "Order tests from the app; certificates attach to the right product by item #."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "Vial picture options (Jimmie's report #15)",
+      "detail": "Clear 3/5/10ml or amber 10ml, powder or liquid, four fill colors."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "SEO audit of pepshoptexas.com",
+      "detail": "Found product pages Google can't index (they all point to one page), no product data for search results, a stale sitemap, and no content pages. Fixes start next week."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "Growth plan and Thursday report set up",
+      "detail": "Benchmarked the big peptide shops (no paid ads), wrote the backlog, and scheduled this report every Thursday at 8 AM."
+    }
   ],
   "next": [
     "Make every product page indexable: its own address, title, description and product data Google reads",
-    "Fresh sitemap that updates itself when products change",
-    "Benchmark against EZ Peptides and the big shops, then the first content pages",
-    "Set up Google Search Console so we can see what people search on Google to find the shop"
+    "Fresh sitemap that rebuilds itself when products change",
+    "\"Waco, Texas\" and local pickup on the home page, About and footer",
+    "Needs you: sign in to Google Search Console once so we can see what people search on Google",
+    "Needs you: talk to Jimmie (and an attorney) about the GLP-1 products and bac water; see the plan"
   ]
 }
