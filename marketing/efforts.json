@@ -30,12 +30,23 @@
       "date": "2026-10-31",
       "title": "Product pages Google can read (33) and 4 Central Texas pages",
       "detail": "Each product has its own page with price, stock and lab info. New pages for Waco pickup, Temple/Killeen, Austin and Dallas–Fort Worth. Sitemap rebuilds nightly."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "Old product links now land on the new product pages",
+      "detail": "product.html links and the 29 picture-share links forward to each product's own page, so Google sees one address per product."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "Testing page: Gold Standard added, how to verify a COA",
+      "detail": "New Gold Standard card, 4 steps to check a certificate with the lab, and a title aimed at 'third party tested peptides' searches."
     }
   ],
   "next": [
     "Needs Mike: set up Google Search Console (10 minutes) so we can submit the sitemap and see Google searches",
+    "Needs Mike: the testing page's report list shows PST-2TR, PST-3RT, PST-CG1, PT-141 and Tesamorelin reports. Ask Jimmie: hide them there (keeps them out of search) or keep?",
+    "Needs Mike: is AFI still one of Jimmie's labs? If not, I'll take it off the testing page",
     "Lab report pages: one per certificate, linked from each product",
-    "Testing page refresh: Gold Standard + Freedom Diagnostics, how to verify",
     "Listings: directories and tester sites where the big shops appear (Mike submits, Claude preps)"
   ]
 }
