@@ -74,7 +74,7 @@ function productPage(group, slug, local) {
   const gsa = (coa?.coa_url || "").match(/GSA-\d{4}-\d{6}/i)?.[0];
   const noindex = NOINDEX.test(String(p0.display_name).trim());
   const canonical = `${SITE}/${slug}.html`;
-  const title = `${name} ${blend ? "Research Blend" : "Research Peptide"}${strengths.length ? ` ${strengths.join(" · ")}` : ""} | Pep Shop Texas, Waco TX`;
+  const title = `${full} ${blend ? "Research Blend" : "Research Peptide"}${strengths.length ? ` ${strengths.join(" · ")}` : ""} | Pep Shop Texas, Waco TX`;
   const desc = `${full} ${blend ? "research blend" : "research peptide"}${strengths.length ? ` in ${strengths.join(", ")} vials` : ""}${coa ? ", third-party lab tested" : ""}. ${anyStock ? "In stock" : "Restocking soon"}. Free local pickup in Waco, fast shipping across Texas. Research use only.`;
   const img = p0.bottle_url || `${SITE}/img/${slug}-${String(g[0].product_key).toLowerCase()}.jpg`;
   const offers = g.map(p => ({ "@type": "Offer", sku: p.product_key, name: `${full} ${p.strength || ""}`.trim(), price: unitPrice(p).toFixed(2), priceCurrency: "USD", availability: inStock(p) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", url: `${canonical}?key=${encodeURIComponent(p.product_key)}`, seller: { "@id": `${SITE}/#org` }, areaServed: "US" }));
@@ -142,12 +142,19 @@ const prods = await rest("product_catalog?select=product_key,display_name,streng
 const groups = Object.values(prods.reduce((m, p) => { const k = String(p.display_name || "").trim().toLowerCase(); (m[k] ||= []).push(p); return m; }, {}));
 const RESERVED = new Set(readdirSync(ROOT).filter(f => f.endsWith(".html") && !readFileSync(ROOT + f, "utf8").includes(MARK)));
 const map = {}, built = [], indexable = [];
+// v552: every page address a product has had (tools/seo/slugs.json). If Jimmie renames a product, the old address
+// keeps working: it forwards to the new page (noindex, canonical to the new page), so links and ranking aren't lost.
+const HIST = ROOT + "tools/seo/slugs.json", hist = existsSync(HIST) ? JSON.parse(readFileSync(HIST, "utf8")) : {};
 for (const g of groups) {
   let slug = slugOf(g[0].display_name); if (RESERVED.has(`${slug}.html`)) slug = `${slug}-research-peptide`;
   const { html, noindex, keys } = productPage(g, slug, LOCAL);
   writeFileSync(ROOT + `${slug}.html`, html); built.push(`${slug}.html`); if (!noindex) indexable.push(`${slug}.html`);
-  keys.forEach(k => { map[k] = `${slug}.html`; });
+  keys.forEach(k => { map[k] = `${slug}.html`; (hist[k] ||= []).includes(slug) || hist[k].push(slug); });
 }
+const forward = (from, to) => `<!doctype html>\n<html lang="en"><head>${MARK}<meta charset="utf-8"><title>Moved | Pep Shop Texas</title><meta name="robots" content="noindex,follow"><link rel="canonical" href="${SITE}/${to}"><meta http-equiv="refresh" content="0; url=${to}"><script>location.replace(${JSON.stringify(to)} + location.search + location.hash)</script></head><body><p>This product moved: <a href="${to}">${to}</a></p></body></html>\n`;
+for (const [k, slugs] of Object.entries(hist)) { const cur = map[k]; if (!cur) continue;
+  for (const old of slugs) { const f = `${old}.html`; if (f === cur || built.includes(f) || RESERVED.has(f)) continue; writeFileSync(ROOT + f, forward(f, cur)); built.push(f); } }
+writeFileSync(HIST, JSON.stringify(hist, null, 1) + "\n");
 for (const [file, city] of LOCAL) { writeFileSync(ROOT + file, localPage(file, city, groups, map)); built.push(file); }
 // remove pages this build made before for products that are gone
 for (const f of readdirSync(ROOT)) if (f.endsWith(".html") && !built.includes(f) && readFileSync(ROOT + f, "utf8").includes(MARK)) unlinkSync(ROOT + f);

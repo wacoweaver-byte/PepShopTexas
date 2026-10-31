@@ -31,7 +31,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A '*.html' sitemap.xml js/pst-seo-map.js
+          git add -A '*.html' sitemap.xml js/pst-seo-map.js tools/seo/slugs.json
           git diff --cached --quiet && exit 0
           git commit -m 'SEO pages and sitemap: nightly rebuild from the product list'
           git pull --rebase origin main
