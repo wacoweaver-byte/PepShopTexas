@@ -188,7 +188,7 @@ ${nextUp.length ? `${h3("Next week")}${bullets(nextUp.map(esc))}` : ""}
 
 ${h2("Part 2 · Sales sheet")}
 ${tiles([["Avg order", usd(aov), delta(aov, aovP)], ["Paid vials", num(W.units), delta(W.units, P.units)], ["Customers", num(W.buyers), delta(W.buyers, P.buyers)]])}
-${p(`${num(W.newC)} new customer${W.newC === 1 ? "" : "s"} and ${num(W.buyers - W.newC)} returning.${W.discounts ? ` Discounts given: ${usd(W.discounts)}.` : ""}`)}
+${p(`${num(W.newC)} new customer${W.newC === 1 ? "" : "s"} and ${num(W.buyers - W.newC)} returning.${W.discounts ? ` Discounts given: ${usd(W.discounts)}.` : ""}${W.free ? ` Free vials given (promos and comps): ${num(W.free)}.` : ""}`)}
 ${h3("Products sold")}${table(["Product", "Vials", "Last week", "Revenue"], soldRows.map(s => [esc(s.name), num(s.units), num(soldP.get(s.key) || 0), s.rev > 0 ? usd(s.rev) : "Free"]), ["l", "r", "r", "r"])}
 ${h3("How they paid")}${table(["Method", "Orders"], pays.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
 ${h3("Needs a look")}${table(["", "Orders", "Amount"], [["Waiting on payment", num(unpaid.length), usd(unpaid.reduce((s, o) => s + Number(o.total || 0), 0))], ["Cancelled or rejected", num(lost.length), usd(lost.reduce((s, o) => s + Number(o.total || 0), 0))], ["Refunded", num(refunded.length), usd(refunded.reduce((s, o) => s + Number(o.total || 0), 0))]], ["l", "r", "r"])}
