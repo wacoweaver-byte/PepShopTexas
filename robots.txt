@@ -2,4 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /owner.html
+Disallow: /marketing/
+Disallow: /supabase/
 Sitemap: https://www.pepshoptexas.com/sitemap.xml
