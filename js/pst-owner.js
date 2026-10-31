@@ -378,25 +378,29 @@ ${isNew ? `<p class="muted small">New products start with 0 in stock. Add stock 
     const r = await P.client().from("pst_protocols").select("*");
     protos = {}; (r.data || []).forEach(p => protos[p.display_name] = p);
   }
-  const UNIT = { mg: 1, mcg: 0.001, iu: 1 };
+  const UNIT = { mg: 1, mcg: 0.001, iu: 1, ml: 1 };
+  // v550 (report #13): "ml" for liquids like bac water, and "once" = a one-time-use item (the whole vial is used each time)
+  const UFAM = u => u === "iu" ? "iu" : u === "ml" ? "ml" : "mass";
+  const UNIT_LABEL = { mg: "mg", mcg: "mcg", iu: "iu", ml: "ml", once: "One-time use (whole vial)" };
   // vial amount from the product's strength ("10mg", "500mcg", "10iu"); blends with several amounts are set by hand
   function vialAmount(strength, unit) {
-    const m = String(strength || "").toLowerCase().match(/(\d+(?:\.\d+)?)\s*(mg|mcg|iu)\b/g);
+    const m = String(strength || "").toLowerCase().match(/(\d+(?:\.\d+)?)\s*(mg|mcg|iu|ml)\b/g);
     if (!m || m.length !== 1) return null;
-    const [, n, u] = m[0].match(/(\d+(?:\.\d+)?)\s*(mg|mcg|iu)/);
-    if ((u === "iu") !== (unit === "iu")) return null;
-    return Number(n) * (u === "iu" ? 1 : UNIT[u]);
+    const [, n, u] = m[0].match(/(\d+(?:\.\d+)?)\s*(mg|mcg|iu|ml)/);
+    if (UFAM(u) !== UFAM(unit)) return null;
+    return Number(n) * UNIT[u];
   }
   function lastsDays(p, strength, qty = 1) {
+    if (p && p.amount_unit === "once") { if (!(p.uses_per_week > 0)) return null; const d = Math.floor(7 * qty / p.uses_per_week); return d >= 1 && d <= 365 ? d : null; } // one vial per use
     if (!p || !(p.amount > 0) || !(p.uses_per_week > 0)) return null;
     const vial = vialAmount(strength, p.amount_unit); if (!vial) return null;
-    const per = p.amount * (p.amount_unit === "iu" ? 1 : UNIT[p.amount_unit]);
+    const per = p.amount * (UNIT[p.amount_unit] || 1);
     const d = Math.floor((vial * qty) / (per * p.uses_per_week / 7));
     return d >= 1 && d <= 365 ? d : null;
   }
   const protoDays = i => lastsDays(protos[i.product_name], i.product_strength, i.quantity);
   // v5.1: green dot = a full protocol is saved for this product, so its reminders run on that timing
-  const protoFor = p => protos[p.display_name] || null, protoOn = p => { const x = protoFor(p); return !!(x && x.amount > 0 && x.uses_per_week > 0); };
+  const protoFor = p => protos[p.display_name] || null, protoOn = p => { const x = protoFor(p); return !!(x && x.uses_per_week > 0 && (x.amount_unit === "once" || x.amount > 0)); };
   const protoDot = p => protoOn(p) ? `<i class="pdot" title="Protocol entered" aria-label="Protocol entered"></i>` : "";
   async function protoSync(name, row) { // writes "days one vial lasts" to each strength, which is what checkout uses for the reminder
     const { data: list0 } = await P.client().from("product_catalog").select("product_key,display_name,strength,reorder_days_default").eq("display_name", name); const list = list0 || []; let n = 0;
@@ -433,8 +437,8 @@ ${stale.length ? `<div class="notice">${stale.length} protocol${stale.length ===
 <div class="times">${gs.map(g => { const name = g[0].display_name, p = protos[name] || {};
   return `<details class="pgrp" data-proto="${esc(name)}" data-name="${esc(name.toLowerCase())}"><summary><b>${protoDot(g[0])}${esc(name)}</b><span class="muted small">${g.map(x => `${esc(x.strength || "")} <span class="${P.qty(x) > 0 ? "" : "bad"}">(${P.qty(x)} on hand)</span>`).join(" · ")}${protoOn(g[0]) ? " · reminders use this" : p.amount ? " · needs times per week" : ""}</span></summary>
 <div class="pform"><label><span class="small muted">Amount per use</span><input type="number" step="any" min="0" data-pf="amount" value="${p.amount ?? ""}"></label>
-<label><span class="small muted">Unit</span><select data-pf="amount_unit">${["mg", "mcg", "iu"].map(u => `<option${(p.amount_unit || "mg") === u ? " selected" : ""}>${u}</option>`).join("")}</select></label>
-<label><span class="small muted">Times per week</span><input type="number" step="any" min="0" max="28" data-pf="uses_per_week" value="${p.uses_per_week ?? ""}"></label>
+<label><span class="small muted">Unit</span><select data-pf="amount_unit">${Object.entries(UNIT_LABEL).map(([u, l]) => `<option value="${u}"${(p.amount_unit || "mg") === u ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+<label><span class="small muted">${p.amount_unit === "once" ? "Vials used per week" : "Times per week"}</span><input type="number" step="any" min="0" max="28" data-pf="uses_per_week" value="${p.uses_per_week ?? ""}"></label>
 <label><span class="small muted">Cycle length, weeks</span><input type="number" step="any" min="0" data-pf="cycle_weeks" value="${p.cycle_weeks ?? ""}"></label></div>
 <label class="tin" style="display:block;margin:8px 0"><span class="small muted">Notes (reconstitution, timing, anything you tell customers)</span><textarea data-pf="notes" rows="3" maxlength="4000">${esc(p.notes || "")}</textarea></label>
 <p class="small" data-plast>${g.map(x => { const d = lastsDays(p, x.strength); return `${esc(x.strength || "")}: ${d ? `one vial lasts about <b>${d} days</b>` : p.amount ? "set days by hand (blend or different unit)" : "fill in the protocol to calculate"}`; }).join("<br>")}</p></details>`; }).join("")}</div>`;
@@ -492,6 +496,8 @@ ${stale.length ? `<div class="notice">${stale.length} protocol${stale.length ===
     const cr = t.closest("[data-credit]"); if (cr) { PSTOps.creditFlow(cr.dataset.credit); return; }
     const rv = t.closest("[data-recv]"); if (rv) { await PSTOps.receivePO(rv.dataset.recv, $("[data-po]")); stockList(); return; }
     const pc = t.closest("[data-poopen]"); if (pc) { PSTOps3.poOpen(pc.dataset.poopen, stockList); return; }
+    const pp = t.closest("[data-poprt]"); if (pp) { const box = $("[data-po]"), po = pp.dataset.poprt; PSTOps3.poPrint(po, box?._pos?.[po] || [], box?._skus?.[po] || {}); return; } // v550 report #14
+    const pd = t.closest("[data-podel]"); if (pd) { if (await PSTOps.deletePO(pd.dataset.podel)) stockList(); return; }
     const pmt = t.closest("[data-pomatch]"); if (pmt && !pmt.closest("#sheet")) { PSTOps3.matchLine(pmt.dataset.pomatch, stockList); return; }
     if (t.closest("[data-newpo]")) { PSTOps3.poSheet({ then: stockList }); return; }
     const ct = t.closest("[data-count]"); if (ct) { const p = stockRows.find(x => x.product_key === ct.dataset.count); if (p) PSTOps.countFlow(p, stockList); return; }

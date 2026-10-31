@@ -461,10 +461,27 @@ ${c.email ? `<button class="btn primary wide" type="button" data-sendinv>Email $
       const vials = rs.reduce((n, r) => n + Number(r.ordered_quantity || 0), 0), un = rs.filter(r => !link(r)), r0 = rs[0], late = r0.expected_arrival_date && new Date(r0.expected_arrival_date) < new Date(new Date().setHours(0, 0, 0, 0));
       return `<article class="pocard"><div class="pohd"><div><b>${esc(po)}</b><small>${r0.expected_arrival_date ? `Expected ${P.fmtDate(r0.expected_arrival_date)} · ${when(r0.expected_arrival_date)}` : "No arrival date"}${r0.vendor_name || r0.supplier_name ? ` · ${esc(r0.vendor_name || r0.supplier_name)}` : ""}</small></div><span class="opill ${late ? "bad" : "pend"}">${esc(String(r0.status || "ordered").replace(/_/g, " "))}</span></div>
 <div class="posum"><b>${vials}</b> vials · ${rs.length} product${rs.length === 1 ? "" : "s"}${po !== "(no PO number)" ? ` · <button type="button" class="linkish" data-poopen="${esc(po)}">Open: receive some, tracking, edit</button>` : ""}</div>
+${po !== "(no PO number)" ? `<div class="poacts" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px"><button type="button" class="btn ghost sm" data-poprt="${esc(po)}">Print or save as PDF</button><button type="button" class="btn ghost sm podelb" style="color:var(--bad);border-color:currentColor" data-podel="${esc(po)}">Delete order</button></div>` : ""}
 <div class="polines">${rs.map(r => { const l = link(r), c = l && catBy[l.product_key]; return `<div class="poline${l ? "" : " warn"}">${c ? P.vial(c, 22) : `<span class="pov"></span>`}<span><b>${esc(l ? `${l.display_name} ${l.strength || ""}`.trim() : clean(r.product_name))}</b>${l ? "" : `<small>Not linked to one of your products</small><button type="button" class="btn ghost sm pomatch" data-pomatch="${esc(r.id)}">Match to a product</button>`}</span><em>×${Number(r.ordered_quantity || 0)}</em></div>`; }).join("")}</div>
 ${un.length ? `<p class="small powarn">${P.icon("bell", 14)} ${un.length} item${un.length === 1 ? " isn't" : "s aren't"} linked to a product, so this order can't be received yet. Tap <b>Match to a product</b> on ${un.length === 1 ? "it" : "each one"}, then receive. (Add it under Products first if it isn't there.)</p>` : ""}
 ${po !== "(no PO number)" ? `<button class="btn ${un.length ? "ghost" : "primary"} wide" type="button" data-recv="${esc(po)}"${un.length ? " disabled" : ""}>Receive ${vials} vials</button>` : ""}</article>`; }).join("")}` : "";
     el._pos = pos;
+    // v550 (report #14): load each PO's vendor SKUs now, so Print works in the same tap (Safari blocks a delayed print)
+    el._skus = {}; Object.entries(pos).forEach(([po, rs]) => window.PSTOps3?.poSkus(rs).then(m => { el._skus[po] = m; }).catch(() => {}));
+  }
+  // v550 (report #14): delete a whole purchase order. It drops off Incoming and out of the expense report (both read these lines).
+  // An order with anything already received can't be deleted: that stock is on the shelf. Cancel its open lines instead.
+  async function deletePO(po) {
+    const { data: lines, error: e0 } = await P.client().from("incoming_inventory").select("id,status,product_name,ordered_quantity,total_cost").eq("po_number", po);
+    if (e0) { P.toast(e0.message); return false; }
+    const all = lines || []; if (!all.length) { P.toast(`${po} is already gone.`); return true; }
+    if (all.some(r => /receiv/i.test(String(r.status || "")))) { P.toast(`${po} has received items on your shelf, so it can't be deleted. Open it and cancel the open lines instead.`); return false; }
+    const cost = all.reduce((n, r) => n + Number(r.total_cost || 0), 0);
+    if (!(await confirmSheet(`Delete ${po}?`, `${all.map(r => `• ${esc(r.product_name)} ×${r.ordered_quantity}`).join("<br>")}<br><br>The whole order comes off Incoming and out of your expenses${cost ? ` (${money(cost)})` : ""}. This can't be undone.`, "Delete the order", true))) return false;
+    const { data: gone, error } = await P.client().from("incoming_inventory").delete().eq("po_number", po).select("id");
+    if (error) { P.toast("Couldn't delete: " + error.message); return false; }
+    if ((gone || []).length !== all.length) { P.toast(`Deleted ${(gone || []).length} of ${all.length} lines. Try again, or report it.`); return false; }
+    P.toast(`${po} deleted`); return true;
   }
   async function receivePO(po, el) {
     const rows = el._pos?.[po] || [], n = rows.reduce((s, r) => s + Number(r.ordered_quantity || 0), 0);
@@ -875,5 +892,5 @@ ${r.requirements ? `<p class="small"><b>Requirements:</b> ${esc(r.requirements)}
     };
   }
 
-  window.PSTOps = { init: c => { ctx = c; }, openOrder, stage, venmoMatches, customersPane, filterCustomers, openCustomer, creditFlow, addCustomerFlow, newOrderFlow, pickCustomer, lookup, requestsPane, coaPane, stockPane, receivePO, countFlow, confirmSheet, LABEL, emailPreview: async (o, type, extra = {}) => { if (!ctx.items[o.id]) { const r = await P.client().from("order_items").select("*").eq("order_id", o.id); ctx.items[o.id] = r.data || []; } const j = await callEmail({ ...(await payload(o, type, {})), preview_only: true, ...extra }); return j.preview || {}; }, custName, isPickup };
+  window.PSTOps = { init: c => { ctx = c; }, openOrder, stage, venmoMatches, customersPane, filterCustomers, openCustomer, creditFlow, addCustomerFlow, newOrderFlow, pickCustomer, lookup, requestsPane, coaPane, stockPane, receivePO, deletePO, countFlow, confirmSheet, LABEL, emailPreview: async (o, type, extra = {}) => { if (!ctx.items[o.id]) { const r = await P.client().from("order_items").select("*").eq("order_id", o.id); ctx.items[o.id] = r.data || []; } const j = await callEmail({ ...(await payload(o, type, {})), preview_only: true, ...extra }); return j.preview || {}; }, custName, isPickup };
 })();
