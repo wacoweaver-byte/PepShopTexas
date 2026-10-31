@@ -113,17 +113,20 @@ async function build(end = new Date()) {
   const conv = W.visitors ? W.paid.length / W.visitors : 0, convP = P.visitors ? P.paid.length / P.visitors : 0;
 
   // efforts (marketing log) and shop updates (What's new in the owner app)
-  const effs = (efforts.entries || []).filter((e: any) => e.date && inW(`${e.date}T12:00:00`, start, end));
+  const ymd = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: TZ }); // YYYY-MM-DD in Texas time
+  const s0 = ymd(start), e0 = ymd(end);
+  const effs = (efforts.entries || []).filter((e: any) => e.date && e.date >= s0 && e.date <= e0);
   const nextUp: string[] = (efforts.next || []).slice(0, 6);
   const rel: { title: string; items: string[] }[] = [];
   for (const m of ops4.matchAll(/\{ v: "([\d.]+)", d: "([^"]+)", title: "([^"]+)", items: \[(.*?)\] \}/g)) {
-    const d = new Date(`${m[2]} 12:00`); if (!(d >= new Date(start.getTime() - 864e5) && d < end)) continue;
+    const d = ymd(new Date(`${m[2]} 12:00`)); if (!(d >= s0 && d <= e0)) continue;
     rel.push({ title: m[3], items: [...m[4].matchAll(/L\("((?:[^"\\]|\\.)*)"/g)].map(x => x[1].replace(/\\"/g, '"')).slice(0, 3) });
   }
 
   // tops
   const tally = <T,>(arr: T[], key: (t: T) => string) => { const m = new Map<string, number>(); arr.forEach(x => { const k = key(x); if (k) m.set(k, (m.get(k) || 0) + 1); }); return [...m.entries()].sort((a, b) => b[1] - a[1]); };
-  const sources = tally(W.ev.filter(e => e.event === "page_view"), e => e.utm_source ? `${e.utm_source} (campaign link)` : host(e.ref_host)).slice(0, 6);
+  const firstOf = new Map<string, any>(); W.ev.filter(e => e.event === "page_view").forEach(e => { if (!firstOf.has(e.session)) firstOf.set(e.session, e); });
+  const sources = tally([...firstOf.values()], e => e.utm_source ? `${e.utm_source} (campaign link)` : host(e.ref_host)).slice(0, 6);
   const searches = tally(W.searches, e => String(e.term || "").trim().toLowerCase()).slice(0, 10);
   const viewed = tally(W.prodViews, e => e.product_key).slice(0, 10);
   const addsBy = new Map(tally(W.adds, e => e.product_key));
@@ -145,9 +148,9 @@ ${tiles([["Revenue", usd(W.revenue), delta(W.revenue, P.revenue)], ["Paid orders
 
 ${h2("Part 1 · Marketing")}
 ${h3("What we did this week")}${bullets(effs.map((e: any) => `<b>${esc(e.title)}</b>${e.detail ? ` · ${esc(e.detail)}` : ""}`))}
-${h3("Shop updates")}${rel.length ? bullets(rel.map(r => `<b>${esc(r.title)}</b>${r.items.length ? `: ${esc(r.items.join("; "))}` : ""}`)) : p("No app or site releases this week.", true)}
+${h3("Shop updates")}${rel.length ? `${bullets(rel.slice(0, 6).map(r => `<b>${esc(r.title)}</b>${r.items[0] ? ` · ${esc(r.items[0].length > 110 ? r.items[0].slice(0, 107) + "…" : r.items[0])}` : ""}`))}${rel.length > 6 ? p(`And ${rel.length - 6} more. Full notes: owner app → More → What's new.`, true) : ""}` : p("No app or site releases this week.", true)}
 ${h3("Visitors")}${tiles([["Visitors", num(W.visitors), delta(W.visitors, P.visitors)], ["Visits", num(W.sessions), delta(W.sessions, P.sessions)], ["Pages viewed", num(W.pv), delta(W.pv, P.pv)], ["Sign-ups", num(W.signups), delta(W.signups, P.signups)]])}
-${h3("Where they came from")}${table(["Source", "Page views"], sources.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
+${h3("Where visits came from")}${table(["Source", "Visits"], sources.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
 ${devices.length ? p(`Devices: ${devices.map(([k, v]) => `${esc(k)} ${pct(v / Math.max(1, W.pv))}`).join(" · ")}`, true) : ""}
 ${h3("From looking to buying")}${table(["Step", "This week", "Last week"], [["Viewed a product", num(new Set(W.prodViews.map(e => e.session)).size), num(new Set(P.prodViews.map(e => e.session)).size)], ["Added to bag", num(new Set(W.adds.map(e => e.session)).size), num(new Set(P.adds.map(e => e.session)).size)], ["Started checkout", num(new Set(W.checkouts.map(e => e.session)).size), num(new Set(P.checkouts.map(e => e.session)).size)], ["Placed an order", num(W.os.length), num(P.os.length)], ["Paid", num(W.paid.length), num(P.paid.length)]], ["l", "r", "r"])}
 ${p("Counted in visits, so one person looking at five products counts once.", true)}
@@ -158,7 +161,7 @@ ${nextUp.length ? `${h3("Next week")}${bullets(nextUp.map(esc))}` : ""}
 ${h2("Part 2 · Sales sheet")}
 ${tiles([["Revenue", usd(W.revenue), delta(W.revenue, P.revenue)], ["Avg order", usd(aov), delta(aov, aovP)], ["Vials sold", num(W.units), delta(W.units, P.units)], ["Customers", num(W.buyers), delta(W.buyers, P.buyers)]])}
 ${p(`${num(W.newC)} new customer${W.newC === 1 ? "" : "s"} and ${num(W.buyers - W.newC)} returning.${W.discounts ? ` Discounts given: ${usd(W.discounts)}.` : ""}`)}
-${h3("Products sold")}${table(["Product", "Vials", "Revenue"], soldRows.map(s => [esc(s.name), num(s.units), usd(s.rev)]), ["l", "r", "r"])}
+${h3("Products sold")}${table(["Product", "Vials", "Revenue"], soldRows.map(s => [esc(s.name), num(s.units), s.rev > 0 ? usd(s.rev) : "Free"]), ["l", "r", "r"])}
 ${h3("How they paid")}${table(["Method", "Orders"], pays.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
 ${h3("Needs a look")}${table(["", "Orders", "Amount"], [["Waiting on payment", num(unpaid.length), usd(unpaid.reduce((s, o) => s + Number(o.total || 0), 0))], ["Cancelled or rejected", num(lost.length), usd(lost.reduce((s, o) => s + Number(o.total || 0), 0))], ["Refunded", num(refunded.length), usd(refunded.reduce((s, o) => s + Number(o.total || 0), 0))]], ["l", "r", "r"])}
 ${h3("Restock requests")}${table(["Product", "Requests"], reqTally.map(([k, v]) => [esc(k), num(v)]), ["l", "r"])}
