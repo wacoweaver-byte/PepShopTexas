@@ -25,10 +25,11 @@
       }
     } catch (e) { box.innerHTML = `<p class="coaerr">Couldn't show the preview here. <a href="${esc(u)}" target="_blank" rel="noopener">Open the full report</a>.</p>`; }
   }
-  const view = (u, title) => isPdf(u)
+  const gsaOf = u => (window.PSTGSA && PSTGSA.acc(u)) || ""; // v543: Gold Standard certificates show their live results card
+  const view = (u, title) => gsaOf(u) ? `<div data-gsapeek="${esc(gsaOf(u))}"></div>` : isPdf(u)
     ? `<div class="coapages" data-pdf="${esc(u)}"><p class="coaload">Loading lab report…</p></div>`
     : `<img src="${esc(u)}" alt="${esc(title)}">`;
-  const fill = root => { const b = root.querySelector("[data-pdf]"); if (b && !b.dataset.done) { b.dataset.done = "1"; requestAnimationFrame(() => draw(b, b.dataset.pdf)); } };
+  const fill = root => { const g = root.querySelector("[data-gsapeek]"); if (g && !g.dataset.done) { g.dataset.done = "1"; PSTGSA.peek(g, g.dataset.gsapeek); return; } const b = root.querySelector("[data-pdf]"); if (b && !b.dataset.done) { b.dataset.done = "1"; requestAnimationFrame(() => draw(b, b.dataset.pdf)); } };
 
   /* ---------- computer: hover preview ---------- */
   function place(btn) {
@@ -49,7 +50,7 @@
   function hideSoon() { clearTimeout(hideT); hideT = setTimeout(() => pop?.classList.remove("on"), 220); }
   document.addEventListener("mouseover", e => { const b = e.target.closest?.("[data-coapeek]"); if (b && canHover()) show(b); });
   // warm up pdf.js as soon as a page with a COA badge loads, so the first hover is instant
-  const warm = () => { if (document.querySelector("[data-coapeek]")) lib().catch(() => {}); };
+  const warm = () => { const k = document.querySelector("[data-coapeek]"); if (k && !gsaOf(k.dataset.coapeek)) lib().catch(() => {}); };
   new MutationObserver(() => { if (document.querySelector("[data-coapeek]")) { warm(); } }).observe(document.documentElement, { childList: true, subtree: true });
   document.addEventListener("mouseout", e => { const b = e.target.closest?.("[data-coapeek]"); if (b && !b.contains(e.relatedTarget) && canHover()) hideSoon(); });
   document.addEventListener("focusin", e => { const b = e.target.closest?.("[data-coapeek]"); if (b && canHover()) show(b); });

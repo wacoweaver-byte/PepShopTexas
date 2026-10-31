@@ -69,7 +69,7 @@
   /* ---------- products (same query + incoming status as app.js) ---------- */
   // v528: COAs uploaded in the owner app (coa_records + coa-pdfs storage) show on the matching product.
   // Match = product name (before any "(...)") + strength, ignoring case, spaces and punctuation. Coded names map to the real peptide.
-  // The newest published upload wins; products without one keep their typed coa_url.
+  // The newest published upload wins; products without one keep their typed coa_url. v543: a typed Gold Standard (GSA-…) link beats any upload.
   const COA_ALIAS = { pstcg1: "hcg", pst2tr: "tirzepatide", pst3rt: "retatrutide" };
   const coaKey = s => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
   const coaName = n => { const k = coaKey(String(n || "").split("(")[0]); return COA_ALIAS[k] || k; };
@@ -79,6 +79,7 @@
     const by = new Map();
     for (const r of data) { const k = coaName(r.peptide_name) + "|" + coaKey(r.strength); if (r.storage_path && !by.has(k)) by.set(k, r); }
     for (const p of rows) {
+      if (/GSA-\d{4}-\d{6}/i.test(String(p.coa_url || ""))) continue; // v543: a Gold Standard certificate link always wins over an uploaded PDF
       const r = by.get(coaName(p.display_name) + "|" + coaKey(p.strength)); if (!r) continue;
       p.coa_url = client().storage.from("coa-pdfs").getPublicUrl(r.storage_path).data.publicUrl;
       p.coa_label = r.lot_number ? `View COA · Lot ${r.lot_number}` : "View COA";
