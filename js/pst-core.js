@@ -154,7 +154,8 @@
     if (/^wolverine$/i.test(t)) return { main: t.charAt(0) + t.slice(1).toLowerCase(), sub: "BPC-157 · TB-500" };
     return { main: t, sub: "" };
   }
-  const productUrl = p => `product.html?key=${encodeURIComponent(p.product_key)}`;
+  // v551: products link to their own indexable page (js/pst-seo-map.js, rebuilt nightly); new products fall back to the app page
+  const productUrl = p => { const pg = window.PST_SEO && window.PST_SEO[p.product_key]; return `${pg || "product.html"}?key=${encodeURIComponent(p.product_key)}`; };
   const coaHref = p => { const u = String(p.coa_url || "").trim(); if (!u || /pending/i.test(u)) return ""; return /^https?:/.test(u) ? u : u.replace(/^\/?(a?ssets\/)/, "assets/").replace(/^ssets\//, "assets/"); };
 
   /* vial artwork from the product's label colour (no photos needed) */
@@ -737,7 +738,7 @@ ${orderId ? `<button class="btn ghost wide" type="button" data-sent="${esc(order
   </div>
   <div class="pays" aria-label="Ways to pay">${pay.map(x => `<span>${x}</span>`).join("")}</div>
   <p class="ruof">Research use only <span>·</span> Not for human or veterinary use <span>·</span> Not evaluated by the FDA <span>·</span> ${CFG.minAge}+</p>
-  <p class="copy">© ${new Date().getFullYear()} Pep Shop Texas · Texas owned</p></div></footer>`;
+  <p class="copy">© ${new Date().getFullYear()} Pep Shop Texas · Texas owned · Waco, TX · <a href="peptides-waco-tx.html">Waco pickup</a> · <a href="peptides-austin-tx.html">Austin</a> · <a href="peptides-temple-killeen-tx.html">Temple &amp; Killeen</a> · <a href="peptides-dallas-fort-worth-tx.html">Dallas–Fort Worth</a></p></div></footer>`;
   }
   async function mountChrome() {
     const page = document.body.dataset.page || "";

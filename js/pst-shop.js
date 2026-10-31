@@ -192,7 +192,7 @@ ${mine.length ? `<details class="myacc" data-myacc><summary><span class="myacc-t
   /* ---------------- PRODUCT ---------------- */
   async function product() {
     dealsP().then(() => { const el = document.querySelector("[data-pdeal]"); if (el && !el.innerHTML) el.innerHTML = dealNote(); });
-    const host = $("[data-pdp]"), key = P.params.get("key") || P.params.get("id") || "";
+    const host = $("[data-pdp]"), key = P.params.get("key") || P.params.get("id") || document.body.dataset.key || ""; // v551: product pages carry their item #
     if (!key) { host.innerHTML = `<div class="wrap pad empty"><p>No product selected.</p><a class="btn ghost" href="catalog.html">Browse the collection</a></div>`; return; }
     let all;
     try { all = await P.products(); } catch (err) { host.innerHTML = `<div class="wrap pad empty"><p>Couldn't load this product. ${esc(err.message || "")}</p></div>`; return; }

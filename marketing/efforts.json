@@ -25,13 +25,17 @@
       "date": "2026-10-31",
       "title": "Growth plan and Thursday report set up",
       "detail": "Benchmarked the big peptide shops (no paid ads), wrote the backlog, and scheduled this report every Thursday at 8 AM."
+    },
+    {
+      "date": "2026-10-31",
+      "title": "Product pages Google can read (33) and 4 Central Texas pages",
+      "detail": "Each product has its own page with price, stock and lab info. New pages for Waco pickup, Temple/Killeen, Austin and Dallas–Fort Worth. Sitemap rebuilds nightly."
     }
   ],
   "next": [
-    "Make every product page indexable: its own address, title, description and product data Google reads",
-    "Fresh sitemap that rebuilds itself when products change",
-    "\"Waco, Texas\" and local pickup on the home page, About and footer",
-    "Needs you: sign in to Google Search Console once so we can see what people search on Google",
-    "Needs you: talk to Jimmie (and an attorney) about the GLP-1 products and bac water; see the plan"
+    "Needs Mike: set up Google Search Console (10 minutes) so we can submit the sitemap and see Google searches",
+    "Lab report pages: one per certificate, linked from each product",
+    "Testing page refresh: Gold Standard + Freedom Diagnostics, how to verify",
+    "Listings: directories and tester sites where the big shops appear (Mike submits, Claude preps)"
   ]
 }

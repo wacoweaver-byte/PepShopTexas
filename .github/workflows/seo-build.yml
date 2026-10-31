@@ -1,0 +1,38 @@
+name: SEO pages and sitemap
+
+# Rebuilds the product pages, Central Texas pages, js/pst-seo-map.js and sitemap.xml from the live product list.
+# Nightly at 3:17 AM Texas time, and on demand (Actions tab -> Run workflow).
+on:
+  schedule:
+    - cron: '17 9 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'tools/seo/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build pages
+        run: node tools/seo/build.mjs
+      - name: Commit if anything changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A '*.html' sitemap.xml js/pst-seo-map.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'SEO pages and sitemap: nightly rebuild from the product list'
+          git pull --rebase origin main
+          git push
