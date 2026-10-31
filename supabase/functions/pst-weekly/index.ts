@@ -31,15 +31,15 @@ const pct = (n: number) => `${(Number(n || 0) * 100).toFixed(1).replace(/\.0$/, 
 const day = (d: Date) => d.toLocaleDateString("en-US", { timeZone: TZ, month: "short", day: "numeric" });
 
 function shell(pre: string, inner: string) {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only"></head>
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only"><style>@media only screen and (max-width:480px){.pn{width:62px!important}.pin{padding:22px 16px!important}.pout{padding:12px 6px 20px!important}}</style></head>
 <body style="margin:0;padding:0;background:${C.page};-webkit-text-size-adjust:100%"><div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(pre)}&#8199;&#65279;&#847;&#8199;&#65279;&#847;</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.page}"><tr><td align="center" style="padding:18px 10px 28px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.page}"><tr><td align="center" class="pout" style="padding:18px 10px 28px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px;background:${C.card};border-radius:14px;overflow:hidden;font-family:${F};color:${C.ink}">
 <tr><td bgcolor="${C.navy}" style="background:${C.navy};padding:16px 20px" align="center"><a href="${SITE}" style="text-decoration:none"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
 <td style="padding-right:10px;vertical-align:middle"><img src="${SITE}/email/pst-emblem-email.png" width="40" height="40" alt="" style="display:block;width:40px;height:40px;border:0"></td>
 <td style="vertical-align:middle;font:400 17px/1 ${SERIF};letter-spacing:.32em;color:#ffffff;white-space:nowrap">PEP SHOP <span style="color:${C.goldLight}">TEXAS</span></td></tr></table></a></td></tr>
 <tr><td style="height:3px;line-height:3px;font-size:0;background:${C.goldBtn}" bgcolor="${C.goldBtn}">&nbsp;</td></tr>
-<tr><td style="padding:26px 24px 26px">${inner}</td></tr>
+<tr><td class="pin" style="padding:26px 24px 26px">${inner}</td></tr>
 <tr><td bgcolor="${C.navy}" style="background:${C.navy};padding:18px 20px;text-align:center;font:12px/1.6 ${F};color:#a7adbb">
 <a href="${SITE}/owner.html" style="color:#ffffff;text-decoration:none;font-weight:600">Owner app</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${SITE}" style="color:#ffffff;text-decoration:none;font-weight:600">Shop</a><br>
 Weekly report for the Pep Shop Texas owners. Reply to talk it over.</td></tr>
@@ -68,18 +68,18 @@ function trafficChart(weeks: { label: string; visitors: number; views: number }[
   const rows = weeks.map((w, i) => { const pctW = Math.max(w.visitors ? 2 : 0, Math.round(w.visitors / max * 100)), last = i === weeks.length - 1;
     return `<tr><td width="92" style="width:92px;padding:6px 8px 6px 0;font:${last ? 700 : 400} 12.5px/1.2 ${F};color:${last ? C.ink : C.muted};white-space:nowrap">${esc(w.label)}</td>
 <td style="padding:6px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;table-layout:fixed"><tr>${pctW ? `<td width="${pctW}%" height="14" bgcolor="${last ? C.goldBtn : C.goldLight}" style="width:${pctW}%;height:14px;background:${last ? C.goldBtn : C.goldLight};border-radius:3px;font-size:0;line-height:0">&nbsp;</td>` : ""}${pctW < 100 ? `<td style="font-size:0;line-height:0">&nbsp;</td>` : ""}</tr></table></td>
-<td width="86" align="right" style="width:86px;padding:6px 0 6px 10px;font:${last ? 700 : 400} 13px/1.2 ${F};color:${C.ink};white-space:nowrap">${num(w.visitors)}</td>
-<td width="86" align="right" style="width:86px;padding:6px 0 6px 10px;font:13px/1.2 ${F};color:${C.muted};white-space:nowrap">${num(w.views)}</td></tr>`; }).join("");
+<td width="86" align="right" class="pn" style="width:86px;padding:6px 0 6px 10px;font:${last ? 700 : 400} 13px/1.2 ${F};color:${C.ink};white-space:nowrap">${num(w.visitors)}</td>
+<td width="86" align="right" class="pn" style="width:86px;padding:6px 0 6px 10px;font:13px/1.2 ${F};color:${C.muted};white-space:nowrap">${num(w.views)}</td></tr>`; }).join("");
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;margin:4px 0 2px">
-<tr><td width="92" style="width:92px;padding:0 8px 6px 0;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Week</td><td style="padding:0 0 6px;border-bottom:2px solid ${C.line}">&nbsp;</td><td width="86" align="right" style="width:86px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Visitors</td><td width="86" align="right" style="width:86px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Page views</td></tr>${rows}</table>`;
+<tr><td width="92" style="width:92px;padding:0 8px 6px 0;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Week</td><td style="padding:0 0 6px;border-bottom:2px solid ${C.line}">&nbsp;</td><td width="86" align="right" class="pn" style="width:86px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Visitors</td><td width="86" align="right" class="pn" style="width:86px;padding:0 0 6px 10px;font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};border-bottom:2px solid ${C.line}">Page views</td></tr>${rows}</table>`;
 }
 function table(head: string[], rows: (string | number)[][], align: ("l" | "r")[] = []) {
   if (!rows.length) return p("Nothing this week.", true);
   // flush with the text: first column starts at the left edge, number columns are fixed width and end at the right edge
-  const last = head.length - 1, pad = (i: number) => i === 0 ? "0 8px 0 0" : i === last ? "0 0 0 8px" : "0 8px";
-  const wide = (i: number) => i === 0 ? "" : ` width="86" style="width:86px;`;
+  const pad = (i: number) => i === 0 ? "0 8px 0 0" : "0 0 0 10px"; // same 10px + 86px as the traffic chart, so number columns line up across every table
+  const wide = (i: number) => i === 0 ? "" : ` width="86" class="pn" style="width:86px;`;
   const cell = (i: number, base: string) => i === 0 ? ` style="${base}"` : `${wide(i)}${base}"`;
-  const th = head.map((h, i) => `<th align="${align[i] === "r" ? "right" : "left"}"${cell(i, `padding:${pad(i)};padding-bottom:6px;border-bottom:2px solid ${C.line};font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted};white-space:nowrap`)}>${esc(h)}</th>`).join("");
+  const th = head.map((h, i) => `<th align="${align[i] === "r" ? "right" : "left"}"${cell(i, `padding:${pad(i)};padding-bottom:6px;border-bottom:2px solid ${C.line};font:700 11px/1.2 ${F};letter-spacing:.06em;text-transform:uppercase;color:${C.muted}`)}>${esc(h)}</th>`).join("");
   const tr = rows.map(r => `<tr>${r.map((c, i) => `<td align="${align[i] === "r" ? "right" : "left"}"${cell(i, `padding:${pad(i)};padding-top:8px;padding-bottom:8px;border-bottom:1px solid ${C.line};font:13.5px/1.35 ${F};color:${C.ink};${i ? "white-space:nowrap;" : ""}`)}>${c}</td>`).join("")}</tr>`).join("");
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;margin:4px 0 8px">${th ? `<tr>${th}</tr>` : ""}${tr}</table>`;
 }
